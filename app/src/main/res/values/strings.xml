@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Stadivary Control</string>
+    <string name="helloWorld">refresh CH1</string>
+    <string name="helloWorld2">refresh CH2</string>
+
+    <string name="activity_scan_button">Scan again</string>
+    <string name="activity_scan_paired_text">Paired Devices :</string>
+
+    <string name="bluetooth_scanning">Scanning…</string>
+    <string name="bluetooth_scan_finished">Scan finished.</string>
+    <string name="bluetooth_pairing">Pairing…</string>
+    <string name="bluetooth_paired">Device Paired.</string>
+    <string name="bluetooth_unpaired">Device Unpaired.</string>
+    <string name="bluetooth_connected">Device Connected.</string>
+    <string name="bluetooth_connecting">Connecting…</string>
+    <string name="bluetooth_disconnected">Device Disconnected.</string>
+    <string name="bluetooth_connect_in_3sec">Could not connect. New attempt in 3sec…</string>
+    <string name="bluetooth_turning_on">Turning bluetooth on…</string>
+    <string name="title_home">Жесты</string>
+    <string name="title_dashboard">Датчики</string>
+    <string name="valueCH1">TextView</string>
+    <string name="ch1">CH1:</string>
+    <string name="_100">100</string>
+    <string name="ch1_on">CH1 on:</string>
+    <string name="ch1_off">CH1 off:</string>
+    <string name="mv">mV</string>
+    <string name="mv2">mV</string>
+    <string name="mv3">mV</string>
+    <string name="_1250">1250</string>
+    <string name="_2500">2500</string>
+    <string name="state_view">lolol</string>
+    <string name="title_activity_gripper_settings">GripperSettings</string>
+</resources>

@@ -18,7 +18,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private BluetoothDevice device;
     private byte aByte[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x01, 0x24} ;
     private byte txtbyteout1[] = {0x4D, 0x54, 0x07, 0x00, 0x01, 0x02, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для отправки порогов сигналов 0x77 заменяемые данные всего 15 байт
-    private byte txtbyteout2[] = {0x4D, 0x54, 0x06, 0x00, 0x01, 0x04, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для настройки схватов сигналов 0x77 заменяемые данные всего 15 байт
+    private byte txtbyteout2[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x77, 0x24};                                     //компановка для запроса сигналов на датчиках 0x77 заменяемые данные всего 15 байт
     private byte txtbyteout3[] = {0x4D, 0x54, 0x06, 0x00, 0x01, 0x04, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для настройки схватов сигналов 0x77 заменяемые данные всего 15 байт
 
     public ChatPresenterImpl(ChatView view, ChatInteractor interactor) {
@@ -28,13 +28,19 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void onCreate(Intent intent) {
-        if(intent.getExtras()!=null) {
+        if (intent.getExtras() != null) {
             device = intent.getExtras().getParcelable("device");
+            System.out.println("ВАЖНО!!!!!!!!!!!! ДЕВАЙС:" + device);
             view.enableHWButton(false);
+        } else {
+            System.out.println("ПИЗДА!!!!!!!!!!!! ПОСЫЛКИ НЕТ!");
         }
     }
 
-    @Override
+
+
+
+        @Override
     public void onHelloWorld(byte[] txtbyte) {
 //        for (int i = 0; i < txtbyte.length; i++) //aByte.length
 //        {
@@ -73,7 +79,10 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout1);
                 break;
             case 2:
-
+                System.out.println("--> тип компановки:" + txtbyte[0]);
+                System.out.println("--> номер канала получателя:" + txtbyte[1]);
+                txtbyteout2[7] = txtbyte[1];
+                interactor.sendMessageByte(txtbyteout2);
                 break;
             case 3:
                 System.out.println("--> тип компановки:" + txtbyte[0]);

@@ -7,6 +7,7 @@ import android.util.Log;
 import me.aflak.bluetooth.BluetoothCallback;
 import me.aflak.bluetooth.DiscoveryCallback;
 import me.aflak.libraries.R;
+import me.aflak.libraries.ui.chat.view.ChatActivity;
 import me.aflak.libraries.ui.scan.interactor.ScanInteractor;
 import me.aflak.libraries.ui.scan.view.ScanView;
 
@@ -63,6 +64,8 @@ public class ScanPresenterImpl implements ScanPresenter{
     @Override
     public void pairedItemClick(int position) {
         BluetoothDevice device = interactor.getPairedDevice(position);
+        ChatActivity chatActivity = new ChatActivity();
+        chatActivity.GetPosition_My(position, device);
         view.navigateToChat("device", device);
     }
 

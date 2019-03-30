@@ -26,6 +26,7 @@ import me.aflak.libraries.MyApp;
 import me.aflak.libraries.data.BluetoothModule;
 import me.aflak.libraries.ui.chat.view.ChatActivity;
 import me.aflak.libraries.R;
+import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings;
 import me.aflak.libraries.ui.scan.data.DaggerScanComponent;
 import me.aflak.libraries.ui.scan.data.ScanModule;
 import me.aflak.libraries.ui.scan.presenter.ScanPresenter;

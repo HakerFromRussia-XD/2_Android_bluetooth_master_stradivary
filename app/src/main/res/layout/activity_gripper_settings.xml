@@ -77,7 +77,7 @@
             android:background="@android:color/darker_gray" />
 
         <Button
-            android:id="@+id/activity_chat_hello_world2"
+            android:id="@+id/save_gripper_settings"
             android:layout_width="206dp"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"

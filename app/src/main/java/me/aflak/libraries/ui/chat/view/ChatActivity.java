@@ -1,5 +1,6 @@
 package me.aflak.libraries.ui.chat.view;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -90,17 +91,19 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public boolean isEnable = false;
     private int i = 0;
     public byte[] TextByteTreeg = new byte[8];
+    public byte[] TextByteTreeg2 = new byte[8];
 //    for graph
     private SensorManager sensorManager;
     private Sensor mAccelerometer;
     private LineChart mChart;
     private boolean plotData = true;
-//    private LineChart mChart2;
+    private LineChart mChart2;
     private Thread thread;
     private boolean plotData2 = true;
     String TAG = "thread";
 //    for bluetooth controller restart error
     private boolean pervoe_vkluchenie_bluetooth = true;
+    public static BluetoothDevice device;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -204,14 +207,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         mChart.setBackgroundColor(Color.BLACK);
         mChart.getHighlightByTouchPoint(1, 1);
 
-        LineData data2 = new LineData();
-        data2.setValueTextColor(Color.WHITE);
-        mChart.setData(data2);
+        LineData data = new LineData();
+        data.setValueTextColor(Color.WHITE);
+        mChart.setData(data);
 
-        Legend legend2 = mChart.getLegend();
+        Legend legend = mChart.getLegend();
 
-        legend2.setForm(Legend.LegendForm.LINE);
-        legend2.setTextColor(Color.WHITE);
+        legend.setForm(Legend.LegendForm.LINE);
+        legend.setTextColor(Color.WHITE);
 
         XAxis x1 = mChart.getXAxis();
         x1.setTextColor(Color.WHITE);
@@ -230,6 +233,45 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         YAxis y12 = mChart.getAxisRight();
         y12.setEnabled(false);
 
+////////initialized graph for channel 2
+        mChart2 = (LineChart) findViewById(R.id.chartCH2);
+
+        mChart2.getDescription().setEnabled(true);
+        mChart2.setTouchEnabled(true);
+        mChart2.setDragEnabled(false);
+        mChart2.setDragXEnabled(false);
+        mChart2.setScaleEnabled(false);
+        mChart2.setDrawGridBackground(false);
+        mChart2.setPinchZoom(false);
+        mChart2.setBackgroundColor(Color.BLACK);
+        mChart2.getHighlightByTouchPoint(1, 1);
+
+        LineData data2 = new LineData();
+        data2.setValueTextColor(Color.WHITE);
+        mChart2.setData(data2);
+
+        Legend legend2 = mChart2.getLegend();
+
+        legend2.setForm(Legend.LegendForm.LINE);
+        legend2.setTextColor(Color.WHITE);
+
+        XAxis x12 = mChart2.getXAxis();
+        x12.setTextColor(Color.WHITE);
+        x12.setDrawGridLines(false);
+        x12.setAxisMaximum(4000000f);//x1.resetAxisMaximum();
+
+
+        x12.setAvoidFirstLastClipping(true);
+
+        YAxis y1_2 = mChart2.getAxisLeft();
+        y1_2.setTextColor(Color.WHITE);
+        y1_2.setAxisMaximum(2700f);
+        y1_2.setAxisMinimum(-100f);
+        y1_2.setDrawGridLines(true);
+
+        YAxis y122 = mChart2.getAxisRight();
+        y122.setEnabled(false);
+
 //        startPlot();
 
         TextByteTreeg[2] = (byte) intValueCH1on;
@@ -240,6 +282,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
 
         presenter.onCreate(getIntent());
+//        device = getIntent().getExtras().getParcelable("device");
+//        System.out.println("из ScanAct-------------> выжимка из интента devise:" + device);
         seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -428,6 +472,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[1] = numberChannel;
                 presenter.onHelloWorld(TextByteTreeg);
                 addEntry(2500);
+                addEntry2(2500);
             }
         });
 
@@ -440,6 +485,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 while (true){
                     if(plotData){
                         addEntry(2);
+                        addEntry2(2);
                         plotData = false;
                     }
                     runOnUiThread(new Runnable() {
@@ -455,7 +501,22 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         }
                     });
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(120);
+                    }catch (Exception e){}
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (isEnable) {
+                                indicatorTypeMessage = 0x02;
+                                numberChannel = 0x02;
+                                TextByteTreeg[0] = indicatorTypeMessage;
+                                TextByteTreeg[1] = numberChannel;
+                                presenter.onHelloWorld(TextByteTreeg);
+                            }
+                        }
+                    });
+                    try {
+                        Thread.sleep(120);
                     }catch (Exception e){}
                 }
             }
@@ -503,25 +564,68 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         }
     }
 
+    private void addEntry2(int event){
+
+        LineData data = mChart2.getData();
+
+        if(data != null){
+            ILineDataSet set = data.getDataSetByIndex(0);
+
+            if(set == null){
+                set = createSet();
+                data.addDataSet(set);
+            }
+
+            data.addEntry(new Entry(set.getEntryCount(), event), 0);
+            data.notifyDataChanged();
+
+            mChart2.setVisibleXRange(0, 50);
+            mChart2.setMaxVisibleValueCount(0);
+            mChart2.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
+
+        }
+    }
+
     private LineDataSet createSet() {
-        LineDataSet set2 = new LineDataSet(null, null);
-        set2.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
-        set2.setLineWidth(2f);
-        set2.setColor(Color.GREEN);
-        set2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        set2.setCubicIntensity(0.2f);
+        LineDataSet set = new LineDataSet(null, null);
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
+        set.setLineWidth(2f);
+        set.setColor(Color.GREEN);
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set.setCubicIntensity(0.2f);
 
-        set2.setCircleColor(Color.GREEN);
-        set2.setCircleHoleColor(Color.GREEN);
-        set2.setCircleSize(1f);
-        set2.setFillAlpha(65);
-        set2.setFillColor(ColorTemplate.getHoloBlue());
-        set2.setHighLightColor(Color.rgb(244, 117, 177));
-        set2.setValueTextColor(Color.WHITE);
-        set2.setValueTextSize(10f);
+        set.setCircleColor(Color.GREEN);
+        set.setCircleHoleColor(Color.GREEN);
+        set.setCircleSize(1f);
+        set.setFillAlpha(65);
+        set.setFillColor(ColorTemplate.getHoloBlue());
+        set.setHighLightColor(Color.rgb(244, 117, 177));
+        set.setValueTextColor(Color.WHITE);
+        set.setValueTextSize(10f);
 
-        set2.setHighLightColor(Color.YELLOW);
-        return set2;
+        set.setHighLightColor(Color.YELLOW);
+        return set;
+    }
+
+    private LineDataSet createSet2() {
+        LineDataSet set = new LineDataSet(null, null);
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
+        set.setLineWidth(2f);
+        set.setColor(Color.GREEN);
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set.setCubicIntensity(0.2f);
+
+        set.setCircleColor(Color.GREEN);
+        set.setCircleHoleColor(Color.GREEN);
+        set.setCircleSize(1f);
+        set.setFillAlpha(65);
+        set.setFillColor(ColorTemplate.getHoloBlue());
+        set.setHighLightColor(Color.rgb(244, 117, 177));
+        set.setValueTextColor(Color.WHITE);
+        set.setValueTextSize(10f);
+
+        set.setHighLightColor(Color.YELLOW);
+        return set;
     }
 
     @Override
@@ -546,6 +650,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteTreeg[1] = numberChannel;
         presenter.onHelloWorld(TextByteTreeg);
         addEntry(20);
+        addEntry2(20);
     }
 
     @Override
@@ -569,7 +674,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 break;
             case 2:
                 valueCH2.setText(strlevelCH);
-                addEntry(levelCH);
+                addEntry2(levelCH);
                 break;
         }
     }
@@ -600,6 +705,25 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         seekBarCH2sleep.setEnabled(enabled);
     }
 
+    public void SendingData (byte[] data){
+        for (int i = 0; i < data.length; i++) {
+            System.out.println("данные приняты и готовы для отправки-------------> Передача data:" + data[i]);
+        }
+        TextByteTreeg2 = data;
+        for (int i = 0; i < TextByteTreeg2.length; i++) {
+            System.out.println("данные приняты и готовы для отправки-------------> Передача TextByteTreeg2:" + TextByteTreeg2[i]);
+        }
+//        for (int i = 0; i < data.length; i++){
+//            TextByteTreeg2[i] = data[i];
+//        }
+        presenter.onHelloWorld(TextByteTreeg);
+    }
+
+    public void GetPosition_My (int position, BluetoothDevice device){
+        System.out.println("из ScanAct-------------> Передача position:" + position);
+        System.out.println("из ScanAct-------------> выжимка из интента devise:" + device);
+    }
+
     @Override
     public void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -617,7 +741,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     protected void onStop() {
         super.onStop();
         if(pervoe_vkluchenie_bluetooth) {
-//            presenter.onStop();
+            presenter.onStop();
         }
     }
 

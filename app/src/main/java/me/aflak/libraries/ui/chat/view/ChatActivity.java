@@ -147,7 +147,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         1,
                         R.drawable.gesture1,
                         "bla bla bla",
-                        "Нажмите для редактированиея начального и конечного состояний",
+                        "Нажмите для редактирования начального и конечного состояний",
                         "Жест №1",
                         2,
                         600000));
@@ -157,7 +157,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         1,
                         R.drawable.gesture2,
                         "bla bla bla",
-                        "Нажмите для редактированиея начального и конечного состояний",
+                        "Нажмите для редактирования начального и конечного состояний",
                         "Жест №2",
                         2,
                         60000));
@@ -167,7 +167,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         1,
                         R.drawable.gesture3,
                         "bla bla bla",
-                        "Нажмите для редактированиея начального и конечного состояний",
+                        "Нажмите для редактирования начального и конечного состояний",
                         "Жест №3",
                         2,
                         60000));
@@ -471,7 +471,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                                 1,
                                 R.drawable.gesture4,
                                 "bla bla bla",
-                                "Нажмите для редактированиея начального и конечного состояний",
+                                "Нажмите для редактирования начального и конечного состояний",
                                 "Жест №"+4,
                                 2,
                                 123));

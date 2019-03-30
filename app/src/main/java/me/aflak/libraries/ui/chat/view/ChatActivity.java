@@ -502,7 +502,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                     });
                     try {
                         Thread.sleep(120);
-                    }catch (Exception e){}
+                    }catch (Exception e){} 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

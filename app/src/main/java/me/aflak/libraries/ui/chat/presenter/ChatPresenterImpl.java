@@ -233,6 +233,16 @@ public class ChatPresenterImpl implements ChatPresenter {
 //        interactor.onStop();
     }
 
+    @Override
+    public void disconnect(){
+        interactor.disconnect();
+    }
+
+    @Override
+    public void disable(){
+        interactor.disable();
+    }
+
     private BluetoothCallback bluetoothCallback = new BluetoothCallback() {
         @Override
         public void onBluetoothTurningOn() {

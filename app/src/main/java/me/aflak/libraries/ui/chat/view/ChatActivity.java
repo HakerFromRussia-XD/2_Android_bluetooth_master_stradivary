@@ -282,8 +282,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
 
         presenter.onCreate(getIntent());
-//        device = getIntent().getExtras().getParcelable("device");
-//        System.out.println("из ScanAct-------------> выжимка из интента devise:" + device);
+        device = getIntent().getExtras().getParcelable("device");
+        System.out.println("из ScanAct-------------> выжимка из интента devise:" + device);
         seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -502,7 +502,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                     });
                     try {
                         Thread.sleep(120);
-                    }catch (Exception e){} 
+                    }catch (Exception e){}
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

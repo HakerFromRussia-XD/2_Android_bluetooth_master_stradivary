@@ -58,4 +58,15 @@ public class ChatInteractorImpl implements ChatInteractor {
     public void onStop() {
         bluetooth.onStop();
     }
+
+    @Override
+    public void disconnect(){
+        bluetooth.disconnect();
+    }
+
+    @Override
+    public void disable(){
+        bluetooth.disable();
+    }
+
 }

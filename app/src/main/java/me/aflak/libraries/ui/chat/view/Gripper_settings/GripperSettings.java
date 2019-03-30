@@ -102,6 +102,9 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
         save_gripper_settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                presenter.onStop();
+                presenter.disconnect();
+                presenter.disable();
                 Intent intent = new Intent(GripperSettings.this, ChatActivity.class);
                 intent.putExtra("device", device);
                 startActivity(intent);
@@ -314,6 +317,7 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
     @Override
     public void onStop() {
         super.onStop();
+//        ConnectThread
         presenter.onStop();
     }
 

@@ -184,9 +184,11 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public void onDeviceDisconnected(BluetoothDevice device, String message) {
+            System.out.println("ChatPresenter--------------> onDeviceDisconnected");
             view.setStatus(R.string.bluetooth_connecting);
             view.enableHWButton(false);
-            interactor.connectToDevice(device, communicationCallback);
+//            interactor.connectToDevice(device, communicationCallback);
+            interactor.parsingExperimental(parserCallback);
         }
 
         @Override
@@ -202,12 +204,14 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public void onConnectError(final BluetoothDevice device, String message) {
+            System.out.println("ChatPresenter--------------> onConnectError");
             view.setStatus(R.string.bluetooth_connect_in_3sec);
             view.showToast("New attempt in 3 sec...");
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     interactor.connectToDevice(device, communicationCallback);
+                    interactor.parsingExperimental(parserCallback);
                 }
             }, 3000);
         }
@@ -215,9 +219,11 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void onStart(Activity activity) {
+        System.out.println("ChatPresenter--------------> onStart");
         interactor.onStart(bluetoothCallback, activity);
         if(interactor.isBluetoothEnabled()){
             interactor.connectToDevice(device, communicationCallback);
+            interactor.parsingExperimental(parserCallback);
             view.setStatus(R.string.bluetooth_connecting);
         }
         else{
@@ -258,6 +264,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public void onBluetoothOn() {
+            System.out.println("ChatPresenter--------------> onBluetoothOn");
             interactor.connectToDevice(device, communicationCallback);
             interactor.parsingExperimental(parserCallback);
             view.setStatus(R.string.bluetooth_connecting);

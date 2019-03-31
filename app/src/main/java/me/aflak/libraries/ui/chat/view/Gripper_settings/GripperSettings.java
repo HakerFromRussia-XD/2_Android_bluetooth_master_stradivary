@@ -26,26 +26,26 @@ import me.aflak.libraries.ui.scan.view.ScanActivity;
 
 
 public class GripperSettings extends AppCompatActivity implements ChatView {
-    private SeekBar seekBarFinger1Angle;
-    private SeekBar seekBarFinger2Angle;
-    private SeekBar seekBarFinger3Angle;
-    private SeekBar seekBarFinger4Angle;
-    private SeekBar seekBarFinger5Angle;
-    private SeekBar seekBarFinger1Speed;
-    private SeekBar seekBarFinger2Speed;
-    private SeekBar seekBarFinger3Speed;
-    private SeekBar seekBarFinger4Speed;
-    private SeekBar seekBarFinger5Speed;
-    private TextView valueFinger1Angle;
-    private TextView valueFinger2Angle;
-    private TextView valueFinger3Angle;
-    private TextView valueFinger4Angle;
-    private TextView valueFinger5Angle;
-    private TextView valueFinger1Speed;
-    private TextView valueFinger2Speed;
-    private TextView valueFinger3Speed;
-    private TextView valueFinger4Speed;
-    private TextView valueFinger5Speed;
+    @BindView(R.id.seekBarFinger1Angle) SeekBar seekBarFinger1Angle;
+    @BindView(R.id.seekBarFinger2Angle) SeekBar seekBarFinger2Angle;
+    @BindView(R.id.seekBarFinger3Angle) SeekBar seekBarFinger3Angle;
+    @BindView(R.id.seekBarFinger4Angle) SeekBar seekBarFinger4Angle;
+    @BindView(R.id.seekBarFinger5Angle) SeekBar seekBarFinger5Angle;
+    @BindView(R.id.seekBarFinger1Speed) SeekBar seekBarFinger1Speed;
+    @BindView(R.id.seekBarFinger2Speed) SeekBar seekBarFinger2Speed;
+    @BindView(R.id.seekBarFinger3Speed) SeekBar seekBarFinger3Speed;
+    @BindView(R.id.seekBarFinger4Speed) SeekBar seekBarFinger4Speed;
+    @BindView(R.id.seekBarFinger5Speed) SeekBar seekBarFinger5Speed;
+    @BindView(R.id.valueFinger1Angle) TextView valueFinger1Angle;
+    @BindView(R.id.valueFinger2Angle) TextView valueFinger2Angle;
+    @BindView(R.id.valueFinger3Angle) TextView valueFinger3Angle;
+    @BindView(R.id.valueFinger4Angle) TextView valueFinger4Angle;
+    @BindView(R.id.valueFinger5Angle) TextView valueFinger5Angle;
+    @BindView(R.id.valueFinger1Speed) TextView valueFinger1Speed;
+    @BindView(R.id.valueFinger2Speed) TextView valueFinger2Speed;
+    @BindView(R.id.valueFinger3Speed) TextView valueFinger3Speed;
+    @BindView(R.id.valueFinger4Speed) TextView valueFinger4Speed;
+    @BindView(R.id.valueFinger5Speed) TextView valueFinger5Speed;
     @BindView(R.id.save_gripper_settings) Button save_gripper_settings;
     private int intValueFinger1Angle = 50;
     private int intValueFinger2Angle = 50;
@@ -71,26 +71,6 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gripper_settings);
-        seekBarFinger1Angle = findViewById(R.id.seekBarFinger1Angle);
-        seekBarFinger2Angle = findViewById(R.id.seekBarFinger2Angle);
-        seekBarFinger3Angle = findViewById(R.id.seekBarFinger3Angle);
-        seekBarFinger4Angle = findViewById(R.id.seekBarFinger4Angle);
-        seekBarFinger5Angle = findViewById(R.id.seekBarFinger5Angle);
-        seekBarFinger1Speed = findViewById(R.id.seekBarFinger1Speed);
-        seekBarFinger2Speed = findViewById(R.id.seekBarFinger2Speed);
-        seekBarFinger3Speed = findViewById(R.id.seekBarFinger3Speed);
-        seekBarFinger4Speed = findViewById(R.id.seekBarFinger4Speed);
-        seekBarFinger5Speed = findViewById(R.id.seekBarFinger5Speed);
-        valueFinger1Angle = findViewById(R.id.valueFinger1Angle);
-        valueFinger2Angle = findViewById(R.id.valueFinger2Angle);
-        valueFinger3Angle = findViewById(R.id.valueFinger3Angle);
-        valueFinger4Angle = findViewById(R.id.valueFinger4Angle);
-        valueFinger5Angle = findViewById(R.id.valueFinger5Angle);
-        valueFinger1Speed = findViewById(R.id.valueFinger1Speed);
-        valueFinger2Speed = findViewById(R.id.valueFinger2Speed);
-        valueFinger3Speed = findViewById(R.id.valueFinger3Speed);
-        valueFinger4Speed = findViewById(R.id.valueFinger4Speed);
-        valueFinger5Speed = findViewById(R.id.valueFinger5Speed);
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
@@ -98,16 +78,16 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
                 .build().inject(GripperSettings.this);
         ButterKnife.bind(GripperSettings.this);
 
-//        final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
+        final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
         save_gripper_settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                presenter.onStop();
                 presenter.disconnect();
 //                presenter.disable();
-//                Intent intent = new Intent(GripperSettings.this, ChatActivity.class);
-//                intent.putExtra("device", device);
-//                startActivity(intent);
+                Intent intent = new Intent(GripperSettings.this, ChatActivity.class);
+                intent.putExtra("device", device);
+                startActivity(intent);
             }
         });
 
@@ -126,22 +106,10 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueFinger1Angle.setText(String.valueOf(seekBar.getProgress()));
-                ChatActivity chatActivity = new ChatActivity();
                 intValueFinger1Angle = seekBarFinger1Angle.getProgress();
                 numberFinger = 0x01;
-                TextByteTreeg[0] = indicatorTypeMessage;
-                TextByteTreeg[1] = numberFinger;
-                TextByteTreeg[2] = requestType;
-                TextByteTreeg[3] = GESTURE_SETTINGS;
-                TextByteTreeg[4] = NUMBER_CELL;
-                TextByteTreeg[5] = (byte) intValueFinger1Angle;
-                TextByteTreeg[6] = (byte) intValueFinger1Speed;
-                for (int i = 0; i < TextByteTreeg.length-1; i++){
-                    TextByteTreeg[7] += TextByteTreeg[i];
-                    TextByteTreeg[7] = (byte) (TextByteTreeg[7] << 1);
-                }
+                CompileMassege(numberFinger, intValueFinger1Angle, intValueFinger1Speed);
                 presenter.onHelloWorld(TextByteTreeg);
-//                chatActivity.SendingData(TextByteTreeg);
             }
         });
 
@@ -160,6 +128,10 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueFinger2Angle.setText(String.valueOf(seekBar.getProgress()));
+                intValueFinger2Angle = seekBarFinger2Angle.getProgress();
+                numberFinger = 0x02;
+                CompileMassege(numberFinger, intValueFinger2Angle, intValueFinger2Speed);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -178,6 +150,10 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueFinger3Angle.setText(String.valueOf(seekBar.getProgress()));
+                intValueFinger3Angle = seekBarFinger3Angle.getProgress();
+                numberFinger = 0x03;
+                CompileMassege(numberFinger, intValueFinger3Angle, intValueFinger3Speed);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -196,6 +172,10 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueFinger4Angle.setText(String.valueOf(seekBar.getProgress()));
+                intValueFinger4Angle = seekBarFinger4Angle.getProgress();
+                numberFinger = 0x04;
+                CompileMassege(numberFinger, intValueFinger4Angle, intValueFinger4Speed);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -214,6 +194,10 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueFinger5Angle.setText(String.valueOf(seekBar.getProgress()));
+                intValueFinger5Angle = seekBarFinger5Angle.getProgress();
+                numberFinger = 0x05;
+                CompileMassege(numberFinger, intValueFinger5Angle, intValueFinger5Speed);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -232,6 +216,10 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueFinger1Speed.setText(String.valueOf(seekBar.getProgress()));
+                intValueFinger1Speed = seekBarFinger1Speed.getProgress();
+                numberFinger = 0x01;
+                CompileMassege(numberFinger, intValueFinger1Angle, intValueFinger1Speed);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -250,6 +238,10 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueFinger2Speed.setText(String.valueOf(seekBar.getProgress()));
+                intValueFinger2Speed = seekBarFinger2Speed.getProgress();
+                numberFinger = 0x02;
+                CompileMassege(numberFinger, intValueFinger2Angle, intValueFinger2Speed);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -268,6 +260,10 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueFinger3Speed.setText(String.valueOf(seekBar.getProgress()));
+                intValueFinger3Speed = seekBarFinger3Speed.getProgress();
+                numberFinger = 0x03;
+                CompileMassege(numberFinger, intValueFinger3Angle, intValueFinger3Speed);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -286,6 +282,10 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueFinger4Speed.setText(String.valueOf(seekBar.getProgress()));
+                intValueFinger4Speed = seekBarFinger4Speed.getProgress();
+                numberFinger = 0x04;
+                CompileMassege(numberFinger, intValueFinger4Angle, intValueFinger4Speed);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -304,6 +304,10 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueFinger5Speed.setText(String.valueOf(seekBar.getProgress()));
+                intValueFinger5Speed = seekBarFinger5Speed.getProgress();
+                numberFinger = 0x05;
+                CompileMassege(numberFinger, intValueFinger5Angle, intValueFinger5Speed);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
     }
@@ -363,6 +367,21 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
         seekBarFinger3Speed.setEnabled(enabled);
         seekBarFinger4Speed.setEnabled(enabled);
         seekBarFinger5Speed.setEnabled(enabled);
+    }
+
+    private byte[] CompileMassege(byte numberFinger, int intValueFingerAngle, int intValueFingerSpeed){
+        TextByteTreeg[0] = indicatorTypeMessage;
+        TextByteTreeg[1] = numberFinger;
+        TextByteTreeg[2] = requestType;
+        TextByteTreeg[3] = GESTURE_SETTINGS;
+        TextByteTreeg[4] = NUMBER_CELL;
+        TextByteTreeg[5] = (byte) intValueFingerSpeed;
+        TextByteTreeg[6] = (byte) intValueFingerAngle;
+        for (int i = 0; i < TextByteTreeg.length-1; i++){
+            TextByteTreeg[7] += TextByteTreeg[i];
+            TextByteTreeg[7] = (byte) (TextByteTreeg[7] << 1);
+        }
+        return TextByteTreeg;
     }
 
 //    @Override

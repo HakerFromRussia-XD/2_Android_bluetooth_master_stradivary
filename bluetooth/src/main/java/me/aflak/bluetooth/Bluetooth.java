@@ -705,7 +705,7 @@ public class Bluetooth {
 
     public void setDeviceCallback(DeviceCallback deviceCallback) {
         System.out.println("BLUETOOTH--------------> setDeviceCallback connected:" + connected);
-//        this.deviceCallback = deviceCallback;
+        this.deviceCallback = deviceCallback;
     }
 
     public void setDeviceCallback2(DeviceCallback deviceCallback) {

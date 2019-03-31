@@ -98,16 +98,16 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
                 .build().inject(GripperSettings.this);
         ButterKnife.bind(GripperSettings.this);
 
-        final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
+//        final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
         save_gripper_settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.onStop();
+//                presenter.onStop();
                 presenter.disconnect();
-                presenter.disable();
-                Intent intent = new Intent(GripperSettings.this, ChatActivity.class);
-                intent.putExtra("device", device);
-                startActivity(intent);
+//                presenter.disable();
+//                Intent intent = new Intent(GripperSettings.this, ChatActivity.class);
+//                intent.putExtra("device", device);
+//                startActivity(intent);
             }
         });
 
@@ -342,11 +342,6 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
     }
 
     @Override
-    public void enableHWButton(boolean enabled) {
-
-    }
-
-    @Override
     public void showToast(String message) {
 
     }
@@ -356,6 +351,19 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
 
     }
 
+    @Override
+    public void enableHWButton(boolean enabled) {
+        seekBarFinger1Angle.setEnabled(enabled);
+        seekBarFinger2Angle.setEnabled(enabled);
+        seekBarFinger3Angle.setEnabled(enabled);
+        seekBarFinger4Angle.setEnabled(enabled);
+        seekBarFinger5Angle.setEnabled(enabled);
+        seekBarFinger1Speed.setEnabled(enabled);
+        seekBarFinger2Speed.setEnabled(enabled);
+        seekBarFinger3Speed.setEnabled(enabled);
+        seekBarFinger4Speed.setEnabled(enabled);
+        seekBarFinger5Speed.setEnabled(enabled);
+    }
 
 //    @Override
 //    public void onGestureClick(int position) {

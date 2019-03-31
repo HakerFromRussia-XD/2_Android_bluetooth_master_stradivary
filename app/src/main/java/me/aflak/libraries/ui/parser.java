@@ -61,7 +61,7 @@ class Parser implements ParserCallback {
     @Override
     public void givsRegister(Integer register) {
         Integer registr = new Integer(register);
-        System.out.println("принятая значение регистра:"+registr);
+        System.out.println("принятое значение регистра:"+registr);
     }
 
     @Override

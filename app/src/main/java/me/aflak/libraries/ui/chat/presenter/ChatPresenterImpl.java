@@ -187,7 +187,6 @@ public class ChatPresenterImpl implements ChatPresenter {
             view.setStatus(R.string.bluetooth_connecting);
             view.enableHWButton(false);
             interactor.connectToDevice(device, communicationCallback);
-            interactor.parsingExperimental(parserCallback);
         }
 
         @Override
@@ -209,7 +208,6 @@ public class ChatPresenterImpl implements ChatPresenter {
                 @Override
                 public void run() {
                     interactor.connectToDevice(device, communicationCallback);
-                    interactor.parsingExperimental(parserCallback);
                 }
             }, 3000);
         }
@@ -220,7 +218,6 @@ public class ChatPresenterImpl implements ChatPresenter {
         interactor.onStart(bluetoothCallback, activity);
         if(interactor.isBluetoothEnabled()){
             interactor.connectToDevice(device, communicationCallback);
-            interactor.parsingExperimental(parserCallback);
             view.setStatus(R.string.bluetooth_connecting);
         }
         else{
@@ -230,7 +227,17 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void onStop() {
-//        interactor.onStop();
+        interactor.onStop();
+    }
+
+    @Override
+    public void setDeviceCallback2(Activity activity){
+        interactor.onStart (bluetoothCallback, activity);
+        if (interactor.isBluetoothEnabled()) {
+            interactor.connectToDevice2(device, communicationCallback);
+        } else {
+            interactor.enableBluetooth();
+        }
     }
 
     @Override

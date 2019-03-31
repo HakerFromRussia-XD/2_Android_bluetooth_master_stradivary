@@ -33,6 +33,12 @@ public class ChatInteractorImpl implements ChatInteractor {
     }
 
     @Override
+    public void connectToDevice2(BluetoothDevice device, DeviceCallback callback){
+        bluetooth.setDeviceCallback2(callback);
+        bluetooth.connectToDevice(device);
+    }
+
+    @Override
     public void parsingExperimental(ParserCallback parser) {
         bluetooth.enableParsing(parser);
     }

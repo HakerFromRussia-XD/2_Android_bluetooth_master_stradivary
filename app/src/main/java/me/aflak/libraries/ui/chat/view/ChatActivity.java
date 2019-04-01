@@ -691,9 +691,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         for (int i = 0; i < TextByteTreeg2.length; i++) {
             System.out.println("данные приняты и готовы для отправки-------------> Передача TextByteTreeg2:" + TextByteTreeg2[i]);
         }
-//        for (int i = 0; i < data.length; i++){
-//            TextByteTreeg2[i] = data[i];
-//        }
         presenter.onHelloWorld(TextByteTreeg);
     }
 
@@ -710,17 +707,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @Override
     protected void onStart() {
         super.onStart();
-//        if(pervoe_vkluchenie_bluetooth){
-            presenter.onStart(this);
-//        }
+        presenter.onStart(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-//        if(pervoe_vkluchenie_bluetooth) {
-//            presenter.onStop();
-//        }
         presenter.disconnect();
     }
 

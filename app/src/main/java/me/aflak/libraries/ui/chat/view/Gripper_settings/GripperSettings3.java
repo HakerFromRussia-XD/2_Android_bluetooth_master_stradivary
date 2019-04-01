@@ -1,6 +1,5 @@
 package me.aflak.libraries.ui.chat.view.Gripper_settings;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,13 +19,11 @@ import me.aflak.libraries.R;
 import me.aflak.libraries.ui.chat.data.ChatModule;
 import me.aflak.libraries.ui.chat.data.DaggerChatComponent;
 import me.aflak.libraries.ui.chat.presenter.ChatPresenter;
-import me.aflak.libraries.ui.chat.view.ChatActivity;
 import me.aflak.libraries.ui.chat.view.ChatView;
 import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings;
-import me.aflak.libraries.ui.scan.view.ScanActivity;
 
 
-public class GripperSettings extends AppCompatActivity implements ChatView {
+public class GripperSettings3 extends AppCompatActivity implements ChatView {
     @BindView(R.id.seekBarFinger1Angle) SeekBar seekBarFinger1Angle;
     @BindView(R.id.seekBarFinger2Angle) SeekBar seekBarFinger2Angle;
     @BindView(R.id.seekBarFinger3Angle) SeekBar seekBarFinger3Angle;
@@ -62,7 +59,7 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
     private byte numberFinger;
     private byte requestType = 0x02;
     private byte GESTURE_SETTINGS = 0x21;
-    private byte NUMBER_CELL = 0x00;
+    private byte NUMBER_CELL = 0x02;
     public byte[] TextByteTreeg = new byte[8];
     private static final String TAG = "GripperSettings";
     
@@ -75,9 +72,9 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
-                .chatModule(new ChatModule(GripperSettings.this))
-                .build().inject(GripperSettings.this);
-        ButterKnife.bind(GripperSettings.this);
+                .chatModule(new ChatModule(GripperSettings3.this))
+                .build().inject(GripperSettings3.this);
+        ButterKnife.bind(GripperSettings3.this);
 
         final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
         save_gripper_settings.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +83,7 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
 //                presenter.onStop();
                 presenter.disconnect();
 //                presenter.disable();
-                Intent intent = new Intent(GripperSettings.this, Gesture_settings.class);
+                Intent intent = new Intent(GripperSettings3.this, Gesture_settings.class);
                 intent.putExtra("device", device);
                 startActivity(intent);
                 finish();
@@ -317,7 +314,7 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
     @Override
     protected void onStart() {
         super.onStart();
-        presenter.onStart(GripperSettings.this);
+        presenter.onStart(GripperSettings3.this);
     }
 
     @Override

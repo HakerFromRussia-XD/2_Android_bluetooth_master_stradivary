@@ -53,6 +53,7 @@ import me.aflak.libraries.ui.chat.data.DaggerChatComponent;
 import me.aflak.libraries.ui.chat.presenter.ChatPresenter;
 import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings;
 import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings2;
+import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings;
 
 /**
  * Created by Omar on 20/12/2017.
@@ -103,7 +104,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     String TAG = "thread";
 //    for bluetooth controller restart error
     private boolean pervoe_vkluchenie_bluetooth = true;
-    public static BluetoothDevice device;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -282,7 +282,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
 
         presenter.onCreate(getIntent());
-        device = getIntent().getExtras().getParcelable("device");
+        final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
         System.out.println("из ScanAct-------------> выжимка из интента devise:" + device);
         seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -536,7 +536,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                                 "Жест №"+4,
                                 2,
                                 123));
-//                            gestureAdapter = new GesstureAdapter(ChatActivity.this, gestureMyList, this);
                 recyclerView.setAdapter(gestureAdapter);
             }
         });
@@ -587,27 +586,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     }
 
     private LineDataSet createSet() {
-        LineDataSet set = new LineDataSet(null, null);
-        set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
-        set.setLineWidth(2f);
-        set.setColor(Color.GREEN);
-        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        set.setCubicIntensity(0.2f);
-
-        set.setCircleColor(Color.GREEN);
-        set.setCircleHoleColor(Color.GREEN);
-        set.setCircleSize(1f);
-        set.setFillAlpha(65);
-        set.setFillColor(ColorTemplate.getHoloBlue());
-        set.setHighLightColor(Color.rgb(244, 117, 177));
-        set.setValueTextColor(Color.WHITE);
-        set.setValueTextSize(10f);
-
-        set.setHighLightColor(Color.YELLOW);
-        return set;
-    }
-
-    private LineDataSet createSet2() {
         LineDataSet set = new LineDataSet(null, null);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
         set.setLineWidth(2f);
@@ -732,17 +710,18 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @Override
     protected void onStart() {
         super.onStart();
-        if(pervoe_vkluchenie_bluetooth){
+//        if(pervoe_vkluchenie_bluetooth){
             presenter.onStart(this);
-        }
+//        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if(pervoe_vkluchenie_bluetooth) {
-            presenter.onStop();
-        }
+//        if(pervoe_vkluchenie_bluetooth) {
+//            presenter.onStop();
+//        }
+        presenter.disconnect();
     }
 
     @Override
@@ -765,29 +744,42 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
     @Override
     public void onGestureClick(int position) {
+        final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
         switch (position){
             case 0:
+                presenter.disconnect();
                 Intent intent = new Intent(this, Gesture_settings.class);
+                intent.putExtra("device", device);
                 startActivity(intent);
                 break;
             case 1:
+                presenter.disconnect();
                 Intent intent2 = new Intent(this, Gesture_settings2.class);
+                intent2.putExtra("device", device);
                 startActivity(intent2);
                 break;
 //            case 2:
+//                presenter.disconnect();
 //                Intent intent3 = new Intent(this, Gesture_settings3.class);
+//                intent3.putExtra("device", device);
 //                startActivity(intent3);
 //                break;
 //            case 3:
+//                presenter.disconnect();
 //                Intent intent4 = new Intent(this, Gesture_settings4.class);
+//                intent4.putExtra("device", device);
 //                startActivity(intent4);
 //                break;
 //            case 4:
+//                presenter.disconnect();
 //                Intent intent5 = new Intent(this, Gesture_settings5.class);
+//                intent5.putExtra("device", device);
 //                startActivity(intent5);
 //                break;
             default:
+                presenter.disconnect();
                 Intent intent_b = new Intent(this, Gesture_settings.class);
+                intent_b.putExtra("device", device);
                 startActivity(intent_b);
                 break;
         }

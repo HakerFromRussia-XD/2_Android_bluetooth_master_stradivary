@@ -24,12 +24,12 @@ import me.aflak.libraries.ui.chat.presenter.ChatPresenter;
 import me.aflak.libraries.ui.chat.view.ChatView;
 import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings;
 import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings2;
-import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings3;
-import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings4;
+import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings5;
+import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings6;
 
-public class Gesture_settings2 extends AppCompatActivity implements GesstureAdapter.OnGestureMyListener, ChatView {
+public class Gesture_settings3 extends AppCompatActivity implements GesstureAdapter.OnGestureMyListener, ChatView {
 
-    private static final String TAG = "Gesture_settings2";
+    private static final String TAG = "Gesture_settings3";
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -44,9 +44,9 @@ public class Gesture_settings2 extends AppCompatActivity implements GesstureAdap
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
-                .chatModule(new ChatModule(Gesture_settings2.this))
-                .build().inject(Gesture_settings2.this);
-        ButterKnife.bind(Gesture_settings2.this);
+                .chatModule(new ChatModule(Gesture_settings3.this))
+                .build().inject(Gesture_settings3.this);
+        ButterKnife.bind(Gesture_settings3.this);
 
         gestureMyList = new ArrayList<>();
         recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
@@ -119,17 +119,17 @@ public class Gesture_settings2 extends AppCompatActivity implements GesstureAdap
         final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
         switch (position) {
             case 0:
-                Intent intent = new Intent(this, GripperSettings3.class);
+                Intent intent = new Intent(this, GripperSettings5.class);
                 intent.putExtra("device", device);
                 startActivity(intent);
                 break;
             case 1:
-                Intent intent2 = new Intent(this, GripperSettings4.class);
+                Intent intent2 = new Intent(this, GripperSettings6.class);
                 intent2.putExtra("device", device);
                 startActivity(intent2);
                 break;
             default:
-                Intent intent_b = new Intent(this, GripperSettings3.class);
+                Intent intent_b = new Intent(this, GripperSettings5.class);
                 intent_b.putExtra("device", device);
                 startActivity(intent_b);
                 break;

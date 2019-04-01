@@ -128,7 +128,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView {
 
     @Override
     public void navigateToChat(String extraName, BluetoothDevice extraDevice) {
-        Intent intent = new Intent(ScanActivity.this, GripperSettings.class);
+        Intent intent = new Intent(ScanActivity.this, ChatActivity.class);
         intent.putExtra(extraName, extraDevice);
         startActivity(intent);
         finish();

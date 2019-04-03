@@ -53,6 +53,7 @@ import me.aflak.libraries.ui.chat.data.DaggerChatComponent;
 import me.aflak.libraries.ui.chat.presenter.ChatPresenter;
 import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings;
 import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings2;
+import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings3;
 import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings;
 
 /**
@@ -750,12 +751,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 intent2.putExtra("device", device);
                 startActivity(intent2);
                 break;
-//            case 2:
-//                presenter.disconnect();
-//                Intent intent3 = new Intent(this, Gesture_settings3.class);
-//                intent3.putExtra("device", device);
-//                startActivity(intent3);
-//                break;
+            case 2:
+                presenter.disconnect();
+                Intent intent3 = new Intent(this, Gesture_settings3.class);
+                intent3.putExtra("device", device);
+                startActivity(intent3);
+                break;
 //            case 3:
 //                presenter.disconnect();
 //                Intent intent4 = new Intent(this, Gesture_settings4.class);

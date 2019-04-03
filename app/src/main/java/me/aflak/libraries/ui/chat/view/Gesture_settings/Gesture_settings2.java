@@ -40,7 +40,7 @@ public class Gesture_settings2 extends AppCompatActivity implements GesstureAdap
     GesstureAdapter gestureAdapter;
     List<Gesture_my> gestureMyList;
     private int indicatorTypeMessage = 0x04;
-    private int GESTURE_NUMBER = 0x0001;
+    private int GESTURE_NUMBER = 0x0002;
     private int GripperNumberStart1 = 0xA000;
     private int mySensorEvent1 = 0xB000;
     private int GripperNumberEnd1 = 0xC001;

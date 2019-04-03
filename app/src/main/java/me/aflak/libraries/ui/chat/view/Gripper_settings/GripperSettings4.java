@@ -3,6 +3,7 @@ package me.aflak.libraries.ui.chat.view.Gripper_settings;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -60,7 +61,8 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
     private byte requestType = 0x02;
     private byte GESTURE_SETTINGS = 0x21;
     private byte NUMBER_CELL = 0x03;
-    public byte[] TextByteTreeg = new byte[8];
+    public byte[] TextByteTreegSettings = new byte[8];
+    public byte[] TextByteTreegControl = new byte[6];
     private static final String TAG = "GripperSettings";
     
     @Inject ChatPresenter presenter;
@@ -108,7 +110,14 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
                 intValueFinger1Angle = seekBarFinger1Angle.getProgress();
                 numberFinger = 0x01;
                 CompileMassege(numberFinger, intValueFinger1Angle, intValueFinger1Speed);
-                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreegSettings);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                    }
+                }, 60);
             }
         });
 
@@ -130,7 +139,14 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
                 intValueFinger2Angle = seekBarFinger2Angle.getProgress();
                 numberFinger = 0x02;
                 CompileMassege(numberFinger, intValueFinger2Angle, intValueFinger2Speed);
-                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreegSettings);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                    }
+                }, 60);
             }
         });
 
@@ -152,7 +168,14 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
                 intValueFinger3Angle = seekBarFinger3Angle.getProgress();
                 numberFinger = 0x03;
                 CompileMassege(numberFinger, intValueFinger3Angle, intValueFinger3Speed);
-                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreegSettings);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                    }
+                }, 60);
             }
         });
 
@@ -174,7 +197,14 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
                 intValueFinger4Angle = seekBarFinger4Angle.getProgress();
                 numberFinger = 0x04;
                 CompileMassege(numberFinger, intValueFinger4Angle, intValueFinger4Speed);
-                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreegSettings);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                    }
+                }, 60);
             }
         });
 
@@ -196,7 +226,14 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
                 intValueFinger5Angle = seekBarFinger5Angle.getProgress();
                 numberFinger = 0x05;
                 CompileMassege(numberFinger, intValueFinger5Angle, intValueFinger5Speed);
-                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreegSettings);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                    }
+                }, 60);
             }
         });
 
@@ -218,7 +255,14 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
                 intValueFinger1Speed = seekBarFinger1Speed.getProgress();
                 numberFinger = 0x01;
                 CompileMassege(numberFinger, intValueFinger1Angle, intValueFinger1Speed);
-                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreegSettings);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                    }
+                }, 60);
             }
         });
 
@@ -240,7 +284,14 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
                 intValueFinger2Speed = seekBarFinger2Speed.getProgress();
                 numberFinger = 0x02;
                 CompileMassege(numberFinger, intValueFinger2Angle, intValueFinger2Speed);
-                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreegSettings);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                    }
+                }, 60);
             }
         });
 
@@ -262,7 +313,14 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
                 intValueFinger3Speed = seekBarFinger3Speed.getProgress();
                 numberFinger = 0x03;
                 CompileMassege(numberFinger, intValueFinger3Angle, intValueFinger3Speed);
-                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreegSettings);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                    }
+                }, 60);
             }
         });
 
@@ -284,7 +342,14 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
                 intValueFinger4Speed = seekBarFinger4Speed.getProgress();
                 numberFinger = 0x04;
                 CompileMassege(numberFinger, intValueFinger4Angle, intValueFinger4Speed);
-                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreegSettings);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                    }
+                }, 60);
             }
         });
 
@@ -306,7 +371,14 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
                 intValueFinger5Speed = seekBarFinger5Speed.getProgress();
                 numberFinger = 0x05;
                 CompileMassege(numberFinger, intValueFinger5Angle, intValueFinger5Speed);
-                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreegSettings);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                    }
+                }, 60);
             }
         });
     }
@@ -320,7 +392,6 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
     @Override
     public void onStop() {
         super.onStop();
-//        ConnectThread
         presenter.disconnect();
     }
 
@@ -369,22 +440,30 @@ public class GripperSettings4 extends AppCompatActivity implements ChatView {
     }
 
     private byte[] CompileMassege(byte numberFinger, int intValueFingerAngle, int intValueFingerSpeed){
-        TextByteTreeg[0] = indicatorTypeMessage;
-        TextByteTreeg[1] = numberFinger;
-        TextByteTreeg[2] = requestType;
-        TextByteTreeg[3] = GESTURE_SETTINGS;
-        TextByteTreeg[4] = NUMBER_CELL;
-        TextByteTreeg[5] = (byte) intValueFingerSpeed;
-        TextByteTreeg[6] = (byte) intValueFingerAngle;
-        for (int i = 0; i < TextByteTreeg.length-1; i++){
-            TextByteTreeg[7] += TextByteTreeg[i];
-            TextByteTreeg[7] = (byte) (TextByteTreeg[7] << 1);
+        TextByteTreegSettings[0] = indicatorTypeMessage;
+        TextByteTreegSettings[1] = numberFinger;
+        TextByteTreegSettings[2] = requestType;
+        TextByteTreegSettings[3] = GESTURE_SETTINGS;
+        TextByteTreegSettings[4] = NUMBER_CELL;
+        TextByteTreegSettings[5] = (byte) intValueFingerSpeed;
+        TextByteTreegSettings[6] = (byte) intValueFingerAngle;
+        for (int i = 0; i < TextByteTreegSettings.length-1; i++){
+            TextByteTreegSettings[7] += TextByteTreegSettings[i];
+            TextByteTreegSettings[7] = (byte) (TextByteTreegSettings[7] << 1);
         }
-        return TextByteTreeg;
+        return TextByteTreegSettings;
     }
 
-//    @Override
-//    public void onGestureClick(int position) {
-//
-//    }
+    private byte[] CompileMassegeControl (byte numberFinger){
+        TextByteTreegControl[0] = 0x05;
+        TextByteTreegControl[1] = numberFinger;
+        TextByteTreegControl[2] = 0x02;
+        TextByteTreegControl[3] = 0x14;
+        TextByteTreegControl[4] = NUMBER_CELL;
+        for (int i = 0; i < TextByteTreegControl.length-1; i++){
+            TextByteTreegControl[5] += TextByteTreegControl[i];
+            TextByteTreegControl[5] = (byte) (TextByteTreegControl[5] << 1);
+        }
+        return TextByteTreegControl;
+    }
 }

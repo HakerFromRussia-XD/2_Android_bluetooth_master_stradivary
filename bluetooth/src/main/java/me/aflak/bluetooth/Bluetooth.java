@@ -527,7 +527,6 @@ public class Bluetooth {
             }
         }
 
-//        ReceiveThread receiveThread;
 
         public void run() {
             bluetoothAdapter.cancelDiscovery();

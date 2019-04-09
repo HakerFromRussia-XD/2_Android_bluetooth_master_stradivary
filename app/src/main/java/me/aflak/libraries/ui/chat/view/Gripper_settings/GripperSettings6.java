@@ -59,10 +59,9 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
     private byte indicatorTypeMessage = 0x03;
     private byte numberFinger;
     private byte requestType = 0x02;
-    private byte GESTURE_SETTINGS = 0x21;
     private byte NUMBER_CELL = 0x05;
-    public byte[] TextByteTreegSettings = new byte[9];
-    public byte[] TextByteTreegControl = new byte[7];
+    public byte[] TextByteTreegSettings = new byte[8];
+    public byte[] TextByteTreegControl = new byte[6];
     private static final String TAG = "GripperSettings";
     
     @Inject ChatPresenter presenter;
@@ -117,7 +116,7 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
                         CompileMassegeControl(numberFinger);
                         presenter.onHelloWorld(TextByteTreegControl);
                     }
-                }, 60);
+                }, GripperSettings.delay);
             }
         });
 
@@ -146,7 +145,7 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
                         CompileMassegeControl(numberFinger);
                         presenter.onHelloWorld(TextByteTreegControl);
                     }
-                }, 60);
+                }, GripperSettings.delay);
             }
         });
 
@@ -175,7 +174,7 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
                         CompileMassegeControl(numberFinger);
                         presenter.onHelloWorld(TextByteTreegControl);
                     }
-                }, 60);
+                }, GripperSettings.delay);
             }
         });
 
@@ -204,7 +203,7 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
                         CompileMassegeControl(numberFinger);
                         presenter.onHelloWorld(TextByteTreegControl);
                     }
-                }, 60);
+                }, GripperSettings.delay);
             }
         });
 
@@ -233,7 +232,7 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
                         CompileMassegeControl(numberFinger);
                         presenter.onHelloWorld(TextByteTreegControl);
                     }
-                }, 60);
+                }, GripperSettings.delay);
             }
         });
 
@@ -262,7 +261,7 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
                         CompileMassegeControl(numberFinger);
                         presenter.onHelloWorld(TextByteTreegControl);
                     }
-                }, 60);
+                }, GripperSettings.delay);
             }
         });
 
@@ -291,7 +290,7 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
                         CompileMassegeControl(numberFinger);
                         presenter.onHelloWorld(TextByteTreegControl);
                     }
-                }, 60);
+                }, GripperSettings.delay);
             }
         });
 
@@ -320,7 +319,7 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
                         CompileMassegeControl(numberFinger);
                         presenter.onHelloWorld(TextByteTreegControl);
                     }
-                }, 60);
+                }, GripperSettings.delay);
             }
         });
 
@@ -349,7 +348,7 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
                         CompileMassegeControl(numberFinger);
                         presenter.onHelloWorld(TextByteTreegControl);
                     }
-                }, 60);
+                }, GripperSettings.delay);
             }
         });
 
@@ -378,7 +377,7 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
                         CompileMassegeControl(numberFinger);
                         presenter.onHelloWorld(TextByteTreegControl);
                     }
-                }, 60);
+                }, GripperSettings.delay);
             }
         });
     }
@@ -443,15 +442,11 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
         TextByteTreegSettings[0] = indicatorTypeMessage;
         TextByteTreegSettings[1] = numberFinger;
         TextByteTreegSettings[2] = requestType;
-        TextByteTreegSettings[3] = GESTURE_SETTINGS;
+        TextByteTreegSettings[3] = GripperSettings.GESTURE_SETTINGS;
         TextByteTreegSettings[4] = NUMBER_CELL;
         TextByteTreegSettings[5] = (byte) intValueFingerSpeed;
         TextByteTreegSettings[6] = (byte) intValueFingerAngle;
-        for (int i = 1; i < TextByteTreegSettings.length-1; i++){
-            TextByteTreegSettings[7] += TextByteTreegSettings[i];
-            TextByteTreegSettings[7] = (byte) (TextByteTreegSettings[7] << 1);
-        }
-        TextByteTreegSettings[8] = 0x00;
+        TextByteTreegSettings[7] = presenter.calculationCRC(TextByteTreegSettings);
         return TextByteTreegSettings;
     }
 
@@ -462,11 +457,8 @@ public class GripperSettings6 extends AppCompatActivity implements ChatView {
         TextByteTreegControl[2] = 0x02;
         TextByteTreegControl[3] = 0x14;
         TextByteTreegControl[4] = NUMBER_CELL;
-        for (int i = 1; i < TextByteTreegControl.length-1; i++){
-            TextByteTreegControl[5] += TextByteTreegControl[i];
-            TextByteTreegControl[5] = (byte) (TextByteTreegControl[5] << 1);
-        }
-        TextByteTreegControl[6] = 0x00;
+        TextByteTreegControl[5] = presenter.calculationCRC(TextByteTreegControl);
         return TextByteTreegControl;
     }
+
 }

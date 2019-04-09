@@ -19,10 +19,12 @@ public class ChatPresenterImpl implements ChatPresenter {
     private byte aByte[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x01, 0x24} ;
     private byte txtbyteout1[] = {0x4D, 0x54, 0x07, 0x00, 0x01, 0x02, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для отправки порогов сигналов 0x77 заменяемые данные всего 15 байт
     private byte txtbyteout2[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x77, 0x24};                                     //компановка для запроса сигналов на датчиках 0x77 заменяемые данные всего 9 байт
-    private byte txtbyteout3[] = {0x4D, 0x54, 0x06, 0x00, 0x01, 0x04, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для настройки схватов сигналов 0x77 заменяемые данные всего 15 байт
-    private byte txtbyteout4[] = {0x4D, 0x54, 0x0F, 0x00, 0x01, 0x05, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};//компановка для настройки переходов между двумя схватами 0x77 заменяемые данные всего 23 байт
-    private byte txtbyteout5[] = {0x4D, 0x54, 0x05, 0x00, 0x01, 0x04, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};             //компановка для установки скорости и угла определённого движка 0x77 заменяемые данные всего 13 байт
-    private byte txtbyteout6[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x06, 0x00, 0x77, 0x24};                                     //компановка для запроса сигналов на датчиках 0x77 заменяемые данные всего 9 байт
+    private byte txtbyteout3[] = {0x4D, 0x54, 0x07, 0x00, 0x01, 0x04, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для настройки схватов сигналов 0x77 заменяемые данные всего 15 байт
+    private byte txtbyteout4[] = {0x4D, 0x54, 0x0E, 0x00, 0x01, 0x05, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};//компановка для настройки переходов между двумя схватами 0x77 заменяемые данные всего 23 байт
+    private byte txtbyteout5[] = {0x4D, 0x54, 0x05, 0x00, 0x01, 0x04, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};             //компановка для установки скорости и угла определённого движка 0x77 заменяемые данные всего 13 байт
+    private byte txtbyteout6[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x06, 0x00, 0x77, 0x24};                                     //компановка для установки жеста 0x77 заменяемые данные всего 9 байт
+    private byte txtbyteout7[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x07, 0x00, 0x77, 0x24};                                     //компановка для установки схвата 0x77 заменяемые данные всего 9 байт
+    private byte txtbyteout8[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x08, 0x00, 0x77, 0x24};                                     //компановка для установки режима срабатывания 0x77 заменяемые данные всего 9 байт
     public ChatPresenterImpl(ChatView view, ChatInteractor interactor) {
         this.view = view;
         this.interactor = interactor;
@@ -138,6 +140,32 @@ public class ChatPresenterImpl implements ChatPresenter {
                     System.out.println("<-- посылка:" + txtbyteout6[i]);
                 }
                 interactor.sendMessageByte(txtbyteout6);
+                break;
+            case 7:
+                System.out.println("--> тип компановки:" + txtbyte[0]);
+                System.out.println("--> номер схвата:" + txtbyte[1]);
+                for (int i = 1; i < txtbyte.length; i++)
+                {
+                    txtbyteout7[i + 6] = txtbyte[i];
+                }
+                for (int i = 0; i < txtbyteout7.length; i++)
+                {
+                    System.out.println("<-- посылка:" + txtbyteout7[i]);
+                }
+                interactor.sendMessageByte(txtbyteout7);
+                break;
+            case 8:
+                System.out.println("--> тип компановки:" + txtbyte[0]);
+                System.out.println("--> номер мода:" + txtbyte[1]);
+                for (int i = 1; i < txtbyte.length; i++)
+                {
+                    txtbyteout8[i + 6] = txtbyte[i];
+                }
+                for (int i = 0; i < txtbyteout8.length; i++)
+                {
+                    System.out.println("<-- посылка:" + txtbyteout8[i]);
+                }
+                interactor.sendMessageByte(txtbyteout8);
                 break;
             default:
                 System.out.println("--> тип компановки:" + txtbyte[0]);
@@ -322,4 +350,13 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         }
     };
+
+    public byte calculationCRC(byte[] bytes) {
+        byte CRC = 0x00;
+        for (int i = 1; i < bytes.length-1; i++){
+            CRC += bytes[i];
+            CRC = (byte) (CRC << 1);
+        }
+        return CRC;
+    }
 }

@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -93,7 +94,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public boolean isEnable = false;
     private int i = 0;
     public byte[] TextByteTreeg = new byte[8];
-    public byte[] TextByteTreeg2 = new byte[8];
+    public byte[] TextByteTreegMod = new byte[2];
 //    for graph
     private SensorManager sensorManager;
     private Sensor mAccelerometer;
@@ -542,6 +543,48 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // получим идентификатор выбранного пункта меню
+        int id = item.getItemId();
+
+        // Операции для выбранного пункта меню
+        switch (id) {
+            case R.id.action_Trigger1:
+                presenter.onHelloWorld(CompileMassegeTreegMod (1));
+                return true;
+            case R.id.action_Trigger2:
+                presenter.onHelloWorld(CompileMassegeTreegMod (2));
+                return true;
+            case R.id.action_Trigger3:
+                presenter.onHelloWorld(CompileMassegeTreegMod (3));
+                return true;
+            case R.id.action_Trigger4:
+                presenter.onHelloWorld(CompileMassegeTreegMod (4));
+                return true;
+            case R.id.action_Trigger5:
+                presenter.onHelloWorld(CompileMassegeTreegMod (5));
+                return true;
+            case R.id.action_Trigger6:
+                presenter.onHelloWorld(CompileMassegeTreegMod (6));
+                return true;
+            case R.id.action_Trigger7:
+                presenter.onHelloWorld(CompileMassegeTreegMod (7));
+                return true;
+            case R.id.action_Trigger8:
+                presenter.onHelloWorld(CompileMassegeTreegMod (8));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void addEntry(int event){
 
         LineData data = mChart.getData();
@@ -684,20 +727,16 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         seekBarCH2sleep.setEnabled(enabled);
     }
 
-    public void SendingData (byte[] data){
-        for (int i = 0; i < data.length; i++) {
-            System.out.println("данные приняты и готовы для отправки-------------> Передача data:" + data[i]);
-        }
-        TextByteTreeg2 = data;
-        for (int i = 0; i < TextByteTreeg2.length; i++) {
-            System.out.println("данные приняты и готовы для отправки-------------> Передача TextByteTreeg2:" + TextByteTreeg2[i]);
-        }
-        presenter.onHelloWorld(TextByteTreeg);
-    }
-
     public void GetPosition_My (int position, BluetoothDevice device){
         System.out.println("из ScanAct-------------> Передача position:" + position);
         System.out.println("из ScanAct-------------> выжимка из интента devise:" + device);
+    }
+
+    private byte[] CompileMassegeTreegMod (int Treeg_id){
+        TextByteTreegMod[0] = 0x08;
+        TextByteTreegMod[1] = (byte) Treeg_id;
+        System.out.println("Treeg mod:" + Treeg_id);
+        return TextByteTreegMod;
     }
 
     @Override

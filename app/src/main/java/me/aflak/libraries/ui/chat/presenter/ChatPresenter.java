@@ -13,4 +13,6 @@ public interface ChatPresenter {
     void setDeviceCallback2(Activity activity);
     void disconnect();
     void disable();
+    byte calculationCRC(byte[] textByteTreegSettings);
+
 }

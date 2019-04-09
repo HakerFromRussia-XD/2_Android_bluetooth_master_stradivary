@@ -52,6 +52,8 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
     @BindView(R.id.valueFinger4Speed) TextView valueFinger4Speed;
     @BindView(R.id.valueFinger5Speed) TextView valueFinger5Speed;
     @BindView(R.id.save_gripper_settings) Button save_gripper_settings;
+    @BindView(R.id.gripper1) Button gripper1;
+    @BindView(R.id.gripper2) Button gripper2;
     private int intValueFinger1Angle = 50;
     private int intValueFinger2Angle = 50;
     private int intValueFinger3Angle = 50;
@@ -65,11 +67,12 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
     private byte indicatorTypeMessage = 0x03;
     private byte numberFinger;
     private byte requestType = 0x02;
-    private byte GESTURE_SETTINGS = 0x21;
+    public static byte GESTURE_SETTINGS = 0x15;
     private byte NUMBER_CELL = 0x00;
-    private long delay = 200;
-    public byte[] TextByteTreegSettings = new byte[9];
-    public byte[] TextByteTreegControl = new byte[7];
+    public static long delay = 200;
+    public byte[] TextByteTreegSettings = new byte[8];
+    public byte[] TextByteTreegControl = new byte[6];
+    private byte[] TextByteTreegAllControl = new byte[2];
     private static final String TAG = "GripperSettings";
     
     @Inject ChatPresenter presenter;
@@ -94,6 +97,24 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
                 intent.putExtra("device", device);
                 startActivity(intent);
                 finish();
+            }
+        });
+
+        gripper1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextByteTreegAllControl[0] = 0x07;
+                TextByteTreegAllControl[1] = 0x00;
+                presenter.onHelloWorld(TextByteTreegAllControl);
+            }
+        });
+
+        gripper2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextByteTreegAllControl[0] = 0x07;
+                TextByteTreegAllControl[1] = 0x01;
+                presenter.onHelloWorld(TextByteTreegAllControl);
             }
         });
 
@@ -452,11 +473,7 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
         TextByteTreegSettings[4] = NUMBER_CELL;
         TextByteTreegSettings[5] = (byte) intValueFingerSpeed;
         TextByteTreegSettings[6] = (byte) intValueFingerAngle;
-        for (int i = 1; i < TextByteTreegSettings.length-1; i++){
-            TextByteTreegSettings[7] += TextByteTreegSettings[i];
-            TextByteTreegSettings[7] = (byte) (TextByteTreegSettings[7] << 1);
-        }
-        TextByteTreegSettings[8] = 0x00;
+        TextByteTreegSettings[7] = presenter.calculationCRC(TextByteTreegSettings);
         return TextByteTreegSettings;
     }
 
@@ -466,17 +483,8 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
         TextByteTreegControl[2] = 0x02;
         TextByteTreegControl[3] = 0x14;
         TextByteTreegControl[4] = NUMBER_CELL;
-        for (int i = 1; i < TextByteTreegControl.length-1; i++){
-            TextByteTreegControl[5] += TextByteTreegControl[i];
-            TextByteTreegControl[5] = (byte) (TextByteTreegControl[5] << 1);
-        }
-        TextByteTreegControl[6] = 0x00;
+        TextByteTreegControl[5] = presenter.calculationCRC(TextByteTreegControl);
         return TextByteTreegControl;
     }
 
-//    public byte[] releaseInstance() {
-//        byte CRC = 0x00;
-//
-//        return ;
-//    }
 }

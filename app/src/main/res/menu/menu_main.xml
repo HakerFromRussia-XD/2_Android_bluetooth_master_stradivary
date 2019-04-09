@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <!--<group android:checkableBehavior="single">-->
+        <item
+            android:id="@+id/action_Trigger1"
+            android:orderInCategory="100"
+            android:title="@string/action_Trigger1"
+            app:showAsAction="never"/>
+
+        <item
+            android:id="@+id/action_Trigger2"
+            android:orderInCategory="100"
+            android:title="@string/action_Trigger2"
+            app:showAsAction="never"/>
+
+        <item
+            android:id="@+id/action_Trigger3"
+            android:orderInCategory="100"
+            android:title="@string/action_Trigger3"
+            app:showAsAction="never"/>
+        <item
+            android:id="@+id/action_Trigger4"
+            android:orderInCategory="100"
+            android:title="@string/action_Trigger4"
+            app:showAsAction="never"/>
+        <item
+            android:id="@+id/action_Trigger5"
+            android:orderInCategory="100"
+            android:title="@string/action_Trigger5"
+            app:showAsAction="never"/>
+        <item
+            android:id="@+id/action_Trigger6"
+            android:orderInCategory="100"
+            android:title="@string/action_Trigger6"
+            app:showAsAction="never"/>
+        <item
+            android:id="@+id/action_Trigger7"
+            android:orderInCategory="100"
+            android:title="@string/action_Trigger7"
+            app:showAsAction="never"/>
+        <item
+            android:id="@+id/action_Trigger8"
+            android:orderInCategory="100"
+            android:title="@string/action_Trigger8"
+            app:showAsAction="never"/>
+    <!--</group>-->
+</menu>

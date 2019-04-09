@@ -149,6 +149,8 @@ public class Gesture_settings3 extends AppCompatActivity implements GesstureAdap
     @Override
     public void enableHWButton(boolean enabled) {
         gesture_use.setEnabled(enabled);
+        CompileMassegeControl(GESTURE_NUMBER);
+        presenter.onHelloWorld(TextByteTreegControl);
     }
 
     @Override

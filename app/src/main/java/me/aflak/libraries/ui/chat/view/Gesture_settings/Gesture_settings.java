@@ -38,7 +38,7 @@ public class Gesture_settings extends AppCompatActivity implements GesstureAdapt
     GesstureAdapter gestureAdapter;
     List<Gesture_my> gestureMyList;
     private int indicatorTypeMessage = 0x04;
-    private int GESTURE_NUMBER = 0x0001;
+    private int GESTURE_NUMBER = 0x0000;
     private int GripperNumberStart1 = 0xA000;
     private int mySensorEvent1 = 0xB000;
     private int GripperNumberEnd1 = 0xC001;
@@ -147,8 +147,10 @@ public class Gesture_settings extends AppCompatActivity implements GesstureAdapt
     @Override
     public void enableHWButton(boolean enabled) {
         gesture_use.setEnabled(enabled);
-        CompileMassegeControl(GESTURE_NUMBER);
-        presenter.onHelloWorld(TextByteTreegControl);
+        if(enabled) {
+            CompileMassegeControl(GESTURE_NUMBER);
+            presenter.onHelloWorld(TextByteTreegControl);
+        }
     }
 
     @Override

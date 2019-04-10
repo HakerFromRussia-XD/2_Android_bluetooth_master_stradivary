@@ -72,7 +72,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 //        for (int i = 0; i < 1; i++) //aByte.length
 //        {
 //            System.arraycopy(txtbyte, i*2, txtbyteout, i, 1);
-//        }
+///        }
         switch (txtbyte[0]) {
             case 1: //компановка посылки записи порогов на любой канал
                 System.out.println("номер канала получателя:" + txtbyte[1]);

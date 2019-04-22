@@ -95,6 +95,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private int i = 0;
     public byte[] TextByteTreeg = new byte[8];
     public byte[] TextByteTreegMod = new byte[2];
+    public byte[] TextByteSensorActivate = new byte[2];
 //    for graph
     private SensorManager sensorManager;
     private Sensor mAccelerometer;
@@ -463,18 +464,16 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         helloWorld2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                if(isEnable){
-                    isEnable = false;
-                } else {
-                    isEnable = true;
-                }
-                indicatorTypeMessage = 0x02;
-                numberChannel = 0x02;
-                TextByteTreeg[0] = indicatorTypeMessage;
-                TextByteTreeg[1] = numberChannel;
-                presenter.onHelloWorld(TextByteTreeg);
+//                if(isEnable){
+//                    isEnable = false;
+//                } else {
+//                    isEnable = true;
+//                }
+                int numberSensor = 0x07;
+                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                 addEntry(2500);
                 addEntry2(2500);
+
             }
         });
 
@@ -523,7 +522,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 }
             }
         });
-        thread.start();
+//        thread.start();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -666,11 +665,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
     @OnClick(R.id.activity_chat_hello_world)
     public void onHelloWorld(){
-        indicatorTypeMessage = 0x02;
-        numberChannel = 0x01;
-        TextByteTreeg[0] = indicatorTypeMessage;
-        TextByteTreeg[1] = numberChannel;
-        presenter.onHelloWorld(TextByteTreeg);
+        int numberSensor = 0x06;
+        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
         addEntry(20);
         addEntry2(20);
     }
@@ -737,6 +733,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteTreegMod[1] = (byte) Treeg_id;
         System.out.println("Treeg mod:" + Treeg_id);
         return TextByteTreegMod;
+    }
+
+    private byte[] CompileMassegeSensorActivate (int numberSensor){
+        TextByteSensorActivate[0] = 0x09;
+        TextByteSensorActivate[1] = (byte) numberSensor;
+        return TextByteSensorActivate;
     }
 
     @Override

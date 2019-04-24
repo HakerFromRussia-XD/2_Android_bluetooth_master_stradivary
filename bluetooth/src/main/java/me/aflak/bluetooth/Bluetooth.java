@@ -436,7 +436,7 @@ public class Bluetooth {
                                         }
                                         if(i == 11){
                                             msgLevelCH = (msg << 8) + lowByte; //msgLevelCH уровень канала 1
-                                            System.out.println("<-- уровень CH1:"+msgLevelCH);
+                                            System.out.println("<-- уровень CH2:"+msgLevelCH);
                                         }
                                         break;
                                     default:

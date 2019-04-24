@@ -16,6 +16,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private ChatView view;
     private ChatInteractor interactor;
     private BluetoothDevice device;
+    private int attemptConect = 0;
     private byte aByte[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x01, 0x24} ;
     private byte txtbyteout1[] = {0x4D, 0x54, 0x07, 0x00, 0x01, 0x02, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для отправки порогов сигналов 0x77 заменяемые данные всего 15 байт
     private byte txtbyteout2[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x77, 0x24};                                     //компановка для запроса сигналов на датчиках 0x77 заменяемые данные всего 9 байт
@@ -284,14 +285,21 @@ public class ChatPresenterImpl implements ChatPresenter {
         public void onConnectError(final BluetoothDevice device, String message) {
             System.out.println("ChatPresenter--------------> onConnectError");
             view.setStatus(R.string.bluetooth_connect_in_3sec);
-            view.showToast("New attempt in 3 sec...");
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    interactor.connectToDevice(device, communicationCallback);
-                    interactor.parsingExperimental(parserCallback);
-                }
-            }, 3000);
+//            view.showToast("Подключение №" + attemptConect);
+            System.out.println("Подключение №" + attemptConect);
+            attemptConect += 1;
+            if(attemptConect < 51) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        interactor.connectToDevice(device, communicationCallback);
+                        interactor.parsingExperimental(parserCallback);
+                    }
+                }, 10);
+            } else{
+                attemptConect = 0;
+                view.showToast("Подключение не алё");
+            }
         }
     };
 

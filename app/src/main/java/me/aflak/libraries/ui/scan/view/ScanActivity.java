@@ -46,7 +46,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scan);
+        setContentView(R.layout.activity_scan);//R.layout.activity_scan R.layout.activity_chat
 
         DaggerScanComponent.builder()
             .bluetoothModule(MyApp.app().bluetoothModule())

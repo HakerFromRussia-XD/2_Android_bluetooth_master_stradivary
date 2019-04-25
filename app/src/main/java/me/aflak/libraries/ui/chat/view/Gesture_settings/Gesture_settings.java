@@ -140,6 +140,11 @@ public class Gesture_settings extends AppCompatActivity implements GesstureAdapt
     }
 
     @Override
+    public void setErrorReception(boolean incomeErrorReception) {
+
+    }
+
+    @Override
     public void appendMessage(String message) {
 
     }

@@ -410,6 +410,11 @@ public class GripperSettings5 extends AppCompatActivity implements ChatView {
     }
 
     @Override
+    public void setErrorReception(boolean incomeErrorReception) {
+
+    }
+
+    @Override
     public void appendMessage(String message) {
 
     }

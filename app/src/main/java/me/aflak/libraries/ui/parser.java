@@ -69,4 +69,9 @@ class Parser implements ParserCallback {
         Boolean boleann = new Boolean(correct_acceptence);
         System.out.println("проверка CRC:"+boleann);
     }
+
+    @Override
+    public void givsErrorReception(Boolean givsErrorReception) {
+
+    }
 }

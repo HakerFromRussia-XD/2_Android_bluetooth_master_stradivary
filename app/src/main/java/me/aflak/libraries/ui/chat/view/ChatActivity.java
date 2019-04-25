@@ -9,6 +9,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -92,6 +93,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private byte indicatorTypeMessage;
     private byte numberChannel;
     public boolean isEnable = false;
+    public boolean infinitAction = false;
+    public boolean stateIsOpen = false;
+    public boolean errorReception = false;
     private int i = 0;
     public byte[] TextByteTreeg = new byte[8];
     public byte[] TextByteTreegMod = new byte[2];
@@ -492,7 +496,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (isEnable) {
+                            if (isEnable && !errorReception) {
                                 indicatorTypeMessage = 0x02;
                                 numberChannel = 0x01;
                                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -507,7 +511,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (isEnable) {
+                            if (isEnable && !errorReception) {
                                 indicatorTypeMessage = 0x02;
                                 numberChannel = 0x02;
                                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -519,10 +523,20 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                     try {
                         Thread.sleep(120);
                     }catch (Exception e){}
+                    if (isEnable && errorReception) {
+                        errorReception = false;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {}
+                        });
+                        try {
+                            Thread.sleep(500);
+                        }catch (Exception e){}
+                    }
                 }
             }
         });
-//        thread.start();
+        thread.start();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -557,27 +571,39 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         switch (id) {
             case R.id.action_Trigger1:
                 presenter.onHelloWorld(CompileMassegeTreegMod (1));
+                infinitAction = false;
                 return true;
             case R.id.action_Trigger2:
                 presenter.onHelloWorld(CompileMassegeTreegMod (2));
+                infinitAction = false;
                 return true;
             case R.id.action_Trigger3:
                 presenter.onHelloWorld(CompileMassegeTreegMod (3));
+                infinitAction = false;
                 return true;
             case R.id.action_Trigger4:
                 presenter.onHelloWorld(CompileMassegeTreegMod (4));
+                infinitAction = false;
                 return true;
             case R.id.action_Trigger5:
                 presenter.onHelloWorld(CompileMassegeTreegMod (5));
+                infinitAction = false;
                 return true;
             case R.id.action_Trigger6:
                 presenter.onHelloWorld(CompileMassegeTreegMod (6));
+                infinitAction = false;
                 return true;
             case R.id.action_Trigger7:
                 presenter.onHelloWorld(CompileMassegeTreegMod (7));
+                infinitAction = false;
                 return true;
             case R.id.action_Trigger8:
                 presenter.onHelloWorld(CompileMassegeTreegMod (8));
+                infinitAction = false;
+                return true;
+            case R.id.action_Trigger9:
+                infinitAction = true;
+                setInfinitAction ();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -697,6 +723,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         }
     }
 
+    @Override
+    public void setErrorReception (boolean incomeErrorReception) {
+        errorReception = incomeErrorReception;
+    }
+
 //    @Override
 //    public void setValueCH2(int levelCH2) {
 //        String str = new String(String.valueOf(levelCH2));
@@ -755,7 +786,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @Override
     protected void onStop() {
         super.onStop();
-        presenter.disconnect();
+//        presenter.disconnect();
     }
 
     @Override
@@ -764,6 +795,27 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //            addEntry(event);
 //            plotData = false;
 //        }
+    }
+
+    public void setInfinitAction () {
+        if (infinitAction){
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (stateIsOpen){
+                        int numberSensor = 0x06;
+                        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                        stateIsOpen = false;
+                        setInfinitAction ();
+                    } else {
+                        int numberSensor = 0x07;
+                        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                        stateIsOpen = true;
+                        setInfinitAction ();
+                    }
+                }
+            }, 3000);
+        } else {}
     }
 
     @Override

@@ -8,4 +8,5 @@ public interface ParserCallback {
     void givsLevelCH (int levelCH, int channel);
     void givsRegister (Integer register);
     void givsCorrectAcceptance (Boolean correct_acceptence);
+    void givsErrorReception(Boolean givsErrorReception);
 }

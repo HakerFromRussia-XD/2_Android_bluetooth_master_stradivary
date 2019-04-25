@@ -47,5 +47,10 @@
             android:orderInCategory="100"
             android:title="@string/action_Trigger8"
             app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_Trigger9"
+        android:orderInCategory="100"
+        android:title="Жамкать"
+        app:showAsAction="never"/>
     <!--</group>-->
 </menu>

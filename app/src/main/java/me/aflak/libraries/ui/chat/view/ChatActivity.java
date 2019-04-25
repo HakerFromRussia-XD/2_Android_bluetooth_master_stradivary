@@ -516,7 +516,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                                 numberChannel = 0x02;
                                 TextByteTreeg[0] = indicatorTypeMessage;
                                 TextByteTreeg[1] = numberChannel;
-                                presenter.onHelloWorld(TextByteTreeg); 
+                                presenter.onHelloWorld(TextByteTreeg);
                             }
                         }
                     });

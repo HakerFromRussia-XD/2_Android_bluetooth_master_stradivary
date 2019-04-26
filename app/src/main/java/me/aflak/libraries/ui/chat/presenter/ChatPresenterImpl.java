@@ -26,7 +26,9 @@ public class ChatPresenterImpl implements ChatPresenter {
     private byte txtbyteout6[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x06, 0x00, 0x77, 0x24};                                     //компановка для установки жеста 0x77 заменяемые данные всего 9 байт
     private byte txtbyteout7[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x07, 0x00, 0x77, 0x24};                                     //компановка для установки схвата 0x77 заменяемые данные всего 9 байт
     private byte txtbyteout8[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x08, 0x00, 0x77, 0x24};                                     //компановка для установки режима срабатывания 0x77 заменяемые данные всего 9 байт
-    private byte txtbyteout9[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x09, 0x00, 0x77, 0x24};                                     //компановка для 0x77 заменяемые данные всего 9 байт
+    private byte txtbyteout9[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x09, 0x00, 0x77, 0x24};                                     //компановка для иммитации срабатывания 0x77 заменяемые данные всего 9 байт
+    private byte txtbyteout10[] ={0x4D, 0x54, 0x08, 0x00, 0x01, 0x0A, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};//компановка для настройки бесконечного движения 0x77 заменяемые данные всего 16 байт
+    private byte txtbyteout11[] ={0x4D, 0x54, 0x03, 0x00, 0x01, 0x0B, 0x00, 0x77, 0x77, 0x77, 0x24};                         //компановка для настройки тока останова и влючения инвертированного управления 0x77 заменяемые данные всего 11 байт
     public ChatPresenterImpl(ChatView view, ChatInteractor interactor) {
         this.view = view;
         this.interactor = interactor;
@@ -181,6 +183,30 @@ public class ChatPresenterImpl implements ChatPresenter {
                     System.out.println("<-- посылка:" + txtbyteout9[i]);
                 }
                 interactor.sendMessageByte(txtbyteout9);
+                break;
+            case 10:
+                System.out.println("--> тип компановки:" + txtbyte[0]);
+                for (int i = 1; i < txtbyte.length; i++)
+                {
+                    txtbyteout10[i + 6] = txtbyte[i];
+                }
+                for (int i = 0; i < txtbyteout10.length; i++)
+                {
+                    System.out.println("<-- посылка:" + txtbyteout10[i]);
+                }
+                interactor.sendMessageByte(txtbyteout10);
+                break;
+            case 11:
+                System.out.println("--> тип компановки:" + txtbyte[0]);
+                for (int i = 1; i < txtbyte.length; i++)
+                {
+                    txtbyteout11[i + 6] = txtbyte[i];
+                }
+                for (int i = 0; i < txtbyteout11.length; i++)
+                {
+                    System.out.println("<-- посылка:" + txtbyteout11[i]);
+                }
+                interactor.sendMessageByte(txtbyteout11);
                 break;
             default:
                 System.out.println("--> тип компановки:" + txtbyte[0]);

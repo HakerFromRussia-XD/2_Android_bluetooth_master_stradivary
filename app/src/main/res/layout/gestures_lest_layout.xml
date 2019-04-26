@@ -12,7 +12,9 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:paddingLeft="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
             <ImageView
                 android:id="@+id/imageView"
@@ -22,9 +24,13 @@
 
             <TextView
                 android:id="@+id/textViewTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="232dp"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:layout_marginLeft="5dp"
+                android:layout_marginEnd="42dp"
+                android:layout_marginRight="42dp"
                 android:layout_toRightOf="@id/imageView"
                 android:text="Apple MacBook Air Core i5 5th Gen - (8 GB/128 GB SSD/Mac OS Sierra)"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
@@ -32,11 +38,15 @@
 
             <TextView
                 android:id="@+id/textViewShortDesc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="232dp"
+                android:layout_height="36dp"
                 android:layout_below="@id/textViewTitle"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:layout_marginLeft="5dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginEnd="42dp"
+                android:layout_marginRight="42dp"
                 android:layout_toRightOf="@id/imageView"
                 android:text="13.3 Inch, 256 GB"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small" />
@@ -55,6 +65,16 @@
                 android:text="4.7"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small.Inverse"
                 android:textStyle="bold" />
+
+            <Button
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="25dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginRight="0dp"/>
 
             <!--<TextView-->
                 <!--android:id="@+id/textViewPrice"-->

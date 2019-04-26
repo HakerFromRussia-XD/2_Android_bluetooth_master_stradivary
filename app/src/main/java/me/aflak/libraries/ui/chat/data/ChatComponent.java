@@ -14,6 +14,7 @@ import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings3;
 import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings4;
 import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings5;
 import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings6;
+import me.aflak.libraries.ui.chat.view.InfinitySettings;
 
 /**
  * Created by Omar on 20/12/2017.
@@ -31,4 +32,5 @@ public interface ChatComponent {
     void inject(Gesture_settings3 gesture_settings3);
     void inject(GripperSettings5 gripperSettings5);
     void inject(GripperSettings6 gripperSettings6);
+    void inject(InfinitySettings infinitySettings);
 }

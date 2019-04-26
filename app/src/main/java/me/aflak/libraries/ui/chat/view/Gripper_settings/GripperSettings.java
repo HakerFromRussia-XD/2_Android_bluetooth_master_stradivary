@@ -27,6 +27,7 @@ import me.aflak.libraries.ui.chat.presenter.ChatPresenter;
 import me.aflak.libraries.ui.chat.view.ChatActivity;
 import me.aflak.libraries.ui.chat.view.ChatView;
 import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings;
+import me.aflak.libraries.ui.chat.view.InfinitySettings;
 import me.aflak.libraries.ui.scan.view.ScanActivity;
 
 
@@ -89,7 +90,9 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
         ButterKnife.bind(GripperSettings.this);
 
         final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
-        save_gripper_settings.setOnClickListener(new View.OnClickListener() {
+        presenter.onCreate(getIntent());
+
+        save_gripper_settings.setOnClickListener(new View.OnClickListener() { //обработчик нажатия на кнопку сохранения
             @Override
             public void onClick(View v) {
                 presenter.disconnect();
@@ -118,7 +121,6 @@ public class GripperSettings extends AppCompatActivity implements ChatView {
             }
         });
 
-        presenter.onCreate(getIntent());
         seekBarFinger1Angle.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

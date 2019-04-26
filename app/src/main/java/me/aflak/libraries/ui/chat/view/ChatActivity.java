@@ -70,12 +70,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
     @BindView(R.id.seekBarCH2off) SeekBar seekBarCH2off;
     @BindView(R.id.seekBarCH2sleep) SeekBar seekBarCH2sleep;
+    @BindView(R.id.seekBarIstop) SeekBar seekBarIstop;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
     @BindView(R.id.valueCH1off) TextView valueCH1off;
     @BindView(R.id.valueCH1sleep) TextView valueCH1sleep;
     @BindView(R.id.valueCH2on) TextView valueCH2on;
     @BindView(R.id.valueCH2off) TextView valueCH2off;
     @BindView(R.id.valueCH2sleep) TextView valueCH2sleep;
+    @BindView(R.id.valueIstop) TextView valueIstop;
     @BindView(R.id.activity_chat_messages) TextView messages;
     @BindView(R.id.valueCH1) TextView valueCH1;
     @BindView(R.id.valueCH2) TextView valueCH2;
@@ -98,6 +100,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public boolean errorReception = false;
     private int i = 0;
     public byte[] TextByteTreeg = new byte[8];
+    public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
     public byte[] TextByteTreegMod = new byte[2];
     public byte[] TextByteSensorActivate = new byte[2];
 //    for graph
@@ -289,8 +292,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
 
         presenter.onCreate(getIntent());
-        final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
-        System.out.println("из ScanAct-------------> выжимка из интента devise:" + device);
         seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -465,6 +466,26 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             }
         });
 
+        seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+                int Curent = seekBar.getProgress();
+                byte Invert = 0x00;
+                presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(Curent, Invert));
+            }
+        });
+
         helloWorld2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -566,7 +587,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public boolean onOptionsItemSelected(MenuItem item) {
         // получим идентификатор выбранного пункта меню
         int id = item.getItemId();
-
         // Операции для выбранного пункта меню
         switch (id) {
             case R.id.action_Trigger1:
@@ -602,8 +622,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 infinitAction = false;
                 return true;
             case R.id.action_Trigger9:
-                infinitAction = true;
-                setInfinitAction ();
+                final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
+                Intent intent = new Intent(this, InfinitySettings.class);
+                intent.putExtra("device", device);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -752,6 +774,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         seekBarCH2on.setEnabled(enabled);
         seekBarCH2off.setEnabled(enabled);
         seekBarCH2sleep.setEnabled(enabled);
+        seekBarIstop.setEnabled(enabled);
     }
 
     public void GetPosition_My (int position, BluetoothDevice device){
@@ -772,6 +795,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         return TextByteSensorActivate;
     }
 
+    private byte[] CompileMassegeCurentSettingsAndInvert (int Curent, byte Invert) {
+        TextByteTreegCurentSettingsAndInvert[0] = 0x0B;
+        TextByteTreegCurentSettingsAndInvert[1] = (byte) Curent;
+        TextByteTreegCurentSettingsAndInvert[2] = (byte) (Curent >> 8);
+        TextByteTreegCurentSettingsAndInvert[3] = Invert;
+        return TextByteTreegCurentSettingsAndInvert;
+    }
+
     @Override
     public void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -786,7 +817,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @Override
     protected void onStop() {
         super.onStop();
-//        presenter.disconnect();
+        presenter.disconnect();
     }
 
     @Override
@@ -834,7 +865,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         switch (position){
             case 0:
                 presenter.disconnect();
-                Intent intent = new Intent(this, Gesture_settings.class);
+                Intent intent = new Intent(this, InfinitySettings.class);
                 intent.putExtra("device", device);
                 startActivity(intent);
                 break;

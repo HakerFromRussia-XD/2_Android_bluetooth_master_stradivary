@@ -367,7 +367,7 @@ public class Bluetooth {
                 while((msg = input.read()) != -1) //((System.in).read(msg)) //((System.in).read(msg))   //((input.read())) != -1
                 {
                     if(!mFinish) {
-                        if((i == 1)||(i == 2)||((i == (8+msgLenght)))){
+                        if((i == 1)||(i == 2)||((i == (8+msgLenght)))){ //адекватный приём!!!!
                             summator += msg;
                             if (summator == 197){
                                 msgCorrectAcceptance = true;

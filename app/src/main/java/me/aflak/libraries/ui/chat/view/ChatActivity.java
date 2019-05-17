@@ -52,6 +52,7 @@ import me.aflak.libraries.data.GesstureAdapter;
 import me.aflak.libraries.data.Gesture_my;
 import me.aflak.libraries.ui.chat.data.ChatModule;
 import me.aflak.libraries.ui.chat.data.DaggerChatComponent;
+import me.aflak.libraries.ui.chat.interactor.ChatInteractor;
 import me.aflak.libraries.ui.chat.presenter.ChatPresenter;
 import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings;
 import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings2;

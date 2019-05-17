@@ -11,6 +11,7 @@ import me.aflak.bluetooth.ParserCallback;
 import me.aflak.libraries.R;
 import me.aflak.libraries.ui.chat.interactor.ChatInteractor;
 import me.aflak.libraries.ui.chat.view.ChatView;
+import me.aflak.libraries.ui.chat.view.InfinitySettings;
 
 public class ChatPresenterImpl implements ChatPresenter {
     private ChatView view;
@@ -158,6 +159,15 @@ public class ChatPresenterImpl implements ChatPresenter {
             case 8:
                 System.out.println("--> тип компановки:" + txtbyte[0]);
                 System.out.println("--> номер мода:" + txtbyte[1]);
+                if(txtbyte[1] == 1) {view.showToast("Выбран классический режим управления"); }
+                if(txtbyte[1] == 2) {view.showToast("Выбран триггерный режим управления №1"); }
+                if(txtbyte[1] == 3) {view.showToast("Выбран триггерный режим управления №2"); }
+                if(txtbyte[1] == 4) {view.showToast("Выбран удерживающий режим управления №1"); }
+                if(txtbyte[1] == 5) {view.showToast("Выбран удерживающий режим управления №2"); }
+                if(txtbyte[1] == 6) {view.showToast("Выбран инвертированный удерживающий режим управления №1"); }
+                if(txtbyte[1] == 7) {view.showToast("Выбран инвертированный удерживающий режим управления №2"); }
+                if(txtbyte[1] == 8) {view.showToast("Выбран инвертированный классический режим управления"); }
+                if(txtbyte[1] == 9) {view.showToast("Настройки стендового режима"); }
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout8[i + 6] = txtbyte[i];
@@ -328,7 +338,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }, 10);
             } else{
                 attemptConect = 0;
-                view.showToast("Подключение не алё");
+                view.showToast("Подключение отсутствует");
             }
         }
     };

@@ -528,7 +528,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         }
                     });
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(5000);
                     }catch (Exception e){}
                     runOnUiThread(new Runnable() {
                         @Override
@@ -543,7 +543,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         }
                     });
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(5000);
                     }catch (Exception e){}
                     if (isEnable && errorReception) {
                         errorReception = false;
@@ -552,7 +552,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                             public void run() {}
                         });
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(5000);
                         }catch (Exception e){}
                     }
                 }

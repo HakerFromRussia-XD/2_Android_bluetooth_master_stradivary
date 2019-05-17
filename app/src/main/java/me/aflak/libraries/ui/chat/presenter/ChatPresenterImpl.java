@@ -270,8 +270,10 @@ public class ChatPresenterImpl implements ChatPresenter {
         public void givsLevelCH(int levelCH, int channel) {
             Integer lelvel = new Integer(levelCH);
             Integer numberChannel = new Integer(channel);
-            view.setValueCH(levelCH, numberChannel);
-            System.out.println("принятый уровень CH:" + lelvel);
+            view.setValueCH(levelCH, 1);
+            view.setValueCH(numberChannel, 2);
+            System.out.println("принятый уровень CH1:" + lelvel);
+            System.out.println("принятый уровень CH2:" + numberChannel);
         }
 
         @Override

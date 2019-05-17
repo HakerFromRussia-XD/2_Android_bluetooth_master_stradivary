@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Stadivary Control</string>
-    <string name="helloWorld">refresh CH1</string>
-    <string name="helloWorld2">refresh CH2</string>
+    <string name="helloWorld">open</string>
+    <string name="helloWorld2">close</string>
+    <string name="helloWorld3">stop</string>
 
     <string name="activity_scan_button">Scan again</string>
     <string name="activity_scan_paired_text">Paired Devices :</string>

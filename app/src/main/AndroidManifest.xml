@@ -15,16 +15,22 @@
         <activity android:name=".ui.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ui.scan.view.ScanActivity"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".ui.chat.view.ChatActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".ui.chat.view.Gesture_settings.Gesture_settings"
             android:screenOrientation="portrait" />

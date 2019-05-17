@@ -50,7 +50,7 @@
     <item
         android:id="@+id/action_Trigger9"
         android:orderInCategory="100"
-        android:title="Жамкать"
+        android:title="infinity action"
         app:showAsAction="never"/>
     <!--</group>-->
 </menu>

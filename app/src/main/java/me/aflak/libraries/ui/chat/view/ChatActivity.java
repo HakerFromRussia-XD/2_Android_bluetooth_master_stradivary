@@ -83,10 +83,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @BindView(R.id.valueCH1) TextView valueCH1;
     @BindView(R.id.valueCH2) TextView valueCH2;
     @BindView(R.id.layout_sensors) RelativeLayout layoutSensors;
-//    @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
+    @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
-//    @BindView(R.id.fab) FloatingActionButton fab;
+    @BindView(R.id.fab) FloatingActionButton fab;
     private int intValueCH1on = 2500;
     private int intValueCH1off = 100;
     private int intValueCH1sleep = 200;
@@ -122,72 +122,72 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
     @Inject ChatPresenter presenter;
 
-//    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-//            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-//
-//        @Override
-//        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//            switch (item.getItemId()) {
-//                case R.id.navigation_home:
-//                    Log.i(TAG, "oncliiiiick");
-//                    layoutSensors.setVisibility(View.GONE);
-//                    fab.show();
-//                    layoutGestures.setVisibility(View.VISIBLE);
-//                    return true;
-//                case R.id.navigation_dashboard:
-//                    Log.i(TAG, ":))");
-//                    layoutSensors.setVisibility(View.VISIBLE);
-//                    fab.hide();
-//                    layoutGestures.setVisibility(View.GONE);
-//                    return true;
-//            }
-//            return false;
-//        }
-//    };
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    Log.i(TAG, "oncliiiiick");
+                    layoutSensors.setVisibility(View.GONE);
+                    fab.show();
+                    layoutGestures.setVisibility(View.VISIBLE);
+                    return true;
+                case R.id.navigation_dashboard:
+                    Log.i(TAG, ":))");
+                    layoutSensors.setVisibility(View.VISIBLE);
+                    fab.hide();
+                    layoutGestures.setVisibility(View.GONE);
+                    return true;
+            }
+            return false;
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-//        gestureMyList = new ArrayList<>();
-//        recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
-//        recyclerView.setHasFixedSize(true);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        gestureMyList = new ArrayList<>();
+        recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         //adding some items to our list
-//        gestureMyList.add(
-//                new Gesture_my(
-//                        1,
-//                        R.drawable.gesture1,
-//                        "bla bla bla",
-//                        "Нажмите для редактирования начального и конечного состояний",
-//                        "Жест №1",
-//                        2,
-//                        600000));
-//
-//        gestureMyList.add(
-//                new Gesture_my(
-//                        1,
-//                        R.drawable.gesture2,
-//                        "bla bla bla",
-//                        "Нажмите для редактирования начального и конечного состояний",
-//                        "Жест №2",
-//                        2,
-//                        60000));
-//
-//        gestureMyList.add(
-//                new Gesture_my(
-//                        1,
-//                        R.drawable.gesture3,
-//                        "bla bla bla",
-//                        "Нажмите для редактирования начального и конечного состояний",
-//                        "Жест №3",
-//                        2,
-//                        60000));
-//
-//        gestureAdapter = new GesstureAdapter(this, gestureMyList, this);
-//        recyclerView.setAdapter(gestureAdapter);
+        gestureMyList.add(
+                new Gesture_my(
+                        1,
+                        R.drawable.gesture1,
+                        "bla bla bla",
+                        "Нажмите для редактирования начального и конечного состояний",
+                        "Жест №1",
+                        2,
+                        600000));
+
+        gestureMyList.add(
+                new Gesture_my(
+                        1,
+                        R.drawable.gesture2,
+                        "bla bla bla",
+                        "Нажмите для редактирования начального и конечного состояний",
+                        "Жест №2",
+                        2,
+                        60000));
+
+        gestureMyList.add(
+                new Gesture_my(
+                        1,
+                        R.drawable.gesture3,
+                        "bla bla bla",
+                        "Нажмите для редактирования начального и конечного состояний",
+                        "Жест №3",
+                        2,
+                        60000));
+
+        gestureAdapter = new GesstureAdapter(this, gestureMyList, this);
+        recyclerView.setAdapter(gestureAdapter);
 
         DaggerChatComponent.builder()
             .bluetoothModule(MyApp.app().bluetoothModule())
@@ -560,22 +560,22 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         });
         thread.start();
 
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Новый жест добавлен", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
-//                gestureMyList.add(
-//                        new Gesture_my(
-//                                1,
-//                                R.drawable.gesture4,
-//                                "bla bla bla",
-//                                "Нажмите для редактирования начального и конечного состояний",
-//                                "Жест №"+4,
-//                                2,
-//                                123));
-//                recyclerView.setAdapter(gestureAdapter);
-//            }
-//        });
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Новый жест добавлен", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+                gestureMyList.add(
+                        new Gesture_my(
+                                1,
+                                R.drawable.gesture4,
+                                "bla bla bla",
+                                "Нажмите для редактирования начального и конечного состояний",
+                                "Жест №"+4,
+                                2,
+                                123));
+                recyclerView.setAdapter(gestureAdapter);
+            }
+        });
     }
 
     @Override

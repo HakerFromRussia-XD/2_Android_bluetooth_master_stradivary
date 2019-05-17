@@ -45,9 +45,6 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
     }
 
-
-
-
         @Override
     public void onHelloWorld(byte[] txtbyte) {
 //        for (int i = 0; i < txtbyte.length; i++) //aByte.length

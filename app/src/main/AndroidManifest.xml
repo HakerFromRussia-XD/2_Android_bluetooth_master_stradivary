@@ -21,7 +21,6 @@
         </activity>
         <activity
             android:name=".ui.scan.view.ScanActivity"
-
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.chat.view.ChatActivity"

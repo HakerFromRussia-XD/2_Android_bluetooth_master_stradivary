@@ -367,15 +367,25 @@ public class Bluetooth {
                 while((msg = input.read()) != -1) //((System.in).read(msg)) //((System.in).read(msg))   //((input.read())) != -1
                 {
                     if(!mFinish) {
+                        if(i >= 10){
+                            //System.out.println("------> i=" +i+" msgLenght="+msgLenght);
+                            msgstr.setLength(0);
+                            no_error = true;
+                            msgLenght = 0;
+                            msgRegister = 0;
+                            summator = 0;
+                            msgCorrectAcceptance = true;
+                            i=1;
+                        }
                         if ((i == 1)||(i == 9)){
                             summator += msg;
                             if (summator == 71){
                                 msgCorrectAcceptance = true;
-                                System.out.println("<-- Принята посылка :)");
+//                                System.out.println("<-- Принята посылка :)");
                             } else {
-                                if (((i == (3 + msgLenght)) && (msg != 35)) || ((i == 1) && (msg != 36))) {
-                                    System.out.println("<-- Пришла лажа :(");
-                                    System.out.println("<-- summator:" + summator);
+                                if (((i == 9) && (msg != 35)) || ((i == 1) && (msg == 36))) {
+                                    if (i == 1) {System.out.println("<-- Пришла лажа :( = " + msg +" i = "+ i +" no_error="+no_error);}
+//                                    System.out.println("<-- summator:" + summator);
                                     no_error = false;
                                     msgstr.setLength(0);
                                     msgLenght = 0;
@@ -390,35 +400,26 @@ public class Bluetooth {
                             lowByte = msg;
                         }
                         if(i == 3){
-                            msgLenght = (msg << 8) + lowByte; //msgLenght содержит количество байт данных в посылке
-                            System.out.println("<-- длина строки:"+msgLenght);
+                            msgLenght = (lowByte << 8) + msg; //msgLenght содержит количество байт данных в посылке
+//                            System.out.println("<-- длина строки:"+msgLenght);
                         }
                         if(i == 4){
                             lowByte = msg;
                         }
                         if(i == 5){
-                            msgChannel = (msg << 8) + lowByte;  //msgRegister содержит номер регистра
-                            System.out.println("<-- уровень CH2:"+msgChannel);
+                            msgChannel = (lowByte << 8) + msg;  //msgRegister содержит номер регистра
+                            System.out.println("<-- уровень CH2:"+msgChannel +" i = "+ i +" no_error="+no_error);
                         }
                         if(i == 6){
                             lowByte = msg;
                         }
                         if(i == 7){
-                            msgLevelCH = (msg << 8) + lowByte; //msgLevelCH уровень канала 1
-                            System.out.println("<-- уровень CH1:"+msgLevelCH);
+                            msgLevelCH = (lowByte << 8) + msg; //msgLevelCH уровень канала 1
+                            System.out.println("<-- уровень CH1:"+msgLevelCH +" i = "+ i +" no_error="+no_error);
                         }
                         if(no_error) {
                             i++;
                             msgstr.append((char)msg);
-                        }
-                        if(i > 10){
-                            //System.out.println("------> i=" +i+" msgLenght="+msgLenght);
-                            msgstr.setLength(0);
-                            no_error = true;
-                            msgLenght = 0;
-                            msgRegister = 0;
-                            summator = 0;
-                            i=1;
                         }
                         if(((deviceCallback != null) && (msg == 35))||(!no_error)){
                             final String msgCopy = String.valueOf(msgstr);
@@ -440,7 +441,7 @@ public class Bluetooth {
                                         parserCallback.givsLevelCH(msgLevelCHf, msgChannelf);
                                         parserCallback.givsErrorReception(errorReceptionf);
                                         deviceCallback.onMessage(msgCopy);
-                                        System.out.println("<-- сделал цикл:"+ msgCopy);
+                                        System.out.println("<-- сделал цикл:"+ msgCopy +" no_error="+no_error);
                                     }
                                     parserCallback.givsCorrectAcceptance(msgCorrectAcceptancef);
                                     msgstr.setLength(0);
@@ -448,6 +449,7 @@ public class Bluetooth {
                                     msgLenght = 0;
                                     msgRegister = 0;
                                     summator = 0;
+                                    msgCorrectAcceptance = true;
                                     i=1;
                                 }
                             });

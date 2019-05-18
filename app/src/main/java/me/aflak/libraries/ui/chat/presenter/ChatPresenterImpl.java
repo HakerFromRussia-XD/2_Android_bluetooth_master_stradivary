@@ -249,7 +249,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         @Override
         public Integer givsLenhgt(int lenght) {
             Integer integer =  new Integer(lenght);
-            System.out.println("принятая длинна:" + integer);
+//            System.out.println("принятая длинна:" + integer);
             return integer;
         }
 
@@ -257,13 +257,13 @@ public class ChatPresenterImpl implements ChatPresenter {
         @Override
         public void givsRequest(Boolean request) {
             Boolean bolean = new Boolean(request);
-            System.out.println("приём:" + bolean);
+//            System.out.println("приём:" + bolean);
         }
 
         @Override
         public void givsChannel(int channel) {
             Integer numberChannel = new Integer(channel);
-            System.out.println("номер канала:" + numberChannel);
+//            System.out.println("номер канала:" + numberChannel);
         }
 
         @Override
@@ -272,27 +272,27 @@ public class ChatPresenterImpl implements ChatPresenter {
             Integer numberChannel = new Integer(channel);
             view.setValueCH(levelCH, 1);
             view.setValueCH(numberChannel, 2);
-            System.out.println("принятый уровень CH1:" + lelvel);
-            System.out.println("принятый уровень CH2:" + numberChannel);
+//            System.out.println("принятый уровень CH1:" + lelvel);
+//            System.out.println("принятый уровень CH2:" + numberChannel);
         }
 
         @Override
         public void givsRegister(Integer register) {
             Integer registr = new Integer(register);
-            System.out.println("принятая значение регистра:"+registr);
+//            System.out.println("принятая значение регистра:"+registr);
         }
 
         @Override
         public void givsCorrectAcceptance(Boolean correct_acceptence) {
             Boolean boleann = new Boolean(correct_acceptence);
-            System.out.println("проверка CRC:" + boleann);
+//            System.out.println("проверка CRC:" + boleann);
         }
 
         @Override
         public void givsErrorReception(Boolean givsErrorReception) {
             Boolean bolean = new Boolean(givsErrorReception);
             view.setErrorReception(bolean);
-            System.out.println("принятая ошибка: " + bolean);
+//            System.out.println("принятая ошибка: " + bolean);
         }
     };
 

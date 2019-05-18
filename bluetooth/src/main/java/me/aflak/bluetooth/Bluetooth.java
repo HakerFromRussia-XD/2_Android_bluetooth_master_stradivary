@@ -383,7 +383,7 @@ public class Bluetooth {
                                 msgCorrectAcceptance = true;
 //                                System.out.println("<-- Принята посылка :)");
                             } else {
-                                if (((i == 9) && (msg != 35)) || ((i == 1) && (msg == 36))) {
+                                if (((i == 9) && (msg != 35)) || ((i == 1) && (msg != 36))) {
                                     if (i == 1) {System.out.println("<-- Пришла лажа :( = " + msg +" i = "+ i +" no_error="+no_error);}
 //                                    System.out.println("<-- summator:" + summator);
                                     no_error = false;

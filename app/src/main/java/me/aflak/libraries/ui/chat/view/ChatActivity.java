@@ -641,7 +641,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             ILineDataSet set = data.getDataSetByIndex(0);
 
             if(set == null){
-                set = createSet();
+                set = createSet2();
                 data.addDataSet(set);
             }
 
@@ -693,6 +693,27 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         set.setHighLightColor(Color.rgb(244, 117, 177));
         set.setValueTextColor(Color.WHITE);
         set.setValueTextSize(10f);
+
+        set.setHighLightColor(Color.YELLOW);
+        return set;
+    }
+
+    private LineDataSet createSet2() {
+        LineDataSet set = new LineDataSet(null, null);
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
+        set.setLineWidth(2f);
+        set.setColor(Color.BLUE);
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set.setCubicIntensity(0.2f);
+
+        set.setCircleColor(Color.BLUE);
+        set.setCircleHoleColor(Color.BLUE);
+        set.setCircleSize(1f);
+        set.setFillAlpha(65);
+        set.setFillColor(ColorTemplate.getHoloBlue());
+        set.setHighLightColor(Color.rgb(244, 117, 117));
+        set.setValueTextColor(Color.WHITE);
+        set.setValueTextSize(1f);
 
         set.setHighLightColor(Color.YELLOW);
         return set;

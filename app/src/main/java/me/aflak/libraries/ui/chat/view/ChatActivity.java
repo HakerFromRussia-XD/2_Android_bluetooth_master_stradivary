@@ -237,7 +237,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
         YAxis y1 = mChart.getAxisLeft();
         y1.setTextColor(Color.WHITE);
-        y1.setAxisMaximum(65535f);
+        y1.setAxisMaximum(3200f);
         y1.setAxisMinimum(-100f);
         y1.setDrawGridLines(true);
 
@@ -276,7 +276,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
         YAxis y1_2 = mChart2.getAxisLeft();
         y1_2.setTextColor(Color.WHITE);
-        y1_2.setAxisMaximum(65535f);
+        y1_2.setAxisMaximum(3200f);
         y1_2.setAxisMinimum(-100f);
         y1_2.setDrawGridLines(true);
 
@@ -497,7 +497,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //                }
                 int numberSensor = 0x07;
                 presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
-                addEntry(2500);
+                addEntry(20);
                 addEntry2(2500);
 
             }
@@ -528,7 +528,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         }
                     });
                     try {
-                        Thread.sleep(500000);
+                        Thread.sleep(200);
                     }catch (Exception e){}
                     runOnUiThread(new Runnable() {
                         @Override
@@ -543,7 +543,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         }
                     });
                     try {
-                        Thread.sleep(500000);
+                        Thread.sleep(200);
                     }catch (Exception e){}
                     if (isEnable && errorReception) {
                         errorReception = false;
@@ -641,16 +641,16 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             ILineDataSet set = data.getDataSetByIndex(0);
 
             if(set == null){
-                set = createSet2();
+                set = createSet();
                 data.addDataSet(set);
             }
 
             data.addEntry(new Entry(set.getEntryCount(), event), 0);
             data.notifyDataChanged();
 
-            mChart.setVisibleXRange(0, 100);
+            mChart.setVisibleXRange(0, 50);
             mChart.setMaxVisibleValueCount(0);
-            mChart.moveViewToX(set.getEntryCount()-100);//data.getEntryCount()
+            mChart.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
 
         }
     }
@@ -670,9 +670,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.addEntry(new Entry(set.getEntryCount(), event), 0);
             data.notifyDataChanged();
 
-            mChart2.setVisibleXRange(0, 100);
+            mChart2.setVisibleXRange(0, 50);
             mChart2.setMaxVisibleValueCount(0);
-            mChart2.moveViewToX(set.getEntryCount()-100);//data.getEntryCount()
+            mChart2.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
 
         }
     }
@@ -737,7 +737,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public void onHelloWorld(){
         int numberSensor = 0x06;
         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
-        addEntry(20);
+        addEntry(2500);
         addEntry2(20);
     }
 

@@ -6,7 +6,7 @@
         android:id="@+id/navigation_home"
         android:checkable="true"
         android:enabled="true"
-        android:icon="@android:drawable/ic_menu_upload_you_tube"
+        android:icon="@drawable/four"
         android:title="@string/title_home" />
 
     <item

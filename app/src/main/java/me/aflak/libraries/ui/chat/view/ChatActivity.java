@@ -198,8 +198,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-//        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-//        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         if(mAccelerometer != null){
             sensorManager.registerListener(ChatActivity.this,mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
@@ -670,9 +670,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.addEntry(new Entry(set.getEntryCount(), event), 0);
             data.notifyDataChanged();
 
-            mChart2.setVisibleXRange(0, 20);
+            mChart2.setVisibleXRange(0, 100);
             mChart2.setMaxVisibleValueCount(0);
-            mChart2.moveViewToX(set.getEntryCount()-20);//data.getEntryCount()
+            mChart2.moveViewToX(set.getEntryCount()-100);//data.getEntryCount()
 
         }
     }

@@ -667,6 +667,7 @@
             android:layout_marginStart="60dp"
             android:layout_marginLeft="60dp"
             android:layout_marginBottom="65dp"
+            android:visibility="gone"
             android:text="1" />
 
         <Button
@@ -679,6 +680,7 @@
             android:layout_marginEnd="60dp"
             android:layout_marginRight="60dp"
             android:layout_marginBottom="65dp"
+            android:visibility="gone"
             android:text="2" />
 
     </RelativeLayout>

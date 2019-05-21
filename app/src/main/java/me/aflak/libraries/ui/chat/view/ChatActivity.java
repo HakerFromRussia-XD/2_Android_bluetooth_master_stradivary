@@ -887,7 +887,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         switch (position){
             case 0:
                 presenter.disconnect();
-                Intent intent = new Intent(this, InfinitySettings.class);
+                Intent intent = new Intent(this, Gesture_settings.class);
                 intent.putExtra("device", device);
                 startActivity(intent);
                 break;

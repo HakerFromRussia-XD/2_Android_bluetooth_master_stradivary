@@ -66,24 +66,24 @@ import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings;
 public class ChatActivity extends AppCompatActivity implements ChatView, SensorEventListener, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.activity_chat_status) TextView state;
     @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
-    @BindView(R.id.seekBarCH1off) SeekBar seekBarCH1off;
-    @BindView(R.id.seekBarCH1sleep) SeekBar seekBarCH1sleep;
+//    @BindView(R.id.seekBarCH1off) SeekBar seekBarCH1off;
+//    @BindView(R.id.seekBarCH1sleep) SeekBar seekBarCH1sleep;
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
-    @BindView(R.id.seekBarCH2off) SeekBar seekBarCH2off;
-    @BindView(R.id.seekBarCH2sleep) SeekBar seekBarCH2sleep;
+//    @BindView(R.id.seekBarCH2off) SeekBar seekBarCH2off;
+//    @BindView(R.id.seekBarCH2sleep) SeekBar seekBarCH2sleep;
     @BindView(R.id.seekBarIstop) SeekBar seekBarIstop;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
-    @BindView(R.id.valueCH1off) TextView valueCH1off;
-    @BindView(R.id.valueCH1sleep) TextView valueCH1sleep;
+//    @BindView(R.id.valueCH1off) TextView valueCH1off;
+//    @BindView(R.id.valueCH1sleep) TextView valueCH1sleep;
     @BindView(R.id.valueCH2on) TextView valueCH2on;
-    @BindView(R.id.valueCH2off) TextView valueCH2off;
-    @BindView(R.id.valueCH2sleep) TextView valueCH2sleep;
+//    @BindView(R.id.valueCH2off) TextView valueCH2off;
+//    @BindView(R.id.valueCH2sleep) TextView valueCH2sleep;
     @BindView(R.id.valueIstop) TextView valueIstop;
     @BindView(R.id.activity_chat_messages) TextView messages;
-    @BindView(R.id.valueCH1) TextView valueCH1;
-    @BindView(R.id.valueCH2) TextView valueCH2;
+//    @BindView(R.id.valueCH1) TextView valueCH1;
+//    @BindView(R.id.valueCH2) TextView valueCH2;
     @BindView(R.id.layout_sensors) RelativeLayout layoutSensors;
-    @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
+//    @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
     @BindView(R.id.fab) FloatingActionButton fab;
@@ -132,13 +132,13 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                     Log.i(TAG, "oncliiiiick");
                     layoutSensors.setVisibility(View.GONE);
                     fab.show();
-                    layoutGestures.setVisibility(View.VISIBLE);
+//                    layoutGestures.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_dashboard:
                     Log.i(TAG, ":))");
                     layoutSensors.setVisibility(View.VISIBLE);
                     fab.hide();
-                    layoutGestures.setVisibility(View.GONE);
+//                    layoutGestures.setVisibility(View.GONE);
                     return true;
             }
             return false;
@@ -151,43 +151,43 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         setContentView(R.layout.activity_chat);
 
         gestureMyList = new ArrayList<>();
-        recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
+//        recyclerView.setHasFixedSize(true);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         //adding some items to our list
-        gestureMyList.add(
-                new Gesture_my(
-                        1,
-                        R.drawable.gesture1,
-                        "bla bla bla",
-                        "Нажмите для редактирования начального и конечного состояний",
-                        "Жест №1",
-                        2,
-                        600000));
-
-        gestureMyList.add(
-                new Gesture_my(
-                        1,
-                        R.drawable.gesture2,
-                        "bla bla bla",
-                        "Нажмите для редактирования начального и конечного состояний",
-                        "Жест №2",
-                        2,
-                        60000));
-
-        gestureMyList.add(
-                new Gesture_my(
-                        1,
-                        R.drawable.gesture3,
-                        "bla bla bla",
-                        "Нажмите для редактирования начального и конечного состояний",
-                        "Жест №3",
-                        2,
-                        60000));
-
-        gestureAdapter = new GesstureAdapter(this, gestureMyList, this);
-        recyclerView.setAdapter(gestureAdapter);
+//        gestureMyList.add(
+//                new Gesture_my(
+//                        1,
+//                        R.drawable.gesture1,
+//                        "bla bla bla",
+//                        "Нажмите для редактирования начального и конечного состояний",
+//                        "Жест №1",
+//                        2,
+//                        600000));
+//
+//        gestureMyList.add(
+//                new Gesture_my(
+//                        1,
+//                        R.drawable.gesture2,
+//                        "bla bla bla",
+//                        "Нажмите для редактирования начального и конечного состояний",
+//                        "Жест №2",
+//                        2,
+//                        60000));
+//
+//        gestureMyList.add(
+//                new Gesture_my(
+//                        1,
+//                        R.drawable.gesture3,
+//                        "bla bla bla",
+//                        "Нажмите для редактирования начального и конечного состояний",
+//                        "Жест №3",
+//                        2,
+//                        60000));
+//
+//        gestureAdapter = new GesstureAdapter(this, gestureMyList, this);
+//        recyclerView.setAdapter(gestureAdapter);
 
         DaggerChatComponent.builder()
             .bluetoothModule(MyApp.app().bluetoothModule())
@@ -237,7 +237,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
         YAxis y1 = mChart.getAxisLeft();
         y1.setTextColor(Color.WHITE);
-        y1.setAxisMaximum(3200f);
+        y1.setAxisMaximum(3000f);
         y1.setAxisMinimum(-100f);
         y1.setDrawGridLines(true);
 
@@ -276,7 +276,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
         YAxis y1_2 = mChart2.getAxisLeft();
         y1_2.setTextColor(Color.WHITE);
-        y1_2.setAxisMaximum(3200f);
+        y1_2.setAxisMaximum(3000f);
         y1_2.setAxisMinimum(-100f);
         y1_2.setDrawGridLines(true);
 
@@ -322,63 +322,63 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             }
         });
 
-        seekBarCH1off.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueCH1off.setText(String.valueOf(seekBar.getProgress()));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                valueCH1off.setText(String.valueOf(seekBar.getProgress()));
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH1off.setText(String.valueOf(seekBar.getProgress()));
-                intValueCH1off = seekBarCH1off.getProgress();
-                indicatorTypeMessage = 0x01;
-                numberChannel = 0x01;
-                TextByteTreeg[0] = indicatorTypeMessage;
-                TextByteTreeg[1] = numberChannel;
-                TextByteTreeg[2] = (byte) intValueCH1on;
-                TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
-                TextByteTreeg[4] = (byte) intValueCH1off;
-                TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
-                TextByteTreeg[6] = (byte) intValueCH1sleep;
-                TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
-            }
-        });
-
-        seekBarCH1sleep.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueCH1sleep.setText(String.valueOf(seekBar.getProgress()));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                valueCH1sleep.setText(String.valueOf(seekBar.getProgress()));
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH1sleep.setText(String.valueOf(seekBar.getProgress()));
-                intValueCH1sleep = seekBarCH1sleep.getProgress();
-                indicatorTypeMessage = 0x01;
-                numberChannel = 0x01;
-                TextByteTreeg[0] = indicatorTypeMessage;
-                TextByteTreeg[1] = numberChannel;
-                TextByteTreeg[2] = (byte) intValueCH1on;
-                TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
-                TextByteTreeg[4] = (byte) intValueCH1off;
-                TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
-                TextByteTreeg[6] = (byte) intValueCH1sleep;
-                TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
-            }
-        });
+//        seekBarCH1off.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                valueCH1off.setText(String.valueOf(seekBar.getProgress()));
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//                valueCH1off.setText(String.valueOf(seekBar.getProgress()));
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                valueCH1off.setText(String.valueOf(seekBar.getProgress()));
+//                intValueCH1off = seekBarCH1off.getProgress();
+//                indicatorTypeMessage = 0x01;
+//                numberChannel = 0x01;
+//                TextByteTreeg[0] = indicatorTypeMessage;
+//                TextByteTreeg[1] = numberChannel;
+//                TextByteTreeg[2] = (byte) intValueCH1on;
+//                TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
+//                TextByteTreeg[4] = (byte) intValueCH1off;
+//                TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
+//                TextByteTreeg[6] = (byte) intValueCH1sleep;
+//                TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
+//                presenter.onHelloWorld(TextByteTreeg);
+//            }
+//        });
+//
+//        seekBarCH1sleep.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                valueCH1sleep.setText(String.valueOf(seekBar.getProgress()));
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//                valueCH1sleep.setText(String.valueOf(seekBar.getProgress()));
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                valueCH1sleep.setText(String.valueOf(seekBar.getProgress()));
+//                intValueCH1sleep = seekBarCH1sleep.getProgress();
+//                indicatorTypeMessage = 0x01;
+//                numberChannel = 0x01;
+//                TextByteTreeg[0] = indicatorTypeMessage;
+//                TextByteTreeg[1] = numberChannel;
+//                TextByteTreeg[2] = (byte) intValueCH1on;
+//                TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
+//                TextByteTreeg[4] = (byte) intValueCH1off;
+//                TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
+//                TextByteTreeg[6] = (byte) intValueCH1sleep;
+//                TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
+//                presenter.onHelloWorld(TextByteTreeg);
+//            }
+//        });
 
         seekBarCH2on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -409,63 +409,63 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             }
         });
 
-        seekBarCH2off.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueCH2off.setText(String.valueOf(seekBar.getProgress()));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                valueCH2off.setText(String.valueOf(seekBar.getProgress()));
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH2off.setText(String.valueOf(seekBar.getProgress()));
-                intValueCH2off = seekBarCH2off.getProgress();
-                indicatorTypeMessage = 0x01;
-                numberChannel = 0x02;
-                TextByteTreeg[0] = indicatorTypeMessage;
-                TextByteTreeg[1] = numberChannel;
-                TextByteTreeg[2] = (byte) intValueCH2on;
-                TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
-                TextByteTreeg[4] = (byte) intValueCH2off;
-                TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
-                TextByteTreeg[6] = (byte) intValueCH2sleep;
-                TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
-            }
-        });
-
-        seekBarCH2sleep.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueCH2sleep.setText(String.valueOf(seekBar.getProgress()));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                valueCH2sleep.setText(String.valueOf(seekBar.getProgress()));
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH2sleep.setText(String.valueOf(seekBar.getProgress()));
-                intValueCH2sleep = seekBarCH2sleep.getProgress();
-                indicatorTypeMessage = 0x01;
-                numberChannel = 0x02;
-                TextByteTreeg[0] = indicatorTypeMessage;
-                TextByteTreeg[1] = numberChannel;
-                TextByteTreeg[2] = (byte) intValueCH2on;
-                TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
-                TextByteTreeg[4] = (byte) intValueCH2off;
-                TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
-                TextByteTreeg[6] = (byte) intValueCH2sleep;
-                TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
-            }
-        });
+//        seekBarCH2off.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                valueCH2off.setText(String.valueOf(seekBar.getProgress()));
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//                valueCH2off.setText(String.valueOf(seekBar.getProgress()));
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                valueCH2off.setText(String.valueOf(seekBar.getProgress()));
+//                intValueCH2off = seekBarCH2off.getProgress();
+//                indicatorTypeMessage = 0x01;
+//                numberChannel = 0x02;
+//                TextByteTreeg[0] = indicatorTypeMessage;
+//                TextByteTreeg[1] = numberChannel;
+//                TextByteTreeg[2] = (byte) intValueCH2on;
+//                TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
+//                TextByteTreeg[4] = (byte) intValueCH2off;
+//                TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
+//                TextByteTreeg[6] = (byte) intValueCH2sleep;
+//                TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
+//                presenter.onHelloWorld(TextByteTreeg);
+//            }
+//        });
+//
+//        seekBarCH2sleep.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                valueCH2sleep.setText(String.valueOf(seekBar.getProgress()));
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//                valueCH2sleep.setText(String.valueOf(seekBar.getProgress()));
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                valueCH2sleep.setText(String.valueOf(seekBar.getProgress()));
+//                intValueCH2sleep = seekBarCH2sleep.getProgress();
+//                indicatorTypeMessage = 0x01;
+//                numberChannel = 0x02;
+//                TextByteTreeg[0] = indicatorTypeMessage;
+//                TextByteTreeg[1] = numberChannel;
+//                TextByteTreeg[2] = (byte) intValueCH2on;
+//                TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
+//                TextByteTreeg[4] = (byte) intValueCH2off;
+//                TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
+//                TextByteTreeg[6] = (byte) intValueCH2sleep;
+//                TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
+//                presenter.onHelloWorld(TextByteTreeg);
+//            }
+//        });
 
         seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -757,11 +757,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         Integer numberOfChannel = new Integer(numberChannel);
         switch (numberOfChannel){
             case 1:
-                valueCH1.setText(strlevelCH);
+//                valueCH1.setText(strlevelCH);
                 addEntry(levelCH);
                 break;
             case 2:
-                valueCH2.setText(strlevelCH);
+//                valueCH2.setText(strlevelCH);
                 addEntry2(levelCH);
                 break;
         }
@@ -791,11 +791,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         helloWorld.setEnabled(enabled);
         helloWorld2.setEnabled(enabled);
         seekBarCH1on.setEnabled(enabled);
-        seekBarCH1off.setEnabled(enabled);
-        seekBarCH1sleep.setEnabled(enabled);
+//        seekBarCH1off.setEnabled(enabled);
+//        seekBarCH1sleep.setEnabled(enabled);
         seekBarCH2on.setEnabled(enabled);
-        seekBarCH2off.setEnabled(enabled);
-        seekBarCH2sleep.setEnabled(enabled);
+//        seekBarCH2off.setEnabled(enabled);
+//        seekBarCH2sleep.setEnabled(enabled);
         seekBarIstop.setEnabled(enabled);
     }
 

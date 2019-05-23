@@ -1,5 +1,6 @@
 package me.aflak.libraries.ui.chat.view;
 
+import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -90,6 +92,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
     @BindView(R.id.fab) FloatingActionButton fab;
+    @BindView(R.id.limit_2) View limit_1;
+    ObjectAnimator objectAnimator;
     private int intValueCH1on = 2500;
     private int intValueCH1off = 100;
     private int intValueCH1sleep = 200;
@@ -152,6 +156,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        objectAnimator =ObjectAnimator.ofFloat(limit_1, "rotation", 230);
 
         gestureMyList = new ArrayList<>();
 //        recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
@@ -524,11 +530,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //                    isEnable = true;
 //                }
                 int numberSensor = 0x07;
-                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+//                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                 addEntry(20);
                 addEntry2(2500);
-                mChart.animateX(2000);
 
+                objectAnimator.setDuration(4000);
+                objectAnimator.start();
             }
         });
 
@@ -587,7 +594,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 }
             }
         });
-        thread.start();
+//        thread.start();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -771,6 +778,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         addEntry(2500);
         addEntry2(20);
         mChart2.animateY(2000, Easing.EaseOutBounce);
+        objectAnimator.setDuration(4000);
+        objectAnimator.start();
     }
 
     @Override

@@ -158,29 +158,24 @@
                 android:textSize="18sp"
                 android:visibility="gone" />
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="1dp"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="0dp"
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
                 android:background="@android:color/darker_gray" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginTop="230dp"
+                android:background="@android:color/darker_gray"
+                android:id="@+id/limit_1"/>
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="230dp"
-                android:background="@android:color/darker_gray" />
-
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="1dp"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
+                android:layout_height="4dp"
                 android:layout_marginTop="460dp"
-                android:background="@android:color/darker_gray" />
+                android:background="@android:color/darker_gray"
+                android:id="@+id/limit_2"/>
 
             <Button
                 android:id="@+id/activity_chat_hello_world"

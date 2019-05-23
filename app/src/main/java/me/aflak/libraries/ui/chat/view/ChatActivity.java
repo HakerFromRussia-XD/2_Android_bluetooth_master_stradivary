@@ -119,6 +119,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private LineChart mChart2;
     private Thread thread;
     private boolean plotData2 = true;
+    public float iterator = 0;
     String TAG = "thread";
 //    for bluetooth controller restart error
     private boolean pervoe_vkluchenie_bluetooth = true;
@@ -261,15 +262,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         y1.setTextColor(Color.WHITE);
         y1.setAxisMaximum(3000f);
         y1.setAxisMinimum(-100f);
-        y1.setDrawGridLines(true);
+        y1.setGridColor(Color.BLACK);
+        y1.setDrawGridLines(false);
 
-        YAxis y12 = mChart.getAxisRight();
-        y12.setGridColor(Color.BLACK);
-        y12.setEnabled(false);
-
-        // draw limit lines behind data instead of on top
-        y12.setDrawLimitLinesBehindData(true);
-        y12.setDrawLimitLinesBehindData(true);
+        mChart.getAxisRight().setEnabled(false);
 
 ////////initialized graph for channel 2
         mChart2 = (LineChart) findViewById(R.id.chartCH2);
@@ -313,21 +309,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         y1_2.setDrawGridLines(false);
 
 
-        LimitLine ll1 = new LimitLine(2000f, "Порог датчика закрытия");
-        ll1.setLineWidth(3f);
-        ll1.enableDashedLine(100f, 0f, 50f);
-        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
-        ll1.setTextSize(10f);
-        ll1.setLineColor(Color.RED);
-        ll1.setTextColor(Color.WHITE);
-
-        // draw limit lines behind data instead of on top
-        y1_2.setDrawLimitLinesBehindData(true);
-        x12.setDrawLimitLinesBehindData(true);
-
-        // add limit lines
-        y1_2.addLimitLine(ll1);
-
 //        startPlot();
 
         TextByteTreeg[2] = (byte) intValueCH1on;
@@ -367,7 +348,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH1sleep;
                 TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-//                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -458,7 +439,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH2sleep;
                 TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-//                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -571,6 +552,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         @Override
                         public void run() {
                             if (isEnable && !errorReception) {
+                                addEntry((int) (2500 - iterator));
                                 indicatorTypeMessage = 0x02;
                                 numberChannel = 0x01;
                                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -580,12 +562,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         }
                     });
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(25);
                     }catch (Exception e){}
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (isEnable && !errorReception) {
+                                addEntry((int) (iterator));
+                                addEntry2((int) (iterator));
                                 indicatorTypeMessage = 0x02;
                                 numberChannel = 0x02;
                                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -595,22 +579,24 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         }
                     });
                     try {
-                        Thread.sleep(200);
+//                        Thread.sleep(25);
                     }catch (Exception e){}
-                    if (isEnable && errorReception) {
-                        errorReception = false;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {}
-                        });
-                        try {
-                            Thread.sleep(500000);
-                        }catch (Exception e){}
-                    }
+//                    if (isEnable && errorReception) { //обработчик пришедшей ошибки
+//                        errorReception = false;
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {}
+//                        });
+//                        try {
+//                            Thread.sleep(500000);
+//                        }catch (Exception e){}
+//                    }
+                    iterator+=20;
+                    if ( iterator == 2500) {iterator = 0;}
                 }
             }
         });
-//        thread.start();
+        thread.start();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -793,9 +779,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
         addEntry(2500);
         addEntry2(20);
-        mChart2.animateY(2000, Easing.EaseOutBounce);
-        objectAnimator.setDuration(4000);
-        objectAnimator.start();
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -28,8 +29,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -216,6 +219,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         mChart.setDrawGridBackground(false);
         mChart.setPinchZoom(false);
         mChart.setBackgroundColor(Color.BLACK);
+        mChart.getDescription().setEnabled(false);
         mChart.getHighlightByTouchPoint(1, 1);
 
         LineData data = new LineData();
@@ -226,6 +230,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
         legend.setForm(Legend.LegendForm.LINE);
         legend.setTextColor(Color.WHITE);
+        legend.setForm(Legend.LegendForm.NONE);
 
         XAxis x1 = mChart.getXAxis();
         x1.setTextColor(Color.WHITE);
@@ -242,7 +247,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         y1.setDrawGridLines(true);
 
         YAxis y12 = mChart.getAxisRight();
+        y12.setGridColor(Color.BLACK);
         y12.setEnabled(false);
+
+        // draw limit lines behind data instead of on top
+        y12.setDrawLimitLinesBehindData(true);
+        y12.setDrawLimitLinesBehindData(true);
 
 ////////initialized graph for channel 2
         mChart2 = (LineChart) findViewById(R.id.chartCH2);
@@ -255,6 +265,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         mChart2.setDrawGridBackground(false);
         mChart2.setPinchZoom(false);
         mChart2.setBackgroundColor(Color.BLACK);
+        mChart2.getDescription().setEnabled(false);
         mChart2.getHighlightByTouchPoint(1, 1);
 
         LineData data2 = new LineData();
@@ -265,23 +276,40 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
         legend2.setForm(Legend.LegendForm.LINE);
         legend2.setTextColor(Color.WHITE);
+        legend2.setForm(Legend.LegendForm.NONE);
 
         XAxis x12 = mChart2.getXAxis();
-        x12.setTextColor(Color.WHITE);
+        x12.setTextColor(Color.BLACK);
         x12.setDrawGridLines(false);
         x12.setAxisMaximum(4000000f);//x1.resetAxisMaximum();
-
-
         x12.setAvoidFirstLastClipping(true);
 
         YAxis y1_2 = mChart2.getAxisLeft();
+
+        // disable dual axis (only use LEFT axis)
+        mChart2.getAxisRight().setEnabled(false);
+
         y1_2.setTextColor(Color.WHITE);
         y1_2.setAxisMaximum(3000f);
         y1_2.setAxisMinimum(-100f);
-        y1_2.setDrawGridLines(true);
+        y1_2.setGridColor(Color.BLACK);
+        y1_2.setDrawGridLines(false);
 
-        YAxis y122 = mChart2.getAxisRight();
-        y122.setEnabled(false);
+
+        LimitLine ll1 = new LimitLine(2000f, "Порог датчика закрытия");
+        ll1.setLineWidth(3f);
+        ll1.enableDashedLine(100f, 0f, 50f);
+        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        ll1.setTextSize(10f);
+        ll1.setLineColor(Color.RED);
+        ll1.setTextColor(Color.WHITE);
+
+        // draw limit lines behind data instead of on top
+        y1_2.setDrawLimitLinesBehindData(true);
+        x12.setDrawLimitLinesBehindData(true);
+
+        // add limit lines
+        y1_2.addLimitLine(ll1);
 
 //        startPlot();
 
@@ -499,6 +527,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                 addEntry(20);
                 addEntry2(2500);
+                mChart.animateX(2000);
 
             }
         });
@@ -636,6 +665,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private void addEntry(int event){
 
         LineData data = mChart.getData();
+        LimitLine line = new LimitLine(100f);
 
         if(data != null){
             ILineDataSet set = data.getDataSetByIndex(0);
@@ -647,6 +677,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
             data.addEntry(new Entry(set.getEntryCount(), event), 0);
             data.notifyDataChanged();
+
 
             mChart.setVisibleXRange(0, 50);
             mChart.setMaxVisibleValueCount(0);
@@ -739,6 +770,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
         addEntry(2500);
         addEntry2(20);
+        mChart2.animateY(2000, Easing.EaseOutBounce);
     }
 
     @Override

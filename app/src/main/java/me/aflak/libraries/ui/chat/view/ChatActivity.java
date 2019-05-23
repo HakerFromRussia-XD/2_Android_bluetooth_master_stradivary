@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
@@ -20,6 +21,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -122,8 +124,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private boolean pervoe_vkluchenie_bluetooth = true;
 //    for animation
     ImageView limit_1;
+    ImageView limit_2;
     ObjectAnimator objectAnimator;
-    private int limit_sensor_open = 460;
+    ObjectAnimator objectAnimator2;
+    private int limit_sensor_open = 0;
+    private int limit_sensor_close = 0;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -159,7 +164,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        final float scale = getResources().getDisplayMetrics().density;
+
         limit_1 = (ImageView) findViewById(R.id.limit_1);
+        limit_2 = (ImageView) findViewById(R.id.limit_2);
 //        objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
 
         gestureMyList = new ArrayList<>();
@@ -334,6 +342,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 valueCH1on.setText(String.valueOf(seekBar.getProgress()));
+                limit_sensor_open = seekBar.getProgress();
+                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((210*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
+                objectAnimator.setDuration(200);
+                objectAnimator.start();
             }
 
             @Override
@@ -355,7 +367,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH1sleep;
                 TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
+//                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -421,10 +433,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 valueCH2on.setText(String.valueOf(seekBar.getProgress()));
-                limit_sensor_open = seekBar.getProgress();
-                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
-                objectAnimator.setDuration(200);
-                objectAnimator.start();
+                limit_sensor_close = seekBar.getProgress();
+                objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((440*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
+                objectAnimator2.setDuration(200);
+                objectAnimator2.start();
             }
 
             @Override
@@ -446,7 +458,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH2sleep;
                 TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
+//                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -537,12 +549,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //                    isEnable = true;
 //                }
                 int numberSensor = 0x07;
-//                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                 addEntry(20);
                 addEntry2(2500);
-
-                objectAnimator.setDuration(4000);
-                objectAnimator.start();
             }
         });
 

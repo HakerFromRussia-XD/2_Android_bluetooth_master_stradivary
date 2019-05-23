@@ -92,8 +92,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
     @BindView(R.id.fab) FloatingActionButton fab;
-    @BindView(R.id.limit_2) View limit_1;
-    ObjectAnimator objectAnimator;
     private int intValueCH1on = 2500;
     private int intValueCH1off = 100;
     private int intValueCH1sleep = 200;
@@ -122,6 +120,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     String TAG = "thread";
 //    for bluetooth controller restart error
     private boolean pervoe_vkluchenie_bluetooth = true;
+//    for animation
+    ImageView limit_1;
+    ObjectAnimator objectAnimator;
+    private int limit_sensor_open = 460;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -157,7 +159,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        objectAnimator =ObjectAnimator.ofFloat(limit_1, "rotation", 230);
+        limit_1 = (ImageView) findViewById(R.id.limit_1);
+//        objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
 
         gestureMyList = new ArrayList<>();
 //        recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
@@ -418,6 +421,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 valueCH2on.setText(String.valueOf(seekBar.getProgress()));
+                limit_sensor_open = seekBar.getProgress();
+                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
+                objectAnimator.setDuration(200);
+                objectAnimator.start();
             }
 
             @Override

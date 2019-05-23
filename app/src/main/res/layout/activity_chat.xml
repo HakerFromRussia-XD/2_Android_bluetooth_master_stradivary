@@ -77,14 +77,14 @@
                 android:id="@+id/chartCH1"
                 android:layout_width="340dp"
                 android:layout_height="230dp"
-                android:layout_alignEnd="@+id/activity_chat_status"
-                android:layout_alignRight="@+id/activity_chat_status"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginRight="10dp"
+                android:layout_marginEnd="100dp"
+                android:layout_marginRight="71dp"
                 android:layout_marginBottom="0dp"
                 android:visibility="visible"
                 tools:ignore="NotSibling"></com.github.mikephil.charting.charts.LineChart>
@@ -158,17 +158,30 @@
                 android:textSize="18sp"
                 android:visibility="gone" />
 
-            <ImageView
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:background="@android:color/darker_gray" />
 
-            <ImageView
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_marginTop="230dp"
-                android:background="@android:color/darker_gray"
-                android:id="@+id/limit_1"/>
+                android:background="@android:color/darker_gray" />
+
+            <ImageView
+                android:id="@+id/limit_1"
+                android:layout_width="wrap_content"
+                android:layout_height="3dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="35dp"
+                android:layout_marginTop="230dp"
+                android:layout_marginEnd="115dp"
+                android:background="@android:color/holo_green_light"
+                tools:ignore="RtlCompat" />
 
             <View
                 android:layout_width="match_parent"
@@ -456,18 +469,18 @@
 
             <SeekBar
                 android:id="@+id/seekBarCH1on"
-                android:layout_width="280dp"
+                android:layout_width="wrap_content"
                 android:layout_height="230dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="-190dp"
+                android:layout_marginLeft="-190dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginEnd="-130dp"
+                android:layout_marginRight="-130dp"
                 android:layout_alignEnd="@+id/chartCH1"
                 android:layout_alignRight="@+id/chartCH1"
                 android:layout_alignBottom="@+id/chartCH1"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="-130dp"
-                android:layout_marginLeft="-130dp"
-                android:layout_marginTop="0dp"
-                android:layout_marginEnd="-150dp"
-                android:layout_marginRight="-150dp"
-                android:layout_marginBottom="0dp"
                 android:layout_toEndOf="@+id/chartCH1"
                 android:layout_toRightOf="@+id/chartCH1"
                 android:max="2500"
@@ -476,16 +489,23 @@
 
             <SeekBar
                 android:id="@+id/seekBarCH2on"
-                android:layout_width="240dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/chartCH2"
-                android:layout_marginStart="139dp"
-                android:layout_marginLeft="139dp"
-                android:layout_marginTop="27dp"
+                android:layout_width="wrap_content"
+                android:layout_height="230dp"
+                android:layout_below="@+id/valueCH1on"
+                android:layout_alignStart="@+id/seekBarCH1on"
+                android:layout_alignLeft="@+id/seekBarCH1on"
+                android:layout_alignEnd="@+id/seekBarCH1on"
+                android:layout_alignRight="@+id/seekBarCH1on"
+                android:layout_alignBottom="@+id/chartCH2"
+                android:layout_marginStart="0dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="0dp"
                 android:layout_marginEnd="0dp"
                 android:layout_marginRight="0dp"
+                android:layout_marginBottom="0dp"
                 android:max="2500"
-                android:progress="2500" />
+                android:progress="2500"
+                android:rotation="-90" />
 
             <!--<SeekBar-->
             <!--android:id="@+id/seekBarCH1off"-->

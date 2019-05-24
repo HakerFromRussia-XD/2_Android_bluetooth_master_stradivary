@@ -219,8 +219,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+//        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+//        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         if(mAccelerometer != null){
             sensorManager.registerListener(ChatActivity.this,mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
@@ -348,7 +348,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH1sleep;
                 TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
+//                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -439,7 +439,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH2sleep;
                 TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
+//                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -530,7 +530,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //                    isEnable = true;
 //                }
                 int numberSensor = 0x07;
-                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+//                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                 addEntry(20);
                 addEntry2(2500);
             }
@@ -557,7 +557,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                                 numberChannel = 0x01;
                                 TextByteTreeg[0] = indicatorTypeMessage;
                                 TextByteTreeg[1] = numberChannel;
-                                presenter.onHelloWorld(TextByteTreeg);
+//                                presenter.onHelloWorld(TextByteTreeg);
                             }
                         }
                     });
@@ -574,7 +574,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                                 numberChannel = 0x02;
                                 TextByteTreeg[0] = indicatorTypeMessage;
                                 TextByteTreeg[1] = numberChannel;
-                                presenter.onHelloWorld(TextByteTreeg);
+//                                presenter.onHelloWorld(TextByteTreeg);
                             }
                         }
                     });
@@ -776,7 +776,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @OnClick(R.id.activity_chat_hello_world)
     public void onHelloWorld(){
         int numberSensor = 0x06;
-        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+//        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
         addEntry(2500);
         addEntry2(20);
     }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Stadivary Control</string>
+    <string name="app_name">Stradivary Control</string>
     <string name="helloWorld">open</string>
     <string name="helloWorld2">close</string>
     <string name="helloWorld3">stop</string>

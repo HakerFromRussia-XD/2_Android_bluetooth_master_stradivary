@@ -251,7 +251,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         legend.setForm(Legend.LegendForm.NONE);
 
         XAxis x1 = mChart.getXAxis();
-        x1.setTextColor(Color.WHITE);
+        x1.setTextColor(Color.BLACK);
         x1.setDrawGridLines(false);
         x1.setAxisMaximum(4000000f);//x1.resetAxisMaximum();
 

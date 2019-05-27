@@ -60,7 +60,7 @@
         <RelativeLayout
             android:id="@+id/layout_sensors"
             android:layout_width="match_parent"
-            android:layout_height="630dp"
+            android:layout_height="660dp"
             android:layout_marginTop="0dp"
             android:orientation="vertical"
             android:paddingLeft="0dp"
@@ -76,7 +76,7 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chartCH1"
                 android:layout_width="340dp"
-                android:layout_height="230dp"
+                android:layout_height="260dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
@@ -93,7 +93,7 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chartCH2"
                 android:layout_width="340dp"
-                android:layout_height="230dp"
+                android:layout_height="260dp"
                 android:layout_below="@+id/limit_1"
                 android:layout_alignStart="@+id/chartCH1"
                 android:layout_alignLeft="@+id/chartCH1"
@@ -169,7 +169,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:layout_alignTop="@+id/limit_1"
+                android:layout_below="@+id/chartCH1"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="0dp"
@@ -179,7 +179,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:layout_marginTop="460dp"
+                android:layout_below="@+id/chartCH2"
+                android:layout_marginTop="0dp"
                 android:background="@android:color/darker_gray" />
 
             <ImageView
@@ -188,12 +189,14 @@
                 android:layout_height="3dp"
                 android:layout_alignEnd="@+id/chartCH1"
                 android:layout_alignRight="@+id/chartCH1"
+                android:layout_alignBottom="@+id/chartCH1"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
                 android:layout_marginStart="35dp"
-                android:layout_marginTop="230dp"
+                android:layout_marginTop="226dp"
                 android:layout_marginEnd="15dp"
                 android:layout_marginRight="15dp"
+                android:layout_marginBottom="0dp"
                 android:background="@android:color/holo_red_dark"
                 tools:ignore="RtlCompat" />
 
@@ -203,12 +206,14 @@
                 android:layout_height="3dp"
                 android:layout_alignEnd="@+id/limit_1"
                 android:layout_alignRight="@+id/limit_1"
+                android:layout_alignBottom="@+id/chartCH2"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
                 android:layout_marginStart="35dp"
                 android:layout_marginTop="460dp"
                 android:layout_marginEnd="0dp"
                 android:layout_marginRight="321dp"
+                android:layout_marginBottom="0dp"
                 android:background="@android:color/holo_red_dark"
                 tools:ignore="RtlCompat" />
 
@@ -352,7 +357,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="19dp"
                 android:text="I stop:"
                 tools:ignore="RtlCompat" />
 
@@ -453,7 +458,7 @@
                 android:layout_below="@+id/chartCH2"
                 android:layout_marginStart="5dp"
                 android:layout_marginLeft="5dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="19dp"
                 android:layout_toEndOf="@+id/valueIstop"
                 android:layout_toRightOf="@+id/valueIstop"
                 android:text="mA" />
@@ -511,9 +516,12 @@
                 android:layout_marginBottom="-3dp"
                 android:layout_toEndOf="@+id/chartCH1"
                 android:layout_toRightOf="@+id/chartCH1"
-                android:max="190"
+                android:max="220"
                 android:progress="80"
                 android:rotation="-90"
+                android:progressDrawable="@drawable/track"
+                android:thumb="@drawable/thumb"
+                android:indeterminate="false"
                 tools:ignore="RtlCompat" />
 
             <SeekBar
@@ -532,9 +540,12 @@
                 android:layout_marginEnd="0dp"
                 android:layout_marginRight="0dp"
                 android:layout_marginBottom="0dp"
-                android:max="190"
+                android:max="220"
                 android:progress="80"
-                android:rotation="-90" />
+                android:rotation="-90"
+                android:progressDrawable="@drawable/track"
+                android:thumb="@drawable/thumb"
+                android:indeterminate="false"/>
 
             <!--<SeekBar-->
             <!--android:id="@+id/seekBarCH1off"-->
@@ -593,17 +604,20 @@
                 android:layout_width="240dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/chartCH2"
-                android:layout_alignEnd="@+id/activity_chat_hello_world2"
-                android:layout_alignRight="@+id/activity_chat_hello_world2"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:layout_marginStart="5dp"
                 android:layout_marginLeft="5dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="0dp"
-                android:layout_marginRight="14dp"
+                android:layout_marginRight="0dp"
                 android:layout_toEndOf="@+id/textView24"
                 android:layout_toRightOf="@+id/textView24"
+                android:indeterminate="false"
                 android:max="3000"
-                android:progress="200" />
+                android:progress="200"
+                android:progressDrawable="@drawable/track"
+                android:thumb="@drawable/thumb" />
 
             <!--<TextView-->
             <!--android:id="@+id/valueCH2"-->
@@ -679,7 +693,7 @@
                 android:layout_alignParentRight="false"
                 android:layout_marginStart="68dp"
                 android:layout_marginLeft="68dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="19dp"
                 android:text="200"
                 android:textAllCaps="false"
                 android:textStyle="bold"

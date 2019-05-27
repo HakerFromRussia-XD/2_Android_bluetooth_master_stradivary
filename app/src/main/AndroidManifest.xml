@@ -23,8 +23,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".ui.chat.view.ChatActivity"
-            android:screenOrientation="portrait" >
+            android:name=".ui.chat.view.ChatActivity">
             <!--<intent-filter>-->
                 <!--<action android:name="android.intent.action.MAIN" />-->
                 <!--<category android:name="android.intent.category.LAUNCHER" />-->

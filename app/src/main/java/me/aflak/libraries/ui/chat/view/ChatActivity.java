@@ -251,7 +251,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         legend.setForm(Legend.LegendForm.NONE);
 
         XAxis x1 = mChart.getXAxis();
-        x1.setTextColor(Color.WHITE);
+        x1.setTextColor(Color.BLACK);
         x1.setDrawGridLines(false);
         x1.setAxisMaximum(4000000f);//x1.resetAxisMaximum();
 
@@ -324,7 +324,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 valueCH1on.setText(String.valueOf(seekBar.getProgress()));
                 limit_sensor_open = seekBar.getProgress();
-                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((210*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
+                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((240*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
                 objectAnimator.setDuration(200);
                 objectAnimator.start();
             }
@@ -336,7 +336,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH1on.setText(String.valueOf(seekBar.getProgress()));
+                valueCH1on.setText(String.valueOf(seekBar.getProgress()*14));
                 intValueCH1on = seekBarCH1on.getProgress();
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x01;
@@ -415,7 +415,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 valueCH2on.setText(String.valueOf(seekBar.getProgress()));
                 limit_sensor_close = seekBar.getProgress();
-                objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((440*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
+                objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((500*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
                 objectAnimator2.setDuration(200);
                 objectAnimator2.start();
             }
@@ -427,7 +427,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH2on.setText(String.valueOf(seekBar.getProgress()));
+                valueCH2on.setText(String.valueOf(seekBar.getProgress()*14));
                 intValueCH2on = seekBarCH2on.getProgress();
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x02;

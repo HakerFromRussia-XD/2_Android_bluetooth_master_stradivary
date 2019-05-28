@@ -107,6 +107,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public boolean stateIsOpen = false;
     public boolean errorReception = false;
     private int i = 0;
+    public int multiplierSeekbar = 14;
     public byte[] TextByteTreeg = new byte[8];
     public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
     public byte[] TextByteTreegMod = new byte[2];
@@ -336,8 +337,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH1on.setText(String.valueOf(seekBar.getProgress()*14));
-                intValueCH1on = seekBarCH1on.getProgress();
+                valueCH1on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
+                intValueCH1on = seekBarCH1on.getProgress()*multiplierSeekbar;
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x01;
                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -427,8 +428,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH2on.setText(String.valueOf(seekBar.getProgress()*14));
-                intValueCH2on = seekBarCH2on.getProgress();
+                valueCH2on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
+                intValueCH2on = seekBarCH2on.getProgress()*multiplierSeekbar;
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x02;
                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -562,7 +563,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         }
                     });
                     try {
-                        Thread.sleep(25);
+//                        Thread.sleep(25);
                     }catch (Exception e){}
                     runOnUiThread(new Runnable() {
                         @Override
@@ -579,7 +580,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         }
                     });
                     try {
-//                        Thread.sleep(25);
+                        Thread.sleep(50);
                     }catch (Exception e){}
 //                    if (isEnable && errorReception) { //обработчик пришедшей ошибки
 //                        errorReception = false;
@@ -596,7 +597,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 }
             }
         });
-        thread.start();
+//        thread.start();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -688,9 +689,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.notifyDataChanged();
 
 
-            mChart.setVisibleXRange(0, 50);
+            mChart.setVisibleXRange(0, 100);
             mChart.setMaxVisibleValueCount(0);
-            mChart.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
+            mChart.moveViewToX(set.getEntryCount()-100);//data.getEntryCount()
 
         }
     }
@@ -710,9 +711,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.addEntry(new Entry(set.getEntryCount(), event), 0);
             data.notifyDataChanged();
 
-            mChart2.setVisibleXRange(0, 50);
+            mChart2.setVisibleXRange(0, 100);
             mChart2.setMaxVisibleValueCount(0);
-            mChart2.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
+            mChart2.moveViewToX(set.getEntryCount()-100);//data.getEntryCount()
 
         }
     }

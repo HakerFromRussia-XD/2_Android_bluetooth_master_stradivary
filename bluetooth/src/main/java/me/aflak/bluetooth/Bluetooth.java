@@ -345,6 +345,10 @@ public class Bluetooth {
         private int msgRegister = 0;  //для свапа младших и старших байт номера регистра
         private int msgChannel = 0;   //для номера канала
         private int msgLevelCH = 1250;
+        private int msgCurrent = 0;
+        private int msgLevelCH1 = 0;
+        private int msgLevelCH2 = 0;
+        private byte msgIndicationState = 0;
         private int lowByte = 0;     //для записи младшего байта при перемене младших и старших байт
         private int i=1;
         private boolean errorReception = false;        //true-ошибка на принимающей стороне false-ошибок нет
@@ -408,48 +412,40 @@ public class Bluetooth {
                             msgRegister = (msg << 8) + lowByte;  //msgRegister содержит номер регистра
                             System.out.println("<-- номер регистра:"+msgRegister);
                         }
-                        if((i >= 8)&&(i <=(msgLenght+7))){
-                            System.out.println("<-- считывание данных:" + msg);
-                            if(msg == 36){
-                                System.out.println("<-- Пришла лажа :((");
-                                no_error = false;
-                            } else {
-                                if(i == 8){
+                        if(i == 8){
+                            lowByte = msg;
+                        }
+                        if(i == 9){
+                            msgChannel = (msg << 8) + lowByte;
+                            System.out.println("<-- номер канала:"+msgChannel);
+                        }
+                        if (msgChannel == 65535){
+                            errorReception = true;
+                            System.out.println("<-- детект ошибки: " + errorReception);
+                        } else {
+                            errorReception = false;
+                        }
+                        switch (msgChannel){
+                            case 1:
+                                if(i == 10){
                                     lowByte = msg;
                                 }
-                                if(i == 9){
-                                    msgChannel = (msg << 8) + lowByte;
-                                    System.out.println("<-- номер канала:"+msgChannel);
+                                if(i == 11){
+                                    msgLevelCH = (msg << 8) + lowByte; //msgLevelCH уровень канала 1
+                                    System.out.println("<-- уровень CH1:"+msgLevelCH);
                                 }
-                                if (msgChannel == 65535){
-                                    errorReception = true;
-                                    System.out.println("<-- детект ошибки: " + errorReception);
-                                } else {
-                                    errorReception = false;
+                                break;
+                            case 2:
+                                if(i == 10){
+                                    lowByte = msg;
                                 }
-                                switch (msgChannel){
-                                    case 1:
-                                        if(i == 10){
-                                            lowByte = msg;
-                                        }
-                                        if(i == 11){
-                                            msgLevelCH = (msg << 8) + lowByte; //msgLevelCH уровень канала 1
-                                            System.out.println("<-- уровень CH1:"+msgLevelCH);
-                                        }
-                                        break;
-                                    case 2:
-                                        if(i == 10){
-                                            lowByte = msg;
-                                        }
-                                        if(i == 11){
-                                            msgLevelCH = (msg << 8) + lowByte; //msgLevelCH уровень канала 2
-                                            System.out.println("<-- уровень CH2:"+msgLevelCH);
-                                        }
-                                        break;
-                                    default:
-                                        break;
+                                if(i == 11){
+                                    msgLevelCH = (msg << 8) + lowByte; //msgLevelCH уровень канала 2
+                                    System.out.println("<-- уровень CH2:"+msgLevelCH);
                                 }
-                            }
+                                break;
+                            default:
+                                break;
                         }
                         if(no_error) {
                             i++;

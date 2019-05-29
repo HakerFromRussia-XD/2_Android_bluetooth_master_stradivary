@@ -430,6 +430,11 @@ public class GripperSettings5 extends AppCompatActivity implements ChatView {
     }
 
     @Override
+    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState) {
+
+    }
+
+    @Override
     public void enableHWButton(boolean enabled) {
         seekBarFinger1Angle.setEnabled(enabled);
         seekBarFinger2Angle.setEnabled(enabled);

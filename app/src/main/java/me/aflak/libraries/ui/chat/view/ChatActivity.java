@@ -112,6 +112,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
     public byte[] TextByteTreegMod = new byte[2];
     public byte[] TextByteSensorActivate = new byte[2];
+    public byte[] TextByteSetGeneralParcel = new byte[2];
 //    for graph
     private SensorManager sensorManager;
     private Sensor mAccelerometer;
@@ -121,10 +122,15 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private Thread thread;
     private boolean plotData2 = true;
     public float iterator = 0;
+//    for general updates
+    public int receiveСurrentChat = 0;
+    public int receiveLevelCH1Chat = 0;
+    public int receiveLevelCH2Chat = 0;
+    public byte receiveIndicationStateChat = 0;
     String TAG = "thread";
 //    for bluetooth controller restart error
     private boolean pervoe_vkluchenie_bluetooth = true;
-//    for animation
+//    for animation limits
     ImageView limit_1;
     ImageView limit_2;
     ObjectAnimator objectAnimator;
@@ -554,11 +560,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         public void run() {
                             if (isEnable && !errorReception) {
                                 addEntry((int) (2500 - iterator));
-                                indicatorTypeMessage = 0x02;
-                                numberChannel = 0x01;
-                                TextByteTreeg[0] = indicatorTypeMessage;
-                                TextByteTreeg[1] = numberChannel;
-//                                presenter.onHelloWorld(TextByteTreeg);
                             }
                         }
                     });
@@ -571,11 +572,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                             if (isEnable && !errorReception) {
                                 addEntry((int) (iterator));
                                 addEntry2((int) (iterator));
-                                indicatorTypeMessage = 0x02;
-                                numberChannel = 0x02;
-                                TextByteTreeg[0] = indicatorTypeMessage;
-                                TextByteTreeg[1] = numberChannel;
-//                                presenter.onHelloWorld(TextByteTreeg);
                             }
                         }
                     });
@@ -597,7 +593,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 }
             }
         });
-//        thread.start();
+        thread.start();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -689,9 +685,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.notifyDataChanged();
 
 
-            mChart.setVisibleXRange(0, 100);
+            mChart.setVisibleXRange(0, 20);
             mChart.setMaxVisibleValueCount(0);
-            mChart.moveViewToX(set.getEntryCount()-100);//data.getEntryCount()
+            mChart.moveViewToX(set.getEntryCount()-20);//data.getEntryCount()
 
         }
     }
@@ -777,7 +773,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @OnClick(R.id.activity_chat_hello_world)
     public void onHelloWorld(){
         int numberSensor = 0x06;
-//        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
         addEntry(2500);
         addEntry2(20);
     }
@@ -798,14 +794,20 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         Integer numberOfChannel = new Integer(numberChannel);
         switch (numberOfChannel){
             case 1:
-//                valueCH1.setText(strlevelCH);
-                addEntry(levelCH);
+                receiveLevelCH1Chat = levelCH;
                 break;
             case 2:
-//                valueCH2.setText(strlevelCH);
-                addEntry2(levelCH);
+                receiveLevelCH2Chat = levelCH;
                 break;
         }
+    }
+
+    @Override
+    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState) {
+       receiveСurrentChat = new Integer(receiveСurrent);
+       receiveLevelCH1Chat = new Integer(receiveLevelCH1);
+       receiveLevelCH2Chat = new Integer(receiveLevelCH2);
+       receiveIndicationStateChat = new Byte(receiveIndicationState);
     }
 
     @Override
@@ -838,6 +840,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //        seekBarCH2off.setEnabled(enabled);
 //        seekBarCH2sleep.setEnabled(enabled);
         seekBarIstop.setEnabled(enabled);
+        if(enabled){
+            CompileMessageSetGeneralParcel((byte) 0x01);
+            presenter.onHelloWorld(TextByteSetGeneralParcel);
+        }
     }
 
     public void GetPosition_My (int position, BluetoothDevice device){
@@ -866,6 +872,13 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         return TextByteTreegCurentSettingsAndInvert;
     }
 
+    private byte[] CompileMessageSetGeneralParcel (byte turningOn){
+        TextByteSetGeneralParcel[0] = 0x0C;
+        TextByteSetGeneralParcel[1] = turningOn;
+        return TextByteSetGeneralParcel;
+    }
+
+
     @Override
     public void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -880,6 +893,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @Override
     protected void onStop() {
         super.onStop();
+        CompileMessageSetGeneralParcel((byte) 0x00);
+        presenter.onHelloWorld(TextByteSetGeneralParcel);
         presenter.disconnect();
     }
 

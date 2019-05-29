@@ -59,6 +59,11 @@ class Parser implements ParserCallback {
     }
 
     @Override
+    public void givsGeneralParcel(int current, int levelCH1, int levelCH2, byte indicationState) {
+        
+    }
+
+    @Override
     public void givsRegister(Integer register) {
         Integer registr = new Integer(register);
         System.out.println("принятое значение регистра:"+registr);

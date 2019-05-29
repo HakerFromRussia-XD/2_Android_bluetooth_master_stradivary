@@ -377,16 +377,10 @@ public class Bluetooth {
                                 msgCorrectAcceptance = true;
                                 System.out.println("<-- Принята посылка :)");
                             } else {
-                                if(((i == (8+msgLenght))&&(msg != 36))||((i == 1)&&(msg != 77))||((i == 2)&&(msg != 84))){
-                                    System.out.println("<-- Пришла лажа :(");
-                                    System.out.println("<-- summator:"+summator);
-                                    no_error = false;
-                                    msgstr.setLength(0);
-                                    msgLenght = 0;
-                                    msgRegister = 0;
-                                    summator = 0;
-                                    i = 1;
-                                    msgCorrectAcceptance = false;
+                                if(((i == (8+msgLenght))&&(msg != 36))||((i == 1)&&(msg != 77))){
+                                    if (((i == 9) && (msg != 35)) || ((i == 1) && (msg != 36))) {
+
+                                    }
                                 }
                             }
                         }

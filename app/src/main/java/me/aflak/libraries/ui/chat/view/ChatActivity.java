@@ -79,6 +79,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    @BindView(R.id.seekBarCH2off) SeekBar seekBarCH2off;
 //    @BindView(R.id.seekBarCH2sleep) SeekBar seekBarCH2sleep;
     @BindView(R.id.seekBarIstop) SeekBar seekBarIstop;
+    @BindView(R.id.valueStatus) TextView valueStatus;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
 //    @BindView(R.id.valueCH1off) TextView valueCH1off;
 //    @BindView(R.id.valueCH1sleep) TextView valueCH1sleep;
@@ -86,6 +87,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    @BindView(R.id.valueCH2off) TextView valueCH2off;
 //    @BindView(R.id.valueCH2sleep) TextView valueCH2sleep;
     @BindView(R.id.valueIstop) TextView valueIstop;
+    @BindView(R.id.valueIstop2) TextView valueIstop2;
     @BindView(R.id.activity_chat_messages) TextView messages;
 //    @BindView(R.id.valueCH1) TextView valueCH1;
 //    @BindView(R.id.valueCH2) TextView valueCH2;
@@ -94,6 +96,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
     @BindView(R.id.fab) FloatingActionButton fab;
+    @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
     private int intValueCH1on = 2500;
     private int intValueCH1off = 100;
     private int intValueCH1sleep = 200;
@@ -137,6 +140,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     ObjectAnimator objectAnimator2;
     private int limit_sensor_open = 0;
     private int limit_sensor_close = 0;
+
+//    public ImageView imageViewStatus;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -355,7 +360,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH1sleep;
                 TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-//                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -446,7 +451,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH2sleep;
                 TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-//                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -537,7 +542,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //                    isEnable = true;
 //                }
                 int numberSensor = 0x07;
-//                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                 addEntry(20);
                 addEntry2(2500);
             }
@@ -564,6 +569,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                                 addEntry2(receiveLevelCH2Chat);
                                 addEntry((int) iterator);
                                 addEntry2((int) iterator);
+                                valueIstop2.setText(String.valueOf(receiveСurrentChat));
+                                if (receiveIndicationStateChat == 0){valueStatus.setText("покой"); imageViewStatus.setImageResource(R.drawable.sleeping);}
+                                if (receiveIndicationStateChat == 1){valueStatus.setText("закрытие"); imageViewStatus.setImageResource(R.drawable.closing);}
+                                if (receiveIndicationStateChat == 2){valueStatus.setText("открытие"); imageViewStatus.setImageResource(R.drawable.opening);}
                             }
                         }
                     });
@@ -770,14 +779,19 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         addEntry2(20);
     }
 
+
     @Override
     public void setStatus(String status) {
-        state.setText(status);
+
     }
 
     @Override
     public void setStatus(int resId) {
         state.setText(resId);
+        System.out.println("ChatActivity----> resId setText:"+ resId);
+        if (resId == 2131623980){state.setBackgroundColor(Color.GRAY);state.setTextColor(Color.RED);}
+        if (resId == 2131623981){state.setBackgroundColor(Color.GRAY); state.setTextColor(Color.GREEN);}
+        if (resId == 2131623982){state.setBackgroundColor(Color.WHITE); state.setTextColor(Color.GRAY);}
     }
 
     @Override
@@ -836,7 +850,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //        seekBarCH2off.setEnabled(enabled);
 //        seekBarCH2sleep.setEnabled(enabled);
         seekBarIstop.setEnabled(enabled);
-        if(enabled){
+        if(isEnable){
             CompileMessageSetGeneralParcel((byte) 0x01);
             presenter.onHelloWorld(TextByteSetGeneralParcel);
         }
@@ -889,8 +903,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @Override
     protected void onStop() {
         super.onStop();
-        CompileMessageSetGeneralParcel((byte) 0x00);
-        presenter.onHelloWorld(TextByteSetGeneralParcel);
+        if(isEnable){
+            CompileMessageSetGeneralParcel((byte) 0x00);
+            presenter.onHelloWorld(TextByteSetGeneralParcel);
+        }
         presenter.disconnect();
     }
 

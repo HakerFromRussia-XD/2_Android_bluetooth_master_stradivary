@@ -380,12 +380,7 @@ public class Bluetooth {
                             } else {
                                 if(((i == (8+msgLenght))&&(msg != 36))||((i == 1)&&(msg != 77))){
                                     if (((i == 9) && (msg != 35)) || ((i == 1) && (msg != 36))) {
-                                        no_error = false;
-                                        msgstr.setLength(0);
-                                        msgLenght = 0;
-                                        msgRegister = 0;
-                                        summator = 0;
-                                        i = 1;
+                                        resetAllVariables();
                                         msgCorrectAcceptance = false;
                                     }
                                 }
@@ -396,7 +391,14 @@ public class Bluetooth {
                         } else {
                             if ((i == 1) && (msg == 36)){
                                 branchOfParsing = 2;
+                            } else {
+                                if (i == 1){
+                                    branchOfParsing = 0;
+                                }
                             }
+                        }
+                        if (branchOfParsing == 0){
+                            resetAllVariables();
                         }
                         if (branchOfParsing == 1){
                             if(i == 3){
@@ -460,18 +462,12 @@ public class Bluetooth {
                                 msgstr.append((char)msg);
                             }
                             if(i == (9+msgLenght)) {
-                                //System.out.println("lenght:"+msgstr.length()+" ОБНУЛЕНИЕ i="+i);
+                                resetAllVariables();
                             }
                             if(i > (msgLenght+9)){
-                                //System.out.println("------> i=" +i+" msgLenght="+msgLenght);
-                                msgstr.setLength(0);
-                                no_error = true;
-                                msgLenght = 0;
-                                msgRegister = 0;
-                                summator = 0;
-                                i=1;
+                                resetAllVariables();
                             }
-                            if(((deviceCallback != null) && (msg == 36))||(!no_error)){
+                            if(((deviceCallback != null) && (msg == 36))){
                                 final String msgCopy = String.valueOf(msgstr);
                                 final Integer msgLenghtf = msgLenght;
                                 final Boolean requestf = request;
@@ -494,13 +490,7 @@ public class Bluetooth {
                                             System.out.println("<-- сделал цикл:"+ msgCopy);
                                         }
                                         parserCallback.givsCorrectAcceptance(msgCorrectAcceptancef);
-                                        msgstr.setLength(0);
-                                        no_error = true;
-                                        msgLenght = 0;
-                                        msgRegister = 0;
-                                        summator = 0;
-                                        msgCorrectAcceptance = true;
-                                        i=1;
+                                        resetAllVariables();
                                     }
                                 });
                             }
@@ -534,13 +524,9 @@ public class Bluetooth {
                                 i++;
                             }
                             if(msg == 35){
-                                msgstr.setLength(0);
-                                no_error = true;
-                                summator = 0;
-                                msgCorrectAcceptance = true;
-                                i=1;
+                                resetAllVariables();
                             }
-                            if(((deviceCallback != null) && (msg == 35))||(!no_error)){
+                            if(((deviceCallback != null) && (msg == 35))){
                                 final String msgCopy = String.valueOf(msgstr);
                                 final Integer msgCurrentf = msgCurrent;
                                 final Integer msgLevelCH1f = msgLevelCH1;
@@ -554,13 +540,7 @@ public class Bluetooth {
                                             deviceCallback.onMessage(msgCopy);
                                             System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);
                                         }
-                                        msgstr.setLength(0);
-                                        no_error = true;
-                                        msgLenght = 0;
-                                        msgRegister = 0;
-                                        summator = 0;
-                                        msgCorrectAcceptance = true;
-                                        i=1;
+                                        resetAllVariables();
                                     }
                                 });
                             }
@@ -580,6 +560,17 @@ public class Bluetooth {
                     });
                 }
             }
+        }
+
+        public void resetAllVariables() {
+            msgstr.setLength(0);
+            no_error = true;
+            msgLenght = 0;
+            msgRegister = 0;
+            summator = 0;
+            branchOfParsing = 0;
+            msgCorrectAcceptance = true;
+            i=1;
         }
     }
 

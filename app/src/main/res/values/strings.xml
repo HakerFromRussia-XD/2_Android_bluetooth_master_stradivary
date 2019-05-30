@@ -7,16 +7,16 @@
     <string name="activity_scan_button">Scan again</string>
     <string name="activity_scan_paired_text">Paired Devices :</string>
 
-    <string name="bluetooth_scanning">Scanning…</string>
-    <string name="bluetooth_scan_finished">Scan finished.</string>
-    <string name="bluetooth_pairing">Pairing…</string>
-    <string name="bluetooth_paired">Device Paired.</string>
-    <string name="bluetooth_unpaired">Device Unpaired.</string>
-    <string name="bluetooth_connected">Device Connected.</string>
-    <string name="bluetooth_connecting">Connecting…</string>
-    <string name="bluetooth_disconnected">Device Disconnected.</string>
-    <string name="bluetooth_connect_in_3sec">Could not connect. New attempt in 3sec…</string>
-    <string name="bluetooth_turning_on">Turning bluetooth on…</string>
+    <string name="bluetooth_scanning">Сканирование…</string>
+    <string name="bluetooth_scan_finished">Сканирование завершено.</string>
+    <string name="bluetooth_pairing">Соединение…</string>
+    <string name="bluetooth_paired">Девайс соединён.</string>
+    <string name="bluetooth_unpaired">Девайс отсоединён.</string>
+    <string name="bluetooth_connected">Девайс подключён.</string>
+    <string name="bluetooth_connecting">Подключение…</string>
+    <string name="bluetooth_disconnected">Девайс не подключён.</string>
+    <string name="bluetooth_connect_in_3sec">Подключиться не удалось…</string>
+    <string name="bluetooth_turning_on">Bluetooth выключен…</string>
     <string name="title_home">Жесты</string>
     <string name="title_dashboard">Датчики</string>
     <string name="valueCH1">TextView</string>

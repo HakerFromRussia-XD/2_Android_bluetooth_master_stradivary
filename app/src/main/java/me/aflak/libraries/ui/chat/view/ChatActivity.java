@@ -560,18 +560,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         public void run() {
                             if (isEnable && !errorReception) {
                                 addEntry((int) (2500 - iterator));
-                            }
-                        }
-                    });
-                    try {
-//                        Thread.sleep(25);
-                    }catch (Exception e){}
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (isEnable && !errorReception) {
-                                addEntry((int) (iterator));
-                                addEntry2((int) (iterator));
+                                addEntry(receiveLevelCH1Chat);
+                                addEntry2(receiveLevelCH2Chat);
+                                addEntry((int) iterator);
+                                addEntry2((int) iterator);
                             }
                         }
                     });
@@ -804,10 +796,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
     @Override
     public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState) {
-       receiveСurrentChat = new Integer(receiveСurrent);
-       receiveLevelCH1Chat = new Integer(receiveLevelCH1);
-       receiveLevelCH2Chat = new Integer(receiveLevelCH2);
-       receiveIndicationStateChat = new Byte(receiveIndicationState);
+        receiveСurrentChat = new Integer(receiveСurrent);
+        receiveLevelCH1Chat = new Integer(receiveLevelCH1);
+        receiveLevelCH2Chat = new Integer(receiveLevelCH2);
+        receiveIndicationStateChat = new Byte(receiveIndicationState);
+        System.out.println("ChatActivity----> Сurrent:"+ receiveСurrentChat);
+        System.out.println("ChatActivity----> Level CH1:"+ receiveLevelCH1Chat);
+        System.out.println("ChatActivity----> Level CH2:"+ receiveLevelCH2Chat);
+        System.out.println("ChatActivity----> Indication State:"+ receiveIndicationStateChat);
     }
 
     @Override

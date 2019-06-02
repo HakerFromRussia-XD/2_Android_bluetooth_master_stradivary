@@ -142,6 +142,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private int limit_sensor_close = 0;
 
 //    public ImageView imageViewStatus;
+//    проверка
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;

@@ -79,6 +79,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    @BindView(R.id.seekBarCH2off) SeekBar seekBarCH2off;
 //    @BindView(R.id.seekBarCH2sleep) SeekBar seekBarCH2sleep;
     @BindView(R.id.seekBarIstop) SeekBar seekBarIstop;
+    @BindView(R.id.valueStatus) TextView valueStatus;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
 //    @BindView(R.id.valueCH1off) TextView valueCH1off;
 //    @BindView(R.id.valueCH1sleep) TextView valueCH1sleep;
@@ -86,6 +87,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    @BindView(R.id.valueCH2off) TextView valueCH2off;
 //    @BindView(R.id.valueCH2sleep) TextView valueCH2sleep;
     @BindView(R.id.valueIstop) TextView valueIstop;
+    @BindView(R.id.valueIstop2) TextView valueIstop2;
     @BindView(R.id.activity_chat_messages) TextView messages;
 //    @BindView(R.id.valueCH1) TextView valueCH1;
 //    @BindView(R.id.valueCH2) TextView valueCH2;
@@ -94,6 +96,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
     @BindView(R.id.fab) FloatingActionButton fab;
+    @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
     private int intValueCH1on = 2500;
     private int intValueCH1off = 100;
     private int intValueCH1sleep = 200;
@@ -107,10 +110,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public boolean stateIsOpen = false;
     public boolean errorReception = false;
     private int i = 0;
+    public int multiplierSeekbar = 14;
     public byte[] TextByteTreeg = new byte[8];
     public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
     public byte[] TextByteTreegMod = new byte[2];
     public byte[] TextByteSensorActivate = new byte[2];
+    public byte[] TextByteSetGeneralParcel = new byte[2];
 //    for graph
     private SensorManager sensorManager;
     private Sensor mAccelerometer;
@@ -120,16 +125,23 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private Thread thread;
     private boolean plotData2 = true;
     public float iterator = 0;
+//    for general updates
+    public int receiveСurrentChat = 0;
+    public int receiveLevelCH1Chat = 0;
+    public int receiveLevelCH2Chat = 0;
+    public byte receiveIndicationStateChat = 0;
     String TAG = "thread";
 //    for bluetooth controller restart error
     private boolean pervoe_vkluchenie_bluetooth = true;
-//    for animation
+//    for animation limits
     ImageView limit_1;
     ImageView limit_2;
     ObjectAnimator objectAnimator;
     ObjectAnimator objectAnimator2;
     private int limit_sensor_open = 0;
     private int limit_sensor_close = 0;
+
+//    public ImageView imageViewStatus;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -336,8 +348,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH1on.setText(String.valueOf(seekBar.getProgress()*14));
-                intValueCH1on = seekBarCH1on.getProgress();
+                valueCH1on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
+                intValueCH1on = seekBarCH1on.getProgress()*multiplierSeekbar;
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x01;
                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -348,7 +360,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH1sleep;
                 TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-//                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -427,8 +439,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH2on.setText(String.valueOf(seekBar.getProgress()*14));
-                intValueCH2on = seekBarCH2on.getProgress();
+                valueCH2on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
+                intValueCH2on = seekBarCH2on.getProgress()*multiplierSeekbar;
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x02;
                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -439,7 +451,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH2sleep;
                 TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-//                presenter.onHelloWorld(TextByteTreeg);
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
 
@@ -530,7 +542,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //                    isEnable = true;
 //                }
                 int numberSensor = 0x07;
-//                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                 addEntry(20);
                 addEntry2(2500);
             }
@@ -553,33 +565,19 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         public void run() {
                             if (isEnable && !errorReception) {
                                 addEntry((int) (2500 - iterator));
-                                indicatorTypeMessage = 0x02;
-                                numberChannel = 0x01;
-                                TextByteTreeg[0] = indicatorTypeMessage;
-                                TextByteTreeg[1] = numberChannel;
-//                                presenter.onHelloWorld(TextByteTreeg);
+                                addEntry(receiveLevelCH1Chat);
+                                addEntry2(receiveLevelCH2Chat);
+                                addEntry((int) iterator);
+                                addEntry2((int) iterator);
+                                valueIstop2.setText(String.valueOf(receiveСurrentChat));
+                                if (receiveIndicationStateChat == 0){valueStatus.setText("покой"); imageViewStatus.setImageResource(R.drawable.sleeping);}
+                                if (receiveIndicationStateChat == 1){valueStatus.setText("закрытие"); imageViewStatus.setImageResource(R.drawable.closing);}
+                                if (receiveIndicationStateChat == 2){valueStatus.setText("открытие"); imageViewStatus.setImageResource(R.drawable.opening);}
                             }
                         }
                     });
                     try {
-                        Thread.sleep(25);
-                    }catch (Exception e){}
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (isEnable && !errorReception) {
-                                addEntry((int) (iterator));
-                                addEntry2((int) (iterator));
-                                indicatorTypeMessage = 0x02;
-                                numberChannel = 0x02;
-                                TextByteTreeg[0] = indicatorTypeMessage;
-                                TextByteTreeg[1] = numberChannel;
-//                                presenter.onHelloWorld(TextByteTreeg);
-                            }
-                        }
-                    });
-                    try {
-//                        Thread.sleep(25);
+                        Thread.sleep(50);
                     }catch (Exception e){}
 //                    if (isEnable && errorReception) { //обработчик пришедшей ошибки
 //                        errorReception = false;
@@ -688,9 +686,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.notifyDataChanged();
 
 
-            mChart.setVisibleXRange(0, 50);
+            mChart.setVisibleXRange(0, 20);
             mChart.setMaxVisibleValueCount(0);
-            mChart.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
+            mChart.moveViewToX(set.getEntryCount()-20);//data.getEntryCount()
 
         }
     }
@@ -710,9 +708,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.addEntry(new Entry(set.getEntryCount(), event), 0);
             data.notifyDataChanged();
 
-            mChart2.setVisibleXRange(0, 50);
+            mChart2.setVisibleXRange(0, 100);
             mChart2.setMaxVisibleValueCount(0);
-            mChart2.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
+            mChart2.moveViewToX(set.getEntryCount()-100);//data.getEntryCount()
 
         }
     }
@@ -776,19 +774,24 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @OnClick(R.id.activity_chat_hello_world)
     public void onHelloWorld(){
         int numberSensor = 0x06;
-//        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
         addEntry(2500);
         addEntry2(20);
     }
 
+
     @Override
     public void setStatus(String status) {
-        state.setText(status);
+
     }
 
     @Override
     public void setStatus(int resId) {
         state.setText(resId);
+        System.out.println("ChatActivity----> resId setText:"+ resId);
+        if (resId == 2131623980){state.setBackgroundColor(Color.GRAY);state.setTextColor(Color.RED);}
+        if (resId == 2131623981){state.setBackgroundColor(Color.GRAY); state.setTextColor(Color.GREEN);}
+        if (resId == 2131623982){state.setBackgroundColor(Color.WHITE); state.setTextColor(Color.GRAY);}
     }
 
     @Override
@@ -797,14 +800,24 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         Integer numberOfChannel = new Integer(numberChannel);
         switch (numberOfChannel){
             case 1:
-//                valueCH1.setText(strlevelCH);
-                addEntry(levelCH);
+                receiveLevelCH1Chat = levelCH;
                 break;
             case 2:
-//                valueCH2.setText(strlevelCH);
-                addEntry2(levelCH);
+                receiveLevelCH2Chat = levelCH;
                 break;
         }
+    }
+
+    @Override
+    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState) {
+        receiveСurrentChat = new Integer(receiveСurrent);
+        receiveLevelCH1Chat = new Integer(receiveLevelCH1);
+        receiveLevelCH2Chat = new Integer(receiveLevelCH2);
+        receiveIndicationStateChat = new Byte(receiveIndicationState);
+        System.out.println("ChatActivity----> Сurrent:"+ receiveСurrentChat);
+        System.out.println("ChatActivity----> Level CH1:"+ receiveLevelCH1Chat);
+        System.out.println("ChatActivity----> Level CH2:"+ receiveLevelCH2Chat);
+        System.out.println("ChatActivity----> Indication State:"+ receiveIndicationStateChat);
     }
 
     @Override
@@ -837,6 +850,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //        seekBarCH2off.setEnabled(enabled);
 //        seekBarCH2sleep.setEnabled(enabled);
         seekBarIstop.setEnabled(enabled);
+        if(isEnable){
+            CompileMessageSetGeneralParcel((byte) 0x01);
+            presenter.onHelloWorld(TextByteSetGeneralParcel);
+        }
     }
 
     public void GetPosition_My (int position, BluetoothDevice device){
@@ -865,6 +882,13 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         return TextByteTreegCurentSettingsAndInvert;
     }
 
+    private byte[] CompileMessageSetGeneralParcel (byte turningOn){
+        TextByteSetGeneralParcel[0] = 0x0C;
+        TextByteSetGeneralParcel[1] = turningOn;
+        return TextByteSetGeneralParcel;
+    }
+
+
     @Override
     public void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -879,6 +903,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @Override
     protected void onStop() {
         super.onStop();
+        if(isEnable){
+            CompileMessageSetGeneralParcel((byte) 0x00);
+            presenter.onHelloWorld(TextByteSetGeneralParcel);
+        }
         presenter.disconnect();
     }
 

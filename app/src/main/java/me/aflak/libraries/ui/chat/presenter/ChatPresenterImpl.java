@@ -30,6 +30,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     private byte txtbyteout9[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x09, 0x00, 0x77, 0x24};                                     //компановка для иммитации срабатывания 0x77 заменяемые данные всего 9 байт
     private byte txtbyteout10[] ={0x4D, 0x54, 0x08, 0x00, 0x01, 0x0A, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};//компановка для настройки бесконечного движения 0x77 заменяемые данные всего 16 байт
     private byte txtbyteout11[] ={0x4D, 0x54, 0x03, 0x00, 0x01, 0x0B, 0x00, 0x77, 0x77, 0x77, 0x24};                         //компановка для настройки тока останова и влючения инвертированного управления 0x77 заменяемые данные всего 11 байт
+    private byte txtbyteout12[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0C, 0x00, 0x77, 0x24};                                     //компановка для включения/отключения(0х01/0х00) режима непрерывной отсылки параметров с руки всего 9 байт
+    private byte txtbyteout13[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0C, 0x00, 0x77, 0x24};                                     //компановка для начального запроса параметров
     public ChatPresenterImpl(ChatView view, ChatInteractor interactor) {
         this.view = view;
         this.interactor = interactor;
@@ -215,6 +217,18 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 interactor.sendMessageByte(txtbyteout11);
                 break;
+            case 12:
+                System.out.println("--> тип компановки:" + txtbyte[0]);
+                for (int i = 1; i < txtbyte.length; i++)
+                {
+                    txtbyteout12[i + 6] = txtbyte[i];
+                }
+                for (int i = 0; i < txtbyteout12.length; i++)
+                {
+                    System.out.println("<-- посылка:" + txtbyteout11[i]);
+                }
+                interactor.sendMessageByte(txtbyteout12);
+                break;
             default:
                 System.out.println("--> тип компановки:" + txtbyte[0]);
                 System.out.println("--> номер канала получателя:" + txtbyte[1]);
@@ -272,6 +286,15 @@ public class ChatPresenterImpl implements ChatPresenter {
             Integer numberChannel = new Integer(channel);
             view.setValueCH(levelCH, numberChannel);
             System.out.println("принятый уровень CH:" + lelvel);
+        }
+
+        @Override
+        public void givsGeneralParcel(int current, int levelCH1, int levelCH2, byte indicationState) {
+            Integer receiveСurrent = new Integer(current);
+            Integer receiveLevelCH1 = new Integer(levelCH1);
+            Integer receiveLevelCH2 = new Integer(levelCH2);
+            Byte receiveIndicationState = new Byte(indicationState);
+            view.setGeneralValue(receiveСurrent, receiveLevelCH1, receiveLevelCH2, receiveIndicationState);
         }
 
         @Override

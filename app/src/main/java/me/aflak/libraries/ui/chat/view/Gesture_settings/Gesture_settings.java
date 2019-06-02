@@ -212,4 +212,9 @@ public class Gesture_settings extends AppCompatActivity implements GesstureAdapt
 
         }
     }
+
+    @Override
+    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState) {
+
+    }
 }

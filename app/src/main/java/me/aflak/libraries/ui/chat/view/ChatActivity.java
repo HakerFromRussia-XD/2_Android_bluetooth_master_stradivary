@@ -1,6 +1,7 @@
 package me.aflak.libraries.ui.chat.view;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,6 +81,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    @BindView(R.id.seekBarCH2off) SeekBar seekBarCH2off;
 //    @BindView(R.id.seekBarCH2sleep) SeekBar seekBarCH2sleep;
     @BindView(R.id.seekBarIstop) SeekBar seekBarIstop;
+    @BindView(R.id.switchInvert) Switch switchInvert;
     @BindView(R.id.valueStatus) TextView valueStatus;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
 //    @BindView(R.id.valueCH1off) TextView valueCH1off;
@@ -172,6 +175,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         }
     };
 
+    @SuppressLint("NewApi")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -612,6 +616,17 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 recyclerView.setAdapter(gestureAdapter);
             }
         });
+
+        switchInvert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (switchInvert.isChecked()){
+                    System.out.println("Invert mod");
+                } else {
+                    System.out.println("Invert Invert mod");
+                }
+            }
+        });
     }
 
     @Override
@@ -686,9 +701,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.notifyDataChanged();
 
 
-            mChart.setVisibleXRange(0, 20);
+            mChart.setVisibleXRange(0, 50);
             mChart.setMaxVisibleValueCount(0);
-            mChart.moveViewToX(set.getEntryCount()-20);//data.getEntryCount()
+            mChart.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
 
         }
     }
@@ -708,9 +723,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.addEntry(new Entry(set.getEntryCount(), event), 0);
             data.notifyDataChanged();
 
-            mChart2.setVisibleXRange(0, 100);
+            mChart2.setVisibleXRange(0, 50);
             mChart2.setMaxVisibleValueCount(0);
-            mChart2.moveViewToX(set.getEntryCount()-100);//data.getEntryCount()
+            mChart2.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
 
         }
     }
@@ -720,8 +735,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
         set.setLineWidth(2f);
         set.setColor(Color.GREEN);
-        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        set.setCubicIntensity(0.2f);
+        set.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+//        set.setCubicIntensity(0.2f);
 
         set.setCircleColor(Color.GREEN);
         set.setCircleHoleColor(Color.GREEN);

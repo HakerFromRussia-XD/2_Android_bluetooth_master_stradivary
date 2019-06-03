@@ -61,7 +61,7 @@
         <RelativeLayout
             android:id="@+id/layout_sensors"
             android:layout_width="match_parent"
-            android:layout_height="690dp"
+            android:layout_height="685dp"
             android:layout_marginTop="0dp"
             android:orientation="vertical"
             android:paddingLeft="0dp"
@@ -73,6 +73,18 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:context="me.aflak.libraries.ui.scan.view.ScanActivity"
             tools:ignore="MissingConstraints">
+
+            <View
+                android:id="@+id/border6"
+                android:layout_width="4dp"
+                android:layout_height="54dp"
+                android:layout_below="@+id/seekBarIstop"
+                android:layout_alignEnd="@+id/seekBarIstop"
+                android:layout_alignRight="@+id/seekBarIstop"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="200dp"
+                android:layout_marginRight="200dp"
+                android:background="@android:color/darker_gray" />
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chartCH1"
@@ -163,11 +175,13 @@
                 android:visibility="gone" />
 
             <View
+                android:id="@+id/border"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:background="@android:color/darker_gray" />
 
             <View
+                android:id="@+id/border2"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_below="@+id/chartCH1"
@@ -178,6 +192,7 @@
                 tools:ignore="RtlCompat" />
 
             <View
+                android:id="@+id/border3"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_below="@+id/chartCH2"
@@ -185,6 +200,7 @@
                 android:background="@android:color/darker_gray" />
 
             <View
+                android:id="@+id/border4"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_below="@+id/seekBarIstop"
@@ -192,6 +208,7 @@
                 android:background="@android:color/darker_gray" />
 
             <View
+                android:id="@+id/border5"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_below="@+id/layoutStatus"
@@ -363,9 +380,7 @@
             <!--android:layout_marginTop="72dp"-->
             <!--android:text="CH2 sleep:" />-->
 
-            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
+            <RelativeLayout
                 android:id="@+id/layoutStatus"
                 android:layout_below="@+id/seekBarIstop"
                 android:layout_width="match_parent"
@@ -414,8 +429,31 @@
                     android:layout_toRightOf="@+id/textView23"
                     app:srcCompat="@drawable/sleeping" />
 
-            </RelativeLayout>
+                <Switch
+                    android:id="@+id/switchInvert"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginRight="18dp" />
 
+                <TextView
+                    android:id="@+id/valueInvert"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignTop="@+id/textView23"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_toStartOf="@+id/switchInvert"
+                    android:layout_toLeftOf="@+id/switchInvert"
+                    android:text="инвертирование"
+                    android:textSize="18sp" />
+
+            </RelativeLayout>
 
             <!--<TextView-->
             <!--android:id="@+id/textView3"-->

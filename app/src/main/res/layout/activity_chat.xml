@@ -82,8 +82,8 @@
                 android:layout_alignEnd="@+id/seekBarIstop"
                 android:layout_alignRight="@+id/seekBarIstop"
                 android:layout_marginTop="6dp"
-                android:layout_marginEnd="200dp"
-                android:layout_marginRight="200dp"
+                android:layout_marginEnd="205dp"
+                android:layout_marginRight="205dp"
                 android:background="@android:color/darker_gray" />
 
             <com.github.mikephil.charting.charts.LineChart
@@ -253,12 +253,12 @@
                 android:id="@+id/activity_chat_hello_world"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/border5"
                 android:layout_alignStart="@+id/chartCH1"
                 android:layout_alignLeft="@+id/chartCH1"
-                android:layout_alignParentBottom="true"
                 android:layout_marginStart="16dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginBottom="0dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="0dp"
                 android:text="@string/helloWorld"
                 android:visibility="visible" />
 
@@ -437,8 +437,8 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_marginTop="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="18dp" />
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginRight="10dp" />
 
                 <TextView
                     android:id="@+id/valueInvert"

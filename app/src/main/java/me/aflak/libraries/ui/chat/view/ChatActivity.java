@@ -14,6 +14,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PatternMatcher;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -108,6 +109,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private int intValueCH2sleep = 200;
     private byte indicatorTypeMessage;
     private byte numberChannel;
+    public byte invert = 0x00;
+    public int curent = 0x00;
     public boolean isEnable = false;
     public boolean infinitAction = false;
     public boolean stateIsOpen = false;
@@ -532,9 +535,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueIstop.setText(String.valueOf(seekBar.getProgress()));
-                int Curent = seekBar.getProgress();
-                byte Invert = 0x00;
-                presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(Curent, Invert));
+                curent = seekBar.getProgress();
+                presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
             }
         });
 
@@ -623,8 +625,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             public void onClick(View v) {
                 if (switchInvert.isChecked()){
                     System.out.println("Invert mod");
+                    invert = 0x01;
+                    presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
                 } else {
                     System.out.println("Invert Invert mod");
+                    invert = 0x00;
+                    presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
                 }
             }
         });
@@ -863,6 +869,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //        seekBarCH1off.setEnabled(enabled);
 //        seekBarCH1sleep.setEnabled(enabled);
         seekBarCH2on.setEnabled(enabled);
+        switchInvert.setEnabled(enabled);
 //        seekBarCH2off.setEnabled(enabled);
 //        seekBarCH2sleep.setEnabled(enabled);
         seekBarIstop.setEnabled(enabled);

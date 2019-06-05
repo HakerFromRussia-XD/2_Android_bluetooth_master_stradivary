@@ -12,6 +12,6 @@ public interface ChatView {
     void showToast(String message);
 
     void onGestureClick(int position);
-
     void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState);
+    void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode);
 }

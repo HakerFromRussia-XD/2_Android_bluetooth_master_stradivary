@@ -748,7 +748,7 @@
                 android:layout_toRightOf="@+id/textView24"
                 android:indeterminate="false"
                 android:max="3000"
-                android:progress="200"
+                android:progress="1500"
                 android:progressDrawable="@drawable/track"
                 android:thumb="@drawable/thumb" />
 
@@ -827,7 +827,7 @@
                 android:layout_marginStart="68dp"
                 android:layout_marginLeft="68dp"
                 android:layout_marginTop="29dp"
-                android:text="200"
+                android:text="1500"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:typeface="monospace"
@@ -848,7 +848,6 @@
                 android:textStyle="bold"
                 android:typeface="monospace"
                 app:fontFamily="sans-serif-medium" />
-
         </RelativeLayout>
     </ScrollView>
 

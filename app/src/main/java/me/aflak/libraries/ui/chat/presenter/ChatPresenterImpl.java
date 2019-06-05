@@ -31,7 +31,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private byte txtbyteout10[] ={0x4D, 0x54, 0x08, 0x00, 0x01, 0x0A, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};//компановка для настройки бесконечного движения 0x77 заменяемые данные всего 16 байт
     private byte txtbyteout11[] ={0x4D, 0x54, 0x03, 0x00, 0x01, 0x0B, 0x00, 0x77, 0x77, 0x77, 0x24};                         //компановка для настройки тока останова и влючения инвертированного управления 0x77 заменяемые данные всего 11 байт
     private byte txtbyteout12[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0C, 0x00, 0x77, 0x24};                                     //компановка для включения/отключения(0х01/0х00) режима непрерывной отсылки параметров с руки всего 9 байт
-    private byte txtbyteout13[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0C, 0x00, 0x77, 0x24};                                     //компановка для начального запроса параметров
+    private byte txtbyteout13[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0D, 0x00, 0x77, 0x24};                                     //компановка для начального запроса параметров
     public ChatPresenterImpl(ChatView view, ChatInteractor interactor) {
         this.view = view;
         this.interactor = interactor;
@@ -225,9 +225,21 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout12.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout11[i]);
+                    System.out.println("<-- посылка:" + txtbyteout12[i]);
                 }
                 interactor.sendMessageByte(txtbyteout12);
+                break;
+            case 13:
+                System.out.println("--> тип компановки:" + txtbyte[0]);
+                for (int i = 1; i < txtbyte.length; i++)
+                {
+                    txtbyteout13[i + 6] = txtbyte[i];
+                }
+                for (int i = 0; i < txtbyteout13.length; i++)
+                {
+                    System.out.println("<-- посылка:" + txtbyteout13[i]);
+                }
+                interactor.sendMessageByte(txtbyteout13);
                 break;
             default:
                 System.out.println("--> тип компановки:" + txtbyte[0]);
@@ -295,6 +307,15 @@ public class ChatPresenterImpl implements ChatPresenter {
             Integer receiveLevelCH2 = new Integer(levelCH2);
             Byte receiveIndicationState = new Byte(indicationState);
             view.setGeneralValue(receiveСurrent, receiveLevelCH1, receiveLevelCH2, receiveIndicationState);
+        }
+
+        @Override
+        public void givsStartParameters(int current, int levelTrigCH1, int levelTrigCH2, byte indicationInvertMode) {
+            Integer receiveСurrent = new Integer(current);
+            Integer receiveLevelTrigCH1 = new Integer(levelTrigCH1);
+            Integer receiveLevelTrigCH2 = new Integer(levelTrigCH2);
+            Byte receiveIndicationInvertMode = new Byte(indicationInvertMode);
+            view.setStartParameters(receiveСurrent, receiveLevelTrigCH1, receiveLevelTrigCH2, receiveIndicationInvertMode);
         }
 
         @Override

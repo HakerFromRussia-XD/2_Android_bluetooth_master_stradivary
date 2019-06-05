@@ -205,9 +205,9 @@ public class Bluetooth {
                     public void run() {
                         System.out.println("BLUETOOTH--------------> disconnect ERROR deviceCallback = null connected:" + connected);
                         deviceCallback.onError(e.getMessage());
-//                        try {
-//                            Thread.sleep(3000);
-//                        }catch (Exception e){}
+                        try {
+                            Thread.sleep(3000);
+                        }catch (Exception e){}
                     }
                 });
             }
@@ -351,6 +351,7 @@ public class Bluetooth {
         private byte msgIndicationState = 0;
         private int lowByte = 0;     //для записи младшего байта при перемене младших и старших байт
         private int i=1;
+        private boolean firstRead = true;
         private boolean errorReception = false;        //true-ошибка на принимающей стороне false-ошибок нет
         private boolean request = true;                //true-ответ false-запрос
         public boolean no_error = true;                //true-нет ошибок false-есть ошибки
@@ -400,6 +401,7 @@ public class Bluetooth {
                         if (branchOfParsing == 0){
                             resetAllVariables();
                         }
+
                         if (branchOfParsing == 1){
                             if(i == 3){
                                 lowByte = msg;
@@ -496,53 +498,106 @@ public class Bluetooth {
                             }
                         }
 
-                        if (branchOfParsing == 2){
-                            if(i == 2){
-                                lowByte = msg;
-                            }
-                            if(i == 3){
-                                msgCurrent = (lowByte << 8) + msg; //msgLenght содержит количество байт данных в посылке
-                            }
-                            if(i == 4){
-                                lowByte = msg;
-                            }
-                            if(i == 5){
-                                msgLevelCH1 = (lowByte << 8) + msg;  //msgLevelCH уровень канала 1
-                                System.out.println("<-- уровень CH1:" + msgLevelCH1 + " i = " + i + " no_error=" + no_error);
-                            }
-                            if(i == 6){
-                                lowByte = msg;
-                            }
-                            if(i == 7){
-                                msgLevelCH2 = (lowByte << 8) + msg; //msgLevelCH уровень канала 2
-                                System.out.println("<-- уровень CH2:" + msgLevelCH2 + " i = " + i + " no_error=" + no_error);
-                            }
-                            if(i == 8){
-                                msgIndicationState = (byte) msg;
-                            }
-                            if(no_error) {
-                                i++;
-                            }
-                            if(msg == 35){
-                                resetAllVariables();
-                            }
-                            if(((deviceCallback != null) && (msg == 35))){
-                                final String msgCopy = String.valueOf(msgstr);
-                                final Integer msgCurrentf = msgCurrent;
-                                final Integer msgLevelCH1f = msgLevelCH1;
-                                final Integer msgLevelCH2f = msgLevelCH2;
-                                final Byte msgIndicationStatef = msgIndicationState;
-                                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(no_error && msgCorrectAcceptance) {
-                                            parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef);
-                                            deviceCallback.onMessage(msgCopy);
-                                            System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);
+                        if (firstRead) {
+                            if (branchOfParsing == 2){
+                                if(i == 2){
+                                    lowByte = msg;
+                                }
+                                if(i == 3){
+                                    msgCurrent = (lowByte << 8) + msg; //msgLenght содержит количество байт данных в посылке
+                                }
+                                if(i == 4){
+                                    lowByte = msg;
+                                }
+                                if(i == 5){
+                                    msgLevelCH1 = (lowByte << 8) + msg;  //msgLevelCH уровень канала 1
+                                    System.out.println("<-- уровень CH1:" + msgLevelCH1 + " i = " + i + " no_error=" + no_error);
+                                }
+                                if(i == 6){
+                                    lowByte = msg;
+                                }
+                                if(i == 7){
+                                    msgLevelCH2 = (lowByte << 8) + msg; //msgLevelCH уровень канала 2
+                                    System.out.println("<-- уровень CH2:" + msgLevelCH2 + " i = " + i + " no_error=" + no_error);
+                                }
+                                if(i == 8){
+                                    msgIndicationState = (byte) msg;
+                                }
+                                if(no_error) {
+                                    i++;
+                                }
+                                if(msg == 35){
+                                    resetAllVariables();
+                                }
+                                if(((deviceCallback != null) && (msg == 35))){
+                                    final String msgCopy = String.valueOf(msgstr);
+                                    final Integer msgCurrentf = msgCurrent;
+                                    final Integer msgLevelTrigCH1f = msgLevelCH1;
+                                    final Integer msgLevelTrigCH2f = msgLevelCH2;
+                                    final Byte msgIndicationInvertModef = msgIndicationState;
+                                    ThreadHelper.run(runOnUi, activity, new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if(no_error && msgCorrectAcceptance) {
+                                                parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef);
+                                                deviceCallback.onMessage(msgCopy);
+                                                System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);
+                                            }
+                                            resetAllVariables();
+                                            firstRead = false;
                                         }
-                                        resetAllVariables();
-                                    }
-                                });
+                                    });
+                                }
+                            }
+                        } else {
+                            if (branchOfParsing == 2){
+                                if(i == 2){
+                                    lowByte = msg;
+                                }
+                                if(i == 3){
+                                    msgCurrent = (lowByte << 8) + msg; //msgLenght содержит количество байт данных в посылке
+                                }
+                                if(i == 4){
+                                    lowByte = msg;
+                                }
+                                if(i == 5){
+                                    msgLevelCH1 = (lowByte << 8) + msg;  //msgLevelCH уровень канала 1
+                                    System.out.println("<-- уровень CH1:" + msgLevelCH1 + " i = " + i + " no_error=" + no_error);
+                                }
+                                if(i == 6){
+                                    lowByte = msg;
+                                }
+                                if(i == 7){
+                                    msgLevelCH2 = (lowByte << 8) + msg; //msgLevelCH уровень канала 2
+                                    System.out.println("<-- уровень CH2:" + msgLevelCH2 + " i = " + i + " no_error=" + no_error);
+                                }
+                                if(i == 8){
+                                    msgIndicationState = (byte) msg;
+                                }
+                                if(no_error) {
+                                    i++;
+                                }
+                                if(msg == 35){
+                                    resetAllVariables();
+                                }
+                                if(((deviceCallback != null) && (msg == 35))){
+                                    final String msgCopy = String.valueOf(msgstr);
+                                    final Integer msgCurrentf = msgCurrent;
+                                    final Integer msgLevelCH1f = msgLevelCH1;
+                                    final Integer msgLevelCH2f = msgLevelCH2;
+                                    final Byte msgIndicationStatef = msgIndicationState;
+                                    ThreadHelper.run(runOnUi, activity, new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if(no_error && msgCorrectAcceptance) {
+                                                parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef);
+                                                deviceCallback.onMessage(msgCopy);
+                                                System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);
+                                            }
+                                            resetAllVariables();
+                                        }
+                                    });
+                                }
                             }
                         }
                     } else return; //завершение потока

@@ -21,13 +21,12 @@
         <activity
             android:name=".ui.scan.view.ScanActivity"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".ui.chat.view.ChatActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
 
         <activity
@@ -60,6 +59,9 @@
         <activity
             android:name=".ui.chat.view.InfinitySettings"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.chat.view.experimental.DualChart"
+            android:screenOrientation="landscape"/>
     </application>
 
 </manifest>

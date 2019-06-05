@@ -32,8 +32,8 @@
     <string name="state_view">lolol</string>
     <string name="title_activity_gripper_settings">GripperSettings</string>
     <string name="action_Trigger1">classic</string>
-    <string name="action_Trigger2">first trigger mode</string>
-    <string name="action_Trigger3">second trigger mode</string>
+    <string name="action_Trigger2">trigger mode</string>
+    <string name="action_Trigger3">invert trigger mode</string>
     <string name="action_Trigger4">first lock mode</string>
     <string name="action_Trigger5">second lock mode</string>
     <string name="action_Trigger6">first invert lock mode</string>

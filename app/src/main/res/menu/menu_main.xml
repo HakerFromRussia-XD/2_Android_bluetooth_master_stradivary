@@ -22,35 +22,40 @@
             android:orderInCategory="100"
             android:title="@string/action_Trigger3"
             app:showAsAction="never"/>
-        <item
-            android:id="@+id/action_Trigger4"
-            android:orderInCategory="100"
-            android:title="@string/action_Trigger4"
-            app:showAsAction="never"/>
-        <item
-            android:id="@+id/action_Trigger5"
-            android:orderInCategory="100"
-            android:title="@string/action_Trigger5"
-            app:showAsAction="never"/>
-        <item
-            android:id="@+id/action_Trigger6"
-            android:orderInCategory="100"
-            android:title="@string/action_Trigger6"
-            app:showAsAction="never"/>
-        <item
-            android:id="@+id/action_Trigger7"
-            android:orderInCategory="100"
-            android:title="@string/action_Trigger7"
-            app:showAsAction="never"/>
+<!--        <item-->
+<!--            android:id="@+id/action_Trigger4"-->
+<!--            android:orderInCategory="100"-->
+<!--            android:title="@string/action_Trigger4"-->
+<!--            app:showAsAction="never"/>-->
+<!--        <item-->
+<!--            android:id="@+id/action_Trigger5"-->
+<!--            android:orderInCategory="100"-->
+<!--            android:title="@string/action_Trigger5"-->
+<!--            app:showAsAction="never"/>-->
+<!--        <item-->
+<!--            android:id="@+id/action_Trigger6"-->
+<!--            android:orderInCategory="100"-->
+<!--            android:title="@string/action_Trigger6"-->
+<!--            app:showAsAction="never"/>-->
+<!--        <item-->
+<!--            android:id="@+id/action_Trigger7"-->
+<!--            android:orderInCategory="100"-->
+<!--            android:title="@string/action_Trigger7"-->
+<!--            app:showAsAction="never"/>-->
         <item
             android:id="@+id/action_Trigger8"
             android:orderInCategory="100"
             android:title="@string/action_Trigger8"
             app:showAsAction="never"/>
+<!--    <item-->
+<!--        android:id="@+id/action_Trigger9"-->
+<!--        android:orderInCategory="100"-->
+<!--        android:title="infinity action"-->
+<!--        app:showAsAction="never"/>-->
     <item
-        android:id="@+id/action_Trigger9"
+        android:id="@+id/action_Trigger10"
         android:orderInCategory="100"
-        android:title="infinity action"
+        android:title="experimental"
         app:showAsAction="never"/>
     <!--</group>-->
 </menu>

@@ -2,6 +2,7 @@ package me.aflak.libraries.ui.chat.view;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
@@ -56,6 +57,8 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import me.aflak.bluetooth.DeviceCallback;
+import me.aflak.bluetooth.ThreadHelper;
 import me.aflak.libraries.MyApp;
 import me.aflak.libraries.R;
 import me.aflak.libraries.data.GesstureAdapter;
@@ -68,6 +71,7 @@ import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings;
 import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings2;
 import me.aflak.libraries.ui.chat.view.Gesture_settings.Gesture_settings3;
 import me.aflak.libraries.ui.chat.view.Gripper_settings.GripperSettings;
+import me.aflak.libraries.ui.chat.view.experimental.DualChart;
 
 /**
  * Created by Omar on 20/12/2017.
@@ -122,6 +126,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public byte[] TextByteTreegMod = new byte[2];
     public byte[] TextByteSensorActivate = new byte[2];
     public byte[] TextByteSetGeneralParcel = new byte[2];
+    public byte[] TextByteReadStartParameters = new byte [2];
 //    for graph
     private SensorManager sensorManager;
     private Sensor mAccelerometer;
@@ -146,6 +151,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     ObjectAnimator objectAnimator2;
     private int limit_sensor_open = 0;
     private int limit_sensor_close = 0;
+//    for delay
+    private DeviceCallback deviceCallback;
+    private boolean runOnUi;
+    private Activity activity;
+
 
 //    public ImageView imageViewStatus;
 //    проверка
@@ -250,7 +260,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         mChart = (LineChart) findViewById(R.id.chartCH1);
 
         mChart.getDescription().setEnabled(true);
-        mChart.setTouchEnabled(true);
+        mChart.setTouchEnabled(false);
         mChart.setDragEnabled(false);
         mChart.setDragXEnabled(false);
         mChart.setScaleEnabled(false);
@@ -571,15 +581,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         @Override
                         public void run() {
                             if (isEnable && !errorReception) {
-                                addEntry((int) (2500 - iterator));
+//                                addEntry((int) (2500 - iterator));
                                 addEntry(receiveLevelCH1Chat);
                                 addEntry2(receiveLevelCH2Chat);
-                                addEntry((int) iterator);
-                                addEntry2((int) iterator);
-                                valueIstop2.setText(String.valueOf(receiveСurrentChat));
-                                if (receiveIndicationStateChat == 0){valueStatus.setText("покой"); imageViewStatus.setImageResource(R.drawable.sleeping);}
-                                if (receiveIndicationStateChat == 1){valueStatus.setText("закрытие"); imageViewStatus.setImageResource(R.drawable.closing);}
-                                if (receiveIndicationStateChat == 2){valueStatus.setText("открытие"); imageViewStatus.setImageResource(R.drawable.opening);}
+//                                addEntry((int) iterator);
+//                                addEntry2((int) iterator);
                             }
                         }
                     });
@@ -596,7 +602,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //                            Thread.sleep(500000);
 //                        }catch (Exception e){}
 //                    }
-                    iterator+=20;
+//                    iterator+=20;
                     if ( iterator == 2500) {iterator = 0;}
                 }
             }
@@ -660,31 +666,37 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 presenter.onHelloWorld(CompileMassegeTreegMod (3));
                 infinitAction = false;
                 return true;
-            case R.id.action_Trigger4:
-                presenter.onHelloWorld(CompileMassegeTreegMod (4));
-                infinitAction = false;
-                return true;
-            case R.id.action_Trigger5:
-                presenter.onHelloWorld(CompileMassegeTreegMod (5));
-                infinitAction = false;
-                return true;
-            case R.id.action_Trigger6:
-                presenter.onHelloWorld(CompileMassegeTreegMod (6));
-                infinitAction = false;
-                return true;
-            case R.id.action_Trigger7:
-                presenter.onHelloWorld(CompileMassegeTreegMod (7));
-                infinitAction = false;
-                return true;
+//            case R.id.action_Trigger4:
+//                presenter.onHelloWorld(CompileMassegeTreegMod (4));
+//                infinitAction = false;
+//                return true;
+//            case R.id.action_Trigger5:
+//                presenter.onHelloWorld(CompileMassegeTreegMod (5));
+//                infinitAction = false;
+//                return true;
+//            case R.id.action_Trigger6:
+//                presenter.onHelloWorld(CompileMassegeTreegMod (6));
+//                infinitAction = false;
+//                return true;
+//            case R.id.action_Trigger7:
+//                presenter.onHelloWorld(CompileMassegeTreegMod (7));
+//                infinitAction = false;
+//                return true;
             case R.id.action_Trigger8:
                 presenter.onHelloWorld(CompileMassegeTreegMod (8));
                 infinitAction = false;
                 return true;
-            case R.id.action_Trigger9:
+//            case R.id.action_Trigger9:
+//                final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
+//                Intent intent = new Intent(this, InfinitySettings.class);
+//                intent.putExtra("device", device);
+//                startActivity(intent);
+//                return true;
+            case R.id.action_Trigger10:
                 final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
-                Intent intent = new Intent(this, InfinitySettings.class);
-                intent.putExtra("device", device);
-                startActivity(intent);
+                Intent intent2 = new Intent(this, DualChart.class);
+                intent2.putExtra("device", device);
+                startActivity(intent2);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -694,7 +706,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private void addEntry(int event){
 
         LineData data = mChart.getData();
-        LimitLine line = new LimitLine(100f);
 
         if(data != null){
             ILineDataSet set = data.getDataSetByIndex(0);
@@ -707,9 +718,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.addEntry(new Entry(set.getEntryCount(), event), 0);
             data.notifyDataChanged();
 
-
-            mChart.setVisibleXRange(0, 50);
-            mChart.setMaxVisibleValueCount(0);
+            mChart.notifyDataSetChanged();
+            mChart.setVisibleXRangeMaximum(50);
             mChart.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
 
         }
@@ -730,8 +740,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             data.addEntry(new Entry(set.getEntryCount(), event), 0);
             data.notifyDataChanged();
 
-            mChart2.setVisibleXRange(0, 50);
-            mChart2.setMaxVisibleValueCount(0);
+            mChart2.notifyDataSetChanged();
+            mChart2.setVisibleXRangeMaximum(50);
             mChart2.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
 
         }
@@ -752,7 +762,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         set.setFillColor(ColorTemplate.getHoloBlue());
         set.setHighLightColor(Color.rgb(244, 117, 177));
         set.setValueTextColor(Color.WHITE);
-        set.setValueTextSize(10f);
+        set.setValueTextSize(1f);
 
         set.setHighLightColor(Color.YELLOW);
         return set;
@@ -773,7 +783,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         set.setFillColor(ColorTemplate.getHoloBlue());
         set.setHighLightColor(Color.rgb(244, 117, 117));
         set.setValueTextColor(Color.WHITE);
-        set.setValueTextSize(1f);
+        set.setValueTextSize(0f);
 
         set.setHighLightColor(Color.YELLOW);
         return set;
@@ -836,10 +846,28 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         receiveLevelCH1Chat = new Integer(receiveLevelCH1);
         receiveLevelCH2Chat = new Integer(receiveLevelCH2);
         receiveIndicationStateChat = new Byte(receiveIndicationState);
+
+        valueIstop2.setText(String.valueOf(receiveСurrentChat));
+        if (receiveIndicationStateChat == 0){valueStatus.setText("покой"); imageViewStatus.setImageResource(R.drawable.sleeping);}
+        if (receiveIndicationStateChat == 1){valueStatus.setText("закрытие"); imageViewStatus.setImageResource(R.drawable.closing);}
+        if (receiveIndicationStateChat == 2){valueStatus.setText("открытие"); imageViewStatus.setImageResource(R.drawable.opening);}
+
         System.out.println("ChatActivity----> Сurrent:"+ receiveСurrentChat);
         System.out.println("ChatActivity----> Level CH1:"+ receiveLevelCH1Chat);
         System.out.println("ChatActivity----> Level CH2:"+ receiveLevelCH2Chat);
         System.out.println("ChatActivity----> Indication State:"+ receiveIndicationStateChat);
+    }
+
+    @Override
+    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode) {
+        seekBarIstop.setProgress(receiveСurrent);
+        seekBarCH1on.setProgress((int) (receiveLevelTrigCH1/(multiplierSeekbar-0.5)));
+        seekBarCH2on.setProgress((int) (receiveLevelTrigCH2/(multiplierSeekbar-0.5)));
+        if (receiveIndicationInvertMode == 1){
+            switchInvert.setChecked(true);
+        } else {
+            switchInvert.setChecked(false);
+        }
     }
 
     @Override
@@ -873,15 +901,29 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //        seekBarCH2off.setEnabled(enabled);
 //        seekBarCH2sleep.setEnabled(enabled);
         seekBarIstop.setEnabled(enabled);
+//        this.activity = Activity;
+        this.runOnUi = true;
         if(isEnable){
+            ThreadHelper.run(runOnUi, this, new Runnable() {
+                @Override
+                public void run() {
+                    CompileMassegeReadStartParameters();
+                    presenter.onHelloWorld(TextByteReadStartParameters);
+                    System.out.println("из ChatAct-------------> до задержки в 3 сек" );
+                    try {
+                        Thread.sleep(3000);
+                    }catch (Exception e){}
+                }
+            });
             CompileMessageSetGeneralParcel((byte) 0x01);
             presenter.onHelloWorld(TextByteSetGeneralParcel);
+            System.out.println("из ChatAct-------------> после задержки в 3 сек" );
         }
     }
 
     public void GetPosition_My (int position, BluetoothDevice device){
-        System.out.println("из ScanAct-------------> Передача position:" + position);
-        System.out.println("из ScanAct-------------> выжимка из интента devise:" + device);
+        System.out.println("из ChatAct-------------> Передача position:" + position);
+        System.out.println("из ChatAct-------------> выжимка из интента devise:" + device);
     }
 
     private byte[] CompileMassegeTreegMod (int Treeg_id){
@@ -909,6 +951,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteSetGeneralParcel[0] = 0x0C;
         TextByteSetGeneralParcel[1] = turningOn;
         return TextByteSetGeneralParcel;
+    }
+
+    private byte[] CompileMassegeReadStartParameters () {
+        TextByteReadStartParameters[0] = 0x0D;
+        TextByteReadStartParameters[1] = 0x00;
+        return TextByteReadStartParameters;
     }
 
 

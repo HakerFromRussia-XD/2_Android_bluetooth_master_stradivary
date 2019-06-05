@@ -64,6 +64,11 @@ class Parser implements ParserCallback {
     }
 
     @Override
+    public void givsStartParameters(int current, int levelTrigCH1, int levelTrigCH2, byte indicationInvertMode) {
+
+    }
+
+    @Override
     public void givsRegister(Integer register) {
         Integer registr = new Integer(register);
         System.out.println("принятое значение регистра:"+registr);

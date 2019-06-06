@@ -348,7 +348,9 @@ public class Bluetooth {
         private int msgCurrent = 0;
         private int msgLevelCH1 = 0;
         private int msgLevelCH2 = 0;
+        private int msgBatteryTension = 0;
         private byte msgIndicationState = 0;
+        private byte msgBlockIndication = 0;
         private int lowByte = 0;     //для записи младшего байта при перемене младших и старших байт
         private int i=1;
         private boolean firstRead = true;
@@ -523,6 +525,9 @@ public class Bluetooth {
                                 if(i == 8){
                                     msgIndicationState = (byte) msg;
                                 }
+                                if(i == 9){
+                                    msgBlockIndication = (byte) msg;
+                                }
                                 if(no_error) {
                                     i++;
                                 }
@@ -535,11 +540,12 @@ public class Bluetooth {
                                     final Integer msgLevelTrigCH1f = msgLevelCH1;
                                     final Integer msgLevelTrigCH2f = msgLevelCH2;
                                     final Byte msgIndicationInvertModef = msgIndicationState;
+                                    final Byte msgBlockIndicationf = msgBlockIndication;
                                     ThreadHelper.run(runOnUi, activity, new Runnable() {
                                         @Override
                                         public void run() {
                                             if(no_error && msgCorrectAcceptance) {
-                                                parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef);
+                                                parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf);
                                                 deviceCallback.onMessage(msgCopy);
                                                 System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);
                                             }
@@ -574,6 +580,12 @@ public class Bluetooth {
                                 if(i == 8){
                                     msgIndicationState = (byte) msg;
                                 }
+                                if(i == 9){
+                                    lowByte = msg;
+                                }
+                                if(i == 10){
+                                    msgBatteryTension = (lowByte << 8) + msg; //msgBatteryTension показания батарейки
+                                }
                                 if(no_error) {
                                     i++;
                                 }
@@ -586,11 +598,12 @@ public class Bluetooth {
                                     final Integer msgLevelCH1f = msgLevelCH1;
                                     final Integer msgLevelCH2f = msgLevelCH2;
                                     final Byte msgIndicationStatef = msgIndicationState;
+                                    final Integer msgBatteryTensionf = msgBatteryTension;
                                     ThreadHelper.run(runOnUi, activity, new Runnable() {
                                         @Override
                                         public void run() {
                                             if(no_error && msgCorrectAcceptance) {
-                                                parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef);
+                                                parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
                                                 deviceCallback.onMessage(msgCopy);
                                                 System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);
                                             }

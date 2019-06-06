@@ -87,6 +87,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    @BindView(R.id.seekBarCH2sleep) SeekBar seekBarCH2sleep;
     @BindView(R.id.seekBarIstop) SeekBar seekBarIstop;
     @BindView(R.id.switchInvert) Switch switchInvert;
+    @BindView(R.id.switchBlockMode) Switch switchBlockMode;
     @BindView(R.id.valueStatus) TextView valueStatus;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
 //    @BindView(R.id.valueCH1off) TextView valueCH1off;
@@ -97,6 +98,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @BindView(R.id.valueIstop) TextView valueIstop;
     @BindView(R.id.valueIstop2) TextView valueIstop2;
     @BindView(R.id.activity_chat_messages) TextView messages;
+    @BindView(R.id.valueBatteryTension) TextView valueBatteryTension;
 //    @BindView(R.id.valueCH1) TextView valueCH1;
 //    @BindView(R.id.valueCH2) TextView valueCH2;
     @BindView(R.id.layout_sensors) RelativeLayout layoutSensors;
@@ -114,6 +116,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private byte indicatorTypeMessage;
     private byte numberChannel;
     public byte invert = 0x00;
+    public byte block = 0x00;
     public int curent = 0x00;
     public boolean isEnable = false;
     public boolean infinitAction = false;
@@ -127,6 +130,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public byte[] TextByteSensorActivate = new byte[2];
     public byte[] TextByteSetGeneralParcel = new byte[2];
     public byte[] TextByteReadStartParameters = new byte [2];
+    public byte[] TextByteSetBlockMode = new byte [2];
 //    for graph
     private SensorManager sensorManager;
     private Sensor mAccelerometer;
@@ -141,6 +145,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public int receiveLevelCH1Chat = 0;
     public int receiveLevelCH2Chat = 0;
     public byte receiveIndicationStateChat = 0;
+    public int receiveBatteryTensionChat = 0;
     String TAG = "thread";
 //    for bluetooth controller restart error
     private boolean pervoe_vkluchenie_bluetooth = true;
@@ -640,6 +645,21 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 }
             }
         });
+
+        switchBlockMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (switchBlockMode.isChecked()){
+                    System.out.println("Block mod");
+                    block = 0x01;
+                    presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                } else {
+                    System.out.println("Invert Block mod");
+                    block = 0x00;
+                    presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                }
+            }
+        });
     }
 
     @Override
@@ -841,13 +861,15 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     }
 
     @Override
-    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState) {
+    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
         receiveСurrentChat = new Integer(receiveСurrent);
         receiveLevelCH1Chat = new Integer(receiveLevelCH1);
         receiveLevelCH2Chat = new Integer(receiveLevelCH2);
         receiveIndicationStateChat = new Byte(receiveIndicationState);
+        receiveBatteryTensionChat = new Integer(receiveBatteryTension);
 
         valueIstop2.setText(String.valueOf(receiveСurrentChat));
+        valueBatteryTension.setText(String.valueOf(receiveBatteryTensionChat));
         if (receiveIndicationStateChat == 0){valueStatus.setText("покой"); imageViewStatus.setImageResource(R.drawable.sleeping);}
         if (receiveIndicationStateChat == 1){valueStatus.setText("закрытие"); imageViewStatus.setImageResource(R.drawable.closing);}
         if (receiveIndicationStateChat == 2){valueStatus.setText("открытие"); imageViewStatus.setImageResource(R.drawable.opening);}
@@ -856,10 +878,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         System.out.println("ChatActivity----> Level CH1:"+ receiveLevelCH1Chat);
         System.out.println("ChatActivity----> Level CH2:"+ receiveLevelCH2Chat);
         System.out.println("ChatActivity----> Indication State:"+ receiveIndicationStateChat);
+        System.out.println("ChatActivity----> Battery Tension:"+ receiveBatteryTensionChat);
     }
 
     @Override
-    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode) {
+    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication) {
         seekBarIstop.setProgress(receiveСurrent);
         seekBarCH1on.setProgress((int) (receiveLevelTrigCH1/(multiplierSeekbar-0.5)));
         seekBarCH2on.setProgress((int) (receiveLevelTrigCH2/(multiplierSeekbar-0.5)));
@@ -867,6 +890,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             switchInvert.setChecked(true);
         } else {
             switchInvert.setChecked(false);
+        }
+        if (receiveBlockIndication == 1){
+            switchBlockMode.setChecked(true);
+        } else {
+            switchBlockMode.setChecked(false);
         }
     }
 
@@ -911,7 +939,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                     presenter.onHelloWorld(TextByteReadStartParameters);
                     System.out.println("из ChatAct-------------> до задержки в 3 сек" );
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(1000);
                     }catch (Exception e){}
                 }
             });
@@ -959,6 +987,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         return TextByteReadStartParameters;
     }
 
+    private byte[] CompileMassegeBlockMode (byte onBlockMode) {
+        TextByteSetBlockMode[0] = 0x0E;
+        TextByteSetBlockMode[1] = onBlockMode;
+        return TextByteSetBlockMode;
+    }
+
 
     @Override
     public void showToast(String message) {
@@ -975,7 +1009,16 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     protected void onStop() {
         super.onStop();
         if(isEnable){
-            CompileMessageSetGeneralParcel((byte) 0x00);
+            ThreadHelper.run(runOnUi, this, new Runnable() {
+                @Override
+                public void run() {
+                    CompileMessageSetGeneralParcel((byte) 0x00);
+                    presenter.onHelloWorld(TextByteSetGeneralParcel);
+                    try {
+                        Thread.sleep(500);
+                    }catch (Exception e){}
+                }
+            });
             presenter.onHelloWorld(TextByteSetGeneralParcel);
         }
         presenter.disconnect();
@@ -1062,4 +1105,5 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 break;
         }
     }
+
 }

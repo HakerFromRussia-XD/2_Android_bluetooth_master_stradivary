@@ -61,7 +61,7 @@
         <RelativeLayout
             android:id="@+id/layout_sensors"
             android:layout_width="match_parent"
-            android:layout_height="685dp"
+            android:layout_height="740dp"
             android:layout_marginTop="0dp"
             android:orientation="vertical"
             android:paddingLeft="0dp"
@@ -74,10 +74,23 @@
             tools:context="me.aflak.libraries.ui.scan.view.ScanActivity"
             tools:ignore="MissingConstraints">
 
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/border5"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="14dp"
+                android:layout_marginLeft="14dp"
+                android:layout_marginTop="14dp"
+                android:text="Заряд батареи:"
+                android:textSize="14sp" />
+
             <View
                 android:id="@+id/border6"
                 android:layout_width="4dp"
-                android:layout_height="54dp"
+                android:layout_height="104dp"
                 android:layout_below="@+id/seekBarIstop"
                 android:layout_alignEnd="@+id/seekBarIstop"
                 android:layout_alignRight="@+id/seekBarIstop"
@@ -215,6 +228,14 @@
                 android:layout_marginTop="6dp"
                 android:background="@android:color/darker_gray" />
 
+            <View
+                android:id="@+id/border7"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_below="@+id/layoutStatus"
+                android:layout_marginTop="58dp"
+                android:background="@android:color/darker_gray" />
+
             <ImageView
                 android:id="@+id/limit_1"
                 android:layout_width="wrap_content"
@@ -253,12 +274,12 @@
                 android:id="@+id/activity_chat_hello_world"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/border5"
+                android:layout_below="@+id/border7"
                 android:layout_alignStart="@+id/chartCH1"
                 android:layout_alignLeft="@+id/chartCH1"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="0dp"
+                android:layout_marginTop="3dp"
                 android:text="@string/helloWorld"
                 android:visibility="visible" />
 
@@ -266,11 +287,12 @@
                 android:id="@+id/activity_chat_hello_world2"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/border5"
+                android:layout_below="@+id/border7"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
+                android:layout_marginTop="3dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="0dp"
@@ -834,6 +856,22 @@
                 app:fontFamily="sans-serif-medium" />
 
             <TextView
+                android:id="@+id/valueBatteryTension"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/border5"
+                android:layout_marginStart="4dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="14dp"
+                android:layout_toEndOf="@+id/textView12"
+                android:layout_toRightOf="@+id/textView12"
+                android:text="1500"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:typeface="monospace"
+                app:fontFamily="sans-serif-medium" />
+
+            <TextView
                 android:id="@+id/valueIstop2"
                 android:layout_width="41dp"
                 android:layout_height="wrap_content"
@@ -848,6 +886,30 @@
                 android:textStyle="bold"
                 android:typeface="monospace"
                 app:fontFamily="sans-serif-medium" />
+
+            <TextView
+                android:id="@+id/valueInvert2"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/border5"
+                android:layout_marginTop="14dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_toStartOf="@+id/switchBlockMode"
+                android:layout_toLeftOf="@+id/switchBlockMode"
+                android:text="блокировка"
+                android:textSize="14sp" />
+
+            <Switch
+                android:id="@+id/switchBlockMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/border5"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp" />
         </RelativeLayout>
     </ScrollView>
 

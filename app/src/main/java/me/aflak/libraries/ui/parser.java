@@ -59,14 +59,15 @@ class Parser implements ParserCallback {
     }
 
     @Override
-    public void givsGeneralParcel(int current, int levelCH1, int levelCH2, byte indicationState) {
-        
+    public void givsGeneralParcel(int current, int levelCH1, int levelCH2, byte indicationState, int batteryTension) {
+
     }
 
     @Override
-    public void givsStartParameters(int current, int levelTrigCH1, int levelTrigCH2, byte indicationInvertMode) {
+    public void givsStartParameters(int current, int levelTrigCH1, int levelTrigCH2, byte indicationInvertMode, byte blockIndication) {
 
     }
+
 
     @Override
     public void givsRegister(Integer register) {

@@ -869,10 +869,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         receiveBatteryTensionChat = new Integer(receiveBatteryTension);
 
         valueIstop2.setText(String.valueOf(receiveСurrentChat));
-        valueBatteryTension.setText(String.valueOf(receiveBatteryTensionChat));
+        valueBatteryTension.setText(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10); //(receiveBatteryTensionChat%1000)/10 удаление знаков после запятой(показания напряжения)
         if (receiveIndicationStateChat == 0){valueStatus.setText("покой"); imageViewStatus.setImageResource(R.drawable.sleeping);}
         if (receiveIndicationStateChat == 1){valueStatus.setText("закрытие"); imageViewStatus.setImageResource(R.drawable.closing);}
         if (receiveIndicationStateChat == 2){valueStatus.setText("открытие"); imageViewStatus.setImageResource(R.drawable.opening);}
+        if (receiveIndicationStateChat == 3){valueStatus.setText("блок"); imageViewStatus.setImageResource(R.drawable.block);}
 
         System.out.println("ChatActivity----> Сurrent:"+ receiveСurrentChat);
         System.out.println("ChatActivity----> Level CH1:"+ receiveLevelCH1Chat);
@@ -989,7 +990,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
     private byte[] CompileMassegeBlockMode (byte onBlockMode) {
         TextByteSetBlockMode[0] = 0x0E;
-        TextByteSetBlockMode[1] = onBlockMode;
+        TextByteSetBlockMode[1] = onBlockMode; // 0x01 on     0x00 off
         return TextByteSetBlockMode;
     }
 

@@ -87,6 +87,19 @@
                 android:text="Заряд батареи:"
                 android:textSize="14sp" />
 
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/border5"
+                android:layout_marginStart="4dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="14dp"
+                android:layout_toEndOf="@+id/valueBatteryTension"
+                android:layout_toRightOf="@+id/valueBatteryTension"
+                android:text="V"
+                android:textSize="14sp" />
+
             <View
                 android:id="@+id/border6"
                 android:layout_width="4dp"
@@ -857,7 +870,7 @@
 
             <TextView
                 android:id="@+id/valueBatteryTension"
-                android:layout_width="wrap_content"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border5"
                 android:layout_marginStart="4dp"
@@ -865,7 +878,7 @@
                 android:layout_marginTop="14dp"
                 android:layout_toEndOf="@+id/textView12"
                 android:layout_toRightOf="@+id/textView12"
-                android:text="1500"
+                android:text="00.00"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:typeface="monospace"
@@ -881,7 +894,7 @@
                 android:layout_marginStart="68dp"
                 android:layout_marginLeft="68dp"
                 android:layout_marginTop="10dp"
-                android:text="200"
+                android:text="0000"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:typeface="monospace"

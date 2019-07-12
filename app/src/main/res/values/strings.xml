@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">Stradivary Control</string>
-    <string name="helloWorld">open</string>
-    <string name="helloWorld2">close</string>
-    <string name="helloWorld3">stop</string>
+    <string name="helloWorld">открыть</string>
+    <string name="helloWorld2">закрыть</string>
+    <string name="helloWorld3">остановить</string>
+    <string name="gesture1">жест 1</string>
+    <string name="gesture2">жест 2</string>
+    <string name="gesture3">жест 3</string>
 
     <string name="activity_scan_button">Scan again</string>
     <string name="activity_scan_paired_text">Paired Devices :</string>

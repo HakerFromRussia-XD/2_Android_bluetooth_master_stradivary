@@ -95,6 +95,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
+    @BindView(R.id.activity_chat_gesture1) Button activity_chat_gesture1;
+    @BindView(R.id.activity_chat_gesture2) Button activity_chat_gesture2;
+    @BindView(R.id.activity_chat_gesture3) Button activity_chat_gesture3;
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
     private int intValueCH1on = 2500;
@@ -121,6 +124,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public byte[] TextByteSetGeneralParcel = new byte[2];
     public byte[] TextByteReadStartParameters = new byte [2];
     public byte[] TextByteSetBlockMode = new byte [2];
+    public byte[] TextByteSetSwitchGesture = new byte [3];
 //    for graph
     private SensorManager sensorManager;
     private Sensor mAccelerometer;
@@ -561,6 +565,27 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             }
         });
 
+        activity_chat_gesture1.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x00, (byte) 0x01));
+            }
+        });
+
+        activity_chat_gesture2.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x02, (byte) 0x03));
+            }
+        });
+
+        activity_chat_gesture3.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05));
+            }
+        });
+
         if(thread != null){
             thread.interrupt();
         }
@@ -913,6 +938,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         isEnable = enabled;
         helloWorld.setEnabled(enabled);
         helloWorld2.setEnabled(enabled);
+        activity_chat_gesture1.setEnabled(enabled);
+        activity_chat_gesture2.setEnabled(enabled);
+        activity_chat_gesture3.setEnabled(enabled);
         seekBarCH1on.setEnabled(enabled);
 //        seekBarCH1off.setEnabled(enabled);
 //        seekBarCH1sleep.setEnabled(enabled);
@@ -984,6 +1012,13 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteSetBlockMode[0] = 0x0E;
         TextByteSetBlockMode[1] = onBlockMode; // 0x01 on     0x00 off
         return TextByteSetBlockMode;
+    }
+
+    private byte[] CompileMassegeSwitchGesture (byte openGesture, byte closeGesture) {
+        TextByteSetSwitchGesture[0] = 0x0F;
+        TextByteSetSwitchGesture[1] = openGesture;
+        TextByteSetSwitchGesture[2] = closeGesture;
+        return TextByteSetSwitchGesture;
     }
 
 

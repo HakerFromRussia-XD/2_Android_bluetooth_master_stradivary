@@ -254,6 +254,18 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 interactor.sendMessageByte(txtbyteout14);
                 break;
+            case 15:
+                System.out.println("--> тип компановки:" + txtbyte[0]);
+                for (int i = 1; i < txtbyte.length; i++)
+                {
+                    txtbyteout15[i + 6] = txtbyte[i];
+                }
+                for (int i = 0; i < txtbyteout15.length; i++)
+                {
+                    System.out.println("<-- посылка:" + txtbyteout15[i]);
+                }
+                interactor.sendMessageByte(txtbyteout15);
+                break;
             default:
                 System.out.println("--> тип компановки:" + txtbyte[0]);
                 System.out.println("--> номер канала получателя:" + txtbyte[1]);

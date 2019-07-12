@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.aflak.libraries">
+    package="me.aflak.motorica">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
-        android:name=".MyApp"
+        android:name="me.aflak.motorica.MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.SplashScreen">
+        <activity android:name="me.aflak.motorica.ui.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.scan.view.ScanActivity"
+            android:name="me.aflak.motorica.ui.scan.view.ScanActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.ChatActivity">
+            android:name="me.aflak.motorica.ui.chat.view.ChatActivity">
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
@@ -30,37 +30,37 @@
         </activity>
 
         <activity
-            android:name=".ui.chat.view.Gesture_settings.Gesture_settings"
+            android:name="me.aflak.motorica.ui.chat.view.Gesture_settings.Gesture_settings"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.Gesture_settings.Gesture_settings2"
+            android:name="me.aflak.motorica.ui.chat.view.Gesture_settings.Gesture_settings2"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.Gesture_settings.Gesture_settings3"
+            android:name="me.aflak.motorica.ui.chat.view.Gesture_settings.Gesture_settings3"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.Gripper_settings.GripperSettings"
+            android:name="me.aflak.motorica.ui.chat.view.Gripper_settings.GripperSettings"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.Gripper_settings.GripperSettings2"
+            android:name="me.aflak.motorica.ui.chat.view.Gripper_settings.GripperSettings2"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.Gripper_settings.GripperSettings3"
+            android:name="me.aflak.motorica.ui.chat.view.Gripper_settings.GripperSettings3"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.Gripper_settings.GripperSettings4"
+            android:name="me.aflak.motorica.ui.chat.view.Gripper_settings.GripperSettings4"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.Gripper_settings.GripperSettings5"
+            android:name="me.aflak.motorica.ui.chat.view.Gripper_settings.GripperSettings5"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.Gripper_settings.GripperSettings6"
+            android:name="me.aflak.motorica.ui.chat.view.Gripper_settings.GripperSettings6"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.InfinitySettings"
+            android:name="me.aflak.motorica.ui.chat.view.InfinitySettings"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.chat.view.experimental.DualChart"
+            android:name="me.aflak.motorica.ui.chat.view.experimental.DualChart"
             android:screenOrientation="landscape"/>
     </application>
 

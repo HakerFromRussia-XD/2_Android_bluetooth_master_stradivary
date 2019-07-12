@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="me.aflak.libraries.ui.chat.view.ChatActivity">
+    tools:context="me.aflak.motorica.ui.chat.view.ChatActivity">
 
     <!--<android.support.design.widget.BottomNavigationView-->
         <!--android:id="@+id/navigation"-->
@@ -71,7 +71,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:context="me.aflak.libraries.ui.scan.view.ScanActivity"
+            tools:context="me.aflak.libraries.me.aflak.motorica.ui.scan.view.ScanActivity"
             tools:ignore="MissingConstraints">
 
             <TextView

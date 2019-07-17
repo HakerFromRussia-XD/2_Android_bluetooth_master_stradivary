@@ -98,6 +98,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @BindView(R.id.activity_chat_gesture1) Button activity_chat_gesture1;
     @BindView(R.id.activity_chat_gesture2) Button activity_chat_gesture2;
     @BindView(R.id.activity_chat_gesture3) Button activity_chat_gesture3;
+    @BindView(R.id.activity_chat_gesture4) Button activity_chat_gesture4;
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
     private int intValueCH1on = 2500;
@@ -586,6 +587,13 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             }
         });
 
+        activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x06, (byte) 0x06));
+            }
+        });
+
         if(thread != null){
             thread.interrupt();
         }
@@ -941,6 +949,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         activity_chat_gesture1.setEnabled(enabled);
         activity_chat_gesture2.setEnabled(enabled);
         activity_chat_gesture3.setEnabled(enabled);
+        activity_chat_gesture4.setEnabled(enabled);
         seekBarCH1on.setEnabled(enabled);
 //        seekBarCH1off.setEnabled(enabled);
 //        seekBarCH1sleep.setEnabled(enabled);

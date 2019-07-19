@@ -558,7 +558,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //                    }
 //                    iterator+=20;
                     if ( iterator == 2500) {iterator = 0;}
-                }
+                } 
             }
         });
         thread.start();

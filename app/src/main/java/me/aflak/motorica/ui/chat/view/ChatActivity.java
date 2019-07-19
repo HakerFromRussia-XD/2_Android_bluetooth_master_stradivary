@@ -19,6 +19,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
@@ -92,7 +93,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    @BindView(R.id.valueCH1) TextView valueCH1;
 //    @BindView(R.id.valueCH2) TextView valueCH2;
     @BindView(R.id.layout_sensors) RelativeLayout layoutSensors;
-//    @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
+    @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
     @BindView(R.id.activity_chat_gesture1) Button activity_chat_gesture1;
@@ -176,14 +177,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 case R.id.navigation_home:
                     Log.i(TAG, "oncliiiiick");
                     layoutSensors.setVisibility(View.GONE);
-                    fab.show();
-//                    layoutGestures.setVisibility(View.VISIBLE);
+//                    fab.show();
+                    layoutGestures.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_dashboard:
                     Log.i(TAG, ":))");
                     layoutSensors.setVisibility(View.VISIBLE);
                     fab.hide();
-//                    layoutGestures.setVisibility(View.GONE);
+                    layoutGestures.setVisibility(View.GONE);
                     return true;
             }
             return false;
@@ -203,43 +204,43 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //        objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
 
         gestureMyList = new ArrayList<>();
-//        recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
-//        recyclerView.setHasFixedSize(true);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         //adding some items to our list
-//        gestureMyList.add(
-//                new Gesture_my(
-//                        1,
-//                        R.drawable.gesture1,
-//                        "bla bla bla",
-//                        "Нажмите для редактирования начального и конечного состояний",
-//                        "Жест №1",
-//                        2,
-//                        600000));
-//
-//        gestureMyList.add(
-//                new Gesture_my(
-//                        1,
-//                        R.drawable.gesture2,
-//                        "bla bla bla",
-//                        "Нажмите для редактирования начального и конечного состояний",
-//                        "Жест №2",
-//                        2,
-//                        60000));
-//
-//        gestureMyList.add(
-//                new Gesture_my(
-//                        1,
-//                        R.drawable.gesture3,
-//                        "bla bla bla",
-//                        "Нажмите для редактирования начального и конечного состояний",
-//                        "Жест №3",
-//                        2,
-//                        60000));
-//
-//        gestureAdapter = new GesstureAdapter(this, gestureMyList, this);
-//        recyclerView.setAdapter(gestureAdapter);
+        gestureMyList.add(
+                new Gesture_my(
+                        1,
+                        R.drawable.gesture1,
+                        "bla bla bla",
+                        "Нажмите для редактирования начального и конечного состояний",
+                        "Жест №1",
+                        2,
+                        600000));
+
+        gestureMyList.add(
+                new Gesture_my(
+                        1,
+                        R.drawable.gesture2,
+                        "bla bla bla",
+                        "Нажмите для редактирования начального и конечного состояний",
+                        "Жест №2",
+                        2,
+                        60000));
+
+        gestureMyList.add(
+                new Gesture_my(
+                        1,
+                        R.drawable.gesture3,
+                        "bla bla bla",
+                        "Нажмите для редактирования начального и конечного состояний",
+                        "Жест №3",
+                        2,
+                        60000));
+
+        gestureAdapter = new GesstureAdapter(this, gestureMyList, this);
+        recyclerView.setAdapter(gestureAdapter);
 
         DaggerChatComponent.builder()
             .bluetoothModule(MyApp.app().bluetoothModule())
@@ -250,94 +251,18 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-//        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-//        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        if(mAccelerometer != null){
-            sensorManager.registerListener(ChatActivity.this,mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
-        }
+//        if(mAccelerometer != null){
+//            sensorManager.registerListener(ChatActivity.this,mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+//        }
 
 ////////initialized graph for channel 1
-        mChart = (LineChart) findViewById(R.id.chartCH1);
-
-        mChart.getDescription().setEnabled(true);
-        mChart.setTouchEnabled(false);
-        mChart.setDragEnabled(false);
-        mChart.setDragXEnabled(false);
-        mChart.setScaleEnabled(false);
-        mChart.setDrawGridBackground(false);
-        mChart.setPinchZoom(false);
-        mChart.setBackgroundColor(Color.BLACK);
-        mChart.getDescription().setEnabled(false);
-        mChart.getHighlightByTouchPoint(1, 1);
-
-        LineData data = new LineData();
-        data.setValueTextColor(Color.WHITE);
-        mChart.setData(data);
-
-        Legend legend = mChart.getLegend();
-
-        legend.setForm(Legend.LegendForm.LINE);
-        legend.setTextColor(Color.WHITE);
-        legend.setForm(Legend.LegendForm.NONE);
-
-        XAxis x1 = mChart.getXAxis();
-        x1.setTextColor(Color.BLACK);
-        x1.setDrawGridLines(false);
-        x1.setAxisMaximum(4000000f);//x1.resetAxisMaximum();
-
-
-        x1.setAvoidFirstLastClipping(true);
-
-        YAxis y1 = mChart.getAxisLeft();
-        y1.setTextColor(Color.WHITE);
-        y1.setAxisMaximum(3000f);
-        y1.setAxisMinimum(-100f);
-        y1.setGridColor(Color.BLACK);
-        y1.setDrawGridLines(false);
-
-        mChart.getAxisRight().setEnabled(false);
+        initializedGraphForChannel1();
 
 ////////initialized graph for channel 2
-        mChart2 = (LineChart) findViewById(R.id.chartCH2);
-
-        mChart2.getDescription().setEnabled(true);
-        mChart2.setTouchEnabled(true);
-        mChart2.setDragEnabled(false);
-        mChart2.setDragXEnabled(false);
-        mChart2.setScaleEnabled(false);
-        mChart2.setDrawGridBackground(false);
-        mChart2.setPinchZoom(false);
-        mChart2.setBackgroundColor(Color.BLACK);
-        mChart2.getDescription().setEnabled(false);
-        mChart2.getHighlightByTouchPoint(1, 1);
-
-        LineData data2 = new LineData();
-        data2.setValueTextColor(Color.WHITE);
-        mChart2.setData(data2);
-
-        Legend legend2 = mChart2.getLegend();
-
-        legend2.setForm(Legend.LegendForm.LINE);
-        legend2.setTextColor(Color.WHITE);
-        legend2.setForm(Legend.LegendForm.NONE);
-
-        XAxis x12 = mChart2.getXAxis();
-        x12.setTextColor(Color.BLACK);
-        x12.setDrawGridLines(false);
-        x12.setAxisMaximum(4000000f);//x1.resetAxisMaximum();
-        x12.setAvoidFirstLastClipping(true);
-
-        YAxis y1_2 = mChart2.getAxisLeft();
-
-        // disable dual axis (only use LEFT axis)
-        mChart2.getAxisRight().setEnabled(false);
-
-        y1_2.setTextColor(Color.WHITE);
-        y1_2.setAxisMaximum(3000f);
-        y1_2.setAxisMinimum(-100f);
-        y1_2.setGridColor(Color.BLACK);
-        y1_2.setDrawGridLines(false);
+        initializedGraphForChannel2();
 
 
 //        startPlot();
@@ -855,7 +780,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         addEntry2(20);
     }
 
-
     @Override
     public void setStatus(String status) {
 
@@ -977,6 +901,90 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             presenter.onHelloWorld(TextByteSetGeneralParcel);
             System.out.println("из ChatAct-------------> после задержки в 3 сек" );
         }
+    }
+
+    public void initializedGraphForChannel1(){
+        mChart = (LineChart) findViewById(R.id.chartCH1);
+
+        mChart.getDescription().setEnabled(true);
+        mChart.setTouchEnabled(false);
+        mChart.setDragEnabled(false);
+        mChart.setDragXEnabled(false);
+        mChart.setScaleEnabled(false);
+        mChart.setDrawGridBackground(false);
+        mChart.setPinchZoom(false);
+        mChart.setBackgroundColor(Color.BLACK);
+        mChart.getDescription().setEnabled(false);
+        mChart.getHighlightByTouchPoint(1, 1);
+
+        LineData data = new LineData();
+        data.setValueTextColor(Color.WHITE);
+        mChart.setData(data);
+
+        Legend legend = mChart.getLegend();
+
+        legend.setForm(Legend.LegendForm.LINE);
+        legend.setTextColor(Color.WHITE);
+        legend.setForm(Legend.LegendForm.NONE);
+
+        XAxis x1 = mChart.getXAxis();
+        x1.setTextColor(Color.BLACK);
+        x1.setDrawGridLines(false);
+        x1.setAxisMaximum(4000000f);//x1.resetAxisMaximum();
+
+
+        x1.setAvoidFirstLastClipping(true);
+
+        YAxis y1 = mChart.getAxisLeft();
+        y1.setTextColor(Color.WHITE);
+        y1.setAxisMaximum(3000f);
+        y1.setAxisMinimum(-100f);
+        y1.setGridColor(Color.BLACK);
+        y1.setDrawGridLines(false);
+
+        mChart.getAxisRight().setEnabled(false);
+    }
+
+    public void initializedGraphForChannel2(){
+        mChart2 = (LineChart) findViewById(R.id.chartCH2);
+
+        mChart2.getDescription().setEnabled(true);
+        mChart2.setTouchEnabled(true);
+        mChart2.setDragEnabled(false);
+        mChart2.setDragXEnabled(false);
+        mChart2.setScaleEnabled(false);
+        mChart2.setDrawGridBackground(false);
+        mChart2.setPinchZoom(false);
+        mChart2.setBackgroundColor(Color.BLACK);
+        mChart2.getDescription().setEnabled(false);
+        mChart2.getHighlightByTouchPoint(1, 1);
+
+        LineData data2 = new LineData();
+        data2.setValueTextColor(Color.WHITE);
+        mChart2.setData(data2);
+
+        Legend legend2 = mChart2.getLegend();
+
+        legend2.setForm(Legend.LegendForm.LINE);
+        legend2.setTextColor(Color.WHITE);
+        legend2.setForm(Legend.LegendForm.NONE);
+
+        XAxis x12 = mChart2.getXAxis();
+        x12.setTextColor(Color.BLACK);
+        x12.setDrawGridLines(false);
+        x12.setAxisMaximum(4000000f);//x1.resetAxisMaximum();
+        x12.setAvoidFirstLastClipping(true);
+
+        YAxis y1_2 = mChart2.getAxisLeft();
+
+        // disable dual axis (only use LEFT axis)
+        mChart2.getAxisRight().setEnabled(false);
+
+        y1_2.setTextColor(Color.WHITE);
+        y1_2.setAxisMaximum(3000f);
+        y1_2.setAxisMinimum(-100f);
+        y1_2.setGridColor(Color.BLACK);
+        y1_2.setDrawGridLines(false);
     }
 
     public void GetPosition_My (int position, BluetoothDevice device){

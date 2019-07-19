@@ -7,21 +7,21 @@
     android:orientation="vertical"
     tools:context="me.aflak.motorica.ui.chat.view.ChatActivity">
 
-    <!--<android.support.design.widget.BottomNavigationView-->
-        <!--android:id="@+id/navigation"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="46dp"-->
-        <!--android:layout_alignParentStart="true"-->
-        <!--android:layout_alignParentLeft="true"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:layout_alignParentRight="true"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:background="?android:attr/windowBackground"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintHorizontal_bias="0.0"-->
-        <!--app:layout_constraintLeft_toLeftOf="parent"-->
-        <!--app:layout_constraintRight_toRightOf="parent"-->
-        <!--app:menu="@menu/navigation" />-->
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="0dp"
+        android:layout_height="46dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:menu="@menu/navigation" />
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -49,7 +49,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="24dp"
-        android:layout_marginBottom="0dp"
+        android:layout_marginBottom="46dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -66,7 +66,7 @@
             android:orientation="vertical"
             android:paddingLeft="0dp"
             android:paddingRight="0dp"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -442,7 +442,7 @@
 
             <Button
                 android:id="@+id/activity_chat_gesture4"
-                android:layout_width="150dp"
+                android:layout_width="170dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
                 android:layout_alignParentEnd="true"
@@ -514,8 +514,8 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_marginTop="4dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginEnd="9dp"
+                    android:layout_marginRight="9dp" />
 
                 <TextView
                     android:id="@+id/valueInvert"
@@ -967,38 +967,38 @@
         </RelativeLayout>
     </ScrollView>
 
-    <!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-        <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
-        <!--xmlns:tools="http://schemas.android.com/tools"-->
-        <!--android:id="@+id/gestures_list_relative"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="0dp"-->
-        <!--android:layout_marginTop="24dp"-->
-        <!--android:layout_marginBottom="48dp"-->
-        <!--android:paddingLeft="16dp"-->
-        <!--android:paddingRight="16dp"-->
-        <!--android:paddingBottom="0dp"-->
-        <!--android:visibility="gone"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintHorizontal_bias="0.0"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent"-->
-        <!--app:layout_constraintVertical_bias="0.0"-->
-        <!--tools:ignore="MissingConstraints">-->
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/gestures_list_relative"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="48dp"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:paddingBottom="0dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="MissingConstraints">
 
-        <!--<android.support.v7.widget.RecyclerView-->
-            <!--android:id="@+id/gestures_list"-->
-            <!--android:layout_width="377dp"-->
-            <!--android:layout_height="200dp"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_marginTop="0dp"-->
-            <!--android:layout_marginBottom="0dp"-->
-            <!--android:clipChildren="false"-->
-            <!--android:clipToPadding="true"-->
-            <!--android:visibility="gone"></android.support.v7.widget.RecyclerView>-->
-    <!--</RelativeLayout>-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/gestures_list"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            android:clipChildren="false"
+            android:clipToPadding="true"
+            android:visibility="visible"></android.support.v7.widget.RecyclerView>
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

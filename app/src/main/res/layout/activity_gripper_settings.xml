@@ -136,6 +136,22 @@
             android:text="Палец 5" />
 
         <TextView
+        android:id="@+id/textView35"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="296dp"
+        android:text="Степень 1" />
+
+        <TextView
+            android:id="@+id/textView36"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="362dp"
+            android:text="Степень 2" />
+
+        <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -176,7 +192,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="296dp"
+            android:layout_marginTop="318dp"
+            android:text="Угол:" />
+
+        <TextView
+            android:id="@+id/textView37"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="384dp"
             android:text="Угол:" />
 
         <TextView
@@ -220,7 +244,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="318dp"
+            android:layout_marginTop="340dp"
+            android:text="Скорость:" />
+
+        <TextView
+            android:id="@+id/textView39"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="406dp"
             android:text="Скорость:" />
 
         <TextView
@@ -239,48 +271,60 @@
             android:id="@+id/textView14"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="3dp"
-            android:layout_marginLeft="3dp"
+            android:layout_marginStart="88dp"
+            android:layout_marginLeft="88dp"
             android:layout_marginTop="116dp"
-            android:layout_toEndOf="@+id/valueFinger2Speed"
-            android:layout_toRightOf="@+id/valueFinger2Speed"
             android:text="rad/s" />
 
         <TextView
             android:id="@+id/textView22"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
+            android:layout_marginStart="88dp"
+            android:layout_marginLeft="88dp"
             android:layout_marginTop="183dp"
-            android:layout_toEndOf="@+id/valueFinger3Speed"
-            android:layout_toRightOf="@+id/valueFinger3Speed"
             android:text="rad/s" />
 
         <TextView
             android:id="@+id/textView29"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
+            android:layout_marginStart="88dp"
+            android:layout_marginLeft="88dp"
             android:layout_marginTop="250dp"
-            android:layout_toEndOf="@+id/valueFinger4Speed"
-            android:layout_toRightOf="@+id/valueFinger4Speed"
             android:text="rad/s" />
 
         <TextView
             android:id="@+id/textView34"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="318dp"
-            android:layout_toEndOf="@+id/valueFinger5Speed"
-            android:layout_toRightOf="@+id/valueFinger5Speed"
+            android:layout_marginStart="88dp"
+            android:layout_marginLeft="88dp"
+            android:layout_marginTop="340dp"
+            android:text="rad/s" />
+
+        <TextView
+            android:id="@+id/textView40"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="88dp"
+            android:layout_marginLeft="88dp"
+            android:layout_marginTop="406dp"
             android:text="rad/s" />
 
         <TextView
@@ -328,7 +372,19 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="1dp"
             android:layout_marginLeft="1dp"
-            android:layout_marginTop="296dp"
+            android:layout_marginTop="318dp"
+            android:text="°" />
+
+        <TextView
+            android:id="@+id/textView38"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/textView34"
+            android:layout_alignLeft="@+id/textView34"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="1dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginTop="384dp"
             android:text="°" />
 
         <TextView
@@ -336,11 +392,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/chartCH1"
-            android:layout_marginStart="3dp"
-            android:layout_marginLeft="3dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginStart="88dp"
+            android:layout_marginLeft="88dp"
             android:layout_marginTop="49dp"
-            android:layout_toEndOf="@+id/valueFinger1Speed"
-            android:layout_toRightOf="@+id/valueFinger1Speed"
             android:text="rad/s" />
 
         <TextView
@@ -392,7 +448,7 @@
             android:layout_marginRight="0dp"
             android:layout_toEndOf="@+id/textView14"
             android:layout_toRightOf="@+id/textView14"
-            android:max="100"
+            android:max="99"
             android:progress="20" />
 
         <SeekBar
@@ -409,7 +465,7 @@
             android:layout_marginRight="0dp"
             android:layout_toEndOf="@+id/textView29"
             android:layout_toRightOf="@+id/textView29"
-            android:max="100"
+            android:max="99"
             android:progress="20" />
 
         <SeekBar
@@ -421,12 +477,29 @@
             android:layout_alignParentRight="true"
             android:layout_marginStart="4dp"
             android:layout_marginLeft="4dp"
-            android:layout_marginTop="317dp"
+            android:layout_marginTop="340dp"
             android:layout_marginEnd="0dp"
             android:layout_marginRight="0dp"
             android:layout_toEndOf="@+id/textView34"
             android:layout_toRightOf="@+id/textView34"
-            android:max="100"
+            android:max="99"
+            android:progress="20" />
+
+        <SeekBar
+            android:id="@+id/seekBarFinger6Speed"
+            android:layout_width="161dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="406dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="0dp"
+            android:layout_toEndOf="@+id/textView34"
+            android:layout_toRightOf="@+id/textView34"
+            android:max="99"
             android:progress="20" />
 
         <SeekBar
@@ -443,7 +516,7 @@
             android:layout_marginRight="0dp"
             android:layout_toEndOf="@+id/textView22"
             android:layout_toRightOf="@+id/textView22"
-            android:max="100"
+            android:max="99"
             android:progress="20" />
 
         <SeekBar
@@ -460,7 +533,7 @@
             android:layout_marginRight="0dp"
             android:layout_toEndOf="@+id/textView13"
             android:layout_toRightOf="@+id/textView13"
-            android:max="100"
+            android:max="99"
             android:progress="20" />
 
         <SeekBar
@@ -508,7 +581,24 @@
             android:layout_alignParentRight="true"
             android:layout_marginStart="0dp"
             android:layout_marginLeft="0dp"
-            android:layout_marginTop="296dp"
+            android:layout_marginTop="318dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="0dp"
+            android:max="90"
+            android:progress="50" />
+
+        <SeekBar
+            android:id="@+id/seekBarFinger6Angle"
+            android:layout_width="185dp"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/seekBarFinger5Speed"
+            android:layout_alignLeft="@+id/seekBarFinger5Speed"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="384dp"
             android:layout_marginEnd="0dp"
             android:layout_marginRight="0dp"
             android:max="90"
@@ -586,7 +676,21 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="69dp"
             android:layout_marginLeft="69dp"
-            android:layout_marginTop="296dp"
+            android:layout_marginTop="318dp"
+            android:text="50"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:typeface="monospace"
+            app:fontFamily="sans-serif-medium" />
+
+        <TextView
+            android:id="@+id/valueFinger6Angle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="69dp"
+            android:layout_marginLeft="69dp"
+            android:layout_marginTop="384dp"
             android:text="50"
             android:textAllCaps="false"
             android:textStyle="bold"
@@ -650,7 +754,23 @@
             android:layout_alignParentRight="false"
             android:layout_marginStart="69dp"
             android:layout_marginLeft="69dp"
-            android:layout_marginTop="318dp"
+            android:layout_marginTop="340dp"
+            android:text="20"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:typeface="monospace"
+            app:fontFamily="sans-serif-medium" />
+
+        <TextView
+            android:id="@+id/valueFinger6Speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentRight="false"
+            android:layout_marginStart="69dp"
+            android:layout_marginLeft="69dp"
+            android:layout_marginTop="406dp"
             android:text="20"
             android:textAllCaps="false"
             android:textStyle="bold"

@@ -33,6 +33,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     private byte txtbyteout13[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0D, 0x00, 0x77, 0x24};                                     //компановка для начального запроса параметров
     private byte txtbyteout14[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0E, 0x00, 0x77, 0x24};                                     //компановка для включения/отключения(0х01/0х00) блокировки
     private byte txtbyteout15[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0F, 0x00, 0x77, 0x77, 0x24};                               //компановка для задачи номера открытого и закрытого схватов 0x77 заменяемые данные всего 10 байт
+    private byte txtbyteout16[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x10, 0x00, 0x77, 0x24};                                     //компановка для установки грубости датчиков 0x77 заменяемые данные всего 9 байт
+
     public ChatPresenterImpl(ChatView view, ChatInteractor interactor) {
         this.view = view;
         this.interactor = interactor;
@@ -265,6 +267,18 @@ public class ChatPresenterImpl implements ChatPresenter {
                     System.out.println("<-- посылка:" + txtbyteout15[i]);
                 }
                 interactor.sendMessageByte(txtbyteout15);
+                break;
+            case 16:
+                System.out.println("--> тип компановки:" + txtbyte[0]);
+                for (int i = 1; i < txtbyte.length; i++)
+                {
+                    txtbyteout16[i + 6] = txtbyte[i];
+                }
+                for (int i = 0; i < txtbyteout16.length; i++)
+                {
+                    System.out.println("<-- посылка:" + txtbyteout16[i]);
+                }
+                interactor.sendMessageByte(txtbyteout16);
                 break;
             default:
                 System.out.println("--> тип компановки:" + txtbyte[0]);

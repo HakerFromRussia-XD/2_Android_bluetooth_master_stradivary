@@ -77,6 +77,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    @BindView(R.id.seekBarCH2off) SeekBar seekBarCH2off;
 //    @BindView(R.id.seekBarCH2sleep) SeekBar seekBarCH2sleep;
     @BindView(R.id.seekBarIstop) SeekBar seekBarIstop;
+    @BindView(R.id.seekBarRoughness) SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) Switch switchInvert;
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
     @BindView(R.id.valueStatus) TextView valueStatus;
@@ -112,6 +113,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private byte numberChannel;
     public byte invert = 0x00;
     public byte block = 0x00;
+    public byte roughness = 0x00;
     public int curent = 0x00;
     public boolean isEnable = false;
     public boolean infinitAction = false;
@@ -127,6 +129,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public byte[] TextByteReadStartParameters = new byte [2];
     public byte[] TextByteSetBlockMode = new byte [2];
     public byte[] TextByteSetSwitchGesture = new byte [3];
+    public byte[] TextByteSetRouhness = new byte [2];
 //    for graph
     private SensorManager sensorManager;
     private Sensor mAccelerometer;
@@ -473,6 +476,25 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 valueIstop.setText(String.valueOf(seekBar.getProgress()));
                 curent = seekBar.getProgress();
                 presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
+            }
+        });
+
+        seekBarRoughness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+//                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+//                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+                roughness = (byte) seekBar.getProgress();
+                presenter.onHelloWorld(CompileMassegeRouhness(roughness));
             }
         });
 
@@ -1036,6 +1058,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteSetSwitchGesture[1] = openGesture;
         TextByteSetSwitchGesture[2] = closeGesture;
         return TextByteSetSwitchGesture;
+    }
+
+    private byte[] CompileMassegeRouhness (byte roughness) {
+        TextByteSetRouhness[0] = 0x10;
+        TextByteSetRouhness[1] = roughness; // 0x01 on     0x00 off
+        return TextByteSetRouhness;
     }
 
 

@@ -66,7 +66,7 @@
             android:orientation="vertical"
             android:paddingLeft="0dp"
             android:paddingRight="0dp"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -85,6 +85,19 @@
                 android:layout_marginLeft="14dp"
                 android:layout_marginTop="14dp"
                 android:text="Заряд батареи:"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/textView13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/border8"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="14dp"
+                android:layout_marginLeft="14dp"
+                android:layout_marginTop="14dp"
+                android:text="Грубость датчиков:"
                 android:textSize="14sp" />
 
             <TextView
@@ -107,7 +120,7 @@
                 android:layout_below="@+id/seekBarIstop"
                 android:layout_alignEnd="@+id/seekBarIstop"
                 android:layout_alignRight="@+id/seekBarIstop"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="57dp"
                 android:layout_marginEnd="180dp"
                 android:layout_marginRight="180dp"
                 android:background="@android:color/darker_gray" />
@@ -227,6 +240,14 @@
 
             <View
                 android:id="@+id/border4"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_below="@+id/seekBarIstop"
+                android:layout_marginTop="57dp"
+                android:background="@android:color/darker_gray" />
+
+            <View
+                android:id="@+id/border8"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_below="@+id/seekBarIstop"
@@ -465,7 +486,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="68dp"
                 tools:ignore="MissingConstraints">
 
                 <TextView
@@ -632,7 +653,7 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="28dp"
-                android:text="I max:"
+                android:text="I макс:"
                 tools:ignore="RtlCompat" />
 
             <TextView
@@ -645,7 +666,7 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="9dp"
-                android:text="I real:"
+                android:text="I реал:"
                 tools:ignore="RtlCompat" />
 
             <TextView
@@ -843,6 +864,26 @@
             <!--android:textStyle="bold"-->
             <!--android:typeface="monospace"-->
             <!--app:fontFamily="sans-serif-medium" />-->
+
+            <SeekBar
+                android:id="@+id/seekBarRoughness"
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/limit_2"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="6dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginTop="60dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginRight="0dp"
+                android:layout_toEndOf="@+id/textView24"
+                android:layout_toRightOf="@+id/textView24"
+                android:indeterminate="false"
+                android:max="32"
+                android:progress="13"
+                android:progressDrawable="@drawable/track"
+                android:thumb="@drawable/thumb" />
 
             <TextView
                 android:id="@+id/valueCH2on"

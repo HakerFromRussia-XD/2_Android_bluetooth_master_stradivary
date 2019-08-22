@@ -905,6 +905,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //        seekBarCH2off.setEnabled(enabled);
 //        seekBarCH2sleep.setEnabled(enabled);
         seekBarIstop.setEnabled(enabled);
+        seekBarRoughness.setEnabled(enabled);
 //        this.activity = Activity;
         this.runOnUi = true;
         if(isEnable){

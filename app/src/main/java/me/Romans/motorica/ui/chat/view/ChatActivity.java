@@ -102,6 +102,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @BindView(R.id.activity_chat_gesture4) Button activity_chat_gesture4;
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
+    public BottomNavigationView navigation;
     private int intValueCH1on = 2500;
     private int intValueCH1off = 100;
     private int intValueCH1sleep = 200;
@@ -156,7 +157,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    for delay
     private boolean runOnUi;
 //    for fragment gestures settings
-    private FragmentGestureSettings fragmentGestureSettings;
+    public FragmentGestureSettings fragmentGestureSettings;
+    public FragmentManager fragmentManager = getSupportFragmentManager();
+    public float heightBottomNavigation;
 
 //    public ImageView imageViewStatus;
 
@@ -250,8 +253,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        heightBottomNavigation = pxFromDp(48);
 
 //        if(mAccelerometer != null){
 //            sensorManager.registerListener(ChatActivity.this,mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
@@ -271,10 +275,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
 
         fragmentGestureSettings = new FragmentGestureSettings();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-//        fragmentManager.beginTransaction()
-//                .replace(R.id.view_pager, fragmentGestureSettings)
-//                .commit();
+
 
         presenter.onCreate(getIntent());
         seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -605,7 +606,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         set.setLineWidth(2f);
         set.setColor(Color.GREEN);
         set.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-//        set.setCubicIntensity(0.2f);
 
         set.setCircleColor(Color.GREEN);
         set.setCircleHoleColor(Color.GREEN);
@@ -889,10 +889,16 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     }
 
     public byte[] CompileMassegeSwitchGesture(byte openGesture, byte closeGesture) {
+        System.err.println("ChatActivity----> укомпановали байт массив");
         TextByteSetSwitchGesture[0] = 0x0F;
         TextByteSetSwitchGesture[1] = openGesture;
         TextByteSetSwitchGesture[2] = closeGesture;
         return TextByteSetSwitchGesture;
+    }
+
+    public void TranslateMassegeSwitchGesture(){
+        System.err.println("ChatActivity----> отправили байт массив");
+        presenter.onHelloWorld(TextByteSetSwitchGesture);
     }
 
     private byte[] CompileMassegeRouhness (byte roughness) {
@@ -976,11 +982,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
         switch (position){
             case 0:
-//                presenter.disconnect();
-//                Intent intent = new Intent(this, Gesture_settings.class);
-//                intent.putExtra("device", device);
-//                startActivity(intent);
-                showToast("запускаем фрагмент 1");
+                fragmentManager.beginTransaction()
+                        .add(R.id.view_pager, fragmentGestureSettings)
+                        .commit();
+                navigation.clearAnimation();
+                navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                 break;
             case 1:
                 presenter.disconnect();
@@ -1013,6 +1019,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 startActivity(intent_b);
                 break;
         }
+    }
+
+    private float pxFromDp(float dp) {
+        return dp * getApplicationContext().getResources().getDisplayMetrics().density;
     }
 
 }

@@ -11,8 +11,8 @@
         android:layout_height="match_parent">
 
         <ScrollView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_marginBottom="0dp"
@@ -27,35 +27,34 @@
             <RelativeLayout
                 android:id="@+id/layout_sensors"
                 android:layout_width="match_parent"
-                android:layout_height="600dp"
+                android:layout_height="match_parent"
                 android:layout_marginTop="0dp"
                 android:orientation="vertical"
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
                 android:visibility="visible"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:context="me.aflak.libraries.me.aflak.motorica.ui.scan.view.ScanActivity"
+                android:background="@android:color/holo_red_light"
+                tools:context="me.Romans.motorica.ui.scan.view.ScanActivity"
                 tools:ignore="MissingConstraints">
 
                 <Button
                     android:id="@+id/gesture_use"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentBottom="true"
                     android:layout_marginStart="60dp"
                     android:layout_marginLeft="60dp"
+                    android:layout_marginTop="300dp"
                     android:layout_marginEnd="60dp"
                     android:layout_marginRight="60dp"
-                    android:layout_marginBottom="0dp"
-                    android:visibility="visible"
-                    android:text="Использовать жест" />
+                    android:layout_marginBottom="48dp"
+                    android:text="Использовать жест"
+                    android:visibility="visible" />
             </RelativeLayout>
         </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>

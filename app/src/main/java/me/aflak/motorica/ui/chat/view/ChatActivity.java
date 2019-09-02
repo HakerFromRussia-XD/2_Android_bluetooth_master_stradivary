@@ -204,10 +204,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
         limit_1 = (ImageView) findViewById(R.id.limit_1);
         limit_2 = (ImageView) findViewById(R.id.limit_2);
-//        objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
+        objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
 
         gestureMyList = new ArrayList<>();
-        recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
+        recyclerView = findViewById(R.id.gestures_list);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -311,64 +311,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             }
         });
 
-//        seekBarCH1off.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                valueCH1off.setText(String.valueOf(seekBar.getProgress()));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//                valueCH1off.setText(String.valueOf(seekBar.getProgress()));
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//                valueCH1off.setText(String.valueOf(seekBar.getProgress()));
-//                intValueCH1off = seekBarCH1off.getProgress();
-//                indicatorTypeMessage = 0x01;
-//                numberChannel = 0x01;
-//                TextByteTreeg[0] = indicatorTypeMessage;
-//                TextByteTreeg[1] = numberChannel;
-//                TextByteTreeg[2] = (byte) intValueCH1on;
-//                TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
-//                TextByteTreeg[4] = (byte) intValueCH1off;
-//                TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
-//                TextByteTreeg[6] = (byte) intValueCH1sleep;
-//                TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-//                presenter.onHelloWorld(TextByteTreeg);
-//            }
-//        });
-//
-//        seekBarCH1sleep.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                valueCH1sleep.setText(String.valueOf(seekBar.getProgress()));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//                valueCH1sleep.setText(String.valueOf(seekBar.getProgress()));
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//                valueCH1sleep.setText(String.valueOf(seekBar.getProgress()));
-//                intValueCH1sleep = seekBarCH1sleep.getProgress();
-//                indicatorTypeMessage = 0x01;
-//                numberChannel = 0x01;
-//                TextByteTreeg[0] = indicatorTypeMessage;
-//                TextByteTreeg[1] = numberChannel;
-//                TextByteTreeg[2] = (byte) intValueCH1on;
-//                TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
-//                TextByteTreeg[4] = (byte) intValueCH1off;
-//                TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
-//                TextByteTreeg[6] = (byte) intValueCH1sleep;
-//                TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-//                presenter.onHelloWorld(TextByteTreeg);
-//            }
-//        });
-
         seekBarCH2on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -402,64 +344,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
             }
         });
 
-//        seekBarCH2off.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                valueCH2off.setText(String.valueOf(seekBar.getProgress()));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//                valueCH2off.setText(String.valueOf(seekBar.getProgress()));
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//                valueCH2off.setText(String.valueOf(seekBar.getProgress()));
-//                intValueCH2off = seekBarCH2off.getProgress();
-//                indicatorTypeMessage = 0x01;
-//                numberChannel = 0x02;
-//                TextByteTreeg[0] = indicatorTypeMessage;
-//                TextByteTreeg[1] = numberChannel;
-//                TextByteTreeg[2] = (byte) intValueCH2on;
-//                TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
-//                TextByteTreeg[4] = (byte) intValueCH2off;
-//                TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
-//                TextByteTreeg[6] = (byte) intValueCH2sleep;
-//                TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-//                presenter.onHelloWorld(TextByteTreeg);
-//            }
-//        });
-//
-//        seekBarCH2sleep.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                valueCH2sleep.setText(String.valueOf(seekBar.getProgress()));
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//                valueCH2sleep.setText(String.valueOf(seekBar.getProgress()));
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//                valueCH2sleep.setText(String.valueOf(seekBar.getProgress()));
-//                intValueCH2sleep = seekBarCH2sleep.getProgress();
-//                indicatorTypeMessage = 0x01;
-//                numberChannel = 0x02;
-//                TextByteTreeg[0] = indicatorTypeMessage;
-//                TextByteTreeg[1] = numberChannel;
-//                TextByteTreeg[2] = (byte) intValueCH2on;
-//                TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
-//                TextByteTreeg[4] = (byte) intValueCH2off;
-//                TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
-//                TextByteTreeg[6] = (byte) intValueCH2sleep;
-//                TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-//                presenter.onHelloWorld(TextByteTreeg);
-//            }
-//        });
-
         seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -482,17 +366,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         seekBarRoughness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                valueIstop.setText(String.valueOf(seekBar.getProgress()));
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-//                valueIstop.setText(String.valueOf(seekBar.getProgress()));
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-//                valueIstop.setText(String.valueOf(seekBar.getProgress()));
                 roughness = (byte) seekBar.getProgress();
                 presenter.onHelloWorld(CompileMassegeRouhness(roughness));
             }
@@ -501,11 +382,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         helloWorld2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-//                if(isEnable){
-//                    isEnable = false;
-//                } else {
-//                    isEnable = true;
-//                }
                 int numberSensor = 0x07;
                 presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                 addEntry(20);
@@ -557,28 +433,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                         @Override
                         public void run() {
                             if (isEnable && !errorReception) {
-//                                addEntry((int) (2500 - iterator));
                                 addEntry(receiveLevelCH1Chat);
                                 addEntry2(receiveLevelCH2Chat);
-//                                addEntry((int) iterator);
-//                                addEntry2((int) iterator);
                             }
                         }
                     });
                     try {
                         Thread.sleep(50);
                     }catch (Exception e){}
-//                    if (isEnable && errorReception) { //обработчик пришедшей ошибки
-//                        errorReception = false;
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {}
-//                        });
-//                        try {
-//                            Thread.sleep(500000);
-//                        }catch (Exception e){}
-//                    }
-//                    iterator+=20;
                     if ( iterator == 2500) {iterator = 0;}
                 } 
             }
@@ -754,27 +616,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         set.setHighLightColor(Color.rgb(244, 117, 177));
         set.setValueTextColor(Color.WHITE);
         set.setValueTextSize(1f);
-
-        set.setHighLightColor(Color.YELLOW);
-        return set;
-    }
-
-    private LineDataSet createSet2() {
-        LineDataSet set = new LineDataSet(null, null);
-        set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
-        set.setLineWidth(2f);
-        set.setColor(Color.BLUE);
-        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        set.setCubicIntensity(0.2f);
-
-        set.setCircleColor(Color.BLUE);
-        set.setCircleHoleColor(Color.BLUE);
-        set.setCircleSize(1f);
-        set.setFillAlpha(65);
-        set.setFillColor(ColorTemplate.getHoloBlue());
-        set.setHighLightColor(Color.rgb(244, 117, 117));
-        set.setValueTextColor(Color.WHITE);
-        set.setValueTextSize(0f);
 
         set.setHighLightColor(Color.YELLOW);
         return set;

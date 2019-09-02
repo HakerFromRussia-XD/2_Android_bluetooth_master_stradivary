@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="me.aflak.motorica.ui.chat.view.ChatActivity">
+    tools:context="me.Romans.motorica.ui.chat.view.ChatActivity">
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
@@ -1027,6 +1027,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="MissingConstraints">
+
+<!--        <androidx.viewpager.widget.ViewPager-->
+<!--            android:id="@+id/view_pager"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_marginTop="0dp"-->
+<!--            app:layout_behavior="@string/appbar_scrolling_view_behavior" >-->
+<!--        </androidx.viewpager.widget.ViewPager>-->
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/gestures_list"

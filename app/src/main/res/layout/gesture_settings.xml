@@ -43,6 +43,6 @@
         android:layout_marginEnd="60dp"
         android:layout_marginRight="60dp"
         android:layout_marginBottom="0dp"
-        android:visibility="gone"
+        android:visibility="visible"
         android:text="Использовать жест" />
 </RelativeLayout>

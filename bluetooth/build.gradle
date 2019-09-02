@@ -4,7 +4,7 @@ ext {
     bintrayRepo = 'maven'
     bintrayName = 'bluetooth'
 
-    publishedGroupId = 'me.aflak.libraries'
+    publishedGroupId = 'me.Romans.libraries'
     libraryName = 'Bluetooth'
     artifact = 'bluetooth'
 

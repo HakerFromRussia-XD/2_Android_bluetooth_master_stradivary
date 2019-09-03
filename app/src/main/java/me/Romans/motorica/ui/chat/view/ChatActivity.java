@@ -56,6 +56,7 @@ import me.Romans.motorica.data.GesstureAdapter;
 import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
+import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings2;
 import me.Romans.bluetooth.ThreadHelper;
 import me.Romans.motorica.R;

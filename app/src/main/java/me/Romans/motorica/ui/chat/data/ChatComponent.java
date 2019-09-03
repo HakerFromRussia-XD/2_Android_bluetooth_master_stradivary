@@ -5,7 +5,7 @@ import javax.inject.Singleton;
 import dagger.Component;
 import me.Romans.motorica.data.BluetoothModule;
 import me.Romans.motorica.ui.chat.view.ChatActivity;
-import me.Romans.motorica.ui.chat.view.FragmentGestureSettings;
+import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings2;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings3;

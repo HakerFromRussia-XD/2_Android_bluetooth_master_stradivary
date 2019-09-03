@@ -1,9 +1,6 @@
-package me.Romans.motorica.ui.chat.view;
+package me.Romans.motorica.ui.chat.view.Gesture_settings;
 
-import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,25 +10,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.Romans.motorica.MyApp;
+import me.Romans.motorica.R;
 import me.Romans.motorica.data.GesstureAdapter;
 import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
-import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
-import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings;
-import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
-import me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings;
-import me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings2;
+import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
+import me.Romans.motorica.ui.chat.view.ChatActivity;
+import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentGestureSettings extends Fragment implements ChatView {
     @BindView(R.id.gesture_use) Button gesture_use;

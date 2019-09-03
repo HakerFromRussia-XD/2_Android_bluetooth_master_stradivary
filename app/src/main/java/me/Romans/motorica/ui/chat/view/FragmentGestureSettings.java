@@ -1,25 +1,43 @@
 package me.Romans.motorica.ui.chat.view;
 
+import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.Romans.motorica.MyApp;
+import me.Romans.motorica.data.GesstureAdapter;
+import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings;
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
+import me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings;
+import me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings2;
 
 public class FragmentGestureSettings extends Fragment implements ChatView {
     @BindView(R.id.gesture_use) Button gesture_use;
+    RecyclerView recyclerView;
+    GesstureAdapter gestureAdapter;
+    private List<Gesture_my> gestureMyList;
     private int indicatorTypeMessage = 0x04;
     private int GESTURE_NUMBER = 0x0000;
     private int GripperNumberStart1 = 0xA000;
@@ -36,6 +54,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView {
 
     @Inject ChatPresenter presenter;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -48,6 +67,34 @@ public class FragmentGestureSettings extends Fragment implements ChatView {
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
+
+        gestureMyList = new ArrayList<>();
+        recyclerView = view.findViewById(R.id.gestures_list);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(mLayoutManager);
+
+        gestureMyList.add(
+                new Gesture_my(
+                        1,
+                        R.drawable.olpen,
+                        "bla bla bla",
+                        "Позволяет настоить положение максимально открытого состояния",
+                        "Настройка открытого сотояния",
+                        1,
+                        60));
+        gestureMyList.add(
+                new Gesture_my(
+                        1,
+                        R.drawable.close,
+                        "bla bla bla",
+                        "Позволяет настоить положение максимально закрытого состояния",
+                        "Настройка закрытого сотояния",
+                        2,
+                        6));
+
+        gestureAdapter = new GesstureAdapter(getActivity(), gestureMyList, (GesstureAdapter.OnGestureMyListener) getActivity());
+        recyclerView.setAdapter(gestureAdapter);
 
         gesture_use.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,7 +145,24 @@ public class FragmentGestureSettings extends Fragment implements ChatView {
     }
     @Override
     public void onGestureClick(int position) {
+        switch (position) {
+            case 0:
+//                Intent intent = new Intent(this, GripperSettings.class);
+//                intent.putExtra("device", device);
+//                startActivity(intent);
+                break;
+            case 1:
+//                Intent intent2 = new Intent(this, GripperSettings2.class);
+//                intent2.putExtra("device", device);
+//                startActivity(intent2);
+                break;
+            default:
+//                Intent intent_b = new Intent(this, GripperSettings.class);
+//                intent_b.putExtra("device", device);
+//                startActivity(intent_b);
+                break;
 
+        }
     }
     @Override
     public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {

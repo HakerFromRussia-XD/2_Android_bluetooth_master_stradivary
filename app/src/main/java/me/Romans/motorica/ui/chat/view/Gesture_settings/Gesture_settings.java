@@ -63,7 +63,7 @@ public class Gesture_settings extends AppCompatActivity implements GesstureAdapt
         ButterKnife.bind(Gesture_settings.this);
 
         gestureMyList = new ArrayList<>();
-        recyclerView = (RecyclerView) findViewById(R.id.gestures_list);
+        recyclerView = findViewById(R.id.gestures_list);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 

@@ -42,8 +42,8 @@
             android:textSize="18sp" />
     </RelativeLayout>
 
-
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_alignParentStart="true"
@@ -479,9 +479,9 @@
 
             <RelativeLayout
                 android:id="@+id/layoutStatus"
-                android:layout_below="@+id/seekBarIstop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/seekBarIstop"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
                 android:layout_marginStart="0dp"
@@ -746,12 +746,12 @@
                 android:layout_marginBottom="-3dp"
                 android:layout_toEndOf="@+id/chartCH1"
                 android:layout_toRightOf="@+id/chartCH1"
+                android:indeterminate="false"
                 android:max="220"
                 android:progress="80"
-                android:rotation="-90"
                 android:progressDrawable="@drawable/track"
+                android:rotation="-90"
                 android:thumb="@drawable/thumb"
-                android:indeterminate="false"
                 tools:ignore="RtlCompat" />
 
             <SeekBar
@@ -770,12 +770,12 @@
                 android:layout_marginEnd="0dp"
                 android:layout_marginRight="0dp"
                 android:layout_marginBottom="0dp"
+                android:indeterminate="false"
                 android:max="220"
                 android:progress="80"
-                android:rotation="-90"
                 android:progressDrawable="@drawable/track"
-                android:thumb="@drawable/thumb"
-                android:indeterminate="false"/>
+                android:rotation="-90"
+                android:thumb="@drawable/thumb" />
 
             <!--<SeekBar-->
             <!--android:id="@+id/seekBarCH1off"-->
@@ -1037,17 +1037,15 @@
             android:clipChildren="false"
             android:clipToPadding="true"
             android:visibility="visible"></android.support.v7.widget.RecyclerView>
-
-        <FrameLayout
-            android:id="@+id/view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="10dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"></FrameLayout>
-
     </RelativeLayout>
+    <FrameLayout
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="0dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"></FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

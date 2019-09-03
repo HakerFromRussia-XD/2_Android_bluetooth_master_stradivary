@@ -41,5 +41,5 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="48dp"
         android:text="Использовать жест"
-        android:visibility="visible" />
+        android:visibility="visible"/>
 </RelativeLayout>

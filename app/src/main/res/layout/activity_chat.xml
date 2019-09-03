@@ -23,23 +23,61 @@
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/navigation" />
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <RelativeLayout
         android:id="@+id/layout_info_state"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        tools:ignore="MissingConstraints">
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="0dp">
 
-        <TextView
-            android:id="@+id/activity_chat_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentTop="true"
-            android:textSize="18sp" />
+        <ImageView
+            android:id="@+id/borderGray"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="0dp"
+            android:background="@android:color/darker_gray"
+            android:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/borderGreen"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="0dp"
+            android:background="@android:color/holo_green_light"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/borderRed"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="0dp"
+            android:background="@android:color/holo_red_light"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <ScrollView
@@ -48,7 +86,7 @@
         android:layout_height="0dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="4dp"
         android:layout_marginBottom="47dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -212,12 +250,6 @@
                 android:scrollbars="vertical"
                 android:textSize="18sp"
                 android:visibility="gone" />
-
-            <View
-                android:id="@+id/border"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:background="@android:color/darker_gray" />
 
             <View
                 android:id="@+id/border2"
@@ -1012,7 +1044,7 @@
         android:id="@+id/gestures_list_relative"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="4dp"
         android:layout_marginBottom="48dp"
         android:paddingLeft="0dp"
         android:paddingRight="0dp"
@@ -1043,7 +1075,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="4dp"
         android:layout_marginBottom="0dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"></FrameLayout>
 

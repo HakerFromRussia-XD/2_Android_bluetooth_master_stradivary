@@ -57,6 +57,7 @@ import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings;
+import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings2;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings2;
 import me.Romans.bluetooth.ThreadHelper;
 import me.Romans.motorica.R;
@@ -70,7 +71,6 @@ import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
  */
 
 public class ChatActivity extends AppCompatActivity implements ChatView, SensorEventListener, GesstureAdapter.OnGestureMyListener {
-    @BindView(R.id.activity_chat_status) TextView state;
     @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
 //    @BindView(R.id.seekBarCH1off) SeekBar seekBarCH1off;
 //    @BindView(R.id.seekBarCH1sleep) SeekBar seekBarCH1sleep;
@@ -104,6 +104,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     @BindView(R.id.activity_chat_gesture4) Button activity_chat_gesture4;
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
+    @BindView(R.id.borderGray) ImageView borderGray;
+    @BindView(R.id.borderGreen) ImageView borderGreen;
+    @BindView(R.id.borderRed) ImageView borderRed;
     public BottomNavigationView navigation;
     private int intValueCH1on = 2500;
     private int intValueCH1off = 100;
@@ -119,6 +122,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     public int curent = 0x00;
     public boolean isEnable = false;
     public boolean infinitAction = false;
+    public boolean firstTapRcyclerView = true;
     public boolean stateIsOpen = false;
     public boolean errorReception = false;
     private int i = 0;
@@ -161,6 +165,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 //    for fragment gestures settings
     public FragmentGestureSettings fragmentGestureSettings;
     public FragmentGripperSettings fragmentGripperSettings;
+    public FragmentGestureSettings2 fragmentGestureSettings2;
     public FragmentManager fragmentManager = getSupportFragmentManager();
     public float heightBottomNavigation;
 
@@ -279,6 +284,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
         fragmentGestureSettings = new FragmentGestureSettings();
         fragmentGripperSettings = new FragmentGripperSettings();
+        fragmentGestureSettings2 = new FragmentGestureSettings2();
 
 
         presenter.onCreate(getIntent());
@@ -653,11 +659,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
 
     @Override
     public void setStatus(int resId) {
-        state.setText(resId);
         System.out.println("ChatActivity----> resId setText:"+ resId);
-        if (resId == 2131623980){state.setBackgroundColor(Color.GRAY);state.setTextColor(Color.RED);}
-        if (resId == 2131623981){state.setBackgroundColor(Color.GRAY); state.setTextColor(Color.GREEN);}
-        if (resId == 2131623982){state.setBackgroundColor(Color.WHITE); state.setTextColor(Color.GRAY);}
+        if (resId == 2131623980){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
+        if (resId == 2131623981){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131623982){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
     }
 
     @Override
@@ -986,16 +991,24 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
         switch (position){
             case 0:
-                fragmentManager.beginTransaction()
-                        .add(R.id.view_pager, fragmentGestureSettings)
-                        .commit();
-                navigation.clearAnimation();
-                navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+                if(firstTapRcyclerView) {
+                    fragmentManager.beginTransaction()
+                            .add(R.id.view_pager, fragmentGestureSettings)
+                            .commit();
+                    navigation.clearAnimation();
+                    navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+                    firstTapRcyclerView = false;
+                }
                 break;
             case 1:
-                fragmentManager.beginTransaction()
-                        .add(R.id.view_pager, fragmentGripperSettings)
-                        .commit();
+                if(firstTapRcyclerView) {
+                    fragmentManager.beginTransaction()
+                            .add(R.id.view_pager, fragmentGestureSettings2)
+                            .commit();
+                    navigation.clearAnimation();
+                    navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+                    firstTapRcyclerView = false;
+                }
                 break;
             case 2:
                 presenter.disconnect();

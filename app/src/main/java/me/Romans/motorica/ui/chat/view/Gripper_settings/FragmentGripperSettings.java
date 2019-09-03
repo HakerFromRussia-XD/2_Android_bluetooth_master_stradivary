@@ -58,6 +58,7 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
 
         if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
 
+
         gesture_use.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,8 +68,7 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
                    chatActivity.fragmentManager.beginTransaction()
                            .remove(chatActivity.fragmentGripperSettings)
                            .commit();
-                   chatActivity.navigation.clearAnimation();
-                   chatActivity.navigation.animate().translationY(0).setDuration(200);
+                   chatActivity.firstTapRcyclerView = true;
                 }
             }
         });

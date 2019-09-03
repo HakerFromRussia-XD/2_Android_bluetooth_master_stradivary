@@ -26,7 +26,7 @@ import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
 import me.Romans.motorica.ui.chat.view.ChatActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
-public class FragmentGestureSettings extends Fragment implements ChatView, GesstureAdapter.OnGestureMyListener {
+public class FragmentGestureSettings2 extends Fragment implements ChatView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.gesture_use) Button gesture_use;
     private RecyclerView recyclerView;
     private GesstureAdapter gestureAdapter;
@@ -55,8 +55,8 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
-                .chatModule(new ChatModule(FragmentGestureSettings.this))
-                .build().inject(FragmentGestureSettings.this);
+                .chatModule(new ChatModule(FragmentGestureSettings2.this))
+                .build().inject(FragmentGestureSettings2.this);
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
@@ -87,7 +87,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                         2,
                         6));
 
-        gestureAdapter = new GesstureAdapter(getActivity(), gestureMyList, FragmentGestureSettings.this);
+        gestureAdapter = new GesstureAdapter(getActivity(), gestureMyList, FragmentGestureSettings2.this);
         recyclerView.setAdapter(gestureAdapter);
 
         gesture_use.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +97,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                    chatActivity.CompileMassegeSwitchGesture((byte) 0x00, (byte) 0x01);
                    chatActivity.TranslateMassegeSwitchGesture();
                    chatActivity.fragmentManager.beginTransaction()
-                           .remove(chatActivity.fragmentGestureSettings)
+                           .remove(chatActivity.fragmentGestureSettings2)
                            .commit();
                    chatActivity.navigation.clearAnimation();
                    chatActivity.navigation.animate().translationY(0).setDuration(200);
@@ -140,7 +140,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
     public void onGestureClick(int position) {
         switch (position) {
             case 0:
-                if(chatActivity.firstTapRcyclerView){
+                if (chatActivity.firstTapRcyclerView){
                     chatActivity.firstTapRcyclerView = false;
                     chatActivity.fragmentManager.beginTransaction()
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)

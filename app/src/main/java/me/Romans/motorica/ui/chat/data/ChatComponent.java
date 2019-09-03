@@ -9,6 +9,7 @@ import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings2;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings3;
+import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
 import me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings;
 import me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings2;
 import me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings3;
@@ -37,4 +38,5 @@ public interface ChatComponent {
     void inject(InfinitySettings infinitySettings);
     void inject(DualChart dualChart);
     void inject(FragmentGestureSettings fragmentGestureSettings);
+    void inject(FragmentGripperSettings fragmentGripperSettings);
 }

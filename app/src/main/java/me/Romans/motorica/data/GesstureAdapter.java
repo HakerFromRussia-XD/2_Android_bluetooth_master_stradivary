@@ -25,6 +25,11 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
         this.mOnGestureMyListener = onGestureMyListener;
     }
 
+    public void setNewList(List<Gesture_my> list){
+        this.gesturesList = list;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public GestureViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

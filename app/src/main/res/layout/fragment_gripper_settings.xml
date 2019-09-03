@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings">
+    tools:context="me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/maunLayout"
@@ -22,12 +22,12 @@
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
                 android:visibility="visible"
-                android:background="#ffffffff"
+                android:background="#ffff0fff"
                 tools:context="me.Romans.motorica.ui.scan.view.ScanActivity"
                 tools:ignore="MissingConstraints">
 
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/gripper_list"
+                    android:id="@+id/gestures_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentTop="true"

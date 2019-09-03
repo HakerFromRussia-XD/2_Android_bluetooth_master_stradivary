@@ -63,6 +63,7 @@ import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings3;
+import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
 
 /**
  * Created by Omar on 20/12/2017.
@@ -159,6 +160,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
     private boolean runOnUi;
 //    for fragment gestures settings
     public FragmentGestureSettings fragmentGestureSettings;
+    public FragmentGripperSettings fragmentGripperSettings;
     public FragmentManager fragmentManager = getSupportFragmentManager();
     public float heightBottomNavigation;
 
@@ -276,6 +278,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
         TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
 
         fragmentGestureSettings = new FragmentGestureSettings();
+        fragmentGripperSettings = new FragmentGripperSettings();
 
 
         presenter.onCreate(getIntent());
@@ -990,10 +993,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, SensorE
                 navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                 break;
             case 1:
-                presenter.disconnect();
-                Intent intent2 = new Intent(this, Gesture_settings2.class);
-                intent2.putExtra("device", device);
-                startActivity(intent2);
+                fragmentManager.beginTransaction()
+                        .add(R.id.view_pager, fragmentGripperSettings)
+                        .commit();
                 break;
             case 2:
                 presenter.disconnect();

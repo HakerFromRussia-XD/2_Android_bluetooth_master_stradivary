@@ -49,6 +49,7 @@
                 android:layout_marginRight="42dp"
                 android:layout_toRightOf="@id/imageView"
                 android:text="13.3 Inch, 256 GB"
+                android:textSize="13sp"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small" />
 
             <TextView

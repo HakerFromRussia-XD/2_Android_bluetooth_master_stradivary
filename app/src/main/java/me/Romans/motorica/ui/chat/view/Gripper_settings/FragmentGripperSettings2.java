@@ -1,17 +1,11 @@
 package me.Romans.motorica.ui.chat.view.Gripper_settings;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -19,15 +13,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.Romans.motorica.MyApp;
 import me.Romans.motorica.R;
-import me.Romans.motorica.data.GesstureAdapter;
-import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
 import me.Romans.motorica.ui.chat.view.ChatActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
-public class FragmentGripperSettings extends Fragment implements ChatView {
+public class FragmentGripperSettings2 extends Fragment implements ChatView {
     @BindView(R.id.gesture_use) Button gesture_use;
     private int indicatorTypeMessage = 0x04;
     private int GESTURE_NUMBER = 0x0000;
@@ -53,16 +45,12 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
-                .chatModule(new ChatModule(FragmentGripperSettings.this))
-                .build().inject(FragmentGripperSettings.this);
+                .chatModule(new ChatModule(FragmentGripperSettings2.this))
+                .build().inject(FragmentGripperSettings2.this);
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
 
-        for (int i = 0; i<chatActivity.MAX_NUMBER_DETAILS; i++) {
-            chatActivity.indexCount = chatActivity.verticesArrey[i].length;
-            System.err.println("LessonEightActivity--------> количество элементов в массиве №" + (i + 1) + " " + chatActivity.indexCount);
-        }
 
         gesture_use.setOnClickListener(new View.OnClickListener() {
             @Override

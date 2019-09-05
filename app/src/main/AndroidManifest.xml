@@ -30,15 +30,6 @@
         </activity>
 
         <activity
-            android:name="me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings2"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="me.Romans.motorica.ui.chat.view.Gesture_settings.Gesture_settings3"
-            android:screenOrientation="portrait" />
-        <activity
             android:name="me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings"
             android:screenOrientation="portrait" />
         <activity

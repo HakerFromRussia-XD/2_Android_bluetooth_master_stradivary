@@ -145,6 +145,13 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                     chatActivity.fragmentManager.beginTransaction()
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .commit();
+                    for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
+                        try {
+                            chatActivity.threadFanction[j].join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
                 break;
             case 1:

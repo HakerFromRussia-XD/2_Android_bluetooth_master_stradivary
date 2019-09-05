@@ -61,11 +61,6 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
 
         if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
 
-        for (int i = 0; i<chatActivity.MAX_NUMBER_DETAILS; i++) {
-            chatActivity.indexCount = chatActivity.verticesArrey[i].length;
-            System.err.println("LessonEightActivity--------> количество элементов в массиве №" + (i + 1) + " " + chatActivity.indexCount);
-        }
-
         gestureMyList = new ArrayList<>();
         recyclerView = view.findViewById(R.id.gripper_list);
         recyclerView.setHasFixedSize(true);

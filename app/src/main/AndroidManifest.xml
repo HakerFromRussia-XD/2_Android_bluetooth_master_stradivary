@@ -30,24 +30,6 @@
         </activity>
 
         <activity
-            android:name="me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings2"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings3"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings4"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings5"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettings6"
-            android:screenOrientation="portrait" />
-        <activity
             android:name="me.Romans.motorica.ui.chat.view.InfinitySettings"
             android:screenOrientation="portrait" />
         <activity

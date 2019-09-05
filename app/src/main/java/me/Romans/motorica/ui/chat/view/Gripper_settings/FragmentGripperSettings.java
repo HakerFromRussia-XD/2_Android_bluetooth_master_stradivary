@@ -1,10 +1,14 @@
 package me.Romans.motorica.ui.chat.view.Gripper_settings;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ConfigurationInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +23,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.Romans.motorica.MyApp;
 import me.Romans.motorica.R;
-import me.Romans.motorica.data.GesstureAdapter;
-import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
@@ -42,6 +44,8 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
 
     public View view;
     private ChatActivity chatActivity;
+    private GripperSettingsGLSurfaceView glSurfaceView;
+    private GripperSettingsRenderer renderer;
 
     @Inject ChatPresenter presenter;
 
@@ -56,8 +60,29 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
                 .chatModule(new ChatModule(FragmentGripperSettings.this))
                 .build().inject(FragmentGripperSettings.this);
         ButterKnife.bind(this, view);
-
         if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
+
+        glSurfaceView = view.findViewById(R.id.gl_surface_view);
+
+        // Check if the system supports OpenGL ES 2.0.
+        final ActivityManager activityManager = (ActivityManager) chatActivity.getSystemService(Context.ACTIVITY_SERVICE);
+        final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
+        final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
+
+        if (supportsEs2) {
+            // Request an OpenGL ES 2.0 compatible context.
+            glSurfaceView.setEGLContextClientVersion(2);
+
+            final DisplayMetrics displayMetrics = new DisplayMetrics();
+            chatActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+            // Set the renderer to our demo renderer, defined below.
+            renderer = new GripperSettingsRenderer(getActivity(), glSurfaceView);
+            glSurfaceView.setRenderer(renderer, displayMetrics.density);
+        } else {
+            // This is where you could create an OpenGL ES 1.x compatible
+            // renderer if you wanted to support both ES 1 and ES 2.
+        }
 
         for (int i = 0; i<chatActivity.MAX_NUMBER_DETAILS; i++) {
             chatActivity.indexCount = chatActivity.verticesArrey[i].length;
@@ -78,6 +103,19 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
             }
         });
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        glSurfaceView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        glSurfaceView.setPreserveEGLContextOnPause(true);
+        glSurfaceView.onPause();
     }
 
     @Override

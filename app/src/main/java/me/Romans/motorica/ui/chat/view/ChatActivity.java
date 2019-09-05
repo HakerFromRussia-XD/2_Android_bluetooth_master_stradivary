@@ -572,6 +572,13 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public static String[] getStringBuffer18() { return model[17]; }
     public static String[] getStringBuffer19() { return model[18]; }
 
+    public static  float[] getVertexArray(int i){
+        return verticesArrey[i];
+    }
+    public static  int[] getIndicesArray(int i){
+        return indicesArreyVerteces[i];
+    }
+
     public void loadSTR2(final int i) throws InterruptedException {
         parserDataVertices(i);
         parserDataTextures(i);

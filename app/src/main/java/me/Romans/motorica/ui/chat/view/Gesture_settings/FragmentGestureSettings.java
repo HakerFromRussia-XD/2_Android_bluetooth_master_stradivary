@@ -166,6 +166,8 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                             e.printStackTrace();
                         }
                     }
+                    chatActivity.transferThreadFlag = true;
+                    chatActivity.startTransferThread();
                 }
                 break;
 

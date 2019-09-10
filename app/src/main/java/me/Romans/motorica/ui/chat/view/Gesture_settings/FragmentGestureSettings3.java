@@ -130,21 +130,38 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
     public void onGestureClick(int position) {
         switch (position) {
             case 0:
-                if (chatActivity.firstTapRcyclerView && chatActivity.isEnable){
+                if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRcyclerView = false;
                     chatActivity.fragmentManager.beginTransaction()
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .commit();
+                    for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
+                        try {
+                            chatActivity.threadFanction[j].join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    chatActivity.transferThreadFlag = true;
+                    chatActivity.startTransferThread();
                 }
                 break;
             case 1:
-                if (chatActivity.firstTapRcyclerView && chatActivity.isEnable){
+                if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRcyclerView = false;
                     chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
                     chatActivity.fragmentManager.beginTransaction()
-                        .remove(chatActivity.fragmentGestureSettings)
-                        .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
-                        .commit();
+                            .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
+                            .commit();
+                    for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
+                        try {
+                            chatActivity.threadFanction[j].join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    chatActivity.transferThreadFlag = true;
+                    chatActivity.startTransferThread();
                 }
                 break;
         }

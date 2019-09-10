@@ -136,24 +136,39 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
     public void onGestureClick(int position) {
         switch (position) {
             case 0:
-                if (chatActivity.firstTapRcyclerView){
+                if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRcyclerView = false;
                     chatActivity.fragmentManager.beginTransaction()
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .commit();
+                    for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
+                        try {
+                            chatActivity.threadFanction[j].join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    chatActivity.transferThreadFlag = true;
+                    chatActivity.startTransferThread();
                 }
                 break;
             case 1:
-//                chatActivity.fragmentManager.beginTransaction()
-//                        .remove(chatActivity.fragmentGestureSettings)
-//                        .add(R.id.view_pager, chatActivity.fragmentGripperSettings2)
-//                        .commit();
-                break;
-            default:
-//                chatActivity.fragmentManager.beginTransaction()
-//                        .remove(chatActivity.fragmentGestureSettings)
-//                        .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
-//                        .commit();
+                if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
+                    chatActivity.firstTapRcyclerView = false;
+                    chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
+                    chatActivity.fragmentManager.beginTransaction()
+                            .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
+                            .commit();
+                    for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
+                        try {
+                            chatActivity.threadFanction[j].join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    chatActivity.transferThreadFlag = true;
+                    chatActivity.startTransferThread();
+                }
                 break;
 
         }

@@ -12,8 +12,6 @@ import android.widget.Button;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.Romans.motorica.MyApp;
@@ -22,31 +20,17 @@ import me.Romans.motorica.data.GesstureAdapter;
 import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
-import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
 import me.Romans.motorica.ui.chat.view.ChatActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
-public class FragmentGestureSettings extends Fragment implements ChatView, GesstureAdapter.OnGestureMyListener {
+public class FragmentGestureSettings3 extends Fragment implements ChatView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.gesture_use) Button gesture_use;
     private RecyclerView recyclerView;
     private GesstureAdapter gestureAdapter;
     private List <Gesture_my> gestureMyList;
-    private int indicatorTypeMessage = 0x04;
-    private int GESTURE_NUMBER = 0x0000;
-    private int GripperNumberStart1 = 0xA000;
-    private int mySensorEvent1 = 0xB000;
-    private int GripperNumberEnd1 = 0xC001;
-    private int GripperNumberStart2 = 0xA001;
-    private int mySensorEvent2 = 0xB001;
-    private int GripperNumberEnd2 = 0xC000;
-    private byte[] TextByteTreegSettings = new byte[15];
-    private byte[] TextByteTreegControl = new byte[2];
 
     public View view;
     private ChatActivity chatActivity;
-
-    @Inject ChatPresenter presenter;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,8 +39,8 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
-                .chatModule(new ChatModule(FragmentGestureSettings.this))
-                .build().inject(FragmentGestureSettings.this);
+                .chatModule(new ChatModule(FragmentGestureSettings3.this))
+                .build().inject(FragmentGestureSettings3.this);
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
@@ -87,7 +71,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                         2,
                         6));
 
-        gestureAdapter = new GesstureAdapter(getActivity(), gestureMyList, FragmentGestureSettings.this);
+        gestureAdapter = new GesstureAdapter(getActivity(), gestureMyList, FragmentGestureSettings3.this);
         recyclerView.setAdapter(gestureAdapter);
 
         gesture_use.setOnClickListener(new View.OnClickListener() {
@@ -95,11 +79,11 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
             public void onClick(View v) {
                 if (getActivity() != null) {
                     if(chatActivity.isEnable){
-                        chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
-                        chatActivity.TranslateMassegeControlComplexGesture();
+                        chatActivity.CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05);
+                        chatActivity.TranslateMassegeSwitchGesture();
                     }
                    chatActivity.fragmentManager.beginTransaction()
-                           .remove(chatActivity.fragmentGestureSettings)
+                           .remove(chatActivity.fragmentGestureSettings3)
                            .commit();
                    chatActivity.navigation.clearAnimation();
                    chatActivity.navigation.animate().translationY(0).setDuration(200);
@@ -142,37 +126,23 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
     public void onGestureClick(int position) {
         switch (position) {
             case 0:
-                if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
+                if (chatActivity.firstTapRcyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRcyclerView = false;
                     chatActivity.fragmentManager.beginTransaction()
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .commit();
-//                    for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
-//                        try {
-//                            chatActivity.threadFanction[j].join();
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
                 }
                 break;
             case 1:
-                if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
+                if (chatActivity.firstTapRcyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRcyclerView = false;
                     chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
                     chatActivity.fragmentManager.beginTransaction()
-                            .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
-                            .commit();
-                    for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
-                        try {
-                            chatActivity.threadFanction[j].join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                        .remove(chatActivity.fragmentGestureSettings)
+                        .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
+                        .commit();
                 }
                 break;
-
         }
     }
     @Override

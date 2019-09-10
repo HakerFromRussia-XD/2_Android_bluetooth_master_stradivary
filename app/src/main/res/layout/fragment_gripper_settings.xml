@@ -14,13 +14,15 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:orientation="vertical">
+
         <Button
-            android:id="@+id/gesture_use"
-            android:layout_width="match_parent"
+            android:id="@+id/gripper_use"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="16dp"
-            android:text="Использовать жест"
+            android:text="Сохранить"
+            android:layout_gravity="center"
             android:visibility="visible" />
     </LinearLayout>
 <!--    <androidx.constraintlayout.widget.ConstraintLayout-->

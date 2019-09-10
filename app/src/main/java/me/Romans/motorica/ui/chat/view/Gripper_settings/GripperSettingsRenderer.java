@@ -32,7 +32,8 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	private static final String TAG = "LessonEightRenderer";
 
 	/** References to other main objects. */
-	private final Context fragmentGripperSettings;
+	private Context fragmentGripperSettings;
+	private FragmentGripperSettings fragmentGripperSettingsF;
 	private ChatActivity chatActivity;
 	private final ErrorHandler errorHandler;
 
@@ -1369,17 +1370,28 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	private void tranferComand () {
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
-            System.err.println("LessonEightActivity--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);}
+			System.err.println("GripperSettingsRender--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);
+			chatActivity.transferFinger1Static(angleLittleFingerTransfer);
+		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){
-            System.err.println("LessonEightActivity--------> angleRingFingerTransfer: "+ angleRingFingerTransfer);}
+			System.err.println("GripperSettingsRender--------> angleRingFingerTransfer: "+ angleRingFingerTransfer);
+			chatActivity.transferFinger2Static(angleRingFingerTransfer);
+		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){
-            System.err.println("LessonEightActivity--------> angleMiddleFingerTransfer: "+ angleMiddleFingerTransfer);}
+			System.err.println("GripperSettingsRender--------> angleMiddleFingerTransfer: "+ angleMiddleFingerTransfer);
+			chatActivity.transferFinger3Static(angleMiddleFingerTransfer);
+		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){
-            System.err.println("LessonEightActivity--------> angleForeFingerTransfer: "+ angleForeFingerTransfer);}
+			System.err.println("GripperSettingsRender--------> angleForeFingerTransfer: "+ angleForeFingerTransfer);
+			chatActivity.transferFinger4Static(angleForeFingerTransfer);
+		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
-            System.err.println("LessonEightActivity--------> angleBigFingerTransfer1: "+ (100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
-//																	далее конструкция инвертирования и приведения диапазона для вращения венца большого пальца
-																	System.err.println("LessonEightActivity--------> angleBigFingerTransfer2: "+ (100-((int)((float)angleBigFingerTransfer2/90*100))));}
+			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer1: "+ (100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
+			chatActivity.transferFinger5Static((100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
+//			далее конструкция инвертирования и приведения диапазона для вращения венца большого пальца
+			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2: "+ (100-((int)((float)angleBigFingerTransfer2/90*100))));
+			chatActivity.transferFinger6Static((100-((int)((float)angleBigFingerTransfer2/90*100))));
+		}
 		transferFlag = false;
 	}
 

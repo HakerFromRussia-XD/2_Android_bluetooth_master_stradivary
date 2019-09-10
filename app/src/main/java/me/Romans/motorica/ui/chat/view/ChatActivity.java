@@ -5,8 +5,10 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -20,6 +22,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -59,6 +62,7 @@ import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings2
 import me.Romans.bluetooth.ThreadHelper;
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
+import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings3;
 import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
 
 /**
@@ -147,6 +151,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public FragmentGestureSettings fragmentGestureSettings;
     public FragmentGripperSettings fragmentGripperSettings;
     public FragmentGestureSettings2 fragmentGestureSettings2;
+    public FragmentGestureSettings3 fragmentGestureSettings3;
     public FragmentManager fragmentManager = getSupportFragmentManager();
     public float heightBottomNavigation;
 //    for 3D part
@@ -161,6 +166,36 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public volatile static float[][] verticesArrey = new float[MAX_NUMBER_DETAILS][1];
     public volatile static int[][] indicesArreyVerteces = new int[MAX_NUMBER_DETAILS][1];
     public Thread[] threadFanction = new Thread[MAX_NUMBER_DETAILS];
+//	for transfer
+    private byte numberFinger;
+    private int SPEED = 100;
+    private static int intValueFinger1Angle = 0;
+    private static int intValueFinger2Angle = 0;
+    private static int intValueFinger3Angle = 0;
+    private static int intValueFinger4Angle = 0;
+    private static int intValueFinger5Angle = 0;
+    private static int intValueFinger6Angle = 0;
+    private static int intValueFinger1AngleLast = 0;
+    private static int intValueFinger2AngleLast = 0;
+    private static int intValueFinger3AngleLast = 0;
+    private static int intValueFinger4AngleLast = 0;
+    private static int intValueFinger5AngleLast = 0;
+    private static int intValueFinger6AngleLast = 0;
+    private int intValueFinger1Speed = SPEED;
+    private int intValueFinger2Speed = SPEED;
+    private int intValueFinger3Speed = SPEED;
+    private int intValueFinger4Speed = SPEED;
+    private int intValueFinger5Speed = SPEED;
+    private int intValueFinger6Speed = SPEED;
+    private byte requestType = 0x02;
+    public static byte GESTURE_SETTINGS = 0x15;
+    public byte NUMBER_CELL = 0x00;
+    public static long delay = 200;
+    public byte[] TextByteTreegSettings = new byte[8];
+    public byte[] TextByteTreegComplexGestureSettings = new byte[15];
+    public byte[] TextByteTreegControlComplexGesture = new byte[2];
+    public byte[] TextByteTreegControl = new byte[6];
+    private Thread transferThread;
 
 //    public ImageView imageViewStatus;
 
@@ -199,6 +234,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         final float scale = getResources().getDisplayMetrics().density;
 
@@ -255,213 +291,208 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         heightBottomNavigation = pxFromDp(48);
 
-        thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ////////initialized graph for channel 1
-                initializedGraphForChannel1();
-                ////////initialized graph for channel 2
-                initializedGraphForChannel2();
+        ////////initialized graph for channel 1
+        initializedGraphForChannel1();
+        ////////initialized graph for channel 2
+        initializedGraphForChannel2();
 
+        TextByteTreeg[2] = (byte) intValueCH1on;
+        TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
+        TextByteTreeg[4] = (byte) intValueCH1off;
+        TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
+        TextByteTreeg[6] = (byte) intValueCH1sleep;
+        TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
+
+        seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                valueCH1on.setText(String.valueOf(seekBar.getProgress()));
+                limit_sensor_open = seekBar.getProgress();
+                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((240*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
+                objectAnimator.setDuration(200);
+                objectAnimator.start();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                valueCH1on.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                valueCH1on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
+                intValueCH1on = seekBarCH1on.getProgress()*multiplierSeekbar;
+                indicatorTypeMessage = 0x01;
+                numberChannel = 0x01;
+                TextByteTreeg[0] = indicatorTypeMessage;
+                TextByteTreeg[1] = numberChannel;
                 TextByteTreeg[2] = (byte) intValueCH1on;
                 TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
                 TextByteTreeg[4] = (byte) intValueCH1off;
                 TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
                 TextByteTreeg[6] = (byte) intValueCH1sleep;
                 TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-
-                seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        valueCH1on.setText(String.valueOf(seekBar.getProgress()));
-                        limit_sensor_open = seekBar.getProgress();
-                        objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((240*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
-                        objectAnimator.setDuration(200);
-                        objectAnimator.start();
-                    }
-
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-                        valueCH1on.setText(String.valueOf(seekBar.getProgress()));
-                    }
-
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-                        valueCH1on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
-                        intValueCH1on = seekBarCH1on.getProgress()*multiplierSeekbar;
-                        indicatorTypeMessage = 0x01;
-                        numberChannel = 0x01;
-                        TextByteTreeg[0] = indicatorTypeMessage;
-                        TextByteTreeg[1] = numberChannel;
-                        TextByteTreeg[2] = (byte) intValueCH1on;
-                        TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
-                        TextByteTreeg[4] = (byte) intValueCH1off;
-                        TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
-                        TextByteTreeg[6] = (byte) intValueCH1sleep;
-                        TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-                        presenter.onHelloWorld(TextByteTreeg);
-                    }
-                });
-
-                seekBarCH2on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        valueCH2on.setText(String.valueOf(seekBar.getProgress()));
-                        limit_sensor_close = seekBar.getProgress();
-                        objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((500*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
-                        objectAnimator2.setDuration(200);
-                        objectAnimator2.start();
-                    }
-
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-                        valueCH2on.setText(String.valueOf(seekBar.getProgress()));
-                    }
-
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-                        valueCH2on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
-                        intValueCH2on = seekBarCH2on.getProgress()*multiplierSeekbar;
-                        indicatorTypeMessage = 0x01;
-                        numberChannel = 0x02;
-                        TextByteTreeg[0] = indicatorTypeMessage;
-                        TextByteTreeg[1] = numberChannel;
-                        TextByteTreeg[2] = (byte) intValueCH2on;
-                        TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
-                        TextByteTreeg[4] = (byte) intValueCH2off;
-                        TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
-                        TextByteTreeg[6] = (byte) intValueCH2sleep;
-                        TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-                        presenter.onHelloWorld(TextByteTreeg);
-                    }
-                });
-
-                seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        valueIstop.setText(String.valueOf(seekBar.getProgress()));
-                    }
-
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-                        valueIstop.setText(String.valueOf(seekBar.getProgress()));
-                    }
-
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-                        valueIstop.setText(String.valueOf(seekBar.getProgress()));
-                        curent = seekBar.getProgress();
-                        presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
-                    }
-                });
-
-                seekBarRoughness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    }
-
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-                    }
-
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-                        roughness = (byte) seekBar.getProgress();
-                        presenter.onHelloWorld(CompileMassegeRouhness(roughness));
-                    }
-                });
-
-                fragmentGestureSettings = new FragmentGestureSettings();
-                fragmentGripperSettings = new FragmentGripperSettings();
-                fragmentGestureSettings2 = new FragmentGestureSettings2();
-
-                fab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Snackbar.make(view, "Новый жест добавлен", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
-                        gestureMyList.add(
-                                new Gesture_my(
-                                        1,
-                                        R.drawable.gesture4,
-                                        "bla bla bla",
-                                        "Нажмите для редактирования начального и конечного состояний",
-                                        "Жест №"+4,
-                                        2,
-                                        123));
-                        recyclerView.setAdapter(gestureAdapter);
-                    }
-                });
-
-                switchInvert.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (switchInvert.isChecked()){
-                            System.out.println("Invert mod");
-                            invert = 0x01;
-                            presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
-                        } else {
-                            System.out.println("Invert Invert mod");
-                            invert = 0x00;
-                            presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
-                        }
-                    }
-                });
-
-                switchBlockMode.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (switchBlockMode.isChecked()){
-                            System.out.println("Block mod");
-                            block = 0x01;
-                            presenter.onHelloWorld(CompileMassegeBlockMode(block));
-                        } else {
-                            System.out.println("Invert Block mod");
-                            block = 0x00;
-                            presenter.onHelloWorld(CompileMassegeBlockMode(block));
-                        }
-                    }
-                });
-
-                helloWorld2.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        int numberSensor = 0x07;
-                        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
-                        addEntry(20);
-                        addEntry2(2500);
-                    }
-                });
-
-                activity_chat_gesture1.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x00, (byte) 0x01));
-                    }
-                });
-
-                activity_chat_gesture2.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x02, (byte) 0x03));
-                    }
-                });
-
-                activity_chat_gesture3.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05));
-                    }
-                });
-
-                activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x06, (byte) 0x06));
-                    }
-                });
+                presenter.onHelloWorld(TextByteTreeg);
             }
         });
-        thread.start();
+
+        seekBarCH2on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                valueCH2on.setText(String.valueOf(seekBar.getProgress()));
+                limit_sensor_close = seekBar.getProgress();
+                objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((500*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
+                objectAnimator2.setDuration(200);
+                objectAnimator2.start();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                valueCH2on.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                valueCH2on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
+                intValueCH2on = seekBarCH2on.getProgress()*multiplierSeekbar;
+                indicatorTypeMessage = 0x01;
+                numberChannel = 0x02;
+                TextByteTreeg[0] = indicatorTypeMessage;
+                TextByteTreeg[1] = numberChannel;
+                TextByteTreeg[2] = (byte) intValueCH2on;
+                TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
+                TextByteTreeg[4] = (byte) intValueCH2off;
+                TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
+                TextByteTreeg[6] = (byte) intValueCH2sleep;
+                TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
+                presenter.onHelloWorld(TextByteTreeg);
+            }
+        });
+
+        seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+                curent = seekBar.getProgress();
+                presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
+            }
+        });
+
+        seekBarRoughness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                roughness = (byte) seekBar.getProgress();
+                presenter.onHelloWorld(CompileMassegeRouhness(roughness));
+            }
+        });
+
+        fragmentGestureSettings = new FragmentGestureSettings();
+        fragmentGripperSettings = new FragmentGripperSettings();
+        fragmentGestureSettings2 = new FragmentGestureSettings2();
+        fragmentGestureSettings3 = new FragmentGestureSettings3();
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Новый жест добавлен", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+                gestureMyList.add(
+                        new Gesture_my(
+                                1,
+                                R.drawable.gesture4,
+                                "bla bla bla",
+                                "Нажмите для редактирования начального и конечного состояний",
+                                "Жест №"+4,
+                                2,
+                                123));
+                recyclerView.setAdapter(gestureAdapter);
+            }
+        });
+
+        switchInvert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (switchInvert.isChecked()){
+                    System.out.println("Invert mod");
+                    invert = 0x01;
+                    presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
+                } else {
+                    System.out.println("Invert Invert mod");
+                    invert = 0x00;
+                    presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
+                }
+            }
+        });
+
+        switchBlockMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (switchBlockMode.isChecked()){
+                    System.out.println("Block mod");
+                    block = 0x01;
+                    presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                } else {
+                    System.out.println("Invert Block mod");
+                    block = 0x00;
+                    presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                }
+            }
+        });
+
+        helloWorld2.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                int numberSensor = 0x07;
+                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                addEntry(20);
+                addEntry2(2500);
+            }
+        });
+
+        activity_chat_gesture1.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x00, (byte) 0x01));
+            }
+        });
+
+        activity_chat_gesture2.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x02, (byte) 0x03));
+            }
+        });
+
+        activity_chat_gesture3.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05));
+            }
+        });
+
+        activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x06, (byte) 0x06));
+            }
+        });
 
         presenter.onCreate(getIntent());
 
@@ -494,6 +525,91 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             }
         });
         thread.start();
+
+        transferThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
+                        numberFinger = 0x01;
+                        CompileMassegeSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger1AngleLast = intValueFinger1Angle;
+                    }
+                    if(intValueFinger2AngleLast != intValueFinger2Angle && isEnable){
+//                        System.err.println("ChatActivity--------> angleRingFingerTransfer: "+ intValueFinger2Angle);
+                        numberFinger = 0x02;
+                        CompileMassegeSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger2AngleLast = intValueFinger2Angle;
+                    }
+                    if(intValueFinger3AngleLast != intValueFinger3Angle && isEnable){
+//                        System.err.println("ChatActivity--------> angleMiddleFingerTransfer: "+ intValueFinger3Angle);
+                        numberFinger = 0x03;
+                        CompileMassegeSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger3AngleLast = intValueFinger3Angle;
+                    }
+                    if(intValueFinger4AngleLast != intValueFinger4Angle && isEnable){
+//                        System.err.println("ChatActivity--------> angleForeFingerTransfer: "+ intValueFinger4Angle);
+                        numberFinger = 0x04;
+                        CompileMassegeSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger4AngleLast = intValueFinger4Angle;
+                    }
+                    if((intValueFinger5AngleLast != intValueFinger5Angle && isEnable)||(intValueFinger6AngleLast != intValueFinger6Angle && isEnable)){
+//                        System.err.println("ChatActivity--------> angleBigFingerTransfer1: "+ intValueFinger5Angle);
+                        numberFinger = 0x05;
+                        CompileMassegeSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger5AngleLast = intValueFinger5Angle;
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+//                        System.err.println("ChatActivity--------> angleBigFingerTransfer2: "+ intValueFinger6Angle);
+                        numberFinger = 0x06;
+                        CompileMassegeSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger6AngleLast = intValueFinger6Angle;
+                    }
+                    try {
+                        Thread.sleep(100);
+                    }catch (Exception e){}
+                }
+            }
+        });
+        transferThread.start();
+
 
         ////////////////////////////////////////////////
 /**                 3D initialization                        **/
@@ -629,7 +745,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             }
         }
     }
-
     public void parserDataTextures(int number){
         String text = "";
         if      (number ==  0) {text = "#" + getStringBuffer1() [2];}
@@ -674,7 +789,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             }
         }
     }
-
     public void parserDataNormals(int number){
         String text = "";
         if      (number ==  0) {text = "#" + getStringBuffer1() [3];}
@@ -721,7 +835,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             }
         }
     }
-
     public void parserDataFacets (int number){
         String text = "";
         if      (number ==  0) {text = "#" + getStringBuffer1() [4];}
@@ -842,6 +955,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         return true;
     }
 
+    public static void transferFinger1Static (int angleFinger1){ intValueFinger1Angle = angleFinger1; }
+    public static void transferFinger2Static (int angleFinger2){ intValueFinger2Angle = angleFinger2; }
+    public static void transferFinger3Static (int angleFinger3){ intValueFinger3Angle = angleFinger3; }
+    public static void transferFinger4Static (int angleFinger4){ intValueFinger4Angle = angleFinger4; }
+    public static void transferFinger5Static (int angleFinger5){ intValueFinger5Angle = angleFinger5; }
+    public static void transferFinger6Static (int angleFinger6){ intValueFinger6Angle = angleFinger6; }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // получим идентификатор выбранного пункта меню
@@ -878,6 +999,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 //                return true;
             case R.id.action_Trigger8:
                 presenter.onHelloWorld(CompileMassegeTreegMod (8));
+                infinitAction = false;
+                return true;
+            case R.id.action_Trigger9:
+                presenter.onHelloWorld(CompileMassegeTreegMod (9));
+                infinitAction = false;
+                return true;
+            case R.id.action_Trigger10:
+                presenter.onHelloWorld(CompileMassegeTreegMod (10));
                 infinitAction = false;
                 return true;
             default:
@@ -978,9 +1107,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @Override
     public void setStatus(int resId) {
         System.out.println("ChatActivity----> resId setText:"+ resId);
-        if (resId == 2131623980){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
-        if (resId == 2131623981){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
-        if (resId == 2131623982){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131689516){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
+        if (resId == 2131689517){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131689518){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
     }
 
     @Override
@@ -1012,11 +1141,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         if (receiveIndicationStateChat == 2){valueStatus.setText("открытие"); imageViewStatus.setImageResource(R.drawable.opening);}
         if (receiveIndicationStateChat == 3){valueStatus.setText("блок"); imageViewStatus.setImageResource(R.drawable.block);}
 
-        System.out.println("ChatActivity----> Сurrent:"+ receiveСurrentChat);
-        System.out.println("ChatActivity----> Level CH1:"+ receiveLevelCH1Chat);
-        System.out.println("ChatActivity----> Level CH2:"+ receiveLevelCH2Chat);
-        System.out.println("ChatActivity----> Indication State:"+ receiveIndicationStateChat);
-        System.out.println("ChatActivity----> Battery Tension:"+ receiveBatteryTensionChat);
+//        System.out.println("ChatActivity----> Сurrent:"+ receiveСurrentChat);
+//        System.out.println("ChatActivity----> Level CH1:"+ receiveLevelCH1Chat);
+//        System.out.println("ChatActivity----> Level CH2:"+ receiveLevelCH2Chat);
+//        System.out.println("ChatActivity----> Indication State:"+ receiveIndicationStateChat);
+//        System.out.println("ChatActivity----> Battery Tension:"+ receiveBatteryTensionChat);
     }
 
     @Override
@@ -1176,6 +1305,54 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         System.out.println("из ChatAct-------------> выжимка из интента devise:" + device);
     }
 
+    private byte[] CompileMassegeSettings(byte numberFinger, int intValueFingerAngle, int intValueFingerSpeed){
+        TextByteTreegSettings[0] = 0x03;
+        TextByteTreegSettings[1] = numberFinger;
+        TextByteTreegSettings[2] = requestType;
+        TextByteTreegSettings[3] = GESTURE_SETTINGS;
+        TextByteTreegSettings[4] = NUMBER_CELL;
+        TextByteTreegSettings[5] = (byte) intValueFingerSpeed;
+        TextByteTreegSettings[6] = (byte) intValueFingerAngle;
+        TextByteTreegSettings[7] = presenter.calculationCRC(TextByteTreegSettings);
+        return TextByteTreegSettings;
+    }
+
+    public byte[] CompileMassegeComplexGestureSettings(int GESTURE_NUMBER, int GripperNumberStart1, int mySensorEvent1, int GripperNumberEnd1, int GripperNumberStart2, int mySensorEvent2, int GripperNumberEnd2, int indicatorTypeMessage){
+        TextByteTreegComplexGestureSettings[0] = (byte) indicatorTypeMessage;
+        TextByteTreegComplexGestureSettings[1] = (byte) (GESTURE_NUMBER >> 8);
+        TextByteTreegComplexGestureSettings[2] = (byte) GESTURE_NUMBER;
+        TextByteTreegComplexGestureSettings[3] = (byte) (GripperNumberStart1 >> 8);
+        TextByteTreegComplexGestureSettings[4] = (byte) GripperNumberStart1;
+        TextByteTreegComplexGestureSettings[5] = (byte) (mySensorEvent1 >> 8);
+        TextByteTreegComplexGestureSettings[6] = (byte) mySensorEvent1;
+        TextByteTreegComplexGestureSettings[7] = (byte) (GripperNumberEnd1 >> 8);
+        TextByteTreegComplexGestureSettings[8] = (byte) GripperNumberEnd1;
+        TextByteTreegComplexGestureSettings[9] = (byte) (GripperNumberStart2 >> 8);;
+        TextByteTreegComplexGestureSettings[10] = (byte) GripperNumberStart2;
+        TextByteTreegComplexGestureSettings[11] = (byte) (mySensorEvent2 >> 8);
+        TextByteTreegComplexGestureSettings[12] = (byte) mySensorEvent2;
+        TextByteTreegComplexGestureSettings[13] = (byte) (GripperNumberEnd2 >> 8);
+        TextByteTreegComplexGestureSettings[14] = (byte) GripperNumberEnd2;
+
+        return TextByteTreegComplexGestureSettings;
+    }
+
+    public byte[] CompileMassegeControlComplexGesture(int GESTURE_NUMBER){
+        TextByteTreegControlComplexGesture[0] = 0x06;
+        TextByteTreegControlComplexGesture[1] = (byte) GESTURE_NUMBER;
+        return TextByteTreegControlComplexGesture;
+    }
+
+    private byte[] CompileMassegeControl (byte numberFinger){
+        TextByteTreegControl[0] = 0x05;
+        TextByteTreegControl[1] = numberFinger;
+        TextByteTreegControl[2] = 0x02;
+        TextByteTreegControl[3] = 0x14;
+        TextByteTreegControl[4] = NUMBER_CELL;
+        TextByteTreegControl[5] = presenter.calculationCRC(TextByteTreegControl);
+        return TextByteTreegControl;
+    }
+
     private byte[] CompileMassegeTreegMod (int Treeg_id){
         TextByteTreegMod[0] = 0x08;
         TextByteTreegMod[1] = (byte) Treeg_id;
@@ -1221,6 +1398,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         TextByteSetSwitchGesture[1] = openGesture;
         TextByteSetSwitchGesture[2] = closeGesture;
         return TextByteSetSwitchGesture;
+    }
+
+    public void TranslateMassegeControlComplexGesture(){
+        presenter.onHelloWorld(TextByteTreegControlComplexGesture);
+    }
+
+    public void TranslateMassegeComplexGestureSettings(){
+        presenter.onHelloWorld(TextByteTreegComplexGestureSettings);
     }
 
     public void TranslateMassegeSwitchGesture(){
@@ -1300,15 +1485,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     fragmentManager.beginTransaction()
                             .add(R.id.view_pager, fragmentGestureSettings)
                             .commit();
-//                    for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
-//                        try {
-//                            threadFanction[j].join();
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
                     navigation.clearAnimation();
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+                    NUMBER_CELL = 0x00;
                     firstTapRcyclerView = false;
                 }
                 break;
@@ -1317,23 +1496,22 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     fragmentManager.beginTransaction()
                             .add(R.id.view_pager, fragmentGestureSettings2)
                             .commit();
-                    for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
-                        try {
-                            threadFanction[j].join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
                     navigation.clearAnimation();
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+                    NUMBER_CELL = 0x02;
                     firstTapRcyclerView = false;
                 }
                 break;
             case 2:
-//                presenter.disconnect();
-//                Intent intent3 = new Intent(this, Gesture_settings3.class);
-//                intent3.putExtra("device", device);
-//                startActivity(intent3);
+               if(firstTapRcyclerView) {
+                    fragmentManager.beginTransaction()
+                            .add(R.id.view_pager, fragmentGestureSettings3)
+                            .commit();
+                    navigation.clearAnimation();
+                    navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+                    NUMBER_CELL = 0x04;
+                    firstTapRcyclerView = false;
+                }
                 break;
 //            case 3:
 //                presenter.disconnect();

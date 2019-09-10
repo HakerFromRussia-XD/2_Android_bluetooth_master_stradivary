@@ -36,14 +36,24 @@
                     android:layout_marginBottom="64dp"
                     android:layout_marginTop="0dp"></android.support.v7.widget.RecyclerView>
 
-                <Button
-                    android:id="@+id/gesture_use"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="16dp"
-                    android:text="Использовать жест"
-                    android:visibility="visible" />
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="0dp"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/gesture_use"
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="16dp"
+                        android:text="Использовать жест"
+                        android:visibility="visible" />
+                </LinearLayout>
             </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

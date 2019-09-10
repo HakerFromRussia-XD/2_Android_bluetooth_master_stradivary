@@ -107,7 +107,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout3.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout3[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout3[i]);
                 }
                 interactor.sendMessageByte(txtbyteout3);
                 break;
@@ -119,7 +119,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout4.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout4[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout4[i]);
                 }
                 interactor.sendMessageByte(txtbyteout4);
                 break;
@@ -131,7 +131,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout5.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout5[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout5[i]);
                 }
                 interactor.sendMessageByte(txtbyteout5);
                 break;
@@ -144,7 +144,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout6.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout6[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout6[i]);
                 }
                 interactor.sendMessageByte(txtbyteout6);
                 break;
@@ -157,7 +157,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout7.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout7[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout7[i]);
                 }
                 interactor.sendMessageByte(txtbyteout7);
                 break;
@@ -179,7 +179,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout8.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout8[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout8[i]);
                 }
                 interactor.sendMessageByte(txtbyteout8);
                 break;
@@ -192,7 +192,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout9.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout9[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout9[i]);
                 }
                 interactor.sendMessageByte(txtbyteout9);
                 break;
@@ -204,7 +204,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout10.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout10[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout10[i]);
                 }
                 interactor.sendMessageByte(txtbyteout10);
                 break;
@@ -216,7 +216,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout11.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout11[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout11[i]);
                 }
                 interactor.sendMessageByte(txtbyteout11);
                 break;
@@ -228,7 +228,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout12.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout12[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout12[i]);
                 }
                 interactor.sendMessageByte(txtbyteout12);
                 break;
@@ -240,7 +240,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout13.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout13[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout13[i]);
                 }
                 interactor.sendMessageByte(txtbyteout13);
                 break;
@@ -252,7 +252,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout14.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout14[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout14[i]);
                 }
                 interactor.sendMessageByte(txtbyteout14);
                 break;
@@ -264,7 +264,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout15.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout15[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout15[i]);
                 }
                 interactor.sendMessageByte(txtbyteout15);
                 break;
@@ -276,7 +276,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 for (int i = 0; i < txtbyteout16.length; i++)
                 {
-                    System.out.println("<-- посылка:" + txtbyteout16[i]);
+//                    System.out.println("<-- посылка:" + txtbyteout16[i]);
                 }
                 interactor.sendMessageByte(txtbyteout16);
                 break;
@@ -292,7 +292,6 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyte);
                 break;
         }
-        System.out.println("--> первый байт:" + txtbyteout1[0]);
     }
 
 //    @Override

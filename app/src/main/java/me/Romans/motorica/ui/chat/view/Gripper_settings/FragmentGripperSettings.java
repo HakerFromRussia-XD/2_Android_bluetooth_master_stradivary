@@ -66,6 +66,7 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
                             .remove(chatActivity.fragmentGripperSettings)
                             .commit();
                     chatActivity.firstTapRcyclerView = true;
+                    chatActivity.transferThreadFlag = false;
                 }
             }
         });

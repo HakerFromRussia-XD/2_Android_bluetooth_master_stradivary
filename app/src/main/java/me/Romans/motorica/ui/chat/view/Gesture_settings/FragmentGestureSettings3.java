@@ -28,6 +28,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
     private RecyclerView recyclerView;
     private GesstureAdapter gestureAdapter;
     private List <Gesture_my> gestureMyList;
+    private int GESTURE_NUMBER = 0x0004;
 
     public View view;
     private ChatActivity chatActivity;
@@ -51,6 +52,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
         chatActivity.firstTapRcyclerView = true;
+        chatActivity.graphThreadFlag = false;
 
         gestureMyList.add(
                 new Gesture_my(
@@ -79,14 +81,16 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
             public void onClick(View v) {
                 if (getActivity() != null) {
                     if(chatActivity.isEnable){
-                        chatActivity.CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05);
-                        chatActivity.TranslateMassegeSwitchGesture();
+                        chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
+                        chatActivity.TranslateMassegeControlComplexGesture();
                     }
-                   chatActivity.fragmentManager.beginTransaction()
+                    chatActivity.fragmentManager.beginTransaction()
                            .remove(chatActivity.fragmentGestureSettings3)
                            .commit();
-                   chatActivity.navigation.clearAnimation();
-                   chatActivity.navigation.animate().translationY(0).setDuration(200);
+                    chatActivity.navigation.clearAnimation();
+                    chatActivity.navigation.animate().translationY(0).setDuration(200);
+                    chatActivity.graphThreadFlag = true;
+                    chatActivity.startGraphEnteringDataThread();
                 }
             }
         });

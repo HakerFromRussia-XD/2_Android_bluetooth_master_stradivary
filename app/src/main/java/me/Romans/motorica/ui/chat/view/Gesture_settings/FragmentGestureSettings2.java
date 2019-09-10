@@ -31,16 +31,7 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
     private RecyclerView recyclerView;
     private GesstureAdapter gestureAdapter;
     private List <Gesture_my> gestureMyList;
-    private int indicatorTypeMessage = 0x04;
-    private int GESTURE_NUMBER = 0x0000;
-    private int GripperNumberStart1 = 0xA000;
-    private int mySensorEvent1 = 0xB000;
-    private int GripperNumberEnd1 = 0xC001;
-    private int GripperNumberStart2 = 0xA001;
-    private int mySensorEvent2 = 0xB001;
-    private int GripperNumberEnd2 = 0xC000;
-    private byte[] TextByteTreegSettings = new byte[15];
-    private byte[] TextByteTreegControl = new byte[2];
+    private int GESTURE_NUMBER = 0x0002;
 
     public View view;
     private ChatActivity chatActivity;
@@ -67,6 +58,7 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
         chatActivity.firstTapRcyclerView = true;
+        chatActivity.graphThreadFlag = false;
 
         gestureMyList.add(
                 new Gesture_my(
@@ -94,13 +86,17 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
-                   chatActivity.CompileMassegeSwitchGesture((byte) 0x00, (byte) 0x01);
-                   chatActivity.TranslateMassegeSwitchGesture();
-                   chatActivity.fragmentManager.beginTransaction()
+                    if(chatActivity.isEnable){
+                        chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
+                        chatActivity.TranslateMassegeControlComplexGesture();
+                    }
+                    chatActivity.fragmentManager.beginTransaction()
                            .remove(chatActivity.fragmentGestureSettings2)
                            .commit();
-                   chatActivity.navigation.clearAnimation();
-                   chatActivity.navigation.animate().translationY(0).setDuration(200);
+                    chatActivity.navigation.clearAnimation();
+                    chatActivity.navigation.animate().translationY(0).setDuration(200);
+                    chatActivity.graphThreadFlag = true;
+                    chatActivity.startGraphEnteringDataThread();
                 }
             }
         });

@@ -129,7 +129,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     private LineChart mChart;
     private boolean plotData = true;
     private LineChart mChart2;
-    private Thread thread;
+    public Thread graphThread;
+    public boolean graphThreadFlag = false;
     public float iterator = 0;
 //    for general updates
     public int receiveСurrentChat = 0;
@@ -190,12 +191,13 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     private byte requestType = 0x02;
     public static byte GESTURE_SETTINGS = 0x15;
     public byte NUMBER_CELL = 0x00;
-    public static long delay = 200;
+    public static long delay = 50;
     public byte[] TextByteTreegSettings = new byte[8];
     public byte[] TextByteTreegComplexGestureSettings = new byte[15];
     public byte[] TextByteTreegControlComplexGesture = new byte[2];
     public byte[] TextByteTreegControl = new byte[6];
-    private Thread transferThread;
+    public boolean transferThreadFlag = false;
+    public Thread transferThread;
 
 //    public ImageView imageViewStatus;
 
@@ -496,120 +498,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 
         presenter.onCreate(getIntent());
 
-        if(thread != null){
-            thread.interrupt();
-        }
-        thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    if(plotData){
-                        addEntry(2);
-                        addEntry2(2);
-                        plotData = false;
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (isEnable && !errorReception) {
-                                addEntry(receiveLevelCH1Chat);
-                                addEntry2(receiveLevelCH2Chat);
-                            }
-                        }
-                    });
-                    try {
-                        Thread.sleep(50);
-                    }catch (Exception e){}
-                    if ( iterator == 2500) {iterator = 0;}
-                } 
-            }
-        });
-        thread.start();
-
-        transferThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
-                        numberFinger = 0x01;
-                        CompileMassegeSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed);
-                        presenter.onHelloWorld(TextByteTreegSettings);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception e){}
-                        CompileMassegeControl(numberFinger);
-                        presenter.onHelloWorld(TextByteTreegControl);
-                        intValueFinger1AngleLast = intValueFinger1Angle;
-                    }
-                    if(intValueFinger2AngleLast != intValueFinger2Angle && isEnable){
-//                        System.err.println("ChatActivity--------> angleRingFingerTransfer: "+ intValueFinger2Angle);
-                        numberFinger = 0x02;
-                        CompileMassegeSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed);
-                        presenter.onHelloWorld(TextByteTreegSettings);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception e){}
-                        CompileMassegeControl(numberFinger);
-                        presenter.onHelloWorld(TextByteTreegControl);
-                        intValueFinger2AngleLast = intValueFinger2Angle;
-                    }
-                    if(intValueFinger3AngleLast != intValueFinger3Angle && isEnable){
-//                        System.err.println("ChatActivity--------> angleMiddleFingerTransfer: "+ intValueFinger3Angle);
-                        numberFinger = 0x03;
-                        CompileMassegeSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed);
-                        presenter.onHelloWorld(TextByteTreegSettings);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception e){}
-                        CompileMassegeControl(numberFinger);
-                        presenter.onHelloWorld(TextByteTreegControl);
-                        intValueFinger3AngleLast = intValueFinger3Angle;
-                    }
-                    if(intValueFinger4AngleLast != intValueFinger4Angle && isEnable){
-//                        System.err.println("ChatActivity--------> angleForeFingerTransfer: "+ intValueFinger4Angle);
-                        numberFinger = 0x04;
-                        CompileMassegeSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed);
-                        presenter.onHelloWorld(TextByteTreegSettings);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception e){}
-                        CompileMassegeControl(numberFinger);
-                        presenter.onHelloWorld(TextByteTreegControl);
-                        intValueFinger4AngleLast = intValueFinger4Angle;
-                    }
-                    if((intValueFinger5AngleLast != intValueFinger5Angle && isEnable)||(intValueFinger6AngleLast != intValueFinger6Angle && isEnable)){
-//                        System.err.println("ChatActivity--------> angleBigFingerTransfer1: "+ intValueFinger5Angle);
-                        numberFinger = 0x05;
-                        CompileMassegeSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed);
-                        presenter.onHelloWorld(TextByteTreegSettings);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception e){}
-                        CompileMassegeControl(numberFinger);
-                        presenter.onHelloWorld(TextByteTreegControl);
-                        intValueFinger5AngleLast = intValueFinger5Angle;
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception e){}
-//                        System.err.println("ChatActivity--------> angleBigFingerTransfer2: "+ intValueFinger6Angle);
-                        numberFinger = 0x06;
-                        CompileMassegeSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed);
-                        presenter.onHelloWorld(TextByteTreegSettings);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception e){}
-                        CompileMassegeControl(numberFinger);
-                        presenter.onHelloWorld(TextByteTreegControl);
-                        intValueFinger6AngleLast = intValueFinger6Angle;
-                    }
-                    try {
-                        Thread.sleep(100);
-                    }catch (Exception e){}
-                }
-            }
-        });
-        transferThread.start();
-
+        //TODO запускать тут поток вывода графической информации
+        graphThreadFlag = true;
+        startGraphEnteringDataThread();
 
         ////////////////////////////////////////////////
 /**                 3D initialization                        **/
@@ -949,6 +840,119 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         }
     }
 
+    public void startTransferThread () {
+        transferThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (transferThreadFlag){
+                    if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
+                        numberFinger = 0x01;
+                        CompileMassegeSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger1AngleLast = intValueFinger1Angle;
+                    }
+                    if(intValueFinger2AngleLast != intValueFinger2Angle && isEnable){
+//                        System.err.println("ChatActivity--------> angleRingFingerTransfer: "+ intValueFinger2Angle);
+                        numberFinger = 0x02;
+                        CompileMassegeSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger2AngleLast = intValueFinger2Angle;
+                    }
+                    if(intValueFinger3AngleLast != intValueFinger3Angle && isEnable){
+//                        System.err.println("ChatActivity--------> angleMiddleFingerTransfer: "+ intValueFinger3Angle);
+                        numberFinger = 0x03;
+                        CompileMassegeSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger3AngleLast = intValueFinger3Angle;
+                    }
+                    if(intValueFinger4AngleLast != intValueFinger4Angle && isEnable){
+//                        System.err.println("ChatActivity--------> angleForeFingerTransfer: "+ intValueFinger4Angle);
+                        numberFinger = 0x04;
+                        CompileMassegeSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger4AngleLast = intValueFinger4Angle;
+                    }
+                    if((intValueFinger5AngleLast != intValueFinger5Angle && isEnable)||(intValueFinger6AngleLast != intValueFinger6Angle && isEnable)){
+//                        System.err.println("ChatActivity--------> angleBigFingerTransfer1: "+ intValueFinger5Angle);
+                        numberFinger = 0x05;
+                        CompileMassegeSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger5AngleLast = intValueFinger5Angle;
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+//                        System.err.println("ChatActivity--------> angleBigFingerTransfer2: "+ intValueFinger6Angle);
+                        numberFinger = 0x06;
+                        CompileMassegeSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed);
+                        presenter.onHelloWorld(TextByteTreegSettings);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        CompileMassegeControl(numberFinger);
+                        presenter.onHelloWorld(TextByteTreegControl);
+                        intValueFinger6AngleLast = intValueFinger6Angle;
+                    }
+                    try {
+                        Thread.sleep(10);
+                    }catch (Exception e){}
+                }
+            }
+        });
+        transferThread.start();
+    }
+    public void startGraphEnteringDataThread() {
+        graphThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (graphThreadFlag){
+                    if(plotData){
+                        addEntry(2);
+                        addEntry2(2);
+                        plotData = false;
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (isEnable && !errorReception) {
+                                addEntry(receiveLevelCH1Chat);
+                                addEntry2(receiveLevelCH2Chat);
+                            }
+                        }
+                    });
+                    try {
+                        Thread.sleep(50);
+                    }catch (Exception e){}
+                }
+            }
+        });
+        graphThread.start();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -971,6 +975,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         switch (id) {
             case R.id.action_Trigger1:
                 presenter.onHelloWorld(CompileMassegeTreegMod (1));
+                if (transferThread.isAlive()) {
+                    transferThread.interrupt();
+                }
                 infinitAction = false;
                 return true;
             case R.id.action_Trigger2:
@@ -1087,7 +1094,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     protected void onPause() {
         super.onPause();
         try {
-            thread.interrupt();
+            graphThread.interrupt();
         } catch (Exception e){}
     }
 
@@ -1199,20 +1206,19 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 //        this.activity = Activity;
         this.runOnUi = true;
         if(isEnable){
-            ThreadHelper.run(runOnUi, this, new Runnable() {
+            transferThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     CompileMassegeReadStartParameters();
                     presenter.onHelloWorld(TextByteReadStartParameters);
-                    System.out.println("из ChatAct-------------> до задержки в 3 сек" );
                     try {
                         Thread.sleep(1000);
                     }catch (Exception e){}
+                    CompileMessageSetGeneralParcel((byte) 0x01);
+                    presenter.onHelloWorld(TextByteSetGeneralParcel);
                 }
             });
-            CompileMessageSetGeneralParcel((byte) 0x01);
-            presenter.onHelloWorld(TextByteSetGeneralParcel);
-            System.out.println("из ChatAct-------------> после задержки в 3 сек" );
+            transferThread.start();
         }
     }
 

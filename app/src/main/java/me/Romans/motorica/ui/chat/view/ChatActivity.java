@@ -72,6 +72,8 @@ import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
 public class ChatActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
+    @BindView(R.id.seekBarCH1on2) SeekBar seekBarCH1on2;
+    @BindView(R.id.seekBarCH2on2) SeekBar seekBarCH2on2;
     @BindView(R.id.seekBarIstop) SeekBar seekBarIstop;
     @BindView(R.id.seekBarRoughness) SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) Switch switchInvert;
@@ -335,6 +337,41 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 TextByteTreeg[6] = (byte) intValueCH1sleep;
                 TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
                 presenter.onHelloWorld(TextByteTreeg);
+                seekBarCH1on2.setProgress(seekBarCH1on.getProgress());
+            }
+        });
+
+        seekBarCH1on2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                valueCH1on.setText(String.valueOf(seekBar.getProgress()));
+                limit_sensor_open = seekBar.getProgress();
+                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((240*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
+                objectAnimator.setDuration(200);
+                objectAnimator.start();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                valueCH1on.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                valueCH1on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
+                intValueCH1on = seekBarCH1on.getProgress()*multiplierSeekbar;
+                indicatorTypeMessage = 0x01;
+                numberChannel = 0x01;
+                TextByteTreeg[0] = indicatorTypeMessage;
+                TextByteTreeg[1] = numberChannel;
+                TextByteTreeg[2] = (byte) intValueCH1on;
+                TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
+                TextByteTreeg[4] = (byte) intValueCH1off;
+                TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
+                TextByteTreeg[6] = (byte) intValueCH1sleep;
+                TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
+                presenter.onHelloWorld(TextByteTreeg);
+                seekBarCH1on.setProgress(seekBarCH1on2.getProgress());
             }
         });
 
@@ -368,6 +405,41 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 TextByteTreeg[6] = (byte) intValueCH2sleep;
                 TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
                 presenter.onHelloWorld(TextByteTreeg);
+                seekBarCH2on2.setProgress(seekBarCH2on.getProgress());
+            }
+        });
+
+        seekBarCH2on2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                valueCH2on.setText(String.valueOf(seekBar.getProgress()));
+                limit_sensor_close = seekBar.getProgress();
+                objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((500*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
+                objectAnimator2.setDuration(200);
+                objectAnimator2.start();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                valueCH2on.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                valueCH2on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
+                intValueCH2on = seekBarCH2on.getProgress()*multiplierSeekbar;
+                indicatorTypeMessage = 0x01;
+                numberChannel = 0x02;
+                TextByteTreeg[0] = indicatorTypeMessage;
+                TextByteTreeg[1] = numberChannel;
+                TextByteTreeg[2] = (byte) intValueCH2on;
+                TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
+                TextByteTreeg[4] = (byte) intValueCH2off;
+                TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
+                TextByteTreeg[6] = (byte) intValueCH2sleep;
+                TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
+                presenter.onHelloWorld(TextByteTreeg);
+                seekBarCH2on.setProgress(seekBarCH2on2.getProgress());
             }
         });
 

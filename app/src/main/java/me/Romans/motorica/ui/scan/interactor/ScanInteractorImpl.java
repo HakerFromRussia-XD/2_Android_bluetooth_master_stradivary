@@ -78,8 +78,29 @@ public class ScanInteractorImpl implements ScanInteractor {
     public List<String> getPairedDevices() {
         List<String> items = new ArrayList<>();
         for(BluetoothDevice device : bluetooth.getPairedDevices()){
-            items.add(device.getAddress()+" : "+device.getName());
+            if( device.getName().split("-")[0].equals("MLT") ||
+                device.getName().split("-")[0].equals("FNG") ||
+                device.getName().split("-")[0].equals("FNS") ||
+                device.getName().split(" ")[0].equals("MLT") ||
+                device.getName().split(" ")[0].equals("FNG") ||
+                device.getName().split(" ")[0].equals("FNS") ||
+                device.getName().split("-")[0].equals("STR") ||
+                device.getName().split("-")[0].equals("CBY") ||
+                device.getName().split("-")[0].equals("HND") ||
+                device.getName().split(" ")[0].equals("STR") ||
+                device.getName().split(" ")[0].equals("CBY") ||
+                device.getName().split(" ")[0].equals("HND") ||
+                device.getName().equals("ASUS")){
+                    items.add(device.getName());//device.getAddress()+" : "+
+            } else {
+                items.add(".");
+            }
         }
+//        for (int i = 0; i < items.size(); i++) {
+//             if(items.get(i).equals(".")){
+//                 items.remove(i);
+//             }
+//        }
         return items;
     }
 

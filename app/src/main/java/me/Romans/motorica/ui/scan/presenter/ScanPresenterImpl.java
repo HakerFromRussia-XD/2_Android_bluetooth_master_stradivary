@@ -18,6 +18,7 @@ public class ScanPresenterImpl implements ScanPresenter{
     private ScanView view;
     private ScanInteractor interactor;
     private boolean canceledDiscovery = false;
+    private boolean firstStart = true;
 
     public ScanPresenterImpl(ScanView view, ScanInteractor interactor) {
         this.view = view;
@@ -27,9 +28,10 @@ public class ScanPresenterImpl implements ScanPresenter{
     @Override
     public void onStart(Activity activity) {
         interactor.onStart(bluetoothCallback, activity);
-        if(interactor.isBluetoothEnabled()){
+        if(interactor.isBluetoothEnabled() && firstStart){
             startScanning();
             view.showPairedList(interactor.getPairedDevices());
+            firstStart = false;
         }
         else{
             interactor.enableBluetooth();
@@ -66,6 +68,26 @@ public class ScanPresenterImpl implements ScanPresenter{
         ChatActivity chatActivity = new ChatActivity();
         chatActivity.GetPosition_My(position, device);
         view.navigateToChat("device", device);
+        System.err.println("ScanPresenterImpl ----------> Name " + device.getName());
+        System.err.println("ScanPresenterImpl ----------> Code " + device.getName().split("-")[0]);
+
+        if( device.getName().split("-")[0].equals("MLT") ||
+            device.getName().split("-")[0].equals("FNG") ||
+            device.getName().split("-")[0].equals("FNS") ||
+            device.getName().split(" ")[0].equals("MLT") ||
+            device.getName().split(" ")[0].equals("FNG") ||
+            device.getName().split(" ")[0].equals("FNS")) {
+                view.showToast("многосхватная версия");
+        }
+        if( device.getName().split("-")[0].equals("STR") ||
+            device.getName().split("-")[0].equals("CBY") ||
+            device.getName().split("-")[0].equals("HND") ||
+            device.getName().split(" ")[0].equals("STR") ||
+            device.getName().split(" ")[0].equals("CBY") ||
+            device.getName().split(" ")[0].equals("HND") ||
+            device.getName().equals("ASUS")){
+            view.showToast("односхватная версия");
+        }
     }
 
     private DiscoveryCallback discoveryCallback = new DiscoveryCallback() {

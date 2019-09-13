@@ -45,35 +45,36 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void startScanning() {
-        view.clearScanList();
-        view.showProgress(true);
-        view.enableScanButton(false);
-        view.setScanStatus(R.string.bluetooth_scanning);
-        interactor.scanDevices(discoveryCallback);
-        canceledDiscovery = false;
+//        view.clearScanList();
+//        view.showProgress(true);
+//        view.enableScanButton(false);
+//        view.setScanStatus(R.string.bluetooth_scanning);
+//        interactor.scanDevices(discoveryCallback);
+//        canceledDiscovery = false;
     }
 
     @Override
     public void scanItemClick(int position) {
-        canceledDiscovery = true;
-        interactor.stopScanning();
-        interactor.pair(position);
-        view.setScanStatus(R.string.bluetooth_pairing);
-        view.showProgress(true);
+//        canceledDiscovery = true;
+//        interactor.stopScanning();
+//        interactor.pair(position);
+//        view.setScanStatus(R.string.bluetooth_pairing);
+//        view.showProgress(true);
     }
 
     @Override
     public void pairedItemClick(int position) {
         BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(interactor.getPairedDevices().get(position).split(" ")[0])-1);
         view.navigateToChat("device", device);
-
+        ChatActivity chatActivity = new ChatActivity();
         if( device.getName().split("-")[0].equals("MLT") ||
             device.getName().split("-")[0].equals("FNG") ||
             device.getName().split("-")[0].equals("FNS") ||
             device.getName().split(" ")[0].equals("MLT") ||
             device.getName().split(" ")[0].equals("FNG") ||
             device.getName().split(" ")[0].equals("FNS")) {
-            view.showToast("многосхватная версия");
+            chatActivity.typeOfVersion = false; //false - многосхват
+//            view.showToast("многосхватная версия 1");
         }
         if( device.getName().split("-")[0].equals("STR") ||
             device.getName().split("-")[0].equals("CBY") ||
@@ -82,22 +83,23 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("CBY") ||
             device.getName().split(" ")[0].equals("HND") ||
             device.getName().equals("ASUS")){
-            view.showToast("односхватная версия");
+            chatActivity.typeOfVersion = true; //true - односхват
+//            view.showToast("односхватная версия 1");
         }
     }
 
     private DiscoveryCallback discoveryCallback = new DiscoveryCallback() {
         @Override
         public void onDiscoveryStarted() {
-            view.showToast("Discovery started");
+            //view.showToast("Discovery started");
         }
 
         @Override
         public void onDiscoveryFinished() {
             if(!canceledDiscovery){
-                view.setScanStatus(R.string.bluetooth_scan_finished);
-                view.showProgress(false);
-                view.enableScanButton(true);
+//                view.setScanStatus(R.string.bluetooth_scan_finished);
+//                view.showProgress(false);
+//                view.enableScanButton(true);
             }
         }
 

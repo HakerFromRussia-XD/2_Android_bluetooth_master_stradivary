@@ -7,22 +7,6 @@
     android:orientation="vertical"
     tools:context="me.Romans.motorica.ui.chat.view.ChatActivity">
 
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/navigation"
-        android:layout_width="0dp"
-        android:layout_height="46dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:background="?android:attr/windowBackground"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:menu="@menu/navigation" />
-
     <RelativeLayout
         android:id="@+id/layout_info_state"
         android:layout_width="match_parent"
@@ -78,20 +62,41 @@
             android:layout_marginRight="0dp"
             android:background="@android:color/holo_red_light"
             android:visibility="gone" />
+
+        <RelativeLayout
+            android:id="@+id/gestures_list_relative"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="4dp"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            android:paddingBottom="0dp"
+            android:visibility="visible"
+            tools:ignore="MissingConstraints">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/gestures_list"
+                android:layout_width="wrap_content"
+                android:layout_height="200dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="0dp"
+                android:clipChildren="false"
+                android:clipToPadding="true"
+                android:visibility="visible"></android.support.v7.widget.RecyclerView>
+        </RelativeLayout>
     </RelativeLayout>
 
     <ScrollView
         android:id="@+id/scrollView2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="4dp"
-        android:layout_marginBottom="48dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/navigation"
         app:layout_constraintTop_toTopOf="@+id/layout_info_state"
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="MissingConstraints">
@@ -99,7 +104,7 @@
         <RelativeLayout
             android:id="@+id/layout_sensors"
             android:layout_width="match_parent"
-            android:layout_height="840dp"
+            android:layout_height="match_parent"
             android:layout_marginTop="0dp"
             android:orientation="vertical"
             android:paddingLeft="0dp"
@@ -776,7 +781,7 @@
                 android:layout_marginBottom="-3dp"
                 android:indeterminate="false"
                 android:max="220"
-                android:progress="0"
+                android:progress="80"
                 android:progressDrawable="@drawable/track_invisible"
                 android:rotation="-90"
                 android:thumb="@drawable/thumb_invisible"
@@ -800,7 +805,7 @@
                 android:layout_marginBottom="0dp"
                 android:indeterminate="false"
                 android:max="220"
-                android:progress="0"
+                android:progress="80"
                 android:progressDrawable="@drawable/track_invisible"
                 android:rotation="-90"
                 android:thumb="@drawable/thumb_invisible" />
@@ -823,7 +828,7 @@
                 android:layout_toRightOf="@+id/seekBarCH1on"
                 android:indeterminate="false"
                 android:max="220"
-                android:progress="0"
+                android:progress="80"
                 android:progressDrawable="@drawable/track_invisible"
                 android:rotation="-90"
                 android:thumb="@drawable/thumb_invisible"
@@ -847,7 +852,7 @@
                 android:layout_marginBottom="0dp"
                 android:indeterminate="false"
                 android:max="220"
-                android:progress="0"
+                android:progress="80"
                 android:progressDrawable="@drawable/track_invisible"
                 android:rotation="-90"
                 android:thumb="@drawable/thumb_invisible" />
@@ -1083,36 +1088,6 @@
         </RelativeLayout>
     </ScrollView>
 
-    <RelativeLayout
-        android:id="@+id/gestures_list_relative"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="48dp"
-        android:paddingLeft="0dp"
-        android:paddingRight="0dp"
-        android:paddingBottom="0dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        tools:ignore="MissingConstraints">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/gestures_list"
-            android:layout_width="wrap_content"
-            android:layout_height="200dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="0dp"
-            android:clipChildren="false"
-            android:clipToPadding="true"
-            android:visibility="visible"></android.support.v7.widget.RecyclerView>
-    </RelativeLayout>
     <FrameLayout
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
@@ -1120,6 +1095,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="0dp"
+        android:visibility="gone"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"></FrameLayout>
 
     <android.support.design.widget.FloatingActionButton

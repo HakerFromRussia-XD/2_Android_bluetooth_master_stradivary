@@ -9,7 +9,7 @@
     <string name="gesture4">parting position</string>
 
     <string name="activity_scan_button">Scan again</string>
-    <string name="activity_scan_paired_text">Paired Devices :</string>
+    <string name="activity_scan_paired_text">Связанные устройтсва :</string>
 
     <string name="bluetooth_scanning">Сканирование…</string>
     <string name="bluetooth_scan_finished">Сканирование завершено.</string>

@@ -118,6 +118,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public boolean errorReception = false;
     private int i = 0;
     public int multiplierSeekbar = 14;
+    public static boolean typeOfVersion;
     public byte[] TextByteTreeg = new byte[8];
     public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
     public byte[] TextByteTreegMod = new byte[2];
@@ -177,7 +178,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public volatile static float[][] verticesArrey = new float[MAX_NUMBER_DETAILS][1];
     public volatile static int[][] indicesArreyVerteces = new int[MAX_NUMBER_DETAILS][1];
     public Thread[] threadFanction = new Thread[MAX_NUMBER_DETAILS];
-//	for transfer
+//	  for transfer
     private byte numberFinger;
     private int SPEED = 98;
     private static int intValueFinger1Angle = 0;
@@ -208,8 +209,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public byte[] TextByteTreegControl = new byte[6];
     public boolean transferThreadFlag = false;
     public Thread transferThread;
-
-//    public ImageView imageViewStatus;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -245,7 +244,16 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        if(typeOfVersion){
+            System.err.println("односхватная версия");
+            setContentView(R.layout.activity_chat2);
+        } else {
+            System.err.println("многосхватная версия");
+            setContentView(R.layout.activity_chat);
+            navigation = findViewById(R.id.navigation);
+            navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+            heightBottomNavigation = pxFromDp(48);
+        }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         final float scale = getResources().getDisplayMetrics().density;
@@ -298,10 +306,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             .chatModule(new ChatModule(this))
             .build().inject(this);
         ButterKnife.bind(this);
-
-        navigation = findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        heightBottomNavigation = pxFromDp(48);
 
         ////////initialized graph for channel 1
         initializedGraphForChannel1();
@@ -578,10 +582,16 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 
         presenter.onCreate(getIntent());
 
-        //TODO запускать тут поток вывода графической информации
         graphThreadFlag = true;
         startGraphEnteringDataThread();
 
+//        if(typeOfVersion) {
+//            System.err.println("односхватная версия");
+//            navigation.clearAnimation();
+//            navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+//        } else {
+//            System.err.println("многосхватная версия");
+//        }
         layoutSensors.setVisibility(View.VISIBLE);
         layoutGestures.setVisibility(View.GONE);
         fab.hide();

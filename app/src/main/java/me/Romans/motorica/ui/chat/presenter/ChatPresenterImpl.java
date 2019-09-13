@@ -164,15 +164,16 @@ public class ChatPresenterImpl implements ChatPresenter {
             case 8:
                 System.out.println("--> тип компановки:" + txtbyte[0]);
                 System.out.println("--> номер мода:" + txtbyte[1]);
-                if(txtbyte[1] == 1) {view.showToast("Выбран классический режим управления"); }
-                if(txtbyte[1] == 2) {view.showToast("Выбран триггерный режим управления №1"); }
-                if(txtbyte[1] == 3) {view.showToast("Выбран триггерный режим управления №2"); }
-                if(txtbyte[1] == 4) {view.showToast("Выбран удерживающий режим управления №1"); }
-                if(txtbyte[1] == 5) {view.showToast("Выбран удерживающий режим управления №2"); }
-                if(txtbyte[1] == 6) {view.showToast("Выбран инвертированный удерживающий режим управления №1"); }
-                if(txtbyte[1] == 7) {view.showToast("Выбран инвертированный удерживающий режим управления №2"); }
-                if(txtbyte[1] == 8) {view.showToast("Выбран инвертированный классический режим управления"); }
-                if(txtbyte[1] == 9) {view.showToast("Настройки стендового режима"); }
+                if(txtbyte[1] == 1) {view.showToast("классический режим"); }
+                if(txtbyte[1] == 2) {view.showToast("триггерный режим 1"); }
+                if(txtbyte[1] == 3) {view.showToast("триггерный режим 2"); }
+                if(txtbyte[1] == 4) {view.showToast("удерживающий режим 1"); }
+                if(txtbyte[1] == 5) {view.showToast("удерживающий режим 2"); }
+                if(txtbyte[1] == 6) {view.showToast("инвертированный удерживающий режим 1"); }
+                if(txtbyte[1] == 7) {view.showToast("инвертированный удерживающий режим 2"); }
+                if(txtbyte[1] == 8) {view.showToast("инвертированный классический режим"); }
+                if(txtbyte[1] == 9) {view.showToast("одноканальный режим датчик 1"); }
+                if(txtbyte[1] == 10) {view.showToast("одноканальный режим датчик 2"); }
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout8[i + 6] = txtbyte[i];

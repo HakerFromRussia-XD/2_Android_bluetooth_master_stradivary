@@ -128,6 +128,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public byte[] TextByteSetSwitchGesture = new byte [3];
     public byte[] TextByteSetRouhness = new byte [2];
 //    for graph
+    public int receiveСurrent = 0;
+    public int receiveLevelTrigCH1 = 0;
+    public int receiveLevelTrigCH2 = 0;
+    public byte receiveIndicationInvertMode = 0;
+    public byte receiveBlockIndication = 0;
+    private boolean firstSetStartParametersFlag = true;
+    private boolean isSetStartParametersActivityActiveFlag = false;
+    public Thread delayThread;
     private LineChart mChart;
     private boolean plotData = true;
     private LineChart mChart2;
@@ -171,7 +179,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public Thread[] threadFanction = new Thread[MAX_NUMBER_DETAILS];
 //	for transfer
     private byte numberFinger;
-    private int SPEED = 100;
+    private int SPEED = 98;
     private static int intValueFinger1Angle = 0;
     private static int intValueFinger2Angle = 0;
     private static int intValueFinger3Angle = 0;
@@ -193,7 +201,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     private byte requestType = 0x02;
     public static byte GESTURE_SETTINGS = 0x15;
     public byte NUMBER_CELL = 0x00;
-    public static long delay = 50;
+    public static long delay = 200;
     public byte[] TextByteTreegSettings = new byte[8];
     public byte[] TextByteTreegComplexGestureSettings = new byte[15];
     public byte[] TextByteTreegControlComplexGesture = new byte[2];
@@ -212,7 +220,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
@@ -220,6 +227,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     Log.i(TAG, "oncliiiiick");
                     layoutSensors.setVisibility(View.GONE);
 //                    fab.show();
+                    isSetStartParametersActivityActiveFlag = false;
                     layoutGestures.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_dashboard:
@@ -573,6 +581,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         //TODO запускать тут поток вывода графической информации
         graphThreadFlag = true;
         startGraphEnteringDataThread();
+
+        layoutSensors.setVisibility(View.VISIBLE);
+        layoutGestures.setVisibility(View.GONE);
+        fab.hide();
 
         ////////////////////////////////////////////////
 /**                 3D initialization                        **/
@@ -1158,9 +1170,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
+    protected void onResume() { super.onResume(); }
 
     @Override
     protected void onPause() {
@@ -1229,19 +1239,27 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 
     @Override
     public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication) {
-        seekBarIstop.setProgress(receiveСurrent);
-        seekBarCH1on.setProgress((int) (receiveLevelTrigCH1/(multiplierSeekbar-0.5)));
-        seekBarCH2on.setProgress((int) (receiveLevelTrigCH2/(multiplierSeekbar-0.5)));
-        if (receiveIndicationInvertMode == 1){
-            switchInvert.setChecked(true);
-        } else {
-            switchInvert.setChecked(false);
-        }
-        if (receiveBlockIndication == 1){
-            switchBlockMode.setChecked(true);
-        } else {
-            switchBlockMode.setChecked(false);
-        }
+        this.receiveСurrent = receiveСurrent;
+        this.receiveLevelTrigCH1 = receiveLevelTrigCH1;
+        this.receiveLevelTrigCH2 = receiveLevelTrigCH2;
+        this.receiveIndicationInvertMode = receiveIndicationInvertMode;
+        this.receiveBlockIndication = receiveBlockIndication;
+    }
+
+    public void setStartParametersInGraphActivity(){
+            seekBarIstop.setProgress(receiveСurrent);
+            seekBarCH1on.setProgress((int) (receiveLevelTrigCH1/(multiplierSeekbar-0.5)));
+            seekBarCH2on.setProgress((int) (receiveLevelTrigCH2/(multiplierSeekbar-0.5)));
+            if (receiveIndicationInvertMode == 1){
+                switchInvert.setChecked(true);
+            } else {
+//                switchInvert.setChecked(false);
+            }
+            if (receiveBlockIndication == 1){
+                switchBlockMode.setChecked(true);
+            } else {
+//                switchBlockMode.setChecked(false);
+            }
     }
 
     @Override
@@ -1284,7 +1302,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     CompileMassegeReadStartParameters();
                     presenter.onHelloWorld(TextByteReadStartParameters);
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(300);
                     }catch (Exception e){}
                     CompileMessageSetGeneralParcel((byte) 0x01);
                     presenter.onHelloWorld(TextByteSetGeneralParcel);
@@ -1337,7 +1355,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     }
 
     public void initializedGraphForChannel2(){
-        mChart2 = (LineChart) findViewById(R.id.chartCH2);
+        mChart2 = findViewById(R.id.chartCH2);
 
         mChart2.getDescription().setEnabled(true);
         mChart2.setTouchEnabled(true);

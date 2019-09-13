@@ -59,6 +59,10 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
         recyclerView.setLayoutManager(mLayoutManager);
         chatActivity.firstTapRcyclerView = true;
         chatActivity.graphThreadFlag = false;
+        if(chatActivity.isEnable){
+            chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
+            chatActivity.TranslateMassegeControlComplexGesture();
+        }
 
         gestureMyList.add(
                 new Gesture_my(
@@ -179,6 +183,11 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
     }
     @Override
     public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication) {
+
+    }
+
+    @Override
+    public void setStartParametersInGraphActivity() {
 
     }
 }

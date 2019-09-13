@@ -108,6 +108,11 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
 
     }
 
+    @Override
+    public void setStartParametersInGraphActivity() {
+
+    }
+
     public class GestureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         ImageView imageView;

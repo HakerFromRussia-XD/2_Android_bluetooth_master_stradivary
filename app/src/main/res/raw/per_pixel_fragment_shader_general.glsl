@@ -9,7 +9,11 @@ varying vec4 v_Color;
 varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
 
 vec4 resultColor = vec4(0.0, 0.0, 0.0, 0.0);
-vec3 eyePosition = vec3(0.0, 0.0, 150.5f);
+vec3 eyePosition = vec3(0.0, 0.0, 150.5);
+float specularFactor = 10.0;
+float ambientFactor = 0.9;
+float lightPower = 900.0;
+//vec3 f = vec3(0.0, 0.0, 0.0);
 // The entry point for our fragment shader.
 void main()                    		
 {
@@ -19,9 +23,7 @@ void main()
     vec3 reflectLight = normalize(reflect(lightVector, v_Normal));
     float distance = length(u_LightPos - v_Position); //+
     float diffuse = max(dot(v_Normal, lightVector), 0.0); //+
-    float specularFactor = 10.0;
-    float ambientFactor = 0.9;
-    float lightPower = 900.0;
+
 
     vec4 diffColor = diffMatColor * lightPower * diffuse / (1.0 + 0.25 * pow(distance, 2.0));//diffMatColor * lightPower * v_Color * diffuse /(1.0 + 0.25 + distance * distance);
     resultColor += diffColor;

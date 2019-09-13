@@ -377,6 +377,11 @@ public class ChatPresenterImpl implements ChatPresenter {
             view.setErrorReception(bolean);
 //            System.out.println("принятая ошибка: " + bolean);
         }
+
+        @Override
+        public void setStartParametersInGraphActivity() {
+            view.setStartParametersInGraphActivity();
+        }
     };
 
     private DeviceCallback communicationCallback = new DeviceCallback() {

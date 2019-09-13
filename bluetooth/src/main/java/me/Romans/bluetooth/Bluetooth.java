@@ -446,7 +446,7 @@ public class Bluetooth {
                                     }
                                     if(i == 11){
                                         msgLevelCH = (msg << 8) + lowByte; //msgLevelCH уровень канала 1
-                                        System.out.println("<-- уровень CH1:"+msgLevelCH);
+//                                        System.out.println("<-- уровень CH1:"+msgLevelCH);
                                     }
                                     break;
                                 case 2:
@@ -455,7 +455,7 @@ public class Bluetooth {
                                     }
                                     if(i == 11){
                                         msgLevelCH = (msg << 8) + lowByte; //msgLevelCH уровень канала 2
-                                        System.out.println("<-- уровень CH2:"+msgLevelCH);
+//                                        System.out.println("<-- уровень CH2:"+msgLevelCH);
                                     }
                                     break;
                                 default:
@@ -491,7 +491,7 @@ public class Bluetooth {
                                             parserCallback.givsLevelCH(msgLevelCHf, msgChannelf);
                                             parserCallback.givsErrorReception(errorReceptionf);
                                             deviceCallback.onMessage(msgCopy);
-                                            System.out.println("<-- сделал цикл:"+ msgCopy);
+//                                            System.out.println("<-- сделал цикл:"+ msgCopy);
                                         }
                                         parserCallback.givsCorrectAcceptance(msgCorrectAcceptancef);
                                         resetAllVariables();
@@ -513,14 +513,14 @@ public class Bluetooth {
                                 }
                                 if(i == 5){
                                     msgLevelCH1 = (lowByte << 8) + msg;  //msgLevelCH уровень канала 1
-                                    System.out.println("<-- уровень CH1:" + msgLevelCH1 + " i = " + i + " no_error=" + no_error);
+                                    System.out.println("<-- уровень порога CH1:" + msgLevelCH1 + " i = " + i + " no_error=" + no_error);
                                 }
                                 if(i == 6){
                                     lowByte = msg;
                                 }
                                 if(i == 7){
                                     msgLevelCH2 = (lowByte << 8) + msg; //msgLevelCH уровень канала 2
-                                    System.out.println("<-- уровень CH2:" + msgLevelCH2 + " i = " + i + " no_error=" + no_error);
+                                    System.out.println("<-- уровень порога CH2:" + msgLevelCH2 + " i = " + i + " no_error=" + no_error);
                                 }
                                 if(i == 8){
                                     msgIndicationState = (byte) msg;
@@ -546,6 +546,7 @@ public class Bluetooth {
                                         public void run() {
                                             if(no_error && msgCorrectAcceptance) {
                                                 parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf);
+                                                parserCallback.setStartParametersInGraphActivity();
                                                 deviceCallback.onMessage(msgCopy);
                                                 System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);
                                             }

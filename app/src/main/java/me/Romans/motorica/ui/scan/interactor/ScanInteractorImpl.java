@@ -77,6 +77,7 @@ public class ScanInteractorImpl implements ScanInteractor {
     @Override
     public List<String> getPairedDevices() {
         List<String> items = new ArrayList<>();
+        int position = 0;
         for(BluetoothDevice device : bluetooth.getPairedDevices()){
             if( device.getName().split("-")[0].equals("MLT") ||
                 device.getName().split("-")[0].equals("FNG") ||
@@ -91,16 +92,17 @@ public class ScanInteractorImpl implements ScanInteractor {
                 device.getName().split(" ")[0].equals("CBY") ||
                 device.getName().split(" ")[0].equals("HND") ||
                 device.getName().equals("ASUS")){
-                    items.add(device.getName());//device.getAddress()+" : "+
+                    items.add(position+1+" "+device.getName());//device.getAddress()+" : "+
             } else {
                 items.add(".");
             }
+            position++;
         }
-//        for (int i = 0; i < items.size(); i++) {
-//             if(items.get(i).equals(".")){
-//                 items.remove(i);
-//             }
-//        }
+        for (int i = 0; i < items.size(); i++) {
+             if(items.get(i).equals(".")){
+                 items.remove(i);
+             }
+        }
         return items;
     }
 

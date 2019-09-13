@@ -64,12 +64,8 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void pairedItemClick(int position) {
-        BluetoothDevice device = interactor.getPairedDevice(position);
-        ChatActivity chatActivity = new ChatActivity();
-        chatActivity.GetPosition_My(position, device);
+        BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(interactor.getPairedDevices().get(position).split(" ")[0])-1);
         view.navigateToChat("device", device);
-        System.err.println("ScanPresenterImpl ----------> Name " + device.getName());
-        System.err.println("ScanPresenterImpl ----------> Code " + device.getName().split("-")[0]);
 
         if( device.getName().split("-")[0].equals("MLT") ||
             device.getName().split("-")[0].equals("FNG") ||
@@ -77,7 +73,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("MLT") ||
             device.getName().split(" ")[0].equals("FNG") ||
             device.getName().split(" ")[0].equals("FNS")) {
-                view.showToast("многосхватная версия");
+            view.showToast("многосхватная версия");
         }
         if( device.getName().split("-")[0].equals("STR") ||
             device.getName().split("-")[0].equals("CBY") ||

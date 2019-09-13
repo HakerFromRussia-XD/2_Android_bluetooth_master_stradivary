@@ -1396,11 +1396,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         y1_2.setDrawGridLines(false);
     }
 
-    public void GetPosition_My (int position, BluetoothDevice device){
-        System.out.println("из ChatAct-------------> Передача position:" + position);
-        System.out.println("из ChatAct-------------> выжимка из интента devise:" + device);
-    }
-
     private byte[] CompileMassegeSettings(byte numberFinger, int intValueFingerAngle, int intValueFingerSpeed){
         TextByteTreegSettings[0] = 0x03;
         TextByteTreegSettings[1] = numberFinger;

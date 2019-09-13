@@ -616,7 +616,6 @@ public class Bluetooth {
                         }
                     } else return; //завершение потока
                 }
-
             } catch (final IOException e) {
                 connected=false;
                 if(deviceCallback != null){

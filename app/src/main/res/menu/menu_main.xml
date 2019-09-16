@@ -50,12 +50,15 @@
         <item
             android:id="@+id/action_Trigger9"
             android:orderInCategory="100"
-            android:title="only first channel"
+            android:title="одноканальный по датчику 1"
             app:showAsAction="never"/>
+<!--    only first channel-->
+    
         <item
             android:id="@+id/action_Trigger10"
             android:orderInCategory="100"
-            android:title="only second channel"
+            android:title="одноканальный по датчику 2"
             app:showAsAction="never"/>
+<!--    only first channel-->
     <!--</group>-->
 </menu>

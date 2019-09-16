@@ -2,7 +2,7 @@
     <string name="app_name">Stradivary Control</string>
     <string name="helloWorld">открыть</string>
     <string name="helloWorld2">закрыть</string>
-    <string name="helloWorld3">остановить</string>
+    <string name="helloWorld3">стоп</string>
     <string name="gesture1">жест 1</string>
     <string name="gesture2">жест 2</string>
     <string name="gesture3">жест 3</string>

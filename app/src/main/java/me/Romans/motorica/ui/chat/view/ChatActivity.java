@@ -21,6 +21,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -132,6 +133,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public int receiveСurrent = 0;
     public int receiveLevelTrigCH1 = 0;
     public int receiveLevelTrigCH2 = 0;
+    public int lastReceiveLevelCH1Chat;
+    public int lastReceiveLevelCH2Chat;
     public byte receiveIndicationInvertMode = 0;
     public byte receiveBlockIndication = 0;
     private boolean firstSetStartParametersFlag = true;
@@ -526,17 +529,66 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             }
         });
 
-        helloWorld2.setOnClickListener(new View.OnClickListener(){
+//        helloWorld2.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                int numberSensor = 0x07;
+//                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+//                addEntry(20);
+//                addEntry2(2500);
+//            }
+//        });
+
+        helloWorld2.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                int numberSensor = 0x07;
-                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
-                addEntry(20);
-                addEntry2(2500);
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    lastReceiveLevelCH1Chat = receiveLevelCH1Chat;
+                    lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
+                    System.err.println("ChatActivity--------> lastReceiveLevelCH2Chat "+lastReceiveLevelCH2Chat);
+                    int numberSensor = 0x07;
+                    presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    receiveLevelCH1Chat = 20;
+                    receiveLevelCH2Chat = 2500;
+                }
+
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    System.err.println("ChatActivity--------> lastReceiveLevelCH2Chat "+lastReceiveLevelCH2Chat);
+                    int numberSensor = 0x08;
+                    presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
+                    receiveLevelCH2Chat = lastReceiveLevelCH2Chat;
+                }
+                return false;
+            }
+        });
+
+        helloWorld.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    lastReceiveLevelCH1Chat = receiveLevelCH1Chat;
+                    lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
+                    System.err.println("ChatActivity--------> lastReceiveLevelCH2Chat "+lastReceiveLevelCH2Chat);
+                    int numberSensor = 0x06;
+                    presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    receiveLevelCH1Chat = 2500;
+                    receiveLevelCH2Chat = 20;
+                }
+
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    System.err.println("ChatActivity--------> lastReceiveLevelCH2Chat "+lastReceiveLevelCH2Chat);
+                    int numberSensor = 0x08;
+                    presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
+                    receiveLevelCH2Chat = lastReceiveLevelCH2Chat;
+                }
+                return false;
             }
         });
 
         if(!typeOfVersion){
+            //односхватная версия
             activity_chat_gesture1.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
@@ -565,6 +617,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 }
             });
         } else {
+            //многосхватная версия
             seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -590,13 +643,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         graphThreadFlag = true;
         startGraphEnteringDataThread();
 
-//        if(typeOfVersion) {
-//            System.err.println("односхватная версия");
-//            navigation.clearAnimation();
-//            navigation.animate().translationY(heightBottomNavigation).setDuration(200);
-//        } else {
-//            System.err.println("многосхватная версия");
-//        }
         layoutSensors.setVisibility(View.VISIBLE);
         layoutGestures.setVisibility(View.GONE);
         fab.hide();
@@ -1195,14 +1241,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         } catch (Exception e){}
     }
 
-    @OnClick(R.id.activity_chat_hello_world)
-    public void onHelloWorld(){
-        int numberSensor = 0x06;
-        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
-        addEntry(2500);
-        addEntry2(20);
-    }
-
     @Override
     public void setStatus(String status) {
 
@@ -1238,7 +1276,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         receiveIndicationStateChat = new Byte(receiveIndicationState);
         receiveBatteryTensionChat = new Integer(receiveBatteryTension);
 
-        valueIstop2.setText(String.valueOf(receiveСurrentChat));
+        if(typeOfVersion){valueIstop2.setText(String.valueOf(receiveСurrentChat));}
         valueBatteryTension.setText(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10); //(receiveBatteryTensionChat%1000)/10 удаление знаков после запятой(показания напряжения)
         if (receiveIndicationStateChat == 0){valueStatus.setText("покой"); imageViewStatus.setImageResource(R.drawable.sleeping);}
         if (receiveIndicationStateChat == 1){valueStatus.setText("закрытие"); imageViewStatus.setImageResource(R.drawable.closing);}
@@ -1262,7 +1300,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     }
 
     public void setStartParametersInGraphActivity(){
-            seekBarIstop.setProgress(receiveСurrent);
+            if (typeOfVersion){ seekBarIstop.setProgress(receiveСurrent);}
             seekBarCH1on.setProgress((int) (receiveLevelTrigCH1/(multiplierSeekbar-0.5)));
             seekBarCH2on.setProgress((int) (receiveLevelTrigCH2/(multiplierSeekbar-0.5)));
             if (receiveIndicationInvertMode == 1){

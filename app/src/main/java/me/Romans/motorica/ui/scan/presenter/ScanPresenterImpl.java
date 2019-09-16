@@ -74,7 +74,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("FNG") ||
             device.getName().split(" ")[0].equals("FNS")) {
             //TODO  переписать на фолс
-            chatActivity.typeOfVersion = true; //false - многосхват
+            chatActivity.typeOfVersion = false; //false - многосхват
 //            view.showToast("многосхватная версия 1");
         }
         if( device.getName().split("-")[0].equals("STR") ||

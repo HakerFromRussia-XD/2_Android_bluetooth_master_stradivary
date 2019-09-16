@@ -240,7 +240,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		// Position the eye in front of the origin.
 		final float eyeX = 0.0f;
 		final float eyeY = 0.0f;
-		final float eyeZ = 150.0f;
+		final float eyeZ = 140.0f;
 
 		// We are looking toward the distance (бесполезная хрень, не на что невлияет)
 		final float lookX = 0.0f;

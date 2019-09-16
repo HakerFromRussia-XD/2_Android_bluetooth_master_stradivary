@@ -10,9 +10,9 @@ varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
 
 vec3 eyePosition = vec3(0.0, 0.0, 150.5);
 vec4 resultColor = vec4(0.0, 0.0, 0.0, 0.0);
-float specularFactor = 10.0;
-float ambientFactor = 0.9;
-float lightPower = 300.0;
+float specularFactor = 1.0;
+float ambientFactor = 1.1;
+float lightPower = 900.0;
 // The entry point for our fragment shader.
 void main()                    		
 {

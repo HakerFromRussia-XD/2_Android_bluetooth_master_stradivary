@@ -75,15 +75,15 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
     @BindView(R.id.seekBarCH1on2) SeekBar seekBarCH1on2;
     @BindView(R.id.seekBarCH2on2) SeekBar seekBarCH2on2;
-    @BindView(R.id.seekBarIstop) SeekBar seekBarIstop;
+    SeekBar seekBarIstop;
     @BindView(R.id.seekBarRoughness) SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) Switch switchInvert;
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
     @BindView(R.id.valueStatus) TextView valueStatus;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
     @BindView(R.id.valueCH2on) TextView valueCH2on;
-    @BindView(R.id.valueIstop) TextView valueIstop;
-    @BindView(R.id.valueIstop2) TextView valueIstop2;
+    TextView valueIstop;
+    TextView valueIstop2;
     @BindView(R.id.activity_chat_messages) TextView messages;
     @BindView(R.id.valueBatteryTension) TextView valueBatteryTension;
     @BindView(R.id.layout_sensors) RelativeLayout layoutSensors;
@@ -247,6 +247,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         if(typeOfVersion){
             System.err.println("односхватная версия");
             setContentView(R.layout.activity_chat2);
+            valueIstop2 = findViewById(R.id.valueIstop2);
+            valueIstop = findViewById(R.id.valueIstop);
+            seekBarIstop = findViewById(R.id.seekBarIstop);
         } else {
             System.err.println("многосхватная версия");
             setContentView(R.layout.activity_chat);
@@ -455,24 +458,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 seekBarCH2on.setProgress(seekBarCH2on2.getProgress());
             }
         });
-        seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueIstop.setText(String.valueOf(seekBar.getProgress()));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                valueIstop.setText(String.valueOf(seekBar.getProgress()));
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                valueIstop.setText(String.valueOf(seekBar.getProgress()));
-                curent = seekBar.getProgress();
-                presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
-            }
-        });
         seekBarRoughness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -577,6 +562,25 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 @Override
                 public void onClick(View v) {
                     presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x06, (byte) 0x06));
+                }
+            });
+        } else {
+            seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    valueIstop.setText(String.valueOf(seekBar.getProgress()));
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                    valueIstop.setText(String.valueOf(seekBar.getProgress()));
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    valueIstop.setText(String.valueOf(seekBar.getProgress()));
+                    curent = seekBar.getProgress();
+                    presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
                 }
             });
         }
@@ -1290,23 +1294,19 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         isEnable = enabled;
         helloWorld.setEnabled(enabled);
         helloWorld2.setEnabled(enabled);
+        seekBarCH1on.setEnabled(enabled);
+        seekBarCH2on.setEnabled(enabled);
+        switchInvert.setEnabled(enabled);
+        switchBlockMode.setEnabled(enabled);
+        seekBarRoughness.setEnabled(enabled);
         if(!typeOfVersion){
             activity_chat_gesture1.setEnabled(enabled);
             activity_chat_gesture2.setEnabled(enabled);
             activity_chat_gesture3.setEnabled(enabled);
             activity_chat_gesture4.setEnabled(enabled);
+        } else {
+            seekBarIstop.setEnabled(enabled);
         }
-        seekBarCH1on.setEnabled(enabled);
-//        seekBarCH1off.setEnabled(enabled);
-//        seekBarCH1sleep.setEnabled(enabled);
-        seekBarCH2on.setEnabled(enabled);
-        switchInvert.setEnabled(enabled);
-        switchBlockMode.setEnabled(enabled);
-//        seekBarCH2off.setEnabled(enabled);
-//        seekBarCH2sleep.setEnabled(enabled);
-        seekBarIstop.setEnabled(enabled);
-        seekBarRoughness.setEnabled(enabled);
-//        this.activity = Activity;
         this.runOnUi = true;
         if(isEnable){
             transferThread = new Thread(new Runnable() {

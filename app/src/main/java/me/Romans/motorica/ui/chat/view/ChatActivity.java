@@ -1334,6 +1334,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         helloWorld2.setEnabled(enabled);
         seekBarCH1on.setEnabled(enabled);
         seekBarCH2on.setEnabled(enabled);
+        seekBarCH1on2.setEnabled(enabled);
+        seekBarCH2on2.setEnabled(enabled);
         switchInvert.setEnabled(enabled);
         switchBlockMode.setEnabled(enabled);
         seekBarRoughness.setEnabled(enabled);

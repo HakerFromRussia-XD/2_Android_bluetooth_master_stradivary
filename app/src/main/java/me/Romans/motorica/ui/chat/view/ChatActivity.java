@@ -90,10 +90,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
-    @BindView(R.id.activity_chat_gesture1) Button activity_chat_gesture1;
-    @BindView(R.id.activity_chat_gesture2) Button activity_chat_gesture2;
-    @BindView(R.id.activity_chat_gesture3) Button activity_chat_gesture3;
-    @BindView(R.id.activity_chat_gesture4) Button activity_chat_gesture4;
+    Button activity_chat_gesture1;
+    Button activity_chat_gesture2;
+    Button activity_chat_gesture3;
+    Button activity_chat_gesture4;
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
     @BindView(R.id.borderGray) ImageView borderGray;
@@ -253,6 +253,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             navigation = findViewById(R.id.navigation);
             navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
             heightBottomNavigation = pxFromDp(48);
+            activity_chat_gesture1 = findViewById(R.id.activity_chat_gesture1);
+            activity_chat_gesture2 = findViewById(R.id.activity_chat_gesture2);
+            activity_chat_gesture3 = findViewById(R.id.activity_chat_gesture3);
+            activity_chat_gesture4 = findViewById(R.id.activity_chat_gesture4);
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -1286,10 +1290,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         isEnable = enabled;
         helloWorld.setEnabled(enabled);
         helloWorld2.setEnabled(enabled);
-        activity_chat_gesture1.setEnabled(enabled);
-        activity_chat_gesture2.setEnabled(enabled);
-        activity_chat_gesture3.setEnabled(enabled);
-        activity_chat_gesture4.setEnabled(enabled);
+        if(!typeOfVersion){
+            activity_chat_gesture1.setEnabled(enabled);
+            activity_chat_gesture2.setEnabled(enabled);
+            activity_chat_gesture3.setEnabled(enabled);
+            activity_chat_gesture4.setEnabled(enabled);
+        }
         seekBarCH1on.setEnabled(enabled);
 //        seekBarCH1off.setEnabled(enabled);
 //        seekBarCH1sleep.setEnabled(enabled);

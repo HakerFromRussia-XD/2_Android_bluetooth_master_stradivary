@@ -70,6 +70,7 @@ import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
  */
 
 public class ChatActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener {
+    public static boolean typeOfVersion;
     @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
     @BindView(R.id.seekBarCH1on2) SeekBar seekBarCH1on2;
@@ -118,7 +119,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public boolean errorReception = false;
     private int i = 0;
     public int multiplierSeekbar = 14;
-    public static boolean typeOfVersion;
     public byte[] TextByteTreeg = new byte[8];
     public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
     public byte[] TextByteTreegMod = new byte[2];
@@ -352,7 +352,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 seekBarCH1on2.setProgress(seekBarCH1on.getProgress());
             }
         });
-
         seekBarCH1on2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -386,7 +385,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 seekBarCH1on.setProgress(seekBarCH1on2.getProgress());
             }
         });
-
         seekBarCH2on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -420,7 +418,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 seekBarCH2on2.setProgress(seekBarCH2on.getProgress());
             }
         });
-
         seekBarCH2on2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -454,7 +451,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 seekBarCH2on.setProgress(seekBarCH2on2.getProgress());
             }
         });
-
         seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -473,7 +469,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
             }
         });
-
         seekBarRoughness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -552,33 +547,35 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             }
         });
 
-        activity_chat_gesture1.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x00, (byte) 0x01));
-            }
-        });
+        if(!typeOfVersion){
+            activity_chat_gesture1.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x00, (byte) 0x01));
+                }
+            });
 
-        activity_chat_gesture2.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x02, (byte) 0x03));
-            }
-        });
+            activity_chat_gesture2.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x02, (byte) 0x03));
+                }
+            });
 
-        activity_chat_gesture3.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05));
-            }
-        });
+            activity_chat_gesture3.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05));
+                }
+            });
 
-        activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x06, (byte) 0x06));
-            }
-        });
+            activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x06, (byte) 0x06));
+                }
+            });
+        }
 
         presenter.onCreate(getIntent());
 

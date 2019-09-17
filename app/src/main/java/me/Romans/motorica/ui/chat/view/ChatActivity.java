@@ -767,7 +767,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             if (msg == 10) {
                 String[] currentLine = line.split(" ");
                 if (line.startsWith("# ")) {
-                    if (currentLine[2].equals("vertices\n")) {//\r
+                    if (currentLine[2].equals("vertices\r\n")) {//\r
                         coordNumber = Integer.parseInt(currentLine[1]);
                         coordArrey[number] = new float[coordNumber * 3];
                         System.out.println("Количество вершин: " + coordNumber);
@@ -905,7 +905,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             if (msg == 10){
                 String[] currentLine = line.split(" ");
                 if(line.startsWith("# ")){
-                    if(currentLine[2].equals("facets\n")){//\r
+                    if(currentLine[2].equals("facets\r\n")){//\r
                         indicesVretices = Integer.parseInt(currentLine[1]);
                         verticesArrey[number] = new float[indicesVretices*12*3];
                         indicesArreyVerteces[number] = new int [indicesVretices*3];
@@ -965,7 +965,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     verticesArrey[number][indicesVretices * 12 + 1] = coordArrey[number][indecesCoordinateV * 3 + 1];
                     verticesArrey[number][indicesVretices * 12 + 2] = coordArrey[number][indecesCoordinateV * 3 + 2];
                     //нормали
-                    indecesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\n")[0]) - 1);//.split("\r")[0]
+                    indecesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\r")[0]) - 1);//.split("\r")[0]
                     verticesArrey[number][indicesVretices * 12 + 3] = normalsArrey[number][indecesNormalsV * 3 + 0];
                     verticesArrey[number][indicesVretices * 12 + 4] = normalsArrey[number][indecesNormalsV * 3 + 1];
                     verticesArrey[number][indicesVretices * 12 + 5] = normalsArrey[number][indecesNormalsV * 3 + 2];
@@ -1188,7 +1188,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 
         }
     }
-
     private void addEntry2(int event){
 
         LineData data = mChart2.getData();
@@ -1299,7 +1298,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         this.receiveIndicationInvertMode = receiveIndicationInvertMode;
         this.receiveBlockIndication = receiveBlockIndication;
     }
-
     public void setStartParametersInGraphActivity(){
             if (typeOfVersion){ seekBarIstop.setProgress(receiveСurrent);}
             seekBarCH1on.setProgress((int) (receiveLevelTrigCH1/(multiplierSeekbar-0.5)));
@@ -1320,14 +1318,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public void setErrorReception (boolean incomeErrorReception) {
         errorReception = incomeErrorReception;
     }
-
     @Override
     public void appendMessage(String message) {
         String str = message + " C-->" + i;//messages.getText()+"\n"+
         messages.setText(str);
         i++;
     }
-
     @Override
     public void enableHWButton(boolean enabled) {
         isEnable = enabled;
@@ -1407,7 +1403,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 
         mChart.getAxisRight().setEnabled(false);
     }
-
     public void initializedGraphForChannel2(){
         mChart2 = findViewById(R.id.chartCH2);
 
@@ -1461,7 +1456,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         TextByteTreegSettings[7] = presenter.calculationCRC(TextByteTreegSettings);
         return TextByteTreegSettings;
     }
-
     public byte[] CompileMassegeComplexGestureSettings(int GESTURE_NUMBER, int GripperNumberStart1, int mySensorEvent1, int GripperNumberEnd1, int GripperNumberStart2, int mySensorEvent2, int GripperNumberEnd2, int indicatorTypeMessage){
         TextByteTreegComplexGestureSettings[0] = (byte) indicatorTypeMessage;
         TextByteTreegComplexGestureSettings[1] = (byte) (GESTURE_NUMBER >> 8);
@@ -1481,13 +1475,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 
         return TextByteTreegComplexGestureSettings;
     }
-
     public byte[] CompileMassegeControlComplexGesture(int GESTURE_NUMBER){
         TextByteTreegControlComplexGesture[0] = 0x06;
         TextByteTreegControlComplexGesture[1] = (byte) GESTURE_NUMBER;
         return TextByteTreegControlComplexGesture;
     }
-
     private byte[] CompileMassegeControl (byte numberFinger){
         TextByteTreegControl[0] = 0x05;
         TextByteTreegControl[1] = numberFinger;
@@ -1497,20 +1489,17 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         TextByteTreegControl[5] = presenter.calculationCRC(TextByteTreegControl);
         return TextByteTreegControl;
     }
-
     private byte[] CompileMassegeTreegMod (int Treeg_id){
         TextByteTreegMod[0] = 0x08;
         TextByteTreegMod[1] = (byte) Treeg_id;
         System.out.println("Treeg mod:" + Treeg_id);
         return TextByteTreegMod;
     }
-
     private byte[] CompileMassegeSensorActivate (int numberSensor){
         TextByteSensorActivate[0] = 0x09;
         TextByteSensorActivate[1] = (byte) numberSensor;
         return TextByteSensorActivate;
     }
-
     private byte[] CompileMassegeCurentSettingsAndInvert (int Curent, byte Invert) {
         TextByteTreegCurentSettingsAndInvert[0] = 0x0B;
         TextByteTreegCurentSettingsAndInvert[1] = (byte) Curent;
@@ -1518,25 +1507,21 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         TextByteTreegCurentSettingsAndInvert[3] = Invert;
         return TextByteTreegCurentSettingsAndInvert;
     }
-
     private byte[] CompileMessageSetGeneralParcel (byte turningOn){
         TextByteSetGeneralParcel[0] = 0x0C;
         TextByteSetGeneralParcel[1] = turningOn;
         return TextByteSetGeneralParcel;
     }
-
     private byte[] CompileMassegeReadStartParameters () {
         TextByteReadStartParameters[0] = 0x0D;
         TextByteReadStartParameters[1] = 0x00;
         return TextByteReadStartParameters;
     }
-
     private byte[] CompileMassegeBlockMode (byte onBlockMode) {
         TextByteSetBlockMode[0] = 0x0E;
         TextByteSetBlockMode[1] = onBlockMode; // 0x01 on     0x00 off
         return TextByteSetBlockMode;
     }
-
     public byte[] CompileMassegeSwitchGesture(byte openGesture, byte closeGesture) {
         System.err.println("ChatActivity----> укомпановали байт массив");
         TextByteSetSwitchGesture[0] = 0x0F;
@@ -1548,16 +1533,13 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public void TranslateMassegeControlComplexGesture(){
         presenter.onHelloWorld(TextByteTreegControlComplexGesture);
     }
-
     public void TranslateMassegeComplexGestureSettings(){
         presenter.onHelloWorld(TextByteTreegComplexGestureSettings);
     }
-
     public void TranslateMassegeSwitchGesture(){
         System.err.println("ChatActivity----> отправили байт массив");
         presenter.onHelloWorld(TextByteSetSwitchGesture);
     }
-
     private byte[] CompileMassegeRouhness (byte roughness) {
         TextByteSetRouhness[0] = 0x10;
         TextByteSetRouhness[1] = roughness; // 0x01 on     0x00 off

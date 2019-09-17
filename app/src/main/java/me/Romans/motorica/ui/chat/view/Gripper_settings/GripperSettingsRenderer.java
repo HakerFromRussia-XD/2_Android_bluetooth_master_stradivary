@@ -1035,9 +1035,9 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, gray);
-		GLES20.glUniform1i(textureUniformHandle, 1);
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, green);
+		GLES20.glUniform1i(textureUniformHandle, 0);
 		heightMap.render(new int[]{17});
 
 		/** шейдер без цвета */
@@ -1061,9 +1061,9 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, green);
-		GLES20.glUniform1i(textureUniformHandle, 0);
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, gray);
+		GLES20.glUniform1i(textureUniformHandle, 1);
 		heightMap.render(new int[]{18});
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */

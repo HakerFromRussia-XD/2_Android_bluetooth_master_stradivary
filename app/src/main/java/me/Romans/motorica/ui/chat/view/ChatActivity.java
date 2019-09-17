@@ -668,8 +668,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         model[14] = readData("STR2_bezimiannii_part7.obj");
         model[15] = readData("STR2_bezimiannii_part11.obj");
         model[16] = readData("STR2_mizinec_part12.obj");
-        model[17] = readData("STR2_mizinec_part2.obj");
-        model[18] = readData("STR2_mizinec_part5.obj");
+        model[17] = readData("STR2_mizinec_part5.obj");
+        model[18] = readData("STR2_mizinec_part2.obj");
+
 
         for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
             final int finalJ = j;

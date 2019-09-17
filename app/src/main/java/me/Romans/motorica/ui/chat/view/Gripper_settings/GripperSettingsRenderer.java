@@ -1395,111 +1395,11 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		transferFlag = false;
 	}
 
-	private void calculationRayCast () {
-		long time = SystemClock.uptimeMillis() % 10000L;
-		float angleInDegrees = (360.0f / 5000.0f) * ((int) time);
-
-		final int pointMVPMatrixHandle = GLES20.glGetUniformLocation(programPointHandle, "u_MVPMatrix");
-		final int pointPositionHandle = GLES20.glGetAttribLocation(programPointHandle, "a_Position");
-
-		x = (2.0f * X) / width - 1.0f;
-		y = 1.0f - (2.0f * Y) / height;
-		float z = 1.0f;
-		double modul = 0;
-		ray_clip = new float[]{x, y, -1.0f, 1.0f};
-//		System.err.println("**************************************************");
-//		System.err.println("ray_clip= "+ray_clip[0]+" "+ray_clip[1]+" "+ray_clip[2]+" "+ray_clip[3]);
-//		System.err.println(".");
-//		System.err.println("projectionMatrix=\n"+projectionMatrix[0]+" "+projectionMatrix[1]+" "+projectionMatrix[2]+" "+projectionMatrix[3]+"\n"
-//				+projectionMatrix[4]+" "+projectionMatrix[5]+" "+projectionMatrix[6]+" "+projectionMatrix[7]+"\n"
-//				+projectionMatrix[8]+" "+projectionMatrix[9]+" "+projectionMatrix[10]+" "+projectionMatrix[11]+"\n"
-//				+projectionMatrix[12]+" "+projectionMatrix[13]+" "+projectionMatrix[14]+" "+projectionMatrix[15]);
-		Matrix.invertM(inversProjectionMatrix, 0, projectionMatrix, 0);
-//		System.err.println(".");
-//		System.err.println("inversProjectionMatrix=\n"+inversProjectionMatrix[0]+" "+inversProjectionMatrix[1]+" "+inversProjectionMatrix[2]+" "+inversProjectionMatrix[3]+"\n"
-//				+inversProjectionMatrix[4]+" "+inversProjectionMatrix[5]+" "+inversProjectionMatrix[6]+" "+inversProjectionMatrix[7]+"\n"
-//				+inversProjectionMatrix[8]+" "+inversProjectionMatrix[9]+" "+inversProjectionMatrix[10]+" "+inversProjectionMatrix[11]+"\n"
-//				+inversProjectionMatrix[12]+" "+inversProjectionMatrix[13]+" "+inversProjectionMatrix[14]+" "+inversProjectionMatrix[15]);
-		ray_eye = new float[4];
-		Matrix.multiplyMV(ray_eye, 0, inversProjectionMatrix, 0, ray_clip, 0);
-//		System.err.println(".");
-		ray_eye[2] = -1.0f;
-		ray_eye[3] = 0.0f;
-//		System.err.println("ray_eye= "+ray_eye[0]+" "+ray_eye[1]+" "+ray_eye[2]+" "+ray_eye[3]);
-//		System.err.println(".");
-//		System.err.println("viewMatrix=\n"+viewMatrix[0]+" "+viewMatrix[1]+" "+viewMatrix[2]+" "+viewMatrix[3]+"\n"
-//				+viewMatrix[4]+" "+viewMatrix[5]+" "+viewMatrix[6]+" "+viewMatrix[7]+"\n"
-//				+viewMatrix[8]+" "+viewMatrix[9]+" "+viewMatrix[10]+" "+viewMatrix[11]+"\n"
-//				+viewMatrix[12]+" "+viewMatrix[13]+" "+viewMatrix[14]+" "+viewMatrix[15]);
-		Matrix.invertM(inversViewMatrix, 0, viewMatrix, 0);
-//		System.err.println(".");
-//		System.err.println("inversViewMatrix=\n"+inversViewMatrix[0]+" "+inversViewMatrix[1]+" "+inversViewMatrix[2]+" "+inversViewMatrix[3]+"\n"
-//				+inversViewMatrix[4]+" "+inversViewMatrix[5]+" "+inversViewMatrix[6]+" "+inversViewMatrix[7]+"\n"
-//				+inversViewMatrix[8]+" "+inversViewMatrix[9]+" "+inversViewMatrix[10]+" "+inversViewMatrix[11]+"\n"
-//				+inversViewMatrix[12]+" "+inversViewMatrix[13]+" "+inversViewMatrix[14]+" "+inversViewMatrix[15]);
-		ray_wor = new float[4];
-		Matrix.multiplyMV(ray_wor, 0, inversViewMatrix, 0, ray_eye, 0);
-		ray_wor = new float[]{ray_wor[0], ray_wor[1], ray_wor[2]};
-//		System.err.println(".");
-//		System.err.println("not normalize ray_wor3= "+ray_wor3[0]+" "+ray_wor3[1]+" "+ray_wor3[2]);
-		/** нормализация вектора ray_wor3*/
-		modul = Math.sqrt(ray_wor[0]*ray_wor[0]+ray_wor[1]*ray_wor[1]+ray_wor[2]*ray_wor[2]);
-		ray_wor[0] = (float) (ray_wor[0]/modul);
-		ray_wor[1] = (float) (ray_wor[1]/modul);
-		ray_wor[2] = (float) (ray_wor[2]/modul);
-//		System.err.println(".");
-//		System.err.println("ray_wor3= "+ray_wor[0]+" "+ray_wor[1]+" "+ray_wor[2]);
-
-		cameraPosition = new float[4];
-		Matrix.multiplyMV(cameraPosition, 0, inversViewMatrix, 0, new float[]{0.0f, 0.0f, 0.0f, 1.0f}, 0);
-		cameraPosition = new float[]{cameraPosition[0],cameraPosition[1], cameraPosition[2]};
-//		System.err.println(".");
-//		System.err.println("cameraPosition= "+cameraPosition[0]+" "+cameraPosition[1]+" "+cameraPosition[2]);
-
-		normalVector = new float[]{0.0f, 0.0f, 1.0f};
-
-		/** ищем скалрное произведение camerPosition на normalVector*/
-		float t = dotProduct(cameraPosition, normalVector)/dotProduct(ray_wor, normalVector);
-//		System.err.println(".");
-//		System.err.println("t= "+t);
-
-		float[] result = new float[3];
-		result[0] = cameraPosition[0] - ray_wor[0]*t;
-		result[1] = cameraPosition[1] - ray_wor[1]*t;
-		result[2] = cameraPosition[2] - ray_wor[2]*t;
-//		System.err.println(".");
-//		System.err.println("result= "+result[0]+" "+result[1]+" "+result[2]);
-
-		Matrix.setIdentityM(modelMatrix, 0);
-		Matrix.translateM(modelMatrix, 0, result[0], result[1], result[2]);//result[0], result[1], result[2]
-
-		// Since we are not using a buffer object, disable vertex arrays for this attribute.
-		GLES20.glDisableVertexAttribArray(pointPositionHandle);
-
-		// Pass in the transformation matrix.
-		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
-		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(pointMVPMatrixHandle, 1, false, mvpMatrix, 0);
-
-		// Draw the point.
-		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 1);
-	}
-
-	public float dotProduct (float[] Vector1, float[] Vector2){
-		float result;
-		result = Vector1[0]*Vector2[0]+Vector1[1]*Vector2[1]+ Vector1[2]*Vector2[2];
-		return result;
-	}
-
 	class HeightMap {
 		final int[] vbo = new int[MAX_NUMBER_DETAILS];
 		final int[] ibo = new int[MAX_NUMBER_DETAILS];
 
 		int indexCount;
-
-		public int iterator = 0;
-		private Thread[] threadFanction = new Thread[MAX_NUMBER_DETAILS];
 		private int i = 0;
 
 		void loader(int offset) {

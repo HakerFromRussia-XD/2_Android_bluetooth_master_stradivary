@@ -64,7 +64,7 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void pairedItemClick(int position) {
-        BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(interactor.getPairedDevices().get(position).split(" ")[0])-1);
+        BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(interactor.getPairedDevices().get(position).split(":")[1])-1);
         view.navigateToChat("device", device);
         ChatActivity chatActivity = new ChatActivity();
         if( device.getName().split("-")[0].equals("MLT") ||
@@ -75,17 +75,17 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("FNS")) {
             //TODO  переписать на фолс
             chatActivity.typeOfVersion = false; //false - многосхват
-//            view.showToast("многосхватная версия 1");
         }
         if( device.getName().split("-")[0].equals("STR") ||
             device.getName().split("-")[0].equals("CBY") ||
             device.getName().split("-")[0].equals("HND") ||
+            device.getName().split("-")[0].equals("IND") ||
             device.getName().split(" ")[0].equals("STR") ||
             device.getName().split(" ")[0].equals("CBY") ||
             device.getName().split(" ")[0].equals("HND") ||
+            device.getName().split(" ")[0].equals("IND") ||
             device.getName().equals("ASUS")){
             chatActivity.typeOfVersion = true; //true - односхват
-//            view.showToast("односхватная версия 1");
         }
     }
 

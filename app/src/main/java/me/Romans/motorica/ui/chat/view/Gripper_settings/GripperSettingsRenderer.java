@@ -235,14 +235,14 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-//		GLES20.glEnable(GLES20.GL_COLOR_BUFFER_BIT);
+		GLES20.glEnable(GLES20.GL_COLOR_BUFFER_BIT);
 
 		// Position the eye in front of the origin.
 		final float eyeX = 0.0f;
 		final float eyeY = 0.0f;
 		final float eyeZ = 140.0f;
 
-		// We are looking toward the distance (бесполезная хрень, не на что невлияет)
+		// We are looking toward the distance (бесполезная хрень, не на что не влияет)
 		final float lookX = 0.0f;
 		final float lookY = 0.0f;
 		final float lookZ = 0.0f;
@@ -1372,6 +1372,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
 			System.err.println("GripperSettingsRender--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);
 			chatActivity.transferFinger1Static(angleLittleFingerTransfer);
+//			System.err.println("GripperSettingsRender--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){
 			System.err.println("GripperSettingsRender--------> angleRingFingerTransfer: "+ angleRingFingerTransfer);
@@ -1401,7 +1402,6 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 
 		int indexCount;
 		private int i = 0;
-
 		void loader(int offset) {
 			try {
 				GLES20.glGenBuffers(MAX_NUMBER_DETAILS, vbo, 0);

@@ -88,18 +88,20 @@ public class ScanInteractorImpl implements ScanInteractor {
                 device.getName().split("-")[0].equals("STR") ||
                 device.getName().split("-")[0].equals("CBY") ||
                 device.getName().split("-")[0].equals("HND") ||
+                device.getName().split("-")[0].equals("IND") ||
                 device.getName().split(" ")[0].equals("STR") ||
                 device.getName().split(" ")[0].equals("CBY") ||
                 device.getName().split(" ")[0].equals("HND") ||
+                device.getName().split(" ")[0].equals("IND") ||
                 device.getName().equals("ASUS")){
-                    items.add(position+1+" "+device.getName());//device.getAddress()+" : "+
+                items.add(device.getName()+":"+(position+1));//device.getAddress()+" : "+
             } else {
                 items.add(".");
             }
             position++;
         }
         for (int i = 0; i < items.size(); i++) {
-             if(items.get(i).equals(".")){
+             if(items.get(i).equals(".") || items.get(i).equals(".\n") || items.get(i).equals(".\r") || items.get(i).equals(".\n\r") || items.get(i).equals(".\r\n")){
                  items.remove(i);
              }
         }

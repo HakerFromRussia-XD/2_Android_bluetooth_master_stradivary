@@ -80,6 +80,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @BindView(R.id.seekBarRoughness) SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) Switch switchInvert;
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
+    public TextView textSpeedFinger;
     @BindView(R.id.valueStatus) TextView valueStatus;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
     @BindView(R.id.valueCH2on) TextView valueCH2on;
@@ -130,13 +131,13 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public byte[] TextByteSetSwitchGesture = new byte [3];
     public byte[] TextByteSetRouhness = new byte [2];
 //    for graph
-    public int receiveСurrent = 0;
-    public int receiveLevelTrigCH1 = 0;
-    public int receiveLevelTrigCH2 = 0;
-    public int lastReceiveLevelCH1Chat;
-    public int lastReceiveLevelCH2Chat;
-    public byte receiveIndicationInvertMode = 0;
-    public byte receiveBlockIndication = 0;
+    private int receiveСurrent = 0;
+    private int receiveLevelTrigCH1 = 0;
+    private int receiveLevelTrigCH2 = 0;
+    private int lastReceiveLevelCH1Chat;
+    private int lastReceiveLevelCH2Chat;
+    private byte receiveIndicationInvertMode = 0;
+    private byte receiveBlockIndication = 0;
     private boolean firstSetStartParametersFlag = true;
     private boolean isSetStartParametersActivityActiveFlag = false;
     public Thread delayThread;
@@ -183,7 +184,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public Thread[] threadFanction = new Thread[MAX_NUMBER_DETAILS];
 //	  for transfer
     private byte numberFinger;
-    private int SPEED = 98;
+    public int speedFinger = 0;
+    public int lastSpeedFinger = 0;
+    public int SPEED = 98;
     private static int intValueFinger1Angle = 0;
     private static int intValueFinger2Angle = 0;
     private static int intValueFinger3Angle = 0;
@@ -263,6 +266,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             activity_chat_gesture2 = findViewById(R.id.activity_chat_gesture2);
             activity_chat_gesture3 = findViewById(R.id.activity_chat_gesture3);
             activity_chat_gesture4 = findViewById(R.id.activity_chat_gesture4);
+            textSpeedFinger = findViewById(R.id.textSpeedFinger);
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -1267,7 +1271,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 break;
         }
     }
-
     @Override
     public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
         receiveСurrentChat = new Integer(receiveСurrent);
@@ -1289,7 +1292,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 //        System.out.println("ChatActivity----> Indication State:"+ receiveIndicationStateChat);
 //        System.out.println("ChatActivity----> Battery Tension:"+ receiveBatteryTensionChat);
     }
-
     @Override
     public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication) {
         this.receiveСurrent = receiveСurrent;
@@ -1313,11 +1315,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 //                switchBlockMode.setChecked(false);
             }
     }
-
     @Override
     public void setErrorReception (boolean incomeErrorReception) {
         errorReception = incomeErrorReception;
     }
+
+
     @Override
     public void appendMessage(String message) {
         String str = message + " C-->" + i;//messages.getText()+"\n"+
@@ -1529,6 +1532,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         TextByteSetSwitchGesture[2] = closeGesture;
         return TextByteSetSwitchGesture;
     }
+    private byte[] CompileMassegeRouhness (byte roughness) {
+        TextByteSetRouhness[0] = 0x10;
+        TextByteSetRouhness[1] = roughness; // 0x01 on     0x00 off
+        return TextByteSetRouhness;
+    }
 
     public void TranslateMassegeControlComplexGesture(){
         presenter.onHelloWorld(TextByteTreegControlComplexGesture);
@@ -1539,11 +1547,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public void TranslateMassegeSwitchGesture(){
         System.err.println("ChatActivity----> отправили байт массив");
         presenter.onHelloWorld(TextByteSetSwitchGesture);
-    }
-    private byte[] CompileMassegeRouhness (byte roughness) {
-        TextByteSetRouhness[0] = 0x10;
-        TextByteSetRouhness[1] = roughness; // 0x01 on     0x00 off
-        return TextByteSetRouhness;
     }
 
 
@@ -1577,27 +1580,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         presenter.disconnect();
     }
 
-    public void setInfinitAction () {
-        if (infinitAction){
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (stateIsOpen){
-                        int numberSensor = 0x06;
-                        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
-                        stateIsOpen = false;
-                        setInfinitAction ();
-                    } else {
-                        int numberSensor = 0x07;
-                        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
-                        stateIsOpen = true;
-                        setInfinitAction ();
-                    }
-                }
-            }, 3000);
-        } else {}
-    }
-
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
 
@@ -1605,7 +1587,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 
     @Override
     public void onGestureClick(int position) {
-        final BluetoothDevice device = getIntent().getExtras().getParcelable("device");
         switch (position){
             case 0:
                 if(firstTapRcyclerView) {

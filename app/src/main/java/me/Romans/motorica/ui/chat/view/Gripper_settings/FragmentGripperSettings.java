@@ -10,7 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.Romans.motorica.MyApp;
 import me.Romans.motorica.R;
@@ -21,6 +24,8 @@ import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentGripperSettings extends Fragment implements ChatView {
     Button gripper_use;
+    SeekBar seekBarSpeedFinger;
+
 
     public View view;
     private ChatActivity chatActivity;
@@ -40,6 +45,7 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
         if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
 
         gripper_use = view.findViewById(R.id.gripper_use);
+        seekBarSpeedFinger = view.findViewById(R.id.seekBarSpeedFinger);
         glSurfaceView = view.findViewById(R.id.gl_surface_view);
         final ActivityManager activityManager = (ActivityManager) chatActivity.getSystemService(Context.ACTIVITY_SERVICE);
         final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
@@ -68,6 +74,23 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
                     chatActivity.firstTapRcyclerView = true;
                     chatActivity.transferThreadFlag = false;
                 }
+            }
+        });
+        seekBarSpeedFinger.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (getActivity() != null) {
+                    chatActivity = (ChatActivity) getActivity();
+                    chatActivity.textSpeedFinger.setText(seekBarSpeedFinger.getProgress());
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
         return view;

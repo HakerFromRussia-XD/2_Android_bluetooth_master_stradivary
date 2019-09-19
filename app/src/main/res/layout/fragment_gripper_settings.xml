@@ -15,14 +15,53 @@
         android:layout_gravity="bottom|center_horizontal"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/activity_horizontal_margin"
+            android:layout_gravity="bottom|center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="#FFFFFFFF"
+                android:text="скорость: "/>
+            <TextView
+                android:id="@+id/textSpeedFinger"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="#FFFFFFFF"
+                android:gravity="center"
+                android:text="100"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="#FFFFFFFF"
+                android:gravity="center"
+                android:text="%"/>
+            <SeekBar
+                android:id="@+id/seekBarSpeedFinger"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:progressDrawable="@drawable/track"
+                android:thumb="@drawable/thumb_invisible"
+                android:progress="100"
+                android:isScrollContainer="true">
+            </SeekBar>
+        </LinearLayout>
+
         <Button
             android:id="@+id/gripper_use"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="0dp"
             android:text="Сохранить"
             android:layout_gravity="center"
+            android:textColor="#FFFFFFFF"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:visibility="visible" />
     </LinearLayout>
 <!--    <androidx.constraintlayout.widget.ConstraintLayout-->

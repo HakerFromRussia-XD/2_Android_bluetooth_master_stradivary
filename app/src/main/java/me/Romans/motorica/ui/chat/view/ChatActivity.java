@@ -65,6 +65,7 @@ import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings3;
 import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
+import me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettingsRenderer;
 
 /**
  * Created by Omar on 20/12/2017.
@@ -80,7 +81,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @BindView(R.id.seekBarRoughness) SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) Switch switchInvert;
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
-    public TextView textSpeedFinger;
+//    TextView textSpeedFinger;
     @BindView(R.id.valueStatus) TextView valueStatus;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
     @BindView(R.id.valueCH2on) TextView valueCH2on;
@@ -215,6 +216,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public byte[] TextByteTreegControl = new byte[6];
     public boolean transferThreadFlag = false;
     public Thread transferThread;
+    public enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5};
+    public static SelectStation selectStation;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -266,7 +269,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             activity_chat_gesture2 = findViewById(R.id.activity_chat_gesture2);
             activity_chat_gesture3 = findViewById(R.id.activity_chat_gesture3);
             activity_chat_gesture4 = findViewById(R.id.activity_chat_gesture4);
-            textSpeedFinger = findViewById(R.id.textSpeedFinger);
+//            textSpeedFinger = findViewById(R.id.textSpeedFinger);
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -477,7 +480,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 roughness = (byte) seekBar.getProgress();
-                presenter.onHelloWorld(CompileMassegeRouhness(roughness));
+                presenter.onHelloWorld(CompileMassegeRouhness((byte) (roughness + 1)));
             }
         });
 
@@ -995,6 +998,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             @Override
             public void run() {
                 while (transferThreadFlag){
+                    if(lastSpeedFinger != speedFinger && isEnable){
+                        System.err.println("ChatActivity--------> speedFinger: "+ speedFinger);
+                        lastSpeedFinger = speedFinger;
+                    }
                     if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
                         numberFinger = 0x01;
                         CompileMassegeSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed);
@@ -1318,6 +1325,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @Override
     public void setErrorReception (boolean incomeErrorReception) {
         errorReception = incomeErrorReception;
+    }
+    public void setTextSpeedFinger(String speedFinger){
+//        fragmentGripperSettings.textSpeedFinger.setText(speedFinger);
+//        textSpeedFinger.setText(speedFinger);
     }
 
 

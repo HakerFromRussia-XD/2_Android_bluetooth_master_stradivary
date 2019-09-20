@@ -25,6 +25,7 @@ import me.Romans.motorica.ui.chat.view.ChatView;
 public class FragmentGripperSettings extends Fragment implements ChatView {
     Button gripper_use;
     SeekBar seekBarSpeedFinger;
+    public TextView textSpeedFinger;
 
 
     public View view;
@@ -46,6 +47,8 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
 
         gripper_use = view.findViewById(R.id.gripper_use);
         seekBarSpeedFinger = view.findViewById(R.id.seekBarSpeedFinger);
+        textSpeedFinger = view.findViewById(R.id.textSpeedFinger);
+//        textSpeedFinger.setText(""+90);
         glSurfaceView = view.findViewById(R.id.gl_surface_view);
         final ActivityManager activityManager = (ActivityManager) chatActivity.getSystemService(Context.ACTIVITY_SERVICE);
         final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
@@ -79,10 +82,10 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
         seekBarSpeedFinger.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (getActivity() != null) {
-                    chatActivity = (ChatActivity) getActivity();
-                    chatActivity.textSpeedFinger.setText(seekBarSpeedFinger.getProgress());
-                }
+                if(seekBarSpeedFinger.getProgress() < 10){textSpeedFinger.setText("0"+seekBarSpeedFinger.getProgress());}
+                else {textSpeedFinger.setText(""+seekBarSpeedFinger.getProgress());}
+//                System.err.println("FragmentGripperSettings--------> Progress: "+seekBarSpeedFinger.getProgress());
+//                chatActivity.setSpeedFinger(seekBarSpeedFinger.getProgress());
             }
 
             @Override
@@ -91,6 +94,7 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                chatActivity.speedFinger = seekBarSpeedFinger.getProgress();
             }
         });
         return view;

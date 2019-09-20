@@ -906,7 +906,7 @@
                 android:layout_toEndOf="@+id/textView24"
                 android:layout_toRightOf="@+id/textView24"
                 android:indeterminate="false"
-                android:max="32"
+                android:max="31"
                 android:progress="13"
                 android:progressDrawable="@drawable/track"
                 android:thumb="@drawable/thumb" />

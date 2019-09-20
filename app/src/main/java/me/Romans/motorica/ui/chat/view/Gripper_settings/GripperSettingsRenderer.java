@@ -390,12 +390,12 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		if (selectFlag){
-			if (selectObject() == 51){ selectStation = SelectStation.UNSELECTED_OBJECT; }
-			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; }
-			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; }
-			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; }
-			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; }
-			if (selectObject() == 5){ selectStation = SelectStation.SELECT_FINGER_5; }
+			if (selectObject() == 51){ selectStation = SelectStation.UNSELECTED_OBJECT; ChatActivity.selectStation = ChatActivity.SelectStation.UNSELECTED_OBJECT; }
+			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; ChatActivity.selectStation = ChatActivity.SelectStation.SELECT_FINGER_1;}
+			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; ChatActivity.selectStation = ChatActivity.SelectStation.SELECT_FINGER_2;}
+			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; ChatActivity.selectStation = ChatActivity.SelectStation.SELECT_FINGER_3;}
+			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; ChatActivity.selectStation = ChatActivity.SelectStation.SELECT_FINGER_4;}
+			if (selectObject() == 5){ selectStation = SelectStation.SELECT_FINGER_5; ChatActivity.selectStation = ChatActivity.SelectStation.SELECT_FINGER_5;}
 			System.err.println(selectStation);
 		}
 		if(transferFlag){

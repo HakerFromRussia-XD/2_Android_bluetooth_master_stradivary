@@ -31,6 +31,7 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -109,18 +110,19 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     private int intValueCH2on = 2500;
     private int intValueCH2off = 100;
     private int intValueCH2sleep = 200;
+    public int curent = 0x00;
+    private int i = 0;
     private byte indicatorTypeMessage;
     private byte numberChannel;
     public byte invert = 0x00;
     public byte block = 0x00;
     public byte roughness = 0x00;
-    public int curent = 0x00;
     public boolean isEnable = false;
     public boolean infinitAction = false;
     public boolean firstTapRcyclerView = true;
     public boolean stateIsOpen = false;
     public boolean errorReception = false;
-    private int i = 0;
+    public static String deviceName;
     public int multiplierSeekbar = 14;
     public byte[] TextByteTreeg = new byte[8];
     public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
@@ -265,6 +267,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             navigation = findViewById(R.id.navigation);
             navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
             heightBottomNavigation = pxFromDp(48);
+            //TODO настройка тока в многосхватной версии возвращённая для Зайцева. Обсудить её судьбу
+            //TODO по возвращении Игоря при проектировании сервисного меню
+//            valueIstop2 = findViewById(R.id.valueIstop2);
+//            valueIstop = findViewById(R.id.valueIstop);
+//            seekBarIstop = findViewById(R.id.seekBarIstop);
+
             activity_chat_gesture1 = findViewById(R.id.activity_chat_gesture1);
             activity_chat_gesture2 = findViewById(R.id.activity_chat_gesture2);
             activity_chat_gesture3 = findViewById(R.id.activity_chat_gesture3);
@@ -272,7 +280,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 //            textSpeedFinger = findViewById(R.id.textSpeedFinger);
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
+        getSupportActionBar().setSubtitle(deviceName);
+        
         final float scale = getResources().getDisplayMetrics().density;
 
         limit_1 = findViewById(R.id.limit_1);
@@ -536,23 +545,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             }
         });
 
-//        helloWorld2.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                int numberSensor = 0x07;
-//                presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
-//                addEntry(20);
-//                addEntry2(2500);
-//            }
-//        });
-
         helloWorld2.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     lastReceiveLevelCH1Chat = receiveLevelCH1Chat;
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
-                    System.err.println("ChatActivity--------> lastReceiveLevelCH2Chat "+lastReceiveLevelCH2Chat);
                     int numberSensor = 0x07;
                     presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     receiveLevelCH1Chat = 20;
@@ -560,7 +558,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 }
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    System.err.println("ChatActivity--------> lastReceiveLevelCH2Chat "+lastReceiveLevelCH2Chat);
                     int numberSensor = 0x08;
                     presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
@@ -576,7 +573,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     lastReceiveLevelCH1Chat = receiveLevelCH1Chat;
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
-                    System.err.println("ChatActivity--------> lastReceiveLevelCH2Chat "+lastReceiveLevelCH2Chat);
                     int numberSensor = 0x06;
                     presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     receiveLevelCH1Chat = 2500;
@@ -584,7 +580,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 }
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    System.err.println("ChatActivity--------> lastReceiveLevelCH2Chat "+lastReceiveLevelCH2Chat);
                     int numberSensor = 0x08;
                     presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
@@ -595,7 +590,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         });
 
         if(!typeOfVersion){
-            //односхватная версия
+            //многосхватная версия
             activity_chat_gesture1.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
@@ -624,7 +619,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 }
             });
         } else {
-            //многосхватная версия
+            //односхватная версия
             seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -644,6 +639,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 }
             });
         }
+        //TODO возращены настройки токов в многосхватную версию
+
 
         presenter.onCreate(getIntent());
 
@@ -693,6 +690,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             });
             threadFanction[j].start();
         }
+        ////////////////////////////////////////////////
     }
 
     public String[] readData(String fileName) {
@@ -998,12 +996,23 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             @Override
             public void run() {
                 while (transferThreadFlag){
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger1Speed);}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger2Speed);}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger3Speed);}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger4Speed);}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger5Speed);}
                     if(lastSpeedFinger != speedFinger && isEnable){
                         System.err.println("ChatActivity--------> speedFinger: "+ speedFinger);
+                        if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){}
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){intValueFinger1Speed = speedFinger;}
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){intValueFinger2Speed = speedFinger;}
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){intValueFinger3Speed = speedFinger;}
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){intValueFinger4Speed = speedFinger;}
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){intValueFinger5Speed = speedFinger;}
                         lastSpeedFinger = speedFinger;
                     }
                     if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
-                        numberFinger = 0x01;
+                        numberFinger = 1;
                         CompileMassegeSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed);
                         presenter.onHelloWorld(TextByteTreegSettings);
                         try {
@@ -1015,7 +1024,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     }
                     if(intValueFinger2AngleLast != intValueFinger2Angle && isEnable){
 //                        System.err.println("ChatActivity--------> angleRingFingerTransfer: "+ intValueFinger2Angle);
-                        numberFinger = 0x02;
+                        numberFinger = 2;
                         CompileMassegeSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed);
                         presenter.onHelloWorld(TextByteTreegSettings);
                         try {
@@ -1027,7 +1036,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     }
                     if(intValueFinger3AngleLast != intValueFinger3Angle && isEnable){
 //                        System.err.println("ChatActivity--------> angleMiddleFingerTransfer: "+ intValueFinger3Angle);
-                        numberFinger = 0x03;
+                        numberFinger = 3;
                         CompileMassegeSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed);
                         presenter.onHelloWorld(TextByteTreegSettings);
                         try {
@@ -1039,7 +1048,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     }
                     if(intValueFinger4AngleLast != intValueFinger4Angle && isEnable){
 //                        System.err.println("ChatActivity--------> angleForeFingerTransfer: "+ intValueFinger4Angle);
-                        numberFinger = 0x04;
+                        numberFinger = 4;
                         CompileMassegeSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed);
                         presenter.onHelloWorld(TextByteTreegSettings);
                         try {
@@ -1051,7 +1060,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     }
                     if((intValueFinger5AngleLast != intValueFinger5Angle && isEnable)||(intValueFinger6AngleLast != intValueFinger6Angle && isEnable)){
 //                        System.err.println("ChatActivity--------> angleBigFingerTransfer1: "+ intValueFinger5Angle);
-                        numberFinger = 0x05;
+                        numberFinger = 5;
                         CompileMassegeSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed);
                         presenter.onHelloWorld(TextByteTreegSettings);
                         try {
@@ -1064,7 +1073,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                             Thread.sleep(delay);
                         }catch (Exception e){}
 //                        System.err.println("ChatActivity--------> angleBigFingerTransfer2: "+ intValueFinger6Angle);
-                        numberFinger = 0x06;
+                        numberFinger = 6;
                         CompileMassegeSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed);
                         presenter.onHelloWorld(TextByteTreegSettings);
                         try {
@@ -1286,18 +1295,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         receiveIndicationStateChat = new Byte(receiveIndicationState);
         receiveBatteryTensionChat = new Integer(receiveBatteryTension);
 
+        //TODO возращены настройки токов в многосхватную версию
         if(typeOfVersion){valueIstop2.setText(String.valueOf(receiveСurrentChat));}
-        valueBatteryTension.setText(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10); //(receiveBatteryTensionChat%1000)/10 удаление знаков после запятой(показания напряжения)
+//        valueIstop2.setText(String.valueOf(receiveСurrentChat));
+        valueBatteryTension.setText(""+receiveBatteryTensionChat); //(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10) удаление знаков после запятой(показания напряжения)
         if (receiveIndicationStateChat == 0){valueStatus.setText("покой"); imageViewStatus.setImageResource(R.drawable.sleeping);}
         if (receiveIndicationStateChat == 1){valueStatus.setText("закрытие"); imageViewStatus.setImageResource(R.drawable.closing);}
         if (receiveIndicationStateChat == 2){valueStatus.setText("открытие"); imageViewStatus.setImageResource(R.drawable.opening);}
         if (receiveIndicationStateChat == 3){valueStatus.setText("блок"); imageViewStatus.setImageResource(R.drawable.block);}
-
-//        System.out.println("ChatActivity----> Сurrent:"+ receiveСurrentChat);
-//        System.out.println("ChatActivity----> Level CH1:"+ receiveLevelCH1Chat);
-//        System.out.println("ChatActivity----> Level CH2:"+ receiveLevelCH2Chat);
-//        System.out.println("ChatActivity----> Indication State:"+ receiveIndicationStateChat);
-//        System.out.println("ChatActivity----> Battery Tension:"+ receiveBatteryTensionChat);
     }
     @Override
     public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication) {
@@ -1326,10 +1331,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public void setErrorReception (boolean incomeErrorReception) {
         errorReception = incomeErrorReception;
     }
-    public void setTextSpeedFinger(String speedFinger){
-//        fragmentGripperSettings.textSpeedFinger.setText(speedFinger);
-//        textSpeedFinger.setText(speedFinger);
-    }
+
 
 
     @Override
@@ -1457,6 +1459,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         y1_2.setAxisMinimum(-100f);
         y1_2.setGridColor(Color.BLACK);
         y1_2.setDrawGridLines(false);
+    }
+
+    public void GetPosition_My (BluetoothDevice device){
+        deviceName = device.getName();
     }
 
     private byte[] CompileMassegeSettings(byte numberFinger, int intValueFingerAngle, int intValueFingerSpeed){

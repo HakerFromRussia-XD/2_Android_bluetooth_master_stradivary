@@ -65,8 +65,9 @@ public class ScanPresenterImpl implements ScanPresenter{
     @Override
     public void pairedItemClick(int position) {
         BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(interactor.getPairedDevices().get(position).split(":")[1])-1);
-        view.navigateToChat("device", device);
         ChatActivity chatActivity = new ChatActivity();
+        chatActivity.GetPosition_My(device);
+        view.navigateToChat("device", device);
         if( device.getName().split("-")[0].equals("MLT") ||
             device.getName().split("-")[0].equals("FNG") ||
             device.getName().split("-")[0].equals("FNS") ||

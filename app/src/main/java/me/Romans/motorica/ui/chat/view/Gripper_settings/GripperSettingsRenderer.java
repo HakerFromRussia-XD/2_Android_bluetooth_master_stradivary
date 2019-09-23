@@ -382,7 +382,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		final float bottom = -1.0f;
 		final float top = 1.0f;
 		final float near = 1.0f;
-		final float far = 200.0f;//2000
+		final float far = 300.0f;//2000
 
 		Matrix.frustumM(projectionMatrix, 0, left, right, bottom, top, near, far);
 	}

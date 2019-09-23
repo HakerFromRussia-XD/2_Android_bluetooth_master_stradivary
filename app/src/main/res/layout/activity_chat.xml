@@ -955,7 +955,7 @@
                 android:layout_toEndOf="@+id/textView13"
                 android:layout_toRightOf="@+id/textView13"
                 android:indeterminate="false"
-                android:max="31"
+                android:max="32"
                 android:progress="13"
                 android:progressDrawable="@drawable/track"
                 android:thumb="@drawable/thumb" />
@@ -1113,6 +1113,7 @@
             android:clipToPadding="true"
             android:visibility="visible"></android.support.v7.widget.RecyclerView>
     </RelativeLayout>
+
     <FrameLayout
         android:id="@+id/view_pager"
         android:layout_width="match_parent"

@@ -100,6 +100,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     Button activity_chat_gesture4;
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
+    @BindView(R.id.imageViewStatusOpen) ImageView imageViewStatusOpen;
+    @BindView(R.id.imageViewStatusClose) ImageView imageViewStatusClose;
     @BindView(R.id.borderGray) ImageView borderGray;
     @BindView(R.id.borderGreen) ImageView borderGreen;
     @BindView(R.id.borderRed) ImageView borderRed;
@@ -281,7 +283,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getSupportActionBar().setSubtitle(deviceName);
-        
+
         final float scale = getResources().getDisplayMetrics().density;
 
         limit_1 = findViewById(R.id.limit_1);
@@ -1299,10 +1301,30 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         if(typeOfVersion){valueIstop2.setText(String.valueOf(receiveСurrentChat));}
 //        valueIstop2.setText(String.valueOf(receiveСurrentChat));
         valueBatteryTension.setText(""+receiveBatteryTensionChat); //(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10) удаление знаков после запятой(показания напряжения)
-        if (receiveIndicationStateChat == 0){valueStatus.setText("покой"); imageViewStatus.setImageResource(R.drawable.sleeping);}
-        if (receiveIndicationStateChat == 1){valueStatus.setText("закрытие"); imageViewStatus.setImageResource(R.drawable.closing);}
-        if (receiveIndicationStateChat == 2){valueStatus.setText("открытие"); imageViewStatus.setImageResource(R.drawable.opening);}
-        if (receiveIndicationStateChat == 3){valueStatus.setText("блок"); imageViewStatus.setImageResource(R.drawable.block);}
+        if (receiveIndicationStateChat == 0){
+            valueStatus.setText("покой");
+            imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+            imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+            imageViewStatus.setImageResource(R.drawable.sleeping);
+        }
+        if (receiveIndicationStateChat == 1){
+            valueStatus.setText("закрытие");
+            imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+            imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
+            imageViewStatus.setImageResource(R.drawable.closing);
+        }
+        if (receiveIndicationStateChat == 2){
+            valueStatus.setText("открытие");
+            imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
+            imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+            imageViewStatus.setImageResource(R.drawable.opening);
+        }
+        if (receiveIndicationStateChat == 3){
+            valueStatus.setText("блок");
+            imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+            imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+            imageViewStatus.setImageResource(R.drawable.block);
+        }
     }
     @Override
     public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication) {

@@ -201,6 +201,57 @@
                 android:layout_marginRight="2dp"
                 android:visibility="visible"></com.github.mikephil.charting.charts.LineChart>
 
+            <TextView
+                android:id="@+id/name_graph_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/seekBarCH1on"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="36dp"
+                android:layout_marginLeft="36dp"
+                android:layout_marginTop="0dp"
+                android:text="График разгибателя"
+                android:textColor="#FFFFFFFF"
+                android:textSize="9sp" />
+
+            <ImageView
+                android:id="@+id/imageViewStatusOpen"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_above="@+id/border2"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="7dp"
+                app:srcCompat="@drawable/circle_16_gray" />
+
+            <TextView
+                android:id="@+id/name_graph_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/border2"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="36dp"
+                android:layout_marginLeft="36dp"
+                android:layout_marginTop="-1dp"
+                android:text="График сгибателя"
+                android:textColor="#FFFFFFFF"
+                android:textSize="9sp" />
+
+            <ImageView
+                android:id="@+id/imageViewStatusClose"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_above="@+id/border3"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="7dp"
+                app:srcCompat="@drawable/circle_16_gray" />
 
             <!--<TextView-->
             <!--android:id="@+id/valueCH1off"-->

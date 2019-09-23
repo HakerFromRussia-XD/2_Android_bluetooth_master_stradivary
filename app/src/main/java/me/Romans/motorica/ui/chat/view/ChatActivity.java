@@ -152,6 +152,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public Thread graphThread;
     public boolean graphThreadFlag = false;
     public float iterator = 0;
+    public boolean invertChannel = false;
 //    for general updates
     public int receiveСurrentChat = 0;
     public int receiveLevelCH1Chat = 0;
@@ -524,10 +525,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     System.out.println("Invert mod");
                     invert = 0x01;
                     presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
+                    invertChannel = true;
                 } else {
                     System.out.println("Invert Invert mod");
                     invert = 0x00;
                     presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
+                    invertChannel = false;
                 }
             }
         });
@@ -1278,22 +1281,39 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 
     @Override
     public void setValueCH(int levelCH, int numberChannel) {
-        String strlevelCH = new String(String.valueOf(levelCH));
         Integer numberOfChannel = new Integer(numberChannel);
-        switch (numberOfChannel){
-            case 1:
-                receiveLevelCH1Chat = levelCH;
-                break;
-            case 2:
-                receiveLevelCH2Chat = levelCH;
-                break;
+        System.out.println("ChatActivity----> invertChannel:"+ invertChannel);
+        if (invertChannel){
+            switch (numberOfChannel){
+                case 1:
+                    receiveLevelCH2Chat = levelCH;
+                    break;
+                case 2:
+                    receiveLevelCH1Chat = levelCH;
+                    break;
+            }
+        } else {
+            switch (numberOfChannel){
+                case 1:
+                    receiveLevelCH1Chat = levelCH;
+                    break;
+                case 2:
+                    receiveLevelCH2Chat = levelCH;
+                    break;
+            }
         }
     }
     @Override
     public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
+        System.out.println("ChatActivity----> invertChannel:"+ invertChannel);
+        if (invertChannel){
+            receiveLevelCH1Chat = new Integer(receiveLevelCH2);
+            receiveLevelCH2Chat = new Integer(receiveLevelCH1);
+        } else {
+            receiveLevelCH1Chat = new Integer(receiveLevelCH1);
+            receiveLevelCH2Chat = new Integer(receiveLevelCH2);
+        }
         receiveСurrentChat = new Integer(receiveСurrent);
-        receiveLevelCH1Chat = new Integer(receiveLevelCH1);
-        receiveLevelCH2Chat = new Integer(receiveLevelCH2);
         receiveIndicationStateChat = new Byte(receiveIndicationState);
         receiveBatteryTensionChat = new Integer(receiveBatteryTension);
 

@@ -125,7 +125,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public boolean stateIsOpen = false;
     public boolean errorReception = false;
     public static String deviceName;
-    public int multiplierSeekbar = 14;
+    public double multiplierSeekbar = 13.6363;
     public byte[] TextByteTreeg = new byte[8];
     public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
     public byte[] TextByteTreegMod = new byte[2];
@@ -353,7 +353,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 valueCH1on.setText(String.valueOf(seekBar.getProgress()));
                 limit_sensor_open = seekBar.getProgress();
-                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((240*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
+                objectAnimator = ObjectAnimator.ofFloat(limit_1, "y", ((235*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
                 objectAnimator.setDuration(200);
                 objectAnimator.start();
             }
@@ -366,7 +366,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueCH1on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
-                intValueCH1on = seekBarCH1on.getProgress()*multiplierSeekbar;
+                intValueCH1on = (int) (seekBarCH1on.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x01;
                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -386,7 +386,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 valueCH1on.setText(String.valueOf(seekBar.getProgress()));
                 limit_sensor_open = seekBar.getProgress();
-                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((240*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
+                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((235*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
                 objectAnimator.setDuration(200);
                 objectAnimator.start();
             }
@@ -399,7 +399,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueCH1on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
-                intValueCH1on = seekBarCH1on.getProgress()*multiplierSeekbar;
+                intValueCH1on = (int) (seekBarCH1on.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x01;
                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -419,7 +419,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 valueCH2on.setText(String.valueOf(seekBar.getProgress()));
                 limit_sensor_close = seekBar.getProgress();
-                objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((500*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
+                objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((495*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
                 objectAnimator2.setDuration(200);
                 objectAnimator2.start();
             }
@@ -432,7 +432,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueCH2on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
-                intValueCH2on = seekBarCH2on.getProgress()*multiplierSeekbar;
+                intValueCH2on = (int) (seekBarCH2on.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x02;
                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -452,7 +452,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 valueCH2on.setText(String.valueOf(seekBar.getProgress()));
                 limit_sensor_close = seekBar.getProgress();
-                objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((500*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
+                objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((495*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
                 objectAnimator2.setDuration(200);
                 objectAnimator2.start();
             }
@@ -465,7 +465,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueCH2on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
-                intValueCH2on = seekBarCH2on.getProgress()*multiplierSeekbar;
+                intValueCH2on = (int) (seekBarCH2on.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x02;
                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -1356,8 +1356,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     }
     public void setStartParametersInGraphActivity(){
             if (typeOfVersion){ seekBarIstop.setProgress(receiveСurrent);}
-            seekBarCH1on.setProgress((int) (receiveLevelTrigCH1/(multiplierSeekbar-0.5)));
-            seekBarCH2on.setProgress((int) (receiveLevelTrigCH2/(multiplierSeekbar-0.5)));
+            seekBarCH1on.setProgress((int) (receiveLevelTrigCH1/(multiplierSeekbar-0.25)));//-0.5
+            seekBarCH2on.setProgress((int) (receiveLevelTrigCH2/(multiplierSeekbar-0.25)));//-0.5
             if (receiveIndicationInvertMode == 1){
                 switchInvert.setChecked(true);
             } else {

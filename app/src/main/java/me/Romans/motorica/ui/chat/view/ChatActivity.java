@@ -341,31 +341,20 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         ////////initialized graph for channel 2
         initializedGraphForChannel2();
 
-        TextByteTreeg[2] = (byte) intValueCH1on;
-        TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
-        TextByteTreeg[4] = (byte) intValueCH1off;
-        TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
-        TextByteTreeg[6] = (byte) intValueCH1sleep;
-        TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-
         seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueCH1on.setText(String.valueOf(seekBar.getProgress()));
-                limit_sensor_open = seekBar.getProgress();
-                objectAnimator = ObjectAnimator.ofFloat(limit_1, "y", ((235*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
-                objectAnimator.setDuration(200);
-                objectAnimator.start();
+                intValueCH1on = (int) (seekBarCH1on.getProgress()*multiplierSeekbar);
+                System.err.println("ChatActivity--------> seekBarCH1on : onProgressChanged - intValueCH1on=" + intValueCH1on);
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                valueCH1on.setText(String.valueOf(seekBar.getProgress()));
+                System.err.println("ChatActivity--------> seekBarCH1on : onStartTrackingTouch - intValueCH1on=" + intValueCH1on);
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH1on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
                 intValueCH1on = (int) (seekBarCH1on.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x01;
@@ -378,28 +367,31 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 TextByteTreeg[6] = (byte) intValueCH1sleep;
                 TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
                 presenter.onHelloWorld(TextByteTreeg);
+                System.err.println("ChatActivity--------> seekBarCH1on : onStopTrackingTouch - intValueCH1on=" + intValueCH1on);
                 seekBarCH1on2.setProgress(seekBarCH1on.getProgress());
             }
         });
         seekBarCH1on2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueCH1on.setText(String.valueOf(seekBar.getProgress()));
+                System.err.println("ChatActivity--------> seekBarCH1on : обновление порога СH1");
+                intValueCH1on = (int) (seekBarCH1on2.getProgress()*multiplierSeekbar);
                 limit_sensor_open = seekBar.getProgress();
                 objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((235*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
                 objectAnimator.setDuration(200);
                 objectAnimator.start();
+                System.err.println("ChatActivity--------> seekBarCH1on2 : limit_sensor_open - limit_sensor_open=" + (int)(limit_sensor_open*13.63));
+                System.err.println("ChatActivity--------> seekBarCH1on2 : onProgressChanged - intValueCH1on=" + intValueCH1on);
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                valueCH1on.setText(String.valueOf(seekBar.getProgress()));
+                System.err.println("ChatActivity--------> seekBarCH1on2 : onStartTrackingTouch - intValueCH1on=" + intValueCH1on);
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                valueCH1on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
-                intValueCH1on = (int) (seekBarCH1on.getProgress()*multiplierSeekbar);
+                intValueCH1on = (int) (seekBarCH1on2.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x01;
                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -412,21 +404,19 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
                 presenter.onHelloWorld(TextByteTreeg);
                 seekBarCH1on.setProgress(seekBarCH1on2.getProgress());
+                System.err.println("ChatActivity--------> seekBarCH1on2 : onStopTrackingTouch - intValueCH1on=" + intValueCH1on);
             }
         });
         seekBarCH2on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueCH2on.setText(String.valueOf(seekBar.getProgress()));
-                limit_sensor_close = seekBar.getProgress();
-                objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((495*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
-                objectAnimator2.setDuration(200);
-                objectAnimator2.start();
+                intValueCH2on = (int) (seekBarCH2on.getProgress()*multiplierSeekbar);
+                System.err.println("ChatActivity--------> seekBarCH2on : onProgressChanged - intValueCH2on=" + intValueCH2on);
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                valueCH2on.setText(String.valueOf(seekBar.getProgress()));
+                System.err.println("ChatActivity--------> seekBarCH2on : onStartTrackingTouch - intValueCH2on=" + intValueCH2on);
             }
 
             @Override
@@ -445,27 +435,29 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
                 presenter.onHelloWorld(TextByteTreeg);
                 seekBarCH2on2.setProgress(seekBarCH2on.getProgress());
+                System.err.println("ChatActivity--------> seekBarCH2on : onStopTrackingTouch - intValueCH2on=" + intValueCH2on);
             }
         });
         seekBarCH2on2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueCH2on.setText(String.valueOf(seekBar.getProgress()));
+                intValueCH2on = (int) (seekBarCH2on2.getProgress()*multiplierSeekbar);
                 limit_sensor_close = seekBar.getProgress();
                 objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((495*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
                 objectAnimator2.setDuration(200);
                 objectAnimator2.start();
+                System.err.println("ChatActivity--------> seekBarCH2on2 : onProgressChanged - intValueCH2on=" + intValueCH2on);
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                valueCH2on.setText(String.valueOf(seekBar.getProgress()));
+                System.err.println("ChatActivity--------> seekBarCH2on2 : onStartTrackingTouch - intValueCH2on=" + intValueCH2on);
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 valueCH2on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
-                intValueCH2on = (int) (seekBarCH2on.getProgress()*multiplierSeekbar);
+                intValueCH2on = (int) (seekBarCH2on2.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 numberChannel = 0x02;
                 TextByteTreeg[0] = indicatorTypeMessage;
@@ -478,6 +470,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
                 presenter.onHelloWorld(TextByteTreeg);
                 seekBarCH2on.setProgress(seekBarCH2on2.getProgress());
+                System.err.println("ChatActivity--------> seekBarCH2on2 : onStopTrackingTouch - intValueCH2on=" + intValueCH2on);
             }
         });
         seekBarRoughness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -525,12 +518,18 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     System.out.println("Invert mod");
                     invert = 0x01;
                     presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
-                    invertChannel = true;
+                    seekBarCH1on2.setProgress((int) (intValueCH2on/(multiplierSeekbar-0.1)));//-0.5
+                    seekBarCH2on2.setProgress((int) (intValueCH1on/(multiplierSeekbar-0.1)));//-0.5
+                    System.err.println("тут установка invertChannel");
+//                    invertChannel = true;
                 } else {
                     System.out.println("Invert Invert mod");
                     invert = 0x00;
                     presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
-                    invertChannel = false;
+//                    seekBarCH1on2.setProgress((int) (intValueCH1on/(multiplierSeekbar-0.1)));//-0.5
+//                    seekBarCH2on2.setProgress((int) (intValueCH2on/(multiplierSeekbar-0.1)));//-0.5
+                    System.err.println("тут установка invertChannel");
+//                    invertChannel = false;
                 }
             }
         });
@@ -780,7 +779,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     if (currentLine[2].equals("vertices\r\n")) {//\r
                         coordNumber = Integer.parseInt(currentLine[1]);
                         coordArrey[number] = new float[coordNumber * 3];
-                        System.out.println("Количество вершин: " + coordNumber);
+//                        System.out.println("Количество вершин: " + coordNumber);
                         coordNumber = 0;
                     }
                 } else if (line.startsWith("v ")){
@@ -824,7 +823,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     if(currentLine[2].equals("texture")){
                         texturesNumber = Integer.parseInt(currentLine[1]);
                         texturessArrey[number] = new float[texturesNumber*2];
-                        System.out.println("Количество текстурных координат: " + texturesNumber);
+//                        System.out.println("Количество текстурных координат: " + texturesNumber);
                         texturesNumber = 0;
                     }
                 }else if (line.startsWith("vt ")){
@@ -869,7 +868,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     if (currentLine[2].equals("vertex")) {
                         normalsNumber = Integer.parseInt(currentLine[1]);
                         normalsArrey[number] = new float[normalsNumber * 3];
-                        System.out.println("Количество координат нормалей: " + normalsNumber);
+//                        System.out.println("Количество координат нормалей: " + normalsNumber);
                         normalsNumber = 0;
                     }
                 } else if (line.startsWith("vn ")) {
@@ -919,7 +918,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                         indicesVretices = Integer.parseInt(currentLine[1]);
                         verticesArrey[number] = new float[indicesVretices*12*3];
                         indicesArreyVerteces[number] = new int [indicesVretices*3];
-                        System.out.println("Количество треугольников: " + indicesVretices);
+//                        System.out.println("Количество треугольников: " + indicesVretices);
                         indicesVretices = 0;
                     }
                 } else if (line.startsWith("f ")){
@@ -1282,7 +1281,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @Override
     public void setValueCH(int levelCH, int numberChannel) {
         Integer numberOfChannel = new Integer(numberChannel);
-        System.out.println("ChatActivity----> invertChannel:"+ invertChannel);
+        System.err.println("тут использование invertChannel");
         if (invertChannel){
             switch (numberOfChannel){
                 case 1:
@@ -1305,7 +1304,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     }
     @Override
     public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
-        System.out.println("ChatActivity----> invertChannel:"+ invertChannel);
+        System.err.println("тут использование invertChannel");
         if (invertChannel){
             receiveLevelCH1Chat = new Integer(receiveLevelCH2);
             receiveLevelCH2Chat = new Integer(receiveLevelCH1);
@@ -1349,19 +1348,34 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @Override
     public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication) {
         this.receiveСurrent = receiveСurrent;
-        this.receiveLevelTrigCH1 = receiveLevelTrigCH1;
-        this.receiveLevelTrigCH2 = receiveLevelTrigCH2;
         this.receiveIndicationInvertMode = receiveIndicationInvertMode;
+        if (receiveIndicationInvertMode == 1) {invertChannel=true;} else {invertChannel=false;}
+        System.err.println("тут использование invertChannel 1 "+invertChannel);
+        if(invertChannel) {
+            this.receiveLevelTrigCH1 = receiveLevelTrigCH2;
+            this.receiveLevelTrigCH2 = receiveLevelTrigCH1;
+            intValueCH1on = receiveLevelTrigCH2;
+            intValueCH2on = receiveLevelTrigCH1;
+        } else {
+            this.receiveLevelTrigCH1 = receiveLevelTrigCH1;
+            this.receiveLevelTrigCH2 = receiveLevelTrigCH2;
+            intValueCH1on = receiveLevelTrigCH1;
+            intValueCH2on = receiveLevelTrigCH2;
+        }
+        if (this.receiveLevelTrigCH1 < 14){this.receiveLevelTrigCH1 = 14;}
+        if (this.receiveLevelTrigCH2 < 14){this.receiveLevelTrigCH2 = 14;}
         this.receiveBlockIndication = receiveBlockIndication;
     }
     public void setStartParametersInGraphActivity(){
             if (typeOfVersion){ seekBarIstop.setProgress(receiveСurrent);}
-            seekBarCH1on.setProgress((int) (receiveLevelTrigCH1/(multiplierSeekbar-0.25)));//-0.5
-            seekBarCH2on.setProgress((int) (receiveLevelTrigCH2/(multiplierSeekbar-0.25)));//-0.5
-            if (receiveIndicationInvertMode == 1){
+            seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekbar - 0.25)));//-0.5
+            seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekbar - 0.25)));//-0.5
+            if (invertChannel){
+                System.err.println("включение свича switchInvert");
                 switchInvert.setChecked(true);
             } else {
-//                switchInvert.setChecked(false);
+                System.err.println("выключение свича switchInvert");
+                switchInvert.setChecked(false);
             }
             if (receiveBlockIndication == 1){
                 switchBlockMode.setChecked(true);

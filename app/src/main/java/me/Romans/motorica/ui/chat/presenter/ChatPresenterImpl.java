@@ -17,6 +17,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private ChatInteractor interactor;
     private BluetoothDevice device;
     private int attemptConect = 0;
+    private boolean DEBUG = false;
     private byte aByte[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x01, 0x24} ;
     private byte txtbyteout1[] = {0x4D, 0x54, 0x07, 0x00, 0x01, 0x02, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для отправки порогов сигналов 0x77 заменяемые данные всего 15 байт
     private byte txtbyteout2[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x77, 0x24};                                     //компановка для запроса сигналов на датчиках 0x77 заменяемые данные всего 9 байт
@@ -44,10 +45,10 @@ public class ChatPresenterImpl implements ChatPresenter {
     public void onCreate(Intent intent) {
         if (intent.getExtras() != null) {
             device = intent.getExtras().getParcelable("device");
-            System.out.println("ВАЖНО!!!!!!!!!!!! ДЕВАЙС:" + device);
+            if (DEBUG) {System.out.println("ВАЖНО!!!!!!!!!!!! ДЕВАЙС:" + device);}
             view.enableHWButton(false);
         } else {
-            System.out.println("ПИЗДА!!!!!!!!!!!! ПОСЫЛКИ НЕТ!");
+            if (DEBUG) {System.out.println("ПИЗДА!!!!!!!!!!!! ПОСЫЛКИ НЕТ!");}
         }
     }
 
@@ -82,7 +83,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 ///        }
         switch (txtbyte[0]) {
             case 1: //компановка посылки записи порогов на любой канал
-                System.out.println("номер канала получателя:" + txtbyte[1]);
+                if (DEBUG) {System.out.println("номер канала получателя:" + txtbyte[1]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout1[i + 6] = txtbyte[i];
@@ -90,17 +91,19 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout1);
                 break;
             case 2:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
-                System.out.println("--> номер канала получателя:" + txtbyte[1]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                if (DEBUG) {System.out.println("--> номер канала получателя:" + txtbyte[1]);}
                 txtbyteout2[7] = txtbyte[1];
                 interactor.sendMessageByte(txtbyteout2);
                 break;
             case 3:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
-                System.out.println("--> номер пальца:" + txtbyte[1]);
-                System.out.println("--> значение скорости:" + txtbyte[5]);
-                System.out.println("--> значение угла:" + txtbyte[6]);
-                System.out.println("--> значение CRC:" + txtbyte[7]);
+                if (DEBUG) {
+                    System.out.println("--> тип компановки:" + txtbyte[0]);
+                    System.out.println("--> номер пальца:" + txtbyte[1]);
+                    System.out.println("--> значение скорости:" + txtbyte[5]);
+                    System.out.println("--> значение угла:" + txtbyte[6]);
+                    System.out.println("--> значение CRC:" + txtbyte[7]);
+                }
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout3[i + 6] = txtbyte[i];
@@ -112,7 +115,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout3);
                 break;
             case 4:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout4[i + 6] = txtbyte[i];
@@ -124,7 +127,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout4);
                 break;
             case 5:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout5[i + 6] = txtbyte[i];
@@ -136,8 +139,8 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout5);
                 break;
             case 6:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
-                System.out.println("--> номер жеста:" + txtbyte[1]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                if (DEBUG) {System.out.println("--> номер жеста:" + txtbyte[1]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout6[i + 6] = txtbyte[i];
@@ -149,8 +152,8 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout6);
                 break;
             case 7:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
-                System.out.println("--> номер схвата:" + txtbyte[1]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                if (DEBUG) {System.out.println("--> номер схвата:" + txtbyte[1]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout7[i + 6] = txtbyte[i];
@@ -162,8 +165,8 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout7);
                 break;
             case 8:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
-                System.out.println("--> номер мода:" + txtbyte[1]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    if (DEBUG) {System.out.println("--> номер мода:" + txtbyte[1]);}
                 if(txtbyte[1] == 1) {view.showToast("классический режим"); }
                 if(txtbyte[1] == 2) {view.showToast("триггерный режим 1"); }
                 if(txtbyte[1] == 3) {view.showToast("триггерный режим 2"); }
@@ -185,8 +188,8 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout8);
                 break;
             case 9:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
-                System.out.println("--> срабатывание датчика:" + txtbyte[1]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    if (DEBUG) {System.out.println("--> срабатывание датчика:" + txtbyte[1]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout9[i + 6] = txtbyte[i];
@@ -198,7 +201,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout9);
                 break;
             case 10:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout10[i + 6] = txtbyte[i];
@@ -210,7 +213,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout10);
                 break;
             case 11:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
+                if (DEBUG) { System.out.println("--> тип компановки:" + txtbyte[0]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout11[i + 6] = txtbyte[i];
@@ -222,7 +225,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout11);
                 break;
             case 12:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
+                if (DEBUG) { System.out.println("--> тип компановки:" + txtbyte[0]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout12[i + 6] = txtbyte[i];
@@ -234,7 +237,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout12);
                 break;
             case 13:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout13[i + 6] = txtbyte[i];
@@ -246,7 +249,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout13);
                 break;
             case 14:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout14[i + 6] = txtbyte[i];
@@ -258,7 +261,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout14);
                 break;
             case 15:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout15[i + 6] = txtbyte[i];
@@ -270,7 +273,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout15);
                 break;
             case 16:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
                 for (int i = 1; i < txtbyte.length; i++)
                 {
                     txtbyteout16[i + 6] = txtbyte[i];
@@ -282,8 +285,8 @@ public class ChatPresenterImpl implements ChatPresenter {
                 interactor.sendMessageByte(txtbyteout16);
                 break;
             default:
-                System.out.println("--> тип компановки:" + txtbyte[0]);
-                System.out.println("--> номер канала получателя:" + txtbyte[1]);
+                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                if (DEBUG) {System.out.println("--> номер канала получателя:" + txtbyte[1]);}
                 view.appendMessage("--> отправка на канал" + txtbyte[1]);
                 for (int i = 1; i < txtbyte.length; i++) //aByte.length
                 {
@@ -336,7 +339,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             Integer lelvel = new Integer(levelCH);
             Integer numberChannel = new Integer(channel);
             view.setValueCH(levelCH, numberChannel);
-            System.out.println("принятый уровень CH:" + lelvel);
+            if (DEBUG) {System.out.println("принятый уровень CH:" + lelvel);}
         }
 
 
@@ -394,7 +397,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public void onDeviceDisconnected(BluetoothDevice device, String message) {
-            System.out.println("ChatPresenter--------------> onDeviceDisconnected");
+            if (DEBUG) {System.out.println("ChatPresenter--------------> onDeviceDisconnected");}
             view.setStatus(R.string.bluetooth_connecting);
             view.enableHWButton(false);
 //            interactor.connectToDevice(device, communicationCallback);
@@ -414,10 +417,10 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public void onConnectError(final BluetoothDevice device, String message) {
-            System.out.println("ChatPresenter--------------> onConnectError");
+            if (DEBUG) {System.out.println("ChatPresenter--------------> onConnectError");}
             view.setStatus(R.string.bluetooth_connect_in_3sec);
 //            view.showToast("Подключение №" + attemptConect);
-            System.out.println("Подключение №" + attemptConect);
+            if (DEBUG) {System.out.println("Подключение №" + attemptConect);}
             attemptConect += 1;
             if(attemptConect < 51) {
                 new Handler().postDelayed(new Runnable() {
@@ -436,7 +439,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void onStart(Activity activity) {
-        System.out.println("ChatPresenter--------------> onStart");
+        if (DEBUG) {System.out.println("ChatPresenter--------------> onStart");}
         interactor.onStart(bluetoothCallback, activity);
         if(interactor.isBluetoothEnabled()){
             interactor.connectToDevice(device, communicationCallback);
@@ -481,7 +484,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public void onBluetoothOn() {
-            System.out.println("ChatPresenter--------------> onBluetoothOn");
+            if (DEBUG) {System.out.println("ChatPresenter--------------> onBluetoothOn");}
             interactor.connectToDevice(device, communicationCallback);
             interactor.parsingExperimental(parserCallback);
             view.setStatus(R.string.bluetooth_connecting);
@@ -495,7 +498,6 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public void onBluetoothOff() {
-
         }
 
         @Override

@@ -46,21 +46,22 @@ public class Bluetooth {
     private BluetoothCallback bluetoothCallback;
     private boolean connected;
     private boolean logic_disconnect;
+    private boolean DEBUG = false;
 
     private boolean runOnUi;
 
     public Bluetooth(Context context){
-        System.out.println("BLUETOOTH--------------> Bluetooth");
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> Bluetooth");}
         initialize(context, UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"));
     }
 
     public Bluetooth(Context context, UUID uuid){
-        System.out.println("BLUETOOTH--------------> Bluetooth2");
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> Bluetooth2");}
         initialize(context, uuid);
     }
 
     private void initialize(Context context, UUID uuid){
-        System.out.println("BLUETOOTH--------------> initialize");
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> initialize");}
         this.context = context;
         this.uuid = uuid;
         this.deviceCallback = null;
@@ -71,7 +72,7 @@ public class Bluetooth {
     }
 
     public void onStart(){
-        System.out.println("BLUETOOTH--------------> onStart connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> onStart connected:" + connected);}
         if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2){
             bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
             if(bluetoothManager!=null) {
@@ -86,7 +87,7 @@ public class Bluetooth {
     }
 
     public void onStop(){
-        System.out.println("BLUETOOTH--------------> onStop connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> onStop connected:" + connected);}
         context.unregisterReceiver(bluetoothReceiver);
     }
 
@@ -100,7 +101,7 @@ public class Bluetooth {
     }
 
     public void enable(){
-        System.out.println("BLUETOOTH--------------> enable connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> enable connected:" + connected);}
         if(bluetoothAdapter!=null) {
             if (!bluetoothAdapter.isEnabled()) {
                 bluetoothAdapter.enable();
@@ -109,7 +110,7 @@ public class Bluetooth {
     }
 
     public void disable(){
-        System.out.println("BLUETOOTH--------------> disable connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> disable connected:" + connected);}
         if(bluetoothAdapter!=null) {
             if (bluetoothAdapter.isEnabled()) {
                 bluetoothAdapter.disable();
@@ -130,7 +131,7 @@ public class Bluetooth {
     }
 
     public boolean isEnabled(){
-        System.out.println("BLUETOOTH--------------> isEnabled connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> isEnabled connected:" + connected);}
         if(bluetoothAdapter!=null) {
             return bluetoothAdapter.isEnabled();
         }
@@ -138,13 +139,13 @@ public class Bluetooth {
     }
 
     public void setCallbackOnUI(Activity activity){
-        System.out.println("BLUETOOTH--------------> setCallbackOnUI connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> setCallbackOnUI connected:" + connected);}
         this.activity = activity;
         this.runOnUi = true;
     }
 
     public void onActivityResult(int requestCode, final int resultCode){
-        System.out.println("BLUETOOTH--------------> onActivityResult connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> onActivityResult connected:" + connected);}
         if(bluetoothCallback!=null){
             if(requestCode==REQUEST_ENABLE_BT){
                 ThreadHelper.run(runOnUi, activity, new Runnable() {
@@ -160,7 +161,7 @@ public class Bluetooth {
     }
 
     public void connectToAddress(String address, boolean insecureConnection) {
-        System.out.println("BLUETOOTH--------------> connectToAddress connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> connectToAddress connected:" + connected);}
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
         connectToDevice(device, insecureConnection);
     }
@@ -170,7 +171,7 @@ public class Bluetooth {
     }
 
     public void connectToName(String name, boolean insecureConnection) {
-        System.out.println("BLUETOOTH--------------> connectToName:" + name + "connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> connectToName:" + name + "connected:" + connected);}
         for (BluetoothDevice blueDevice : bluetoothAdapter.getBondedDevices()) {
             if (blueDevice.getName().equals(name)) {
                 connectToDevice(blueDevice, insecureConnection);
@@ -184,26 +185,26 @@ public class Bluetooth {
     }
 
     public void connectToDevice(BluetoothDevice device, boolean insecureConnection){
-        System.out.println("BLUETOOTH--------------> connectToDevice:" + device + "connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> connectToDevice:" + device + "connected:" + connected);}
         new ConnectThread(device, insecureConnection).start();
     }
 
     public void connectToDevice(BluetoothDevice device){
-        System.out.println("BLUETOOTH--------------> connectToDevice2:" + device + "connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> connectToDevice2:" + device + "connected:" + connected);}
         connectToDevice(device, false);
     }
 
     public void disconnect() {
-        System.out.println("BLUETOOTH--------------> disconnect connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> disconnect connected:" + connected);}
         try {
             socket.close();
-            System.out.println("BLUETOOTH--------------> disconnect socket.close eeeee!!! connected:" + connected);
+            if (DEBUG) {System.out.println("BLUETOOTH--------------> disconnect socket.close eeeee!!! connected:" + connected);}
         } catch (final IOException e) {
             if(deviceCallback !=null) {
                 ThreadHelper.run(runOnUi, activity, new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("BLUETOOTH--------------> disconnect ERROR deviceCallback = null connected:" + connected);
+                        if (DEBUG) {System.out.println("BLUETOOTH--------------> disconnect ERROR deviceCallback = null connected:" + connected);}
                         deviceCallback.onError(e.getMessage());
                         try {
                             Thread.sleep(3000);
@@ -215,12 +216,12 @@ public class Bluetooth {
     }
 
     public boolean isConnected(){
-        System.out.println("BLUETOOTH--------------> isConnected connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> isConnected connected:" + connected);}
         return connected;
     }
 
     public void send(byte[] msg, String charset){
-        System.out.println("BLUETOOTH--------------> send" + msg[0] + "connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> send" + msg[0] + "connected:" + connected);}
         try {
             if(!TextUtils.isEmpty(charset)) {
 //                out.write(msg.getByte(charset));//Eg: "US-ASCII" as default
@@ -234,7 +235,7 @@ public class Bluetooth {
                 ThreadHelper.run(runOnUi, activity, new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("BLUETOOTH--------------> send ERROR deviceCallback = null connected:" + connected);
+                        if (DEBUG) {System.out.println("BLUETOOTH--------------> send ERROR deviceCallback = null connected:" + connected);}
                         deviceCallback.onDeviceDisconnected(device, e.getMessage());
                     }
                 });
@@ -243,7 +244,7 @@ public class Bluetooth {
     }
 
     public void sendstr(String msgstr, String charset){
-        System.out.println("BLUETOOTH--------------> sendstr connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> sendstr connected:" + connected);}
         try {
             if(!TextUtils.isEmpty(charset)) {
                 out.write(msgstr.getBytes(charset));//Eg: "US-ASCII" as default
@@ -266,22 +267,22 @@ public class Bluetooth {
 
 
     public void send(byte[] msg){
-        System.out.println("BLUETOOTH--------------> send2 connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> send2 connected:" + connected);}
         send(msg, null);
     }
 
     public void sendstr(String msgstr){
-        System.out.println("BLUETOOTH--------------> sendstr connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> sendstr connected:" + connected);}
         sendstr(msgstr, "US-ASCII");
     }
 
     public List<BluetoothDevice> getPairedDevices(){
-        System.out.println("BLUETOOTH--------------> getPairedDevices connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> getPairedDevices connected:" + connected);}
         return new ArrayList<>(bluetoothAdapter.getBondedDevices());
     }
 
     public void startScanning(){
-        System.out.println("BLUETOOTH--------------> startScanning connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> startScanning connected:" + connected);}
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
@@ -293,13 +294,13 @@ public class Bluetooth {
     }
 
     public void stopScanning(){
-        System.out.println("BLUETOOTH--------------> stopScanning connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> stopScanning connected:" + connected);}
         context.unregisterReceiver(scanReceiver);
         bluetoothAdapter.cancelDiscovery();
     }
 
     public void pair(BluetoothDevice device){
-        System.out.println("BLUETOOTH--------------> pair connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> pair connected:" + connected);}
         context.registerReceiver(pairReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
         devicePair=device;
         try {
@@ -310,7 +311,7 @@ public class Bluetooth {
                 ThreadHelper.run(runOnUi, activity, new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("BLUETOOTH--------------> pair ERROR discoveryCallback = null connected:" + connected);
+                        if (DEBUG) {System.out.println("BLUETOOTH--------------> pair ERROR discoveryCallback = null connected:" + connected);}
                         discoveryCallback.onError(e.getMessage());
                     }
                 });
@@ -319,7 +320,7 @@ public class Bluetooth {
     }
 
     public void unpair(BluetoothDevice device) {
-        System.out.println("BLUETOOTH--------------> unpair connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> unpair connected:" + connected);}
         context.registerReceiver(pairReceiver, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
         devicePair=device;
         try {
@@ -370,7 +371,7 @@ public class Bluetooth {
 //        }
 
         public void run(){
-            System.out.println("BLUETOOTH--------------> ReceiveThread connected:" + connected);
+            if (DEBUG) {System.out.println("BLUETOOTH--------------> ReceiveThread connected:" + connected);}
             try {
                 while((msg = input.read()) != -1) //((System.in).read(msg)) //((System.in).read(msg))   //((input.read())) != -1
                 {
@@ -379,7 +380,7 @@ public class Bluetooth {
                             summator += msg;
                             if (summator == 197){
                                 msgCorrectAcceptance = true;
-                                System.out.println("<-- Принята посылка :)");
+                                if (DEBUG) {System.out.println("<-- Принята посылка :)");}
                             } else {
                                 if(((i == (8+msgLenght))&&(msg != 36))||((i == 1)&&(msg != 77))){
                                     if (((i == 9) && (msg != 35)) || ((i == 1) && (msg != 36))) {
@@ -410,7 +411,7 @@ public class Bluetooth {
                             }
                             if(i == 4){
                                 msgLenght = (msg << 8) + lowByte; //msgLenght содержит количество байт данных в посылке
-                                System.out.println("<-- длина строки:"+msgLenght);
+                                if (DEBUG) {System.out.println("<-- длина строки:"+msgLenght);}
                             }
                             if(i == 5){
                                 if(msg == 1){
@@ -424,18 +425,18 @@ public class Bluetooth {
                             }
                             if(i == 7){
                                 msgRegister = (msg << 8) + lowByte;  //msgRegister содержит номер регистра
-                                System.out.println("<-- номер регистра:"+msgRegister);
+                                if (DEBUG) {System.out.println("<-- номер регистра:"+msgRegister);}
                             }
                             if(i == 8){
                                 lowByte = msg;
                             }
                             if(i == 9){
                                 msgChannel = (msg << 8) + lowByte;
-                                System.out.println("<-- номер канала:"+msgChannel);
+                                if (DEBUG) {System.out.println("<-- номер канала:"+msgChannel);}
                             }
                             if (msgChannel == 65535){
                                 errorReception = true;
-                                System.out.println("<-- детект ошибки: " + errorReception);
+                                if (DEBUG) {System.out.println("<-- детект ошибки: " + errorReception);}
                             } else {
                                 errorReception = false;
                             }
@@ -446,7 +447,7 @@ public class Bluetooth {
                                     }
                                     if(i == 11){
                                         msgLevelCH = (msg << 8) + lowByte; //msgLevelCH уровень канала 1
-//                                        System.out.println("<-- уровень CH1:"+msgLevelCH);
+                                        if (DEBUG) {System.out.println("<-- уровень CH1:"+msgLevelCH);}
                                     }
                                     break;
                                 case 2:
@@ -455,7 +456,7 @@ public class Bluetooth {
                                     }
                                     if(i == 11){
                                         msgLevelCH = (msg << 8) + lowByte; //msgLevelCH уровень канала 2
-//                                        System.out.println("<-- уровень CH2:"+msgLevelCH);
+                                        if (DEBUG) {System.out.println("<-- уровень CH2:"+msgLevelCH);}
                                     }
                                     break;
                                 default:
@@ -513,14 +514,14 @@ public class Bluetooth {
                                 }
                                 if(i == 5){
                                     msgLevelCH1 = (lowByte << 8) + msg;  //msgLevelCH уровень канала 1
-                                    System.out.println("<-- уровень порога CH1:" + msgLevelCH1 + " i = " + i + " no_error=" + no_error);
+                                    if (DEBUG) {System.out.println("<-- уровень порога CH1:" + msgLevelCH1 + " i = " + i + " no_error=" + no_error);}
                                 }
                                 if(i == 6){
                                     lowByte = msg;
                                 }
                                 if(i == 7){
                                     msgLevelCH2 = (lowByte << 8) + msg; //msgLevelCH уровень канала 2
-                                    System.out.println("<-- уровень порога CH2:" + msgLevelCH2 + " i = " + i + " no_error=" + no_error);
+                                    if (DEBUG) {System.out.println("<-- уровень порога CH2:" + msgLevelCH2 + " i = " + i + " no_error=" + no_error);}
                                 }
                                 if(i == 8){
                                     msgIndicationState = (byte) msg;
@@ -548,7 +549,7 @@ public class Bluetooth {
                                                 parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf);
                                                 parserCallback.setStartParametersInGraphActivity();
                                                 deviceCallback.onMessage(msgCopy);
-                                                System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);
+                                                if (DEBUG) {System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);}
                                             }
                                             resetAllVariables();
                                             firstRead = false;
@@ -569,14 +570,14 @@ public class Bluetooth {
                                 }
                                 if(i == 5){
                                     msgLevelCH1 = (lowByte << 8) + msg;  //msgLevelCH уровень канала 1
-                                    System.out.println("<-- уровень CH1:" + msgLevelCH1 + " i = " + i + " no_error=" + no_error);
+                                    if (DEBUG) {System.out.println("<-- уровень CH1:" + msgLevelCH1 + " i = " + i + " no_error=" + no_error);}
                                 }
                                 if(i == 6){
                                     lowByte = msg;
                                 }
                                 if(i == 7){
                                     msgLevelCH2 = (lowByte << 8) + msg; //msgLevelCH уровень канала 2
-                                    System.out.println("<-- уровень CH2:" + msgLevelCH2 + " i = " + i + " no_error=" + no_error);
+                                    if (DEBUG) {System.out.println("<-- уровень CH2:" + msgLevelCH2 + " i = " + i + " no_error=" + no_error);}
                                 }
                                 if(i == 8){
                                     msgIndicationState = (byte) msg;
@@ -606,7 +607,7 @@ public class Bluetooth {
                                             if(no_error && msgCorrectAcceptance) {
                                                 parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
                                                 deviceCallback.onMessage(msgCopy);
-                                                System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);
+                                                if (DEBUG) {System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);}
                                             }
                                             resetAllVariables();
                                         }
@@ -622,7 +623,7 @@ public class Bluetooth {
                     ThreadHelper.run(runOnUi, activity, new Runnable() {
                         @Override
                         public void run() {
-                            System.out.println("BLUETOOTH--------------> ReceiveThread ERROR deviceCallback = null connected:" + connected);
+                            if (DEBUG) {System.out.println("BLUETOOTH--------------> ReceiveThread ERROR deviceCallback = null connected:" + connected);}
                             deviceCallback.onDeviceDisconnected(device, e.getMessage());
                         }
                     });
@@ -644,7 +645,7 @@ public class Bluetooth {
 
     private class ConnectThread extends Thread {
         ConnectThread(BluetoothDevice device, boolean insecureConnection) {
-            System.out.println("BLUETOOTH--------------> ConnectThread connected:" + connected);
+            if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread connected:" + connected);}
             Bluetooth.this.device=device;
             try {
                 if(insecureConnection){
@@ -655,7 +656,7 @@ public class Bluetooth {
                 }
             } catch (IOException e) {
                 if(deviceCallback !=null){
-                    System.out.println("BLUETOOTH--------------> ConnectThread ERROR deviceCallback = null connected:" + connected);
+                    if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread ERROR deviceCallback = null connected:" + connected);}
                     deviceCallback.onError(e.getMessage());
                 }
             }
@@ -688,7 +689,7 @@ public class Bluetooth {
                     ThreadHelper.run(runOnUi, activity, new Runnable() {
                         @Override
                         public void run() {
-                            System.out.println("BLUETOOTH--------------> ConnectThread ERROR deviceCallback null in progress connected:" + connected);
+                            if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread ERROR deviceCallback null in progress connected:" + connected);}
                             deviceCallback.onConnectError(device, e.getMessage());
                         }
                     });
@@ -696,13 +697,13 @@ public class Bluetooth {
 
                 try {
                     socket.close();
-                    System.out.println("BLUETOOTH--------------> ConnectThread socket.close connected:" + connected);
+                        if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread socket.close connected:" + connected);}
                 } catch (final IOException closeException) {
                     if (deviceCallback != null) {
                         ThreadHelper.run(runOnUi, activity, new Runnable() {
                             @Override
                             public void run() {
-                                System.out.println("BLUETOOTH--------------> ConnectThread ERROR deviceCallback null in progress 2 connected:" + connected);
+                                if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread ERROR deviceCallback null in progress 2 connected:" + connected);}
                                 deviceCallback.onError(closeException.getMessage());//Could not connect. New attempt in 3sec...
                             }
                         });
@@ -715,7 +716,7 @@ public class Bluetooth {
     private BroadcastReceiver scanReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            System.out.println("BLUETOOTH--------------> BroadcastReceiver scanReceiver connected:" + connected);
+            if (DEBUG) {System.out.println("BLUETOOTH--------------> BroadcastReceiver scanReceiver connected:" + connected);}
             String action = intent.getAction();
             if(action!=null) {
                 switch (action) {
@@ -772,8 +773,10 @@ public class Bluetooth {
     private final BroadcastReceiver pairReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            System.out.println("BLUETOOTH--------------> BroadcastReceiverBLE pairReceiver connected:" + connected);
-            Log.d("BLE", "PAIR RECEIVER");
+            if (DEBUG) {
+                System.out.println("BLUETOOTH--------------> BroadcastReceiverBLE pairReceiver connected:" + connected);
+                Log.d("BLE", "PAIR RECEIVER");
+            }
 
             if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
                 final int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
@@ -807,7 +810,7 @@ public class Bluetooth {
     private final BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            System.out.println("BLUETOOTH--------------> BroadcastReceiver bluetoothReceiver connected:" + connected);
+            if (DEBUG) {System.out.println("BLUETOOTH--------------> BroadcastReceiver bluetoothReceiver connected:" + connected);}
             final String action = intent.getAction();
             if (action!=null && action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
@@ -837,42 +840,42 @@ public class Bluetooth {
     };
 
     public void setDeviceCallback(DeviceCallback deviceCallback) {
-        System.out.println("BLUETOOTH--------------> setDeviceCallback connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> setDeviceCallback connected:" + connected);}
         this.deviceCallback = deviceCallback;
     }
 
     public void setDeviceCallback2(DeviceCallback deviceCallback) {
-        System.out.println("BLUETOOTH--------------> setDeviceCallback connected:" + connected);
+        if (DEBUG) {if (DEBUG) {System.out.println("BLUETOOTH--------------> setDeviceCallback connected:" + connected);}}
         this.deviceCallback = deviceCallback;
     }
 
     public void enableParsing(ParserCallback parserCallback) {
-        System.out.println("BLUETOOTH--------------> enableParsing connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> enableParsing connected:" + connected);}
         this.parserCallback = parserCallback;
     }
 
     public void removeCommunicationCallback(){
-        System.out.println("BLUETOOTH--------------> removeCommunicationCallback connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> removeCommunicationCallback connected:" + connected);}
         this.deviceCallback = null;
     }
 
     public void setDiscoveryCallback(DiscoveryCallback discoveryCallback){
-        System.out.println("BLUETOOTH--------------> setDiscoveryCallback connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> setDiscoveryCallback connected:" + connected);}
         this.discoveryCallback = discoveryCallback;
     }
 
     public void removeDiscoveryCallback(){
-        System.out.println("BLUETOOTH--------------> removeDiscoveryCallback connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> removeDiscoveryCallback connected:" + connected);}
         this.discoveryCallback = null;
     }
 
     public void setBluetoothCallback(BluetoothCallback bluetoothCallback){
-        System.out.println("BLUETOOTH--------------> BroadcastReceiverBLE connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> BroadcastReceiverBLE connected:" + connected);}
         this.bluetoothCallback = bluetoothCallback;
     }
 
     public void removeBluetoothCallback(){
-        System.out.println("BLUETOOTH--------------> BroadcastReceiverBLE connected:" + connected);
+        if (DEBUG) {System.out.println("BLUETOOTH--------------> BroadcastReceiverBLE connected:" + connected);}
         this.bluetoothCallback = null;
     }
 }

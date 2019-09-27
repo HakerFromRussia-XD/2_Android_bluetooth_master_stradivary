@@ -206,7 +206,7 @@
                 android:layout_marginStart="36dp"
                 android:layout_marginLeft="36dp"
                 android:layout_marginTop="0dp"
-                android:text="График разгибателя"
+                android:text="открытие"
                 android:textColor="#FFFFFFFF"
                 android:textSize="9sp" />
 
@@ -232,7 +232,7 @@
                 android:layout_marginStart="36dp"
                 android:layout_marginLeft="36dp"
                 android:layout_marginTop="-1dp"
-                android:text="График сгибателя"
+                android:text="закрытие"
                 android:textColor="#FFFFFFFF"
                 android:textSize="9sp" />
 

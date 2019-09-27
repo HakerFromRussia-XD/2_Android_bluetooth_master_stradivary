@@ -357,7 +357,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             public void onStopTrackingTouch(SeekBar seekBar) {
                 intValueCH1on = (int) (seekBarCH1on.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
-                numberChannel = 0x01;
+                if (invertChannel){numberChannel = 0x02;} else {numberChannel = 0x01;}
                 TextByteTreeg[0] = indicatorTypeMessage;
                 TextByteTreeg[1] = numberChannel;
                 TextByteTreeg[2] = (byte) intValueCH1on;
@@ -380,7 +380,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((235*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
                 objectAnimator.setDuration(200);
                 objectAnimator.start();
-                System.err.println("ChatActivity--------> seekBarCH1on2 : limit_sensor_open - limit_sensor_open=" + (int)(limit_sensor_open*13.63));
                 System.err.println("ChatActivity--------> seekBarCH1on2 : onProgressChanged - intValueCH1on=" + intValueCH1on);
             }
 
@@ -393,7 +392,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             public void onStopTrackingTouch(SeekBar seekBar) {
                 intValueCH1on = (int) (seekBarCH1on2.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
-                numberChannel = 0x01;
+                if (invertChannel){numberChannel = 0x02;} else {numberChannel = 0x01;}
                 TextByteTreeg[0] = indicatorTypeMessage;
                 TextByteTreeg[1] = numberChannel;
                 TextByteTreeg[2] = (byte) intValueCH1on;
@@ -424,7 +423,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 valueCH2on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
                 intValueCH2on = (int) (seekBarCH2on.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
-                numberChannel = 0x02;
+                if (invertChannel){numberChannel = 0x01;} else {numberChannel = 0x02;}
                 TextByteTreeg[0] = indicatorTypeMessage;
                 TextByteTreeg[1] = numberChannel;
                 TextByteTreeg[2] = (byte) intValueCH2on;
@@ -441,6 +440,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         seekBarCH2on2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                System.err.println("ChatActivity--------> seekBarCH1on : обновление порога СH2");
                 intValueCH2on = (int) (seekBarCH2on2.getProgress()*multiplierSeekbar);
                 limit_sensor_close = seekBar.getProgress();
                 objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((495*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
@@ -459,7 +459,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 valueCH2on.setText(String.valueOf(seekBar.getProgress()*multiplierSeekbar));
                 intValueCH2on = (int) (seekBarCH2on2.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
-                numberChannel = 0x02;
+                if (invertChannel){numberChannel = 0x01;} else {numberChannel = 0x02;}
                 TextByteTreeg[0] = indicatorTypeMessage;
                 TextByteTreeg[1] = numberChannel;
                 TextByteTreeg[2] = (byte) intValueCH2on;
@@ -515,21 +515,19 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             @Override
             public void onClick(View v) {
                 if (switchInvert.isChecked()){
-                    System.out.println("Invert mod");
                     invert = 0x01;
                     presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
+                    Integer temp = intValueCH1on;
                     seekBarCH1on2.setProgress((int) (intValueCH2on/(multiplierSeekbar-0.1)));//-0.5
-                    seekBarCH2on2.setProgress((int) (intValueCH1on/(multiplierSeekbar-0.1)));//-0.5
-                    System.err.println("тут установка invertChannel");
-//                    invertChannel = true;
+                    seekBarCH2on2.setProgress((int) (temp/(multiplierSeekbar-0.1)));//-0.5
+                    invertChannel = true;
                 } else {
-                    System.out.println("Invert Invert mod");
                     invert = 0x00;
                     presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
-//                    seekBarCH1on2.setProgress((int) (intValueCH1on/(multiplierSeekbar-0.1)));//-0.5
-//                    seekBarCH2on2.setProgress((int) (intValueCH2on/(multiplierSeekbar-0.1)));//-0.5
-                    System.err.println("тут установка invertChannel");
-//                    invertChannel = false;
+                    Integer temp = intValueCH1on;
+                    seekBarCH1on2.setProgress((int) (intValueCH2on/(multiplierSeekbar-0.1)));//-0.5
+                    seekBarCH2on2.setProgress((int) (temp/(multiplierSeekbar-0.1)));//-0.5
+                    invertChannel = false;
                 }
             }
         });
@@ -1327,21 +1325,35 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             imageViewStatus.setImageResource(R.drawable.sleeping);
         }
         if (receiveIndicationStateChat == 1){
-            valueStatus.setText("закрытие");
-            imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
-            imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
-            imageViewStatus.setImageResource(R.drawable.closing);
+            if(invertChannel){
+                valueStatus.setText("открытие");
+                imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
+                imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+                imageViewStatus.setImageResource(R.drawable.opening);
+            } else  {
+                valueStatus.setText("закрытие");
+                imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+                imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
+                imageViewStatus.setImageResource(R.drawable.closing);
+            }
         }
         if (receiveIndicationStateChat == 2){
-            valueStatus.setText("открытие");
-            imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
-            imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
-            imageViewStatus.setImageResource(R.drawable.opening);
+            if(invertChannel){
+                valueStatus.setText("закрытие");
+                imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+                imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
+                imageViewStatus.setImageResource(R.drawable.closing);
+            } else  {
+                valueStatus.setText("открытие");
+                imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
+                imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+                imageViewStatus.setImageResource(R.drawable.opening);
+            }
         }
         if (receiveIndicationStateChat == 3){
             valueStatus.setText("блок");
-            imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
-            imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+            imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
+            imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
             imageViewStatus.setImageResource(R.drawable.block);
         }
     }
@@ -1354,13 +1366,13 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         if(invertChannel) {
             this.receiveLevelTrigCH1 = receiveLevelTrigCH2;
             this.receiveLevelTrigCH2 = receiveLevelTrigCH1;
-            intValueCH1on = receiveLevelTrigCH2;
-            intValueCH2on = receiveLevelTrigCH1;
+            intValueCH1on = receiveLevelTrigCH1;
+            intValueCH2on = receiveLevelTrigCH2;
         } else {
             this.receiveLevelTrigCH1 = receiveLevelTrigCH1;
             this.receiveLevelTrigCH2 = receiveLevelTrigCH2;
-            intValueCH1on = receiveLevelTrigCH1;
-            intValueCH2on = receiveLevelTrigCH2;
+            intValueCH1on = receiveLevelTrigCH2;
+            intValueCH2on = receiveLevelTrigCH1;
         }
         if (this.receiveLevelTrigCH1 < 14){this.receiveLevelTrigCH1 = 14;}
         if (this.receiveLevelTrigCH2 < 14){this.receiveLevelTrigCH2 = 14;}

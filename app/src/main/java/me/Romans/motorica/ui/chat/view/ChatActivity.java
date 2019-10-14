@@ -657,25 +657,25 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 /**                 3D initialization                        **/
         ////////////////////////////////////////////////
 
-        model[0] = readData("STR2_big_finger_part18.obj");
-        model[1] = readData("STR2_big_finger_part19.obj");
-        model[2] = readData("STR2_big_finger_part1.obj");
-        model[3] = readData("STR2_part3.obj");
-        model[4] = readData("STR2_part9.obj");
-        model[5] = readData("STR2_part13.obj");
-        model[6] = readData("STR2_part14.obj");
-        model[7] = readData("STR2_ukazatelnii_part15.obj");
-        model[8] = readData("STR2_ukazatelnii_part4.obj");
-        model[9] = readData("STR2_ukazatelnii_part17.obj");
-        model[10] = readData("STR2_srednii_part8.obj");
-        model[11] = readData("STR2_srednii_part6.obj");
-        model[12] = readData("STR2_srednii_part16.obj");
-        model[13] = readData("STR2_bezimiannii_part10.obj");
-        model[14] = readData("STR2_bezimiannii_part7.obj");
-        model[15] = readData("STR2_bezimiannii_part11.obj");
-        model[16] = readData("STR2_mizinec_part12.obj");
-        model[17] = readData("STR2_mizinec_part5.obj");
-        model[18] = readData("STR2_mizinec_part2.obj");
+        model[0] = readData("STR2/STR2_big_finger_part18.obj");
+        model[1] = readData("STR2/STR2_big_finger_part19.obj");
+        model[2] = readData("STR2/STR2_big_finger_part1.obj");
+        model[3] = readData("STR2/STR2_part3.obj");
+        model[4] = readData("STR2/STR2_part9.obj");
+        model[5] = readData("STR2/STR2_part13.obj");
+        model[6] = readData("STR2/STR2_part14.obj");
+        model[7] = readData("STR2/STR2_ukazatelnii_part15.obj");
+        model[8] = readData("STR2/STR2_ukazatelnii_part4.obj");
+        model[9] = readData("STR2/STR2_ukazatelnii_part17.obj");
+        model[10] = readData("STR2/STR2_srednii_part8.obj");
+        model[11] = readData("STR2/STR2_srednii_part6.obj");
+        model[12] = readData("STR2/STR2_srednii_part16.obj");
+        model[13] = readData("STR2/STR2_bezimiannii_part10.obj");
+        model[14] = readData("STR2/STR2_bezimiannii_part7.obj");
+        model[15] = readData("STR2/STR2_bezimiannii_part11.obj");
+        model[16] = readData("STR2/STR2_mizinec_part12.obj");
+        model[17] = readData("STR2/STR2_mizinec_part5.obj");
+        model[18] = readData("STR2/STR2_mizinec_part2.obj");
 
 
         for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {

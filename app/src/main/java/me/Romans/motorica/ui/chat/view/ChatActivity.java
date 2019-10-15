@@ -24,6 +24,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -67,6 +70,7 @@ import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings3;
 import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
 import me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettingsRenderer;
+import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettings;
 
 /**
  * Created by Omar on 20/12/2017.
@@ -174,6 +178,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public FragmentGripperSettings fragmentGripperSettings;
     public FragmentGestureSettings2 fragmentGestureSettings2;
     public FragmentGestureSettings3 fragmentGestureSettings3;
+    public FragmentServiceSettings fragmentServiceSettings;
     public FragmentManager fragmentManager = getSupportFragmentManager();
     public float heightBottomNavigation;
 //    for 3D part
@@ -223,6 +228,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public Thread transferThread;
     public enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5};
     public static SelectStation selectStation;
+    protected WebView webView;
+    private boolean showModsOnTopMenu = false;
+    public Menu myMenu;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -270,8 +278,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             navigation = findViewById(R.id.navigation);
             navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
             heightBottomNavigation = pxFromDp(48);
-            //TODO настройка тока в многосхватной версии возвращённая для Зайцева. Обсудить её судьбу
-            //TODO по возвращении Игоря при проектировании сервисного меню
+//            TODO настройка тока в многосхватной версии возвращённая для Зайцева. Обсудить её судьбу
+//            TODO по возвращении Игоря при проектировании сервисного меню
 //            valueIstop2 = findViewById(R.id.valueIstop2);
 //            valueIstop = findViewById(R.id.valueIstop);
 //            seekBarIstop = findViewById(R.id.seekBarIstop);
@@ -493,6 +501,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         fragmentGripperSettings = new FragmentGripperSettings();
         fragmentGestureSettings2 = new FragmentGestureSettings2();
         fragmentGestureSettings3 = new FragmentGestureSettings3();
+        fragmentServiceSettings = new FragmentServiceSettings();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -693,6 +702,28 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             threadFanction[j].start();
         }
         ////////////////////////////////////////////////
+
+
+        ////////////////////////////////////////////////
+/**                scroller initialization                       **/
+        ////////////////////////////////////////////////
+
+//        webView = findViewById(R.id.gesture_selector);
+//        webView.setWebViewClient(new WebViewClient());
+//        webView.getSettings().setJavaScriptEnabled(true);
+//        webView.setWebChromeClient(new WebChromeClient());у
+//
+//
+//        webView.addJavascriptInterface(new WebInterfase(this), "Android");
+//        webView.loadUrl("file:///android_asset/gesture_selector.html");
+
+
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        myMenu = menu;
+        return super.onPrepareOptionsMenu(myMenu);
     }
 
     public String[] readData(String fileName) {
@@ -1124,6 +1155,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.setGroupVisible(R.id.modes, false);
         return true;
     }
 
@@ -1141,11 +1173,17 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         int id = item.getItemId();
         // Операции для выбранного пункта меню
         switch (id) {
+            case R.id.action_Trigger0:
+                fragmentManager.beginTransaction()
+                        .add(R.id.view_pager, fragmentServiceSettings)
+                        .commit();
+                navigation.clearAnimation();
+                navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+                myMenu.setGroupVisible(R.id.modes, true);
+                myMenu.setGroupVisible(R.id.service_settings, false);
+                return true;
             case R.id.action_Trigger1:
                 presenter.onHelloWorld(CompileMassegeTreegMod (1));
-                if (transferThread.isAlive()) {
-                    transferThread.interrupt();
-                }
                 infinitAction = false;
                 return true;
             case R.id.action_Trigger2:
@@ -1271,9 +1309,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @Override
     public void setStatus(int resId) {
         System.out.println("ChatActivity----> resId setText:"+ resId);
-        if (resId == 2131689516){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
-        if (resId == 2131689517){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
-        if (resId == 2131689518){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131689517){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
+        if (resId == 2131689518){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131689519){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
     }
 
     @Override
@@ -1682,6 +1720,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x00;
                     firstTapRcyclerView = false;
+                    myMenu.setGroupVisible(R.id.service_settings, false);
+                    myMenu.setGroupVisible(R.id.modes, false);
                 }
                 break;
             case 1:
@@ -1693,6 +1733,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x02;
                     firstTapRcyclerView = false;
+                    myMenu.setGroupVisible(R.id.service_settings, false);
+                    myMenu.setGroupVisible(R.id.modes, false);
                 }
                 break;
             case 2:
@@ -1704,6 +1746,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x04;
                     firstTapRcyclerView = false;
+                    myMenu.setGroupVisible(R.id.service_settings, false);
+                    myMenu.setGroupVisible(R.id.modes, false);
                 }
                 break;
 //            case 3:
@@ -1723,6 +1767,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 
     private float pxFromDp(float dp) {
         return dp * getApplicationContext().getResources().getDisplayMetrics().density;
+    }
+
+    public void setTestInt (String massege) {
+//        testInt2 = Integer.parseInt(massege);
+//        System.err.println("MainActivity ---------> testInt2="+testInt2);
     }
 
 }

@@ -35,6 +35,7 @@
     <string name="_2500">2500</string>
     <string name="state_view">lolol</string>
     <string name="title_activity_gripper_settings">GripperSettings</string>
+    <string name="action_Trigger0">сервисное меню</string>//service menu
     <string name="action_Trigger1">классический</string>//classic
     <string name="action_Trigger2">триггерный</string>//trigger mode
     <string name="action_Trigger3">триггерный инвертированный</string>//invert trigger mode

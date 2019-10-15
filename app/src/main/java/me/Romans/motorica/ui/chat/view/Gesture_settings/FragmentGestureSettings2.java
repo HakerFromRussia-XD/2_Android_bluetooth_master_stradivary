@@ -36,9 +36,6 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
     public View view;
     private ChatActivity chatActivity;
 
-    @Inject ChatPresenter presenter;
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -101,6 +98,7 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
                     chatActivity.navigation.animate().translationY(0).setDuration(200);
                     chatActivity.graphThreadFlag = true;
                     chatActivity.startGraphEnteringDataThread();
+                    chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
                 }
             }
         });

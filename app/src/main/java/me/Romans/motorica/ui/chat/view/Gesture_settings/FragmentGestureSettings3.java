@@ -95,6 +95,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
                     chatActivity.navigation.animate().translationY(0).setDuration(200);
                     chatActivity.graphThreadFlag = true;
                     chatActivity.startGraphEnteringDataThread();
+                    chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
                 }
             }
         });

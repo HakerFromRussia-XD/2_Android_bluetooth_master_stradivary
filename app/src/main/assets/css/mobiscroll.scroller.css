@@ -1,0 +1,79 @@
+
+
+.dwc {
+    max-width: 100%;
+    vertical-align: middle;
+    display: inline-block;
+    overflow: hidden;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+/* (Wheel label) расширяет ограничивающие полоски, но не на всю область, но за раницы в пределах которых можно касаться колеса*/
+
+.dwl {
+    line-height: 30px;
+    height: 30px;
+    top: -30px;
+    left: 0;
+    text-align: center;
+    white-space: nowrap;
+    position: absolute;
+    width: 100%;
+}
+/* (Wheel container) показывается подпись с грамотной обрезкой внутри вью */
+
+.dwwc {
+    margin: 0 auto;
+    position: relative;
+    zoom: 1;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+} /* отсечение выбирающих полос по рахмерам колеса */
+
+
+.dww {
+    overflow: hidden;
+    position: relative;
+    /* Forces IE to respect overflow hidden while animating */
+    
+    border-radius: 1px;
+    /* Fixes Firefox rendering issues */
+    
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+} /* пир удалении показывает подпись и не обрезает контент во всей области контента */ 
+
+.dw-li.dw-v,
+.dw-li.dw-fv {
+    opacity: 1;
+    filter: Alpha(Opacity=100);
+}
+/* часть делает прозрачной середину */
+
+
+.dwwo {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+/* настройка полупрозрачных полосок сверху и снизу */
+
+.dwwol {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+}
+/* (Liquid mode) вертикальное расположение выбырающих полосок */

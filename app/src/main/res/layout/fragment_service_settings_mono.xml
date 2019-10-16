@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettings">
+    tools:context="me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettingsMono">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/maunLayout"
         android:layout_width="match_parent"
@@ -21,75 +21,7 @@
             android:paddingRight="0dp"
             android:visibility="visible"
             android:background="#ffffffff"
-            tools:context="me.Romans.motorica.ui.scan.view.ScanActivity"
             tools:ignore="MissingConstraints">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/gripper_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="64dp"
-                android:layout_marginTop="0dp"></android.support.v7.widget.RecyclerView>
-
-            <TextView
-                android:id="@+id/textView13"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border8"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_marginStart="14dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginTop="14dp"
-                android:text="Грубость датчиков"
-                android:textSize="14sp" />
-
-            <SeekBar
-                android:id="@+id/seekBarRoughness"
-                android:layout_width="240dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border8"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginStart="-3dp"
-                android:layout_marginLeft="-3dp"
-                android:layout_marginTop="3dp"
-                android:layout_marginEnd="0dp"
-                android:layout_marginRight="0dp"
-                android:layout_toEndOf="@+id/textView13"
-                android:layout_toRightOf="@+id/textView13"
-                android:indeterminate="false"
-                android:max="32"
-                android:progress="13"
-                android:progressDrawable="@drawable/track"
-                android:thumb="@drawable/thumb" />
-
-            <TextView
-                android:id="@+id/valueInvert"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/seekBarRoughness"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_marginStart="14dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginTop="4dp"
-                android:text="Инвертирование"
-                android:textSize="14sp" />
-
-            <Switch
-                android:id="@+id/switchInvert"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/seekBarRoughness"
-                android:layout_marginStart="4dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="4dp"
-                android:layout_toEndOf="@+id/valueInvert"
-                android:layout_toRightOf="@+id/valueInvert" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -99,15 +31,6 @@
                 android:layout_marginBottom="0dp"
                 android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/save_service_settings"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="16dp"
-                    android:text="сохранить"
-                    android:visibility="visible" />
             </LinearLayout>
         </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

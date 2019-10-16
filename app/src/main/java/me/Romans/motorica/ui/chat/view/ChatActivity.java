@@ -3,12 +3,8 @@ package me.Romans.motorica.ui.chat.view;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -24,9 +20,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -34,7 +28,6 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -56,7 +49,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import me.Romans.motorica.MyApp;
 import me.Romans.motorica.data.GesstureAdapter;
 import me.Romans.motorica.data.Gesture_my;
@@ -69,7 +61,6 @@ import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings3;
 import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
-import me.Romans.motorica.ui.chat.view.Gripper_settings.GripperSettingsRenderer;
 import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettings;
 
 /**
@@ -77,14 +68,12 @@ import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettings;
  */
 
 public class ChatActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener {
-    public static boolean typeOfVersion;
+    public static boolean monograbVersion;
     @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
-    @BindView(R.id.seekBarCH1on2) SeekBar seekBarCH1on2;
-    @BindView(R.id.seekBarCH2on2) SeekBar seekBarCH2on2;
+    @BindView(R.id.seekBarCH1on2) public SeekBar seekBarCH1on2;
+    @BindView(R.id.seekBarCH2on2) public SeekBar seekBarCH2on2;
     SeekBar seekBarIstop;
-    @BindView(R.id.seekBarRoughness) SeekBar seekBarRoughness;
-    @BindView(R.id.switchInvert) Switch switchInvert;
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
 //    TextView textSpeedFinger;
     @BindView(R.id.valueStatus) TextView valueStatus;
@@ -110,10 +99,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @BindView(R.id.borderGreen) ImageView borderGreen;
     @BindView(R.id.borderRed) ImageView borderRed;
     public BottomNavigationView navigation;
-    private int intValueCH1on = 2500;
+    public int intValueCH1on = 2500;
     private int intValueCH1off = 100;
     private int intValueCH1sleep = 200;
-    private int intValueCH2on = 2500;
+    public int intValueCH2on = 2500;
     private int intValueCH2off = 100;
     private int intValueCH2sleep = 200;
     public int curent = 0x00;
@@ -231,13 +220,15 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     protected WebView webView;
     private boolean showModsOnTopMenu = false;
     public Menu myMenu;
+    public Thread updateSeviceSettingsThread;
+    public boolean updateSeviceSettingsThreadFlag = false;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
     List<Gesture_my> gestureMyList;
 
     @Inject
-    ChatPresenter presenter;
+    public ChatPresenter presenter;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -266,29 +257,23 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(typeOfVersion){
+        if(monograbVersion){
             System.err.println("односхватная версия");
-            setContentView(R.layout.activity_chat2);
+            setContentView(R.layout.monograb);
             valueIstop2 = findViewById(R.id.valueIstop2);
             valueIstop = findViewById(R.id.valueIstop);
             seekBarIstop = findViewById(R.id.seekBarIstop);
         } else {
             System.err.println("многосхватная версия");
-            setContentView(R.layout.activity_chat);
+            setContentView(R.layout.multigrab);
             navigation = findViewById(R.id.navigation);
             navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
             heightBottomNavigation = pxFromDp(48);
-//            TODO настройка тока в многосхватной версии возвращённая для Зайцева. Обсудить её судьбу
-//            TODO по возвращении Игоря при проектировании сервисного меню
-//            valueIstop2 = findViewById(R.id.valueIstop2);
-//            valueIstop = findViewById(R.id.valueIstop);
-//            seekBarIstop = findViewById(R.id.seekBarIstop);
 
             activity_chat_gesture1 = findViewById(R.id.activity_chat_gesture1);
             activity_chat_gesture2 = findViewById(R.id.activity_chat_gesture2);
             activity_chat_gesture3 = findViewById(R.id.activity_chat_gesture3);
             activity_chat_gesture4 = findViewById(R.id.activity_chat_gesture4);
-//            textSpeedFinger = findViewById(R.id.textSpeedFinger);
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getSupportActionBar().setSubtitle(deviceName);
@@ -481,21 +466,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 System.err.println("ChatActivity--------> seekBarCH2on2 : onStopTrackingTouch - intValueCH2on=" + intValueCH2on);
             }
         });
-        seekBarRoughness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                roughness = (byte) seekBar.getProgress();
-                presenter.onHelloWorld(CompileMassegeRouhness((byte) (roughness + 1)));
-            }
-        });
 
         fragmentGestureSettings = new FragmentGestureSettings();
         fragmentGripperSettings = new FragmentGripperSettings();
@@ -517,27 +487,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                                 2,
                                 123));
                 recyclerView.setAdapter(gestureAdapter);
-            }
-        });
-
-        switchInvert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (switchInvert.isChecked()){
-                    invert = 0x01;
-                    presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
-                    Integer temp = intValueCH1on;
-                    seekBarCH1on2.setProgress((int) (intValueCH2on/(multiplierSeekbar-0.1)));//-0.5
-                    seekBarCH2on2.setProgress((int) (temp/(multiplierSeekbar-0.1)));//-0.5
-                    invertChannel = true;
-                } else {
-                    invert = 0x00;
-                    presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
-                    Integer temp = intValueCH1on;
-                    seekBarCH1on2.setProgress((int) (intValueCH2on/(multiplierSeekbar-0.1)));//-0.5
-                    seekBarCH2on2.setProgress((int) (temp/(multiplierSeekbar-0.1)));//-0.5
-                    invertChannel = false;
-                }
             }
         });
 
@@ -600,7 +549,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             }
         });
 
-        if(!typeOfVersion){
+        if(!monograbVersion){
             //многосхватная версия
             activity_chat_gesture1.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -650,8 +599,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 }
             });
         }
-        //TODO возращены настройки токов в многосхватную версию
-
 
         presenter.onCreate(getIntent());
 
@@ -666,16 +613,16 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
 /**                 3D initialization                        **/
         ////////////////////////////////////////////////
 
-        model[0] = readData("STR2/STR2_big_finger_part18.obj");
-        model[1] = readData("STR2/STR2_big_finger_part19.obj");
-        model[2] = readData("STR2/STR2_big_finger_part1.obj");
-        model[3] = readData("STR2/STR2_part3.obj");
-        model[4] = readData("STR2/STR2_part9.obj");
-        model[5] = readData("STR2/STR2_part13.obj");
-        model[6] = readData("STR2/STR2_part14.obj");
-        model[7] = readData("STR2/STR2_ukazatelnii_part15.obj");
-        model[8] = readData("STR2/STR2_ukazatelnii_part4.obj");
-        model[9] = readData("STR2/STR2_ukazatelnii_part17.obj");
+        model[0]  = readData("STR2/STR2_big_finger_part18.obj");
+        model[1]  = readData("STR2/STR2_big_finger_part19.obj");
+        model[2]  = readData("STR2/STR2_big_finger_part1.obj");
+        model[3]  = readData("STR2/STR2_part3.obj");
+        model[4]  = readData("STR2/STR2_part9.obj");
+        model[5]  = readData("STR2/STR2_part13.obj");
+        model[6]  = readData("STR2/STR2_part14.obj");
+        model[7]  = readData("STR2/STR2_ukazatelnii_part15.obj");
+        model[8]  = readData("STR2/STR2_ukazatelnii_part4.obj");
+        model[9]  = readData("STR2/STR2_ukazatelnii_part17.obj");
         model[10] = readData("STR2/STR2_srednii_part8.obj");
         model[11] = readData("STR2/STR2_srednii_part6.obj");
         model[12] = readData("STR2/STR2_srednii_part16.obj");
@@ -1151,11 +1098,42 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         });
         graphThread.start();
     }
+    public void startUpdateThread() {
+        updateSeviceSettingsThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (updateSeviceSettingsThreadFlag){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(isEnable){
+                                fragmentServiceSettings.seekBarRoughness.setEnabled(true);
+                                fragmentServiceSettings.switchInvert.setEnabled(true);
+                            } else {
+                                fragmentServiceSettings.seekBarRoughness.setEnabled(false);
+                                fragmentServiceSettings.switchInvert.setEnabled(false);
+                            }
+                            if(invertChannel){
+                                fragmentServiceSettings.switchInvert.setChecked(true);
+                            } else {
+                                fragmentServiceSettings.switchInvert.setChecked(false);
+                            }
+                        }
+                    });
+                    try {
+                        Thread.sleep(50);
+                    }catch (Exception e){}
+                }
+            }
+        });
+        updateSeviceSettingsThread.start();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         menu.setGroupVisible(R.id.modes, false);
+        menu.setGroupVisible(R.id.service_settings, false);
         return true;
     }
 
@@ -1352,8 +1330,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         receiveIndicationStateChat = new Byte(receiveIndicationState);
         receiveBatteryTensionChat = new Integer(receiveBatteryTension);
 
-        //TODO возращены настройки токов в многосхватную версию
-        if(typeOfVersion){valueIstop2.setText(String.valueOf(receiveСurrentChat));}
+//        TODO возращены настройки токов в многосхватную версию
+        if(monograbVersion){valueIstop2.setText(String.valueOf(receiveСurrentChat));}
 //        valueIstop2.setText(String.valueOf(receiveСurrentChat));
         valueBatteryTension.setText(""+receiveBatteryTensionChat); //(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10) удаление знаков после запятой(показания напряжения)
         if (receiveIndicationStateChat == 0){
@@ -1417,16 +1395,10 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         this.receiveBlockIndication = receiveBlockIndication;
     }
     public void setStartParametersInGraphActivity(){
-            if (typeOfVersion){ seekBarIstop.setProgress(receiveСurrent);}
+            if (monograbVersion){ seekBarIstop.setProgress(receiveСurrent);}
             seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekbar - 0.25)));//-0.5
             seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekbar - 0.25)));//-0.5
-            if (invertChannel){
-                System.err.println("включение свича switchInvert");
-                switchInvert.setChecked(true);
-            } else {
-                System.err.println("выключение свича switchInvert");
-                switchInvert.setChecked(false);
-            }
+
             if (receiveBlockIndication == 1){
                 switchBlockMode.setChecked(true);
             } else {
@@ -1455,10 +1427,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         seekBarCH2on.setEnabled(enabled);
         seekBarCH1on2.setEnabled(enabled);
         seekBarCH2on2.setEnabled(enabled);
-        switchInvert.setEnabled(enabled);
         switchBlockMode.setEnabled(enabled);
-        seekBarRoughness.setEnabled(enabled);
-        if(!typeOfVersion){
+
+        if(!monograbVersion){
             activity_chat_gesture1.setEnabled(enabled);
             activity_chat_gesture2.setEnabled(enabled);
             activity_chat_gesture3.setEnabled(enabled);
@@ -1468,6 +1439,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         }
         this.runOnUi = true;
         if(isEnable){
+            myMenu.setGroupVisible(R.id.service_settings, true);
             transferThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -1626,7 +1598,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         TextByteSensorActivate[1] = (byte) numberSensor;
         return TextByteSensorActivate;
     }
-    private byte[] CompileMassegeCurentSettingsAndInvert (int Curent, byte Invert) {
+    public byte[] CompileMassegeCurentSettingsAndInvert (int Curent, byte Invert) {
         TextByteTreegCurentSettingsAndInvert[0] = 0x0B;
         TextByteTreegCurentSettingsAndInvert[1] = (byte) Curent;
         TextByteTreegCurentSettingsAndInvert[2] = (byte) (Curent >> 8);
@@ -1655,7 +1627,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         TextByteSetSwitchGesture[2] = closeGesture;
         return TextByteSetSwitchGesture;
     }
-    private byte[] CompileMassegeRouhness (byte roughness) {
+    public byte[] CompileMassegeRouhness(byte roughness) {
         TextByteSetRouhness[0] = 0x10;
         TextByteSetRouhness[1] = roughness; // 0x01 on     0x00 off
         return TextByteSetRouhness;

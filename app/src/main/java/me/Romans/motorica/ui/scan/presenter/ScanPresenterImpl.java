@@ -74,8 +74,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("MLT") ||
             device.getName().split(" ")[0].equals("FNG") ||
             device.getName().split(" ")[0].equals("FNS")) {
-            //TODO  переписать на фолс
-            chatActivity.typeOfVersion = false; //false - многосхват
+            chatActivity.monograbVersion = false; //false - многосхват
         }
         if( device.getName().split("-")[0].equals("STR") ||
             device.getName().split("-")[0].equals("CBY") ||
@@ -86,7 +85,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("HND") ||
             device.getName().split(" ")[0].equals("IND") ||
             device.getName().equals("ASUS")){
-            chatActivity.typeOfVersion = true; //true - односхват
+            chatActivity.monograbVersion = false; //true - односхват
         }
     }
 

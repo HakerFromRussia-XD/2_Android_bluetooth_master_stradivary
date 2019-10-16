@@ -131,19 +131,6 @@
                 android:textSize="14sp" />
 
             <TextView
-                android:id="@+id/textView13"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border8"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_marginStart="14dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginTop="14dp"
-                android:text="Грубость датчиков:"
-                android:textSize="14sp" />
-
-            <TextView
                 android:id="@+id/textView8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -561,29 +548,9 @@
                     android:layout_toRightOf="@+id/textView23"
                     app:srcCompat="@drawable/sleeping" />
 
-                <Switch
-                    android:id="@+id/switchInvert"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="9dp"
-                    android:layout_marginRight="9dp" />
 
-                <TextView
-                    android:id="@+id/valueInvert"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_alignTop="@+id/textView23"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginRight="4dp"
-                    android:layout_toStartOf="@+id/switchInvert"
-                    android:layout_toLeftOf="@+id/switchInvert"
-                    android:text="инвертирование"
-                    android:textSize="14sp" />
+
+
 
             </RelativeLayout>
 
@@ -942,25 +909,7 @@
             <!--android:typeface="monospace"-->
             <!--app:fontFamily="sans-serif-medium" />-->
 
-            <SeekBar
-                android:id="@+id/seekBarRoughness"
-                android:layout_width="240dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border8"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginStart="6dp"
-                android:layout_marginLeft="6dp"
-                android:layout_marginTop="3dp"
-                android:layout_marginEnd="0dp"
-                android:layout_marginRight="0dp"
-                android:layout_toEndOf="@+id/textView24"
-                android:layout_toRightOf="@+id/textView24"
-                android:indeterminate="false"
-                android:max="31"
-                android:progress="13"
-                android:progressDrawable="@drawable/track"
-                android:thumb="@drawable/thumb" />
+
 
             <TextView
                 android:id="@+id/valueCH2on"

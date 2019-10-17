@@ -62,6 +62,7 @@ import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings3;
 import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
 import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettings;
+import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettingsMono;
 
 /**
  * Created by Omar on 20/12/2017.
@@ -168,6 +169,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public FragmentGestureSettings2 fragmentGestureSettings2;
     public FragmentGestureSettings3 fragmentGestureSettings3;
     public FragmentServiceSettings fragmentServiceSettings;
+    public FragmentServiceSettingsMono fragmentServiceSettingsMono;
     public FragmentManager fragmentManager = getSupportFragmentManager();
     public float heightBottomNavigation;
 //    for 3D part
@@ -238,6 +240,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 case R.id.navigation_home:
                     Log.i(TAG, "oncliiiiick");
                     layoutSensors.setVisibility(View.GONE);
+                    myMenu.setGroupVisible(R.id.service_settings, false);
 //                    fab.show();
                     isSetStartParametersActivityActiveFlag = false;
                     layoutGestures.setVisibility(View.VISIBLE);
@@ -245,6 +248,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 case R.id.navigation_dashboard:
                     Log.i(TAG, ":))");
                     layoutSensors.setVisibility(View.VISIBLE);
+                    myMenu.setGroupVisible(R.id.service_settings, true);
                     fab.hide();
                     layoutGestures.setVisibility(View.GONE);
                     return true;
@@ -263,6 +267,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             valueIstop2 = findViewById(R.id.valueIstop2);
             valueIstop = findViewById(R.id.valueIstop);
             seekBarIstop = findViewById(R.id.seekBarIstop);
+            fragmentServiceSettingsMono = new FragmentServiceSettingsMono();
         } else {
             System.err.println("многосхватная версия");
             setContentView(R.layout.multigrab);
@@ -274,6 +279,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             activity_chat_gesture2 = findViewById(R.id.activity_chat_gesture2);
             activity_chat_gesture3 = findViewById(R.id.activity_chat_gesture3);
             activity_chat_gesture4 = findViewById(R.id.activity_chat_gesture4);
+            fragmentGestureSettings = new FragmentGestureSettings();
+            fragmentGripperSettings = new FragmentGripperSettings();
+            fragmentGestureSettings2 = new FragmentGestureSettings2();
+            fragmentGestureSettings3 = new FragmentGestureSettings3();
+            fragmentServiceSettings = new FragmentServiceSettings();
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getSupportActionBar().setSubtitle(deviceName);
@@ -467,11 +477,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             }
         });
 
-        fragmentGestureSettings = new FragmentGestureSettings();
-        fragmentGripperSettings = new FragmentGripperSettings();
-        fragmentGestureSettings2 = new FragmentGestureSettings2();
-        fragmentGestureSettings3 = new FragmentGestureSettings3();
-        fragmentServiceSettings = new FragmentServiceSettings();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1106,18 +1111,20 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(isEnable){
-                                fragmentServiceSettings.seekBarRoughness.setEnabled(true);
-                                fragmentServiceSettings.switchInvert.setEnabled(true);
-                            } else {
-                                fragmentServiceSettings.seekBarRoughness.setEnabled(false);
-                                fragmentServiceSettings.switchInvert.setEnabled(false);
-                            }
-                            if(invertChannel){
-                                fragmentServiceSettings.switchInvert.setChecked(true);
-                            } else {
-                                fragmentServiceSettings.switchInvert.setChecked(false);
-                            }
+                            //TODO дописать разделение компонентов в разных фрагментах в зависимости от версии
+//                            if(isEnable){
+//                                fragmentServiceSettings.seekBarRoughness.setEnabled(true);
+//                                fragmentServiceSettings.switchInvert.setEnabled(true);
+//                            } else {
+//                                fragmentServiceSettings.seekBarRoughness.setEnabled(false);
+//                                fragmentServiceSettings.switchInvert.setEnabled(false);
+//                            }
+//                            if(invertChannel){
+//                                fragmentServiceSettings.switchInvert.setChecked(true);
+//                            } else {
+//                                fragmentServiceSettings.switchInvert.setChecked(false);
+//                            }
+                            System.err.println("UpdateThread work");
                         }
                     });
                     try {
@@ -1152,11 +1159,18 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         // Операции для выбранного пункта меню
         switch (id) {
             case R.id.action_Trigger0:
-                fragmentManager.beginTransaction()
-                        .add(R.id.view_pager, fragmentServiceSettings)
-                        .commit();
-                navigation.clearAnimation();
-                navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+                if(monograbVersion){
+                    System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в monograbVersion");
+                    fragmentManager.beginTransaction()
+                            .add(R.id.view_pager, fragmentServiceSettingsMono)
+                            .commit();
+                } else {
+                    fragmentManager.beginTransaction()
+                            .add(R.id.view_pager, fragmentServiceSettings)
+                            .commit();
+                    navigation.clearAnimation();
+                    navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+                }
                 myMenu.setGroupVisible(R.id.modes, true);
                 myMenu.setGroupVisible(R.id.service_settings, false);
                 return true;
@@ -1330,9 +1344,8 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         receiveIndicationStateChat = new Byte(receiveIndicationState);
         receiveBatteryTensionChat = new Integer(receiveBatteryTension);
 
-//        TODO возращены настройки токов в многосхватную версию
         if(monograbVersion){valueIstop2.setText(String.valueOf(receiveСurrentChat));}
-//        valueIstop2.setText(String.valueOf(receiveСurrentChat));
+
         valueBatteryTension.setText(""+receiveBatteryTensionChat); //(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10) удаление знаков после запятой(показания напряжения)
         if (receiveIndicationStateChat == 0){
             valueStatus.setText("покой");
@@ -1692,8 +1705,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x00;
                     firstTapRcyclerView = false;
-                    myMenu.setGroupVisible(R.id.service_settings, false);
-                    myMenu.setGroupVisible(R.id.modes, false);
                 }
                 break;
             case 1:
@@ -1705,8 +1716,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x02;
                     firstTapRcyclerView = false;
-                    myMenu.setGroupVisible(R.id.service_settings, false);
-                    myMenu.setGroupVisible(R.id.modes, false);
                 }
                 break;
             case 2:
@@ -1718,8 +1727,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x04;
                     firstTapRcyclerView = false;
-                    myMenu.setGroupVisible(R.id.service_settings, false);
-                    myMenu.setGroupVisible(R.id.modes, false);
                 }
                 break;
 //            case 3:

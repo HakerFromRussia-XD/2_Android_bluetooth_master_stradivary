@@ -27,7 +27,7 @@ import me.Romans.motorica.ui.chat.view.ChatActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentGestureSettings2 extends Fragment implements ChatView, GesstureAdapter.OnGestureMyListener {
-    @BindView(R.id.gesture_use) Button gesture_use;
+    @BindView(R.id.gesture_use) public Button gesture_use;
     private RecyclerView recyclerView;
     private GesstureAdapter gestureAdapter;
     private List <Gesture_my> gestureMyList;
@@ -92,13 +92,13 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
                         chatActivity.TranslateMassegeControlComplexGesture();
                     }
                     chatActivity.fragmentManager.beginTransaction()
-                           .remove(chatActivity.fragmentGestureSettings2)
-                           .commit();
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                            .remove(chatActivity.fragmentGestureSettings2)
+                            .commit();
                     chatActivity.navigation.clearAnimation();
                     chatActivity.navigation.animate().translationY(0).setDuration(200);
                     chatActivity.graphThreadFlag = true;
                     chatActivity.startGraphEnteringDataThread();
-                    chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
                 }
             }
         });
@@ -141,6 +141,7 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
                 if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRcyclerView = false;
                     chatActivity.fragmentManager.beginTransaction()
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .commit();
                     for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
@@ -159,6 +160,7 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
                     chatActivity.firstTapRcyclerView = false;
                     chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
                     chatActivity.fragmentManager.beginTransaction()
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .commit();
                     for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {

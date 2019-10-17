@@ -50,6 +50,8 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
         chatActivity.graphThreadFlag = false;
         chatActivity.updateSeviceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
+        chatActivity.layoutSensors.setVisibility(View.GONE);
+
         if (chatActivity.invertChannel){
             switchInvert.setChecked(true);
         } else {
@@ -61,6 +63,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             public void onClick(View v) {
                 if (getActivity() != null) {
                     chatActivity.fragmentManager.beginTransaction()
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .remove(chatActivity.fragmentServiceSettings)
                             .commit();
                     chatActivity.navigation.clearAnimation();
@@ -70,6 +73,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
                     chatActivity.myMenu.setGroupVisible(R.id.modes, false);
                     chatActivity.updateSeviceSettingsThreadFlag = false;
+                    chatActivity.layoutSensors.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -92,6 +96,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
         switchInvert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.err.println("тут использование setOnClickListener = "+chatActivity.invertChannel);
                 if (switchInvert.isChecked()){
                     chatActivity.invert = 0x01;
                     chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));

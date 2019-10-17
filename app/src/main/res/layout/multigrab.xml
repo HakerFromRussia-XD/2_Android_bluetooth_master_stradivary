@@ -99,7 +99,7 @@
         <RelativeLayout
             android:id="@+id/layout_sensors"
             android:layout_width="match_parent"
-            android:layout_height="790dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="0dp"
             android:orientation="vertical"
             android:paddingLeft="0dp"
@@ -109,8 +109,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:context="me.aflak.libraries.me.aflak.motorica.ui.scan.view.ScanActivity"
-            tools:ignore="MissingConstraints">
+            tools:ignore="MissingConstraints,WebViewLayout">
 
             <TextView
                 android:id="@+id/textView12"
@@ -580,18 +579,6 @@
                     android:layout_toRightOf="@+id/imageViewStatus"
                     android:text="покой"
                     android:textSize="14sp" />
-
-                <ImageView
-                    android:id="@+id/imageViewStatus"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_toEndOf="@+id/textView23"
-                    android:layout_toRightOf="@+id/textView23"
-                    app:srcCompat="@drawable/sleeping" />
 
             </RelativeLayout>
 

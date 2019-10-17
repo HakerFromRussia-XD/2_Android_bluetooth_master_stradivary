@@ -74,17 +74,15 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
     @BindView(R.id.seekBarCH1on2) public SeekBar seekBarCH1on2;
     @BindView(R.id.seekBarCH2on2) public SeekBar seekBarCH2on2;
-    SeekBar seekBarIstop;
+    public SeekBar seekBarIstop;
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
 //    TextView textSpeedFinger;
-    @BindView(R.id.valueStatus) TextView valueStatus;
+//    @BindView(R.id.valueStatus) TextView valueStatus;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
     @BindView(R.id.valueCH2on) TextView valueCH2on;
-    TextView valueIstop;
-    TextView valueIstop2;
     @BindView(R.id.activity_chat_messages) TextView messages;
     @BindView(R.id.valueBatteryTension) TextView valueBatteryTension;
-    @BindView(R.id.layout_sensors) RelativeLayout layoutSensors;
+    @BindView(R.id.layout_sensors) public RelativeLayout layoutSensors;
     @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
@@ -93,9 +91,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     Button activity_chat_gesture3;
     Button activity_chat_gesture4;
     @BindView(R.id.fab) FloatingActionButton fab;
-    @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
-    @BindView(R.id.imageViewStatusOpen) ImageView imageViewStatusOpen;
-    @BindView(R.id.imageViewStatusClose) ImageView imageViewStatusClose;
+//    @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
+//    @BindView(R.id.imageViewStatusOpen) ImageView imageViewStatusOpen;
+//    @BindView(R.id.imageViewStatusClose) ImageView imageViewStatusClose;
     @BindView(R.id.borderGray) ImageView borderGray;
     @BindView(R.id.borderGreen) ImageView borderGreen;
     @BindView(R.id.borderRed) ImageView borderRed;
@@ -130,7 +128,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public byte[] TextByteSetSwitchGesture = new byte [3];
     public byte[] TextByteSetRouhness = new byte [2];
 //    for graph
-    private int receiveСurrent = 0;
+    public int receiveСurrent = 0;
+    public int realCurrent = 0;
+    public int maxCurrent = 1500;
     private int receiveLevelTrigCH1 = 0;
     private int receiveLevelTrigCH2 = 0;
     private int lastReceiveLevelCH1Chat;
@@ -221,9 +221,11 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     public static SelectStation selectStation;
     protected WebView webView;
     private boolean showModsOnTopMenu = false;
+//    for service menu
     public Menu myMenu;
     public Thread updateSeviceSettingsThread;
     public boolean updateSeviceSettingsThreadFlag = false;
+    private boolean showMenu = true;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -241,6 +243,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     Log.i(TAG, "oncliiiiick");
                     layoutSensors.setVisibility(View.GONE);
                     myMenu.setGroupVisible(R.id.service_settings, false);
+                    showMenu = false;
 //                    fab.show();
                     isSetStartParametersActivityActiveFlag = false;
                     layoutGestures.setVisibility(View.VISIBLE);
@@ -249,6 +252,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                     Log.i(TAG, ":))");
                     layoutSensors.setVisibility(View.VISIBLE);
                     myMenu.setGroupVisible(R.id.service_settings, true);
+                    showMenu = true;
                     fab.hide();
                     layoutGestures.setVisibility(View.GONE);
                     return true;
@@ -264,8 +268,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         if(monograbVersion){
             System.err.println("односхватная версия");
             setContentView(R.layout.monograb);
-            valueIstop2 = findViewById(R.id.valueIstop2);
-            valueIstop = findViewById(R.id.valueIstop);
             seekBarIstop = findViewById(R.id.seekBarIstop);
             fragmentServiceSettingsMono = new FragmentServiceSettingsMono();
         } else {
@@ -588,17 +590,16 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    valueIstop.setText(String.valueOf(seekBar.getProgress()));
+                    maxCurrent = seekBar.getProgress();
                 }
 
                 @Override
                 public void onStartTrackingTouch(SeekBar seekBar) {
-                    valueIstop.setText(String.valueOf(seekBar.getProgress()));
                 }
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    valueIstop.setText(String.valueOf(seekBar.getProgress()));
+                    maxCurrent = seekBar.getProgress();
                     curent = seekBar.getProgress();
                     presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
                 }
@@ -1112,23 +1113,42 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                         @Override
                         public void run() {
                             //TODO дописать разделение компонентов в разных фрагментах в зависимости от версии
-//                            if(isEnable){
-//                                fragmentServiceSettings.seekBarRoughness.setEnabled(true);
-//                                fragmentServiceSettings.switchInvert.setEnabled(true);
-//                            } else {
-//                                fragmentServiceSettings.seekBarRoughness.setEnabled(false);
-//                                fragmentServiceSettings.switchInvert.setEnabled(false);
-//                            }
-//                            if(invertChannel){
-//                                fragmentServiceSettings.switchInvert.setChecked(true);
-//                            } else {
-//                                fragmentServiceSettings.switchInvert.setChecked(false);
-//                            }
+                            if(monograbVersion){
+                                if(isEnable){
+                                    fragmentServiceSettingsMono.seekBarRoughness.setEnabled(true);
+                                    fragmentServiceSettingsMono.switchInvert.setEnabled(true);
+                                    fragmentServiceSettingsMono.seekBarIstop.setEnabled(true);
+                                } else {
+                                    fragmentServiceSettingsMono.seekBarRoughness.setEnabled(false);
+                                    fragmentServiceSettingsMono.switchInvert.setEnabled(false);
+                                    fragmentServiceSettingsMono.seekBarIstop.setEnabled(false);
+                                }
+                                if(invertChannel){
+                                    fragmentServiceSettingsMono.switchInvert.setChecked(true);
+                                } else {
+                                    fragmentServiceSettingsMono.switchInvert.setChecked(false);
+                                }
+                                fragmentServiceSettingsMono.seekBarIstop.setProgress(maxCurrent);
+                            } else {
+                                if(isEnable){
+                                    fragmentServiceSettings.seekBarRoughness.setEnabled(true);
+                                    fragmentServiceSettings.switchInvert.setEnabled(true);
+                                } else {
+                                    fragmentServiceSettings.seekBarRoughness.setEnabled(false);
+                                    fragmentServiceSettings.switchInvert.setEnabled(false);
+                                }
+                                if(invertChannel){
+                                    fragmentServiceSettings.switchInvert.setChecked(true);
+                                } else {
+                                    fragmentServiceSettings.switchInvert.setChecked(false);
+                                }
+                            }
+
                             System.err.println("UpdateThread work");
                         }
                     });
                     try {
-                        Thread.sleep(50);
+                        Thread.sleep(500);
                     }catch (Exception e){}
                 }
             }
@@ -1162,10 +1182,12 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
                 if(monograbVersion){
                     System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в monograbVersion");
                     fragmentManager.beginTransaction()
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, fragmentServiceSettingsMono)
                             .commit();
                 } else {
                     fragmentManager.beginTransaction()
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, fragmentServiceSettings)
                             .commit();
                     navigation.clearAnimation();
@@ -1344,46 +1366,46 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         receiveIndicationStateChat = new Byte(receiveIndicationState);
         receiveBatteryTensionChat = new Integer(receiveBatteryTension);
 
-        if(monograbVersion){valueIstop2.setText(String.valueOf(receiveСurrentChat));}
+        if(fragmentServiceSettingsMono.valueIstop2 != null){fragmentServiceSettingsMono.valueIstop2.setText(String.valueOf(receiveСurrentChat));}
 
         valueBatteryTension.setText(""+receiveBatteryTensionChat); //(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10) удаление знаков после запятой(показания напряжения)
         if (receiveIndicationStateChat == 0){
-            valueStatus.setText("покой");
-            imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
-            imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
-            imageViewStatus.setImageResource(R.drawable.sleeping);
+//            valueStatus.setText("покой");
+//            imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+//            imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+//            imageViewStatus.setImageResource(R.drawable.sleeping);
         }
         if (receiveIndicationStateChat == 1){
             if(invertChannel){
-                valueStatus.setText("открытие");
-                imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
-                imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
-                imageViewStatus.setImageResource(R.drawable.opening);
+//                valueStatus.setText("открытие");
+//                imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
+//                imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+//                imageViewStatus.setImageResource(R.drawable.opening);
             } else  {
-                valueStatus.setText("закрытие");
-                imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
-                imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
-                imageViewStatus.setImageResource(R.drawable.closing);
+//                valueStatus.setText("закрытие");
+//                imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+//                imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
+//                imageViewStatus.setImageResource(R.drawable.closing);
             }
         }
         if (receiveIndicationStateChat == 2){
             if(invertChannel){
-                valueStatus.setText("закрытие");
-                imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
-                imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
-                imageViewStatus.setImageResource(R.drawable.closing);
+//                valueStatus.setText("закрытие");
+//                imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+//                imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
+//                imageViewStatus.setImageResource(R.drawable.closing);
             } else  {
-                valueStatus.setText("открытие");
-                imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
-                imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
-                imageViewStatus.setImageResource(R.drawable.opening);
+//                valueStatus.setText("открытие");
+//                imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
+//                imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+//                imageViewStatus.setImageResource(R.drawable.opening);
             }
         }
         if (receiveIndicationStateChat == 3){
-            valueStatus.setText("блок");
-            imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
-            imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
-            imageViewStatus.setImageResource(R.drawable.block);
+//            valueStatus.setText("блок");
+//            imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
+//            imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
+//            imageViewStatus.setImageResource(R.drawable.block);
         }
     }
     @Override
@@ -1391,7 +1413,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         this.receiveСurrent = receiveСurrent;
         this.receiveIndicationInvertMode = receiveIndicationInvertMode;
         if (receiveIndicationInvertMode == 1) {invertChannel=true;} else {invertChannel=false;}
-        System.err.println("тут использование invertChannel 1 "+invertChannel);
         if(invertChannel) {
             this.receiveLevelTrigCH1 = receiveLevelTrigCH2;
             this.receiveLevelTrigCH2 = receiveLevelTrigCH1;
@@ -1452,7 +1473,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         }
         this.runOnUi = true;
         if(isEnable){
-            myMenu.setGroupVisible(R.id.service_settings, true);
+            if(showMenu){myMenu.setGroupVisible(R.id.service_settings, true);}
             transferThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -1699,34 +1720,40 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             case 0:
                 if(firstTapRcyclerView) {
                     fragmentManager.beginTransaction()
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, fragmentGestureSettings)
                             .commit();
                     navigation.clearAnimation();
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x00;
                     firstTapRcyclerView = false;
+                    showMenu = false;
                 }
                 break;
             case 1:
                 if(firstTapRcyclerView) {
                     fragmentManager.beginTransaction()
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, fragmentGestureSettings2)
                             .commit();
                     navigation.clearAnimation();
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x02;
                     firstTapRcyclerView = false;
+                    showMenu = false;
                 }
                 break;
             case 2:
                if(firstTapRcyclerView) {
                     fragmentManager.beginTransaction()
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, fragmentGestureSettings3)
                             .commit();
                     navigation.clearAnimation();
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x04;
                     firstTapRcyclerView = false;
+                   showMenu = false;
                 }
                 break;
 //            case 3:

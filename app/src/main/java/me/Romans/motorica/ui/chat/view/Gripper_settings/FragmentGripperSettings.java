@@ -72,6 +72,7 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
             public void onClick(View v) {
                 if (getActivity() != null) {
                     chatActivity.fragmentManager.beginTransaction()
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .remove(chatActivity.fragmentGripperSettings)
                             .commit();
                     chatActivity.firstTapRcyclerView = true;

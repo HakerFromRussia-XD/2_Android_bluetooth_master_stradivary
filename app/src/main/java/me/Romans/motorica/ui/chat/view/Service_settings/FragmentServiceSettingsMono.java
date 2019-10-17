@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,33 +23,40 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     @BindView(R.id.save_service_settings) Button save_service_settings;
     @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) public Switch switchInvert;
+    public SeekBar seekBarIstop;
+    TextView valueIstop;
+    public TextView valueIstop2;
     public View view;
     private ChatActivity chatActivity;
+    private int maxCurrent = 1500;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_service_settings_mono, container, false);
 
-        System.err.println("FragmentServiceSettingsMono-------------> запущен");
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
                 .chatModule(new ChatModule(FragmentServiceSettingsMono.this))
                 .build().inject(FragmentServiceSettingsMono.this);
         ButterKnife.bind(this, view);
-        System.err.println("FragmentServiceSettingsMono-------------> ButterKnife отработал");
 
         if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
         chatActivity.graphThreadFlag = false;
         chatActivity.updateSeviceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
-        System.err.println("FragmentServiceSettingsMono-------------> getActivity отработал");
+        chatActivity.layoutSensors.setVisibility(View.GONE);
+        valueIstop2 = view.findViewById(R.id.valueIstop2);
+        valueIstop = view.findViewById(R.id.valueIstop);
+        seekBarIstop = view.findViewById(R.id.seekBarIstopServiceSettings);
+
 
         save_service_settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
                     chatActivity.fragmentManager.beginTransaction()
+                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .remove(chatActivity.fragmentServiceSettingsMono)
                             .commit();
                     chatActivity.graphThreadFlag = true;
@@ -56,10 +64,10 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
                     chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
                     chatActivity.myMenu.setGroupVisible(R.id.modes, false);
                     chatActivity.updateSeviceSettingsThreadFlag = false;
+                    chatActivity.layoutSensors.setVisibility(View.VISIBLE);
                 }
             }
         });
-        System.err.println("FragmentServiceSettingsMono-------------> setOnClickListener на save_service_settings отработал");
 
         seekBarRoughness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -97,9 +105,41 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
             }
         });
 
+        seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                maxCurrent = seekBar.getProgress();
+                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                maxCurrent = seekBar.getProgress();
+                chatActivity.maxCurrent = maxCurrent;
+                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+                chatActivity.curent = seekBar.getProgress();
+                chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+            }
+        });
+
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        seekBarIstop.setProgress(chatActivity.maxCurrent);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        chatActivity.seekBarIstop.setProgress(maxCurrent);
+    }
 
     @Override
     public void setStatus(String status) {

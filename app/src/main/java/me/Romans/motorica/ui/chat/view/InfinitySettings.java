@@ -197,7 +197,7 @@ public class InfinitySettings extends AppCompatActivity implements ChatView {
     }
 
     @Override
-    public void setStartParametersInGraphActivity() {
+    public void setStartParametersInChartActivity() {
 
     }
 

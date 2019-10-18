@@ -2,8 +2,6 @@ package me.Romans.motorica.ui.chat.view.Service_settings;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,21 +9,13 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Switch;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.Romans.motorica.MyApp;
 import me.Romans.motorica.R;
-import me.Romans.motorica.data.GesstureAdapter;
-import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
-import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
-import me.Romans.motorica.ui.chat.view.ChatActivity;
+import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentServiceSettings extends Fragment implements ChatView {
@@ -33,7 +23,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) public Switch switchInvert;
     public View view;
-    private ChatActivity chatActivity;
+    private ChartActivity chatActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -42,11 +32,11 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
-                .chatModule(new ChatModule(FragmentServiceSettings.this))
+                .chatModule(new ChatModule((ChatView) FragmentServiceSettings.this))
                 .build().inject(FragmentServiceSettings.this);
         ButterKnife.bind(this, view);
 
-        if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
+        if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
         chatActivity.graphThreadFlag = false;
         chatActivity.updateSeviceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
@@ -163,7 +153,8 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     }
 
     @Override
-    public void setStartParametersInGraphActivity() {
+    public void setStartParametersInChartActivity() {
 
     }
+
 }

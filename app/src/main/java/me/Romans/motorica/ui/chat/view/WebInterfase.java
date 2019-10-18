@@ -4,7 +4,7 @@ import android.content.Context;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
-public class WebInterfase extends ChatActivity {
+public class WebInterfase extends ChartActivity {
     private Context context;
     private int testInt = 0;
 

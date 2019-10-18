@@ -4,7 +4,6 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.SystemClock;
 import android.util.Log;
 
 import me.Romans.motorica.R;
@@ -17,7 +16,7 @@ import java.nio.IntBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import me.Romans.motorica.ui.chat.view.ChatActivity;
+import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.common.RawResourceReader;
 import me.Romans.motorica.ui.chat.view.common.ShaderHelper;
 import me.Romans.motorica.ui.chat.view.common.TextureHelper;
@@ -34,7 +33,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	/** References to other main objects. */
 	private Context fragmentGripperSettings;
 	private FragmentGripperSettings fragmentGripperSettingsF;
-	private ChatActivity chatActivity;
+	private ChartActivity chatActivity;
 	private final ErrorHandler errorHandler;
 
 	/**
@@ -390,12 +389,12 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		if (selectFlag){
-			if (selectObject() == 51){ selectStation = SelectStation.UNSELECTED_OBJECT; ChatActivity.selectStation = ChatActivity.SelectStation.UNSELECTED_OBJECT; }
-			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; ChatActivity.selectStation = ChatActivity.SelectStation.SELECT_FINGER_1;}
-			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; ChatActivity.selectStation = ChatActivity.SelectStation.SELECT_FINGER_2;}
-			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; ChatActivity.selectStation = ChatActivity.SelectStation.SELECT_FINGER_3;}
-			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; ChatActivity.selectStation = ChatActivity.SelectStation.SELECT_FINGER_4;}
-			if (selectObject() == 5){ selectStation = SelectStation.SELECT_FINGER_5; ChatActivity.selectStation = ChatActivity.SelectStation.SELECT_FINGER_5;}
+			if (selectObject() == 51){ selectStation = SelectStation.UNSELECTED_OBJECT; ChartActivity.selectStation = ChartActivity.SelectStation.UNSELECTED_OBJECT; }
+			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; ChartActivity.selectStation = ChartActivity.SelectStation.SELECT_FINGER_1;}
+			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; ChartActivity.selectStation = ChartActivity.SelectStation.SELECT_FINGER_2;}
+			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; ChartActivity.selectStation = ChartActivity.SelectStation.SELECT_FINGER_3;}
+			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; ChartActivity.selectStation = ChartActivity.SelectStation.SELECT_FINGER_4;}
+			if (selectObject() == 5){ selectStation = SelectStation.SELECT_FINGER_5; ChartActivity.selectStation = ChartActivity.SelectStation.SELECT_FINGER_5;}
 			System.err.println(selectStation);
 		}
 		if(transferFlag){

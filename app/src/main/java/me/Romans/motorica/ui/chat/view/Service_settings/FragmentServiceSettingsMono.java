@@ -16,7 +16,7 @@ import me.Romans.motorica.MyApp;
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
-import me.Romans.motorica.ui.chat.view.ChatActivity;
+import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentServiceSettingsMono extends Fragment implements ChatView {
@@ -27,7 +27,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     TextView valueIstop;
     public TextView valueIstop2;
     public View view;
-    private ChatActivity chatActivity;
+    private ChartActivity chatActivity;
     private int maxCurrent = 1500;
 
     @Override
@@ -41,7 +41,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
                 .build().inject(FragmentServiceSettingsMono.this);
         ButterKnife.bind(this, view);
 
-        if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
+        if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
         chatActivity.graphThreadFlag = false;
         chatActivity.updateSeviceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
@@ -185,7 +185,8 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     }
 
     @Override
-    public void setStartParametersInGraphActivity() {
+    public void setStartParametersInChartActivity() {
 
     }
+
 }

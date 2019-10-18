@@ -547,7 +547,7 @@ public class Bluetooth {
                                         public void run() {
                                             if(no_error && msgCorrectAcceptance) {
                                                 parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf);
-                                                parserCallback.setStartParametersInGraphActivity();
+                                                parserCallback.setStartParametersInChartActivity();
                                                 deviceCallback.onMessage(msgCopy);
                                                 if (DEBUG) {System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);}
                                             }

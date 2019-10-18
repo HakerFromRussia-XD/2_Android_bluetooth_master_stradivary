@@ -13,13 +13,12 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.Romans.motorica.MyApp;
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
-import me.Romans.motorica.ui.chat.view.ChatActivity;
+import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentGripperSettings extends Fragment implements ChatView {
@@ -29,7 +28,7 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
 
 
     public View view;
-    private ChatActivity chatActivity;
+    private ChartActivity chatActivity;
     private GripperSettingsGLSurfaceView glSurfaceView;
     private GripperSettingsRenderer renderer;
 
@@ -43,7 +42,7 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
                 .chatModule(new ChatModule(FragmentGripperSettings.this))
                 .build().inject(FragmentGripperSettings.this);
         ButterKnife.bind(this, view);
-        if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
+        if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
 
         gripper_use = view.findViewById(R.id.gripper_use);
         seekBarSpeedFinger = view.findViewById(R.id.seekBarSpeedFinger);
@@ -134,7 +133,8 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
     public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication) { }
 
     @Override
-    public void setStartParametersInGraphActivity() {
+    public void setStartParametersInChartActivity() {
 
     }
+
 }

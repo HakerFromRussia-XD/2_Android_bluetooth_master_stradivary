@@ -68,7 +68,7 @@ import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettingsM
  * Created by Omar on 20/12/2017.
  */
 
-public class ChatActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener {
+public class ChartActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener {
     public static boolean monograbVersion;
     @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
@@ -91,9 +91,9 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     Button activity_chat_gesture3;
     Button activity_chat_gesture4;
     @BindView(R.id.fab) FloatingActionButton fab;
-//    @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
-//    @BindView(R.id.imageViewStatusOpen) ImageView imageViewStatusOpen;
-//    @BindView(R.id.imageViewStatusClose) ImageView imageViewStatusClose;
+    @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
+    @BindView(R.id.imageViewStatusOpen) ImageView imageViewStatusOpen;
+    @BindView(R.id.imageViewStatusClose) ImageView imageViewStatusClose;
     @BindView(R.id.borderGray) ImageView borderGray;
     @BindView(R.id.borderGreen) ImageView borderGreen;
     @BindView(R.id.borderRed) ImageView borderRed;
@@ -501,13 +501,14 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
             @Override
             public void onClick(View v) {
                 if (switchBlockMode.isChecked()){
-                    System.out.println("Block mod");
                     block = 0x01;
                     presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                    imageViewStatus.setImageResource(R.drawable.unblock);
                 } else {
-                    System.out.println("Invert Block mod");
                     block = 0x00;
                     presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                    imageViewStatus.setImageResource(R.drawable.block_not_use);
+                    receiveBlockIndication = 0;
                 }
             }
         });
@@ -1331,7 +1332,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     @Override
     public void setValueCH(int levelCH, int numberChannel) {
         Integer numberOfChannel = new Integer(numberChannel);
-        System.err.println("тут использование invertChannel");
         if (invertChannel){
             switch (numberOfChannel){
                 case 1:
@@ -1354,7 +1354,6 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
     }
     @Override
     public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
-        System.err.println("тут использование invertChannel");
         if (invertChannel){
             receiveLevelCH1Chat = new Integer(receiveLevelCH2);
             receiveLevelCH2Chat = new Integer(receiveLevelCH1);
@@ -1366,46 +1365,63 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         receiveIndicationStateChat = new Byte(receiveIndicationState);
         receiveBatteryTensionChat = new Integer(receiveBatteryTension);
 
-        if(fragmentServiceSettingsMono.valueIstop2 != null){fragmentServiceSettingsMono.valueIstop2.setText(String.valueOf(receiveСurrentChat));}
+        if((monograbVersion)&&(fragmentServiceSettingsMono.valueIstop2 != null)){fragmentServiceSettingsMono.valueIstop2.setText(String.valueOf(receiveСurrentChat));}
 
         valueBatteryTension.setText(""+receiveBatteryTensionChat); //(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10) удаление знаков после запятой(показания напряжения)
         if (receiveIndicationStateChat == 0){
 //            valueStatus.setText("покой");
-//            imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
-//            imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+            imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+            imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
 //            imageViewStatus.setImageResource(R.drawable.sleeping);
+            if (receiveBlockIndication == 1){
+                imageViewStatus.setImageResource(R.drawable.unblock);
+            } else {
+                imageViewStatus.setImageResource(R.drawable.block_not_use);
+            }
         }
         if (receiveIndicationStateChat == 1){
             if(invertChannel){
 //                valueStatus.setText("открытие");
-//                imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
-//                imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+                imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
+                imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
 //                imageViewStatus.setImageResource(R.drawable.opening);
             } else  {
 //                valueStatus.setText("закрытие");
-//                imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
-//                imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
+                imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+                imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
 //                imageViewStatus.setImageResource(R.drawable.closing);
+            }
+            if (receiveBlockIndication == 1){
+                imageViewStatus.setImageResource(R.drawable.unblock);
+            } else {
+                imageViewStatus.setImageResource(R.drawable.block_not_use);
             }
         }
         if (receiveIndicationStateChat == 2){
             if(invertChannel){
 //                valueStatus.setText("закрытие");
-//                imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
-//                imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
+                imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
+                imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
 //                imageViewStatus.setImageResource(R.drawable.closing);
             } else  {
 //                valueStatus.setText("открытие");
-//                imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
-//                imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
+                imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
+                imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
 //                imageViewStatus.setImageResource(R.drawable.opening);
+            }
+            if (receiveBlockIndication == 1){
+                imageViewStatus.setImageResource(R.drawable.unblock);
+            } else {
+                imageViewStatus.setImageResource(R.drawable.block_not_use);
             }
         }
         if (receiveIndicationStateChat == 3){
 //            valueStatus.setText("блок");
-//            imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
-//            imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
-//            imageViewStatus.setImageResource(R.drawable.block);
+            imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
+            imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
+            switchBlockMode.setChecked(true);
+            imageViewStatus.setImageResource(R.drawable.block);
+            receiveBlockIndication = 1;
         }
     }
     @Override
@@ -1428,7 +1444,7 @@ public class ChatActivity extends AppCompatActivity implements ChatView, Gesstur
         if (this.receiveLevelTrigCH2 < 14){this.receiveLevelTrigCH2 = 14;}
         this.receiveBlockIndication = receiveBlockIndication;
     }
-    public void setStartParametersInGraphActivity(){
+    public void setStartParametersInChartActivity(){
             if (monograbVersion){ seekBarIstop.setProgress(receiveСurrent);}
             seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekbar - 0.25)));//-0.5
             seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekbar - 0.25)));//-0.5

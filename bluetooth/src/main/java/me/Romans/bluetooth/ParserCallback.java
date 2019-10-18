@@ -11,5 +11,5 @@ public interface ParserCallback {
     void givsRegister (Integer register);
     void givsCorrectAcceptance (Boolean correct_acceptence);
     void givsErrorReception(Boolean givsErrorReception);
-    void setStartParametersInGraphActivity();
+    void setStartParametersInChartActivity();
 }

@@ -383,8 +383,8 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
 
         @Override
-        public void setStartParametersInGraphActivity() {
-            view.setStartParametersInGraphActivity();
+        public void setStartParametersInChartActivity() {
+            view.setStartParametersInChartActivity();
         }
     };
 

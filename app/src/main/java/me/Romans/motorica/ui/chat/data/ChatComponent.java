@@ -4,7 +4,7 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import me.Romans.motorica.data.BluetoothModule;
-import me.Romans.motorica.ui.chat.view.ChatActivity;
+import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings2;
 import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings3;
@@ -20,7 +20,7 @@ import me.Romans.motorica.ui.chat.view.experimental.DualChart;
 @Singleton
 @Component(modules = {BluetoothModule.class, ChatModule.class})
 public interface ChatComponent {
-    void inject(ChatActivity chatActivity);
+    void inject(ChartActivity chatActivity);
     void inject(InfinitySettings infinitySettings);
     void inject(DualChart dualChart);
     void inject(FragmentGripperSettings fragmentGripperSettings);

@@ -24,7 +24,7 @@
             android:name="me.Romans.motorica.ui.scan.view.ScanActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="me.Romans.motorica.ui.chat.view.ChatActivity"
+            android:name="me.Romans.motorica.ui.chat.view.ChartActivity"
             android:screenOrientation="portrait">
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->

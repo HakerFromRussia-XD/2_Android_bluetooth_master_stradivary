@@ -20,7 +20,7 @@ import me.Romans.motorica.data.GesstureAdapter;
 import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
-import me.Romans.motorica.ui.chat.view.ChatActivity;
+import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentGestureSettings3 extends Fragment implements ChatView, GesstureAdapter.OnGestureMyListener {
@@ -31,7 +31,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
     private int GESTURE_NUMBER = 0x0004;
 
     public View view;
-    private ChatActivity chatActivity;
+    private ChartActivity chatActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,7 +44,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
                 .build().inject(FragmentGestureSettings3.this);
         ButterKnife.bind(this, view);
 
-        if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
+        if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
 
         gestureMyList = new ArrayList<>();
         recyclerView = view.findViewById(R.id.gripper_list);
@@ -183,7 +183,8 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
     }
 
     @Override
-    public void setStartParametersInGraphActivity() {
+    public void setStartParametersInChartActivity() {
 
     }
+
 }

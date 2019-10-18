@@ -22,7 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import me.Romans.motorica.MyApp;
-import me.Romans.motorica.ui.chat.view.ChatActivity;
+import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.scan.data.DaggerScanComponent;
 import me.Romans.motorica.ui.scan.data.ScanModule;
@@ -126,7 +126,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView {
 
     @Override
     public void navigateToChat(String extraName, BluetoothDevice extraDevice) {
-        Intent intent = new Intent(ScanActivity.this, ChatActivity.class);
+        Intent intent = new Intent(ScanActivity.this, ChartActivity.class);
         intent.putExtra(extraName, extraDevice);
         startActivity(intent);
         finish();

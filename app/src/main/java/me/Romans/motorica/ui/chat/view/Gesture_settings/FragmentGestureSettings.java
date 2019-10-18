@@ -12,8 +12,6 @@ import android.widget.Button;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.Romans.motorica.MyApp;
@@ -22,8 +20,7 @@ import me.Romans.motorica.data.GesstureAdapter;
 import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
-import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
-import me.Romans.motorica.ui.chat.view.ChatActivity;
+import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentGestureSettings extends Fragment implements ChatView, GesstureAdapter.OnGestureMyListener {
@@ -34,7 +31,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
     private int GESTURE_NUMBER = 0x0000;
 
     public View view;
-    private ChatActivity chatActivity;
+    private ChartActivity chatActivity;
 
 
     @Override
@@ -48,7 +45,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                 .build().inject(FragmentGestureSettings.this);
         ButterKnife.bind(this, view);
 
-        if (getActivity() != null) {chatActivity = (ChatActivity) getActivity();}
+        if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
 
         gestureMyList = new ArrayList<>();
         recyclerView = view.findViewById(R.id.gripper_list);
@@ -188,7 +185,8 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
     }
 
     @Override
-    public void setStartParametersInGraphActivity() {
+    public void setStartParametersInChartActivity() {
 
     }
+
 }

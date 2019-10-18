@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="me.Romans.motorica.ui.chat.view.ChatActivity">
+    tools:context="me.Romans.motorica.ui.chat.view.ChartActivity">
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
@@ -141,12 +141,14 @@
                 android:id="@+id/border6"
                 android:layout_width="4dp"
                 android:layout_height="104dp"
-                android:layout_alignTop="@+id/border4"
+                android:layout_below="@+id/border5"
+                android:layout_alignBottom="@+id/border7"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
                 android:layout_marginTop="0dp"
-                android:layout_marginEnd="47dp"
-                android:layout_marginRight="47dp"
-                android:layout_toStartOf="@+id/valueInvert2"
-                android:layout_toLeftOf="@+id/valueInvert2"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/textView8"
+                android:layout_toRightOf="@+id/textView8"
                 android:background="@android:color/darker_gray" />
 
             <com.github.mikephil.charting.charts.LineChart
@@ -308,27 +310,11 @@
                 android:background="@android:color/darker_gray" />
 
             <View
-                android:id="@+id/border4"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_below="@+id/border8"
-                android:layout_marginTop="-5dp"
-                android:background="@android:color/darker_gray" />
-
-            <View
-                android:id="@+id/border8"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_below="@+id/chartCH2"
-                android:layout_marginTop="0dp"
-                android:background="@android:color/darker_gray" />
-
-            <View
                 android:id="@+id/border5"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:layout_below="@+id/border4"
-                android:layout_marginTop="47dp"
+                android:layout_below="@+id/chartCH2"
+                android:layout_marginTop="-0dp"
                 android:background="@android:color/darker_gray" />
 
             <View
@@ -541,46 +527,6 @@
                 android:layout_marginBottom="0dp"
                 android:text="@string/gesture4"
                 android:visibility="gone" />
-
-            <RelativeLayout
-                android:id="@+id/layoutStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border4"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginTop="6dp"
-                tools:ignore="MissingConstraints">
-
-                <TextView
-                    android:id="@+id/textView23"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginStart="14dp"
-                    android:layout_marginLeft="14dp"
-                    android:layout_marginTop="8dp"
-                    android:text="Статус:"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/valueStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_alignTop="@+id/textView23"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="0dp"
-                    android:layout_toEndOf="@+id/imageViewStatus"
-                    android:layout_toRightOf="@+id/imageViewStatus"
-                    android:text="покой"
-                    android:textSize="14sp" />
-
-            </RelativeLayout>
 
             <!--<TextView-->
             <!--android:id="@+id/textView3"-->
@@ -1069,6 +1015,18 @@
                 android:layout_marginTop="3dp"
                 tools:ignore="MissingConstraints"
                 android:visibility="gone"/>
+
+            <ImageView
+                android:id="@+id/imageViewStatus"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_below="@+id/border3"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginRight="17dp"
+                android:layout_toStartOf="@+id/valueInvert2"
+                android:layout_toLeftOf="@+id/valueInvert2"
+                app:srcCompat="@drawable/block_not_use" />
         </RelativeLayout>
     </ScrollView>
 

@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import me.Romans.motorica.R;
-import me.Romans.motorica.ui.chat.view.ChatActivity;
+import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.GestureViewHolder> implements ChatView {
@@ -20,7 +20,7 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
     private Context mCtx;
     private List<Gesture_my> gesturesList;
     private OnGestureMyListener mOnGestureMyListener;
-    private ChatActivity chatActivity;
+    private ChartActivity chatActivity;
 
     public GesstureAdapter(Context  mCtx, List<Gesture_my> gesturesList, OnGestureMyListener onGestureMyListener) {
         this.mCtx = mCtx;
@@ -109,9 +109,10 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
     }
 
     @Override
-    public void setStartParametersInGraphActivity() {
+    public void setStartParametersInChartActivity() {
 
     }
+
 
     public class GestureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 

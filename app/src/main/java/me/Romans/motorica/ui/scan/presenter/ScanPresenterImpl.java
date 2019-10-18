@@ -3,12 +3,12 @@ package me.Romans.motorica.ui.scan.presenter;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 
+import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.scan.interactor.ScanInteractor;
 import me.Romans.motorica.ui.scan.view.ScanView;
 import me.Romans.bluetooth.BluetoothCallback;
 import me.Romans.bluetooth.DiscoveryCallback;
 import me.Romans.motorica.R;
-import me.Romans.motorica.ui.chat.view.ChatActivity;
 
 /**
  * Created by Omar on 20/12/2017.
@@ -65,7 +65,7 @@ public class ScanPresenterImpl implements ScanPresenter{
     @Override
     public void pairedItemClick(int position) {
         BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(interactor.getPairedDevices().get(position).split(":")[1])-1);
-        ChatActivity chatActivity = new ChatActivity();
+        ChartActivity chatActivity = new ChartActivity();
         chatActivity.GetPosition_My(device);
         view.navigateToChat("device", device);
         if( device.getName().split("-")[0].equals("MLT") ||
@@ -85,7 +85,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("HND") ||
             device.getName().split(" ")[0].equals("IND") ||
             device.getName().equals("ASUS")){
-            chatActivity.monograbVersion = false; //true - односхват
+            chatActivity.monograbVersion = true; //true - односхват
         }
     }
 

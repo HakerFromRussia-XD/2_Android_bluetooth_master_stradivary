@@ -20,4 +20,9 @@
         <item name="android:background">#ffff00</item>
     </style>
 
+    <style name="Text">
+        <item name="android:textColor">#fff</item>
+        <item name="fontFamily">@font/font_open_sans</item>
+    </style>
+
 </resources>

@@ -99,7 +99,7 @@
         <RelativeLayout
             android:id="@+id/layout_sensors"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="690dp"
             android:layout_marginTop="0dp"
             android:orientation="vertical"
             android:paddingLeft="0dp"
@@ -370,7 +370,9 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="3dp"
                 android:text="@string/helloWorld"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Text"
+                android:background="@drawable/castom_batton"/>
 
             <Button
                 android:id="@+id/activity_chat_hello_world2"
@@ -386,7 +388,9 @@
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="0dp"
                 android:text="@string/helloWorld2"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Text"
+                android:background="@drawable/castom_batton"/>
 
             <Button
                 android:id="@+id/activity_chat_gesture1"
@@ -400,7 +404,9 @@
                 android:layout_marginTop="57dp"
                 android:layout_marginBottom="0dp"
                 android:text="@string/gesture1"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Text"
+                android:background="@drawable/castom_batton"/>
 
             <!--<TextView-->
             <!--android:id="@+id/textView"-->
@@ -496,7 +502,9 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="57dp"
                 android:text="@string/gesture2"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Text"
+                android:background="@drawable/castom_batton"/>
 
             <Button
                 android:id="@+id/activity_chat_gesture3"
@@ -510,7 +518,9 @@
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="0dp"
                 android:text="@string/gesture3"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Text"
+                android:background="@drawable/castom_batton"/>
 
             <Button
                 android:id="@+id/activity_chat_gesture4"

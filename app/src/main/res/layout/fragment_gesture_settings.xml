@@ -52,7 +52,9 @@
                         android:layout_gravity="center"
                         android:layout_marginBottom="16dp"
                         android:text="Использовать жест"
-                        android:visibility="visible" />
+                        android:visibility="visible"
+                        style="@style/Text"
+                        android:background="@drawable/castom_batton"/>
                 </LinearLayout>
             </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

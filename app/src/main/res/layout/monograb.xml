@@ -104,7 +104,7 @@
         <RelativeLayout
             android:id="@+id/layout_sensors"
             android:layout_width="match_parent"
-            android:layout_height="600dp"
+            android:layout_height="690dp"
             android:layout_marginTop="0dp"
             android:orientation="vertical"
             android:paddingLeft="0dp"
@@ -374,10 +374,11 @@
                 android:layout_alignLeft="@+id/chartCH1"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="0dp"
+                android:layout_marginTop="4dp"
                 android:text="@string/helloWorld"
                 android:visibility="visible"
-                />
+                style="@style/Text"
+                android:background="@drawable/castom_batton"/>
 
             <Button
                 android:id="@+id/activity_chat_hello_world2"
@@ -388,12 +389,14 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
-                android:layout_marginTop="0dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="0dp"
                 android:text="@string/helloWorld2"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Text"
+                android:background="@drawable/castom_batton"/>
 
 <!--            TODO стиль кнопок материал дизайн, возможно применить-->
 <!--            style="@style/Widget.AppCompat.Button.Borderless"-->

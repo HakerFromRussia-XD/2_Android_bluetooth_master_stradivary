@@ -103,6 +103,23 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
         return view;
     }
 
+    public void backPressed() {
+        if (getActivity() != null) {
+            if(chatActivity.isEnable){
+                chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
+                chatActivity.TranslateMassegeControlComplexGesture();
+            }
+            chatActivity.fragmentManager.beginTransaction()
+                    .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                    .remove(chatActivity.fragmentGestureSettings)
+                    .commit();
+            chatActivity.navigation.clearAnimation();
+            chatActivity.navigation.animate().translationY(0).setDuration(200);
+            chatActivity.graphThreadFlag = true;
+            chatActivity.startGraphEnteringDataThread();
+        }
+    }
+
 
     @Override
     public void setStatus(String status) {
@@ -141,6 +158,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
+                            .addToBackStack("myStack")
                             .commit();
                     for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
                         try {
@@ -160,6 +178,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
+                            .addToBackStack("myStack")
                             .commit();
                     for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
                         try {

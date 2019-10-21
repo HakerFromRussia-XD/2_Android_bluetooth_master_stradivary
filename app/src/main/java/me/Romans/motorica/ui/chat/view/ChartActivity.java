@@ -678,31 +678,54 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 
     @Override
     public void onBackPressed() {
-        // super.onBackPressed();
         openQuitDialog();
     }
 
     private void openQuitDialog() {
-        AlertDialog.Builder quitDialog = new AlertDialog.Builder(
-                ChartActivity.this);
-        quitDialog.setTitle("Выйти?");
+        if (fragmentServiceSettingsMono != null && fragmentServiceSettingsMono.isVisible()) {
+            fragmentServiceSettingsMono.backPressed();
+        } else {
+            if (fragmentServiceSettings != null && fragmentServiceSettings.isVisible()) {
+                fragmentServiceSettings.backPressed();
+            } else {
+                if (fragmentGripperSettings != null && fragmentGripperSettings.isVisible()) {
+                    fragmentGripperSettings.backPressed();
+                } else {
+                    if (fragmentGestureSettings != null && fragmentGestureSettings.isVisible()) {
+                        fragmentGestureSettings.backPressed();
+                    } else {
+                        if (fragmentGestureSettings2 != null && fragmentGestureSettings2.isVisible()) {
+                            fragmentGestureSettings2.backPressed();
+                        } else {
+                            if (fragmentGestureSettings3 != null && fragmentGestureSettings3.isVisible()) {
+                                fragmentGestureSettings3.backPressed();
+                            } else {
+                                AlertDialog.Builder quitDialog = new AlertDialog.Builder(
+                                        ChartActivity.this);
+                                quitDialog.setTitle("Выйти?");
 
-        quitDialog.setPositiveButton("ок", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // TODO Auto-generated method stub
-                finish();
+                                quitDialog.setPositiveButton("ок", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // TODO Auto-generated method stub
+                                        finish();
+                                    }
+                                });
+
+                                quitDialog.setNegativeButton("нет", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // TODO Auto-generated method stub
+                                    }
+                                });
+
+                                quitDialog.show();
+                            }
+                        }
+                    }
+                }
             }
-        });
-
-        quitDialog.setNegativeButton("нет", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // TODO Auto-generated method stub
-            }
-        });
-
-        quitDialog.show();
+        }
     }
 
     @Override

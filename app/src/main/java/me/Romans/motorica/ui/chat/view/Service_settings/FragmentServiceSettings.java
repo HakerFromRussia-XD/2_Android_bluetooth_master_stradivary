@@ -86,7 +86,6 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
         switchInvert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.err.println("тут использование setOnClickListener = "+chatActivity.invertChannel);
                 if (switchInvert.isChecked()){
                     chatActivity.invert = 0x01;
                     chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
@@ -108,6 +107,22 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
         return view;
     }
 
+    public void backPressed() {
+        if (getActivity() != null) {
+            chatActivity.fragmentManager.beginTransaction()
+                    .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                    .remove(chatActivity.fragmentServiceSettings)
+                    .commit();
+            chatActivity.navigation.clearAnimation();
+            chatActivity.navigation.animate().translationY(0).setDuration(200);
+            chatActivity.graphThreadFlag = true;
+            chatActivity.startGraphEnteringDataThread();
+            chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
+            chatActivity.myMenu.setGroupVisible(R.id.modes, false);
+            chatActivity.updateSeviceSettingsThreadFlag = false;
+            chatActivity.layoutSensors.setVisibility(View.VISIBLE);
+        }
+    }
 
     @Override
     public void setStatus(String status) {

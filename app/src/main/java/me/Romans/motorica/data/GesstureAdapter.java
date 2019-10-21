@@ -58,6 +58,7 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
         return gesturesList.size();
     }
 
+
     @Override
     public void setStatus(String status) {
 

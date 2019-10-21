@@ -141,6 +141,23 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
         chatActivity.seekBarIstop.setProgress(maxCurrent);
     }
 
+
+    public void backPressed() {
+        if (getActivity() != null) {
+            System.err.println("fragmentServiceSettingsMono----> выполнение  backPressed()");
+            chatActivity.fragmentManager.beginTransaction()
+                    .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                    .remove(chatActivity.fragmentServiceSettingsMono)
+                    .commit();
+            chatActivity.graphThreadFlag = true;
+            chatActivity.startGraphEnteringDataThread();
+            chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
+            chatActivity.myMenu.setGroupVisible(R.id.modes, false);
+            chatActivity.updateSeviceSettingsThreadFlag = false;
+            chatActivity.layoutSensors.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
     public void setStatus(String status) {
 

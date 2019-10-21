@@ -98,6 +98,17 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
         return view;
     }
 
+    public void backPressed() {
+        if (getActivity() != null) {
+            chatActivity.fragmentManager.beginTransaction()
+                    .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                    .remove(chatActivity.fragmentGripperSettings)
+                    .commit();
+            chatActivity.firstTapRcyclerView = true;
+            chatActivity.transferThreadFlag = false;
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();

@@ -329,4 +329,9 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
     public void setStartParametersInChartActivity() {
 
     }
+
+    @Override
+    public boolean getFirstRead() {
+        return false;
+    }
 }

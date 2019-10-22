@@ -10,4 +10,5 @@ public interface BluetoothCallback {
     void onBluetoothTurningOff();
     void onBluetoothOff();
     void onUserDeniedActivation();
+    boolean getFirstRead();
 }

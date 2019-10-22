@@ -208,4 +208,9 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
 
     }
 
+    @Override
+    public boolean getFirstRead() {
+        return false;
+    }
+
 }

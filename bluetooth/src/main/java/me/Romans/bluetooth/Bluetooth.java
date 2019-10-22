@@ -50,6 +50,7 @@ public class Bluetooth {
 
     private boolean runOnUi;
 
+
     public Bluetooth(Context context){
         if (DEBUG) {System.out.println("BLUETOOTH--------------> Bluetooth");}
         initialize(context, UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"));
@@ -354,7 +355,7 @@ public class Bluetooth {
         private byte msgBlockIndication = 0;
         private int lowByte = 0;     //для записи младшего байта при перемене младших и старших байт
         private int i=1;
-        private boolean firstRead = true;
+//        private boolean firstRead = true;
         private boolean errorReception = false;        //true-ошибка на принимающей стороне false-ошибок нет
         private boolean request = true;                //true-ответ false-запрос
         public boolean no_error = true;                //true-нет ошибок false-есть ошибки
@@ -372,6 +373,7 @@ public class Bluetooth {
 
         public void run(){
             if (DEBUG) {System.out.println("BLUETOOTH--------------> ReceiveThread connected:" + connected);}
+            System.out.println("BLUETOOTH--------------> firstRead: " + bluetoothCallback.getFirstRead());
             try {
                 while((msg = input.read()) != -1) //((System.in).read(msg)) //((System.in).read(msg))   //((input.read())) != -1
                 {
@@ -501,7 +503,7 @@ public class Bluetooth {
                             }
                         }
 
-                        if (firstRead) {
+                        if (bluetoothCallback.getFirstRead()) {
                             if (branchOfParsing == 2){
                                 if(i == 2){
                                     lowByte = msg;
@@ -552,7 +554,6 @@ public class Bluetooth {
                                                 if (DEBUG) {System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);}
                                             }
                                             resetAllVariables();
-                                            firstRead = false;
                                         }
                                     });
                                 }

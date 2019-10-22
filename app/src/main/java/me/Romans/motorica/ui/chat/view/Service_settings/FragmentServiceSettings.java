@@ -172,4 +172,9 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
     }
 
+    @Override
+    public boolean getFirstRead() {
+        return false;
+    }
+
 }

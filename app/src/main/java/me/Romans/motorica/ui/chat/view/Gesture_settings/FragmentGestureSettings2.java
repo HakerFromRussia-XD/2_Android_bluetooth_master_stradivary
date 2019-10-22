@@ -205,4 +205,9 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
     public void setStartParametersInChartActivity() {
 
     }
+
+    @Override
+    public boolean getFirstRead() {
+        return false;
+    }
 }

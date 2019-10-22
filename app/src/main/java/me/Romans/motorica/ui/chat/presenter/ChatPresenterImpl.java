@@ -457,6 +457,12 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
+    public void onResume() { System.out.println("ChatPresenter--------------> onResume");}
+
+    @Override
+    public void onPause() { System.out.println("ChatPresenter--------------> onPause");}
+
+    @Override
     public void setDeviceCallback2(Activity activity){
         interactor.onStart (bluetoothCallback, activity);
         if (interactor.isBluetoothEnabled()) {
@@ -503,6 +509,11 @@ public class ChatPresenterImpl implements ChatPresenter {
         @Override
         public void onUserDeniedActivation() {
 
+        }
+
+        @Override
+        public boolean getFirstRead() {
+            return view.getFirstRead();
         }
     };
 

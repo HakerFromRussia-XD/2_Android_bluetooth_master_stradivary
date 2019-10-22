@@ -223,6 +223,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public static SelectStation selectStation;
     protected WebView webView;
     private boolean showModsOnTopMenu = false;
+    public boolean firstRead = true;
 //    for service menu
     public Menu myMenu;
     public Thread updateSeviceSettingsThread;
@@ -1360,11 +1361,15 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     }
 
     @Override
-    protected void onResume() { super.onResume(); }
+    protected void onResume() {
+        super.onResume();
+//        firstRead = false;
+    }
 
     @Override
     protected void onPause() {
         super.onPause();
+        System.out.println("ChatActivity--------------> onPause");
         try {
             graphThread.interrupt();
         } catch (Exception e){}
@@ -1508,7 +1513,15 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             } else {
 //                switchBlockMode.setChecked(false);
             }
+            firstRead = false;
     }
+
+    @Override
+    public boolean getFirstRead() {
+        return firstRead;
+    }
+
+
     @Override
     public void setErrorReception (boolean incomeErrorReception) {
         errorReception = incomeErrorReception;

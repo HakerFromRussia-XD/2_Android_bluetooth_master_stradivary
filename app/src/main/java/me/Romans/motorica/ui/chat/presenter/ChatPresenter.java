@@ -10,6 +10,11 @@ public interface ChatPresenter {
 //    void onHelloWorld2(byte[] data);
     void onStart(Activity activity);
     void onStop();
+
+    void onResume();
+
+    void onPause();
+
     void setDeviceCallback2(Activity activity);
     void disconnect();
     void disable();

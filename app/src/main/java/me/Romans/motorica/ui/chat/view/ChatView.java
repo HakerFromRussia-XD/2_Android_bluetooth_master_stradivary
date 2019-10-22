@@ -13,5 +13,5 @@ public interface ChatView {
     void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension);
     void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication);
     void setStartParametersInChartActivity();
-
+    boolean getFirstRead();
 }

@@ -148,4 +148,9 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
 
     }
 
+    @Override
+    public boolean getFirstRead() {
+        return false;
+    }
+
 }

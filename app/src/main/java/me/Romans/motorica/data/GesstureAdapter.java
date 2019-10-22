@@ -114,6 +114,11 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
 
     }
 
+    @Override
+    public boolean getFirstRead() {
+        return false;
+    }
+
 
     public class GestureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 

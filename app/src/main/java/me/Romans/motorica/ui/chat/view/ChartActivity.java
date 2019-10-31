@@ -1660,7 +1660,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         deviceName = device.getName();
     }
 
-    private byte[] CompileMassegeSettings(byte numberFinger, int intValueFingerAngle, int intValueFingerSpeed){
+    private byte[] CompileMassegeSettings(byte numberFinger, int intValueFingerAngle,
+                                          int intValueFingerSpeed){
         TextByteTreegSettings[0] = 0x03;
         TextByteTreegSettings[1] = numberFinger;
         TextByteTreegSettings[2] = requestType;
@@ -1671,7 +1672,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteTreegSettings[7] = presenter.calculationCRC(TextByteTreegSettings);
         return TextByteTreegSettings;
     }
-    public byte[] CompileMassegeComplexGestureSettings(int GESTURE_NUMBER, int GripperNumberStart1, int mySensorEvent1, int GripperNumberEnd1, int GripperNumberStart2, int mySensorEvent2, int GripperNumberEnd2, int indicatorTypeMessage){
+    public byte[] CompileMassegeComplexGestureSettings(int GESTURE_NUMBER, int GripperNumberStart1,
+                                                       int mySensorEvent1, int GripperNumberEnd1,
+                                                       int GripperNumberStart2, int mySensorEvent2,
+                                                       int GripperNumberEnd2, int indicatorTypeMessage){
         TextByteTreegComplexGestureSettings[0] = (byte) indicatorTypeMessage;
         TextByteTreegComplexGestureSettings[1] = (byte) (GESTURE_NUMBER >> 8);
         TextByteTreegComplexGestureSettings[2] = (byte) GESTURE_NUMBER;
@@ -1793,9 +1797,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     }
 
     @Override
-    public void onPointerCaptureChanged(boolean hasCapture) {
-
-    }
+    public void onPointerCaptureChanged(boolean hasCapture) {}
 
     @Override
     public void onGestureClick(int position) {

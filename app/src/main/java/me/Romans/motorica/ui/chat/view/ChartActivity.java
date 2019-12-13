@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -66,6 +65,7 @@ import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings3
 import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
 import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettings;
 import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettingsMono;
+import me.Romans.motorica.ui.chat.view.Service_settings.SettingsDialog;
 
 /**
  * Created by Omar on 20/12/2017.
@@ -141,6 +141,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     private int lastReceiveLevelCH2Chat;
     private byte receiveIndicationInvertMode = 0;
     private byte receiveBlockIndication = 0;
+    public byte receiveRoughnessOfSensors = 0;
     private boolean firstSetStartParametersFlag = true;
     private boolean isSetStartParametersActivityActiveFlag = false;
     public Thread delayThread;
@@ -232,7 +233,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public Thread updateSeviceSettingsThread;
     public boolean updateSeviceSettingsThreadFlag = false;
     private boolean showMenu = true;
-    private boolean lockProSettings = false;
+    private boolean lockServiceSettings = false;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -737,8 +738,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         settingsDialog.show(getSupportFragmentManager(), "settings dialog");
     }
 
-    public void openProSettings(){
-        if(lockProSettings){
+    public void openServiceSettings(){
+        if(lockServiceSettings){
             if(monograbVersion){
             System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в monograbVersion");
             fragmentManager.beginTransaction()
@@ -763,7 +764,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 
     @Override
     public void applyTexts(String password) {
-        if (password.equals("123")){ lockProSettings = true; } else {lockProSettings = false;}
+        if (password.equals("123")){ lockServiceSettings = true; } else {lockServiceSettings = false;}
     }
 
     @Override
@@ -1506,7 +1507,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         }
     }
     @Override
-    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication) {
+    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
         this.receiveСurrent = receiveСurrent;
         this.receiveIndicationInvertMode = receiveIndicationInvertMode;
         if (receiveIndicationInvertMode == 1) {invertChannel=true;} else {invertChannel=false;}
@@ -1524,9 +1525,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         if (this.receiveLevelTrigCH1 < 14){this.receiveLevelTrigCH1 = 14;}
         if (this.receiveLevelTrigCH2 < 14){this.receiveLevelTrigCH2 = 14;}
         this.receiveBlockIndication = receiveBlockIndication;
+        this.receiveRoughnessOfSensors = receiveRoughnessOfSensors;
     }
     public void setStartParametersInChartActivity(){
             if (monograbVersion){ seekBarIstop.setProgress(receiveСurrent);}
+//            seekBarRoughness
             seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekbar - 0.25)));//-0.5
             seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekbar - 0.25)));//-0.5
 

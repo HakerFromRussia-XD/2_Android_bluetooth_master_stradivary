@@ -354,13 +354,14 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
 
         @Override
-        public void givsStartParameters(int current, int levelTrigCH1, int levelTrigCH2, byte indicationInvertMode, byte blockIndication) {
+        public void givsStartParameters(int current, int levelTrigCH1, int levelTrigCH2, byte indicationInvertMode, byte blockIndication, byte roughnessOfSensors) {
             Integer receiveСurrent = new Integer(current);
             Integer receiveLevelTrigCH1 = new Integer(levelTrigCH1);
             Integer receiveLevelTrigCH2 = new Integer(levelTrigCH2);
             Byte receiveIndicationInvertMode = new Byte(indicationInvertMode);
             Byte receiveBlockIndication = new Byte(blockIndication);
-            view.setStartParameters(receiveСurrent, receiveLevelTrigCH1, receiveLevelTrigCH2, receiveIndicationInvertMode,  receiveBlockIndication);
+            Byte receiveRoughnessOfSensors = new Byte(roughnessOfSensors);
+            view.setStartParameters(receiveСurrent, receiveLevelTrigCH1, receiveLevelTrigCH2, receiveIndicationInvertMode,  receiveBlockIndication, receiveRoughnessOfSensors);
         }
 
         @Override

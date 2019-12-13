@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -70,7 +71,7 @@ import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettingsM
  * Created by Omar on 20/12/2017.
  */
 
-public class ChartActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener {
+public class ChartActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener, SettingsDialog.SettingsDialogListener {
     public static boolean monograbVersion;
     @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
@@ -80,6 +81,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
 //    TextView textSpeedFinger;
 //    @BindView(R.id.valueStatus) TextView valueStatus;
+//    @BindView(R.id.password_et) EditText password_et;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
     @BindView(R.id.valueCH2on) TextView valueCH2on;
     @BindView(R.id.activity_chat_messages) TextView messages;
@@ -190,7 +192,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     private byte numberFinger;
     public int speedFinger = 0;
     public int lastSpeedFinger = 0;
-    public int SPEED = 98;
+    public int SPEED = 99;
     private static int intValueFinger1Angle = 0;
     private static int intValueFinger2Angle = 0;
     private static int intValueFinger3Angle = 0;
@@ -219,6 +221,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public byte[] TextByteTreegControl = new byte[6];
     public boolean transferThreadFlag = false;
     public Thread transferThread;
+
     public enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5};
     public static SelectStation selectStation;
     protected WebView webView;
@@ -229,6 +232,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public Thread updateSeviceSettingsThread;
     public boolean updateSeviceSettingsThreadFlag = false;
     private boolean showMenu = true;
+    private boolean lockProSettings = false;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -716,7 +720,6 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                 quitDialog.setNegativeButton("нет", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        // TODO Auto-generated method stub
                                     }
                                 });
 
@@ -727,6 +730,40 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 }
             }
         }
+    }
+
+    private void openSettingsDialog() {
+        SettingsDialog settingsDialog = new SettingsDialog();
+        settingsDialog.show(getSupportFragmentManager(), "settings dialog");
+    }
+
+    public void openProSettings(){
+        if(lockProSettings){
+            if(monograbVersion){
+            System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в monograbVersion");
+            fragmentManager.beginTransaction()
+                    .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                    .add(R.id.view_pager, fragmentServiceSettingsMono)
+                    .commit();
+        } else {
+            fragmentManager.beginTransaction()
+                    .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                    .add(R.id.view_pager, fragmentServiceSettings)
+                    .commit();
+            navigation.clearAnimation();
+            navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+        }
+            myMenu.setGroupVisible(R.id.modes, true);
+            myMenu.setGroupVisible(R.id.service_settings, false);
+        } else {
+            showToast("пароль не верный");
+        }
+
+    }
+
+    @Override
+    public void applyTexts(String password) {
+        if (password.equals("123")){ lockProSettings = true; } else {lockProSettings = false;}
     }
 
     @Override
@@ -1235,22 +1272,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         // Операции для выбранного пункта меню
         switch (id) {
             case R.id.action_Trigger0:
-                if(monograbVersion){
-                    System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в monograbVersion");
-                    fragmentManager.beginTransaction()
-                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                            .add(R.id.view_pager, fragmentServiceSettingsMono)
-                            .commit();
-                } else {
-                    fragmentManager.beginTransaction()
-                            .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                            .add(R.id.view_pager, fragmentServiceSettings)
-                            .commit();
-                    navigation.clearAnimation();
-                    navigation.animate().translationY(heightBottomNavigation).setDuration(200);
-                }
-                myMenu.setGroupVisible(R.id.modes, true);
-                myMenu.setGroupVisible(R.id.service_settings, false);
+                openSettingsDialog();
                 return true;
             case R.id.action_Trigger1:
                 presenter.onHelloWorld(CompileMassegeTreegMod (1));

@@ -353,6 +353,7 @@ public class Bluetooth {
         private int msgBatteryTension = 0;
         private byte msgIndicationState = 0;
         private byte msgBlockIndication = 0;
+        private byte msgRoughnessOfSensors = 0;
         private int lowByte = 0;     //для записи младшего байта при перемене младших и старших байт
         private int i=1;
 //        private boolean firstRead = true;
@@ -396,7 +397,9 @@ public class Bluetooth {
                             branchOfParsing = 1;
                         } else {
                             if ((i == 1) && (msg == 36)){
-                                branchOfParsing = 2;
+                                branchOfParsing = 2; //парсит постоянно прилетающие данные
+                                //за первый заход устанавливает начальные параметры,
+                                //а за последующие выдаёт данные на графики, свичи и сикбары
                             } else {
                                 if (i == 1){
                                     branchOfParsing = 0;
@@ -531,6 +534,9 @@ public class Bluetooth {
                                 if(i == 9){
                                     msgBlockIndication = (byte) msg;
                                 }
+                                if(i == 10){
+                                    msgRoughnessOfSensors = (byte) msg;
+                                }
                                 if(no_error) {
                                     i++;
                                 }
@@ -544,11 +550,12 @@ public class Bluetooth {
                                     final Integer msgLevelTrigCH2f = msgLevelCH2;
                                     final Byte msgIndicationInvertModef = msgIndicationState;
                                     final Byte msgBlockIndicationf = msgBlockIndication;
+                                    final Byte msgRoughnessOfSensorsf = msgRoughnessOfSensors;
                                     ThreadHelper.run(runOnUi, activity, new Runnable() {
                                         @Override
                                         public void run() {
                                             if(no_error && msgCorrectAcceptance) {
-                                                parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf);
+                                                parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf, msgRoughnessOfSensorsf);
                                                 parserCallback.setStartParametersInChartActivity();
                                                 deviceCallback.onMessage(msgCopy);
                                                 if (DEBUG) {System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);}

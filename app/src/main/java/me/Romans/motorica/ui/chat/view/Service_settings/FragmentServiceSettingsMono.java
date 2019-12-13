@@ -81,6 +81,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhness((byte) (((byte) seekBar.getProgress()) + 1)));
+                chatActivity.receiveRoughnessOfSensors = (byte) seekBar.getProgress();
             }
         });
 
@@ -133,6 +134,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     public void onResume() {
         super.onResume();
         seekBarIstop.setProgress(chatActivity.maxCurrent);
+        seekBarRoughness.setProgress(chatActivity.receiveRoughnessOfSensors);
     }
 
     @Override
@@ -197,7 +199,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
 
     }
     @Override
-    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication) {
+    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
 
     }
 

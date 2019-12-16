@@ -511,12 +511,13 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 if (switchBlockMode.isChecked()){
                     block = 0x01;
                     presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                    receiveBlockIndication = 1;
                     imageViewStatus.setImageResource(R.drawable.unblock);
                 } else {
                     block = 0x00;
                     presenter.onHelloWorld(CompileMassegeBlockMode(block));
-                    imageViewStatus.setImageResource(R.drawable.block_not_use);
                     receiveBlockIndication = 0;
+                    imageViewStatus.setImageResource(R.drawable.block_not_use);
                 }
             }
         });
@@ -1457,8 +1458,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //            imageViewStatus.setImageResource(R.drawable.sleeping);
             if (receiveBlockIndication == 1){
                 imageViewStatus.setImageResource(R.drawable.unblock);
+                System.err.println("ChatActivity----> разблокированно");
             } else {
                 imageViewStatus.setImageResource(R.drawable.block_not_use);
+                System.err.println("ChatActivity----> блокировка не используется");
             }
         }
         if (receiveIndicationStateChat == 1){
@@ -1475,8 +1478,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             }
             if (receiveBlockIndication == 1){
                 imageViewStatus.setImageResource(R.drawable.unblock);
+                System.err.println("ChatActivity----> разблокированно");
             } else {
                 imageViewStatus.setImageResource(R.drawable.block_not_use);
+                System.err.println("ChatActivity----> блокировка не используется");
             }
         }
         if (receiveIndicationStateChat == 2){
@@ -1493,16 +1498,19 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             }
             if (receiveBlockIndication == 1){
                 imageViewStatus.setImageResource(R.drawable.unblock);
+                System.err.println("ChatActivity----> разблокированно");
             } else {
                 imageViewStatus.setImageResource(R.drawable.block_not_use);
+                System.err.println("ChatActivity----> блокировка не используется");
             }
         }
         if (receiveIndicationStateChat == 3){
 //            valueStatus.setText("блок");
             imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
             imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
-            switchBlockMode.setChecked(true);
+//            switchBlockMode.setChecked(true);
             imageViewStatus.setImageResource(R.drawable.block);
+            System.err.println("ChatActivity----> заблокированно");
             receiveBlockIndication = 1;
         }
     }
@@ -1585,10 +1593,13 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             transferThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    try {
+                        Thread.sleep(20);
+                    }catch (Exception e){}
                     CompileMassegeReadStartParameters();
                     presenter.onHelloWorld(TextByteReadStartParameters);
                     try {
-                        Thread.sleep(300);
+                        Thread.sleep(500);
                     }catch (Exception e){}
                     CompileMessageSetGeneralParcel((byte) 0x01);
                     presenter.onHelloWorld(TextByteSetGeneralParcel);

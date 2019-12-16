@@ -613,6 +613,7 @@ public class Bluetooth {
                                         @Override
                                         public void run() {
                                             if(no_error && msgCorrectAcceptance) {
+                                                System.out.println("BLUETOOTH--------------> receive");
                                                 parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
                                                 deviceCallback.onMessage(msgCopy);
                                                 if (DEBUG) {System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);}

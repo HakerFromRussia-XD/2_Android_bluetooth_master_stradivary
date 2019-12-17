@@ -47,7 +47,7 @@ public class Bluetooth {
     private BluetoothCallback bluetoothCallback;
     private boolean connected;
     private boolean logic_disconnect;
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
 
     private boolean runOnUi;
 
@@ -394,6 +394,7 @@ public class Bluetooth {
                                 }
                             }
                         }
+
                         if ((i == 1) && (msg == 77)){ //выбор ветки для парсинга и отправки
                             branchOfParsing = BluetoothConstantManager.OLD_NOT_USE_PROTOCOL;
                         } else {
@@ -402,7 +403,7 @@ public class Bluetooth {
                                 //за первый заход устанавливает начальные параметры,
                                 //а за последующие выдаёт данные на графики, свичи и сикбары
                             } else {
-                                if (true){
+                                if (parserCallback.getFlagUseHDLCProcol()){
                                     branchOfParsing = BluetoothConstantManager.HDLC_PROTOCOL;
                                     //парсит hdlc посылки
                                 } else {
@@ -626,6 +627,10 @@ public class Bluetooth {
                                     });
                                 }
                             }
+                        }
+
+                        if (branchOfParsing == BluetoothConstantManager.HDLC_PROTOCOL){
+                            System.out.println("BLUETOOTH--------------> HDLC uses " + parserCallback.getFlagUseHDLCProcol());
                         }
                     } else return; //завершение потока
                 }

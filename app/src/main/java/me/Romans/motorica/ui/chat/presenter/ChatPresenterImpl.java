@@ -12,6 +12,8 @@ import me.Romans.bluetooth.ParserCallback;
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
+import static me.Romans.motorica.ui.chat.view.ChartActivity.flagUseHDLCProcol;
+
 public class ChatPresenterImpl implements ChatPresenter {
     private ChatView view;
     private ChatInteractor interactor;
@@ -386,6 +388,11 @@ public class ChatPresenterImpl implements ChatPresenter {
         @Override
         public void setStartParametersInChartActivity() {
             view.setStartParametersInChartActivity();
+        }
+
+        @Override
+        public boolean getFlagUseHDLCProcol() {
+            return flagUseHDLCProcol;
         }
     };
 

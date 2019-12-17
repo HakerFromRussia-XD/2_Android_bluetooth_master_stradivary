@@ -74,6 +74,7 @@ import me.Romans.motorica.utils.ConstantManager;
 
 public class ChartActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener, SettingsDialog.SettingsDialogListener {
     public static boolean monograbVersion;
+    public static boolean flagUseHDLCProcol = false;
     @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
     @BindView(R.id.seekBarCH1on2) public SeekBar seekBarCH1on2;
@@ -153,7 +154,6 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public boolean graphThreadFlag = false;
     public float iterator = 0;
     public boolean invertChannel = false;
-    private boolean flag_Use_HDLC_Procol = false;
 //    for general updates
     public int receiveСurrentChat = 0;
     public int receiveLevelCH1Chat = 0;
@@ -534,7 +534,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     receiveLevelCH1Chat = 20;
                     receiveLevelCH2Chat = 2500;
-                    if(!flag_Use_HDLC_Procol){showToast("protokol hdlc activation");}
+                    if(flagUseHDLCProcol){showToast("protokol hdlc activation");}
+                    else {showToast("not IND");}
                 }
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -1409,7 +1410,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 
     @Override
     public void setStatus(int resId) {
-        System.out.println("ChatActivity----> resId setText:"+ resId);
+//        System.out.println("ChatActivity----> resId setText:"+ resId);
         if (resId == 2131755053){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
         if (resId == 2131755054){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
         if (resId == 2131755055){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
@@ -1904,11 +1905,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //        System.err.println("MainActivity ---------> testInt2="+testInt2);
     }
 
-    public boolean getFlag_Use_HDLC_Procol() {
-        return flag_Use_HDLC_Procol;
+    public boolean getFlagUseHDLCProcol() {
+        return flagUseHDLCProcol;
     }
 
-    public void setFlag_Use_HDLC_Procol(boolean flag_Use_HDLC_Procol) {
-        this.flag_Use_HDLC_Procol = flag_Use_HDLC_Procol;
+    public void setFlagUseHDLCProcol(boolean flag_Use_HDLC_Procol) {
+        this.flagUseHDLCProcol = flagUseHDLCProcol;
     }
 }

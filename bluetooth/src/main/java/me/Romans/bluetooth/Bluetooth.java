@@ -471,10 +471,7 @@ public class Bluetooth {
                                 i++;
                                 msgstr.append((char)msg);
                             }
-                            if(i == (9+msgLenght)) {
-                                resetAllVariables();
-                            }
-                            if(i > (msgLenght+9)){
+                            if(i >= (msgLenght+9)){
                                 resetAllVariables();
                             }
                             if(((deviceCallback != null) && (msg == 36))){
@@ -497,7 +494,7 @@ public class Bluetooth {
                                             parserCallback.givsLevelCH(msgLevelCHf, msgChannelf);
                                             parserCallback.givsErrorReception(errorReceptionf);
                                             deviceCallback.onMessage(msgCopy);
-//                                            System.out.println("<-- сделал цикл:"+ msgCopy);
+                                            if (DEBUG) {System.out.println("<-- сделал цикл по ветке 1:"+ msgCopy);}
                                         }
                                         parserCallback.givsCorrectAcceptance(msgCorrectAcceptancef);
                                         resetAllVariables();
@@ -558,7 +555,7 @@ public class Bluetooth {
                                                 parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf, msgRoughnessOfSensorsf);
                                                 parserCallback.setStartParametersInChartActivity();
                                                 deviceCallback.onMessage(msgCopy);
-                                                if (DEBUG) {System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);}
+                                                if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2:"+ msgCopy +" no_error="+no_error);}
                                             }
                                             resetAllVariables();
                                         }
@@ -616,7 +613,7 @@ public class Bluetooth {
                                                 System.out.println("BLUETOOTH--------------> receive");
                                                 parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
                                                 deviceCallback.onMessage(msgCopy);
-                                                if (DEBUG) {System.out.println("<-- сделал цикл2:"+ msgCopy +" no_error="+no_error);}
+                                                if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2:"+ msgCopy +" no_error="+no_error);}
                                             }
                                             resetAllVariables();
                                         }

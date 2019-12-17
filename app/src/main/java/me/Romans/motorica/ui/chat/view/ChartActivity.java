@@ -66,6 +66,7 @@ import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
 import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettings;
 import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettingsMono;
 import me.Romans.motorica.ui.chat.view.Service_settings.SettingsDialog;
+import me.Romans.motorica.utils.ConstantManager;
 
 /**
  * Created by Omar on 20/12/2017.
@@ -248,7 +249,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    Log.i(TAG, "oncliiiiick");
+//                    Log.i(TAG, "oncliiiiick");
                     layoutSensors.setVisibility(View.GONE);
                     myMenu.setGroupVisible(R.id.service_settings, false);
                     showMenu = false;
@@ -257,7 +258,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     layoutGestures.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_dashboard:
-                    Log.i(TAG, ":))");
+//                    Log.i(TAG, ":))");
                     layoutSensors.setVisibility(View.VISIBLE);
                     myMenu.setGroupVisible(R.id.service_settings, true);
                     showMenu = true;
@@ -629,25 +630,25 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 /**                 3D initialization                        **/
         ////////////////////////////////////////////////
 
-        model[0]  = readData("STR2/STR2_big_finger_part18.obj");
-        model[1]  = readData("STR2/STR2_big_finger_part19.obj");
-        model[2]  = readData("STR2/STR2_big_finger_part1.obj");
-        model[3]  = readData("STR2/STR2_part3.obj");
-        model[4]  = readData("STR2/STR2_part9.obj");
-        model[5]  = readData("STR2/STR2_part13.obj");
-        model[6]  = readData("STR2/STR2_part14.obj");
-        model[7]  = readData("STR2/STR2_ukazatelnii_part15.obj");
-        model[8]  = readData("STR2/STR2_ukazatelnii_part4.obj");
-        model[9]  = readData("STR2/STR2_ukazatelnii_part17.obj");
-        model[10] = readData("STR2/STR2_srednii_part8.obj");
-        model[11] = readData("STR2/STR2_srednii_part6.obj");
-        model[12] = readData("STR2/STR2_srednii_part16.obj");
-        model[13] = readData("STR2/STR2_bezimiannii_part10.obj");
-        model[14] = readData("STR2/STR2_bezimiannii_part7.obj");
-        model[15] = readData("STR2/STR2_bezimiannii_part11.obj");
-        model[16] = readData("STR2/STR2_mizinec_part12.obj");
-        model[17] = readData("STR2/STR2_mizinec_part5.obj");
-        model[18] = readData("STR2/STR2_mizinec_part2.obj");
+        model[0]  = readData(ConstantManager.MODEDEL_0);
+        model[1]  = readData(ConstantManager.MODEDEL_1);
+        model[2]  = readData(ConstantManager.MODEDEL_2);
+        model[3]  = readData(ConstantManager.MODEDEL_3);
+        model[4]  = readData(ConstantManager.MODEDEL_4);
+        model[5]  = readData(ConstantManager.MODEDEL_5);
+        model[6]  = readData(ConstantManager.MODEDEL_6);
+        model[7]  = readData(ConstantManager.MODEDEL_7);
+        model[8]  = readData(ConstantManager.MODEDEL_8);
+        model[9]  = readData(ConstantManager.MODEDEL_9);
+        model[10] = readData(ConstantManager.MODEDEL_10);
+        model[11] = readData(ConstantManager.MODEDEL_11);
+        model[12] = readData(ConstantManager.MODEDEL_12);
+        model[13] = readData(ConstantManager.MODEDEL_13);
+        model[14] = readData(ConstantManager.MODEDEL_14);
+        model[15] = readData(ConstantManager.MODEDEL_15);
+        model[16] = readData(ConstantManager.MODEDEL_16);
+        model[17] = readData(ConstantManager.MODEDEL_17);
+        model[18] = readData(ConstantManager.MODEDEL_18);
 
 
         for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {

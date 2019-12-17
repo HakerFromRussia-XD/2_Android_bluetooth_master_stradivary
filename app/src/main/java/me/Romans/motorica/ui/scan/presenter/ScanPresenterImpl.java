@@ -79,13 +79,16 @@ public class ScanPresenterImpl implements ScanPresenter{
         if( device.getName().split("-")[0].equals("STR") ||
             device.getName().split("-")[0].equals("CBY") ||
             device.getName().split("-")[0].equals("HND") ||
-            device.getName().split("-")[0].equals("IND") ||
             device.getName().split(" ")[0].equals("STR") ||
             device.getName().split(" ")[0].equals("CBY") ||
             device.getName().split(" ")[0].equals("HND") ||
-            device.getName().split(" ")[0].equals("IND") ||
             device.getName().equals("ASUS")){
             chatActivity.monograbVersion = true; //true - односхват
+        }
+        if( device.getName().split("-")[0].equals("IND") ||
+            device.getName().split(" ")[0].equals("IND")){
+            chatActivity.monograbVersion = true; //true - односхват
+            chatActivity.setFlag_Use_HDLC_Procol(true); //true - при использовании протокола hdlc
         }
     }
 

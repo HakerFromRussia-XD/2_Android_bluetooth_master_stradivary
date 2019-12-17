@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.invoke.ConstantCallSite;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class Bluetooth {
     private BluetoothCallback bluetoothCallback;
     private boolean connected;
     private boolean logic_disconnect;
-    private boolean DEBUG = false;
+    private boolean DEBUG = true;
 
     private boolean runOnUi;
 
@@ -394,23 +395,28 @@ public class Bluetooth {
                             }
                         }
                         if ((i == 1) && (msg == 77)){ //выбор ветки для парсинга и отправки
-                            branchOfParsing = 1;
+                            branchOfParsing = BluetoothConstantManager.OLD_NOT_USE_PROTOCOL;
                         } else {
                             if ((i == 1) && (msg == 36)){
-                                branchOfParsing = 2; //парсит постоянно прилетающие данные
+                                branchOfParsing = BluetoothConstantManager.OLD_PROTOCOL; //парсит постоянно прилетающие данные
                                 //за первый заход устанавливает начальные параметры,
                                 //а за последующие выдаёт данные на графики, свичи и сикбары
                             } else {
-                                if (i == 1){
-                                    branchOfParsing = 0;
+                                if (true){
+                                    branchOfParsing = BluetoothConstantManager.HDLC_PROTOCOL;
+                                    //парсит hdlc посылки
+                                } else {
+                                    if (i == 1){
+                                        branchOfParsing = BluetoothConstantManager.RESET_ALL_VARIABLE;
+                                    }
                                 }
                             }
                         }
-                        if (branchOfParsing == 0){
+                        if (branchOfParsing == BluetoothConstantManager.RESET_ALL_VARIABLE){
                             resetAllVariables();
                         }
 
-                        if (branchOfParsing == 1){
+                        if (branchOfParsing == BluetoothConstantManager.OLD_NOT_USE_PROTOCOL){
                             if(i == 3){
                                 lowByte = msg;
                             }
@@ -504,7 +510,7 @@ public class Bluetooth {
                         }
 
                         if (bluetoothCallback.getFirstRead()) {
-                            if (branchOfParsing == 2){
+                            if (branchOfParsing == BluetoothConstantManager.OLD_PROTOCOL){
                                 if(i == 2){
                                     lowByte = msg;
                                 }
@@ -555,7 +561,7 @@ public class Bluetooth {
                                                 parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf, msgRoughnessOfSensorsf);
                                                 parserCallback.setStartParametersInChartActivity();
                                                 deviceCallback.onMessage(msgCopy);
-                                                if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2:"+ msgCopy +" no_error="+no_error);}
+                                                if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2 первая итерация:"+ msgCopy +" no_error="+no_error);}
                                             }
                                             resetAllVariables();
                                         }
@@ -563,7 +569,7 @@ public class Bluetooth {
                                 }
                             }
                         } else {
-                            if (branchOfParsing == 2){
+                            if (branchOfParsing == BluetoothConstantManager.OLD_PROTOCOL){
                                 if(i == 2){
                                     lowByte = msg;
                                 }
@@ -610,7 +616,7 @@ public class Bluetooth {
                                         @Override
                                         public void run() {
                                             if(no_error && msgCorrectAcceptance) {
-                                                System.out.println("BLUETOOTH--------------> receive");
+//                                                System.out.println("BLUETOOTH--------------> receive");
                                                 parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
                                                 deviceCallback.onMessage(msgCopy);
                                                 if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2:"+ msgCopy +" no_error="+no_error);}

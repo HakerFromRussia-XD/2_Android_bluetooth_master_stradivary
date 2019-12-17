@@ -25,10 +25,4 @@ public interface ConstantManager {
     String MODEDEL_17="STR2/STR2_mizinec_part5.obj";
     String MODEDEL_18="STR2/STR2_mizinec_part2.obj";
 
-    ////////////////////////////////////////////////
-/**                 bluetooth                        **/
-    ////////////////////////////////////////////////
-    Integer RESET_ALL_VARIABLE=0;
-    Integer OLD_PROTOCOL=1;
-
 }

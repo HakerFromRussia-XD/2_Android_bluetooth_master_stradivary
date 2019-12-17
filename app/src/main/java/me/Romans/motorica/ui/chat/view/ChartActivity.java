@@ -153,6 +153,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public boolean graphThreadFlag = false;
     public float iterator = 0;
     public boolean invertChannel = false;
+    private boolean flag_Use_HDLC_Procol = false;
 //    for general updates
     public int receiveСurrentChat = 0;
     public int receiveLevelCH1Chat = 0;
@@ -533,6 +534,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     receiveLevelCH1Chat = 20;
                     receiveLevelCH2Chat = 2500;
+                    if(!flag_Use_HDLC_Procol){showToast("protokol hdlc activation");}
                 }
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -1459,10 +1461,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //            imageViewStatus.setImageResource(R.drawable.sleeping);
             if (receiveBlockIndication == 1){
                 imageViewStatus.setImageResource(R.drawable.unblock);
-                System.err.println("ChatActivity----> разблокированно");
+//                System.err.println("ChatActivity----> разблокированно");
             } else {
                 imageViewStatus.setImageResource(R.drawable.block_not_use);
-                System.err.println("ChatActivity----> блокировка не используется");
+//                System.err.println("ChatActivity----> блокировка не используется");
             }
         }
         if (receiveIndicationStateChat == 1){
@@ -1479,10 +1481,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             }
             if (receiveBlockIndication == 1){
                 imageViewStatus.setImageResource(R.drawable.unblock);
-                System.err.println("ChatActivity----> разблокированно");
+//                System.err.println("ChatActivity----> разблокированно");
             } else {
                 imageViewStatus.setImageResource(R.drawable.block_not_use);
-                System.err.println("ChatActivity----> блокировка не используется");
+//                System.err.println("ChatActivity----> блокировка не используется");
             }
         }
         if (receiveIndicationStateChat == 2){
@@ -1499,10 +1501,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             }
             if (receiveBlockIndication == 1){
                 imageViewStatus.setImageResource(R.drawable.unblock);
-                System.err.println("ChatActivity----> разблокированно");
+//                System.err.println("ChatActivity----> разблокированно");
             } else {
                 imageViewStatus.setImageResource(R.drawable.block_not_use);
-                System.err.println("ChatActivity----> блокировка не используется");
+//                System.err.println("ChatActivity----> блокировка не используется");
             }
         }
         if (receiveIndicationStateChat == 3){
@@ -1511,7 +1513,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
 //            switchBlockMode.setChecked(true);
             imageViewStatus.setImageResource(R.drawable.block);
-            System.err.println("ChatActivity----> заблокированно");
+//            System.err.println("ChatActivity----> заблокированно");
             receiveBlockIndication = 1;
         }
     }
@@ -1902,4 +1904,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //        System.err.println("MainActivity ---------> testInt2="+testInt2);
     }
 
+    public boolean getFlag_Use_HDLC_Procol() {
+        return flag_Use_HDLC_Procol;
+    }
+
+    public void setFlag_Use_HDLC_Procol(boolean flag_Use_HDLC_Procol) {
+        this.flag_Use_HDLC_Procol = flag_Use_HDLC_Procol;
+    }
 }

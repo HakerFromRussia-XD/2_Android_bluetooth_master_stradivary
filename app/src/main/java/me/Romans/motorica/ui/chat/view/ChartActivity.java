@@ -51,6 +51,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import me.Romans.bluetooth.BluetoothConstantManager;
 import me.Romans.motorica.MyApp;
 import me.Romans.motorica.data.GesstureAdapter;
 import me.Romans.motorica.data.Gesture_my;
@@ -75,6 +76,7 @@ import me.Romans.motorica.utils.ConstantManager;
 public class ChartActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener, SettingsDialog.SettingsDialogListener {
     public static boolean monograbVersion;
     public static boolean flagUseHDLCProcol = false;
+    public static boolean flagReceptionExpectation = false;
     @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
     @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
     @BindView(R.id.seekBarCH1on2) public SeekBar seekBarCH1on2;
@@ -125,6 +127,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public static String deviceName;
     public double multiplierSeekbar = 13.6363;
     public byte[] TextByteTreeg = new byte[8];
+    public byte[] TextByteHDLC6 = new byte[6];
+    public byte[] TextByteHDLC5 = new byte[5];
     public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
     public byte[] TextByteTreegMod = new byte[2];
     public byte[] TextByteSensorActivate = new byte[2];
@@ -373,16 +377,27 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 intValueCH1on = (int) (seekBarCH1on.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 if (invertChannel){numberChannel = 0x02;} else {numberChannel = 0x01;}
-                TextByteTreeg[0] = indicatorTypeMessage;
-                TextByteTreeg[1] = numberChannel;
-                TextByteTreeg[2] = (byte) intValueCH1on;
-                TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
-                TextByteTreeg[4] = (byte) intValueCH1off;
-                TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
-                TextByteTreeg[6] = (byte) intValueCH1sleep;
-                TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
-                System.err.println("ChatActivity--------> seekBarCH1on : onStopTrackingTouch - intValueCH1on=" + intValueCH1on);
+                //TODO дописать инвертирование для хдлцешных посылок
+                if(flagUseHDLCProcol){
+                    TextByteHDLC6[0] = ConstantManager.ADDR_MIO1;
+                    TextByteHDLC6[1] = ConstantManager.WRITE;
+                    TextByteHDLC6[2] = BluetoothConstantManager.MIO1_TRIG_HDLC;
+                    TextByteHDLC6[3] = (byte) intValueCH1on;
+                    TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
+                    TextByteHDLC6[5] = presenter.calculationCRC(TextByteHDLC6);
+                    presenter.onHelloWorld(TextByteHDLC6);
+                } else {
+                    TextByteTreeg[0] = indicatorTypeMessage;
+                    TextByteTreeg[1] = numberChannel;
+                    TextByteTreeg[2] = (byte) intValueCH1on;
+                    TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
+                    TextByteTreeg[4] = (byte) intValueCH1off;
+                    TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
+                    TextByteTreeg[6] = (byte) intValueCH1sleep;
+                    TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
+                    presenter.onHelloWorld(TextByteTreeg);
+                    System.err.println("ChatActivity--------> seekBarCH1on : onStopTrackingTouch - intValueCH1on=" + intValueCH1on);
+                }
                 seekBarCH1on2.setProgress(seekBarCH1on.getProgress());
             }
         });
@@ -408,15 +423,25 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 intValueCH1on = (int) (seekBarCH1on2.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 if (invertChannel){numberChannel = 0x02;} else {numberChannel = 0x01;}
-                TextByteTreeg[0] = indicatorTypeMessage;
-                TextByteTreeg[1] = numberChannel;
-                TextByteTreeg[2] = (byte) intValueCH1on;
-                TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
-                TextByteTreeg[4] = (byte) intValueCH1off;
-                TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
-                TextByteTreeg[6] = (byte) intValueCH1sleep;
-                TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
+                if(flagUseHDLCProcol){
+                    TextByteHDLC6[0] = ConstantManager.ADDR_MIO1;
+                    TextByteHDLC6[1] = ConstantManager.WRITE;
+                    TextByteHDLC6[2] = BluetoothConstantManager.MIO1_TRIG_HDLC;
+                    TextByteHDLC6[3] = (byte) intValueCH1on;
+                    TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
+                    TextByteHDLC6[5] = presenter.calculationCRC(TextByteHDLC6);
+                    presenter.onHelloWorld(TextByteHDLC6);
+                } else {
+                    TextByteTreeg[0] = indicatorTypeMessage;
+                    TextByteTreeg[1] = numberChannel;
+                    TextByteTreeg[2] = (byte) intValueCH1on;
+                    TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
+                    TextByteTreeg[4] = (byte) intValueCH1off;
+                    TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
+                    TextByteTreeg[6] = (byte) intValueCH1sleep;
+                    TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
+                    presenter.onHelloWorld(TextByteTreeg);
+                }
                 seekBarCH1on.setProgress(seekBarCH1on2.getProgress());
                 System.err.println("ChatActivity--------> seekBarCH1on2 : onStopTrackingTouch - intValueCH1on=" + intValueCH1on);
             }
@@ -439,15 +464,26 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 intValueCH2on = (int) (seekBarCH2on.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 if (invertChannel){numberChannel = 0x01;} else {numberChannel = 0x02;}
-                TextByteTreeg[0] = indicatorTypeMessage;
-                TextByteTreeg[1] = numberChannel;
-                TextByteTreeg[2] = (byte) intValueCH2on;
-                TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
-                TextByteTreeg[4] = (byte) intValueCH2off;
-                TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
-                TextByteTreeg[6] = (byte) intValueCH2sleep;
-                TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
+                if(flagUseHDLCProcol){
+                    TextByteHDLC6[0] = ConstantManager.ADDR_MIO2;
+                    TextByteHDLC6[1] = ConstantManager.WRITE;
+                    TextByteHDLC6[2] = BluetoothConstantManager.MIO2_TRIG_HDLC;
+                    TextByteHDLC6[3] = (byte) intValueCH1on;
+                    TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
+                    TextByteHDLC6[5] = presenter.calculationCRC(TextByteHDLC6);
+                    presenter.onHelloWorld(TextByteHDLC6);
+                } else {
+                    TextByteTreeg[0] = indicatorTypeMessage;
+                    TextByteTreeg[1] = numberChannel;
+                    TextByteTreeg[2] = (byte) intValueCH2on;
+                    TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
+                    TextByteTreeg[4] = (byte) intValueCH2off;
+                    TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
+                    TextByteTreeg[6] = (byte) intValueCH2sleep;
+                    TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
+                    presenter.onHelloWorld(TextByteTreeg);
+                }
+
                 seekBarCH2on2.setProgress(seekBarCH2on.getProgress());
                 System.err.println("ChatActivity--------> seekBarCH2on : onStopTrackingTouch - intValueCH2on=" + intValueCH2on);
             }
@@ -475,15 +511,25 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 intValueCH2on = (int) (seekBarCH2on2.getProgress()*multiplierSeekbar);
                 indicatorTypeMessage = 0x01;
                 if (invertChannel){numberChannel = 0x01;} else {numberChannel = 0x02;}
-                TextByteTreeg[0] = indicatorTypeMessage;
-                TextByteTreeg[1] = numberChannel;
-                TextByteTreeg[2] = (byte) intValueCH2on;
-                TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
-                TextByteTreeg[4] = (byte) intValueCH2off;
-                TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
-                TextByteTreeg[6] = (byte) intValueCH2sleep;
-                TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
-                presenter.onHelloWorld(TextByteTreeg);
+                if(flagUseHDLCProcol){
+                    TextByteHDLC6[0] = ConstantManager.ADDR_MIO2;
+                    TextByteHDLC6[1] = ConstantManager.WRITE;
+                    TextByteHDLC6[2] = BluetoothConstantManager.MIO2_TRIG_HDLC;
+                    TextByteHDLC6[3] = (byte) intValueCH1on;
+                    TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
+                    TextByteHDLC6[5] = presenter.calculationCRC(TextByteHDLC6);
+                    presenter.onHelloWorld(TextByteHDLC6);
+                } else {
+                    TextByteTreeg[0] = indicatorTypeMessage;
+                    TextByteTreeg[1] = numberChannel;
+                    TextByteTreeg[2] = (byte) intValueCH2on;
+                    TextByteTreeg[3] = (byte) (intValueCH2on >> 8);
+                    TextByteTreeg[4] = (byte) intValueCH2off;
+                    TextByteTreeg[5] = (byte) (intValueCH2off >> 8);
+                    TextByteTreeg[6] = (byte) intValueCH2sleep;
+                    TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
+                    presenter.onHelloWorld(TextByteTreeg);
+                }
                 seekBarCH2on.setProgress(seekBarCH2on2.getProgress());
                 System.err.println("ChatActivity--------> seekBarCH2on2 : onStopTrackingTouch - intValueCH2on=" + intValueCH2on);
             }
@@ -531,16 +577,25 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     lastReceiveLevelCH1Chat = receiveLevelCH1Chat;
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
                     int numberSensor = 0x07;
-                    presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    if(flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(ConstantManager.CLOSING));
+                    } else {
+                        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    }
                     receiveLevelCH1Chat = 20;
                     receiveLevelCH2Chat = 2500;
-                    if(flagUseHDLCProcol){showToast("protokol hdlc activation");}
+                    if(flagUseHDLCProcol){System.out.println("ChatActivity----> flagReceptionExpectation " + flagReceptionExpectation);}
                     else {showToast("not IND");}
                 }
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     int numberSensor = 0x08;
-                    presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    if(flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(ConstantManager.NOP));
+                    } else {
+                        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    }
+
                     receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
                     receiveLevelCH2Chat = lastReceiveLevelCH2Chat;
                 }
@@ -555,14 +610,22 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     lastReceiveLevelCH1Chat = receiveLevelCH1Chat;
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
                     int numberSensor = 0x06;
-                    presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    if(flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(ConstantManager.OPENING));
+                    } else {
+                        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    }
                     receiveLevelCH1Chat = 2500;
                     receiveLevelCH2Chat = 20;
                 }
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     int numberSensor = 0x08;
-                    presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    if(flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(ConstantManager.NOP));
+                    } else {
+                        presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
+                    }
                     receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
                     receiveLevelCH2Chat = lastReceiveLevelCH2Chat;
                 }
@@ -615,7 +678,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     maxCurrent = seekBar.getProgress();
                     curent = seekBar.getProgress();
-                    presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
+                    if(flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvertHDLC(curent));
+                    } else {
+                        presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
+                    }
                 }
             });
         }
@@ -1558,6 +1625,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         return firstRead;
     }
 
+    @Override
+    public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
+        this.flagReceptionExpectation = flagReceptionExpectation;
+    }
+
 
     @Override
     public void setErrorReception (boolean incomeErrorReception) {
@@ -1759,6 +1831,14 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteSensorActivate[1] = (byte) numberSensor;
         return TextByteSensorActivate;
     }
+    private byte[] CompileMassegeSensorActivateHDLC (byte operation){
+        TextByteHDLC5[0] = ConstantManager.ADDR_ENDPOINT_POSITION;
+        TextByteHDLC5[1] = ConstantManager.WRITE;
+        TextByteHDLC5[2] = BluetoothConstantManager.ENDPOINT_POSITION;
+        TextByteHDLC5[3] = operation;
+        TextByteHDLC5[4] = presenter.calculationCRC(TextByteHDLC5);
+        return TextByteHDLC5;
+    }
     public byte[] CompileMassegeCurentSettingsAndInvert (int Curent, byte Invert) {
         TextByteTreegCurentSettingsAndInvert[0] = 0x0B;
         TextByteTreegCurentSettingsAndInvert[1] = (byte) Curent;
@@ -1766,6 +1846,16 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteTreegCurentSettingsAndInvert[3] = Invert;
         return TextByteTreegCurentSettingsAndInvert;
     }
+    public byte[] CompileMassegeCurentSettingsAndInvertHDLC (int Curent) {
+        TextByteHDLC6[0] = ConstantManager.ADDR_CUR_LIMIT;
+        TextByteHDLC6[1] = ConstantManager.WRITE;
+        TextByteHDLC6[2] = BluetoothConstantManager.CURR_LIMIT_HDLC;
+        TextByteHDLC6[3] = (byte) Curent;
+        TextByteHDLC6[4] = (byte) (Curent >> 8);
+        TextByteHDLC6[5] = presenter.calculationCRC(TextByteHDLC6);
+        return TextByteHDLC6;
+    }
+
     private byte[] CompileMessageSetGeneralParcel (byte turningOn){
         TextByteSetGeneralParcel[0] = 0x0C;
         TextByteSetGeneralParcel[1] = turningOn;

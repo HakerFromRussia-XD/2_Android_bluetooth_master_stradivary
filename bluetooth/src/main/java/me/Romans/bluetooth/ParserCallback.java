@@ -13,5 +13,5 @@ public interface ParserCallback {
     void givsErrorReception(Boolean givsErrorReception);
     void setStartParametersInChartActivity();
     boolean getFlagUseHDLCProcol();
-    void  setFlagUseHDLCProcol(Boolean );
+    void  setFlagReceptionExpectation(Boolean flagReceptionExpectation);
 }

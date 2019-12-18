@@ -79,7 +79,11 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhness((byte) (((byte) seekBar.getProgress()) + 1)));
+                if(chatActivity.getFlagUseHDLCProcol()){
+                    //TODO Ване дописать хдлцешную команду контроля грубости
+                } else {
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhness((byte) (((byte) seekBar.getProgress()) + 1)));
+                }
             }
         });
 
@@ -88,14 +92,22 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             public void onClick(View v) {
                 if (switchInvert.isChecked()){
                     chatActivity.invert = 0x01;
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+                    if(chatActivity.getFlagUseHDLCProcol()){
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvertHDLC(chatActivity.curent));
+                    } else {
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+                    }
                     Integer temp = chatActivity.intValueCH1on;
                     chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekbar-0.1)));//-0.5
                     chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekbar-0.1)));//-0.5
                     chatActivity.invertChannel = true;
                 } else {
                     chatActivity.invert = 0x00;
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+                    if(chatActivity.getFlagUseHDLCProcol()){
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvertHDLC(chatActivity.curent));
+                    } else {
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+                    }
                     Integer temp = chatActivity.intValueCH1on;
                     chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekbar-0.1)));//-0.5
                     chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekbar-0.1)));//-0.5
@@ -175,6 +187,11 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @Override
     public boolean getFirstRead() {
         return false;
+    }
+
+    @Override
+    public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
+
     }
 
 }

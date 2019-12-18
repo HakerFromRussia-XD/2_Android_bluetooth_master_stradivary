@@ -334,4 +334,9 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
     public boolean getFirstRead() {
         return false;
     }
+
+    @Override
+    public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
+
+    }
 }

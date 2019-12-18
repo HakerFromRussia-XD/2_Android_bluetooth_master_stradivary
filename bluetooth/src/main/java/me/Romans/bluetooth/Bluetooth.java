@@ -355,7 +355,10 @@ public class Bluetooth {
         private byte msgIndicationState = 0;
         private byte msgBlockIndication = 0;
         private byte msgRoughnessOfSensors = 0;
-        private int lowByte = 0;     //для записи младшего байта при перемене младших и старших байт
+        private int lowByte = 0;                //для записи младшего байта при перемене младших и старших байт
+        private int addressHDLCMassage = 0;     //для сохранения адреса с которого пришла HDLC посылка
+        private int directionHDLCMassage = 0;   //для сохранения направления с которого пришла HDLC посылка
+        private int typeHDLCMassage = 0;        //для сохранения типа принятой посылки HDLC
         private int i=1;
 //        private boolean firstRead = true;
         private boolean errorReception = false;        //true-ошибка на принимающей стороне false-ошибок нет
@@ -395,17 +398,17 @@ public class Bluetooth {
                             }
                         }
 
-                        if ((i == 1) && (msg == 77)){ //выбор ветки для парсинга и отправки
-                            branchOfParsing = BluetoothConstantManager.OLD_NOT_USE_PROTOCOL;
+                        if (parserCallback.getFlagUseHDLCProcol()){
+                            branchOfParsing = BluetoothConstantManager.HDLC_PROTOCOL;
+                            //парсит hdlc посылки
                         } else {
-                            if ((i == 1) && (msg == 36)){
-                                branchOfParsing = BluetoothConstantManager.OLD_PROTOCOL; //парсит постоянно прилетающие данные
-                                //за первый заход устанавливает начальные параметры,
-                                //а за последующие выдаёт данные на графики, свичи и сикбары
+                            if ((i == 1) && (msg == 77)){ //выбор ветки для парсинга и отправки
+                                branchOfParsing = BluetoothConstantManager.OLD_NOT_USE_PROTOCOL;
                             } else {
-                                if (parserCallback.getFlagUseHDLCProcol()){
-                                    branchOfParsing = BluetoothConstantManager.HDLC_PROTOCOL;
-                                    //парсит hdlc посылки
+                                if ((i == 1) && (msg == 36)){
+                                    branchOfParsing = BluetoothConstantManager.OLD_PROTOCOL; //парсит постоянно прилетающие данные
+                                    //за первый заход устанавливает начальные параметры,
+                                    //а за последующие выдаёт данные на графики, свичи и сикбары
                                 } else {
                                     if (i == 1){
                                         branchOfParsing = BluetoothConstantManager.RESET_ALL_VARIABLE;
@@ -630,7 +633,19 @@ public class Bluetooth {
                         }
 
                         if (branchOfParsing == BluetoothConstantManager.HDLC_PROTOCOL){
-                            System.out.println("BLUETOOTH--------------> HDLC uses " + parserCallback.getFlagUseHDLCProcol());
+                            if (DEBUG){System.out.println("BLUETOOTH--------------> HDLC uses " + parserCallback.getFlagUseHDLCProcol());}
+//                            parserCallback.setFlagReceptionExpectation(false);
+                            if(i == 1){ typeHDLCMassage = msg; }
+                            if(i == 2){ typeHDLCMassage = msg; }
+                            if(i == 3){ typeHDLCMassage = msg; }
+                            switch (typeHDLCMassage){
+                                case BluetoothConstantManager.ENDPOINT_POSITION:
+
+                                    break;
+                            }
+                            if(i == 4){
+                                msgLenght = (msg << 8) + lowByte; //msgLenght содержит количество байт данных в посылке
+                            }
                         }
                     } else return; //завершение потока
                 }

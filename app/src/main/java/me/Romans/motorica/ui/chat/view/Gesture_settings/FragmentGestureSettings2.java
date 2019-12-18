@@ -210,4 +210,9 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
     public boolean getFirstRead() {
         return false;
     }
+
+    @Override
+    public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
+
+    }
 }

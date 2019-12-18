@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Handler;
 
+import me.Romans.bluetooth.BluetoothConstantManager;
 import me.Romans.motorica.ui.chat.interactor.ChatInteractor;
 import me.Romans.bluetooth.BluetoothCallback;
 import me.Romans.bluetooth.DeviceCallback;
@@ -82,222 +83,235 @@ public class ChatPresenterImpl implements ChatPresenter {
 //        for (int i = 0; i < 1; i++) //aByte.length
 //        {
 //            System.arraycopy(txtbyte, i*2, txtbyteout, i, 1);
-///        }
-        switch (txtbyte[0]) {
-            case 1: //компановка посылки записи порогов на любой канал
-                if (DEBUG) {System.out.println("номер канала получателя:" + txtbyte[1]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout1[i + 6] = txtbyte[i];
-                }
-                interactor.sendMessageByte(txtbyteout1);
-                break;
-            case 2:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                if (DEBUG) {System.out.println("--> номер канала получателя:" + txtbyte[1]);}
-                txtbyteout2[7] = txtbyte[1];
-                interactor.sendMessageByte(txtbyteout2);
-                break;
-            case 3:
-                if (DEBUG) {
-                    System.out.println("--> тип компановки:" + txtbyte[0]);
-                    System.out.println("--> номер пальца:" + txtbyte[1]);
-                    System.out.println("--> значение скорости:" + txtbyte[5]);
-                    System.out.println("--> значение угла:" + txtbyte[6]);
-                    System.out.println("--> значение CRC:" + txtbyte[7]);
-                }
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout3[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout3.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout3[i]);
-                }
-                interactor.sendMessageByte(txtbyteout3);
-                break;
-            case 4:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout4[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout4.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout4[i]);
-                }
-                interactor.sendMessageByte(txtbyteout4);
-                break;
-            case 5:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout5[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout5.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout5[i]);
-                }
-                interactor.sendMessageByte(txtbyteout5);
-                break;
-            case 6:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                if (DEBUG) {System.out.println("--> номер жеста:" + txtbyte[1]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout6[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout6.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout6[i]);
-                }
-                interactor.sendMessageByte(txtbyteout6);
-                break;
-            case 7:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                if (DEBUG) {System.out.println("--> номер схвата:" + txtbyte[1]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout7[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout7.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout7[i]);
-                }
-                interactor.sendMessageByte(txtbyteout7);
-                break;
-            case 8:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                    if (DEBUG) {System.out.println("--> номер мода:" + txtbyte[1]);}
-                if(txtbyte[1] == 1) {view.showToast("классический режим"); }
-                if(txtbyte[1] == 2) {view.showToast("триггерный режим 1"); }
-                if(txtbyte[1] == 3) {view.showToast("триггерный режим 2"); }
-                if(txtbyte[1] == 4) {view.showToast("удерживающий режим 1"); }
-                if(txtbyte[1] == 5) {view.showToast("удерживающий режим 2"); }
-                if(txtbyte[1] == 6) {view.showToast("инвертированный удерживающий режим 1"); }
-                if(txtbyte[1] == 7) {view.showToast("инвертированный удерживающий режим 2"); }
-                if(txtbyte[1] == 8) {view.showToast("инвертированный классический режим"); }
-                if(txtbyte[1] == 9) {view.showToast("одноканальный режим датчик 1"); }
-                if(txtbyte[1] == 10) {view.showToast("одноканальный режим датчик 2"); }
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout8[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout8.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout8[i]);
-                }
-                interactor.sendMessageByte(txtbyteout8);
-                break;
-            case 9:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                    if (DEBUG) {System.out.println("--> срабатывание датчика:" + txtbyte[1]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout9[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout9.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout9[i]);
-                }
-                interactor.sendMessageByte(txtbyteout9);
-                break;
-            case 10:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout10[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout10.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout10[i]);
-                }
-                interactor.sendMessageByte(txtbyteout10);
-                break;
-            case 11:
-                if (DEBUG) { System.out.println("--> тип компановки:" + txtbyte[0]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout11[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout11.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout11[i]);
-                }
-                interactor.sendMessageByte(txtbyteout11);
-                break;
-            case 12:
-                if (DEBUG) { System.out.println("--> тип компановки:" + txtbyte[0]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout12[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout12.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout12[i]);
-                }
-                interactor.sendMessageByte(txtbyteout12);
-                break;
-            case 13:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout13[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout13.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout13[i]);
-                }
-                interactor.sendMessageByte(txtbyteout13);
-                break;
-            case 14:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout14[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout14.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout14[i]);
-                }
-                interactor.sendMessageByte(txtbyteout14);
-                break;
-            case 15:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout15[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout15.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout15[i]);
-                }
-                interactor.sendMessageByte(txtbyteout15);
-                break;
-            case 16:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                for (int i = 1; i < txtbyte.length; i++)
-                {
-                    txtbyteout16[i + 6] = txtbyte[i];
-                }
-                for (int i = 0; i < txtbyteout16.length; i++)
-                {
-//                    System.out.println("<-- посылка:" + txtbyteout16[i]);
-                }
-                interactor.sendMessageByte(txtbyteout16);
-                break;
-            default:
-                if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                if (DEBUG) {System.out.println("--> номер канала получателя:" + txtbyte[1]);}
-                view.appendMessage("--> отправка на канал" + txtbyte[1]);
-                for (int i = 1; i < txtbyte.length; i++) //aByte.length
-                {
-                    System.out.println("--> КОМПАНОВКА ПОСЫЛКИ:" + txtbyte[i]);
+//        }
 
-                }
-                interactor.sendMessageByte(txtbyte);
-                break;
+        System.out.println("ChatPresenter--------------> HDLC uses " + parserCallback.getFlagUseHDLCProcol());
+        if(parserCallback.getFlagUseHDLCProcol()){
+            interactor.sendMessageByte(txtbyte);
+//            switch (txtbyte[2]){
+//                case BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC:
+//                    break;
+//                case BluetoothConstantManager.CURR_LIMIT_HDLC:
+//                    break;
+//            }
+        } else {
+            switch (txtbyte[0]) {
+                case 1: //компановка посылки записи порогов на любой канал
+                    if (DEBUG) {System.out.println("номер канала получателя:" + txtbyte[1]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout1[i + 6] = txtbyte[i];
+                    }
+                    interactor.sendMessageByte(txtbyteout1);
+                    break;
+                case 2:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    if (DEBUG) {System.out.println("--> номер канала получателя:" + txtbyte[1]);}
+                    txtbyteout2[7] = txtbyte[1];
+                    interactor.sendMessageByte(txtbyteout2);
+                    break;
+                case 3:
+                    if (DEBUG) {
+                        System.out.println("--> тип компановки:" + txtbyte[0]);
+                        System.out.println("--> номер пальца:" + txtbyte[1]);
+                        System.out.println("--> значение скорости:" + txtbyte[5]);
+                        System.out.println("--> значение угла:" + txtbyte[6]);
+                        System.out.println("--> значение CRC:" + txtbyte[7]);
+                    }
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout3[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout3.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout3[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout3);
+                    break;
+                case 4:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout4[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout4.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout4[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout4);
+                    break;
+                case 5:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout5[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout5.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout5[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout5);
+                    break;
+                case 6:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    if (DEBUG) {System.out.println("--> номер жеста:" + txtbyte[1]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout6[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout6.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout6[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout6);
+                    break;
+                case 7:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    if (DEBUG) {System.out.println("--> номер схвата:" + txtbyte[1]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout7[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout7.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout7[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout7);
+                    break;
+                case 8:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    if (DEBUG) {System.out.println("--> номер мода:" + txtbyte[1]);}
+                    if(txtbyte[1] == 1) {view.showToast("классический режим"); }
+                    if(txtbyte[1] == 2) {view.showToast("триггерный режим 1"); }
+                    if(txtbyte[1] == 3) {view.showToast("триггерный режим 2"); }
+                    if(txtbyte[1] == 4) {view.showToast("удерживающий режим 1"); }
+                    if(txtbyte[1] == 5) {view.showToast("удерживающий режим 2"); }
+                    if(txtbyte[1] == 6) {view.showToast("инвертированный удерживающий режим 1"); }
+                    if(txtbyte[1] == 7) {view.showToast("инвертированный удерживающий режим 2"); }
+                    if(txtbyte[1] == 8) {view.showToast("инвертированный классический режим"); }
+                    if(txtbyte[1] == 9) {view.showToast("одноканальный режим датчик 1"); }
+                    if(txtbyte[1] == 10) {view.showToast("одноканальный режим датчик 2"); }
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout8[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout8.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout8[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout8);
+                    break;
+                case 9:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    if (DEBUG) {System.out.println("--> срабатывание датчика:" + txtbyte[1]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout9[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout9.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout9[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout9);
+                    break;
+                case 10:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout10[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout10.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout10[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout10);
+                    break;
+                case 11:
+                    if (DEBUG) { System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout11[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout11.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout11[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout11);
+                    break;
+                case 12:
+                    if (DEBUG) { System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout12[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout12.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout12[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout12);
+                    break;
+                case 13:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout13[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout13.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout13[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout13);
+                    break;
+                case 14:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout14[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout14.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout14[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout14);
+                    break;
+                case 15:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout15[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout15.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout15[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout15);
+                    break;
+                case 16:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    for (int i = 1; i < txtbyte.length; i++)
+                    {
+                        txtbyteout16[i + 6] = txtbyte[i];
+                    }
+                    for (int i = 0; i < txtbyteout16.length; i++)
+                    {
+//                    System.out.println("<-- посылка:" + txtbyteout16[i]);
+                    }
+                    interactor.sendMessageByte(txtbyteout16);
+                    break;
+                default:
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    if (DEBUG) {System.out.println("--> номер канала получателя:" + txtbyte[1]);}
+                    view.appendMessage("--> отправка на канал" + txtbyte[1]);
+                    for (int i = 1; i < txtbyte.length; i++) //aByte.length
+                    {
+                        System.out.println("--> КОМПАНОВКА ПОСЫЛКИ:" + txtbyte[i]);
+
+                    }
+                    interactor.sendMessageByte(txtbyte);
+                    break;
+            }
         }
+
     }
 
 //    @Override
@@ -393,6 +407,11 @@ public class ChatPresenterImpl implements ChatPresenter {
         @Override
         public boolean getFlagUseHDLCProcol() {
             return flagUseHDLCProcol;
+        }
+
+        @Override
+        public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
+            view.setFlagReceptionExpectation(flagReceptionExpectation);
         }
     };
 

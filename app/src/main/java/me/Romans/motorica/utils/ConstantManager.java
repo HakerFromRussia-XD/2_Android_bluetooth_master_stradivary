@@ -25,4 +25,17 @@ public interface ConstantManager {
     String MODEDEL_17="STR2/STR2_mizinec_part5.obj";
     String MODEDEL_18="STR2/STR2_mizinec_part2.obj";
 
+    ////////////////////////////////////////////////
+/**                 transfer                          **/
+    ////////////////////////////////////////////////
+
+    byte ADDR_MIO1  =0x00;
+    byte ADDR_MIO2  =0x00;
+    byte ADDR_ENDPOINT_POSITION  =0x00;
+    byte ADDR_CUR_LIMIT =0x00;
+    byte OPENING    =0x00;
+    byte CLOSING    =0x01;
+    byte NOP        =0x02;
+    byte READ       =0x01;
+    byte WRITE      =0x02;
 }

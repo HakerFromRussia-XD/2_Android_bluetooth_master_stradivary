@@ -14,4 +14,5 @@ public interface ChatView {
     void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors);
     void setStartParametersInChartActivity();
     boolean getFirstRead();
+    void setFlagReceptionExpectation (Boolean flagReceptionExpectation);
 }

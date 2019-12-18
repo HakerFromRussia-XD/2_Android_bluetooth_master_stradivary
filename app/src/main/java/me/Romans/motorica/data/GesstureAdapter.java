@@ -119,6 +119,11 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
         return false;
     }
 
+    @Override
+    public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
+
+    }
+
 
     public class GestureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 

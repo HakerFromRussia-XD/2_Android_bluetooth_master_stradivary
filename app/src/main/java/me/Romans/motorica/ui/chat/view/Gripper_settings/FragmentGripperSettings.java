@@ -153,4 +153,9 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
         return false;
     }
 
+    @Override
+    public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
+
+    }
+
 }

@@ -209,4 +209,9 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
     }
 
+    @Override
+    public void setStartParametersBlock(Byte receiveBlockIndication) {
+
+    }
+
 }

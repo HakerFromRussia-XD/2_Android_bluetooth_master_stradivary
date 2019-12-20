@@ -707,6 +707,24 @@ public class Bluetooth {
                                         });
                                     }
                                     break;
+                                case BluetoothConstantManager.BLOCK_PERMISSION_HDLC:
+                                    if(i == 5){ addressHDLCMassage = msg;}
+                                    if(i == 6){ msgBlockIndication = (byte) msg;}
+                                    if(i == 7){}//обработчик CRC
+                                    i++;
+                                    if(((deviceCallback != null) && (i == 8))) {
+                                        System.out.println("BLUETOOTH--------------> READ BLOCK START PARAMETER ");
+                                        final Byte msgBlockIndicationf = msgBlockIndication;
+                                        ThreadHelper.run(runOnUi, activity, new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                parserCallback.givsStartParametersBlock(msgBlockIndicationf);
+                                                parserCallback.setStartParametersInChartActivity();
+                                                resetAllVariables();
+                                            }
+                                        });
+                                    }
+                                    break;
                                 case BluetoothConstantManager.CURR_MAIN_DATA_HDLC:
                                     if(i == 5){ addressHDLCMassage = msg; byteMass[0] = (byte) msg; }
                                     if(i == 6){ lowByte = msg; byteMass[1] = (byte) msg; }

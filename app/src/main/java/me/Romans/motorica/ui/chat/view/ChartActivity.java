@@ -1660,6 +1660,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         this.receiveСurrent = receiveСurrent;
     }
 
+    @Override
+    public void setStartParametersBlock(Byte receiveBlockIndication) {
+        this.receiveBlockIndication = receiveBlockIndication;
+    }
 
     public void setStartParametersInChartActivity(){
             if (monograbVersion){ seekBarIstop.setProgress(receiveСurrent);}

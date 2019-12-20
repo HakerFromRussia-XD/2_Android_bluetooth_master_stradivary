@@ -230,4 +230,9 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
 
     }
 
+    @Override
+    public void setStartParametersBlock(Byte receiveBlockIndication) {
+
+    }
+
 }

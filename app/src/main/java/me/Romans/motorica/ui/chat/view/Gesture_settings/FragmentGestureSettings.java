@@ -233,4 +233,9 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
 
     }
 
+    @Override
+    public void setStartParametersBlock(Byte receiveBlockIndication) {
+
+    }
+
 }

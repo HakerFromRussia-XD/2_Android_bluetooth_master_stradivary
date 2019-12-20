@@ -19,4 +19,5 @@ public interface ChatView {
     void setStartParametersTrigCH1(Integer receiveLevelTrigCH1);
     void setStartParametersTrigCH2(Integer receiveLevelTrigCH2);
     void setStartParametersCurrrent(Integer receiveСurrent);
+    void setStartParametersBlock(Byte receiveBlockIndication);
 }

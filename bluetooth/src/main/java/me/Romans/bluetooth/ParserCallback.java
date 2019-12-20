@@ -11,6 +11,7 @@ public interface ParserCallback {
     void givsStartParametersTrigCH1 (int levelTrigCH1);
     void givsStartParametersTrigCH2(int levelTrigCH2);
     void givsStartParametersCurrrent(int current);
+    void givsStartParametersBlock(byte blockIndication);
 
     void givsRegister (Integer register);
     void givsCorrectAcceptance (Boolean correct_acceptence);
@@ -19,6 +20,5 @@ public interface ParserCallback {
     boolean getFlagUseHDLCProcol();
     boolean getFlagReceptionExpectation();
     void  setFlagReceptionExpectation(Boolean flagReceptionExpectation);
-
 
 }

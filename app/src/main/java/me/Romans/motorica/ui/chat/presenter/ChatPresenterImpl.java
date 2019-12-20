@@ -400,6 +400,11 @@ public class ChatPresenterImpl implements ChatPresenter {
             view.setStartParametersCurrrent (receiveСurrent);
         }
 
+        @Override
+        public void givsStartParametersBlock(byte blockIndication) {
+            Byte receiveBlockIndication = new Byte(blockIndication);
+            view.setStartParametersBlock (receiveBlockIndication);
+        }
 
         @Override
         public void givsRegister(Integer register) {

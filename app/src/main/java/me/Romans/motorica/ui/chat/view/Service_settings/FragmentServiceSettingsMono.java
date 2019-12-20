@@ -233,4 +233,9 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
 
     }
 
+    @Override
+    public void setStartParametersBlock(Byte receiveBlockIndication) {
+
+    }
+
 }

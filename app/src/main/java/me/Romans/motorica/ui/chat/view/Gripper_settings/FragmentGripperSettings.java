@@ -158,4 +158,19 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
 
     }
 
+    @Override
+    public void setStartParametersTrigCH1(Integer receiveLevelTrigCH1) {
+
+    }
+
+    @Override
+    public void setStartParametersTrigCH2(Integer receiveLevelTrigCH2) {
+
+    }
+
+    @Override
+    public void setStartParametersCurrrent(Integer receiveСurrent) {
+
+    }
+
 }

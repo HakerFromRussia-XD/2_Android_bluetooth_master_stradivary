@@ -211,6 +211,21 @@ public class InfinitySettings extends AppCompatActivity implements ChatView {
 
     }
 
+    @Override
+    public void setStartParametersTrigCH1(Integer receiveLevelTrigCH1) {
+
+    }
+
+    @Override
+    public void setStartParametersTrigCH2(Integer receiveLevelTrigCH2) {
+
+    }
+
+    @Override
+    public void setStartParametersCurrrent(Integer receiveСurrent) {
+
+    }
+
     private byte[] CompileMassegeInfinitySettings (int waitOpenTime, int waitCloseTime, int openSpeed, int closeSpeed){
         TextByteTreegInfinitySettings[0] = 0x0A;
         TextByteTreegInfinitySettings[1] = (byte) waitOpenTime;

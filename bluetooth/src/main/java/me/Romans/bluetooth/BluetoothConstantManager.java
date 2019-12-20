@@ -6,7 +6,12 @@ public interface BluetoothConstantManager {
     Integer OLD_NOT_USE_PROTOCOL    =1;
     Integer OLD_PROTOCOL            =2;
     Integer HDLC_PROTOCOL           =3;
+    Integer TIME_DAMPING_HDLC_MS    =50;
+    Integer TIME_RETURN_START_COMAND_HDLC_MS    =2000;
 
+    byte OPENING    =0x00;
+    byte CLOSING    =0x01;
+    byte NOP        =0x02;
     int ENDPOINT_POSITION			=  0;
     int HDLC_ADDRESS_REG            =  6;
     int MOTOR_REVERS                = 30;
@@ -18,4 +23,6 @@ public interface BluetoothConstantManager {
     int HAND_ON_OFF_REG				= 43;
     int HAND_MOTIONS_CNT_HDLC       = 44;
     int ADC_BUFF_CHOISES_HDLC       = 45;
+    int BLOCK_ON_OFF_HDLC           = 46;
+    int BLOCK_PERMISSION_HDLC       = 47;
 }

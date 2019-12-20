@@ -26,16 +26,22 @@ public interface ConstantManager {
     String MODEDEL_18="STR2/STR2_mizinec_part2.obj";
 
     ////////////////////////////////////////////////
-/**                 transfer                          **/
+/**                 transfer                        **/
     ////////////////////////////////////////////////
 
-    byte ADDR_MIO1  =0x00;
-    byte ADDR_MIO2  =0x00;
-    byte ADDR_ENDPOINT_POSITION  =0x00;
-    byte ADDR_CUR_LIMIT =0x00;
-    byte OPENING    =0x00;
-    byte CLOSING    =0x01;
-    byte NOP        =0x02;
+    byte ADDR_MIO1                  =(byte) 0xFF;
+    byte ADDR_MIO2                  =(byte) 0xFF;
+    byte ADDR_ENDPOINT_POSITION     =(byte) 0xFF;
+    byte ADDR_CUR_LIMIT             =(byte) 0xFF;
+    byte ADDR_BUFF_CHOISES          =(byte) 0xFF;
+    byte ADDR_BLOCK                 =(byte) 0xFF;
+    byte ADDR_MAIN_DATA             =(byte) 0xFF;
     byte READ       =0x01;
     byte WRITE      =0x02;
+
+    ////////////////////////////////////////////////
+/**                delays                           **/
+    ////////////////////////////////////////////////
+
+    int GRAPH_UPDATE_DELAY  =50;
 }

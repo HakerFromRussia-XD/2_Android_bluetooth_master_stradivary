@@ -13,6 +13,7 @@ import me.Romans.bluetooth.ParserCallback;
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
+import static me.Romans.motorica.ui.chat.view.ChartActivity.flagReceptionExpectation;
 import static me.Romans.motorica.ui.chat.view.ChartActivity.flagUseHDLCProcol;
 
 public class ChatPresenterImpl implements ChatPresenter {
@@ -85,9 +86,10 @@ public class ChatPresenterImpl implements ChatPresenter {
 //            System.arraycopy(txtbyte, i*2, txtbyteout, i, 1);
 //        }
 
-        System.out.println("ChatPresenter--------------> HDLC uses " + parserCallback.getFlagUseHDLCProcol());
+//        System.out.println("ChatPresenter--------------> HDLC uses " + parserCallback.getFlagUseHDLCProcol());
         if(parserCallback.getFlagUseHDLCProcol()){
             interactor.sendMessageByte(txtbyte);
+//            System.out.println("ChatPresenter--------------> send request ");
 //            switch (txtbyte[2]){
 //                case BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC:
 //                    break;
@@ -381,6 +383,25 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
 
         @Override
+        public void givsStartParametersTrigCH1(int levelTrigCH1) {
+            Integer receiveLevelTrigCH1 = new Integer(levelTrigCH1);
+            view.setStartParametersTrigCH1 (receiveLevelTrigCH1);
+        }
+
+        @Override
+        public void givsStartParametersTrigCH2(int levelTrigCH2) {
+            Integer receiveLevelTrigCH2 = new Integer(levelTrigCH2);
+            view.setStartParametersTrigCH2 (receiveLevelTrigCH2);
+        }
+
+        @Override
+        public void givsStartParametersCurrrent(int current) {
+            Integer receiveСurrent = new Integer(current);
+            view.setStartParametersCurrrent (receiveСurrent);
+        }
+
+
+        @Override
         public void givsRegister(Integer register) {
             Integer registr = new Integer(register);
 //            System.out.println("принятая значение регистра:"+registr);
@@ -407,6 +428,11 @@ public class ChatPresenterImpl implements ChatPresenter {
         @Override
         public boolean getFlagUseHDLCProcol() {
             return flagUseHDLCProcol;
+        }
+
+        @Override
+        public boolean getFlagReceptionExpectation() {
+            return flagReceptionExpectation;
         }
 
         @Override
@@ -549,6 +575,20 @@ public class ChatPresenterImpl implements ChatPresenter {
         for (int i = 1; i < bytes.length-1; i++){
             CRC += bytes[i];
             CRC = (byte) (CRC << 1);
+        }
+        return CRC;
+    }
+
+    public byte calculationCRC_HDLC (byte[] bytes) {
+        byte CRC = 0x00;
+        boolean b = false;
+        for (int i = 1; i < bytes.length-1; i++){
+            CRC ^= bytes[i];
+            for (int j = 0; j < 8; j++)
+            {
+                b = ((CRC & 0x80) >> 7) != 0;
+                CRC = (byte) (b  ? (CRC << 1) ^ 0x31 : CRC << 1);
+            }
         }
         return CRC;
     }

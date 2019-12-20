@@ -80,7 +80,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if(chatActivity.getFlagUseHDLCProcol()){
-                    //TODO Ване дописать хдлцешную команду контроля грубости
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhnessHDLC((byte) (((byte) seekBar.getProgress()) + 1)));
                 } else {
                     chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhness((byte) (((byte) seekBar.getProgress()) + 1)));
                 }
@@ -191,6 +191,21 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
     @Override
     public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
+
+    }
+
+    @Override
+    public void setStartParametersTrigCH1(Integer receiveLevelTrigCH1) {
+
+    }
+
+    @Override
+    public void setStartParametersTrigCH2(Integer receiveLevelTrigCH2) {
+
+    }
+
+    @Override
+    public void setStartParametersCurrrent(Integer receiveСurrent) {
 
     }
 

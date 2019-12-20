@@ -215,4 +215,19 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
 
     }
 
+    @Override
+    public void setStartParametersTrigCH1(Integer receiveLevelTrigCH1) {
+
+    }
+
+    @Override
+    public void setStartParametersTrigCH2(Integer receiveLevelTrigCH2) {
+
+    }
+
+    @Override
+    public void setStartParametersCurrrent(Integer receiveСurrent) {
+
+    }
+
 }

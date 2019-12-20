@@ -51,6 +51,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import me.Romans.bluetooth.Bluetooth;
 import me.Romans.bluetooth.BluetoothConstantManager;
 import me.Romans.motorica.MyApp;
 import me.Romans.motorica.data.GesstureAdapter;
@@ -129,6 +130,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public byte[] TextByteTreeg = new byte[8];
     public byte[] TextByteHDLC6 = new byte[6];
     public byte[] TextByteHDLC5 = new byte[5];
+    public byte[] TextByteHDLC4 = new byte[4];
+    public byte[] TextByteReadStartParameterTrig1 = {ConstantManager.ADDR_MIO1, ConstantManager.READ, BluetoothConstantManager.MIO1_TRIG_HDLC, 0x00};
+    public byte[] TextByteReadStartParameterTrig2 = {ConstantManager.ADDR_MIO2, ConstantManager.READ, BluetoothConstantManager.MIO2_TRIG_HDLC, 0x00};
+    public byte[] TextByteReadStartParameterCurrent = {ConstantManager.ADDR_CUR_LIMIT, ConstantManager.READ, BluetoothConstantManager.CURR_LIMIT_HDLC, 0x00};
+    public byte[] TextByteReadStartParameterPermissionBlock = {ConstantManager.ADDR_BLOCK, ConstantManager.READ, BluetoothConstantManager.BLOCK_PERMISSION_HDLC, 0x00};
     public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
     public byte[] TextByteTreegMod = new byte[2];
     public byte[] TextByteSensorActivate = new byte[2];
@@ -228,6 +234,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public byte[] TextByteTreegControl = new byte[6];
     public boolean transferThreadFlag = false;
     public Thread transferThread;
+    public Thread requestStartTrig1Thread;
+    public Thread requestStartTrig2Thread;
+    public Thread requestStartCurrentThread;
+    public Thread requestStartBlockThread;
+    public Thread requestStartRoughnessThread;
 
     public enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5};
     public static SelectStation selectStation;
@@ -384,7 +395,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[2] = BluetoothConstantManager.MIO1_TRIG_HDLC;
                     TextByteHDLC6[3] = (byte) intValueCH1on;
                     TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
-                    TextByteHDLC6[5] = presenter.calculationCRC(TextByteHDLC6);
+                    TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
                     presenter.onHelloWorld(TextByteHDLC6);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
@@ -404,7 +415,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         seekBarCH1on2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                System.err.println("ChatActivity--------> seekBarCH1on : обновление порога СH1");
+//                System.err.println("ChatActivity--------> seekBarCH1on : обновление порога СH1");
                 intValueCH1on = (int) (seekBarCH1on2.getProgress()*multiplierSeekbar);
                 limit_sensor_open = seekBar.getProgress();
                 objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((235*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
@@ -429,7 +440,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[2] = BluetoothConstantManager.MIO1_TRIG_HDLC;
                     TextByteHDLC6[3] = (byte) intValueCH1on;
                     TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
-                    TextByteHDLC6[5] = presenter.calculationCRC(TextByteHDLC6);
+                    TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
                     presenter.onHelloWorld(TextByteHDLC6);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
@@ -470,7 +481,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[2] = BluetoothConstantManager.MIO2_TRIG_HDLC;
                     TextByteHDLC6[3] = (byte) intValueCH1on;
                     TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
-                    TextByteHDLC6[5] = presenter.calculationCRC(TextByteHDLC6);
+                    TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
                     presenter.onHelloWorld(TextByteHDLC6);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
@@ -491,7 +502,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         seekBarCH2on2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                System.err.println("ChatActivity--------> seekBarCH1on : обновление порога СH2");
+//                System.err.println("ChatActivity--------> seekBarCH1on : обновление порога СH2");
                 intValueCH2on = (int) (seekBarCH2on2.getProgress()*multiplierSeekbar);
                 limit_sensor_close = seekBar.getProgress();
                 objectAnimator2 =ObjectAnimator.ofFloat(limit_2, "y", ((495*scale + 0.5f)-(limit_sensor_close*scale + 0.5f)));
@@ -517,7 +528,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[2] = BluetoothConstantManager.MIO2_TRIG_HDLC;
                     TextByteHDLC6[3] = (byte) intValueCH1on;
                     TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
-                    TextByteHDLC6[5] = presenter.calculationCRC(TextByteHDLC6);
+                    TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
                     presenter.onHelloWorld(TextByteHDLC6);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
@@ -558,12 +569,20 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             public void onClick(View v) {
                 if (switchBlockMode.isChecked()){
                     block = 0x01;
-                    presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                    if (flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeBlockModeHDLC(block));
+                    } else {
+                        presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                    }
                     receiveBlockIndication = 1;
                     imageViewStatus.setImageResource(R.drawable.unblock);
                 } else {
                     block = 0x00;
-                    presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                    if (flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeBlockModeHDLC(block));
+                    } else {
+                        presenter.onHelloWorld(CompileMassegeBlockMode(block));
+                    }
                     receiveBlockIndication = 0;
                     imageViewStatus.setImageResource(R.drawable.block_not_use);
                 }
@@ -578,7 +597,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
                     int numberSensor = 0x07;
                     if(flagUseHDLCProcol){
-                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(ConstantManager.CLOSING));
+//                        presenter.onHelloWorld(CompileMassegeMainDataHDLC());
+                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(BluetoothConstantManager.CLOSING));
                     } else {
                         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     }
@@ -591,7 +611,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     int numberSensor = 0x08;
                     if(flagUseHDLCProcol){
-                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(ConstantManager.NOP));
+                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(BluetoothConstantManager.NOP));
                     } else {
                         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     }
@@ -611,7 +631,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
                     int numberSensor = 0x06;
                     if(flagUseHDLCProcol){
-                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(ConstantManager.OPENING));
+                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(BluetoothConstantManager.OPENING));
                     } else {
                         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     }
@@ -622,7 +642,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     int numberSensor = 0x08;
                     if(flagUseHDLCProcol){
-                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(ConstantManager.NOP));
+                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(BluetoothConstantManager.NOP));
                     } else {
                         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     }
@@ -1259,11 +1279,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             if (isEnable && !errorReception) {
                                 addEntry(receiveLevelCH1Chat);
                                 addEntry2(receiveLevelCH2Chat);
+//                                presenter.onHelloWorld(CompileMassegeMainDataHDLC());
                             }
                         }
                     });
                     try {
-                        Thread.sleep(50);
+                        Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY);
                     }catch (Exception e){}
                 }
             }
@@ -1278,7 +1299,6 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            //TODO дописать разделение компонентов в разных фрагментах в зависимости от версии
                             if(monograbVersion){
                                 if(isEnable){
                                     fragmentServiceSettingsMono.seekBarRoughness.setEnabled(true);
@@ -1309,7 +1329,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                     fragmentServiceSettings.switchInvert.setChecked(false);
                                 }
                             }
-
+                            if(isEnable){presenter.onHelloWorld(CompileMassegeMainDataHDLC());}
                             System.err.println("UpdateThread work");
                         }
                     });
@@ -1585,10 +1605,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             receiveBlockIndication = 1;
         }
     }
+
     @Override
-    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
-        this.receiveСurrent = receiveСurrent;
-        this.receiveIndicationInvertMode = receiveIndicationInvertMode;
+    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors)
+    {
         if (receiveIndicationInvertMode == 1) {invertChannel=true;} else {invertChannel=false;}
         if(invertChannel) {
             this.receiveLevelTrigCH1 = receiveLevelTrigCH2;
@@ -1603,9 +1623,44 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         }
         if (this.receiveLevelTrigCH1 < 14){this.receiveLevelTrigCH1 = 14;}
         if (this.receiveLevelTrigCH2 < 14){this.receiveLevelTrigCH2 = 14;}
+        this.receiveСurrent = receiveСurrent;
+        this.receiveIndicationInvertMode = receiveIndicationInvertMode;
         this.receiveBlockIndication = receiveBlockIndication;
         this.receiveRoughnessOfSensors = receiveRoughnessOfSensors;
     }
+
+    @Override
+    public void setStartParametersTrigCH1(Integer receiveLevelTrigCH1) {
+        if(invertChannel) {
+            this.receiveLevelTrigCH2 = receiveLevelTrigCH1;
+            intValueCH1on = receiveLevelTrigCH1;
+        } else {
+            this.receiveLevelTrigCH1 = receiveLevelTrigCH1;
+            intValueCH2on = receiveLevelTrigCH1;
+        }
+        if (this.receiveLevelTrigCH1 < 14){this.receiveLevelTrigCH1 = 14;}
+        if (this.receiveLevelTrigCH2 < 14){this.receiveLevelTrigCH2 = 14;}
+    }
+
+    @Override
+    public void setStartParametersTrigCH2(Integer receiveLevelTrigCH2) {
+        if(invertChannel) {
+            this.receiveLevelTrigCH1 = receiveLevelTrigCH2;
+            intValueCH2on = receiveLevelTrigCH2;
+        } else {
+            this.receiveLevelTrigCH2 = receiveLevelTrigCH2;
+            intValueCH1on = receiveLevelTrigCH2;
+        }
+        if (this.receiveLevelTrigCH1 < 14){this.receiveLevelTrigCH1 = 14;}
+        if (this.receiveLevelTrigCH2 < 14){this.receiveLevelTrigCH2 = 14;}
+    }
+
+    @Override
+    public void setStartParametersCurrrent(Integer receiveСurrent) {
+        this.receiveСurrent = receiveСurrent;
+    }
+
+
     public void setStartParametersInChartActivity(){
             if (monograbVersion){ seekBarIstop.setProgress(receiveСurrent);}
 //            seekBarRoughness
@@ -1630,6 +1685,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         this.flagReceptionExpectation = flagReceptionExpectation;
     }
 
+
+
+    public static boolean getFlagReceptionExpectation() {
+        return flagReceptionExpectation;
+    }
 
     @Override
     public void setErrorReception (boolean incomeErrorReception) {
@@ -1669,21 +1729,129 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             transferThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        Thread.sleep(20);
-                    }catch (Exception e){}
-                    CompileMassegeReadStartParameters();
-                    presenter.onHelloWorld(TextByteReadStartParameters);
-                    try {
-                        Thread.sleep(500);
-                    }catch (Exception e){}
-                    CompileMessageSetGeneralParcel((byte) 0x01);
-                    presenter.onHelloWorld(TextByteSetGeneralParcel);
+                    if(flagUseHDLCProcol){
+                        try {
+                            Thread.sleep(20);
+                        }catch (Exception e){}
+                        requestStartTrig1Thread ();
+//                        presenter.onHelloWorld(TextByteReadStartParameters);
+                        //TODO здесь дописать считывание начальных параметров в
+                        // HDLC версси протокола
+                    } else {
+                        try {
+                            Thread.sleep(20);
+                        }catch (Exception e){}
+                        presenter.onHelloWorld(CompileMassegeReadStartParameters());
+                        try {
+                            Thread.sleep(600);
+                        }catch (Exception e){}
+                        presenter.onHelloWorld(CompileMessageSetGeneralParcel((byte) 0x01));
+                    }
                 }
             });
             transferThread.start();
         }
     }
+
+    public void requestStartTrig1Thread () {
+        requestStartTrig1Thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                TextByteReadStartParameterTrig1[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterTrig1);
+                presenter.onHelloWorld(TextByteReadStartParameterTrig1);
+                flagReceptionExpectation = true;
+                System.out.println("ChartActivity--------------> отправка запроса Trig1= "+TextByteReadStartParameterTrig1[3]);
+                try {
+                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
+                }catch (Exception e){}
+                if(!flagReceptionExpectation)
+                {
+                    requestStartTrig2Thread ();
+                    System.out.println("ChartActivity--------------> запуск запроса следующей функции Trig2");
+                }
+                while (flagReceptionExpectation){
+                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig1");
+                    flagReceptionExpectation = false;
+                    requestStartTrig1Thread ();
+                }
+            }
+        });
+        requestStartTrig1Thread.start();
+    }
+
+    public void requestStartTrig2Thread () {
+        requestStartTrig2Thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                TextByteReadStartParameterTrig2[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterTrig2);
+                presenter.onHelloWorld(TextByteReadStartParameterTrig2);
+                flagReceptionExpectation = true;
+                System.out.println("ChartActivity--------------> отправка запроса Trig2= "+TextByteReadStartParameterTrig2[3]);
+                try {
+                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
+                }catch (Exception e){}
+                if(!flagReceptionExpectation){
+                    requestStartCurrentThread();
+                    System.out.println("ChartActivity--------------> запуск запроса следующей функции Curr");
+                }
+                while (flagReceptionExpectation){
+                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig2");
+                    flagReceptionExpectation = false;
+                    requestStartTrig2Thread ();
+                }
+            }
+        });
+        requestStartTrig2Thread.start();
+    }
+
+    public void requestStartCurrentThread () {
+        requestStartCurrentThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                TextByteReadStartParameterCurrent[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterCurrent);
+                presenter.onHelloWorld(TextByteReadStartParameterCurrent);
+                flagReceptionExpectation = true;
+                System.out.println("ChartActivity--------------> отправка запроса Current= "+TextByteReadStartParameterCurrent[3]);
+                try {
+                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
+                }catch (Exception e){}
+                if(!flagReceptionExpectation){
+                    requestStartBlockThread();
+                    System.out.println("ChartActivity--------------> запуск запроса следующей функции Block");
+                }
+                while (flagReceptionExpectation){
+                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Current");
+                    flagReceptionExpectation = false;
+                    requestStartCurrentThread ();
+                }
+            }
+        });
+        requestStartCurrentThread.start();
+    }
+
+    public void requestStartBlockThread () {
+        requestStartBlockThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                TextByteReadStartParameterPermissionBlock[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterPermissionBlock);
+                presenter.onHelloWorld(TextByteReadStartParameterPermissionBlock);
+                flagReceptionExpectation = true;
+                System.out.println("ChartActivity--------------> отправка запроса Block= "+TextByteReadStartParameterPermissionBlock[3]);
+                try {
+                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
+                }catch (Exception e){}
+                if(!flagReceptionExpectation){System.out.println("ChartActivity--------------> запуск запроса следующей функции Roughness");}
+                while (flagReceptionExpectation){
+                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Block");
+                    flagReceptionExpectation = false;
+                    requestStartBlockThread ();
+                }
+            }
+        });
+        requestStartBlockThread.start();
+    }
+
+
 
     public void initializedGraphForChannel1(){
         mChart = findViewById(R.id.chartCH1);
@@ -1826,6 +1994,14 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         System.out.println("Treeg mod:" + Treeg_id);
         return TextByteTreegMod;
     }
+
+    private byte[] CompileMassegeMainDataHDLC (){
+        TextByteHDLC4[0] = ConstantManager.ADDR_MAIN_DATA;
+        TextByteHDLC4[1] = ConstantManager.READ;
+        TextByteHDLC4[2] = BluetoothConstantManager.CURR_MAIN_DATA_HDLC;
+        TextByteHDLC4[3] = presenter.calculationCRC_HDLC(TextByteHDLC4);
+        return TextByteHDLC4;
+    }
     private byte[] CompileMassegeSensorActivate (int numberSensor){
         TextByteSensorActivate[0] = 0x09;
         TextByteSensorActivate[1] = (byte) numberSensor;
@@ -1836,7 +2012,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteHDLC5[1] = ConstantManager.WRITE;
         TextByteHDLC5[2] = BluetoothConstantManager.ENDPOINT_POSITION;
         TextByteHDLC5[3] = operation;
-        TextByteHDLC5[4] = presenter.calculationCRC(TextByteHDLC5);
+        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
         return TextByteHDLC5;
     }
     public byte[] CompileMassegeCurentSettingsAndInvert (int Curent, byte Invert) {
@@ -1852,7 +2028,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteHDLC6[2] = BluetoothConstantManager.CURR_LIMIT_HDLC;
         TextByteHDLC6[3] = (byte) Curent;
         TextByteHDLC6[4] = (byte) (Curent >> 8);
-        TextByteHDLC6[5] = presenter.calculationCRC(TextByteHDLC6);
+        TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
         return TextByteHDLC6;
     }
 
@@ -1871,6 +2047,15 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteSetBlockMode[1] = onBlockMode; // 0x01 on     0x00 off
         return TextByteSetBlockMode;
     }
+    private byte[] CompileMassegeBlockModeHDLC (byte onBlockMode) {
+        TextByteHDLC5[0] = ConstantManager.ADDR_BLOCK;
+        TextByteHDLC5[1] = ConstantManager.WRITE;
+        TextByteHDLC5[2] = BluetoothConstantManager.BLOCK_ON_OFF_HDLC;
+        TextByteHDLC5[3] = onBlockMode; // 0x01 on     0x00 off
+        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
+        return TextByteHDLC5;
+    }
+
     public byte[] CompileMassegeSwitchGesture(byte openGesture, byte closeGesture) {
         System.err.println("ChatActivity----> укомпановали байт массив");
         TextByteSetSwitchGesture[0] = 0x0F;
@@ -1883,7 +2068,14 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteSetRouhness[1] = roughness; // 0x01 on     0x00 off
         return TextByteSetRouhness;
     }
-
+    public byte[] CompileMassegeRouhnessHDLC(byte roughness) {
+        TextByteHDLC5[0] = ConstantManager.ADDR_BUFF_CHOISES;
+        TextByteHDLC5[1] = ConstantManager.WRITE;
+        TextByteHDLC5[2] = BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC;
+        TextByteHDLC5[3] = roughness;
+        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
+        return TextByteHDLC5;
+    }
     public void TranslateMassegeControlComplexGesture(){
         presenter.onHelloWorld(TextByteTreegControlComplexGesture);
     }

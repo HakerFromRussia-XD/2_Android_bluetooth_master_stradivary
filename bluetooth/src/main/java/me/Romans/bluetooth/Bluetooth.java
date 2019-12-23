@@ -402,11 +402,10 @@ public class Bluetooth {
                             }
                         }
 
-                        if (parserCallback.getFlagUseHDLCProcol()){
-                            branchOfParsing = BluetoothConstantManager.HDLC_PROTOCOL;
-                            //парсит hdlc посылки
+                        if (parserCallback.getFlagUseHDLCProcol()){ //выбор ветки для парсинга и отправки
+                            branchOfParsing = BluetoothConstantManager.HDLC_PROTOCOL;//парсит hdlc посылки
                         } else {
-                            if ((i == 1) && (msg == 77)){ //выбор ветки для парсинга и отправки
+                            if ((i == 1) && (msg == 77)){
                                 branchOfParsing = BluetoothConstantManager.OLD_NOT_USE_PROTOCOL;
                             } else {
                                 if ((i == 1) && (msg == 36)){
@@ -639,16 +638,23 @@ public class Bluetooth {
                         if (branchOfParsing == BluetoothConstantManager.HDLC_PROTOCOL){
 //                            System.out.println("BLUETOOTH--------------> msg= " + (byte) msg);
                             if(i == 1){
+                                System.out.println("BLUETOOTH--------------> i= "+i);
                                 parserCallback.setFlagReceptionExpectation(false);
                                 startdumpingIVariableThread();
                             }
                             if(i == 2){ }
-                            if(i == 3){ typeHDLCMassage = msg; }
+                            if(i == 3){
+                                typeHDLCMassage = msg;
+                            }
                             if(i == 4){ }
                             switch (typeHDLCMassage){
                                 case BluetoothConstantManager.ENDPOINT_POSITION:
                                     i++;
                                     if(i == 6){resetAllVariables();}
+                                    break;
+                                case 1:
+                                    i++;
+                                    System.out.println("BLUETOOTH--------------> i= "+i);
                                     break;
                                 case BluetoothConstantManager.MIO1_TRIG_HDLC:
                                     if(i == 5){ addressHDLCMassage = msg; byteMass[0] = (byte) msg; }
@@ -719,6 +725,24 @@ public class Bluetooth {
                                             @Override
                                             public void run() {
                                                 parserCallback.givsStartParametersBlock(msgBlockIndicationf);
+                                                parserCallback.setStartParametersInChartActivity();
+                                                resetAllVariables();
+                                            }
+                                        });
+                                    }
+                                    break;
+                                case BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC:
+                                    if(i == 5){ addressHDLCMassage = msg;}
+                                    if(i == 6){ msgRoughnessOfSensors = (byte) msg;}
+                                    if(i == 7){}//обработчик CRC
+                                    i++;
+                                    if(((deviceCallback != null) && (i == 8))) {
+                                        System.out.println("BLUETOOTH--------------> READ ROUGHNESS START PARAMETER ");
+                                        final Byte msgRoughnessOfSensorsf = msgRoughnessOfSensors;
+                                        ThreadHelper.run(runOnUi, activity, new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                parserCallback.givsStartParametersRoughness (msgRoughnessOfSensorsf);
                                                 parserCallback.setStartParametersInChartActivity();
                                                 resetAllVariables();
                                             }
@@ -1041,7 +1065,7 @@ public class Bluetooth {
                 }catch (Exception e){}
                 while (dumpingIVariableThreadFlag){
                     System.out.println("BLUETOOTH--------------> обнуления i выполнилось");
-                    i = 1;
+                    i =1;
                     dumpingIVariableThreadFlag = false;
                 }
             }

@@ -89,6 +89,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("IND")){
             chatActivity.monograbVersion = true; //true - односхват
             chatActivity.flagUseHDLCProcol = true; //true - при использовании протокола hdlc
+            chatActivity.flagUseHDLCProcol = true; //true - при использовании протокола hdlc
         }
     }
 

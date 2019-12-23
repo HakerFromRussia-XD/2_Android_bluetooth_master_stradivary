@@ -231,6 +231,11 @@ public class InfinitySettings extends AppCompatActivity implements ChatView {
 
     }
 
+    @Override
+    public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
+
+    }
+
     private byte[] CompileMassegeInfinitySettings (int waitOpenTime, int waitCloseTime, int openSpeed, int closeSpeed){
         TextByteTreegInfinitySettings[0] = 0x0A;
         TextByteTreegInfinitySettings[1] = (byte) waitOpenTime;

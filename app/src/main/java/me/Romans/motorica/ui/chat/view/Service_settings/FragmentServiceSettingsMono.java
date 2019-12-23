@@ -238,4 +238,9 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
 
     }
 
+    @Override
+    public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
+
+    }
+
 }

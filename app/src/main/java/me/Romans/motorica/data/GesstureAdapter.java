@@ -144,6 +144,11 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
 
     }
 
+    @Override
+    public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
+
+    }
+
 
     public class GestureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 

@@ -214,4 +214,9 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
     }
 
+    @Override
+    public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
+
+    }
+
 }

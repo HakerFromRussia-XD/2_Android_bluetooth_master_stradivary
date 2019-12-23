@@ -3,7 +3,7 @@ package me.Romans.motorica.utils;
 public interface ConstantManager {
 
     ////////////////////////////////////////////////
-/**                    3D                            **/
+/**                      3D                         **/
     ////////////////////////////////////////////////
     String MODEDEL_0="STR2/STR2_big_finger_part18.obj";
     String MODEDEL_1="STR2/STR2_big_finger_part19.obj";
@@ -26,7 +26,7 @@ public interface ConstantManager {
     String MODEDEL_18="STR2/STR2_mizinec_part2.obj";
 
     ////////////////////////////////////////////////
-/**                 transfer                        **/
+/**                    transfer                     **/
     ////////////////////////////////////////////////
 
     byte ADDR_MIO1                  =(byte) 0xFF;
@@ -36,12 +36,17 @@ public interface ConstantManager {
     byte ADDR_BUFF_CHOISES          =(byte) 0xFF;
     byte ADDR_BLOCK                 =(byte) 0xFF;
     byte ADDR_MAIN_DATA             =(byte) 0xFF;
-    byte READ       =0x01;
-    byte WRITE      =0x02;
+    byte ADDR_TRIG_MODE             =(byte) 0xFF;
+    byte READ                       =0x01;
+    byte WRITE                      =0x02;
 
     ////////////////////////////////////////////////
-/**                delays                           **/
+/**                     delays                      **/
     ////////////////////////////////////////////////
 
     int GRAPH_UPDATE_DELAY  =50;
+    int SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST = 4;//максимальное количество пропускаемых циклов
+    // обновления графика при отсутствии ответа от кисти 50 милисекундном периоде обновления и
+    // четырёх циклах ожидания, следующий запрос обновления параметров будет отослан максимум
+    // через 200 миллисекунд
 }

@@ -12,6 +12,7 @@ public interface ParserCallback {
     void givsStartParametersTrigCH2(int levelTrigCH2);
     void givsStartParametersCurrrent(int current);
     void givsStartParametersBlock(byte blockIndication);
+    void givsStartParametersRoughness(byte roughnessOfSensors);
 
     void givsRegister (Integer register);
     void givsCorrectAcceptance (Boolean correct_acceptence);

@@ -25,4 +25,5 @@ public interface BluetoothConstantManager {
     int ADC_BUFF_CHOISES_HDLC       = 45;
     int BLOCK_ON_OFF_HDLC           = 46;
     int BLOCK_PERMISSION_HDLC       = 47;
+    int INVERT_INDICATION           = 48;
 }

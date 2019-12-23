@@ -407,6 +407,13 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
 
         @Override
+        public void givsStartParametersRoughness(byte roughnessOfSensors) {
+            Byte receiveRoughnessOfSensors = new Byte(roughnessOfSensors);
+            view.setStartParametersRoughness (receiveRoughnessOfSensors);
+        }
+
+
+        @Override
         public void givsRegister(Integer register) {
             Integer registr = new Integer(register);
 //            System.out.println("принятая значение регистра:"+registr);

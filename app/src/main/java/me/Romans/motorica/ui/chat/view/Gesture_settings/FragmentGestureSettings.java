@@ -238,4 +238,9 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
 
     }
 
+    @Override
+    public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
+
+    }
+
 }

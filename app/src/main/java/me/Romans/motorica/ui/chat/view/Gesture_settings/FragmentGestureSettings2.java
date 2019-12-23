@@ -235,4 +235,9 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
     public void setStartParametersBlock(Byte receiveBlockIndication) {
 
     }
+
+    @Override
+    public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
+
+    }
 }

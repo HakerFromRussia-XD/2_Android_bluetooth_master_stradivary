@@ -88,6 +88,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
 //        System.out.println("ChatPresenter--------------> HDLC uses " + parserCallback.getFlagUseHDLCProcol());
         if(parserCallback.getFlagUseHDLCProcol()){
+            interactor.setIterator(1);
             interactor.sendMessageByte(txtbyte);
 //            System.out.println("ChatPresenter--------------> send request ");
 //            switch (txtbyte[2]){
@@ -592,9 +593,9 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     public byte calculationCRC_HDLC (byte[] bytes) {
-        byte CRC = 0x00;
+        byte CRC = (byte) 0xFF;
         boolean b = false;
-        for (int i = 1; i < bytes.length-1; i++){
+        for (int i = 0; i < bytes.length-1; i++){
             CRC ^= bytes[i];
             for (int j = 0; j < 8; j++)
             {

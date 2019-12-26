@@ -82,9 +82,11 @@ public class ScanInteractorImpl implements ScanInteractor {
             if( device.getName().split("-")[0].equals("MLT") ||
                 device.getName().split("-")[0].equals("FNG") ||
                 device.getName().split("-")[0].equals("FNS") ||
+                device.getName().split("-")[0].equals("MLX") ||
                 device.getName().split(" ")[0].equals("MLT") ||
                 device.getName().split(" ")[0].equals("FNG") ||
                 device.getName().split(" ")[0].equals("FNS") ||
+                device.getName().split(" ")[0].equals("MLX") ||
                 device.getName().split("-")[0].equals("STR") ||
                 device.getName().split("-")[0].equals("CBY") ||
                 device.getName().split("-")[0].equals("HND") ||

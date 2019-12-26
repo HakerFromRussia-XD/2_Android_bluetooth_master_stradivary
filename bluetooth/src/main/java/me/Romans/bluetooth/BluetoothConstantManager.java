@@ -6,8 +6,10 @@ public interface BluetoothConstantManager {
     Integer OLD_NOT_USE_PROTOCOL    =1;
     Integer OLD_PROTOCOL            =2;
     Integer HDLC_PROTOCOL           =3;
-    Integer TIME_DAMPING_HDLC_MS    =50;
-    Integer TIME_RETURN_START_COMAND_HDLC_MS    =2000;
+    Integer TIME_DAMPING_HDLC_MS    =5000;
+    Integer TIME_RETURN_START_COMAND_HDLC_MS    =200;
+    byte READ                       =0x01;
+    byte WRITE                      =0x02;
 
     byte OPENING    =0x00;
     byte CLOSING    =0x01;
@@ -18,7 +20,7 @@ public interface BluetoothConstantManager {
     int MIO1_TRIG_HDLC				= 38;
     int MIO2_TRIG_HDLC				= 39;
     int CURR_LIMIT_HDLC				= 40;
-    int CURR_MAIN_DATA_HDLC		    = 41; //MIO1(2B), MIO2(2B), Current(2B)
+    int CURR_MAIN_DATA_HDLC		    = 41; //MIO1(2B), MIO2(2B)
     int TRIG_MODE_HDLC				= 42;
     int HAND_ON_OFF_REG				= 43;
     int HAND_MOTIONS_CNT_HDLC       = 44;
@@ -26,4 +28,6 @@ public interface BluetoothConstantManager {
     int BLOCK_ON_OFF_HDLC           = 46;
     int BLOCK_PERMISSION_HDLC       = 47;
     int INVERT_INDICATION           = 48;
+    int CURR_CURENT_HDLC            = 49;
+    int CURR_BAT_HDLC               = 50;
 }

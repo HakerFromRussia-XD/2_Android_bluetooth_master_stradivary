@@ -75,4 +75,7 @@ public class ChatInteractorImpl implements ChatInteractor {
         bluetooth.disable();
     }
 
+    public void setIterator(int i){
+        bluetooth.setIterator(i);
+    }
 }

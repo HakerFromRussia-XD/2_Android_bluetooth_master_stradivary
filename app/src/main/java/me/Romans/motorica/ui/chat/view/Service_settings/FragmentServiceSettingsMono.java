@@ -80,8 +80,12 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhness((byte) (((byte) seekBar.getProgress()) + 1)));
-                chatActivity.receiveRoughnessOfSensors = (byte) seekBar.getProgress();
+                if(chatActivity.getFlagUseHDLCProcol()){
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhnessHDLC((byte) (((byte) seekBar.getProgress()) + 1)));
+                } else {
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhness((byte) (((byte) seekBar.getProgress()) + 1)));
+                    chatActivity.receiveRoughnessOfSensors = (byte) seekBar.getProgress();
+                }
             }
         });
 
@@ -123,7 +127,11 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
                 chatActivity.maxCurrent = maxCurrent;
                 valueIstop.setText(String.valueOf(seekBar.getProgress()));
                 chatActivity.curent = seekBar.getProgress();
-                chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+                if(chatActivity.getFlagUseHDLCProcol()){
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvertHDLC(chatActivity.curent));
+                } else {
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+                }
             }
         });
 

@@ -29,14 +29,14 @@ public interface ConstantManager {
 /**                    transfer                     **/
     ////////////////////////////////////////////////
 
-    byte ADDR_MIO1                  =(byte) 0xFF;
-    byte ADDR_MIO2                  =(byte) 0xFF;
-    byte ADDR_ENDPOINT_POSITION     =(byte) 0xFF;
-    byte ADDR_CUR_LIMIT             =(byte) 0xFF;
-    byte ADDR_BUFF_CHOISES          =(byte) 0xFF;
-    byte ADDR_BLOCK                 =(byte) 0xFF;
-    byte ADDR_MAIN_DATA             =(byte) 0xFF;
-    byte ADDR_TRIG_MODE             =(byte) 0xFF;
+    byte ADDR_MIO1                  =(byte) 0xFA;
+    byte ADDR_MIO2                  =(byte) 0xFA;
+    byte ADDR_ENDPOINT_POSITION     =(byte) 0xFA;
+    byte ADDR_CUR_LIMIT             =(byte) 0xFA;
+    byte ADDR_BUFF_CHOISES          =(byte) 0xFA;
+    byte ADDR_BLOCK                 =(byte) 0xFA;
+    byte ADDR_MAIN_DATA             =(byte) 0xFA;
+    byte ADDR_TRIG_MODE             =(byte) 0xFA;
     byte READ                       =0x01;
     byte WRITE                      =0x02;
 
@@ -45,7 +45,7 @@ public interface ConstantManager {
     ////////////////////////////////////////////////
 
     int GRAPH_UPDATE_DELAY  =50;
-    int SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST = 4;//максимальное количество пропускаемых циклов
+    int SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST = 10;//максимальное количество пропускаемых циклов
     // обновления графика при отсутствии ответа от кисти 50 милисекундном периоде обновления и
     // четырёх циклах ожидания, следующий запрос обновления параметров будет отослан максимум
     // через 200 миллисекунд

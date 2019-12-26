@@ -15,6 +15,7 @@ public interface ChatInteractor {
     void connectToDevice2(BluetoothDevice device, DeviceCallback callback);
     void parsingExperimental(ParserCallback parser);
     void sendMessageByte (byte[] message);
+    void setIterator (int i);
     void sendMessagestr(String message);
     void onStart(BluetoothCallback bluetoothCallback, Activity activity);
     void onStop();

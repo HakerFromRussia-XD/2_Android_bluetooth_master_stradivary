@@ -87,8 +87,12 @@ public class ScanPresenterImpl implements ScanPresenter{
         }
         if( device.getName().split("-")[0].equals("IND") ||
             device.getName().split(" ")[0].equals("IND")){
-            chatActivity.monograbVersion = true; //true - односхват
+            chatActivity.monograbVersion = false; //true - односхват
             chatActivity.flagUseHDLCProcol = true; //true - при использовании протокола hdlc
+        }
+        if( device.getName().split("-")[0].equals("MLX") ||
+            device.getName().split(" ")[0].equals("MLX")){
+            chatActivity.monograbVersion = false; //true - односхват
             chatActivity.flagUseHDLCProcol = true; //true - при использовании протокола hdlc
         }
     }

@@ -37,6 +37,7 @@ public interface ConstantManager {
     byte ADDR_BLOCK                 =(byte) 0xFA;
     byte ADDR_MAIN_DATA             =(byte) 0xFA;
     byte ADDR_TRIG_MODE             =(byte) 0xFA;
+    byte ADDR_BATTERY               =(byte) 0xFF;
     byte READ                       =0x01;
     byte WRITE                      =0x02;
 

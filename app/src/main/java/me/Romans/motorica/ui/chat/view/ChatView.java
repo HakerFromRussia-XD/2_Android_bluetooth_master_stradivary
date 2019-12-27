@@ -21,4 +21,5 @@ public interface ChatView {
     void setStartParametersCurrrent(Integer receiveСurrent);
     void setStartParametersBlock(Byte receiveBlockIndication);
     void setStartParametersRoughness(Byte receiveRoughnessOfSensors);
+    void setStartParametersBattery(Integer receiveBatteryTension);
 }

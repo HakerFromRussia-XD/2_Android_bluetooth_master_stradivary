@@ -140,6 +140,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public byte[] TextByteReadStartParameterCurrent = {ConstantManager.ADDR_CUR_LIMIT, ConstantManager.READ, BluetoothConstantManager.CURR_LIMIT_HDLC, 0x00};
     public byte[] TextByteReadStartParameterPermissionBlock = {ConstantManager.ADDR_BLOCK, ConstantManager.READ, BluetoothConstantManager.BLOCK_PERMISSION_HDLC, 0x00};
     public byte[] TextByteReadStartParameterPermissionRoughness = {ConstantManager.ADDR_BUFF_CHOISES, ConstantManager.READ, BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC, 0x00};
+    public byte[] TextByteReadStartParameterBattery = {ConstantManager.ADDR_BATTERY, ConstantManager.READ, BluetoothConstantManager.CURR_BAT_HDLC, 0x00};
     public byte[] TextByteTreegCurentSettingsAndInvert = new byte[4];
     public byte[] TextByteTreegMod = new byte[2];
     public byte[] TextByteSensorActivate = new byte[2];
@@ -246,6 +247,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public Thread requestStartCurrentThread;
     public Thread requestStartBlockThread;
     public Thread requestStartRoughnessThread;
+    public Thread requestBatteryTensionThread;
 
     public enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5};
     public static SelectStation selectStation;
@@ -1815,6 +1817,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         this.receiveRoughnessOfSensors = receiveRoughnessOfSensors;
     }
 
+    @Override
+    public void setStartParametersBattery(Integer receiveBatteryTension) {
+        this.valueBatteryTension.setText(receiveBatteryTension);
+    }
+
     public void setStartTrig(){
         seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekbar - 0.25)));//-0.5
         seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekbar - 0.25)));//-0.5
@@ -2035,9 +2042,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
                 }catch (Exception e){}
                 if(!flagReceptionExpectation){
-                    flagReadStartParametrsHDLC = false;
-                    firstRead = false;
-                    System.out.println("ChartActivity--------------> конец запросов нач параметров");
+                    requestBatteryTensionThread();
+                    System.out.println("ChartActivity--------------> апуск запроса следующей функции Battery");
                 }
                 while (flagReceptionExpectation){
                     System.out.println("ChartActivity--------------> рекурсивный запуск запроса Roughness");
@@ -2048,6 +2054,33 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         });
         requestStartRoughnessThread.start();
     }
+    public void requestBatteryTensionThread () {
+        requestBatteryTensionThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                TextByteReadStartParameterBattery[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterBattery);
+                presenter.onHelloWorld(TextByteReadStartParameterBattery);
+                flagReceptionExpectation = true;
+                System.out.println("ChartActivity--------------> отправка запроса Battery= "+TextByteReadStartParameterBattery[2]);
+                try {
+                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
+                }catch (Exception e){}
+                if(!flagReceptionExpectation){
+                    flagReadStartParametrsHDLC = false;
+                    firstRead = false;
+                    System.out.println("ChartActivity--------------> конец запросов нач параметров");
+                }
+                while (flagReceptionExpectation){
+                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Battery");
+                    flagReceptionExpectation = false;
+                    requestBatteryTensionThread ();
+                }
+            }
+        });
+        requestBatteryTensionThread.start();
+    }
+
+
     public void pauseAfterSendingThread () {
         pauseAfterSendingThread = new Thread(new Runnable() {
             @Override

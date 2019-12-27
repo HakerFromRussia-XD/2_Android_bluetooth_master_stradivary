@@ -413,6 +413,12 @@ public class ChatPresenterImpl implements ChatPresenter {
             view.setStartParametersRoughness (receiveRoughnessOfSensors);
         }
 
+        @Override
+        public void givsStartParametersBattery(int batteryTension) {
+            Integer receiveBatteryTension = new Integer(batteryTension);
+            view.setStartParametersBattery (receiveBatteryTension);
+        }
+
 
         @Override
         public void givsRegister(Integer register) {

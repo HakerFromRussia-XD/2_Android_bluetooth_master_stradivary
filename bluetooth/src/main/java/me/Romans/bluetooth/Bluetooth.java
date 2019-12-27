@@ -776,6 +776,28 @@ public class Bluetooth {
                                                     });
                                                 }
                                             break;
+                                        case BluetoothConstantManager.CURR_BAT_HDLC:
+                                            System.out.println("BLUETOOTH--------------> READ -> CURR_BAT_HDLC");
+                                                if(i == 6){ msgBatteryTension = (byte) msg; byteMassCRC[1] = (byte) msg;}
+                                                if(i == 7){
+                                                    msgCRC = (byte) msg;
+                                                    System.out.println("BLUETOOTH--------------> принятая CRC= "+msgCRC);
+                                                    System.out.println("BLUETOOTH--------------> посчитанная CRC= "+calculationCRC(byteMassCRC, 2));
+                                                }//обработчик CRC
+                                                i++;
+                                                if(((deviceCallback != null) && (msgCRC == calculationCRC(byteMassCRC,2)))) {
+
+                                                    final Integer msgBatteryTensionf = msgBatteryTension;
+                                                    ThreadHelper.run(runOnUi, activity, new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            parserCallback.givsStartParametersBattery(msgBatteryTensionf);
+                                                            System.out.println("BLUETOOTH--------------> READ BATTERY START PARAMETER ");
+                                                            resetAllVariables();
+                                                        }
+                                                    });
+                                                }
+                                            break;
                                         case BluetoothConstantManager.BLOCK_PERMISSION_HDLC:
                                             System.out.println("BLUETOOTH--------------> READ -> BLOCK_PERMISSION_HDLC");
                                             if(addressHDLCMassage == (byte) 0xFA){
@@ -785,6 +807,7 @@ public class Bluetooth {
                                                     System.out.println("BLUETOOTH--------------> принятая CRC= "+msgCRC);
                                                     System.out.println("BLUETOOTH--------------> посчитанная CRC= "+calculationCRC(byteMassCRC, 2));
                                                 }//обработчик CRC
+                                            }
                                                 i++;
                                                 if(((deviceCallback != null) && (msgCRC == calculationCRC(byteMassCRC,2)))) {
 
@@ -799,7 +822,6 @@ public class Bluetooth {
                                                         }
                                                     });
                                                 }
-                                            }
                                             break;
                                         case BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC:
                                             System.out.println("BLUETOOTH--------------> READ -> ADC_BUFF_CHOISES_HDLC");

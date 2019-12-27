@@ -30,6 +30,5 @@ public interface BluetoothConstantManager {
     int BLOCK_ON_OFF_HDLC           = 46;
     int BLOCK_PERMISSION_HDLC       = 47;
     int INVERT_INDICATION           = 48;
-    int CURR_CURENT_HDLC            = 49;
-    int CURR_BAT_HDLC               = 50;
+    int CURR_BAT_HDLC               = 49;
 }

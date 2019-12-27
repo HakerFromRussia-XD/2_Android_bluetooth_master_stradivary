@@ -54,8 +54,11 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
         chatActivity.firstTapRcyclerView = true;
         chatActivity.graphThreadFlag = false;
         if(chatActivity.isEnable){
-            chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
-            chatActivity.TranslateMassegeControlComplexGesture();
+            if(chatActivity.getFlagUseHDLCProcol()){
+            } else {
+                chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
+                chatActivity.TranslateMassegeControlComplexGesture();
+            }
         }
 
         gestureMyList.add(
@@ -85,8 +88,11 @@ public class FragmentGestureSettings2 extends Fragment implements ChatView, Gess
             public void onClick(View v) {
                 if (getActivity() != null) {
                     if(chatActivity.isEnable){
-                        chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
-                        chatActivity.TranslateMassegeControlComplexGesture();
+                        if(chatActivity.getFlagUseHDLCProcol()){
+                        } else {
+                            chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
+                            chatActivity.TranslateMassegeControlComplexGesture();
+                        }
                     }
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)

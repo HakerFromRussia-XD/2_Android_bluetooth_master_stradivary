@@ -31,7 +31,7 @@ public interface ConstantManager {
 
     byte ADDR_MIO1                  =(byte) 0xFA;
     byte ADDR_MIO2                  =(byte) 0xFA;
-    byte ADDR_ENDPOINT_POSITION     =(byte) 0xFA;
+    byte ADDR_ENDPOINT_POSITION     =(byte) 0xFF;
     byte ADDR_CUR_LIMIT             =(byte) 0xFA;
     byte ADDR_BUFF_CHOISES          =(byte) 0xFA;
     byte ADDR_BLOCK                 =(byte) 0xFA;

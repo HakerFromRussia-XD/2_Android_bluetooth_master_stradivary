@@ -661,26 +661,46 @@ public class Bluetooth {
                             if(i == 5){ addressHDLCMassage = (byte) msg; byteMassCRC[0] = (byte) msg; }
                             switch (msgRegister){
                                 case BluetoothConstantManager.WRITE:
-                                    i++;
-                                    if(i == 6){
-                                        System.out.println("BLUETOOTH--------------> WRITE -> resetAllVariables");
-                                        resetAllVariables();
+                                    switch (typeHDLCMassage){
+                                        case BluetoothConstantManager.MOVE_HDLC:
+                                            System.out.println("BLUETOOTH--------------> WRITE -> MOVE_HDLC");
+                                            i++;
+                                            if(i == 10){
+                                                System.out.println("BLUETOOTH--------------> WRITE -> MOVE_HDLC -> resetAllVariables");
+                                                resetAllVariables();
+                                            }
+                                            break;
+                                        case BluetoothConstantManager.HDLC_39:
+                                            System.out.println("BLUETOOTH--------------> WRITE -> HDLC_39");
+                                            i++;
+                                            if(i == 6){
+                                                System.out.println("BLUETOOTH--------------> WRITE -> HDLC_39 -> resetAllVariables");
+                                                resetAllVariables();
+                                            }
+                                            break;
+                                        default:
+                                            System.out.println("BLUETOOTH--------------> WRITE -> DEFAULT");
+                                            i++;
+                                            if(i == 6){
+                                                System.out.println("BLUETOOTH--------------> WRITE -> resetAllVariables");
+                                                resetAllVariables();
+                                            }
+                                            break;
+
                                     }
                                     break;
                                 case BluetoothConstantManager.READ:
                                     switch (typeHDLCMassage){
                                         case BluetoothConstantManager.ENDPOINT_POSITION:
+                                            System.out.println("BLUETOOTH--------------> READ -> ENDPOINT_POSITION");
                                             i++;
                                             if(i == 6){
                                                 System.out.println("BLUETOOTH--------------> READ -> ENDPOINT_POSITION -> resetAllVariables");
                                                 resetAllVariables();
                                             }
                                             break;
-                                        case 1:
-                                            i++;
-//                                            System.out.println("BLUETOOTH--------------> i= "+i);
-                                            break;
                                         case BluetoothConstantManager.MIO1_TRIG_HDLC:
+                                            System.out.println("BLUETOOTH--------------> READ -> MIO1_TRIG_HDLC");
                                             if(addressHDLCMassage == (byte) 0xFA){
                                                 if(i == 6){ lowByte = (byte) msg; byteMassCRC[1] = (byte) msg; }
                                                 if(i == 7){ msgLevelCH1 = (lowByte << 8) + msg;  byteMassCRC[2] = (byte) msg; }
@@ -705,6 +725,7 @@ public class Bluetooth {
                                                 }
                                             break;
                                         case BluetoothConstantManager.MIO2_TRIG_HDLC:
+                                            System.out.println("BLUETOOTH--------------> READ -> MIO2_TRIG_HDLC");
                                             if(addressHDLCMassage == (byte) 0xFA){
                                                 if(i == 6){ lowByte = (byte) msg; byteMassCRC[1] = (byte) msg; }
                                                 if(i == 7){ msgLevelCH2 = (lowByte << 8) + msg;  byteMassCRC[2] = (byte) msg; }
@@ -730,6 +751,7 @@ public class Bluetooth {
                                                 }
                                             break;
                                         case BluetoothConstantManager.CURR_LIMIT_HDLC:
+                                            System.out.println("BLUETOOTH--------------> READ -> CURR_LIMIT_HDLC");
                                             if(addressHDLCMassage == (byte) 0xFA){
                                                 if(i == 6){ lowByte = (byte) msg; byteMassCRC[1] = (byte) msg; }
                                                 if(i == 7){ msgCurrent = (lowByte << 8) + msg;  byteMassCRC[2] = (byte) msg; }
@@ -755,6 +777,7 @@ public class Bluetooth {
                                                 }
                                             break;
                                         case BluetoothConstantManager.BLOCK_PERMISSION_HDLC:
+                                            System.out.println("BLUETOOTH--------------> READ -> BLOCK_PERMISSION_HDLC");
                                             if(addressHDLCMassage == (byte) 0xFA){
                                                 if(i == 6){ msgBlockIndication = (byte) msg; byteMassCRC[1] = (byte) msg;}
                                                 if(i == 7){
@@ -779,6 +802,7 @@ public class Bluetooth {
                                             }
                                             break;
                                         case BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC:
+                                            System.out.println("BLUETOOTH--------------> READ -> ADC_BUFF_CHOISES_HDLC");
                                             if(addressHDLCMassage == (byte) 0xFA){
                                                 if(i == 6){ msgRoughnessOfSensors = (byte) msg;}
                                                 if(i == 7){}//обработчик CRC
@@ -799,6 +823,7 @@ public class Bluetooth {
                                                 }
                                             break;
                                         case BluetoothConstantManager.CURR_MAIN_DATA_HDLC:
+//                                            System.out.println("BLUETOOTH--------------> READ -> CURR_MAIN_DATA_HDLC");
                                             if(addressHDLCMassage == (byte) 0xFA){
                                                 if(i == 6){ lowByte = msg; byteMassCRC[1] = (byte) msg; }
                                                 if(i == 7){ msgLevelCH1 = (lowByte << 8) + msg;  byteMassCRC[2] = (byte) msg; }
@@ -835,7 +860,8 @@ public class Bluetooth {
                                             break;
                                     }
                                     break;
-                                case 0:
+                                default:
+                                    System.out.println("BLUETOOTH--------------> DEFAULT");
                                     i++;
                                     break;
                             }
@@ -859,13 +885,16 @@ public class Bluetooth {
         public void resetAllVariables() {
             msgstr.setLength(0);
             no_error = true;
+            summator = 0;
             msgLenght = 0;
             msgRegister = 0;
-            summator = 0;
             branchOfParsing = 0;
             msgCorrectAcceptance = true;
             dumpingIVariableThreadFlag = false;
             parserCallback.setFlagReceptionExpectation(false);
+            addressHDLCMassage = 0;
+            typeHDLCMassage = 0;
+            msgRegister = 0;
             msgCRC = 12345;
             i=1;
             System.out.println("BLUETOOTH--------------> RESET ALL VARIABLES");

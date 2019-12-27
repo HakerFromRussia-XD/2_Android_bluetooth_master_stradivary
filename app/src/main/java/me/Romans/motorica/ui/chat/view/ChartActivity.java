@@ -234,6 +234,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public static byte GESTURE_SETTINGS = 0x15;
     public byte NUMBER_CELL = 0x00;
     public static long delay = 200;
+    private int delayPauseAfterSending = 50;
     public byte[] TextByteTreegSettings = new byte[8];
     public byte[] TextByteTreegComplexGestureSettings = new byte[15];
     public byte[] TextByteTreegControlComplexGesture = new byte[2];
@@ -673,28 +674,48 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             activity_chat_gesture1.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x00, (byte) 0x01));
+                    if (flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC((byte) 0x01));
+                        pauseAfterSendingThread();
+                    }else{
+                        presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x00, (byte) 0x01));
+                    }
                 }
             });
 
             activity_chat_gesture2.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x02, (byte) 0x03));
+                    if (flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC((byte) 0x02));
+                        pauseAfterSendingThread();
+                    }else{
+                        presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x02, (byte) 0x03));
+                    }
                 }
             });
 
             activity_chat_gesture3.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05));
+                    if (flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC((byte) 0x03));
+                        pauseAfterSendingThread();
+                    }else{
+                        presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05));
+                    }
                 }
             });
 
             activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x06, (byte) 0x06));
+                    if (flagUseHDLCProcol){
+                        presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC((byte) 0x04));
+                        pauseAfterSendingThread();
+                    }else{
+                        presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x06, (byte) 0x06));
+                    }
                 }
             });
         } else {
@@ -1343,7 +1364,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                     (flagUseHDLCProcol) &&(!flagReadStartParametrsHDLC) &&
                                     (!flagPauseAfterSending)){
                                     System.err.println("запрос обновления графиков");
-//                                    presenter.onHelloWorld(CompileMassegeMainDataHDLC());
+                                    presenter.onHelloWorld(CompileMassegeMainDataHDLC());
                                     flagReceptionExpectation = true;
                                     if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST)
                                     {
@@ -1884,7 +1905,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         if(firstRead){
                             setStartTrig();
 //                            presenter.onHelloWorld(testCRC());
-//                            requestStartTrig1Thread ();
+                            requestStartTrig1Thread ();
                         }
                     } else {
                         try {
@@ -2033,7 +2054,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 flagPauseAfterSending = true;
                 System.out.println("ChartActivity--------------> ПАУЗЫ УСТАНОВКА ");
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(delayPauseAfterSending);
                 }catch (Exception e){}
                 flagPauseAfterSending = false;
                 System.out.println("ChartActivity--------------> ПАУЗЫ ОТМЕНА");
@@ -2296,6 +2317,16 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteSetSwitchGesture[2] = closeGesture;
         return TextByteSetSwitchGesture;
     }
+
+    public byte[] CompileMassegeSwitchGestureHDLC(byte numGesture) {
+        TextByteHDLC5[0] = (byte) 0xFA;
+        TextByteHDLC5[1] = (byte) 0x02;
+        TextByteHDLC5[2] = (byte) 0x34;
+        TextByteHDLC5[3] = numGesture;
+        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
+        return TextByteHDLC5;
+    }
+
     public byte[] CompileMassegeRouhness(byte roughness) {
         TextByteSetRoughness[0] = 0x10;
         TextByteSetRoughness[1] = roughness; // 0x01 on     0x00 off

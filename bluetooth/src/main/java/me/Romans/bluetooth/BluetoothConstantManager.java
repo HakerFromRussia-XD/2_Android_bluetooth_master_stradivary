@@ -16,6 +16,8 @@ public interface BluetoothConstantManager {
     byte NOP        =0x02;
     int ENDPOINT_POSITION			=  0;
     int HDLC_ADDRESS_REG            =  6;
+    int MOVE_HDLC                   = 20;
+    int HDLC_39                     = 39;
     int MOTOR_REVERS                = 30;
     int MIO1_TRIG_HDLC				= 38;
     int MIO2_TRIG_HDLC				= 39;

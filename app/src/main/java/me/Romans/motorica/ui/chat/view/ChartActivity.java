@@ -1374,17 +1374,18 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                 } else {
 //                                    if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST-1)
 //                                    {
-//                                        System.err.println("isEnable="+isEnable+" должно быть true \n"+
-//                                                "flagReceptionExpectation="+flagReceptionExpectation+" должен быть false \n"+
-//                                                "flagReadStartParametrsHDLC="+flagReadStartParametrsHDLC+" должен быть false \n"+
-//                                                "flagUseHDLCProcol="+flagUseHDLCProcol+" должен быть true \n"+
-//                                                "numberCycle="+numberCycle+" должен быть от 1 до "+ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST );
+                                        System.err.println("isEnable="+isEnable+" должно быть true \n"+
+                                                "flagReceptionExpectation="+flagReceptionExpectation+" должен быть false \n"+
+                                                "flagReadStartParametrsHDLC="+flagReadStartParametrsHDLC+" должен быть false \n"+
+                                                "flagUseHDLCProcol="+flagUseHDLCProcol+" должен быть true \n"+
+                                                "numberCycle="+numberCycle+" должен быть от 1 до "+ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST );
 //                                    }
                                 }
                             }
                         }
                     });
                     numberCycle++;
+                    if (numberCycle > ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST) {numberCycle = 0;}
                     try {
                         Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY);
                     }catch (Exception e){}

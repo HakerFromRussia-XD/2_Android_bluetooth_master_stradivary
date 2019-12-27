@@ -137,6 +137,12 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        seekBarRoughness.setProgress(chatActivity.receiveRoughnessOfSensors);
+    }
+
+    @Override
     public void setStatus(String status) {
 
     }

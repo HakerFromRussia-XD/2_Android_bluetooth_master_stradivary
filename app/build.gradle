@@ -8,8 +8,8 @@ android {
         applicationId "com.Romans.motorica"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 6
-        versionName "1.2.144"
+        versionCode 7
+        versionName "1.2.145"
     }
 
     buildTypes {

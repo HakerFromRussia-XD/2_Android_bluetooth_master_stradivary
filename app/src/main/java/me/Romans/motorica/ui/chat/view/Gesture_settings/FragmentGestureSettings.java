@@ -249,4 +249,9 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
 
     }
 
+    @Override
+    public void setStartParametersBattery(Integer receiveBatteryTension) {
+
+    }
+
 }

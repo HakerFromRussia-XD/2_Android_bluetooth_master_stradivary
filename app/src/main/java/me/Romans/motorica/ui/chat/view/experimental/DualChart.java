@@ -364,4 +364,9 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
     public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
 
     }
+
+    @Override
+    public void setStartParametersBattery(Integer receiveBatteryTension) {
+
+    }
 }

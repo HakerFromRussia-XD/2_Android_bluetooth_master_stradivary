@@ -149,6 +149,11 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
 
     }
 
+    @Override
+    public void setStartParametersBattery(Integer receiveBatteryTension) {
+
+    }
+
 
     public class GestureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 

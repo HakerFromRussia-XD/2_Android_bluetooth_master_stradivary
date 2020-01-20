@@ -1211,7 +1211,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger2Speed);}
                     if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger3Speed);}
                     if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger4Speed);}
-                    if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger5Speed);}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger6Speed);}
                     if(lastSpeedFinger != speedFinger && isEnable){
                         System.err.println("ChatActivity--------> speedFinger: "+ speedFinger);
                         if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){}
@@ -1219,7 +1219,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){intValueFinger2Speed = speedFinger;}
                         if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){intValueFinger3Speed = speedFinger;}
                         if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){intValueFinger4Speed = speedFinger;}
-                        if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){intValueFinger5Speed = speedFinger;}
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){intValueFinger6Speed = speedFinger;}
                         lastSpeedFinger = speedFinger;
                     }
                     if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
@@ -1323,6 +1323,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         numberFinger = 6;
                         if(flagUseHDLCProcol){
                             presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
+                            System.err.println("ChatActivity--------> Угол шестой степени: "+intValueFinger6Angle);
                         }else {
                             CompileMassegeSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed);
                             presenter.onHelloWorld(TextByteTreegSettings);
@@ -1650,10 +1651,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 
     @Override
     public void setStatus(int resId) {
-//        System.out.println("ChatActivity----> resId setText:"+ resId);
-        if (resId == 2131755053){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
-        if (resId == 2131755054){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
-        if (resId == 2131755055){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
+        System.out.println("ChatActivity----> resId setText:"+ resId);
+        if (resId == 2131755063){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
+        if (resId == 2131755064){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131755065){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
     }
 
     @Override
@@ -1921,7 +1922,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         }catch (Exception e){}
                         presenter.onHelloWorld(CompileMassegeReadStartParameters());
                         try {
-                            Thread.sleep(600);
+                            Thread.sleep(500);
                         }catch (Exception e){}
                         presenter.onHelloWorld(CompileMessageSetGeneralParcel((byte) 0x01));
                     }
@@ -1968,7 +1969,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
                 }catch (Exception e){}
                 if(!flagReceptionExpectation){
-                    requestStartCurrentThread();
+                    if(monograbVersion){requestStartCurrentThread();} else {requestStartRoughnessThread();}
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Curr");
                 }
                 while (flagReceptionExpectation){

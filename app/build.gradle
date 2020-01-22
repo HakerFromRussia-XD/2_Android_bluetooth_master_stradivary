@@ -12,6 +12,10 @@ android {
         versionName "1.2.145"
     }
 
+    lintOptions{
+        checkReleaseBuilds false
+    }
+    
     buildTypes {
         release {
             minifyEnabled false

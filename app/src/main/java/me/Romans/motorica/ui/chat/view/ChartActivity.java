@@ -1367,7 +1367,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                     (flagUseHDLCProcol) &&(!flagReadStartParametrsHDLC) &&
                                     (!flagPauseAfterSending)){
                                     System.err.println("запрос обновления графиков");
-                                    presenter.onHelloWorld(CompileMassegeMainDataHDLC());
+                                    if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){presenter.onHelloWorld(CompileMassegeMainDataHDLC());}
                                     flagReceptionExpectation = true;
                                     if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST)
                                     {
@@ -2307,6 +2307,14 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteHDLC5[1] = ConstantManager.WRITE;
         TextByteHDLC5[2] = BluetoothConstantManager.ENDPOINT_POSITION;
         TextByteHDLC5[3] = operation;
+        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
+        return TextByteHDLC5;
+    }
+    public byte[] CompileMassegeSettingsNotUseInternalADCHDLC (byte notUse){
+        TextByteHDLC5[0] = ConstantManager.ADDR_SOURCE_ADC;
+        TextByteHDLC5[1] = ConstantManager.WRITE;
+        TextByteHDLC5[2] = BluetoothConstantManager.ADC_SOURCE_HDLC;
+        TextByteHDLC5[3] = notUse;
         TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
         return TextByteHDLC5;
     }

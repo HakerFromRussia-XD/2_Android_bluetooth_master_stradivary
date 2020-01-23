@@ -11,9 +11,9 @@ public interface BluetoothConstantManager {
     byte READ                       =0x01;
     byte WRITE                      =0x02;
 
-    byte OPENING    =0x00;
-    byte CLOSING    =0x01;
-    byte NOP        =0x02;
+    byte OPENING                    =0x00;
+    byte CLOSING                    =0x01;
+    byte NOP                        =0x02;
     int ENDPOINT_POSITION			=  0;
     int HDLC_ADDRESS_REG            =  6;
     int MOVE_HDLC                   = 20;
@@ -31,4 +31,5 @@ public interface BluetoothConstantManager {
     int BLOCK_PERMISSION_HDLC       = 47;
     int INVERT_INDICATION           = 48;
     int CURR_BAT_HDLC               = 49;
+    int ADC_SOURCE_HDLC             = 52;
 }

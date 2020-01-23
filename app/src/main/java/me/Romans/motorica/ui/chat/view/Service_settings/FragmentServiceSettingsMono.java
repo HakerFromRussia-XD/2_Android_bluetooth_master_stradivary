@@ -23,6 +23,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     @BindView(R.id.save_service_settings) Button save_service_settings;
     @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) public Switch switchInvert;
+    @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
     public SeekBar seekBarIstop;
     TextView valueIstop;
     public TextView valueIstop2;
@@ -92,6 +93,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
         switchInvert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.err.println("FragmentServiceSettings-------------->");
                 if (switchInvert.isChecked()){
                     chatActivity.invert = 0x01;
                     chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
@@ -131,6 +133,23 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
                     chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvertHDLC(chatActivity.curent));
                 } else {
                     chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+                }
+            }
+        });
+
+        switchNotUseInternalADC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (switchNotUseInternalADC.isChecked()){
+                    if(chatActivity.getFlagUseHDLCProcol()){
+                        System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 0");
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeSettingsNotUseInternalADCHDLC((byte) 0x00));
+                    }
+                } else {
+                    if(chatActivity.getFlagUseHDLCProcol()){
+                        System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 1");
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeSettingsNotUseInternalADCHDLC((byte) 0x01));
+                    }
                 }
             }
         });

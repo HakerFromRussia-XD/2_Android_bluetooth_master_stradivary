@@ -37,9 +37,11 @@ public interface ConstantManager {
     byte ADDR_BLOCK                 =(byte) 0xFA;
     byte ADDR_MAIN_DATA             =(byte) 0xFA;
     byte ADDR_TRIG_MODE             =(byte) 0xFA;
-    byte ADDR_BATTERY               =(byte) 0xFF;
+    byte ADDR_BATTERY               =(byte) 0xFA;
+    byte ADDR_SOURCE_ADC            =(byte) 0xFA;
     byte READ                       =0x01;
     byte WRITE                      =0x02;
+    boolean DISABLE_UPDATIONG_GRAPH =true;
 
     ////////////////////////////////////////////////
 /**                     delays                      **/

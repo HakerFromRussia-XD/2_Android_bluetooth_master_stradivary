@@ -1932,6 +1932,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         }
     }
 
+    ///////////////////////////////////////
+/**   схема запросов начальных параметров   **/
+//  односхват:  ----> Trig1 ----> Trig2 ----> Current ----> Roughness ----> Battery
+//  многосхват: ----> Trig1 ----> Trig2 ----> Roughness
+    ///////////////////////////////////////
+
     public void requestStartTrig1Thread () {
         requestStartTrig1Thread = new Thread(new Runnable() {
             @Override

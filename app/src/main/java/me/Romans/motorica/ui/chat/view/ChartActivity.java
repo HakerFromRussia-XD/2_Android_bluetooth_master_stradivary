@@ -1221,6 +1221,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             @Override
             public void run() {
                 while (transferThreadFlag){
+                    // пальчики
                     if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger1Speed);}
                     if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger2Speed);}
                     if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger3Speed);}
@@ -1257,7 +1258,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             Thread.sleep(delay);
                         }catch (Exception e){}
                         if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger1Angle, 100));
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger1Angle, 99));
                         }
                         intValueFinger1AngleLast = intValueFinger1Angle;
                     }
@@ -1282,7 +1283,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             Thread.sleep(delay);
                         }catch (Exception e){}
                         if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger2Angle, 100));
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger2Angle, 99));
                         }
                         intValueFinger2AngleLast = intValueFinger2Angle;
                     }
@@ -1307,7 +1308,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             Thread.sleep(delay);
                         }catch (Exception e){}
                         if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger3Angle, 100));
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger3Angle, 99));
                         }
                         intValueFinger3AngleLast = intValueFinger3Angle;
                     }
@@ -1332,7 +1333,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             Thread.sleep(delay);
                         }catch (Exception e){}
                         if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger4Angle, 100));
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger4Angle, 99));
                         }
                         intValueFinger4AngleLast = intValueFinger4Angle;
                     }
@@ -1357,7 +1358,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             Thread.sleep(delay);
                         }catch (Exception e){}
                         if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger5Angle, 100));
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger5Angle, 99));
                         }
                         intValueFinger5AngleLast = intValueFinger5Angle;
                         try {
@@ -1384,7 +1385,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             Thread.sleep(delay);
                         }catch (Exception e){}
                         if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger6Angle, 100));
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger6Angle, 30));
                         }
                         intValueFinger6AngleLast = intValueFinger6Angle;
                     }

@@ -620,7 +620,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     receiveLevelCH1Chat = 20;
                     receiveLevelCH2Chat = 2500;
                     if(flagUseHDLCProcol){System.out.println("ChatActivity----> flagReceptionExpectation " + flagReceptionExpectation);}
-                    else {showToast("not IND");}
+//                    else {showToast("not IND");}
                 }
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {

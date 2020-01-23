@@ -15,7 +15,7 @@ android {
     lintOptions{
         checkReleaseBuilds false
     }
-    
+
     buildTypes {
         release {
             minifyEnabled false

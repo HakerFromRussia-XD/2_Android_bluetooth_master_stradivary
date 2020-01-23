@@ -29,6 +29,7 @@ public interface ConstantManager {
 /**                    transfer                     **/
     ////////////////////////////////////////////////
 
+    byte ADDR_BRODCAST              =(byte) 0xFF;
     byte ADDR_MIO1                  =(byte) 0xFA;
     byte ADDR_MIO2                  =(byte) 0xFA;
     byte ADDR_ENDPOINT_POSITION     =(byte) 0xFF;

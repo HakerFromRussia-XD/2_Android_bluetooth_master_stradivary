@@ -260,6 +260,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public boolean updateSeviceSettingsThreadFlag = false;
     private boolean showMenu = true;
     private boolean lockServiceSettings = false;
+    private int useGesture = 1;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -611,8 +612,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
                     int numberSensor = 0x07;
                     if(flagUseHDLCProcol){
-//                        presenter.onHelloWorld(CompileMassegeMainDataHDLC());
-                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(BluetoothConstantManager.CLOSING));
+                        if(useGesture == 1){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 1));}
+                        if(useGesture == 2){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 3));}
+                        if(useGesture == 3){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 5));}
                         pauseAfterSendingThread();
                     } else {
                         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
@@ -647,7 +649,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
                     int numberSensor = 0x06;
                     if(flagUseHDLCProcol){
-                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(BluetoothConstantManager.OPENING));
+                        if(useGesture == 1){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 0));}
+                        if(useGesture == 2){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 2));}
+                        if(useGesture == 3){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 4));}
                         pauseAfterSendingThread();
                     } else {
                         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
@@ -677,6 +681,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 @Override
                 public void onClick(View v) {
                     if (flagUseHDLCProcol){
+                        useGesture = 1;
+                        presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 6));
+                        pauseAfterSendingThread();
                         presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC((byte) 0x01));
                         pauseAfterSendingThread();
                     }else{
@@ -689,6 +696,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 @Override
                 public void onClick(View v) {
                     if (flagUseHDLCProcol){
+                        useGesture = 2;
+                        presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 7));
+                        pauseAfterSendingThread();
                         presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC((byte) 0x02));
                         pauseAfterSendingThread();
                     }else{
@@ -701,6 +711,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 @Override
                 public void onClick(View v) {
                     if (flagUseHDLCProcol){
+                        useGesture = 3;
+                        presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 8));
+                        pauseAfterSendingThread();
                         presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC((byte) 0x03));
                         pauseAfterSendingThread();
                     }else{
@@ -713,6 +726,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 @Override
                 public void onClick(View v) {
                     if (flagUseHDLCProcol){
+                        useGesture = 4;
                         presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC((byte) 0x04));
                         pauseAfterSendingThread();
                     }else{
@@ -1239,6 +1253,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         }else {
                             presenter.onHelloWorld(CompileMassegeControl(numberFinger));
                         }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger1Angle, 100));
+                        }
                         intValueFinger1AngleLast = intValueFinger1Angle;
                     }
                     if(intValueFinger2AngleLast != intValueFinger2Angle && isEnable){
@@ -1257,6 +1277,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             presenter.onHelloWorld(CompileMassegeControlHDLC(numberFinger));
                         }else {
                             presenter.onHelloWorld(CompileMassegeControl(numberFinger));
+                        }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger2Angle, 100));
                         }
                         intValueFinger2AngleLast = intValueFinger2Angle;
                     }
@@ -1277,6 +1303,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         }else {
                             presenter.onHelloWorld(CompileMassegeControl(numberFinger));
                         }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger3Angle, 100));
+                        }
                         intValueFinger3AngleLast = intValueFinger3Angle;
                     }
                     if(intValueFinger4AngleLast != intValueFinger4Angle && isEnable){
@@ -1296,6 +1328,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         }else {
                             presenter.onHelloWorld(CompileMassegeControl(numberFinger));
                         }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger4Angle, 100));
+                        }
                         intValueFinger4AngleLast = intValueFinger4Angle;
                     }
                     if((intValueFinger5AngleLast != intValueFinger5Angle && isEnable)||(intValueFinger6AngleLast != intValueFinger6Angle && isEnable)){
@@ -1314,6 +1352,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             presenter.onHelloWorld(CompileMassegeControlHDLC(numberFinger));
                         }else {
                             presenter.onHelloWorld(CompileMassegeControl(numberFinger));
+                        }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger5Angle, 100));
                         }
                         intValueFinger5AngleLast = intValueFinger5Angle;
                         try {
@@ -1335,6 +1379,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             presenter.onHelloWorld(CompileMassegeControlHDLC(numberFinger));
                         }else {
                             presenter.onHelloWorld(CompileMassegeControl(numberFinger));
+                        }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception e){}
+                        if(flagUseHDLCProcol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger6Angle, 100));
                         }
                         intValueFinger6AngleLast = intValueFinger6Angle;
                     }
@@ -1932,11 +1982,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         }
     }
 
-    ///////////////////////////////////////
-/**   схема запросов начальных параметров   **/
+    //////////////////////////////////////////////////////////////////////////////
+/**                    схема запросов начальных параметров                         **/
 //  односхват:  ----> Trig1 ----> Trig2 ----> Current ----> Roughness ----> Battery
 //  многосхват: ----> Trig1 ----> Trig2 ----> Roughness
-    ///////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
 
     public void requestStartTrig1Thread () {
         requestStartTrig1Thread = new Thread(new Runnable() {
@@ -2224,6 +2274,41 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
         return TextByteHDLC7;
     }
+
+    private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,
+                                                     int intValueFingerSpeed){
+        if(NUMBER_CELL == 0){
+            TextByteHDLC7[0] = numberFinger;
+            TextByteHDLC7[1] = requestType;
+            TextByteHDLC7[2] = GESTURE_SETTINGS;
+            TextByteHDLC7[3] = 0x06;
+            TextByteHDLC7[4] = (byte) intValueFingerSpeed;
+            TextByteHDLC7[5] = (byte) intValueFingerAngle;
+            TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
+        } else {
+            if(NUMBER_CELL == 2){
+                TextByteHDLC7[0] = numberFinger;
+                TextByteHDLC7[1] = requestType;
+                TextByteHDLC7[2] = GESTURE_SETTINGS;
+                TextByteHDLC7[3] = 0x07;
+                TextByteHDLC7[4] = (byte) intValueFingerSpeed;
+                TextByteHDLC7[5] = (byte) intValueFingerAngle;
+                TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
+            } else {
+                if(NUMBER_CELL == 4){
+                    TextByteHDLC7[0] = numberFinger;
+                    TextByteHDLC7[1] = requestType;
+                    TextByteHDLC7[2] = GESTURE_SETTINGS;
+                    TextByteHDLC7[3] = 0x08;
+                    TextByteHDLC7[4] = (byte) intValueFingerSpeed;
+                    TextByteHDLC7[5] = (byte) intValueFingerAngle;
+                    TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
+                }
+            }
+        }
+
+        return TextByteHDLC7;
+    }
     public byte[] CompileMassegeComplexGestureSettings(int GESTURE_NUMBER, int GripperNumberStart1,
                                                        int mySensorEvent1, int GripperNumberEnd1,
                                                        int GripperNumberStart2, int mySensorEvent2,
@@ -2313,6 +2398,14 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteHDLC5[1] = ConstantManager.WRITE;
         TextByteHDLC5[2] = BluetoothConstantManager.ENDPOINT_POSITION;
         TextByteHDLC5[3] = operation;
+        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
+        return TextByteHDLC5;
+    }
+    private byte[] CompileMassegeSensorActivate2HDLC (byte cell){
+        TextByteHDLC5[0] = ConstantManager.ADDR_BRODCAST;
+        TextByteHDLC5[1] = ConstantManager.WRITE;
+        TextByteHDLC5[2] = BluetoothConstantManager.MOVE_HDLC;
+        TextByteHDLC5[3] = cell;
         TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
         return TextByteHDLC5;
     }

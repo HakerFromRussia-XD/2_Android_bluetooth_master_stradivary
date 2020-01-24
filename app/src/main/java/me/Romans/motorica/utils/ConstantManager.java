@@ -42,7 +42,7 @@ public interface ConstantManager {
     byte ADDR_SOURCE_ADC            =(byte) 0xFA;
     byte READ                       =0x01;
     byte WRITE                      =0x02;
-    boolean DISABLE_UPDATIONG_GRAPH =true;
+    boolean DISABLE_UPDATIONG_GRAPH =false;
 
     ////////////////////////////////////////////////
 /**                     delays                      **/

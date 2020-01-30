@@ -455,6 +455,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
                     presenter.onHelloWorld(TextByteHDLC6);
                     pauseAfterSendingThread();
+
+
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
                     TextByteTreeg[1] = numberChannel;
@@ -1630,7 +1632,6 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             mChart.notifyDataSetChanged();
             mChart.setVisibleXRangeMaximum(50);
             mChart.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
-
         }
     }
     private void addEntry2(int event){
@@ -1691,9 +1692,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     }
 
     @Override
-    public void setStatus(String status) {
-
-    }
+    public void setStatus(String status) {}
 
     @Override
     public void setStatus(int resId) {
@@ -1726,6 +1725,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             }
         }
     }
+
     @Override
     public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
         if (invertChannel){
@@ -1980,7 +1980,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 
     //////////////////////////////////////////////////////////////////////////////
 /**                    схема запросов начальных параметров                         **/
-//  односхват:  ----> Trig1 ----> Trig2 ----> Current ----> Roughness ----> Battery
+//  односхват:  ----> Trig1 ----> Trig2 ----> Current ----> Roughness
 //  многосхват: ----> Trig1 ----> Trig2 ----> Roughness
     //////////////////////////////////////////////////////////////////////////////
 
@@ -2096,8 +2096,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 }catch (Exception e){}
                 if(!flagReceptionExpectation){
                     if (monograbVersion){
-                        requestBatteryTensionThread();
-                        System.out.println("ChartActivity--------------> апуск запроса следующей функции Battery");
+                        flagReadStartParametrsHDLC = false;
+                        firstRead = false;
+                        System.out.println("ChartActivity--------------> конец запросов нач параметров");
                     } else {
                         flagReadStartParametrsHDLC = false;
                         firstRead = false;
@@ -2139,7 +2140,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         requestBatteryTensionThread.start();
     }
 
-
+//    часть отвечающая за установку флага паузы
     public void pauseAfterSendingThread () {
         pauseAfterSendingThread = new Thread(new Runnable() {
             @Override
@@ -2157,6 +2158,24 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             }
         });
         pauseAfterSendingThread.start();
+    }
+
+    private void levelRecordThread (final byte fakeCellGesture, final byte cellNumGesture) {
+        Thread levelRecordThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC(fakeCellGesture));
+                pauseAfterSendingThread();
+                System.out.println("ChartActivity--------------> запись порога ");
+                try {
+                    Thread.sleep(delayPauseAfterSending);
+                } catch (Exception e) {}
+                presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC(cellNumGesture));
+                pauseAfterSendingThread();
+                System.out.println("ChartActivity--------------> запрос порога ");
+            }
+        });
+        levelRecordThread.start();
     }
 
     private void gestureUseThread (final byte fakeCellGesture, final byte cellNumGesture) {

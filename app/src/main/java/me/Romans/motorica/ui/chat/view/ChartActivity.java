@@ -79,6 +79,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public static volatile boolean flagUseHDLCProcol = false;
     public static volatile boolean flagReceptionExpectation = false;
     private boolean flagPauseAfterSending = false;
+    private boolean flagOffUpdateGraphHDLC = false;
     public Thread pauseAfterSendingThread;
     private boolean flagReadStartParametrsHDLC = true;
     @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
@@ -98,6 +99,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
     @BindView(R.id.activity_chat_hello_world) Button helloWorld;
     @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
+    Button offUpdate;
     Button activity_chat_gesture1;
     Button activity_chat_gesture2;
     Button activity_chat_gesture3;
@@ -312,6 +314,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
             heightBottomNavigation = pxFromDp(48);
 
+            offUpdate = findViewById(R.id.activity_chat_off_update);
             activity_chat_gesture1 = findViewById(R.id.activity_chat_gesture1);
             activity_chat_gesture2 = findViewById(R.id.activity_chat_gesture2);
             activity_chat_gesture3 = findViewById(R.id.activity_chat_gesture3);
@@ -726,6 +729,15 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         gestureUseThread ((byte) 9, (byte) useGesture);
                     }else{
                         presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x06, (byte) 0x06));
+                    }
+                }
+            });
+
+            offUpdate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (flagUseHDLCProcol){
+                        if(!flagOffUpdateGraphHDLC){flagOffUpdateGraphHDLC = true;} else {flagOffUpdateGraphHDLC = false;}
                     }
                 }
             });
@@ -1411,7 +1423,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                 if ((!flagReceptionExpectation ||
                                     ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST == numberCycle) &&
                                     (flagUseHDLCProcol) &&(!flagReadStartParametrsHDLC) &&
-                                    (!flagPauseAfterSending)){
+                                    (!flagPauseAfterSending) && (!flagOffUpdateGraphHDLC)){
                                     if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){
                                         System.err.println("запрос обновления графиков");
                                         presenter.onHelloWorld(CompileMassegeMainDataHDLC());
@@ -1486,7 +1498,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             if((isEnable) && (!flagReceptionExpectation
                                 || ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST == numberCycle)
                                 && (flagUseHDLCProcol) &&(!flagReadStartParametrsHDLC) &&
-                                (!flagPauseAfterSending)){
+                                (!flagPauseAfterSending) && (!flagOffUpdateGraphHDLC)){
                                 System.err.println("запрос обновления сервисных настроек");
                                 presenter.onHelloWorld(CompileMassegeMainDataHDLC());
                                 flagReceptionExpectation = true;
@@ -1940,6 +1952,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         switchBlockMode.setEnabled(enabled);
 
         if(!monograbVersion){
+            offUpdate.setEnabled(enabled);
             activity_chat_gesture1.setEnabled(enabled);
             activity_chat_gesture2.setEnabled(enabled);
             activity_chat_gesture3.setEnabled(enabled);

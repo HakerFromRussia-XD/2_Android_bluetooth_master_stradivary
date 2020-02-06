@@ -6,6 +6,8 @@
     <string name="gesture1">жест 1</string>
     <string name="gesture2">жест 2</string>
     <string name="gesture3">жест 3</string>
+    <string name="off_update">отключение графиков</string>
+    <string name="on_update">включение графиков</string>
     <string name="gesture4">parting position</string>
 
     <string name="activity_scan_button">Scan again</string>

@@ -53,7 +53,17 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 android.R.layout.simple_spinner_item);
         adapterNumbers.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerNumberOfChannel.setAdapter(adapterNumbers);
-//        spinnerNumberOfChannel.setOnItemSelectedListener((AdapterView.OnItemSelectedListener) this.getActivity());
+        spinnerNumberOfChannel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String sNumberOfChannel = parent.getItemAtPosition(position).toString();
+                chatActivity.numberOfChannel = Integer.parseInt(sNumberOfChannel);
+                Toast.makeText(parent.getContext(), "Выбран канал "+ sNumberOfChannel, Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
 
         if (chatActivity.invertChannel){

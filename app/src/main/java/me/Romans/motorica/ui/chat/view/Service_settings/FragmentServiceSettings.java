@@ -165,26 +165,32 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     public void setStatus(String status) {
 
     }
+
     @Override
     public void setStatus(int resId) {
 
     }
+
     @Override
     public void setValueCH(int levelCH, int numberChannel) {
 
     }
+
     @Override
     public void setErrorReception(boolean incomeErrorReception) {
 
     }
+
     @Override
     public void appendMessage(String message) {
 
     }
+
     @Override
     public void enableHWButton(boolean enabled) {
 
     }
+
     @Override
     public void showToast(String message) {
 
@@ -199,6 +205,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
 
     }
+
     @Override
     public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
 

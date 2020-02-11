@@ -1,6 +1,6 @@
 package me.Romans.motorica.utils;
 
-public interface ConstantManager {
+public interface  ConstantManager {
 
     ////////////////////////////////////////////////
 /**                      3D                         **/
@@ -40,9 +40,30 @@ public interface ConstantManager {
     byte ADDR_TRIG_MODE             =(byte) 0xFA;
     byte ADDR_BATTERY               =(byte) 0xFA;
     byte ADDR_SOURCE_ADC            =(byte) 0xFA;
-    byte READ                       =0x01;
-    byte WRITE                      =0x02;
-    boolean DISABLE_UPDATIONG_GRAPH =false;
+    byte READ                               =0x01;
+    byte WRITE                              =0x02;
+    byte SPEED_CALIB_TYPE                   =0x02;
+    byte ANGLE_CALIB_TYPE                   =0x01;
+    byte OPEN_STOP_CLOSE_CALIB_TYPE         =0x00;
+    byte SET_ADDR_CALIB_TYPE                =0x06;
+    byte TEMP_CALIB_TYPE                    =0x07;
+    byte CURRENT_CONTROL_CALIB_TYPE         =0x05;
+    byte CURRENT_TIMEOUT_CALIB_TYPE         =0x1C;
+    byte CURRENTS_CALIB_TYPE                =0x04;
+    byte ETE_CALIBRATION_CALIB_TYPE         =0x03;
+    byte EEPROM_SAVE_CALIB_TYPE             =0x08;
+    byte ANGLE_FIX_CALIB_TYPE               =0x22;
+    byte OPEN_ANGEL_CALIB_TYPE              =0x17;
+    byte CLOSE_ANGEL_CALIB_TYPE             =0x18;
+    byte WIDE_ANGEL_CALIB_TYPE              =0X1B;
+    byte MAGNET_INVERT_CALIB_TYPE           =0x1D;
+    byte REVERS_MOTOR_CALIB_TYPE            =0x1E;
+    byte ZERO_CROSSING_CALIB_TYPE           =0x20;
+    byte E_CALIB_TYPE                       =0x08;
+    byte U_CALIB_TYPE                       =0x19;
+    byte O_S_C_CALIB_TYPE                   =0x00;
+    byte ADDR_CALIB_TYPE                    =0x00;
+    boolean DISABLE_UPDATIONG_GRAPH         =true;
 
     ////////////////////////////////////////////////
 /**                     delays                      **/

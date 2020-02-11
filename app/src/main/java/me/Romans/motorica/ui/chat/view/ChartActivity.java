@@ -26,6 +26,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -737,7 +738,13 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 @Override
                 public void onClick(View v) {
                     if (flagUseHDLCProcol){
-                        if(!flagOffUpdateGraphHDLC){flagOffUpdateGraphHDLC = true;} else {flagOffUpdateGraphHDLC = false;}
+                        if(!flagOffUpdateGraphHDLC){
+                            flagOffUpdateGraphHDLC = true;
+                            offUpdate.setText("включение графиков");
+                        } else {
+                            flagOffUpdateGraphHDLC = false;
+                            offUpdate.setText("отключение графиков");
+                        }
                     }
                 }
             });
@@ -1435,14 +1442,16 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                     }
                                     numberCycle = 0;
                                 } else {
-//                                    if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST-1)
-//                                    {
-//                                        System.err.println("isEnable="+isEnable+" должно быть true \n"+
+                                    if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST-1)
+                                    {
+//                                        System.err.println(
+//                                                "SKIP \n"+
+//                                                "isEnable="+isEnable+" должно быть true \n"+
 //                                                "flagReceptionExpectation="+flagReceptionExpectation+" должен быть false \n"+
 //                                                "flagReadStartParametrsHDLC="+flagReadStartParametrsHDLC+" должен быть false \n"+
 //                                                "flagUseHDLCProcol="+flagUseHDLCProcol+" должен быть true \n"+
 //                                                "numberCycle="+numberCycle+" должен быть от 1 до "+ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST );
-//                                    }
+                                    }
                                 }
                             }
                         }
@@ -1506,7 +1515,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                 {showToast("пропуск команды обновления");}
                                 numberCycle = 0;
                             } else {
-//                                System.err.println("isEnable="+isEnable+" должно быть true \n"+
+//                                System.err.println(
+//                                          "SKIP \n"+
+//                                          "isEnable="+isEnable+" должно быть true \n"+
 //                                          "flagReceptionExpectation="+flagReceptionExpectation+" должен быть false \n"+
 //                                          "flagReadStartParametrsHDLC="+flagReadStartParametrsHDLC+" должен быть false \n"+
 //                                          "flagUseHDLCProcol="+flagUseHDLCProcol+" должен быть true \n"+

@@ -2,6 +2,7 @@ package me.Romans.bluetooth;
 
 public interface BluetoothConstantManager {
 
+    boolean SHOW_ALL_BT_MASSAGE     =false;
     Integer RESET_ALL_VARIABLE      =0;
     Integer OLD_NOT_USE_PROTOCOL    =1;
     Integer OLD_PROTOCOL            =2;

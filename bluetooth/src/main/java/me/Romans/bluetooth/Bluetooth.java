@@ -48,7 +48,7 @@ public class Bluetooth {
     private BluetoothCallback bluetoothCallback;
     private boolean connected;
     private boolean logic_disconnect;
-    private boolean DEBUG = false;
+    private boolean DEBUG = true;
     public Thread dumpingIVariableThread;
     public boolean dumpingIVariableThreadFlag = false;
     private volatile int i = 1;
@@ -387,6 +387,7 @@ public class Bluetooth {
             try {
                 while((msg = input.read()) != -1) //((System.in).read(msg)) //((System.in).read(msg))   //((input.read())) != -1
                 {
+                    if(BluetoothConstantManager.SHOW_ALL_BT_MASSAGE == true)System.err.println("msg=" + msg);
                     if(!mFinish) {
                         if (!parserCallback.getFlagUseHDLCProcol()){
                             if((i == 1)||(i == 2)||((i == (8+msgLenght)))){ //адекватный приём!!!!
@@ -919,7 +920,7 @@ public class Bluetooth {
             msgRegister = 0;
             msgCRC = 12345;
             i=1;
-            System.out.println("BLUETOOTH--------------> RESET ALL VARIABLES");
+//            System.out.println("BLUETOOTH--------------> RESET ALL VARIABLES");
         }
     }
 

@@ -75,6 +75,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("FNG") ||
             device.getName().split(" ")[0].equals("FNS")) {
             chatActivity.monograbVersion = false; //false - многосхват
+            chatActivity.flagUseHDLCProcol = true; //удалить это вот для отладки надо, чтобы не переименовывать комп
         }
         if( device.getName().split("-")[0].equals("STR") ||
             device.getName().split("-")[0].equals("CBY") ||

@@ -5,9 +5,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,6 +46,15 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
         chatActivity.updateSeviceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
         chatActivity.layoutSensors.setVisibility(View.GONE);
+
+        Spinner spinnerNumberOfChannel = view.findViewById(R.id.spinnerNumberOfChannel);
+        ArrayAdapter<CharSequence> adapterNumbers = ArrayAdapter.createFromResource(this.getActivity(),
+                R.array.numbers,
+                android.R.layout.simple_spinner_item);
+        adapterNumbers.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerNumberOfChannel.setAdapter(adapterNumbers);
+//        spinnerNumberOfChannel.setOnItemSelectedListener((AdapterView.OnItemSelectedListener) this.getActivity());
+
 
         if (chatActivity.invertChannel){
             switchInvert.setChecked(true);
@@ -255,5 +268,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     public void setStartParametersBattery(Integer receiveBatteryTension) {
 
     }
+
+
 
 }

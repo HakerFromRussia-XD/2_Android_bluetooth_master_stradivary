@@ -23,11 +23,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -113,6 +116,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     @BindView(R.id.borderGreen) ImageView borderGreen;
     @BindView(R.id.borderRed) ImageView borderRed;
     public BottomNavigationView navigation;
+    public int numberOfChannel = 0;
     public int intValueCH1on = 2500;
     private int intValueCH1off = 100;
     private int intValueCH1sleep = 200;
@@ -1984,7 +1988,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         if(firstRead){
                             setStartTrig();
 //                            presenter.onHelloWorld(testCRC());
-                            requestStartTrig1Thread ();
+                            if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){requestStartTrig1Thread ();}
                         }
                     } else {
                         try {
@@ -2561,7 +2565,6 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         System.err.println("ChatActivity----> отправили байт массив");
         presenter.onHelloWorld(TextByteSetSwitchGesture);
     }
-
 
     @Override
     public void showToast(String message) {

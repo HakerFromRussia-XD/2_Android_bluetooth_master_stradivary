@@ -702,27 +702,33 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 }
             });
 
-            activity_chat_gesture2.setOnClickListener(new View.OnClickListener(){
+            activity_chat_gesture2.setOnTouchListener(new View.OnTouchListener(){
                 @Override
-                public void onClick(View v) {
-                    if (flagUseHDLCProcol){
-                        useGesture = 2;
-                        gestureUseThread ((byte) 7, (byte) useGesture);
-                    }else{
-                        presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x02, (byte) 0x03));
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        if (flagUseHDLCProcol){
+                            useGesture = 2;
+                            gestureUseThread ((byte) 7, (byte) useGesture);
+                        }else{
+                            presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x02, (byte) 0x03));
+                        }
                     }
+                    return false;
                 }
             });
 
-            activity_chat_gesture3.setOnClickListener(new View.OnClickListener(){
+            activity_chat_gesture3.setOnTouchListener(new View.OnTouchListener(){
                 @Override
-                public void onClick(View v) {
-                    if (flagUseHDLCProcol){
-                        useGesture = 3;
-                        gestureUseThread ((byte) 8, (byte) useGesture);
-                    }else{
-                        presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05));
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        if (flagUseHDLCProcol){
+                            useGesture = 3;
+                            gestureUseThread ((byte) 8, (byte) useGesture);
+                        }else{
+                            presenter.onHelloWorld(CompileMassegeSwitchGesture((byte) 0x04, (byte) 0x05));
+                        }
                     }
+                    return false;
                 }
             });
 
@@ -1724,9 +1730,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     @Override
     public void setStatus(int resId) {
         System.out.println("ChatActivity----> resId setText:"+ resId);
-        if (resId == 2131755063){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
-        if (resId == 2131755064){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
-        if (resId == 2131755065){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131820601){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
+        if (resId == 2131820600){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131820602){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
     }
 
     @Override

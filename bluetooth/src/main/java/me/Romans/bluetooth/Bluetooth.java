@@ -48,7 +48,7 @@ public class Bluetooth {
     private BluetoothCallback bluetoothCallback;
     private boolean connected;
     private boolean logic_disconnect;
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
     public Thread dumpingIVariableThread;
     public boolean dumpingIVariableThreadFlag = false;
     private volatile int i = 1;

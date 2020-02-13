@@ -439,46 +439,55 @@
                     style="@style/Text"
                     android:text="MIO" />
 
-                <Button
-                    android:id="@+id/buttonEtEClaib"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/buttonEEPROMSave"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="0dp"
-                    android:background="@drawable/castom_button_calibration"
-                    style="@style/Text"
-                    android:text="EtE   Calib" />
-
-                <Button
-                    android:id="@+id/buttonEEPROMSave"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/linear_buttonEtEClaib"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/buttonMIO"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/castom_button_calibration"
-                    style="@style/Text"
-                    android:text="EEPROM   save" />
-
-                <Button
-                    android:id="@+id/buttonAngleFIX"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/buttonEEPROMSave"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="@drawable/castom_button_calibration"
-                    style="@style/Text"
-                    android:text="Angle   Fix" />
+                    android:orientation="horizontal">
+                        <Button
+                            android:id="@+id/buttonEtEClaib"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_alignTop="@+id/buttonEEPROMSave"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/castom_button_calibration"
+                            style="@style/Text"
+                            android:layout_weight="1"
+                            android:text="EtE   Calib" />
+                        <Button
+                            android:id="@+id/buttonEEPROMSave"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/buttonMIO"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:background="@drawable/castom_button_calibration"
+                            style="@style/Text"
+                            android:layout_weight="1"
+                            android:text="EEPROM   save" />
+                        <Button
+                            android:id="@+id/buttonAngleFIX"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_alignTop="@+id/buttonEEPROMSave"
+                            android:layout_marginTop="4dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/castom_button_calibration"
+                            style="@style/Text"
+                            android:layout_weight="1"
+                            android:text="Angle   Fix"/>
+                </LinearLayout>
 
                 <ImageView
                     android:id="@+id/border4"
                     android:layout_width="match_parent"
                     android:layout_height="2dp"
-                    android:layout_below="@+id/buttonAngleFIX"
+                    android:layout_below="@+id/linear_buttonEtEClaib"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentEnd="true"
                     android:layout_marginStart="0dp"
@@ -661,54 +670,74 @@
                     android:textSize="10sp"
                     android:text="Zero crossing" />
 
-                <Button
-                    android:id="@+id/buttonE"
-                    android:layout_width="50dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/switchZeroCrossing"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:text="E" />
+                    android:orientation="horizontal">
+                        <Button
+                            android:id="@+id/buttonE"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/switchZeroCrossing"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/castom_button_calibration"
+                            style="@style/Text"
+                            android:layout_weight="1"
+                            android:text="E" />
 
-                <Button
-                    android:id="@+id/buttonO"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/switchZeroCrossing"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_toEndOf="@+id/buttonE"
-                    android:layout_centerHorizontal="true"
-                    android:text="O" />
+                        <Button
+                            android:id="@+id/buttonO"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/buttonE"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginRight="16dp"
+                            android:background="@drawable/castom_button_calibration"
+                            style="@style/Text"
+                            android:layout_weight="1"
+                            android:text="O" />
 
-                <Button
-                    android:id="@+id/buttonS4"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/switchZeroCrossing"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="16dp"
-                    android:text="S" />
-
-                <Button
-                    android:id="@+id/buttonC"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/switchZeroCrossing"
-                    android:layout_marginTop="89dp"
-                    android:text="C" />
-
-                <Button
-                    android:id="@+id/buttonU"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/switchZeroCrossing"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="U"
-                    android:textFontWeight="1" />
+                        <Button
+                            android:id="@+id/buttonS4"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/buttonE"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/castom_button_calibration"
+                            style="@style/Text"
+                            android:layout_weight="1"
+                            android:text="S" />
+                        <Button
+                            android:id="@+id/buttonC"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/buttonE"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginRight="16dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/castom_button_calibration"
+                            style="@style/Text"
+                            android:layout_weight="1"
+                            android:text="C" />
+                        <Button
+                            android:id="@+id/buttonU"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/buttonE"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginEnd="16dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/castom_button_calibration"
+                            style="@style/Text"
+                            android:layout_weight="1"
+                            android:text="U"/>
+                </LinearLayout>
             </RelativeLayout>
         </ScrollView>
 

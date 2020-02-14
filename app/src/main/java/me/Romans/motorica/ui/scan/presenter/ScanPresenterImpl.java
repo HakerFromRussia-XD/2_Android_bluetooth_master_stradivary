@@ -95,7 +95,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("MLX") ||
             device.getName().split("-")[0].equals("FNX") ||
             device.getName().split(" ")[0].equals("FNX")){
-            chatActivity.monograbVersion = false; //true - односхват
+            chatActivity.monograbVersion = false; //false - многосхват
             chatActivity.flagUseHDLCProcol = true; //true - при использовании протокола hdlc
         }
     }

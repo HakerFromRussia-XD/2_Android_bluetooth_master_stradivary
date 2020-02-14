@@ -27,11 +27,11 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) public Switch switchInvert;
     @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
-    @BindView(R.id.buttonOPN) Button buttonOPN;
-    @BindView(R.id.buttonCLS) Button buttonCLS;
-    @BindView(R.id.buttonSTP) Button buttonSTP;
-    @BindView(R.id.seekBarSpeed) SeekBar seekBarSpeed;
-    @BindView(R.id.seekBarAngle) SeekBar seekBarAngle;
+//    @BindView(R.id.buttonOPN) Button buttonOPN;
+//    @BindView(R.id.buttonCLS) Button buttonCLS;
+//    @BindView(R.id.buttonSTP) Button buttonSTP;
+//    @BindView(R.id.seekBarSpeed) SeekBar seekBarSpeed;
+//    @BindView(R.id.seekBarAngle) SeekBar seekBarAngle;
     public View view;
     private ChartActivity chatActivity;
 
@@ -52,42 +52,42 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
         chatActivity.startUpdateThread();
         chatActivity.layoutSensors.setVisibility(View.GONE);
 
-        Spinner spinnerNumberOfChannel = view.findViewById(R.id.spinnerNumberOfChannel);
-        ArrayAdapter<CharSequence> adapterNumbers = ArrayAdapter.createFromResource(this.getActivity(),
-                R.array.numbers,
-                android.R.layout.simple_spinner_item);
-        adapterNumbers.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerNumberOfChannel.setAdapter(adapterNumbers);
-        spinnerNumberOfChannel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String sNumberOfChannel = parent.getItemAtPosition(position).toString();
-                chatActivity.numberOfChannel = Integer.parseInt(sNumberOfChannel);
-                Toast.makeText(parent.getContext(), "Выбран канал "+ sNumberOfChannel, Toast.LENGTH_SHORT).show();
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
-        buttonOPN.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getActivity() != null) { System.err.println("CLICK OPN");}
-            }
-        });
-        buttonSTP.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getActivity() != null) { System.err.println("CLICK STP");}
-            }
-        });
-        buttonCLS.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getActivity() != null) { System.err.println("CLICK CLS");}
-            }
-        });
+//        Spinner spinnerNumberOfChannel = view.findViewById(R.id.spinnerNumberOfChannel);
+//        ArrayAdapter<CharSequence> adapterNumbers = ArrayAdapter.createFromResource(this.getActivity(),
+//                R.array.numbers,
+//                android.R.layout.simple_spinner_item);
+//        adapterNumbers.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinnerNumberOfChannel.setAdapter(adapterNumbers);
+//        spinnerNumberOfChannel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                String sNumberOfChannel = parent.getItemAtPosition(position).toString();
+//                chatActivity.numberOfChannel = Integer.parseInt(sNumberOfChannel);
+//                Toast.makeText(parent.getContext(), "Выбран канал "+ sNumberOfChannel, Toast.LENGTH_SHORT).show();
+//            }
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//            }
+//        });
+//
+//        buttonOPN.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (getActivity() != null) { System.err.println("CLICK OPN");}
+//            }
+//        });
+//        buttonSTP.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (getActivity() != null) { System.err.println("CLICK STP");}
+//            }
+//        });
+//        buttonCLS.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (getActivity() != null) { System.err.println("CLICK CLS");}
+//            }
+//        });
 
         if (chatActivity.invertChannel){
             switchInvert.setChecked(true);

@@ -75,7 +75,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("FNG") ||
             device.getName().split(" ")[0].equals("FNS")) {
             chatActivity.monograbVersion = false; //false - многосхват
-            chatActivity.flagUseHDLCProcol = true; //удалить это вот для отладки надо, чтобы не переименовывать комп
+//            chatActivity.flagUseHDLCProcol = true; //удалить это вот для отладки надо, чтобы не переименовывать комп
         }
         if( device.getName().split("-")[0].equals("STR") ||
             device.getName().split("-")[0].equals("CBY") ||
@@ -93,8 +93,8 @@ public class ScanPresenterImpl implements ScanPresenter{
         }
         if( device.getName().split("-")[0].equals("MLX") ||
             device.getName().split(" ")[0].equals("MLX") ||
-            device.getName().split("-")[0].equals("FNS") ||
-            device.getName().split(" ")[0].equals("FNS")){
+            device.getName().split("-")[0].equals("FNX") ||
+            device.getName().split(" ")[0].equals("FNX")){
             chatActivity.monograbVersion = false; //true - односхват
             chatActivity.flagUseHDLCProcol = true; //true - при использовании протокола hdlc
         }

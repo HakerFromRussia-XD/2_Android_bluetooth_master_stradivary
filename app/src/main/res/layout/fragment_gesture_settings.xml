@@ -22,7 +22,6 @@
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
                 android:visibility="visible"
-                android:background="#ffffffff"
                 tools:context="me.Romans.motorica.ui.scan.view.ScanActivity"
                 tools:ignore="MissingConstraints">
 

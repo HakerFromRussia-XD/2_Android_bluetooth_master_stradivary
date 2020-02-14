@@ -27,6 +27,11 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) public Switch switchInvert;
     @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
+    @BindView(R.id.buttonOPN) Button buttonOPN;
+    @BindView(R.id.buttonCLS) Button buttonCLS;
+    @BindView(R.id.buttonSTP) Button buttonSTP;
+    @BindView(R.id.seekBarSpeed) SeekBar seekBarSpeed;
+    @BindView(R.id.seekBarAngle) SeekBar seekBarAngle;
     public View view;
     private ChartActivity chatActivity;
 
@@ -65,6 +70,24 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             }
         });
 
+        buttonOPN.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) { System.err.println("CLICK OPN");}
+            }
+        });
+        buttonSTP.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) { System.err.println("CLICK STP");}
+            }
+        });
+        buttonCLS.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) { System.err.println("CLICK CLS");}
+            }
+        });
 
         if (chatActivity.invertChannel){
             switchInvert.setChecked(true);

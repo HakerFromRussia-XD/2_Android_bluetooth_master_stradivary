@@ -317,13 +317,13 @@
                 android:layout_marginTop="-0dp"
                 android:background="@android:color/darker_gray" />
 
-            <View
-                android:id="@+id/border7"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_below="@+id/border5"
-                android:layout_marginTop="47dp"
-                android:background="@android:color/darker_gray" />
+<!--            <View-->
+<!--                android:id="@+id/border7"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="4dp"-->
+<!--                android:layout_below="@+id/border5"-->
+<!--                android:layout_marginTop="47dp"-->
+<!--                android:background="@android:color/darker_gray" />-->
 
             <ImageView
                 android:id="@+id/limit_1"
@@ -358,6 +358,14 @@
                 android:layout_marginBottom="0dp"
                 android:background="@android:color/holo_red_dark"
                 tools:ignore="RtlCompat" />
+
+            <View
+                android:id="@+id/border7"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_below="@+id/border5"
+                android:layout_marginTop="47dp"
+                android:background="@android:color/darker_gray" />
 
             <Button
                 android:id="@+id/activity_chat_hello_world"

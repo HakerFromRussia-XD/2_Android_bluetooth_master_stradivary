@@ -92,6 +92,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     @BindView(R.id.seekBarCH2on2) public SeekBar seekBarCH2on2;
     public SeekBar seekBarIstop;
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
+//    @BindView(R.id.switchIlluminationMode) Switch switchIlluminationMode;
 //    TextView textSpeedFinger;
 //    @BindView(R.id.valueStatus) TextView valueStatus;
 //    @BindView(R.id.password_et) EditText password_et;
@@ -613,6 +614,13 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 }
             }
         });
+
+//        switchIlluminationMode.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
 
         helloWorld2.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -1971,6 +1979,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         seekBarCH1on2.setEnabled(enabled);
         seekBarCH2on2.setEnabled(enabled);
         switchBlockMode.setEnabled(enabled);
+//        switchIlluminationMode.setEnabled(enabled);
 
         if(!monograbVersion){
             offUpdate.setEnabled(enabled);

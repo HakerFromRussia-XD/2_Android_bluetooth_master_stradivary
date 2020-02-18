@@ -2648,7 +2648,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x04;
                     firstTapRcyclerView = false;
-                   showMenu = false;
+                    showMenu = false;
                 }
                 break;
 //            case 3:

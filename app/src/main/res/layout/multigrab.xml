@@ -236,41 +236,41 @@
                 android:layout_marginBottom="7dp"
                 app:srcCompat="@drawable/circle_16_gray" />
 
-            <!--<TextView-->
-            <!--android:id="@+id/valueCH1off"-->
-            <!--android:layout_width="42dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_alignParentEnd="false"-->
-            <!--android:layout_alignParentRight="false"-->
-            <!--android:layout_marginStart="80dp"-->
-            <!--android:layout_marginLeft="80dp"-->
-            <!--android:layout_marginTop="49dp"-->
-            <!--android:text="@string/_100"-->
-            <!--android:textAllCaps="false"-->
-            <!--android:textStyle="bold"-->
-            <!--android:typeface="monospace"-->
-            <!--app:fontFamily="sans-serif-medium" />-->
+<!--            <TextView-->
+<!--                android:id="@+id/valueCH1off"-->
+<!--                android:layout_width="42dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_below="@+id/chartCH1"-->
+<!--                android:layout_alignParentStart="true"-->
+<!--                android:layout_alignParentLeft="true"-->
+<!--                android:layout_alignParentEnd="false"-->
+<!--                android:layout_alignParentRight="false"-->
+<!--                android:layout_marginStart="80dp"-->
+<!--                android:layout_marginLeft="80dp"-->
+<!--                android:layout_marginTop="49dp"-->
+<!--                android:text="@string/_100"-->
+<!--                android:textAllCaps="false"-->
+<!--                android:textStyle="bold"-->
+<!--                android:typeface="monospace"-->
+<!--                app:fontFamily="sans-serif-medium" />-->
 
-            <!--<TextView-->
-            <!--android:id="@+id/valueCH1sleep"-->
-            <!--android:layout_width="42dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_alignParentEnd="false"-->
-            <!--android:layout_alignParentRight="false"-->
-            <!--android:layout_marginStart="80dp"-->
-            <!--android:layout_marginLeft="80dp"-->
-            <!--android:layout_marginTop="72dp"-->
-            <!--android:text="200"-->
-            <!--android:textAllCaps="false"-->
-            <!--android:textStyle="bold"-->
-            <!--android:typeface="monospace"-->
-            <!--app:fontFamily="sans-serif-medium" />-->
+<!--            <TextView-->
+<!--                android:id="@+id/valueCH1sleep"-->
+<!--                android:layout_width="42dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_below="@+id/chartCH1"-->
+<!--                android:layout_alignParentStart="true"-->
+<!--                android:layout_alignParentLeft="true"-->
+<!--                android:layout_alignParentEnd="false"-->
+<!--                android:layout_alignParentRight="false"-->
+<!--                android:layout_marginStart="80dp"-->
+<!--                android:layout_marginLeft="80dp"-->
+<!--                android:layout_marginTop="72dp"-->
+<!--                android:text="200"-->
+<!--                android:textAllCaps="false"-->
+<!--                android:textStyle="bold"-->
+<!--                android:typeface="monospace"-->
+<!--                app:fontFamily="sans-serif-medium" />-->
 
             <TextView
                 android:id="@+id/activity_chat_messages"

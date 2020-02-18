@@ -92,7 +92,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     @BindView(R.id.seekBarCH2on2) public SeekBar seekBarCH2on2;
     public SeekBar seekBarIstop;
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
-//    @BindView(R.id.switchIlluminationMode) Switch switchIlluminationMode;
+    @BindView(R.id.switchIlluminationMode) Switch switchIlluminationMode;
 //    TextView textSpeedFinger;
 //    @BindView(R.id.valueStatus) TextView valueStatus;
 //    @BindView(R.id.password_et) EditText password_et;
@@ -615,12 +615,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             }
         });
 
-//        switchIlluminationMode.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//            }
-//        });
+        switchIlluminationMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         helloWorld2.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -1979,7 +1979,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         seekBarCH1on2.setEnabled(enabled);
         seekBarCH2on2.setEnabled(enabled);
         switchBlockMode.setEnabled(enabled);
-//        switchIlluminationMode.setEnabled(enabled);
+        switchIlluminationMode.setEnabled(enabled);
 
         if(!monograbVersion){
             offUpdate.setEnabled(enabled);
@@ -2531,6 +2531,20 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteSetBlockMode[1] = onBlockMode; // 0x01 on     0x00 off
         return TextByteSetBlockMode;
     }
+//    private byte[] CompileMassegeIlluminationMode (boolean onIlluminationMode) {
+//        byte[] TextByteSetIlluminationMode = new byte [30];
+//        if (onIlluminationMode) {
+//            TextByteSetIlluminationMode = {0xF9, 0x02, 0x24, 0x00, 0x08,
+//                                           0xFF, 0x00, 0x00, 0xFF, 0x00,
+//                                           0x00, 0xFF, 0x00, 0x00, 0xFF,
+//                                           0x00, 0x00, 0xFF, 0x00, 0x00,
+//                                           0xFF, 0x00, 0x00, 0xFF, 0x00,
+//                                           0x00, 0xFF, 0x00, 0x00, 0x7B}
+//        }else {
+//            F9 02 24 00 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 9C
+//        }
+//        return TextByteSetIlluminationMode;
+//    }
     private byte[] CompileMassegeBlockModeHDLC (byte onBlockMode) {
         TextByteHDLC5[0] = ConstantManager.ADDR_BLOCK;
         TextByteHDLC5[1] = ConstantManager.WRITE;
@@ -2657,7 +2671,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x04;
                     firstTapRcyclerView = false;
-                    showMenu = false;
+                   showMenu = false;
                 }
                 break;
 //            case 3:

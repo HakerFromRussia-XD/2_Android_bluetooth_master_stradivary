@@ -142,7 +142,7 @@
                 android:layout_width="4dp"
                 android:layout_height="104dp"
                 android:layout_below="@+id/border5"
-                android:layout_alignBottom="@+id/border7"
+                android:layout_alignBottom="@+id/border8"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="0dp"
@@ -317,13 +317,13 @@
                 android:layout_marginTop="-0dp"
                 android:background="@android:color/darker_gray" />
 
-<!--            <View-->
-<!--                android:id="@+id/border7"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="4dp"-->
-<!--                android:layout_below="@+id/border5"-->
-<!--                android:layout_marginTop="47dp"-->
-<!--                android:background="@android:color/darker_gray" />-->
+            <View
+                android:id="@+id/border8"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_below="@+id/border5"
+                android:layout_marginTop="47dp"
+                android:background="@android:color/darker_gray" />
 
             <ImageView
                 android:id="@+id/limit_1"
@@ -359,11 +359,35 @@
                 android:background="@android:color/holo_red_dark"
                 tools:ignore="RtlCompat" />
 
+            <TextView
+                android:id="@+id/textView13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/border8"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="14dp"
+                android:layout_marginLeft="14dp"
+                android:layout_marginTop="14dp"
+                android:text="Подсветка"
+                android:textSize="14sp" />
+
+            <Switch
+                android:id="@+id/switchIlluminationMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/border8"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_toEndOf="@+id/textView13" />
+
             <View
                 android:id="@+id/border7"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:layout_below="@+id/border5"
+                android:layout_below="@+id/border8"
                 android:layout_marginTop="47dp"
                 android:background="@android:color/darker_gray" />
 

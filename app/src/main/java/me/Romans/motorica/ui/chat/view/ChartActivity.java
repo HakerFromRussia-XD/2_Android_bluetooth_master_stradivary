@@ -618,7 +618,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         switchIlluminationMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (switchIlluminationMode.isChecked()){
+                    presenter.onHelloWorld(CompileMassegeIlluminationMode(true));
+                }else {
+                    presenter.onHelloWorld(CompileMassegeIlluminationMode(false));
+                }
             }
         });
 
@@ -2532,20 +2536,25 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteSetBlockMode[1] = onBlockMode; // 0x01 on     0x00 off
         return TextByteSetBlockMode;
     }
-//    private byte[] CompileMassegeIlluminationMode (boolean onIlluminationMode) {
-//        byte[] TextByteSetIlluminationMode = new byte [30];
-//        if (onIlluminationMode) {
-//            TextByteSetIlluminationMode = {0xF9, 0x02, 0x24, 0x00, 0x08,
-//                                           0xFF, 0x00, 0x00, 0xFF, 0x00,
-//                                           0x00, 0xFF, 0x00, 0x00, 0xFF,
-//                                           0x00, 0x00, 0xFF, 0x00, 0x00,
-//                                           0xFF, 0x00, 0x00, 0xFF, 0x00,
-//                                           0x00, 0xFF, 0x00, 0x00, 0x7B}
-//        }else {
-//            F9 02 24 00 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 9C
-//        }
-//        return TextByteSetIlluminationMode;
-//    }
+    private byte[] CompileMassegeIlluminationMode (boolean onIlluminationMode) {
+        byte[] TextByteSetIlluminationMode;
+        if (onIlluminationMode) {
+            TextByteSetIlluminationMode = new byte[] {(byte) 0xF9, 0x02, 0x24, 0x00, 0x08,
+                                                       (byte) 0xFF, 0x00, 0x00, (byte) 0xFF, 0x00,
+                                                       0x00, (byte) 0xFF, 0x00, 0x00, (byte) 0xFF,
+                                                       0x00, 0x00, (byte) 0xFF, 0x00, 0x00,
+                                                       (byte) 0xFF, 0x00, 0x00, (byte) 0xFF, 0x00,
+                                                       0x00, (byte) 0xFF, 0x00, 0x00, 0x7B};
+        }else {
+            TextByteSetIlluminationMode = new byte[] {(byte) 0xF9, 0x02, 0x24, 0x00, 0x08,
+                                                       0x00, 0x00, 0x00, 0x00, 0x00,
+                                                       0x00, 0x00, 0x00, 0x00, 0x00,
+                                                       0x00, 0x00, 0x00, 0x00, 0x00,
+                                                       0x00, 0x00, 0x00, 0x00, 0x00,
+                                                       0x00, 0x00, 0x00, (byte) 0x9C};
+        }
+        return TextByteSetIlluminationMode;
+    }
     private byte[] CompileMassegeBlockModeHDLC (byte onBlockMode) {
         TextByteHDLC5[0] = ConstantManager.ADDR_BLOCK;
         TextByteHDLC5[1] = ConstantManager.WRITE;

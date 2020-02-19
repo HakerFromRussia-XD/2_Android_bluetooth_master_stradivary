@@ -63,7 +63,7 @@ public interface  ConstantManager {
     byte U_CALIB_TYPE                       =0x19;
     byte O_S_C_CALIB_TYPE                   =0x00;
     byte ADDR_CALIB_TYPE                    =0x00;
-    boolean DISABLE_UPDATIONG_GRAPH         =true;
+    boolean DISABLE_UPDATIONG_GRAPH         =false;
 
     ////////////////////////////////////////////////
 /**                     delays                      **/

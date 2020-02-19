@@ -924,6 +924,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     .add(R.id.view_pager, fragmentServiceSettingsMono)
                     .commit();
         } else {
+            System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в multigrabVersion");
             fragmentManager.beginTransaction()
                     .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                     .add(R.id.view_pager, fragmentServiceSettings)

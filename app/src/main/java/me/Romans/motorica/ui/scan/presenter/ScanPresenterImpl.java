@@ -85,6 +85,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("HND") ||
             device.getName().equals("ASUS")){
             chatActivity.monograbVersion = true; //true - односхват
+
         }
         if( device.getName().split("-")[0].equals("IND") ||
             device.getName().split(" ")[0].equals("IND")){

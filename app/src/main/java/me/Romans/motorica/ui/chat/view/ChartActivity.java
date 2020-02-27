@@ -2347,7 +2347,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteTreegSettings[5] = (byte) intValueFingerSpeed;
         TextByteTreegSettings[6] = (byte) intValueFingerAngle;
         TextByteTreegSettings[7] = presenter.calculationCRC(TextByteTreegSettings);
-        return TextByteTreegSettings; 
+        return TextByteTreegSettings;
     }
 
     private byte[] CompileMassegeSettingsHDLC(byte numberFinger, int intValueFingerAngle,
@@ -2359,7 +2359,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteHDLC7[4] = (byte) intValueFingerSpeed;
         TextByteHDLC7[5] = (byte) intValueFingerAngle;
         TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
-        return TextByteHDLC7;
+        return TextByteHDLC7; 
     }
 
     private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,

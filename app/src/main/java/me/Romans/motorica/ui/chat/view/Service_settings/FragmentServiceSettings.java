@@ -1,5 +1,6 @@
 package me.Romans.motorica.ui.chat.view.Service_settings;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -27,11 +29,12 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) public Switch switchInvert;
     @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
-//    @BindView(R.id.buttonOPN) Button buttonOPN;
-//    @BindView(R.id.buttonCLS) Button buttonCLS;
-//    @BindView(R.id.buttonSTP) Button buttonSTP;
-//    @BindView(R.id.seekBarSpeed) SeekBar seekBarSpeed;
-//    @BindView(R.id.seekBarAngle) SeekBar seekBarAngle;
+    @BindView(R.id.layout_calibration) RelativeLayout layout_calibration;
+    @BindView(R.id.buttonOPN) Button buttonOPN;
+    Button buttonCLS;
+    Button buttonSTP;
+    @BindView(R.id.seekBarSpeed) SeekBar seekBarSpeed;
+    @BindView(R.id.seekBarAngle) SeekBar seekBarAngle;
     public View view;
     private ChartActivity chatActivity;
 
@@ -51,41 +54,67 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
         chatActivity.updateSeviceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
         chatActivity.layoutSensors.setVisibility(View.GONE);
+        if(!chatActivity.getFlagUseHDLCProcol()){
+            layout_calibration.setVisibility(View.GONE);
+//            buttonCLS = view.findViewById(R.id.buttonCLS);
+//            buttonSTP = view.findViewById(R.id.buttonSTP);
+        }
 
-//        Spinner spinnerNumberOfChannel = view.findViewById(R.id.spinnerNumberOfChannel);
-//        ArrayAdapter<CharSequence> adapterNumbers = ArrayAdapter.createFromResource(this.getActivity(),
-//                R.array.numbers,
-//                android.R.layout.simple_spinner_item);
-//        adapterNumbers.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spinnerNumberOfChannel.setAdapter(adapterNumbers);
-//        spinnerNumberOfChannel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        Spinner spinnerNumberOfChannel = view.findViewById(R.id.spinnerNumberOfChannel);
+        ArrayAdapter<CharSequence> adapterNumbers = ArrayAdapter.createFromResource(this.getActivity(),
+                R.array.numbers,
+                android.R.layout.simple_spinner_item);
+        adapterNumbers.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerNumberOfChannel.setAdapter(adapterNumbers);
+        spinnerNumberOfChannel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String sNumberOfChannel = parent.getItemAtPosition(position).toString();
+                chatActivity.numberOfChannel = Integer.parseInt(sNumberOfChannel);
+                Toast.makeText(parent.getContext(), "Выбран канал "+ sNumberOfChannel, Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        if(chatActivity.getFlagUseHDLCProcol()){
+            buttonOPN.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK OPN");}
+                }
+            });
+//            buttonSTP.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (getActivity() != null) { System.err.println("CLICK STP");}
+//                }
+//            });
+//            buttonCLS.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (getActivity() != null) { System.err.println("CLICK CLS");}
+//                }
+//            });
+        }
+
+//        seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 //            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                String sNumberOfChannel = parent.getItemAtPosition(position).toString();
-//                chatActivity.numberOfChannel = Integer.parseInt(sNumberOfChannel);
-//                Toast.makeText(parent.getContext(), "Выбран канал "+ sNumberOfChannel, Toast.LENGTH_SHORT).show();
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 //            }
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//            }
-//        });
 //
-//        buttonOPN.setOnClickListener(new View.OnClickListener() {
 //            @Override
-//            public void onClick(View v) {
-//                if (getActivity() != null) { System.err.println("CLICK OPN");}
+//            public void onStartTrackingTouch(SeekBar seekBar) {
 //            }
-//        });
-//        buttonSTP.setOnClickListener(new View.OnClickListener() {
+//
 //            @Override
-//            public void onClick(View v) {
-//                if (getActivity() != null) { System.err.println("CLICK STP");}
-//            }
-//        });
-//        buttonCLS.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (getActivity() != null) { System.err.println("CLICK CLS");}
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                if(chatActivity.getFlagUseHDLCProcol()){
+//                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhnessHDLC((byte) (((byte) seekBar.getProgress()) + 1)));
+//                } else {
+//                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhness((byte) (((byte) seekBar.getProgress()) + 1)));
+//                }
 //            }
 //        });
 

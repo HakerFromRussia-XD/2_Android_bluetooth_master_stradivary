@@ -84,7 +84,8 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("CBY") ||
             device.getName().split(" ")[0].equals("HND") ||
             device.getName().equals("ASUS")){
-            chatActivity.monograbVersion = true; //true - односхват
+            chatActivity.monograbVersion = false; //true - односхват
+            chatActivity.flagUseHDLCProcol = true;
 
         }
         if( device.getName().split("-")[0].equals("IND") ||

@@ -85,7 +85,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("HND") ||
             device.getName().equals("ASUS")){
             chatActivity.monograbVersion = false; //true - односхват
-            chatActivity.flagUseHDLCProcol = true;
+            chatActivity.flagUseHDLCProcol = true; 
 
         }
         if( device.getName().split("-")[0].equals("IND") ||

@@ -16,21 +16,16 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.RemoteViews;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,7 +50,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import me.Romans.bluetooth.Bluetooth;
 import me.Romans.bluetooth.BluetoothConstantManager;
 import me.Romans.motorica.MyApp;
 import me.Romans.motorica.data.GesstureAdapter;
@@ -2398,6 +2392,73 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         }
 
         return TextByteHDLC7;
+    }
+    private byte[] CompileMassageSettingsCalibrationHDLC(byte type, byte numberChannel,
+                                                         byte rec, int inf, byte bSwitch){
+        switch (rec){
+            case ConstantManager.READ:
+                switch (type){
+                    case ConstantManager.OPEN_ANGEL_CALIB_TYPE:
+                    case ConstantManager.CLOSE_ANGEL_CALIB_TYPE:
+                    case ConstantManager.WIDE_ANGEL_CALIB_TYPE:
+                    case ConstantManager.U_CALIB_TYPE:
+                        TextByteHDLC4[0] = numberChannel;
+                        TextByteHDLC4[1] = rec;
+                        TextByteHDLC4[2] = type;
+                        TextByteHDLC4[3] = presenter.calculationCRC_HDLC(TextByteHDLC4);
+                        return TextByteHDLC4;
+                    case ConstantManager.TEMP_CALIB_TYPE:
+                    case ConstantManager.CURRENTS_CALIB_TYPE:
+                        TextByteHDLC5[0] = numberChannel;
+                        TextByteHDLC5[1] = rec;
+                        TextByteHDLC5[2] = type;
+                        TextByteHDLC5[3] = (byte) inf;
+                        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
+                        return TextByteHDLC5;
+                }
+            case ConstantManager.WRITE:
+                switch (type){
+                    case ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE:
+                    case ConstantManager.SPEED_CALIB_TYPE:
+                    case ConstantManager.ANGLE_CALIB_TYPE:
+                    case ConstantManager.ETE_CALIBRATION_CALIB_TYPE:
+                    case ConstantManager.EEPROM_SAVE_CALIB_TYPE:
+                    case ConstantManager.ANGLE_FIX_CALIB_TYPE:
+                    case ConstantManager.SET_ADDR_CALIB_TYPE:
+                    case ConstantManager.TEMP_CALIB_TYPE:
+                    case ConstantManager.CURRENT_TIMEOUT_CALIB_TYPE:
+                    case ConstantManager.OPEN_ANGEL_CALIB_TYPE:
+                    case ConstantManager.CLOSE_ANGEL_CALIB_TYPE:
+                    case ConstantManager.MAGNET_INVERT_CALIB_TYPE:
+                    case ConstantManager.REVERS_MOTOR_CALIB_TYPE:
+                    case ConstantManager.ZERO_CROSSING_CALIB_TYPE:
+                        TextByteHDLC5[0] = numberChannel;
+                        TextByteHDLC5[1] = rec;
+                        TextByteHDLC5[2] = type;
+                        TextByteHDLC5[3] = (byte) inf;
+                        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
+                        return TextByteHDLC5;
+                    case ConstantManager.WIDE_ANGEL_CALIB_TYPE:
+                        TextByteHDLC6[0] = numberChannel;
+                        TextByteHDLC6[1] = rec;
+                        TextByteHDLC6[2] = type;
+                        TextByteHDLC6[3] = (byte) (inf >> 8);
+                        TextByteHDLC6[4] = (byte) inf;
+                        TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
+                        return TextByteHDLC6;
+                    case ConstantManager.CURRENT_CONTROL_CALIB_TYPE:
+                        TextByteHDLC7[0] = numberChannel;
+                        TextByteHDLC7[1] = rec;
+                        TextByteHDLC7[2] = type;
+                        TextByteHDLC7[3] = bSwitch;
+                        TextByteHDLC7[4] = (byte) (inf >> 8);
+                        TextByteHDLC7[5] = (byte)  inf;
+                        TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
+                        return TextByteHDLC7;
+                }
+            default:
+                return TextByteHDLC5;
+        }
     }
     public byte[] CompileMassegeComplexGestureSettings(int GESTURE_NUMBER, int GripperNumberStart1,
                                                        int mySensorEvent1, int GripperNumberEnd1,

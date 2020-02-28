@@ -28,11 +28,13 @@ import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentServiceSettings extends Fragment implements ChatView {
-    @BindView(R.id.save_service_settings) Button save_service_settings;
-    @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) public Switch switchInvert;
     @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
+    @BindView(R.id.switchMagnetInvert) Switch switchMagnetInvert;
+    @BindView(R.id.switchReversMotor) Switch switchReversMotor;
+    @BindView(R.id.switchZeroCrossing) Switch switchZeroCrossing;
     @BindView(R.id.layout_calibration) public RelativeLayout layout_calibration;
+    @BindView(R.id.save_service_settings) Button save_service_settings;
     @BindView(R.id.buttonOPN) Button buttonOPN;
     @BindView(R.id.buttonCLS) Button buttonCLS;
     @BindView(R.id.buttonSTP) Button buttonSTP;
@@ -44,10 +46,25 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.buttonEtEClaib) Button buttonEtEClaib;
     @BindView(R.id.buttonEEPROMSave) Button buttonEEPROMSave;
     @BindView(R.id.buttonAngleFIX) Button buttonAngleFIX;
+    @BindView(R.id.buttonG1) Button buttonG1;
+    @BindView(R.id.buttonG2) Button buttonG2;
+    @BindView(R.id.buttonG3) Button buttonG3;
+    @BindView(R.id.buttonS1) Button buttonS1;
+    @BindView(R.id.buttonS2) Button buttonS2;
+    @BindView(R.id.buttonS3) Button buttonS3;
+    @BindView(R.id.buttonE) Button buttonE;
+    @BindView(R.id.buttonO) Button buttonO;
+    @BindView(R.id.buttonS4) Button buttonS4;
+    @BindView(R.id.buttonC) Button buttonC;
+    @BindView(R.id.buttonU) Button buttonU;
     @BindView(R.id.editTextAddr) EditText editTextAddr;
     @BindView(R.id.editTextTemp) EditText editTextTemp;
     @BindView(R.id.editTextMaxCurrentValue) EditText editTextMaxCurrentValue;
     @BindView(R.id.editTextCurrTimeOut) EditText editTextCurrTimeOut;
+    @BindView(R.id.editTextOpenAngle) EditText editTextOpenAngle;
+    @BindView(R.id.editTextCloseAngle) EditText editTextCloseAngle;
+    @BindView(R.id.editTextWideAngle) EditText editTextWideAngle;
+    @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.seekBarSpeed) SeekBar seekBarSpeed;
     @BindView(R.id.seekBarAngle) SeekBar seekBarAngle;
     @BindView(R.id.switchCurrentControl) Switch switchCurrentControl;
@@ -112,7 +129,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 @Override
                 public void onClick(View v) {
                     Integer temp = 0;
-                    if(!editTextAddr.getText().toString().matches("")){
+                    if(!editTextAddr.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp =  Integer.parseInt(editTextAddr.getText().toString());
                         if (getActivity() != null) { System.err.println("CLICK SET " + temp); }
                     }
@@ -128,7 +145,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 @Override
                 public void onClick(View v) {
                     Integer temp = 0;
-                    if(!editTextTemp.getText().toString().matches("")){
+                    if(!editTextTemp.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp = Integer.parseInt(editTextTemp.getText().toString());
                         if (getActivity() != null) { System.err.println("CLICK S SETUP " + temp); }
                     }
@@ -139,7 +156,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 public void onClick(View v) {
                     Integer temp = 0;
                     if(switchCurrentControl.isChecked()){
-                        if(!editTextMaxCurrentValue.getText().toString().matches("")){
+                        if(!editTextMaxCurrentValue.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                             temp = Integer.parseInt(editTextMaxCurrentValue.getText().toString());
                             if (getActivity() != null) { System.err.println("CLICK CURRENT CONTROL " + temp); }
                         }
@@ -151,11 +168,10 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             editTextCurrTimeOut.addTextChangedListener(new TextWatcher(){
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if(!editTextCurrTimeOut.getText().toString().matches("") && ((Integer.parseInt(editTextCurrTimeOut.getText().toString())) <= 2147483647)){
+                    if(!editTextCurrTimeOut.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         Integer temp = 0;
-                        temp = Integer.parseInt(editTextCurrTimeOut.getText().toString());
-                        if (getActivity() != null) { System.err.println("CLICK CURRENT CONTROL " + temp);
-                        }
+                            temp = Integer.parseInt(editTextCurrTimeOut.getText().toString());
+                        if (getActivity() != null) { System.err.println("CLICK CURRENT TIMEOUT " + temp); }
                     }
                 }
 
@@ -200,7 +216,117 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     if (getActivity() != null) { System.err.println("CLICK MIO"); }
                 }
             });
+            buttonG1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK G1"); }
+                }
+            });
+            buttonG2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK G2"); }
+                }
+            });
+            buttonG3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK G3"); }
+                }
+            });
+            buttonS1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Integer temp = 0;
+                    if(!editTextOpenAngle.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
+                        temp = Integer.parseInt(editTextOpenAngle.getText().toString());
+                        if (getActivity() != null) { System.err.println("CLICK S1 " + temp); }
+                    }
+                }
+            });
+            buttonS2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Integer temp = 0;
+                    if(!editTextCloseAngle.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
+                        temp = Integer.parseInt(editTextCloseAngle.getText().toString());
+                        if (getActivity() != null) { System.err.println("CLICK S2 " + temp); }
+                    }
+                }
+            });
+            buttonS3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Integer temp = 0;
+                    if(!editTextWideAngle.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
+                        temp = Integer.parseInt(editTextWideAngle.getText().toString());
+                        if (getActivity() != null) { System.err.println("CLICK S3 " + temp); }
+                    }
+                }
+            });
+            switchMagnetInvert.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(switchMagnetInvert.isChecked()){
+                        if (getActivity() != null) { System.err.println("CLICK MAGNET INVERT");}
+                    } else {
+                        if (getActivity() != null) { System.err.println("CLICK MAGNET INVERT OFF");}
+                    }
 
+                }
+            });
+            switchReversMotor.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(switchReversMotor.isChecked()){
+                        if (getActivity() != null) { System.err.println("CLICK REVERS MOTOR"); }
+                    } else {
+                        if (getActivity() != null) { System.err.println("CLICK REVERS MOTOR OFF"); }
+                    }
+
+                }
+            });
+            switchZeroCrossing.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(switchZeroCrossing.isChecked()){
+                        if (getActivity() != null) { System.err.println("CLICK ZERO CROSSING"); }
+                    } else {
+                        if (getActivity() != null) { System.err.println("CLICK ZERO CROSSING OFF"); }
+                    }
+
+                }
+            });
+            buttonE.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK E"); }
+                }
+            });
+            buttonU.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK U"); }
+                }
+            });
+            buttonO.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK O"); }
+                }
+            });
+            buttonS4.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK S4"); }
+                }
+            });
+            buttonC.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK C"); }
+                }
+            });
             seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

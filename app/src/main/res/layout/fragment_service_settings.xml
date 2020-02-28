@@ -524,7 +524,7 @@
                     android:layout_toStartOf="@+id/buttonSet">
 
                     <EditText
-                        android:id="@+id/input_open_angle"
+                        android:id="@+id/editTextOpenAngle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
@@ -570,7 +570,7 @@
                     android:layout_toStartOf="@+id/buttonSet">
 
                     <EditText
-                        android:id="@+id/input_close_angle"
+                        android:id="@+id/editTextCloseAngle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
@@ -617,7 +617,7 @@
                     android:layout_toStartOf="@+id/buttonSet">
 
                     <EditText
-                        android:id="@+id/input_wide_angle"
+                        android:id="@+id/editTextWideAngle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"

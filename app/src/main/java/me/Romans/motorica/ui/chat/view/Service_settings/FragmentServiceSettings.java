@@ -3,12 +3,15 @@ package me.Romans.motorica.ui.chat.view.Service_settings;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -33,8 +36,21 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.buttonOPN) Button buttonOPN;
     @BindView(R.id.buttonCLS) Button buttonCLS;
     @BindView(R.id.buttonSTP) Button buttonSTP;
+    @BindView(R.id.buttonSet) Button buttonSet;
+    @BindView(R.id.buttonGSetup) Button buttonGSetup;
+    @BindView(R.id.buttonSSetup) Button buttonSSetup;
+    @BindView(R.id.buttonCurrents) Button buttonCurrents;
+    @BindView(R.id.buttonMIO) Button buttonMIO;
+    @BindView(R.id.buttonEtEClaib) Button buttonEtEClaib;
+    @BindView(R.id.buttonEEPROMSave) Button buttonEEPROMSave;
+    @BindView(R.id.buttonAngleFIX) Button buttonAngleFIX;
+    @BindView(R.id.editTextAddr) EditText editTextAddr;
+    @BindView(R.id.editTextTemp) EditText editTextTemp;
+    @BindView(R.id.editTextMaxCurrentValue) EditText editTextMaxCurrentValue;
+    @BindView(R.id.editTextCurrTimeOut) EditText editTextCurrTimeOut;
     @BindView(R.id.seekBarSpeed) SeekBar seekBarSpeed;
     @BindView(R.id.seekBarAngle) SeekBar seekBarAngle;
+    @BindView(R.id.switchCurrentControl) Switch switchCurrentControl;
     public View view;
     private ChartActivity chatActivity;
 
@@ -92,6 +108,99 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     if (getActivity() != null) { System.err.println("CLICK CLS");}
                 }
             });
+            buttonSet.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Integer temp = 0;
+                    if(!editTextAddr.getText().toString().matches("")){
+                        temp =  Integer.parseInt(editTextAddr.getText().toString());
+                        if (getActivity() != null) { System.err.println("CLICK SET " + temp); }
+                    }
+                }
+            });
+            buttonGSetup.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK G SETUP");}
+                }
+            });
+            buttonSSetup.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Integer temp = 0;
+                    if(!editTextTemp.getText().toString().matches("")){
+                        temp = Integer.parseInt(editTextTemp.getText().toString());
+                        if (getActivity() != null) { System.err.println("CLICK S SETUP " + temp); }
+                    }
+                }
+            });
+            switchCurrentControl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Integer temp = 0;
+                    if(switchCurrentControl.isChecked()){
+                        if(!editTextMaxCurrentValue.getText().toString().matches("")){
+                            temp = Integer.parseInt(editTextMaxCurrentValue.getText().toString());
+                            if (getActivity() != null) { System.err.println("CLICK CURRENT CONTROL " + temp); }
+                        }
+                    } else {
+                        if (getActivity() != null) { System.err.println("CLICK CURRENT CONTROL OFF"); }
+                    }
+                }
+            });
+            editTextCurrTimeOut.addTextChangedListener(new TextWatcher(){
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if(!editTextCurrTimeOut.getText().toString().matches("") && ((Integer.parseInt(editTextCurrTimeOut.getText().toString())) <= 2147483647)){
+                        Integer temp = 0;
+                        temp = Integer.parseInt(editTextCurrTimeOut.getText().toString());
+                        if (getActivity() != null) { System.err.println("CLICK CURRENT CONTROL " + temp);
+                        }
+                    }
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+            });
+            buttonCurrents.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK CURRENTS"); }
+                }
+            });
+
+            buttonEtEClaib.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK ETE CALIB"); }
+                }
+            });
+
+            buttonEEPROMSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK EEPROM SAVE"); }
+                }
+            });
+
+            buttonAngleFIX.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK ANGLE FIX"); }
+                }
+            });
+            buttonMIO.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK MIO"); }
+                }
+            });
+
             seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

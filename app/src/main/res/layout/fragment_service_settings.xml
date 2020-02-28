@@ -283,7 +283,7 @@
                     android:layout_toStartOf="@+id/buttonSet">
 
                     <EditText
-                        android:id="@+id/input_address"
+                        android:id="@+id/editTextAddr"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
@@ -319,7 +319,7 @@
                     android:layout_toStartOf="@+id/buttonSet">
 
                     <EditText
-                        android:id="@+id/input_temp"
+                        android:id="@+id/editTextTemp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
@@ -381,7 +381,7 @@
                     android:layout_toStartOf="@+id/buttonSet">
 
                     <EditText
-                        android:id="@+id/input_current_control"
+                        android:id="@+id/editTextMaxCurrentValue"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
@@ -404,7 +404,7 @@
                     android:layout_toStartOf="@+id/buttonSet">
 
                     <EditText
-                        android:id="@+id/input_current_timeout"
+                        android:id="@+id/editTextCurrTimeOut"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"

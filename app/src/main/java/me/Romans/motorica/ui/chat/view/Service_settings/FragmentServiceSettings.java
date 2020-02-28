@@ -29,10 +29,10 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) public Switch switchInvert;
     @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
-    @BindView(R.id.layout_calibration) RelativeLayout layout_calibration;
+    @BindView(R.id.layout_calibration) public RelativeLayout layout_calibration;
     @BindView(R.id.buttonOPN) Button buttonOPN;
-    Button buttonCLS;
-    Button buttonSTP;
+    @BindView(R.id.buttonCLS) Button buttonCLS;
+    @BindView(R.id.buttonSTP) Button buttonSTP;
     @BindView(R.id.seekBarSpeed) SeekBar seekBarSpeed;
     @BindView(R.id.seekBarAngle) SeekBar seekBarAngle;
     public View view;
@@ -54,11 +54,6 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
         chatActivity.updateSeviceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
         chatActivity.layoutSensors.setVisibility(View.GONE);
-        if(!chatActivity.getFlagUseHDLCProcol()){
-            layout_calibration.setVisibility(View.GONE);
-//            buttonCLS = view.findViewById(R.id.buttonCLS);
-//            buttonSTP = view.findViewById(R.id.buttonSTP);
-        }
 
         Spinner spinnerNumberOfChannel = view.findViewById(R.id.spinnerNumberOfChannel);
         ArrayAdapter<CharSequence> adapterNumbers = ArrayAdapter.createFromResource(this.getActivity(),
@@ -85,38 +80,53 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     if (getActivity() != null) { System.err.println("CLICK OPN");}
                 }
             });
-//            buttonSTP.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (getActivity() != null) { System.err.println("CLICK STP");}
-//                }
-//            });
-//            buttonCLS.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (getActivity() != null) { System.err.println("CLICK CLS");}
-//                }
-//            });
-        }
+            buttonSTP.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK STP");}
+                }
+            });
+            buttonCLS.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) { System.err.println("CLICK CLS");}
+                }
+            });
+            seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                }
 
-//        seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//                if(chatActivity.getFlagUseHDLCProcol()){
-//                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhnessHDLC((byte) (((byte) seekBar.getProgress()) + 1)));
-//                } else {
-//                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhness((byte) (((byte) seekBar.getProgress()) + 1)));
-//                }
-//            }
-//        });
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    if(chatActivity.getFlagUseHDLCProcol()){
+                        if (getActivity() != null) { System.err.println("CLICK SPEED: "+ seekBar.getProgress());}
+                    }
+                }
+            });
+            seekBarAngle.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    if(chatActivity.getFlagUseHDLCProcol()){
+                        if (getActivity() != null) { System.err.println("CLICK ANGLE: "+ seekBar.getProgress());}
+                    }
+                }
+            });
+        } else {
+            layout_calibration.setVisibility(View.GONE);
+        }
 
         if (chatActivity.invertChannel){
             switchInvert.setChecked(true);

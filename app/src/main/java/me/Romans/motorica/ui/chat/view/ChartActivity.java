@@ -1517,9 +1517,13 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                 if(isEnable){
                                     fragmentServiceSettings.seekBarRoughness.setEnabled(true);
                                     fragmentServiceSettings.switchInvert.setEnabled(true);
+                                    fragmentServiceSettings.switchNotUseInternalADC.setEnabled(true);
+                                    fragmentServiceSettings.layout_calibration.setVisibility(View.VISIBLE);
                                 } else {
                                     fragmentServiceSettings.seekBarRoughness.setEnabled(false);
                                     fragmentServiceSettings.switchInvert.setEnabled(false);
+                                    fragmentServiceSettings.switchNotUseInternalADC.setEnabled(false);
+                                    fragmentServiceSettings.layout_calibration.setVisibility(View.GONE);
                                 }
                                 if(invertChannel){
                                     fragmentServiceSettings.switchInvert.setChecked(true);
@@ -1922,7 +1926,6 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 
     public void setStartParametersInChartActivity(){
             if (monograbVersion){ seekBarIstop.setProgress(receiveСurrent);}
-//            seekBarRoughness
             seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekbar - 0.25)));//-0.5
             seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekbar - 0.25)));//-0.5
 
@@ -2359,7 +2362,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteHDLC7[4] = (byte) intValueFingerSpeed;
         TextByteHDLC7[5] = (byte) intValueFingerAngle;
         TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
-        return TextByteHDLC7; 
+        return TextByteHDLC7;
     }
 
     private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,

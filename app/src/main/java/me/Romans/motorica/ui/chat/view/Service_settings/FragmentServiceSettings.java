@@ -26,6 +26,7 @@ import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
+import me.Romans.motorica.utils.ConstantManager;
 
 public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.switchInvert) public Switch switchInvert;
@@ -110,19 +111,31 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             buttonOPN.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK OPN");}
+                    if (getActivity() != null) {
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                                                                    ConstantManager.WRITE, 0x00, (byte) 0x00));
+                    }
                 }
             });
             buttonSTP.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK STP");}
+                    if (getActivity() != null) {
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.WRITE, 0x02, (byte) 0x00));
+                    }
                 }
             });
             buttonCLS.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK CLS");}
+                    if (getActivity() != null) {
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.WRITE, 0x01, (byte) 0x00));
+                    }
                 }
             });
             buttonSet.setOnClickListener(new View.OnClickListener() {
@@ -131,14 +144,24 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     Integer temp = 0;
                     if(!editTextAddr.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp =  Integer.parseInt(editTextAddr.getText().toString());
-                        if (getActivity() != null) { System.err.println("CLICK SET " + temp); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK SET " + temp);
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.SET_ADDR_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  temp, (byte) 0x00));
+                        }
                     }
                 }
             });
             buttonGSetup.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK G SETUP");}
+                    if (getActivity() != null) {
+                        System.err.println("CLICK G SETUP");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.TEMP_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.READ,  0x00, (byte) 0x00));
+                    }
                 }
             });
             buttonSSetup.setOnClickListener(new View.OnClickListener() {
@@ -147,7 +170,11 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     Integer temp = 0;
                     if(!editTextTemp.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp = Integer.parseInt(editTextTemp.getText().toString());
-                        if (getActivity() != null) { System.err.println("CLICK S SETUP " + temp); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK S SETUP " + temp);
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.TEMP_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  temp, (byte) 0x00));}
                     }
                 }
             });
@@ -158,10 +185,20 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     if(switchCurrentControl.isChecked()){
                         if(!editTextMaxCurrentValue.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                             temp = Integer.parseInt(editTextMaxCurrentValue.getText().toString());
-                            if (getActivity() != null) { System.err.println("CLICK CURRENT CONTROL " + temp); }
+                            if (getActivity() != null) {
+                                System.err.println("CLICK CURRENT CONTROL " + temp);
+                                chatActivity.presenter.onHelloWorld(
+                                        chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENT_CONTROL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                                ConstantManager.WRITE,  temp, (byte) 0x01));
+                            }
                         }
                     } else {
-                        if (getActivity() != null) { System.err.println("CLICK CURRENT CONTROL OFF"); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK CURRENT CONTROL OFF");
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENT_CONTROL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  0x00, (byte) 0x00));
+                        }
                     }
                 }
             });
@@ -171,7 +208,12 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     if(!editTextCurrTimeOut.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         Integer temp = 0;
                             temp = Integer.parseInt(editTextCurrTimeOut.getText().toString());
-                        if (getActivity() != null) { System.err.println("CLICK CURRENT TIMEOUT " + temp); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK CURRENT TIMEOUT " + temp);
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENT_TIMEOUT_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  temp, (byte) 0x00));
+                        }
                     }
                 }
 
@@ -186,28 +228,48 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             buttonCurrents.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK CURRENTS"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK CURRENTS");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENTS_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.READ,  0x00, (byte) 0x00));
+                    }
                 }
             });
 
             buttonEtEClaib.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK ETE CALIB"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK ETE CALIB");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.ETE_CALIBRATION_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.WRITE, 0x05, (byte) 0x00));
+                    }
                 }
             });
 
             buttonEEPROMSave.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK EEPROM SAVE"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK EEPROM SAVE");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.EEPROM_SAVE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.WRITE, 0x01, (byte) 0x00));
+                    }
                 }
             });
 
             buttonAngleFIX.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK ANGLE FIX"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK ANGLE FIX");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.ANGLE_FIX_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.WRITE, 0x01, (byte) 0x00));
+                    }
                 }
             });
             buttonMIO.setOnClickListener(new View.OnClickListener() {
@@ -219,13 +281,20 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             buttonG1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK G1"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK G1");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.READ,  0x00, (byte) 0x00));
+                    }
                 }
             });
             buttonG2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK G2"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK G2");
+                    }
                 }
             });
             buttonG3.setOnClickListener(new View.OnClickListener() {
@@ -240,7 +309,12 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     Integer temp = 0;
                     if(!editTextOpenAngle.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp = Integer.parseInt(editTextOpenAngle.getText().toString());
-                        if (getActivity() != null) { System.err.println("CLICK S1 " + temp); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK S1 " + temp);
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  temp, (byte) 0x00));
+                        }
                     }
                 }
             });
@@ -250,7 +324,12 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     Integer temp = 0;
                     if(!editTextCloseAngle.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp = Integer.parseInt(editTextCloseAngle.getText().toString());
-                        if (getActivity() != null) { System.err.println("CLICK S2 " + temp); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK S2 " + temp);
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.CLOSE_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  temp, (byte) 0x00));
+                        }
                     }
                 }
             });
@@ -260,7 +339,12 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     Integer temp = 0;
                     if(!editTextWideAngle.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp = Integer.parseInt(editTextWideAngle.getText().toString());
-                        if (getActivity() != null) { System.err.println("CLICK S3 " + temp); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK S3 " + temp);
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.WIDE_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  temp, (byte) 0x00));
+                        }
                     }
                 }
             });
@@ -268,9 +352,19 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 @Override
                 public void onClick(View v) {
                     if(switchMagnetInvert.isChecked()){
-                        if (getActivity() != null) { System.err.println("CLICK MAGNET INVERT");}
+                        if (getActivity() != null) {
+                            System.err.println("CLICK MAGNET INVERT");
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.MAGNET_INVERT_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  0x01, (byte) 0x00));
+                        }
                     } else {
-                        if (getActivity() != null) { System.err.println("CLICK MAGNET INVERT OFF");}
+                        if (getActivity() != null) {
+                            System.err.println("CLICK MAGNET INVERT OFF");
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.MAGNET_INVERT_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  0x00, (byte) 0x00));
+                        }
                     }
 
                 }
@@ -279,9 +373,19 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 @Override
                 public void onClick(View v) {
                     if(switchReversMotor.isChecked()){
-                        if (getActivity() != null) { System.err.println("CLICK REVERS MOTOR"); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK REVERS MOTOR");
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.REVERS_MOTOR_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  0x01, (byte) 0x00));
+                        }
                     } else {
-                        if (getActivity() != null) { System.err.println("CLICK REVERS MOTOR OFF"); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK REVERS MOTOR OFF");
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.REVERS_MOTOR_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  0x00, (byte) 0x00));
+                        }
                     }
 
                 }
@@ -290,9 +394,19 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 @Override
                 public void onClick(View v) {
                     if(switchZeroCrossing.isChecked()){
-                        if (getActivity() != null) { System.err.println("CLICK ZERO CROSSING"); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK ZERO CROSSING");
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.ZERO_CROSSING_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  0x01, (byte) 0x00));
+                        }
                     } else {
-                        if (getActivity() != null) { System.err.println("CLICK ZERO CROSSING OFF"); }
+                        if (getActivity() != null) {
+                            System.err.println("CLICK ZERO CROSSING OFF");
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.ZERO_CROSSING_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE,  0x00, (byte) 0x00));
+                        }
                     }
 
                 }
@@ -300,31 +414,56 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             buttonE.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK E"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK E");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.E_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.WRITE,  0x01, (byte) 0x00));
+                    }
                 }
             });
             buttonU.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK U"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK U");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.U_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.READ,  0x00, (byte) 0x00));
+                    }
                 }
             });
             buttonO.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK O"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK O");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.O_S_C_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.WRITE,  0x00, (byte) 0x00));
+                    }
                 }
             });
             buttonS4.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK S4"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK S4");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.O_S_C_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.WRITE,  0x02, (byte) 0x00));
+                    }
                 }
             });
             buttonC.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getActivity() != null) { System.err.println("CLICK C"); }
+                    if (getActivity() != null) {
+                        System.err.println("CLICK C");
+                        chatActivity.presenter.onHelloWorld(
+                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.O_S_C_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.WRITE,  0x01, (byte) 0x00));
+                    }
                 }
             });
             seekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -339,7 +478,12 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     if(chatActivity.getFlagUseHDLCProcol()){
-                        if (getActivity() != null) { System.err.println("CLICK SPEED: "+ seekBar.getProgress());}
+                        if (getActivity() != null) {
+                            System.err.println("CLICK SPEED: "+ seekBar.getProgress());
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.SPEED_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                                                                        ConstantManager.WRITE, seekBar.getProgress(), (byte) 0x00));
+                        }
                     }
                 }
             });
@@ -355,7 +499,12 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     if(chatActivity.getFlagUseHDLCProcol()){
-                        if (getActivity() != null) { System.err.println("CLICK ANGLE: "+ seekBar.getProgress());}
+                        if (getActivity() != null) {
+                            System.err.println("CLICK ANGLE: "+ seekBar.getProgress());
+                            chatActivity.presenter.onHelloWorld(
+                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.ANGLE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                            ConstantManager.WRITE, seekBar.getProgress(), (byte) 0x00));
+                        }
                     }
                 }
             });

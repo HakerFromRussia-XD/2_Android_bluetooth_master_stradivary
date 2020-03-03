@@ -2393,8 +2393,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 
         return TextByteHDLC7;
     }
-    private byte[] CompileMassageSettingsCalibrationHDLC(byte type, byte numberChannel,
-                                                         byte rec, int inf, byte bSwitch){
+    public byte[] CompileMassageSettingsCalibrationHDLC(byte type, byte numberChannel,
+                                                        byte rec, int inf, byte bSwitch){
         switch (rec){
             case ConstantManager.READ:
                 switch (type){

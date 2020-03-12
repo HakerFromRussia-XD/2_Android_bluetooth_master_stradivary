@@ -387,7 +387,7 @@ public class Bluetooth {
             try {
                 while((msg = input.read()) != -1) //((System.in).read(msg)) //((System.in).read(msg))   //((input.read())) != -1
                 {
-                    if(BluetoothConstantManager.SHOW_ALL_BT_MASSAGE == true)System.err.println("msg=" + msg);
+                    if(BluetoothConstantManager.SHOW_ALL_BT_MASSAGE == true)System.err.println("msg=" + msg + "   i= "+i );
                     if(!mFinish) {
                         if (!parserCallback.getFlagUseHDLCProcol()){
                             if((i == 1)||(i == 2)||((i == (8+msgLenght)))){ //адекватный приём!!!!

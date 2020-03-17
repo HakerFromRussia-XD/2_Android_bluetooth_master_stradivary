@@ -237,7 +237,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public static byte GESTURE_SETTINGS = 0x15;
     public byte NUMBER_CELL = 0x00;
     public static long delay = 200;
-    private int delayPauseAfterSending = 100;
+    private int delayPauseAfterSending = 150;
     public byte[] TextByteTreegSettings = new byte[8];
     public byte[] TextByteTreegComplexGestureSettings = new byte[15];
     public byte[] TextByteTreegControlComplexGesture = new byte[2];
@@ -409,11 +409,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[3] = (byte) intValueCH1on;
                     TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
                     TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
-                    flagPauseSending = true;
-                    pauseSendingThread();
-                    presenter.onHelloWorld(TextByteHDLC6);
-                    pauseSendingThread();
-                    flagPauseSending = false;
+                    pauseSendingThread(TextByteHDLC6);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
                     TextByteTreeg[1] = numberChannel;
@@ -458,11 +454,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[3] = (byte) intValueCH1on;
                     TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
                     TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
-                    flagPauseSending = true;
-                    pauseSendingThread();
-                    presenter.onHelloWorld(TextByteHDLC6);
-                    pauseSendingThread();
-                    flagPauseSending = false;
+                    pauseSendingThread(TextByteHDLC6);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
                     TextByteTreeg[1] = numberChannel;
@@ -503,11 +495,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[3] = (byte) intValueCH2on;
                     TextByteHDLC6[4] = (byte) (intValueCH2on >> 8);
                     TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
-                    flagPauseSending = true;
-                    pauseSendingThread();
-                    presenter.onHelloWorld(TextByteHDLC6);
-                    pauseSendingThread();
-                    flagPauseSending = false;
+                    pauseSendingThread(TextByteHDLC6);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
                     TextByteTreeg[1] = numberChannel;
@@ -554,11 +542,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[3] = (byte) intValueCH2on;
                     TextByteHDLC6[4] = (byte) (intValueCH2on >> 8);
                     TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
-                    flagPauseSending = true;
-                    pauseSendingThread();
-                    presenter.onHelloWorld(TextByteHDLC6);
-                    pauseSendingThread();
-                    flagPauseSending = false;
+                    pauseSendingThread(TextByteHDLC6);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
                     TextByteTreeg[1] = numberChannel;
@@ -637,13 +621,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
                     int numberSensor = 0x07;
                     if(flagUseHDLCProcol){
-                        flagPauseSending = true;
-                        pauseSendingThread();
-                        if(useGesture == 1){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 1));}
-                        if(useGesture == 2){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 3));}
-                        if(useGesture == 3){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 5));}
-                        pauseSendingThread();
-                        flagPauseSending = false;
+                        if(useGesture == 1){pauseSendingThread(CompileMassegeSensorActivate2HDLC((byte) 1));}
+                        if(useGesture == 2){pauseSendingThread(CompileMassegeSensorActivate2HDLC((byte) 3));}
+                        if(useGesture == 3){pauseSendingThread(CompileMassegeSensorActivate2HDLC((byte) 5));}
                     } else {
                         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     }
@@ -656,11 +636,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     int numberSensor = 0x08;
                     if(flagUseHDLCProcol){
-                        flagPauseSending = true;
-                        pauseSendingThread();
-                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(BluetoothConstantManager.NOP));
-                        pauseSendingThread();
-                        flagPauseSending = false;
+                        pauseSendingThread(CompileMassegeSensorActivateHDLC(BluetoothConstantManager.NOP));
                     } else {
                         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     }
@@ -680,13 +656,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
                     int numberSensor = 0x06;
                     if(flagUseHDLCProcol){
-                        flagPauseSending = true;
-                        pauseSendingThread();
-                        if(useGesture == 1){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 0));}
-                        if(useGesture == 2){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 2));}
-                        if(useGesture == 3){presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC((byte) 4));}
-                        pauseSendingThread();
-                        flagPauseSending = false;
+                        if(useGesture == 1){pauseSendingThread(CompileMassegeSensorActivate2HDLC((byte) 0));}
+                        if(useGesture == 2){pauseSendingThread(CompileMassegeSensorActivate2HDLC((byte) 2));}
+                        if(useGesture == 3){pauseSendingThread(CompileMassegeSensorActivate2HDLC((byte) 4));}
                     } else {
                         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     }
@@ -697,11 +669,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     int numberSensor = 0x08;
                     if(flagUseHDLCProcol){
-                        flagPauseSending = true;
-                        pauseSendingThread();
-                        presenter.onHelloWorld(CompileMassegeSensorActivateHDLC(BluetoothConstantManager.NOP));
-                        pauseSendingThread();
-                        flagPauseSending = false;
+                        pauseSendingThread(CompileMassegeSensorActivateHDLC(BluetoothConstantManager.NOP));
                     } else {
                         presenter.onHelloWorld(CompileMassegeSensorActivate(numberSensor));
                     }
@@ -802,11 +770,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     maxCurrent = seekBar.getProgress();
                     curent = seekBar.getProgress();
                     if(flagUseHDLCProcol){
-                        flagPauseSending = true;
-                        pauseSendingThread();
-                        presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvertHDLC(curent));
-                        pauseSendingThread();
-                        flagPauseSending = false;
+                        pauseSendingThread(CompileMassegeCurentSettingsAndInvertHDLC(curent));
                     } else {
                         presenter.onHelloWorld(CompileMassegeCurentSettingsAndInvert(curent, invert));
                     }
@@ -1609,11 +1573,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 return true;
             case R.id.action_Trigger1:
                 if(flagUseHDLCProcol){
-                    flagPauseSending = true;
-                    pauseSendingThread();
-                    presenter.onHelloWorld(CompileMassegeTreegModHDLC(1));
-                    pauseSendingThread();
-                    flagPauseSending = false;
+                    pauseSendingThread(CompileMassegeTreegModHDLC(1));
                 } else {
                     presenter.onHelloWorld(CompileMassegeTreegMod (1));
                 }
@@ -1621,11 +1581,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 return true;
             case R.id.action_Trigger2:
                 if(flagUseHDLCProcol){
-                    flagPauseSending = true;
-                    pauseSendingThread();
-                    presenter.onHelloWorld(CompileMassegeTreegModHDLC(2));
-                    pauseSendingThread();
-                    flagPauseSending = false;
+                    pauseSendingThread(CompileMassegeTreegModHDLC(2));
                 } else {
                     presenter.onHelloWorld(CompileMassegeTreegMod (2));
                 }
@@ -1633,11 +1589,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 return true;
             case R.id.action_Trigger3:
                 if(flagUseHDLCProcol){
-                    flagPauseSending = true;
-                    pauseSendingThread();
-                    presenter.onHelloWorld(CompileMassegeTreegModHDLC(3));
-                    pauseSendingThread();
-                    flagPauseSending = false;
+                    pauseSendingThread(CompileMassegeTreegModHDLC(3));
                 } else {
                     presenter.onHelloWorld(CompileMassegeTreegMod (3));
                 }
@@ -1661,11 +1613,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //                return true;
             case R.id.action_Trigger8:
                 if(flagUseHDLCProcol){
-                    flagPauseSending = true;
-                    pauseSendingThread();
-                    presenter.onHelloWorld(CompileMassegeTreegModHDLC(8));
-                    pauseSendingThread();
-                    flagPauseSending = false;
+                    pauseSendingThread(CompileMassegeTreegModHDLC(8));
                 } else {
                     presenter.onHelloWorld(CompileMassegeTreegMod (8));
                 }
@@ -1673,11 +1621,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 return true;
             case R.id.action_Trigger9:
                 if(flagUseHDLCProcol){
-                    flagPauseSending = true;
-                    pauseSendingThread();
-                    presenter.onHelloWorld(CompileMassegeTreegModHDLC(9));
-                    pauseSendingThread();
-                    flagPauseSending = false;
+                    pauseSendingThread(CompileMassegeTreegModHDLC(9));
                 } else {
                     presenter.onHelloWorld(CompileMassegeTreegMod (9));
                 }
@@ -1685,11 +1629,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 return true;
             case R.id.action_Trigger10:
                 if(flagUseHDLCProcol){
-                    flagPauseSending = true;
-                    pauseSendingThread();
-                    presenter.onHelloWorld(CompileMassegeTreegModHDLC(10));
-                    pauseSendingThread();
-                    flagPauseSending = false;
+                    pauseSendingThread(CompileMassegeTreegModHDLC(10));
                 } else {
                     presenter.onHelloWorld(CompileMassegeTreegMod (10));
                 }
@@ -2228,15 +2168,22 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     }
 
 //    часть отвечающая за установку флага паузы
-    public void pauseSendingThread () {
+    public void pauseSendingThread (final byte[] SendMassage) {
         pauseSendingThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                flagPauseSending = true;
                 System.out.println("ChartActivity--------------> ПАУЗЫ УСТАНОВКА ");
                 try {
                     Thread.sleep(delayPauseAfterSending);
                 }catch (Exception e){}
+                System.out.println("ChartActivity--------------> ПАУЗЫ ОТПРАВКА ");
+                presenter.onHelloWorld(SendMassage);
+                try {
+                    Thread.sleep(delayPauseAfterSending);
+                }catch (Exception e){}
                 System.out.println("ChartActivity--------------> ПАУЗЫ ОТМЕНА");
+                flagPauseSending = false;
                 if (numberCycle > ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST){
                     numberCycle = 0;
                 }
@@ -2249,14 +2196,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         Thread levelRecordThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC(fakeCellGesture));
-                pauseSendingThread();
+                pauseSendingThread(CompileMassegeSensorActivate2HDLC(fakeCellGesture));
                 System.out.println("ChartActivity--------------> запись порога ");
                 try {
                     Thread.sleep(delayPauseAfterSending);
                 } catch (Exception e) {}
-                presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC(cellNumGesture));
-                pauseSendingThread();
+                pauseSendingThread(CompileMassegeSwitchGestureHDLC(cellNumGesture));
                 System.out.println("ChartActivity--------------> запрос порога ");
             }
         });
@@ -2267,20 +2212,17 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         Thread gestureUseThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC(fakeCellGesture));
-                pauseSendingThread();
+                pauseSendingThread(CompileMassegeSensorActivate2HDLC(fakeCellGesture));
                 System.out.println("ChartActivity--------------> выход на жест ");
                 try {
                     Thread.sleep(delayPauseAfterSending);
                 } catch (Exception e) {}
-                presenter.onHelloWorld(CompileMassegeSensorActivate2HDLC(fakeCellGesture));
-                pauseSendingThread();
+                pauseSendingThread(CompileMassegeSensorActivate2HDLC(fakeCellGesture));
                 System.out.println("ChartActivity--------------> выход на жест ");
                 try {
                     Thread.sleep(delayPauseAfterSending);
                 } catch (Exception e) {}
-                presenter.onHelloWorld(CompileMassegeSwitchGestureHDLC(cellNumGesture));
-                pauseSendingThread();
+                pauseSendingThread(CompileMassegeSwitchGestureHDLC(cellNumGesture));
                 System.out.println("ChartActivity--------------> применение жеста");
             }
         });

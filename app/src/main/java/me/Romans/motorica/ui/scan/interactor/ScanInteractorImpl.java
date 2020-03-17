@@ -98,15 +98,19 @@ public class ScanInteractorImpl implements ScanInteractor {
                 device.getName().split(" ")[0].equals("HND") ||
                 device.getName().split(" ")[0].equals("IND") ||
                 device.getName().equals("ASUS")){
+                System.err.println("ScanInteractorImpl--------------> "+device.getName()+":"+(position+1));
                 items.add(device.getName()+":"+(position+1));//device.getAddress()+" : "+
             } else {
+                System.err.println("ScanInteractorImpl--------------> "+device.getName()+":"+(position+1));
                 items.add(".");
             }
             position++;
         }
         for (int i = 0; i < items.size(); i++) {
              if(items.get(i).equals(".") || items.get(i).equals(".\n") || items.get(i).equals(".\r") || items.get(i).equals(".\n\r") || items.get(i).equals(".\r\n")){
+                 System.err.println("ScanInteractorImpl--------------> remove: position="+(i+1));
                  items.remove(i);
+                 i--;
              }
         }
         return items;

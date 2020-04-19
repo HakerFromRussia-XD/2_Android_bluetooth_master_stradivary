@@ -237,7 +237,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public static byte GESTURE_SETTINGS = 0x15;
     public byte NUMBER_CELL = 0x00;
     public static long delay = 200;
-    private int delayPauseAfterSending = 150;
+    private int delayPauseAfterSending = 200;
     public byte[] TextByteTreegSettings = new byte[8];
     public byte[] TextByteTreegComplexGestureSettings = new byte[15];
     public byte[] TextByteTreegControlComplexGesture = new byte[2];

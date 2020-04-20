@@ -5,8 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/Android_bluetooth_master_stradivary.iml" filepath="$PROJECT_DIR$/Android_bluetooth_master_stradivary.iml" group="Android_bluetooth_master_stradivary" />
       <module fileurl="file://$PROJECT_DIR$/app/Android_bluetooth_master_stradivary-app.iml" filepath="$PROJECT_DIR$/app/Android_bluetooth_master_stradivary-app.iml" group="Android_bluetooth_master_stradivary/app" />
       <module fileurl="file://$PROJECT_DIR$/bluetooth/Android_bluetooth_master_stradivary-bluetooth.iml" filepath="$PROJECT_DIR$/bluetooth/Android_bluetooth_master_stradivary-bluetooth.iml" group="Android_bluetooth_master_stradivary/bluetooth" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bluetooth/bluetooth.iml" filepath="$PROJECT_DIR$/bluetooth/bluetooth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="Android_bluetooth_master_stradivary/app" />
+      <module fileurl="file://$PROJECT_DIR$/bluetooth/bluetooth.iml" filepath="$PROJECT_DIR$/bluetooth/bluetooth.iml" group="Android_bluetooth_master_stradivary/bluetooth" />
     </modules>
   </component>
 </project>

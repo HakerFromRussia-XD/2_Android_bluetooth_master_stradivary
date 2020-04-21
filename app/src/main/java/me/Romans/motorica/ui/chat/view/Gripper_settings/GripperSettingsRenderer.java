@@ -177,7 +177,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	public int height;
 	public boolean selectFlag;
 	public boolean transferFlag;
-	private boolean firstInit = false;
+	private boolean firstInit = true;
 
 	/** The current heightmap object. */
 	private HeightMap heightMap;
@@ -190,23 +190,23 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	public volatile float[][] coordArrey = new float[MAX_NUMBER_DETAILS][];
 	public volatile float[][] texturessArrey = new float[MAX_NUMBER_DETAILS][];
 	public volatile float[][] normalsArrey = new float[MAX_NUMBER_DETAILS][];
-	private float angleForeFingerFloat = 0;
+	private float angleForeFingerFloat = 47;
 	private int angleForeFingerInt = 0;
 	private int lastAngleForeFingerInt = 0;
 	private int angleForeFingerTransfer = 0;
-	private float angleMiddleFingerFloat = 0;
+	private float angleMiddleFingerFloat = 57;
 	private int angleMiddleFingerInt = 0;
 	private int lastAngleMiddleFingerInt = 0;
 	private int angleMiddleFingerTransfer = 0;
-	private float angleRingFingerFloat = 0;
+	private float angleRingFingerFloat = 98;
 	private int angleRingFingerInt = 0;
 	private int lastAngleRingFingerInt = 0;
 	private int angleRingFingerTransfer = 0;
-	private float angleLittleFingerFloat = 0;
+	private float angleLittleFingerFloat = 98;
 	private int angleLittleFingerInt = 0;
 	private int lastAngleLittleFingerInt = 0;
 	private int angleLittleFingerTransfer = 0;
-	private float angleBigFingerFloat1 = 0;//30
+	private float angleBigFingerFloat1 = -24;//30
 	private int angleBigFingerInt1 = 0;
 	private int lastAngleBigFingerInt1 = 0;
 	private int angleBigFingerTransfer1 = 0;

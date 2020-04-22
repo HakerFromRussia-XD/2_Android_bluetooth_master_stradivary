@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -263,6 +264,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     private boolean showMenu = true;
     private boolean lockServiceSettings = false;
     private int useGesture = 1;
+//    save
+    SharedPreferences sharedPreferences;
 
     RecyclerView recyclerView;
     GesstureAdapter gestureAdapter;
@@ -2743,6 +2746,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //                startActivity(intent5);
 //                break;
         }
+    }
+
+    private void saveVariable (String nameVariableInt, Integer Variable) {
+        sharedPreferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(nameVariableInt,Variable);
     }
 
     private float pxFromDp(float dp) {

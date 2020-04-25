@@ -6,6 +6,7 @@ import android.content.pm.ConfigurationInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentGripperSettings extends Fragment implements ChatView {
+    private static final String TAG = "FragmentGripperSettings";
     Button gripper_use;
     public SeekBar seekBarSpeedFinger;
     public TextView textSpeedFinger;
@@ -65,6 +67,14 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
             // This is where you could create an OpenGL ES 1.x compatible
             // renderer if you wanted to support both ES 1 and ES 2.
         }
+
+        renderer.angleLittleFingerFloat =  chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger1Angle");
+        renderer.angleRingFingerFloat =  chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger2Angle");
+        renderer.angleMiddleFingerFloat =  chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger3Angle");
+        renderer.angleForeFingerFloat =  chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger4Angle");
+        renderer.angleBigFingerFloat1 =  84 - (int)(((float)chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger5Angle")+60)/100*90);
+        renderer.angleBigFingerFloat2 =  144 - (int)(((float)chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger6Angle")+60)/100*90);
+//        Log.e(TAG, "NUMBER_CELL = "+String.valueOf(chatActivity.NUMBER_CELL));
 
         gripper_use.setOnClickListener(new View.OnClickListener(){
             @Override

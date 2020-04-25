@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,8 @@ import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
+
+import static android.support.constraint.Constraints.TAG;
 
 public class FragmentGestureSettings3 extends Fragment implements ChatView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.gesture_use) public Button gesture_use;
@@ -45,6 +48,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
+        Log.e(TAG, "NUMBER_CELL = "+String.valueOf(chatActivity.NUMBER_CELL));
 
         gestureMyList = new ArrayList<>();
         recyclerView = view.findViewById(R.id.gripper_list);
@@ -159,6 +163,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
             case 0:
                 if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRcyclerView = false;
+                    if (chatActivity.NUMBER_CELL == 5 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL - 0x01);
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
@@ -178,7 +183,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChatView, Gess
             case 1:
                 if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRcyclerView = false;
-                    chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
+                    if (chatActivity.NUMBER_CELL == 4 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)

@@ -190,27 +190,27 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	public volatile float[][] coordArrey = new float[MAX_NUMBER_DETAILS][];
 	public volatile float[][] texturessArrey = new float[MAX_NUMBER_DETAILS][];
 	public volatile float[][] normalsArrey = new float[MAX_NUMBER_DETAILS][];
-	private float angleForeFingerFloat = 47;
+	public float angleForeFingerFloat = 0;
 	private int angleForeFingerInt = 0;
 	private int lastAngleForeFingerInt = 0;
 	private int angleForeFingerTransfer = 0;
-	private float angleMiddleFingerFloat = 57;
+	public float angleMiddleFingerFloat = 0;
 	private int angleMiddleFingerInt = 0;
 	private int lastAngleMiddleFingerInt = 0;
 	private int angleMiddleFingerTransfer = 0;
-	private float angleRingFingerFloat = 98;
+	public float angleRingFingerFloat = 0;
 	private int angleRingFingerInt = 0;
 	private int lastAngleRingFingerInt = 0;
 	private int angleRingFingerTransfer = 0;
-	private float angleLittleFingerFloat = 98;
+	public float angleLittleFingerFloat = 0;
 	private int angleLittleFingerInt = 0;
 	private int lastAngleLittleFingerInt = 0;
 	private int angleLittleFingerTransfer = 0;
-	private float angleBigFingerFloat1 = -24;//30
+	public float angleBigFingerFloat1 = 0;//30
 	private int angleBigFingerInt1 = 0;
 	private int lastAngleBigFingerInt1 = 0;
 	private int angleBigFingerTransfer1 = 0;
-	private float angleBigFingerFloat2 = 0;//90
+	public float angleBigFingerFloat2 = 89;//90
 	private int angleBigFingerInt2 = 0;
 	private int lastAngleBigFingerInt2 = 0;
 	private int angleBigFingerTransfer2 = 0;
@@ -1386,7 +1386,8 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 			chatActivity.transferFinger4Static(angleForeFingerTransfer);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
-			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer1: "+ (100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
+			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2 real: "+ angleBigFingerTransfer2);
+//			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer1: "+ (100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
 			chatActivity.transferFinger5Static((100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
 //			далее конструкция инвертирования и приведения диапазона для вращения венца большого пальца
 			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2: "+ (100-((int)((float)angleBigFingerTransfer2/90*100))));

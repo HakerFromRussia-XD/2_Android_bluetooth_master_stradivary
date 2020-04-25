@@ -17,6 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -413,6 +414,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
                     TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
                     pauseSendingThread(TextByteHDLC6);
+                    saveVariable( deviceName+"intValueCH1on",intValueCH1on);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
                     TextByteTreeg[1] = numberChannel;
@@ -423,6 +425,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteTreeg[6] = (byte) intValueCH1sleep;
                     TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
                     presenter.onHelloWorld(TextByteTreeg);
+                    saveVariable( deviceName+"intValueCH1on",intValueCH1on);
 //                    System.err.println("ChatActivity--------> seekBarCH1on : onStopTrackingTouch - intValueCH1on=" + intValueCH1on);
                 }
                 seekBarCH1on2.setProgress(seekBarCH1on.getProgress());
@@ -458,6 +461,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[4] = (byte) (intValueCH1on >> 8);
                     TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
                     pauseSendingThread(TextByteHDLC6);
+                    saveVariable( deviceName+"intValueCH1on",intValueCH1on);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
                     TextByteTreeg[1] = numberChannel;
@@ -468,6 +472,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteTreeg[6] = (byte) intValueCH1sleep;
                     TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
                     presenter.onHelloWorld(TextByteTreeg);
+                    saveVariable( deviceName+"intValueCH1on",intValueCH1on);
                 }
                 seekBarCH1on.setProgress(seekBarCH1on2.getProgress());
 //                System.err.println("ChatActivity--------> seekBarCH1on2 : onStopTrackingTouch - intValueCH1on=" + intValueCH1on);
@@ -499,6 +504,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[4] = (byte) (intValueCH2on >> 8);
                     TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
                     pauseSendingThread(TextByteHDLC6);
+                    saveVariable( deviceName+"intValueCH2on",intValueCH2on);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
                     TextByteTreeg[1] = numberChannel;
@@ -509,6 +515,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteTreeg[6] = (byte) intValueCH2sleep;
                     TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
                     presenter.onHelloWorld(TextByteTreeg);
+                    saveVariable( deviceName+"intValueCH2on",intValueCH2on);
                 }
 
                 seekBarCH2on2.setProgress(seekBarCH2on.getProgress());
@@ -546,6 +553,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteHDLC6[4] = (byte) (intValueCH2on >> 8);
                     TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
                     pauseSendingThread(TextByteHDLC6);
+                    saveVariable( deviceName+"intValueCH2on",intValueCH2on);
                 } else {
                     TextByteTreeg[0] = indicatorTypeMessage;
                     TextByteTreeg[1] = numberChannel;
@@ -556,6 +564,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     TextByteTreeg[6] = (byte) intValueCH2sleep;
                     TextByteTreeg[7] = (byte) (intValueCH2sleep >> 8);
                     presenter.onHelloWorld(TextByteTreeg);
+                    saveVariable( deviceName+"intValueCH2on",intValueCH2on);
                 }
                 seekBarCH2on.setProgress(seekBarCH2on2.getProgress());
 //                System.err.println("ChatActivity--------> seekBarCH2on2 : onStopTrackingTouch - intValueCH2on=" + intValueCH2on);
@@ -1263,9 +1272,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         numberFinger = 1;
                         if(flagUseHDLCProcol){
                             presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Angle", intValueFinger1Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Speed", intValueFinger1Speed);
                         }else {
-                            CompileMassegeSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed);
-                            presenter.onHelloWorld(TextByteTreegSettings);
+                            presenter.onHelloWorld(CompileMassegeSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Angle", intValueFinger1Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Speed", intValueFinger1Speed);
                         }
 
                         try {
@@ -1289,9 +1301,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         numberFinger = 2;
                         if(flagUseHDLCProcol){
                             presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Angle", intValueFinger2Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Speed", intValueFinger2Speed);
                         }else {
-                            CompileMassegeSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed);
-                            presenter.onHelloWorld(TextByteTreegSettings);
+                            presenter.onHelloWorld(CompileMassegeSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Angle", intValueFinger2Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Speed", intValueFinger2Speed);
                         }
                         try {
                             Thread.sleep(delay);
@@ -1314,9 +1329,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         numberFinger = 3;
                         if(flagUseHDLCProcol){
                             presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Angle", intValueFinger3Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Speed", intValueFinger3Speed);
                         }else {
-                            CompileMassegeSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed);
-                            presenter.onHelloWorld(TextByteTreegSettings);
+                            presenter.onHelloWorld(CompileMassegeSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Angle", intValueFinger3Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Speed", intValueFinger3Speed);
                         }
                         try {
                             Thread.sleep(delay);
@@ -1339,9 +1357,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         numberFinger = 4;
                         if(flagUseHDLCProcol){
                             presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Angle", intValueFinger4Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Speed", intValueFinger4Speed);
                         }else {
-                            CompileMassegeSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed);
-                            presenter.onHelloWorld(TextByteTreegSettings);
+                            presenter.onHelloWorld( CompileMassegeSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Angle", intValueFinger4Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Speed", intValueFinger4Speed);
                         }
                         try {
                             Thread.sleep(delay);
@@ -1364,9 +1385,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         numberFinger = 5;
                         if(flagUseHDLCProcol){
                             presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Angle", intValueFinger5Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Speed", intValueFinger5Speed);
                         }else {
-                            CompileMassegeSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed);
-                            presenter.onHelloWorld(TextByteTreegSettings);
+                            presenter.onHelloWorld(CompileMassegeSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Angle", intValueFinger5Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Speed", intValueFinger5Speed);
                         }
                         try {
                             Thread.sleep(delay);
@@ -1390,10 +1414,13 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         numberFinger = 6;
                         if(flagUseHDLCProcol){
                             presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
-                            System.err.println("ChatActivity--------> Угол шестой степени: "+intValueFinger6Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Angle", intValueFinger6Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Speed", intValueFinger6Speed);
+//                            System.err.println("ChatActivity--------> Угол шестой степени: "+intValueFinger6Angle);
                         }else {
-                            CompileMassegeSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed);
-                            presenter.onHelloWorld(TextByteTreegSettings);
+                            presenter.onHelloWorld(CompileMassegeSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Angle", intValueFinger6Angle);
+                            saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Speed", intValueFinger6Speed);
                         }
                         try {
                             Thread.sleep(delay);
@@ -2749,9 +2776,18 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     }
 
     private void saveVariable (String nameVariableInt, Integer Variable) {
-        sharedPreferences = getPreferences(MODE_PRIVATE);
+//        Log.e(TAG, "saveVariable ----> "+ nameVariableInt +" = "+ Variable);
+        sharedPreferences = getSharedPreferences("My_variables" ,MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(nameVariableInt,Variable);
+        editor.putInt(nameVariableInt, Variable);
+        editor.commit();
+    }
+
+    public Integer loadVariable (String nameVariableInt) {
+        sharedPreferences = getSharedPreferences("My_variables",MODE_PRIVATE);
+        Integer variable = sharedPreferences.getInt(nameVariableInt,0);
+        Log.e(TAG, "loadVariable ----> "+ nameVariableInt +" = "+ variable);
+        return variable;
     }
 
     private float pxFromDp(float dp) {

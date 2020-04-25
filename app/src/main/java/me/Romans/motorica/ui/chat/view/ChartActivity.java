@@ -940,7 +940,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 
     @Override
     public void applyTexts(String password) {
-        if (password.equals("123")){ lockServiceSettings = true; } else {lockServiceSettings = true;}//lockServiceSettings = false
+        if (password.equals("123")){ lockServiceSettings = true; } else {lockServiceSettings = false;}//lockServiceSettings = false
     }
 
     @Override

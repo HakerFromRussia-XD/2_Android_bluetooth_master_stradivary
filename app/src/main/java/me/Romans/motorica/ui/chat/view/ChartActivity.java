@@ -387,6 +387,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         initializedGraphForChannel1();
         ////////initialized graph for channel 2
         initializedGraphForChannel2();
+        Log.e(TAG, "CompileTestMessageHDLC = "+CompileTestMessageHDLC()[0]+
+                " "+CompileTestMessageHDLC()[1]+
+                " "+CompileTestMessageHDLC()[2]+
+                " "+CompileTestMessageHDLC()[3]);
 
         seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -1271,7 +1275,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
                         numberFinger = 1;
                         if(flagUseHDLCProcol){
-                            presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
+                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Angle", intValueFinger1Angle);
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Speed", intValueFinger1Speed);
                         }else {
@@ -1300,7 +1304,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //                        System.err.println("ChatActivity--------> angleRingFingerTransfer: "+ intValueFinger2Angle);
                         numberFinger = 2;
                         if(flagUseHDLCProcol){
-                            presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
+                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Angle", intValueFinger2Angle);
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Speed", intValueFinger2Speed);
                         }else {
@@ -1328,7 +1332,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //                        System.err.println("ChatActivity--------> angleMiddleFingerTransfer: "+ intValueFinger3Angle);
                         numberFinger = 3;
                         if(flagUseHDLCProcol){
-                            presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
+                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Angle", intValueFinger3Angle);
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Speed", intValueFinger3Speed);
                         }else {
@@ -1356,7 +1360,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //                        System.err.println("ChatActivity--------> angleForeFingerTransfer: "+ intValueFinger4Angle);
                         numberFinger = 4;
                         if(flagUseHDLCProcol){
-                            presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
+                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Angle", intValueFinger4Angle);
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Speed", intValueFinger4Speed);
                         }else {
@@ -1384,7 +1388,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //                        System.err.println("ChatActivity--------> angleBigFingerTransfer1: "+ intValueFinger5Angle);
                         numberFinger = 5;
                         if(flagUseHDLCProcol){
-                            presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
+                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Angle", intValueFinger5Angle);
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Speed", intValueFinger5Speed);
                         }else {
@@ -1413,7 +1417,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //                        System.err.println("ChatActivity--------> angleBigFingerTransfer2: "+ intValueFinger6Angle);
                         numberFinger = 6;
                         if(flagUseHDLCProcol){
-                            presenter.onHelloWorld(CompileMassegeSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
+                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Angle", intValueFinger6Angle);
                             saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Speed", intValueFinger6Speed);
 //                            System.err.println("ChatActivity--------> Угол шестой степени: "+intValueFinger6Angle);
@@ -2359,7 +2363,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         return TextByteTreegSettings;
     }
 
-    private byte[] CompileMassegeSettingsHDLC(byte numberFinger, int intValueFingerAngle,
+    private byte[] CompileMessageSettingsHDLC(byte numberFinger, int intValueFingerAngle,
                                               int intValueFingerSpeed){
         TextByteHDLC7[0] = numberFinger;
         TextByteHDLC7[1] = requestType;
@@ -2369,6 +2373,15 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteHDLC7[5] = (byte) intValueFingerAngle;
         TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
         return TextByteHDLC7;
+    }
+
+    private byte[] CompileTestMessageHDLC(){
+        byte[] TextByteHDLC = new byte[4];
+        TextByteHDLC[0] = (byte) 0xFA;
+        TextByteHDLC[1] = (byte) 0x07;
+        TextByteHDLC[2] = (byte) 0x07;
+        TextByteHDLC[3] = presenter.calculationCRC_HDLC(TextByteHDLC);
+         return TextByteHDLC;
     }
 
     private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,

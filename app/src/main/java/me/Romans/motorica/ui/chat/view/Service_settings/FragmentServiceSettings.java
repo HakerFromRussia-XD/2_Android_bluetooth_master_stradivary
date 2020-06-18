@@ -100,7 +100,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String sNumberOfChannel = parent.getItemAtPosition(position).toString();
                 chatActivity.numberOfChannel = Integer.parseInt(sNumberOfChannel);
-                Toast.makeText(parent.getContext(), "Выбран канал "+ sNumberOfChannel, Toast.LENGTH_SHORT).show();
+                Toast.makeText(parent.getContext(), getString(R.string.select_channel)+ sNumberOfChannel, Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -662,6 +662,11 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
     @Override
     public void showToast(String message) {
+
+    }
+
+    @Override
+    public void showToastWithoutConnection() {
 
     }
 

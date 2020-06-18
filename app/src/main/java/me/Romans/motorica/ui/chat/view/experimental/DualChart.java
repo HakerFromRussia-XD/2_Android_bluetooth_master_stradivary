@@ -311,6 +311,11 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
     }
 
     @Override
+    public void showToastWithoutConnection() {
+
+    }
+
+    @Override
     public void onGestureClick(int position) {
 
     }

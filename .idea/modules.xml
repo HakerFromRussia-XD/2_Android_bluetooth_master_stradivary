@@ -2,12 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2_Android_bluetooth_master_stradivary.iml" filepath="$PROJECT_DIR$/.idea/modules/2_Android_bluetooth_master_stradivary.iml" group="2_Android_bluetooth_master_stradivary" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary-app.iml" group="2_Android_bluetooth_master_stradivary/app" />
       <module fileurl="file://$PROJECT_DIR$/Android_bluetooth_master_stradivary.iml" filepath="$PROJECT_DIR$/Android_bluetooth_master_stradivary.iml" group="Android_bluetooth_master_stradivary" />
       <module fileurl="file://$PROJECT_DIR$/app/Android_bluetooth_master_stradivary-app.iml" filepath="$PROJECT_DIR$/app/Android_bluetooth_master_stradivary-app.iml" group="Android_bluetooth_master_stradivary/app" />
       <module fileurl="file://$PROJECT_DIR$/bluetooth/Android_bluetooth_master_stradivary-bluetooth.iml" filepath="$PROJECT_DIR$/bluetooth/Android_bluetooth_master_stradivary-bluetooth.iml" group="Android_bluetooth_master_stradivary/bluetooth" />
       <module fileurl="file://$PROJECT_DIR$/Projekts-Android_bluetooth_master_stradivary.iml" filepath="$PROJECT_DIR$/Projekts-Android_bluetooth_master_stradivary.iml" group="Android_bluetooth_master_stradivary" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="Android_bluetooth_master_stradivary/app" />
       <module fileurl="file://$PROJECT_DIR$/bluetooth/bluetooth.iml" filepath="$PROJECT_DIR$/bluetooth/bluetooth.iml" group="Android_bluetooth_master_stradivary/bluetooth" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bluetooth/me.Romans.libraries-bluetooth.iml" filepath="$PROJECT_DIR$/.idea/modules/bluetooth/me.Romans.libraries-bluetooth.iml" group="2_Android_bluetooth_master_stradivary/bluetooth" />
     </modules>
   </component>
 </project>

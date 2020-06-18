@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Handler;
+import android.provider.Settings;
 
 import me.Romans.bluetooth.BluetoothConstantManager;
 import me.Romans.motorica.ui.chat.interactor.ChatInteractor;
@@ -504,7 +505,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }, 10);
             } else{
                 attemptConect = 0;
-                view.showToast("Подключение отсутствует");
+                view.showToastWithoutConnection();
             }
         }
     };

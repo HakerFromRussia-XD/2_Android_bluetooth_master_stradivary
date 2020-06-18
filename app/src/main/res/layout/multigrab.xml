@@ -121,7 +121,7 @@
                 android:layout_marginStart="14dp"
                 android:layout_marginLeft="14dp"
                 android:layout_marginTop="14dp"
-                android:text="Заряд батареи:"
+                android:text="@string/battery_power"
                 android:textSize="14sp" />
 
             <TextView
@@ -194,7 +194,7 @@
                 android:layout_marginStart="36dp"
                 android:layout_marginLeft="36dp"
                 android:layout_marginTop="0dp"
-                android:text="открытие"
+                android:text="@string/opening"
                 android:textColor="#FFFFFFFF"
                 android:textSize="9sp" />
 
@@ -220,7 +220,7 @@
                 android:layout_marginStart="36dp"
                 android:layout_marginLeft="36dp"
                 android:layout_marginTop="-1dp"
-                android:text="закрытие"
+                android:text="@string/closing"
                 android:textColor="#FFFFFFFF"
                 android:textSize="9sp" />
 
@@ -369,7 +369,7 @@
                 android:layout_marginStart="14dp"
                 android:layout_marginLeft="14dp"
                 android:layout_marginTop="14dp"
-                android:text="Подсветка"
+                android:text="@string/illumination"
                 android:textSize="14sp" />
 
             <Switch
@@ -1051,7 +1051,7 @@
                 android:layout_marginRight="4dp"
                 android:layout_toStartOf="@+id/switchBlockMode"
                 android:layout_toLeftOf="@+id/switchBlockMode"
-                android:text="блокировка"
+                android:text="@string/blocking"
                 android:textSize="14sp" />
 
             <Switch

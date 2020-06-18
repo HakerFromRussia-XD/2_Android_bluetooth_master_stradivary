@@ -34,7 +34,7 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="5dp"
-                android:text="I реал:"
+                android:text="@string/I_real"
                 tools:ignore="RtlCompat" />
 
             <TextView
@@ -47,7 +47,7 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="24dp"
-                android:text="I макс:"
+                android:text="@string/I_max"
                 tools:ignore="RtlCompat" />
 
             <SeekBar
@@ -77,10 +77,10 @@
                 android:layout_below="@+id/border8"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
-                android:layout_marginStart="14dp"
-                android:layout_marginLeft="14dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
                 android:layout_marginTop="14dp"
-                android:text="Грубость датчиков"
+                android:text="@string/roughness_of_sensors"
                 android:textSize="14sp" />
 
             <SeekBar
@@ -113,7 +113,7 @@
                 android:layout_marginStart="14dp"
                 android:layout_marginLeft="0dp"
                 android:layout_marginTop="4dp"
-                android:text="Инвертирование"
+                android:text="@string/inverting"
                 android:textSize="14sp" />
 
             <Switch
@@ -137,7 +137,7 @@
                 android:layout_marginStart="14dp"
                 android:layout_marginLeft="0dp"
                 android:layout_marginTop="4dp"
-                android:text="Внутринний АЦП"
+                android:text="@string/internal_ADC"
                 android:textSize="14sp" />
 
             <Switch
@@ -166,7 +166,7 @@
                     android:layout_alignParentBottom="true"
                     android:layout_gravity="center"
                     android:layout_marginBottom="16dp"
-                    android:text="сохранить"
+                    android:text="@string/save"
                     android:visibility="visible"
                     style="@style/Text"
                     android:background="@drawable/castom_batton"/>
@@ -214,7 +214,7 @@
                 android:layout_marginTop="24dp"
                 android:layout_toEndOf="@+id/valueIstop"
                 android:layout_toRightOf="@+id/valueIstop"
-                android:text="mA" />
+                android:text="@string/mA" />
             <TextView
                 android:id="@+id/textView6"
                 android:layout_width="wrap_content"
@@ -225,7 +225,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_toEndOf="@+id/valueIstop"
                 android:layout_toRightOf="@+id/valueIstop"
-                android:text="mA" />
+                android:text="@string/mA" />
         </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

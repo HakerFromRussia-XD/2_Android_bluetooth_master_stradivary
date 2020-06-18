@@ -217,6 +217,11 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     }
 
     @Override
+    public void showToastWithoutConnection() {
+
+    }
+
+    @Override
     public void onGestureClick(int position) {
 
     }

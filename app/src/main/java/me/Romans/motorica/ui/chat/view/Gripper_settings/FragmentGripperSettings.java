@@ -146,6 +146,12 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
     public void enableHWButton(boolean enabled) { }
     @Override
     public void showToast(String message) { }
+
+    @Override
+    public void showToastWithoutConnection() {
+
+    }
+
     @Override
     public void onGestureClick(int position) { }
     @Override

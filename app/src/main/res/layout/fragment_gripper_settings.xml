@@ -27,7 +27,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:textColor="#FFFFFFFF"
-                android:text="скорость: "/>
+                android:text="@string/speed_with_space"/>
             <TextView
                 android:id="@+id/textSpeedFinger"
                 android:layout_width="wrap_content"
@@ -59,7 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="0dp"
-            android:text="Сохранить"
+            android:text="@string/save"
             android:layout_gravity="center"
             android:textColor="#FFFFFFFF"
             style="@style/Widget.AppCompat.Button.Borderless"

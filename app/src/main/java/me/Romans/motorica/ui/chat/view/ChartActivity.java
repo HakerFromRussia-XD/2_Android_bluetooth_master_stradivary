@@ -349,8 +349,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         1,
                         R.drawable.gesture1,
                         "bla bla bla",
-                        "Нажмите для редактирования начального и конечного состояний",
-                        "Жест №1",
+                        getString(R.string.click_to_edit_start_and_end_states),
+                        getString(R.string.gesture_1),
                         2,
                         600000));
 
@@ -359,8 +359,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         1,
                         R.drawable.gesture2,
                         "bla bla bla",
-                        "Нажмите для редактирования начального и конечного состояний",
-                        "Жест №2",
+                        getString(R.string.click_to_edit_start_and_end_states),
+                        getString(R.string.gesture_2),
                         2,
                         60000));
 
@@ -369,8 +369,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                         1,
                         R.drawable.gesture3,
                         "bla bla bla",
-                        "Нажмите для редактирования начального и конечного состояний",
-                        "Жест №3",
+                        getString(R.string.click_to_edit_start_and_end_states),
+                        getString(R.string.gesture_3),
                         2,
                         60000));
 
@@ -887,9 +887,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                             } else {
                                 AlertDialog.Builder quitDialog = new AlertDialog.Builder(
                                         ChartActivity.this);
-                                quitDialog.setTitle("Выйти?");
+                                quitDialog.setTitle(R.string.leave);
 
-                                quitDialog.setPositiveButton("ок", new DialogInterface.OnClickListener() {
+                                quitDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         // TODO Auto-generated method stub
@@ -897,7 +897,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                     }
                                 });
 
-                                quitDialog.setNegativeButton("нет", new DialogInterface.OnClickListener() {
+                                quitDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                     }
@@ -937,7 +937,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             myMenu.setGroupVisible(R.id.modes, true);
             myMenu.setGroupVisible(R.id.service_settings, false);
         } else {
-            showToast("пароль не верный");
+            showToast(getString(R.string.not_the_right_password));
         }
 
     }
@@ -1555,7 +1555,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                 presenter.onHelloWorld(CompileMassegeMainDataHDLC());
                                 flagReceptionExpectation = true;
                                 if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST)
-                                {showToast("пропуск команды обновления");}
+                                {showToast(getString(R.string.admission_of_inquiry_of_updating));}
                                 numberCycle = 0;
                             } else {
 //                                System.err.println(
@@ -1757,9 +1757,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     @Override
     public void setStatus(int resId) {
         System.out.println("ChatActivity----> resId setText:"+ resId);
-        if (resId == 2131820601){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
-        if (resId == 2131820600){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
-        if (resId == 2131820602){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131820607){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
+        if (resId == 2131820608){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131820609){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
     }
 
     @Override
@@ -2697,6 +2697,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     @Override
     public void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showToastWithoutConnection() {
+        Toast.makeText(this, R.string.connection_is_absent, Toast.LENGTH_SHORT).show();
     }
 
     @Override

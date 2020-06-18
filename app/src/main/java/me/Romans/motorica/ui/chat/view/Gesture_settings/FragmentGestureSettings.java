@@ -71,8 +71,8 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                         1,
                         R.drawable.olpen,
                         "bla bla bla",
-                        "Позволяет настоить положение максимально открытого состояния",
-                        "Настройка открытого сотояния",
+                        getString(R.string.allows_you_to_set_the_position_of_the_maximum_open_state),
+                        getString(R.string.control_of_an_open_state),
                         1,
                         60));
         gestureMyList.add(
@@ -80,8 +80,8 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                         1,
                         R.drawable.close,
                         "bla bla bla",
-                        "Позволяет настоить положение максимально закрытого состояния",
-                        "Настройка закрытого сотояния",
+                        getString(R.string.allows_you_to_set_the_position_of_the_maximum_closed_state),
+                        getString(R.string.control_of_the_closed_state),
                         2,
                         6));
 
@@ -159,6 +159,12 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
     public void showToast(String message) {
 
     }
+
+    @Override
+    public void showToastWithoutConnection() {
+
+    }
+
     @Override
     public void onGestureClick(int position) {
         switch (position) {

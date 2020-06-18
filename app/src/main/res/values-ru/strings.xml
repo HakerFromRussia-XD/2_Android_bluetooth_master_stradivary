@@ -1,0 +1,123 @@
+<resources>
+    <string name="app_name">Страдивари</string>
+    <string name="helloWorld">открыть</string>
+    <string name="helloWorld2">закрыть</string>
+    <string name="helloWorld3">стоп</string>
+    <string name="gesture1">жест 1</string>
+    <string name="gesture2">жест 2</string>
+    <string name="gesture3">жест 3</string>
+    <string name="off_update">отключение графиков</string>
+    <string name="on_update">включение графиков</string>
+    <string name="gesture4">parting position</string>
+
+    <string name="activity_scan_button">Scan again</string>
+    <string name="activity_scan_paired_text">Связанные устройства:</string>
+
+    <string name="bluetooth_scanning">Сканирование…</string>
+    <string name="bluetooth_scan_finished">Сканирование завершено.</string>
+    <string name="bluetooth_pairing">Соединение…</string>
+    <string name="bluetooth_paired">Девайс соединён.</string>
+    <string name="bluetooth_unpaired">Девайс отсоединён.</string>
+    <string name="bluetooth_connected">Девайс подключён.</string>
+    <string name="bluetooth_connecting">Подключение…</string>
+    <string name="bluetooth_disconnected">Девайс не подключён.</string>
+    <string name="bluetooth_connect_in_3sec">Подключиться не удалось…</string>
+    <string name="bluetooth_turning_on">Bluetooth выключен…</string>
+    <string name="title_home">Жесты</string>
+    <string name="title_dashboard">Датчики</string>
+    <string name="valueCH1">TextView</string>
+    <string name="ch1">CH1:</string>
+    <string name="_100">100</string>
+    <string name="ch1_on">CH1 on:</string>
+    <string name="ch1_off">CH1 off:</string>
+    <string name="mv">mV</string>
+    <string name="mv2">mV</string>
+    <string name="mv3">mV</string>
+    <string name="_1250">1250</string>
+    <string name="_2500">2500</string>
+    <string name="state_view">lolol</string>
+    <string name="title_activity_gripper_settings">GripperSettings</string>
+    <string name="action_Trigger0">сервисное меню</string>//service menu
+    <string name="action_Trigger1">классический</string>//classic
+    <string name="action_Trigger2">триггерный</string>//trigger mode
+    <string name="action_Trigger3">триггерный инвертированный</string>//invert trigger mode
+    <string name="action_Trigger4"></string>//first lock mode
+    <string name="action_Trigger5"></string>//second lock mode
+    <string name="action_Trigger6"></string>//first invert lock mode
+    <string name="action_Trigger7"></string>//second invert lock mode
+    <string name="action_Trigger8">классический инвертированный</string>classic inverted
+    <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
+    <string name="lesson_eight_error_could_not_create_vbo">Could not create vertex buffer object: %s</string>
+    <string name="lesson_eight_error_unknown">Unknown error: %s</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="illumination">Подсветка</string>
+    <string name="closing">закрытие</string>
+    <string name="opening">окрытие</string>
+    <string name="battery_power">Заряд батареи:</string>
+    <string name="compressive_force">Сила схвата</string>
+    <string name="blocking">блокировка</string>
+    <string name="roughness_of_sensors">Грубость датчиков</string>
+    <string name="I_real">I реал:</string>
+    <string name="I_max">I макс:</string>
+    <string name="mA">мА</string>
+    <string name="inverting">Инвертирование</string>
+    <string name="internal_ADC">Внутринний АЦП</string>
+    <string name="save">сохранить</string>
+    <string name="single_channel_by_sensor_1">одноканальный по датчику 1</string>
+    <string name="single_channel_by_sensor_2">одноканальный по датчику 2</string>
+    <string name="advanced_settings">Расширенные настройки</string>
+    <string name="ok">ок</string>
+    <string name="cancel">отмена</string>
+    <string name="password">пароль</string>
+    <string name="calibration">Калибровка:</string>
+    <string name="number_of_channel">Номер канала:</string>
+    <string name="speed">Скорость</string>
+    <string name="angle">Угол</string>
+    <string name="input_address">Введите адрес</string>
+    <string name="input_temp">Введите значение</string>
+    <string name="current_control_data">Данные контроля тока</string>
+    <string name="set">установить</string>
+    <string name="open">открыть</string>
+    <string name="stop">стоп</string>
+    <string name="close">закрыть</string>
+    <string name="current_control_timeout">Таймаут контроля тока</string>
+    <string name="x100_ms">x100 мс</string>
+    <string name="current_control">Контроль тока</string>
+    <string name="currents">ток</string>
+    <string name="ete_calib">EtE   калибровка</string>
+    <string name="eeprom_save">EEPROM сохранение</string>
+    <string name="angle_fix">фиксация угла</string>
+    <string name="input_open_angle">Введите угол открытия</string>
+    <string name="input_close_angle">Введите угол закрытия</string>
+    <string name="input_wide_angle">Введите ширину угола</string>
+    <string name="magnet_invert">Инверсия магнита</string>
+    <string name="revers_motor">Реверс мотора</string>
+    <string name="zero_crossing">Пересечение нуля</string>
+    <string name="speed_with_space">скорость:</string>
+    <string name="use_gesture">Использовать жест</string>
+    <string name="leave">Выйти?</string>
+    <string name="no">нет</string>
+    <string name="not_the_right_password">пароль не верный</string>
+    <string name="select_channel">"Выбран канал "</string>
+    <string name="admission_of_inquiry_of_updating">пропуск команды обновления</string>
+    <string name="gesture_1">Жест №1</string>
+    <string name="gesture_2">Жест №2</string>
+    <string name="gesture_3">Жест №3</string>
+    <string name="click_to_edit_start_and_end_states">Нажмите для редактирования начального и конечного состояний</string>
+    <string name="control_of_an_open_state">Настройка открытого сотояния</string>
+    <string name="control_of_the_closed_state">Настройка закрытого соcтояния</string>
+    <string name="allows_you_to_set_the_position_of_the_maximum_open_state">Позволяет настоить положение максимально открытого состояния</string>
+    <string name="allows_you_to_set_the_position_of_the_maximum_closed_state">Позволяет настоить положение максимально закрытого состояния</string>
+    <string name="connection_is_absent">Подключение отсутствует</string>
+
+    <string-array name="numbers">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>255</item>
+    </string-array>
+</resources>

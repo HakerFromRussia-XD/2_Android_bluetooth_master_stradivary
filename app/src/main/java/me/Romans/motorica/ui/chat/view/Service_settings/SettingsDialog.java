@@ -31,8 +31,8 @@ public class SettingsDialog extends AppCompatDialogFragment {
         if (getActivity() != null) {mChartActivity = (ChartActivity) getActivity();}
 
         settingsDialog.setView(view);
-        settingsDialog.setTitle("Расширенные настройки");
-        settingsDialog.setPositiveButton("ок", new DialogInterface.OnClickListener() {
+        settingsDialog.setTitle(R.string.advanced_settings);
+        settingsDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String password = password_et.getText().toString();
@@ -42,7 +42,7 @@ public class SettingsDialog extends AppCompatDialogFragment {
             }
         });
 
-        settingsDialog.setNegativeButton("отмена", new DialogInterface.OnClickListener() {
+        settingsDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
             }

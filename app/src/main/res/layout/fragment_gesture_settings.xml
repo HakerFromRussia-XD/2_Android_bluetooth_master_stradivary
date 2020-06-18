@@ -51,7 +51,7 @@
                         android:layout_alignParentBottom="true"
                         android:layout_gravity="center"
                         android:layout_marginBottom="16dp"
-                        android:text="Использовать жест"
+                        android:text="@string/use_gesture"
                         android:visibility="visible"
                         style="@style/Text"
                         android:background="@drawable/castom_batton"/>

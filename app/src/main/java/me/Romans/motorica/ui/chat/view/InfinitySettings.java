@@ -182,6 +182,11 @@ public class InfinitySettings extends AppCompatActivity implements ChatView {
     }
 
     @Override
+    public void showToastWithoutConnection() {
+
+    }
+
+    @Override
     public void onGestureClick(int position) {
 
     }

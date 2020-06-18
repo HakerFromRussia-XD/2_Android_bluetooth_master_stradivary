@@ -60,14 +60,14 @@
         <item
             android:id="@+id/action_Trigger9"
             android:orderInCategory="100"
-            android:title="одноканальный по датчику 1"
+            android:title="@string/single_channel_by_sensor_1"
             app:showAsAction="never"/>
 <!--    only first channel-->
 
         <item
             android:id="@+id/action_Trigger10"
             android:orderInCategory="100"
-            android:title="одноканальный по датчику 2"
+            android:title="@string/single_channel_by_sensor_2"
             app:showAsAction="never"/>
 <!--    only first channel-->
     </group>

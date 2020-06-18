@@ -95,6 +95,11 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
     }
 
     @Override
+    public void showToastWithoutConnection() {
+
+    }
+
+    @Override
     public void onGestureClick(int position) {
 
     }

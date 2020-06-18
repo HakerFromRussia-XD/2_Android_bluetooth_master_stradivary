@@ -761,10 +761,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     if (flagUseHDLCProcol){
                         if(!flagOffUpdateGraphHDLC){
                             flagOffUpdateGraphHDLC = true;
-                            offUpdate.setText("включение графиков");
+                            offUpdate.setText(getString(R.string.on_update));
                         } else {
                             flagOffUpdateGraphHDLC = false;
-                            offUpdate.setText("отключение графиков");
+                            offUpdate.setText(getString(R.string.off_update));
                         }
                     }
                 }
@@ -1757,9 +1757,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     @Override
     public void setStatus(int resId) {
         System.out.println("ChatActivity----> resId setText:"+ resId);
-        if (resId == 2131820607){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
-        if (resId == 2131820608){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
-        if (resId == 2131820609){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131820609){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
+        if (resId == 2131820610){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
+        if (resId == 2131820611){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
     }
 
     @Override

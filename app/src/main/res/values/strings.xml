@@ -6,8 +6,8 @@
     <string name="gesture1">gesture 1</string>
     <string name="gesture2">gesture 2</string>
     <string name="gesture3">gesture 3</string>
-    <string name="off_update">shutdown of schedules</string>
-    <string name="on_update">inclusion of schedules</string>
+    <string name="off_update">off schedules</string>
+    <string name="on_update">on schedules</string>
     <string name="gesture4">parting position</string>
 
     <string name="activity_scan_button">Scan again</string>

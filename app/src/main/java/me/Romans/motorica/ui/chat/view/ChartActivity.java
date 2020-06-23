@@ -761,10 +761,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     if (flagUseHDLCProcol){
                         if(!flagOffUpdateGraphHDLC){
                             flagOffUpdateGraphHDLC = true;
-                            offUpdate.setText("включение графиков");
+                            offUpdate.setText(getString(R.string.on_update));
                         } else {
                             flagOffUpdateGraphHDLC = false;
-                            offUpdate.setText("отключение графиков");
+                            offUpdate.setText(getString(R.string.off_update));
                         }
                     }
                 }

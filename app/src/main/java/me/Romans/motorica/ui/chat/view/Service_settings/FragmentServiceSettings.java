@@ -601,11 +601,13 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     if(chatActivity.getFlagUseHDLCProcol()){
                         System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 0");
                         chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeSettingsNotUseInternalADCHDLC((byte) 0x00));
+                        chatActivity.saveVariable(chatActivity.deviceName+"InternalADC", 0x00);
                     }
                 } else {
                     if(chatActivity.getFlagUseHDLCProcol()){
                         System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 1");
                         chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeSettingsNotUseInternalADCHDLC((byte) 0x01));
+                        chatActivity.saveVariable(chatActivity.deviceName+"InternalADC", 0x01);
                     }
                 }
             }
@@ -616,6 +618,11 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             chatActivity.invertChannel = true;
         } else {
             chatActivity.invertChannel = false;
+        }
+        if (chatActivity.loadVariable(chatActivity.deviceName+"InternalADC") == 0x00) {
+            switchNotUseInternalADC.setChecked(true);
+        } else {
+            switchNotUseInternalADC.setChecked(false);
         }
         return view;
     }

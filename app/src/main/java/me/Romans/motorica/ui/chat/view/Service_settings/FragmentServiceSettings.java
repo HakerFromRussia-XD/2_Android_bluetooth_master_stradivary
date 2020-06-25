@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,9 @@ import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 import me.Romans.motorica.utils.ConstantManager;
+
+import static android.support.constraint.Constraints.TAG;
+import static me.Romans.motorica.ui.chat.view.ChartActivity.deviceName;
 
 public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.switchInvert) public Switch switchInvert;
@@ -106,6 +110,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+
 
         if(chatActivity.getFlagUseHDLCProcol()){
             buttonOPN.setOnClickListener(new View.OnClickListener() {
@@ -572,6 +577,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekbar-0.1)));//-0.5
                     chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekbar-0.1)));//-0.5
                     chatActivity.invertChannel = true;
+                    chatActivity.saveVariable(chatActivity.deviceName+"invertChannel", 0x01);
                 } else {
                     chatActivity.invert = 0x00;
                     if(chatActivity.getFlagUseHDLCProcol()){
@@ -583,6 +589,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekbar-0.1)));//-0.5
                     chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekbar-0.1)));//-0.5
                     chatActivity.invertChannel = false;
+                    chatActivity.saveVariable(chatActivity.deviceName+"invertChannel", 0x00);
                 }
             }
         });
@@ -604,6 +611,12 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             }
         });
 
+        seekBarRoughness.setProgress(chatActivity.loadVariable(chatActivity.deviceName+"receiveRoughnessOfSensors"));
+        if (chatActivity.loadVariable(chatActivity.deviceName+"invertChannel") == 0x01) {
+            chatActivity.invertChannel = true;
+        } else {
+            chatActivity.invertChannel = false;
+        }
         return view;
     }
 
@@ -627,7 +640,8 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @Override
     public void onResume() {
         super.onResume();
-        seekBarRoughness.setProgress(chatActivity.receiveRoughnessOfSensors);
+        Log.e(TAG,"FragmentServiceSettings------> "+ chatActivity.loadVariable(chatActivity.deviceName+"receiveRoughnessOfSensors"));
+//        seekBarRoughness.setProgress(chatActivity.loadVariable(chatActivity.deviceName+"receiveRoughnessOfSensors"));
     }
 
     @Override
@@ -729,7 +743,4 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     public void setStartParametersBattery(Integer receiveBatteryTension) {
 
     }
-
-
-
 }

@@ -761,10 +761,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     if (flagUseHDLCProcol){
                         if(!flagOffUpdateGraphHDLC){
                             flagOffUpdateGraphHDLC = true;
-                            offUpdate.setText("включение графиков");
+                            offUpdate.setText(R.string.on_schedules);
                         } else {
                             flagOffUpdateGraphHDLC = false;
-                            offUpdate.setText("отключение графиков");
+                            offUpdate.setText(R.string.off_schedules);
                         }
                     }
                 }
@@ -2681,6 +2681,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteHDLC5[2] = BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC;
         TextByteHDLC5[3] = roughness;
         TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
+        receiveRoughnessOfSensors = roughness;
+        saveVariable( deviceName+"receiveRoughnessOfSensors", (int) receiveRoughnessOfSensors);
         return TextByteHDLC5;
     }
     public void TranslateMassegeControlComplexGesture(){
@@ -2793,8 +2795,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         }
     }
 
-    private void saveVariable (String nameVariableInt, Integer Variable) {
-//        Log.e(TAG, "saveVariable ----> "+ nameVariableInt +" = "+ Variable);
+    public void saveVariable (String nameVariableInt, Integer Variable) {
+        Log.e(TAG, "saveVariable ----> "+ nameVariableInt +" = "+ Variable);
         sharedPreferences = getSharedPreferences("My_variables" ,MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(nameVariableInt, Variable);

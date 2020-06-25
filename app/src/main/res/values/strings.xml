@@ -6,8 +6,8 @@
     <string name="gesture1">gesture 1</string>
     <string name="gesture2">gesture 2</string>
     <string name="gesture3">gesture 3</string>
-    <string name="off_update">shutdown of schedules</string>
-    <string name="on_update">inclusion of schedules</string>
+    <string name="off_update">off schedules</string>
+    <string name="on_update">on schedules</string>
     <string name="gesture4">parting position</string>
 
     <string name="activity_scan_button">Scan again</string>
@@ -109,6 +109,8 @@
     <string name="allows_you_to_set_the_position_of_the_maximum_open_state">Allows you to set the position of the maximum open state</string>
     <string name="allows_you_to_set_the_position_of_the_maximum_closed_state">Allows you to set the position of the maximum closed state</string>
     <string name="connection_is_absent">connection is absent</string>
+    <string name="off_schedules">off schedules</string>
+    <string name="on_schedules">on schedules</string>
 
     <string-array name="numbers">
         <item>0</item>

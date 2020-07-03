@@ -94,12 +94,14 @@ public class ScanActivity extends AppCompatActivity implements ScanView {
     }
 
     @Override
-    public void setScanStatus(String status) {
+    public void setScanStatus(String status, boolean enabled) {
+        state.setVisibility(enabled?View.VISIBLE:View.GONE);
         state.setText(status);
     }
 
     @Override
-    public void setScanStatus(int resId) {
+    public void setScanStatus(int resId, boolean enabled) {
+        state.setVisibility(enabled?View.VISIBLE:View.GONE);
         state.setText(resId);
     }
 
@@ -117,12 +119,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView {
 
     @Override
     public void showProgress(boolean enabled) {
-        progress.setVisibility(enabled?View.VISIBLE:View.INVISIBLE);
+        progress.setVisibility(enabled?View.VISIBLE:View.GONE);
     }
 
     @Override
     public void enableScanButton(boolean enabled) {
-        scanButton.setEnabled(enabled);
+        scanButton.setVisibility(enabled?View.VISIBLE:View.GONE);
     }
 
     @Override

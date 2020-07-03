@@ -47,21 +47,21 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void startScanning() {
-//        view.clearScanList();
-//        view.showProgress(true);
-//        view.enableScanButton(false);
-//        view.setScanStatus(R.string.bluetooth_scanning);
-//        interactor.scanDevices(discoveryCallback);
-//        canceledDiscovery = false;
+        view.clearScanList();
+        view.showProgress(true);
+        view.enableScanButton(false);
+        view.setScanStatus(R.string.bluetooth_scanning, true);
+        interactor.scanDevices(discoveryCallback);
+        canceledDiscovery = false;
     }
 
     @Override
     public void scanItemClick(int position) {
-//        canceledDiscovery = true;
-//        interactor.stopScanning();
-//        interactor.pair(position);
-//        view.setScanStatus(R.string.bluetooth_pairing);
-//        view.showProgress(true);
+        canceledDiscovery = true;
+        interactor.stopScanning();
+        interactor.pair(position);
+        view.setScanStatus(R.string.bluetooth_pairing, true);
+        view.showProgress(true);
     }
 
     @Override
@@ -109,15 +109,15 @@ public class ScanPresenterImpl implements ScanPresenter{
     private DiscoveryCallback discoveryCallback = new DiscoveryCallback() {
         @Override
         public void onDiscoveryStarted() {
-            //view.showToast("Discovery started");
+            view.showToast("Discovery started");
         }
 
         @Override
         public void onDiscoveryFinished() {
             if(!canceledDiscovery){
-//                view.setScanStatus(R.string.bluetooth_scan_finished);
-//                view.showProgress(false);
-//                view.enableScanButton(true);
+                view.setScanStatus(R.string.bluetooth_scan_finished, false);
+                view.showProgress(false);
+                view.enableScanButton(true);
             }
         }
 
@@ -137,14 +137,14 @@ public class ScanPresenterImpl implements ScanPresenter{
 
         @Override
         public void onError(String message) {
-            view.setScanStatus(message);
+            view.setScanStatus(message, true);
         }
     };
 
     private BluetoothCallback bluetoothCallback = new BluetoothCallback() {
         @Override
         public void onBluetoothTurningOn() {
-            view.setScanStatus(R.string.bluetooth_turning_on);
+            view.setScanStatus(R.string.bluetooth_turning_on, true);
         }
 
         @Override

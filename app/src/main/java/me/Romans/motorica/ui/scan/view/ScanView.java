@@ -12,6 +12,7 @@ public interface ScanView{
     void showPairedList(List<String> items);
     void addDeviceToScanList(String item);
     void clearScanList();
+    void clearPairedList();
     void setScanStatus(String status);
     void setScanStatus(int resId);
     void showProgress(boolean enabled);

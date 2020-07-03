@@ -110,6 +110,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView {
     }
 
     @Override
+    public void clearPairedList() {
+        pairedListAdapter.clear();
+        pairedListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
     public void showProgress(boolean enabled) {
         progress.setVisibility(enabled?View.VISIBLE:View.INVISIBLE);
     }

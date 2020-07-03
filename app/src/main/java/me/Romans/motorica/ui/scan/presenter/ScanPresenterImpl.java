@@ -41,6 +41,8 @@ public class ScanPresenterImpl implements ScanPresenter{
     @Override
     public void onStop() {
         interactor.onStop();
+        view.clearPairedList();
+        firstStart = true;
     }
 
     @Override

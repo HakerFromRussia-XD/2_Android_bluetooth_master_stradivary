@@ -140,7 +140,7 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
     }
 
     @Override
-    public void setStartParametersCurrrent(Integer receiveСurrent) {
+    public void setStartParametersCurrent(Integer receiveСurrent) {
 
     }
 

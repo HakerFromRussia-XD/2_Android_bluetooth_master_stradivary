@@ -92,7 +92,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split("-")[0].equals(" IND") ||
             device.getName().split(" ")[0].equals("IND")){
             chatActivity.monograbVersion = true; //true - односхват
-            chatActivity.flagUseHDLCProcol = true; //true - при использовании протокола hdlc
+            chatActivity.flagUseHDLCProtocol = true; //true - при использовании протокола hdlc
         }
         if( device.getName().split("-")[0].equals("MLX") ||
             device.getName().split("-")[0].equals(" MLX") ||
@@ -102,7 +102,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("FNX") ||
             device.getName().split(" ")[0].equals("MacBook")){
             chatActivity.monograbVersion = false; //false - многосхват
-            chatActivity.flagUseHDLCProcol = true; //true - при использовании протокола hdlc
+            chatActivity.flagUseHDLCProtocol = true; //true - при использовании протокола hdlc
         }
     }
 

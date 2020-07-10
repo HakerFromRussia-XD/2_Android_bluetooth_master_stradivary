@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Handler;
-import android.provider.Settings;
 
-import me.Romans.bluetooth.BluetoothConstantManager;
 import me.Romans.motorica.ui.chat.interactor.ChatInteractor;
 import me.Romans.bluetooth.BluetoothCallback;
 import me.Romans.bluetooth.DeviceCallback;
@@ -15,7 +13,7 @@ import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 import static me.Romans.motorica.ui.chat.view.ChartActivity.flagReceptionExpectation;
-import static me.Romans.motorica.ui.chat.view.ChartActivity.flagUseHDLCProcol;
+import static me.Romans.motorica.ui.chat.view.ChartActivity.flagUseHDLCProtocol;
 
 public class ChatPresenterImpl implements ChatPresenter {
     private ChatView view;
@@ -399,7 +397,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         @Override
         public void givsStartParametersCurrrent(int current) {
             Integer receiveСurrent = new Integer(current);
-            view.setStartParametersCurrrent (receiveСurrent);
+            view.setStartParametersCurrent(receiveСurrent);
         }
 
         @Override
@@ -447,7 +445,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public boolean getFlagUseHDLCProcol() {
-            return flagUseHDLCProcol;
+            return flagUseHDLCProtocol;
         }
 
         @Override

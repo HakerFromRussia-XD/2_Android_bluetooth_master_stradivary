@@ -1,5 +1,6 @@
 package me.Romans.motorica.ui.chat.view.Gripper_settings;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
@@ -10,7 +11,6 @@ import me.Romans.motorica.R;
 
 public class GripperSettingsGLSurfaceView extends GLSurfaceView implements ErrorHandler
 {
-	private final FragmentGripperSettings gripperSettingsActivity;
 	private GripperSettingsRenderer renderer;
 	
 	// Offsets for touch events	 
@@ -26,7 +26,7 @@ public class GripperSettingsGLSurfaceView extends GLSurfaceView implements Error
 	public GripperSettingsGLSurfaceView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
-		gripperSettingsActivity = new FragmentGripperSettings();
+		FragmentGripperSettings gripperSettingsActivity = new FragmentGripperSettings();
 	}
 	
 	@Override
@@ -37,13 +37,11 @@ public class GripperSettingsGLSurfaceView extends GLSurfaceView implements Error
 			public void run() {
 				final String text;
 
-				switch (errorType) {
-				case BUFFER_CREATION_ERROR:
+				if (errorType == ErrorType.BUFFER_CREATION_ERROR) {
 					text = String
 							.format(getContext().getResources().getString(
 									R.string.lesson_eight_error_could_not_create_vbo), cause);
-					break;
-				default:
+				} else {
 					text = String.format(
 							getContext().getResources().getString(
 									R.string.lesson_eight_error_unknown), cause);
@@ -55,6 +53,7 @@ public class GripperSettingsGLSurfaceView extends GLSurfaceView implements Error
 		});
 	}
 
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
@@ -96,6 +95,7 @@ public class GripperSettingsGLSurfaceView extends GLSurfaceView implements Error
 					renderer.transferFlag = true;
 				}
 			}
+			assert renderer != null;
 			renderer.X = x;
 			renderer.Y = y;
 			previousX = x;

@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +22,6 @@ import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
-
-import static android.support.constraint.Constraints.TAG;
 
 public class FragmentGestureSettings extends Fragment implements ChatView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.gesture_use) public Button gesture_use;
@@ -56,13 +53,13 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
-        chatActivity.firstTapRcyclerView = true;
+        chatActivity.firstTapRecyclerView = true;
         chatActivity.graphThreadFlag = false;
         if(chatActivity.isEnable){
-            if(chatActivity.getFlagUseHDLCProcol()){
+            if(chatActivity.getFlagUseHDLCProtocol()){
             } else {
-                chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
-                chatActivity.TranslateMassegeControlComplexGesture();
+                chatActivity.CompileMassageControlComplexGesture(GESTURE_NUMBER);
+                chatActivity.TranslateMassageControlComplexGesture();
             }
         }
 
@@ -93,10 +90,10 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
             public void onClick(View v) {
                 if (getActivity() != null) {
                     if(chatActivity.isEnable){
-                        if(chatActivity.getFlagUseHDLCProcol()){
+                        if(chatActivity.getFlagUseHDLCProtocol()){
                         } else {
-                            chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
-                            chatActivity.TranslateMassegeControlComplexGesture();
+                            chatActivity.CompileMassageControlComplexGesture(GESTURE_NUMBER);
+                            chatActivity.TranslateMassageControlComplexGesture();
                         }
                     }
                     chatActivity.fragmentManager.beginTransaction()
@@ -116,8 +113,8 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
     public void backPressed() {
         if (getActivity() != null) {
             if(chatActivity.isEnable){
-                chatActivity.CompileMassegeControlComplexGesture(GESTURE_NUMBER);
-                chatActivity.TranslateMassegeControlComplexGesture();
+                chatActivity.CompileMassageControlComplexGesture(GESTURE_NUMBER);
+                chatActivity.TranslateMassageControlComplexGesture();
             }
             chatActivity.fragmentManager.beginTransaction()
                     .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
@@ -169,8 +166,8 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
     public void onGestureClick(int position) {
         switch (position) {
             case 0:
-                if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
-                    chatActivity.firstTapRcyclerView = false;
+                if(chatActivity.firstTapRecyclerView && chatActivity.isEnable){
+                    chatActivity.firstTapRecyclerView = false;
                     if (chatActivity.NUMBER_CELL == 1 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL - 0x01);
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
@@ -179,7 +176,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                             .commit();
                     for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
                         try {
-                            chatActivity.threadFanction[j].join();
+                            chatActivity.threadFunction[j].join();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -189,8 +186,8 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                 }
                 break;
             case 1:
-                if(chatActivity.firstTapRcyclerView && chatActivity.isEnable){
-                    chatActivity.firstTapRcyclerView = false;
+                if(chatActivity.firstTapRecyclerView && chatActivity.isEnable){
+                    chatActivity.firstTapRecyclerView = false;
                     if (chatActivity.NUMBER_CELL == 0 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
@@ -199,7 +196,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
                             .commit();
                     for (int j = 0; j<chatActivity.MAX_NUMBER_DETAILS; j++) {
                         try {
-                            chatActivity.threadFanction[j].join();
+                            chatActivity.threadFunction[j].join();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -246,7 +243,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
     }
 
     @Override
-    public void setStartParametersCurrrent(Integer receiveСurrent) {
+    public void setStartParametersCurrent(Integer receiveСurrent) {
 
     }
 

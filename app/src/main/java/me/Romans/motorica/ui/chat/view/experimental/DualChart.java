@@ -356,7 +356,7 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
     }
 
     @Override
-    public void setStartParametersCurrrent(Integer receiveСurrent) {
+    public void setStartParametersCurrent(Integer receiveСurrent) {
 
     }
 

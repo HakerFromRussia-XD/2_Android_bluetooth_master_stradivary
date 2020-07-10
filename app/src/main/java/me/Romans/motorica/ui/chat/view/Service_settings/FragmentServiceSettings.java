@@ -1,6 +1,5 @@
 package me.Romans.motorica.ui.chat.view.Service_settings;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -30,7 +29,6 @@ import me.Romans.motorica.ui.chat.view.ChatView;
 import me.Romans.motorica.utils.ConstantManager;
 
 import static android.support.constraint.Constraints.TAG;
-import static me.Romans.motorica.ui.chat.view.ChartActivity.deviceName;
 
 public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.switchInvert) public Switch switchInvert;
@@ -48,7 +46,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.buttonSSetup) Button buttonSSetup;
     @BindView(R.id.buttonCurrents) Button buttonCurrents;
     @BindView(R.id.buttonMIO) Button buttonMIO;
-    @BindView(R.id.buttonEtEClaib) Button buttonEtEClaib;
+    @BindView(R.id.buttonEtEClaib) Button buttonEtECalibration;
     @BindView(R.id.buttonEEPROMSave) Button buttonEEPROMSave;
     @BindView(R.id.buttonAngleFIX) Button buttonAngleFIX;
     @BindView(R.id.buttonG1) Button buttonG1;
@@ -62,7 +60,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.buttonS4) Button buttonS4;
     @BindView(R.id.buttonC) Button buttonC;
     @BindView(R.id.buttonU) Button buttonU;
-    @BindView(R.id.editTextAddr) EditText editTextAddr;
+    @BindView(R.id.editTextAddr) EditText editTextAddress;
     @BindView(R.id.editTextTemp) EditText editTextTemp;
     @BindView(R.id.editTextMaxCurrentValue) EditText editTextMaxCurrentValue;
     @BindView(R.id.editTextCurrTimeOut) EditText editTextCurrTimeOut;
@@ -83,13 +81,13 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
-                .chatModule(new ChatModule((ChatView) FragmentServiceSettings.this))
+                .chatModule(new ChatModule(FragmentServiceSettings.this))
                 .build().inject(FragmentServiceSettings.this);
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
         chatActivity.graphThreadFlag = false;
-        chatActivity.updateSeviceSettingsThreadFlag = true;
+        chatActivity.updateServiceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
         chatActivity.layoutSensors.setVisibility(View.GONE);
 
@@ -112,7 +110,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
         });
 
 
-        if(chatActivity.getFlagUseHDLCProcol()){
+        if(chatActivity.getFlagUseHDLCProtocol()){
             buttonOPN.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -146,9 +144,9 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             buttonSet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Integer temp = 0;
-                    if(!editTextAddr.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
-                        temp =  Integer.parseInt(editTextAddr.getText().toString());
+                    int temp;
+                    if(!editTextAddress.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
+                        temp =  Integer.parseInt(editTextAddress.getText().toString());
                         if (getActivity() != null) {
                             System.err.println("CLICK SET " + temp);
                             chatActivity.presenter.onHelloWorld(
@@ -172,7 +170,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             buttonSSetup.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Integer temp = 0;
+                    int temp;
                     if(!editTextTemp.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp = Integer.parseInt(editTextTemp.getText().toString());
                         if (getActivity() != null) {
@@ -186,7 +184,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             switchCurrentControl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Integer temp = 0;
+                    int temp;
                     if(switchCurrentControl.isChecked()){
                         if(!editTextMaxCurrentValue.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                             temp = Integer.parseInt(editTextMaxCurrentValue.getText().toString());
@@ -211,7 +209,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 @Override
                 public void afterTextChanged(Editable s) {
                     if(!editTextCurrTimeOut.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
-                        Integer temp = 0;
+                        int temp;
                             temp = Integer.parseInt(editTextCurrTimeOut.getText().toString());
                         if (getActivity() != null) {
                             System.err.println("CLICK CURRENT TIMEOUT " + temp);
@@ -242,7 +240,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 }
             });
 
-            buttonEtEClaib.setOnClickListener(new View.OnClickListener() {
+            buttonEtECalibration.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (getActivity() != null) {
@@ -311,7 +309,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             buttonS1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Integer temp = 0;
+                    int temp;
                     if(!editTextOpenAngle.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp = Integer.parseInt(editTextOpenAngle.getText().toString());
                         if (getActivity() != null) {
@@ -326,7 +324,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             buttonS2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Integer temp = 0;
+                    int temp;
                     if(!editTextCloseAngle.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp = Integer.parseInt(editTextCloseAngle.getText().toString());
                         if (getActivity() != null) {
@@ -341,7 +339,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             buttonS3.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Integer temp = 0;
+                    int temp;
                     if(!editTextWideAngle.getText().toString().matches("") && (editTextCurrTimeOut.getText().toString().length() < 10)){
                         temp = Integer.parseInt(editTextWideAngle.getText().toString());
                         if (getActivity() != null) {
@@ -482,7 +480,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    if(chatActivity.getFlagUseHDLCProcol()){
+                    if(chatActivity.getFlagUseHDLCProtocol()){
                         if (getActivity() != null) {
                             System.err.println("CLICK SPEED: "+ seekBar.getProgress());
                             chatActivity.presenter.onHelloWorld(
@@ -503,7 +501,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    if(chatActivity.getFlagUseHDLCProcol()){
+                    if(chatActivity.getFlagUseHDLCProtocol()){
                         if (getActivity() != null) {
                             System.err.println("CLICK ANGLE: "+ seekBar.getProgress());
                             chatActivity.presenter.onHelloWorld(
@@ -537,7 +535,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                     chatActivity.startGraphEnteringDataThread();
                     chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
                     chatActivity.myMenu.setGroupVisible(R.id.modes, false);
-                    chatActivity.updateSeviceSettingsThreadFlag = false;
+                    chatActivity.updateServiceSettingsThreadFlag = false;
                     chatActivity.layoutSensors.setVisibility(View.VISIBLE);
                 }
             }
@@ -554,10 +552,10 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if(chatActivity.getFlagUseHDLCProcol()){
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhnessHDLC((byte) (((byte) seekBar.getProgress()) + 1)));
+                if(chatActivity.getFlagUseHDLCProtocol()){
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageRoughnessHDLC((byte) (((byte) seekBar.getProgress()) + 1)));
                 } else {
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhness((byte) (((byte) seekBar.getProgress()) + 1)));
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageRoughness((byte) (((byte) seekBar.getProgress()) + 1)));
                 }
             }
         });
@@ -568,28 +566,28 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
                 System.err.println("FragmentServiceSettings-------------->");
                 if (switchInvert.isChecked()){
                     chatActivity.invert = 0x01;
-                    if(chatActivity.getFlagUseHDLCProcol()){
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvertHDLC(chatActivity.curent));
+                    if(chatActivity.getFlagUseHDLCProtocol()){
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvertHDLC(chatActivity.current));
                     } else {
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     }
-                    Integer temp = chatActivity.intValueCH1on;
-                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekbar-0.1)));//-0.5
-                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekbar-0.1)));//-0.5
+                    int temp = chatActivity.intValueCH1on;
+                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
+                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.invertChannel = true;
-                    chatActivity.saveVariable(chatActivity.deviceName+"invertChannel", 0x01);
+                    chatActivity.saveVariable(ChartActivity.deviceName +"invertChannel", 0x01);
                 } else {
                     chatActivity.invert = 0x00;
-                    if(chatActivity.getFlagUseHDLCProcol()){
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvertHDLC(chatActivity.curent));
+                    if(chatActivity.getFlagUseHDLCProtocol()){
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvertHDLC(chatActivity.current));
                     } else {
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     }
-                    Integer temp = chatActivity.intValueCH1on;
-                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekbar-0.1)));//-0.5
-                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekbar-0.1)));//-0.5
+                    int temp = chatActivity.intValueCH1on;
+                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
+                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.invertChannel = false;
-                    chatActivity.saveVariable(chatActivity.deviceName+"invertChannel", 0x00);
+                    chatActivity.saveVariable(ChartActivity.deviceName +"invertChannel", 0x00);
                 }
             }
         });
@@ -598,28 +596,31 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             @Override
             public void onClick(View v) {
                 if (switchNotUseInternalADC.isChecked()){
-                    if(chatActivity.getFlagUseHDLCProcol()){
+                    if(chatActivity.getFlagUseHDLCProtocol()){
                         System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 0");
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeSettingsNotUseInternalADCHDLC((byte) 0x00));
-                        chatActivity.saveVariable(chatActivity.deviceName+"InternalADC", 0x00);
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x00));
+                        chatActivity.saveVariable(ChartActivity.deviceName +"InternalADC", 0x00);
                     }
                 } else {
-                    if(chatActivity.getFlagUseHDLCProcol()){
+                    if(chatActivity.getFlagUseHDLCProtocol()){
                         System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 1");
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeSettingsNotUseInternalADCHDLC((byte) 0x01));
-                        chatActivity.saveVariable(chatActivity.deviceName+"InternalADC", 0x01);
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x01));
+                        chatActivity.saveVariable(ChartActivity.deviceName +"InternalADC", 0x01);
                     }
                 }
             }
         });
 
-        seekBarRoughness.setProgress(chatActivity.loadVariable(chatActivity.deviceName+"receiveRoughnessOfSensors"));
-        if (chatActivity.loadVariable(chatActivity.deviceName+"invertChannel") == 0x01) {
-            chatActivity.invertChannel = true;
-        } else {
-            chatActivity.invertChannel = false;
-        }
-        if (chatActivity.loadVariable(chatActivity.deviceName+"InternalADC") == 0x00) {
+        seekBarRoughness.setProgress(chatActivity.loadVariable(ChartActivity.deviceName +"receiveRoughnessOfSensors"));
+
+        chatActivity.invertChannel = chatActivity.loadVariable(ChartActivity.deviceName + "invertChannel") == 0x01;
+//      тоже что и в строчке выше  if (chatActivity.loadVariable(ChartActivity.deviceName +"invertChannel") == 0x01) {
+//            chatActivity.invertChannel = true;
+//        } else {
+//            chatActivity.invertChannel = false;
+//        }
+
+        if (chatActivity.loadVariable(ChartActivity.deviceName +"InternalADC") == 0x00) {
             switchNotUseInternalADC.setChecked(true);
         } else {
             switchNotUseInternalADC.setChecked(false);
@@ -639,7 +640,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
             chatActivity.startGraphEnteringDataThread();
             chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
             chatActivity.myMenu.setGroupVisible(R.id.modes, false);
-            chatActivity.updateSeviceSettingsThreadFlag = false;
+            chatActivity.updateServiceSettingsThreadFlag = false;
             chatActivity.layoutSensors.setVisibility(View.VISIBLE);
         }
     }
@@ -647,7 +648,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     @Override
     public void onResume() {
         super.onResume();
-        Log.e(TAG,"FragmentServiceSettings------> "+ chatActivity.loadVariable(chatActivity.deviceName+"receiveRoughnessOfSensors"));
+        Log.e(TAG,"FragmentServiceSettings------> "+ chatActivity.loadVariable(ChartActivity.deviceName +"receiveRoughnessOfSensors"));
 //        seekBarRoughness.setProgress(chatActivity.loadVariable(chatActivity.deviceName+"receiveRoughnessOfSensors"));
     }
 
@@ -697,12 +698,12 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     }
 
     @Override
-    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
+    public void setGeneralValue(int receiveCurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
 
     }
 
     @Override
-    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
+    public void setStartParameters(Integer receiveCurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
 
     }
 
@@ -732,7 +733,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     }
 
     @Override
-    public void setStartParametersCurrrent(Integer receiveСurrent) {
+    public void setStartParametersCurrent(Integer receiveCurrent) {
 
     }
 

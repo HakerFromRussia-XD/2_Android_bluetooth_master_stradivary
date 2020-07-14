@@ -38,6 +38,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private byte txtbyteout14[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0E, 0x00, 0x77, 0x24};                                     //компановка для включения/отключения(0х01/0х00) блокировки
     private byte txtbyteout15[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0F, 0x00, 0x77, 0x77, 0x24};                               //компановка для задачи номера открытого и закрытого схватов 0x77 заменяемые данные всего 10 байт
     private byte txtbyteout16[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x10, 0x00, 0x77, 0x24};                                     //компановка для установки грубости датчиков 0x77 заменяемые данные всего 9 байт
+    private boolean onPauseActivity = false;
 
     public ChatPresenterImpl(ChatView view, ChatInteractor interactor) {
         this.view = view;
@@ -462,19 +463,34 @@ public class ChatPresenterImpl implements ChatPresenter {
     private DeviceCallback communicationCallback = new DeviceCallback() {
         @Override
         public void onDeviceConnected(BluetoothDevice device) {
+            if (DEBUG) {System.out.println("ChatPresenter--------------> onDeviceConnected");}
             view.setStatus(R.string.bluetooth_connected);
             view.enableHWButton(true);
             attemptConect = 0;
         }
 
         @Override
-        public void onDeviceDisconnected(BluetoothDevice device, String message) {
+        public void onDeviceDisconnected(final BluetoothDevice device, String message) {
             if (DEBUG) {System.out.println("ChatPresenter--------------> onDeviceDisconnected");}
             view.setStatus(R.string.bluetooth_connecting);
             view.enableHWButton(false);
+//            if(!onPauseActivity){
+//                attemptConect += 1;
+//                if(attemptConect < 5001) {
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+                    if(!onPauseActivity){
+                        System.out.println("ChatPresenter--------------> pause call "+ false);
+                        interactor.connectToDevice(device, communicationCallback);
+                    }
+//                }
+//            }, 1000);
+//            System.out.println("ChatPresenter--------------> pause");
+//                }
+//            }
 //            interactor.connectToDevice(device, communicationCallback);
-            interactor.parsingExperimental(parserCallback);
-            onConnectError(device, message);
+//            onConnectError(device, message);
         }
 
         @Override
@@ -492,15 +508,15 @@ public class ChatPresenterImpl implements ChatPresenter {
         public void onConnectError(final BluetoothDevice device, String message) {
             if (DEBUG) {System.out.println("ChatPresenter--------------> onConnectError");}
             view.setStatus(R.string.bluetooth_connect_in_3sec);
-//            view.showToast("Подключение №" + attemptConect);
-            if (DEBUG) {System.out.println("Подключение №" + attemptConect);}
+//            if (DEBUG) {System.out.println("Подключение №" + attemptConect);}
             attemptConect += 1;
             if(attemptConect < 5001) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        interactor.connectToDevice(device, communicationCallback);
-                        interactor.parsingExperimental(parserCallback);
+                        if(!onPauseActivity){
+                            interactor.connectToDevice(device, communicationCallback);
+                        }
                     }
                 }, 10);
             } else{
@@ -517,7 +533,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         if(interactor.isBluetoothEnabled()){
             interactor.connectToDevice(device, communicationCallback);
             interactor.parsingExperimental(parserCallback);
-//            view.setStatus(R.string.bluetooth_connecting);
+            view.setStatus(R.string.bluetooth_connecting);
         }
         else{
             interactor.enableBluetooth();
@@ -526,14 +542,17 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void onStop() {
-        interactor.onStop();
+        System.out.println("ChatPresenter--------------> onResume"); interactor.onStop();
     }
 
     @Override
     public void onResume() { System.out.println("ChatPresenter--------------> onResume");}
 
     @Override
-    public void onPause() { System.out.println("ChatPresenter--------------> onPause");}
+    public void onPause() {
+        this.disconnect();
+        System.out.println("ChatPresenter--------------> onPause");
+    }
 
     @Override
     public void setDeviceCallback2(Activity activity){
@@ -589,6 +608,10 @@ public class ChatPresenterImpl implements ChatPresenter {
             return view.getFirstRead();
         }
     };
+
+    public void setOnPauseActivity(boolean onPauseActivity) {
+        this.onPauseActivity = onPauseActivity;
+    }
 
     public byte calculationCRC(byte[] bytes) {
         byte CRC = 0x00;

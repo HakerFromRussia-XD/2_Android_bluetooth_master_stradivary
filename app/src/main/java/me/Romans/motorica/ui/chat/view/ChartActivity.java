@@ -1717,6 +1717,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     @Override
     protected void onResume() {
         super.onResume();
+        presenter.setOnPauseActivity(false);
 //        firstRead = false;
     }
 
@@ -1724,6 +1725,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     protected void onPause() {
         super.onPause();
         System.out.println("ChatActivity--------------> onPause");
+        presenter.setOnPauseActivity(true);
         try {
             graphThread.interrupt();
         } catch (Exception ignored){}
@@ -2039,8 +2041,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     requestStartTrig2Thread ();
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Trig2");
                 }
-                while (flagReceptionExpectation){
-                    if(isEnable){
+                if(isEnable){
+                    while (flagReceptionExpectation){
                         System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig1");
                         flagReceptionExpectation = false;
                         requestStartTrig1Thread ();
@@ -2065,8 +2067,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     if(monograbVersion){requestStartCurrentThread();} else {requestStartRoughnessThread();}
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Curr");
                 }
-                while (flagReceptionExpectation){
-                    if(isEnable) {
+                if(isEnable) {
+                    while (flagReceptionExpectation){
                         System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig2");
                         flagReceptionExpectation = false;
                         requestStartTrig2Thread();
@@ -2093,8 +2095,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     requestStartRoughnessThread();
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Block");
                 }
-                while (flagReceptionExpectation){
-                    if(isEnable) {
+                if(isEnable) {
+                    while (flagReceptionExpectation){
                         System.out.println("ChartActivity--------------> рекурсивный запуск запроса Current");
                         flagReceptionExpectation = false;
                         requestStartCurrentThread();
@@ -2119,8 +2121,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 //                    requestStartRoughnessThread();
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Roughness");
                 }
-                while (flagReceptionExpectation){
-                    if(isEnable) {
+                if(isEnable) {
+                    while (flagReceptionExpectation){
                         System.out.println("ChartActivity--------------> рекурсивный запуск запроса Block");
                         flagReceptionExpectation = false;
                         requestStartBlockThread();
@@ -2146,8 +2148,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     firstRead = false;
                     System.out.println("ChartActivity--------------> конец запросов нач параметров");
                 }
-                while (flagReceptionExpectation){
-                    if(isEnable) {
+                if(isEnable) {
+                    while (flagReceptionExpectation){
                         System.out.println("ChartActivity--------------> рекурсивный запуск запроса Roughness");
                         flagReceptionExpectation = false;
                         requestStartRoughnessThread();
@@ -2173,8 +2175,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     firstRead = false;
                     System.out.println("ChartActivity--------------> конец запросов нач параметров");
                 }
-                while (flagReceptionExpectation){
-                    if(isEnable) {
+                if(isEnable) {
+                    while (flagReceptionExpectation){
                         System.out.println("ChartActivity--------------> рекурсивный запуск запроса Battery");
                         flagReceptionExpectation = false;
                         requestBatteryTensionThread();

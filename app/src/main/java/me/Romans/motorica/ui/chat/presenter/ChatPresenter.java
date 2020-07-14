@@ -15,6 +15,7 @@ public interface ChatPresenter {
     void setDeviceCallback2(Activity activity);
     void disconnect();
     void disable();
+    void setOnPauseActivity(boolean onPauseActivity);
     byte calculationCRC(byte[] textByteTreegSettings);
     byte calculationCRC_HDLC(byte[] textByteTreegSettings);
 }

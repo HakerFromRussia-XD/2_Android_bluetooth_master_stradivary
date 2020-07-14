@@ -946,7 +946,7 @@ public class Bluetooth {
 
         public void run() {
             bluetoothAdapter.cancelDiscovery();
-
+            System.out.println("BLUETOOTH--------------> ConnectThread");
             try {
                 socket.connect();
                 out = socket.getOutputStream();

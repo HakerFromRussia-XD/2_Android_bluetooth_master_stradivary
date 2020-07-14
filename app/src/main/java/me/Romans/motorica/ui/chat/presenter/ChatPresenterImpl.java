@@ -474,23 +474,10 @@ public class ChatPresenterImpl implements ChatPresenter {
             if (DEBUG) {System.out.println("ChatPresenter--------------> onDeviceDisconnected");}
             view.setStatus(R.string.bluetooth_connecting);
             view.enableHWButton(false);
-//            if(!onPauseActivity){
-//                attemptConect += 1;
-//                if(attemptConect < 5001) {
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-                    if(!onPauseActivity){
-                        System.out.println("ChatPresenter--------------> pause call "+ false);
-                        interactor.connectToDevice(device, communicationCallback);
-                    }
-//                }
-//            }, 1000);
-//            System.out.println("ChatPresenter--------------> pause");
-//                }
-//            }
-//            interactor.connectToDevice(device, communicationCallback);
-//            onConnectError(device, message);
+            if(!onPauseActivity){
+                System.out.println("ChatPresenter--------------> pause call "+ false);
+                interactor.connectToDevice(device, communicationCallback);
+            }
         }
 
         @Override
@@ -501,14 +488,13 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public void onError(String message) {
-//            view.setStatus(message);
         }
 
         @Override
         public void onConnectError(final BluetoothDevice device, String message) {
             if (DEBUG) {System.out.println("ChatPresenter--------------> onConnectError");}
             view.setStatus(R.string.bluetooth_connect_in_3sec);
-//            if (DEBUG) {System.out.println("Подключение №" + attemptConect);}
+            if (DEBUG) {System.out.println("Подключение №" + attemptConect);}
             attemptConect += 1;
             if(attemptConect < 5001) {
                 new Handler().postDelayed(new Runnable() {

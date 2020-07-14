@@ -20,7 +20,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private ChatInteractor interactor;
     private BluetoothDevice device;
     private int attemptConect = 0;
-    private boolean DEBUG = false;
+    private boolean DEBUG = true;
     private byte aByte[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x01, 0x24};
     private byte txtbyteout1[] = {0x4D, 0x54, 0x07, 0x00, 0x01, 0x02, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для отправки порогов сигналов 0x77 заменяемые данные всего 15 байт
     private byte txtbyteout2[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x77, 0x24};                                     //компановка для запроса сигналов на датчиках 0x77 заменяемые данные всего 9 байт
@@ -48,7 +48,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     public void onCreate(Intent intent) {
         if (intent.getExtras() != null) {
             device = intent.getExtras().getParcelable("device");
-            if (DEBUG) {System.out.println("ВАЖНО!!!!!!!!!!!! ДЕВАЙС:" + device);}
+            if (DEBUG) {System.out.println("ВАЖНО!!!!!!!!!!!! ДЕВАЙС:   " + device);}
             view.enableHWButton(false);
         } else {
             if (DEBUG) {System.out.println("ПИЗДА!!!!!!!!!!!! ПОСЫЛКИ НЕТ!");}
@@ -464,6 +464,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         public void onDeviceConnected(BluetoothDevice device) {
             view.setStatus(R.string.bluetooth_connected);
             view.enableHWButton(true);
+            attemptConect = 0;
         }
 
         @Override
@@ -473,6 +474,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             view.enableHWButton(false);
 //            interactor.connectToDevice(device, communicationCallback);
             interactor.parsingExperimental(parserCallback);
+            onConnectError(device, message);
         }
 
         @Override
@@ -483,7 +485,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public void onError(String message) {
-            view.setStatus(message);
+//            view.setStatus(message);
         }
 
         @Override
@@ -493,7 +495,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 //            view.showToast("Подключение №" + attemptConect);
             if (DEBUG) {System.out.println("Подключение №" + attemptConect);}
             attemptConect += 1;
-            if(attemptConect < 51) {
+            if(attemptConect < 5001) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -515,7 +517,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         if(interactor.isBluetoothEnabled()){
             interactor.connectToDevice(device, communicationCallback);
             interactor.parsingExperimental(parserCallback);
-            view.setStatus(R.string.bluetooth_connecting);
+//            view.setStatus(R.string.bluetooth_connecting);
         }
         else{
             interactor.enableBluetooth();

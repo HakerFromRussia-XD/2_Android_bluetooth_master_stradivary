@@ -22,6 +22,8 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import java.util.Objects;
+
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
@@ -36,28 +38,18 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
 
 //    @BindView(R.id.activity_chat_status) TextView state;
     public boolean isEnable = false;
-//    for graph
-    private SensorManager sensorManager;
-    private Sensor mAccelerometer;
     private LineChart mChart;
     private boolean plotData = true;
     public boolean errorReception = false;
     private Thread thread;
     public float iterator = 0;
     public int dataSetIndex = 0;
-//    public ILineDataSet set;
-//    for massage
-    private int intValueCH1on = 2500;
-    private int intValueCH1off = 100;
-    private int intValueCH1sleep = 200;
     private int intValueCH2on = 2500;
     private int intValueCH2off = 100;
     private int intValueCH2sleep = 200;
     private byte indicatorTypeMessage = 0x01;
     private byte numberChannel;
     public byte[] TextByteTreeg = new byte[8];
-//    for general updates
-    public int receiveСurrentChat = 0;
     public int receiveLevelCH1Chat = 0;
     public int receiveLevelCH2Chat = 0;
     public byte receiveIndicationStateChat = 0;
@@ -69,7 +61,7 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activiti_experimental);
 
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         if (android.os.Build.VERSION.SDK_INT >= 21){
             Window window = this.getWindow();
@@ -84,14 +76,15 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
                 .build().inject(DualChart.this);
         ButterKnife.bind(DualChart.this);
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        //    for graph
+        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
 //        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
 //        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        if(mAccelerometer != null){
-            sensorManager.registerListener(DualChart.this,mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+        if(accelerometer != null){
+            sensorManager.registerListener(DualChart.this, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
         }
 
 ////////initialized graph for channel 1
@@ -136,10 +129,15 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
         mChart.getAxisRight().setEnabled(false);
 
 
+        //    public ILineDataSet set;
+        //    for massage
+        int intValueCH1on = 2500;
         TextByteTreeg[2] = (byte) intValueCH1on;
         TextByteTreeg[3] = (byte) (intValueCH1on >> 8);
+        int intValueCH1off = 100;
         TextByteTreeg[4] = (byte) intValueCH1off;
         TextByteTreeg[5] = (byte) (intValueCH1off >> 8);
+        int intValueCH1sleep = 200;
         TextByteTreeg[6] = (byte) intValueCH1sleep;
         TextByteTreeg[7] = (byte) (intValueCH1sleep >> 8);
 
@@ -167,7 +165,7 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
                     });
                     try {
                         Thread.sleep(33);
-                    }catch (Exception e){}
+                    }catch (Exception ignored){}
 //                    if (isEnable && errorReception) { //обработчик пришедшей ошибки
 //                        errorReception = false;
 //                        runOnUiThread(new Runnable() {
@@ -206,6 +204,7 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
             data.addDataSet(set);
         }
 
+        assert set != null;
         data.addEntry(new Entry(set.getEntryCount(), event), dataSetIndex);
         data.notifyDataChanged();
 
@@ -321,12 +320,12 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
     }
 
     @Override
-    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
+    public void setGeneralValue(int receiveCurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
 
     }
 
     @Override
-    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
+    public void setStartParameters(Integer receiveCurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
 
     }
 
@@ -356,7 +355,7 @@ public class DualChart extends AppCompatActivity implements ChatView, SensorEven
     }
 
     @Override
-    public void setStartParametersCurrent(Integer receiveСurrent) {
+    public void setStartParametersCurrent(Integer receiveCurrent) {
 
     }
 

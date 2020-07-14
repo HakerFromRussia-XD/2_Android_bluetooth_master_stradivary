@@ -32,8 +32,6 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 
 	/** References to other main objects. */
 	private Context fragmentGripperSettings;
-	private FragmentGripperSettings fragmentGripperSettingsF;
-	private ChartActivity chatActivity;
 	private final ErrorHandler errorHandler;
 
 	/**
@@ -49,19 +47,19 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	 * eye.
 	 */
 	private final float[] viewMatrix = new float[16];
-	private final float[] inversViewMatrix = new float[16];
+//	private final float[] invertsViewMatrix = new float[16];
 
 	/**
 	 * Store the projection matrix. This is used to project the scene onto a 2D
 	 * viewport.
 	 */
 	private final float[] projectionMatrix = new float[16];
-	private final float[] inversProjectionMatrix = new float[16];
-	private float[] ray_clip;
-	private float[] ray_eye;
-	private float[] ray_wor;
-	private float[] cameraPosition;
-	private float[] normalVector;
+//	private final float[] inversProjectionMatrix = new float[16];
+//	private float[] ray_clip;
+//	private float[] ray_eye;
+//	private float[] ray_wor;
+//	private float[] cameraPosition;
+//	private float[] normalVector;
 
 	/**
 	 * Allocate storage for the final combined matrix. This will be passed into
@@ -97,7 +95,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	private int positionAttribute;
 	private int normalAttribute;
 	private int colorAttribute;
-	private int textursAtribute;
+	private int texturesAttribute;
 
 
 	/** Identifiers for our uniforms and attributes inside the shaders. */
@@ -120,7 +118,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	private static final int TEXTURES_DATA_SIZE_IN_ELEMENTS = 2;
 
 	private static final int BYTES_PER_FLOAT = 4;
-	private static final int BYTES_PER_SHORT = 2;
+//	private static final int BYTES_PER_SHORT = 2;
 	private static final int BYTES_PER_INT = 4;
 
 	private static final int STRIDE = (POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS)
@@ -150,7 +148,6 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	private int programRubber;
 	private int programRubberWithColor;
 	private int programWithColor;
-	private int programPointHandle;
 	private int programSelect;
 
 
@@ -171,8 +168,8 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	public volatile float Y;
 	public volatile float deltaX;
 	public volatile float deltaY;
-	public volatile float x;
-	public volatile float y;
+//	public volatile float x;
+//	public volatile float y;
 	public int width;
 	public int height;
 	public boolean selectFlag;
@@ -184,12 +181,12 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 
 	/** массивы вершин и индексов в которые упаковываются данные из строковых переменных*/
 	private static int MAX_NUMBER_DETAILS = 19;
-	public volatile  float[][] verticesArrey = new float[MAX_NUMBER_DETAILS][1];
-	public volatile  int[][] indicesArreyVerteces = new int[MAX_NUMBER_DETAILS][1];
+//	public volatile  float[][] verticesArrey = new float[MAX_NUMBER_DETAILS][1];
+//	public volatile  int[][] indicesArreyVerteces = new int[MAX_NUMBER_DETAILS][1];
 	/** массивы вершин и т.п. из строковых переменных*/
-	public volatile float[][] coordArrey = new float[MAX_NUMBER_DETAILS][];
-	public volatile float[][] texturessArrey = new float[MAX_NUMBER_DETAILS][];
-	public volatile float[][] normalsArrey = new float[MAX_NUMBER_DETAILS][];
+//	public volatile float[][] coordArrey = new float[MAX_NUMBER_DETAILS][];
+//	public volatile float[][] texturessArrey = new float[MAX_NUMBER_DETAILS][];
+//	public volatile float[][] normalsArrey = new float[MAX_NUMBER_DETAILS][];
 	public float angleForeFingerFloat = 0;
 	private int angleForeFingerInt = 0;
 	private int lastAngleForeFingerInt = 0;
@@ -216,7 +213,10 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	private int angleBigFingerTransfer2 = 0;
 	private float angle90 = 90;
 
-	enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5};
+	public void setChatActivity(ChartActivity chatActivity) {
+	}
+
+	enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
 	public SelectStation selectStation;
 	/**
 	 * Initialize the model data.
@@ -229,7 +229,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	@Override
 	public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
 		heightMap = new HeightMap();
-		heightMap.loader(0);
+		heightMap.loader();
 
 		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
@@ -264,8 +264,8 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		final String fragmentShaderWithColor = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_tex_color_light);
 		final String fragmentShaderRubber = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_rubber);
 		final String fragmentShaderRubberWithColor = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.per_pixel_fragment_shader_rubber_with_color);
-		final String pointVertexShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.point_vertex_shader);
-		final String pointFragmentShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.point_fragment_shader);
+//		final String pointVertexShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.point_vertex_shader);
+//		final String pointFragmentShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.point_fragment_shader);
 		final String selectVertexShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.select_vertex_shader);
 		final String selectFragmentShader = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.select_fragment_shader);
 
@@ -275,8 +275,8 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		final int fragmentShaderWithColorHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderWithColor);
 		final int fragmentShaderRubberHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderRubber);
 		final int fragmentShaderRubberWithColorHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderRubberWithColor);
-		final int pointVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, pointVertexShader);
-		final int pointFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, pointFragmentShader);
+//		final int pointVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, pointVertexShader);
+//		final int pointFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, pointFragmentShader);
 		final int selectVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, selectVertexShader);
 		final int selectFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, selectFragmentShader);
 
@@ -289,8 +289,8 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 				POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE });
 		programRubberWithColor = ShaderHelper.createAndLinkProgram(vertexShaderHandle, fragmentShaderRubberWithColorHandle, new String[] {
 				POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE });
-		programPointHandle = ShaderHelper.createAndLinkProgram(pointVertexShaderHandle, pointFragmentShaderHandle,
-				new String[] {POSITION_ATTRIBUTE});
+//		int programPointHandle = ShaderHelper.createAndLinkProgram(pointVertexShaderHandle, pointFragmentShaderHandle,
+//				new String[]{POSITION_ATTRIBUTE});
 		programSelect = ShaderHelper.createAndLinkProgram(selectVertexShaderHandle, selectFragmentShaderHandle,
 				new String[] {POSITION_ATTRIBUTE});
 
@@ -377,13 +377,12 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		// same while the width will vary as per aspect ratio.
 		final float ratio = (float) width / height;
 		final float left = -ratio;
-		final float right = ratio;
 		final float bottom = -1.0f;
 		final float top = 1.0f;
 		final float near = 1.0f;
 		final float far = 300.0f;//2000
 
-		Matrix.frustumM(projectionMatrix, 0, left, right, bottom, top, near, far);
+		Matrix.frustumM(projectionMatrix, 0, left, ratio, bottom, top, near, far);
 	}
 
 	@Override
@@ -398,7 +397,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 			System.err.println(selectStation);
 		}
 		if(transferFlag){
-			tranferComand();
+			transferCommand();
 		}
 
 
@@ -509,7 +508,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		positionAttribute = GLES20.glGetAttribLocation(programRubber, POSITION_ATTRIBUTE);
 		normalAttribute = GLES20.glGetAttribLocation(programRubber, NORMAL_ATTRIBUTE);
 		colorAttribute = GLES20.glGetAttribLocation(programRubber, COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(programRubber, TEXTURES_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(programRubber, TEXTURES_ATTRIBUTE);
 
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
 		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
@@ -535,7 +534,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
 		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
 		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -604,7 +603,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], POSITION_ATTRIBUTE);
 		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], NORMAL_ATTRIBUTE);
 		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[1], TEXTURES_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], TEXTURES_ATTRIBUTE);
 
 		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
@@ -675,19 +674,19 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		GLES20.glUniform1i(textureUniformHandle, 2);
 		heightMap.render(new int[]{7});
 	}
-	private void middleFinger (int[] shaderMassiv, int idForSelectObject) {
+	private void middleFinger (int[] shaderMass, int idForSelectObject) {
 		/** шейдер резины */
-		GLES20.glUseProgram(shaderMassiv[0]);
+		GLES20.glUseProgram(shaderMass[0]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
-		textureUniformHandle = GLES20.glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
+		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMass[0], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMass[0], MV_MATRIX_UNIFORM);
+		lightPosUniform = GLES20.glGetUniformLocation(shaderMass[0], LIGHT_POSITION_UNIFORM);
+		codeSelectUniform = GLES20.glGetUniformLocation(shaderMass[0], CODE_SELECT_UNIFORM);
+		textureUniformHandle = GLES20.glGetUniformLocation(shaderMass[0], TEXTURE_UNIFORM);
+		positionAttribute = GLES20.glGetAttribLocation(shaderMass[0], POSITION_ATTRIBUTE);
+		normalAttribute = GLES20.glGetAttribLocation(shaderMass[0], NORMAL_ATTRIBUTE);
+		colorAttribute = GLES20.glGetAttribLocation(shaderMass[0], COLOR_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMass[0], TEXTURES_ATTRIBUTE);
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -742,17 +741,17 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		heightMap.render(new int[]{11});
 
 		/** шейдер без цвета */
-		GLES20.glUseProgram(shaderMassiv[1]);
+		GLES20.glUseProgram(shaderMass[1]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[1], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[1], MV_MATRIX_UNIFORM);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[1], LIGHT_POSITION_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[1], CODE_SELECT_UNIFORM);
-		textureUniformHandle = GLES20.glGetUniformLocation(shaderMassiv[1], TEXTURE_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[1], TEXTURES_ATTRIBUTE);
+		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMass[1], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMass[1], MV_MATRIX_UNIFORM);
+		lightPosUniform = GLES20.glGetUniformLocation(shaderMass[1], LIGHT_POSITION_UNIFORM);
+		codeSelectUniform = GLES20.glGetUniformLocation(shaderMass[1], CODE_SELECT_UNIFORM);
+		textureUniformHandle = GLES20.glGetUniformLocation(shaderMass[1], TEXTURE_UNIFORM);
+		positionAttribute = GLES20.glGetAttribLocation(shaderMass[1], POSITION_ATTRIBUTE);
+		normalAttribute = GLES20.glGetAttribLocation(shaderMass[1], NORMAL_ATTRIBUTE);
+		colorAttribute = GLES20.glGetAttribLocation(shaderMass[1], COLOR_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMass[1], TEXTURES_ATTRIBUTE);
 
 		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
@@ -830,7 +829,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
 		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
 		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -899,7 +898,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], POSITION_ATTRIBUTE);
 		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], NORMAL_ATTRIBUTE);
 		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[1], TEXTURES_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], TEXTURES_ATTRIBUTE);
 
 		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
@@ -969,19 +968,19 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		GLES20.glUniform1i(textureUniformHandle, 4);
 		heightMap.render(new int[]{13});
 	}
-	private void littleFinger (int[] shaderMassiv, int idForSelectObject) {
+	private void littleFinger (int[] shaderMass, int idForSelectObject) {
 		/** шейдер резины */
-		GLES20.glUseProgram(shaderMassiv[0]);
+		GLES20.glUseProgram(shaderMass[0]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
-		textureUniformHandle = GLES20.glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
+		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMass[0], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMass[0], MV_MATRIX_UNIFORM);
+		lightPosUniform = GLES20.glGetUniformLocation(shaderMass[0], LIGHT_POSITION_UNIFORM);
+		codeSelectUniform = GLES20.glGetUniformLocation(shaderMass[0], CODE_SELECT_UNIFORM);
+		textureUniformHandle = GLES20.glGetUniformLocation(shaderMass[0], TEXTURE_UNIFORM);
+		positionAttribute = GLES20.glGetAttribLocation(shaderMass[0], POSITION_ATTRIBUTE);
+		normalAttribute = GLES20.glGetAttribLocation(shaderMass[0], NORMAL_ATTRIBUTE);
+		colorAttribute = GLES20.glGetAttribLocation(shaderMass[0], COLOR_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMass[0], TEXTURES_ATTRIBUTE);
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1040,17 +1039,17 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		heightMap.render(new int[]{17});
 
 		/** шейдер без цвета */
-		GLES20.glUseProgram(shaderMassiv[1]);
+		GLES20.glUseProgram(shaderMass[1]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[1], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[1], MV_MATRIX_UNIFORM);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[1], LIGHT_POSITION_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[1], CODE_SELECT_UNIFORM);
-		textureUniformHandle = GLES20.glGetUniformLocation(shaderMassiv[1], TEXTURE_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[1], TEXTURES_ATTRIBUTE);
+		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMass[1], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMass[1], MV_MATRIX_UNIFORM);
+		lightPosUniform = GLES20.glGetUniformLocation(shaderMass[1], LIGHT_POSITION_UNIFORM);
+		codeSelectUniform = GLES20.glGetUniformLocation(shaderMass[1], CODE_SELECT_UNIFORM);
+		textureUniformHandle = GLES20.glGetUniformLocation(shaderMass[1], TEXTURE_UNIFORM);
+		positionAttribute = GLES20.glGetAttribLocation(shaderMass[1], POSITION_ATTRIBUTE);
+		normalAttribute = GLES20.glGetAttribLocation(shaderMass[1], NORMAL_ATTRIBUTE);
+		colorAttribute = GLES20.glGetAttribLocation(shaderMass[1], COLOR_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMass[1], TEXTURES_ATTRIBUTE);
 
 		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
@@ -1120,19 +1119,19 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		GLES20.glUniform1i(textureUniformHandle, 5);
 		heightMap.render(new int[]{16});
 	}
-	private void bigFinger (int[] shaderMassiv, int idForSelectObject)  {
+	private void bigFinger (int[] shaderMass, int idForSelectObject)  {
 		/** шейдер основной */
-		GLES20.glUseProgram(shaderMassiv[0]);
+		GLES20.glUseProgram(shaderMass[0]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
-		textureUniformHandle = GLES20.glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
+		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMass[0], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMass[0], MV_MATRIX_UNIFORM);
+		lightPosUniform = GLES20.glGetUniformLocation(shaderMass[0], LIGHT_POSITION_UNIFORM);
+		codeSelectUniform = GLES20.glGetUniformLocation(shaderMass[0], CODE_SELECT_UNIFORM);
+		textureUniformHandle = GLES20.glGetUniformLocation(shaderMass[0], TEXTURE_UNIFORM);
+		positionAttribute = GLES20.glGetAttribLocation(shaderMass[0], POSITION_ATTRIBUTE);
+		normalAttribute = GLES20.glGetAttribLocation(shaderMass[0], NORMAL_ATTRIBUTE);
+		colorAttribute = GLES20.glGetAttribLocation(shaderMass[0], COLOR_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMass[0], TEXTURES_ATTRIBUTE);
 
 		Matrix.setIdentityM(modelMatrix, 0);
 		Matrix.translateM(modelMatrix, 0, 43.382f, 29.763f, 24.0f);
@@ -1217,17 +1216,17 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		heightMap.render(new int[]{0});
 
 		/** шейдер резины */
-		GLES20.glUseProgram(shaderMassiv[1]);
+		GLES20.glUseProgram(shaderMass[1]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[1], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[1], MV_MATRIX_UNIFORM);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[1], LIGHT_POSITION_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[1], CODE_SELECT_UNIFORM);
-		textureUniformHandle = GLES20.glGetUniformLocation(shaderMassiv[1], TEXTURE_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[1], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[1], TEXTURES_ATTRIBUTE);
+		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMass[1], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMass[1], MV_MATRIX_UNIFORM);
+		lightPosUniform = GLES20.glGetUniformLocation(shaderMass[1], LIGHT_POSITION_UNIFORM);
+		codeSelectUniform = GLES20.glGetUniformLocation(shaderMass[1], CODE_SELECT_UNIFORM);
+		textureUniformHandle = GLES20.glGetUniformLocation(shaderMass[1], TEXTURE_UNIFORM);
+		positionAttribute = GLES20.glGetAttribLocation(shaderMass[1], POSITION_ATTRIBUTE);
+		normalAttribute = GLES20.glGetAttribLocation(shaderMass[1], NORMAL_ATTRIBUTE);
+		colorAttribute = GLES20.glGetAttribLocation(shaderMass[1], COLOR_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMass[1], TEXTURES_ATTRIBUTE);
 
 		/** составления матриц вида и проекции */
 		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
@@ -1244,17 +1243,17 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		heightMap.render(new int[]{1});
 
 		/** должен быть шейдер металла*/
-		GLES20.glUseProgram(shaderMassiv[2]);
+		GLES20.glUseProgram(shaderMass[2]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[2], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[2], MV_MATRIX_UNIFORM);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[2], LIGHT_POSITION_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[2], CODE_SELECT_UNIFORM);
-		textureUniformHandle = GLES20.glGetUniformLocation(shaderMassiv[2], TEXTURE_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[2], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[2], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[2], COLOR_ATTRIBUTE);
-		textursAtribute = GLES20.glGetAttribLocation(shaderMassiv[2], TEXTURES_ATTRIBUTE);
+		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMass[2], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMass[2], MV_MATRIX_UNIFORM);
+		lightPosUniform = GLES20.glGetUniformLocation(shaderMass[2], LIGHT_POSITION_UNIFORM);
+		codeSelectUniform = GLES20.glGetUniformLocation(shaderMass[2], CODE_SELECT_UNIFORM);
+		textureUniformHandle = GLES20.glGetUniformLocation(shaderMass[2], TEXTURE_UNIFORM);
+		positionAttribute = GLES20.glGetAttribLocation(shaderMass[2], POSITION_ATTRIBUTE);
+		normalAttribute = GLES20.glGetAttribLocation(shaderMass[2], NORMAL_ATTRIBUTE);
+		colorAttribute = GLES20.glGetAttribLocation(shaderMass[2], COLOR_ATTRIBUTE);
+		texturesAttribute = GLES20.glGetAttribLocation(shaderMass[2], TEXTURES_ATTRIBUTE);
 
 		/** манипуляции с венцом */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1366,32 +1365,32 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 
 		return res.get(0);
 	}
-	private void tranferComand () {
+	private void transferCommand() {
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
 			System.err.println("GripperSettingsRender--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);
-			chatActivity.transferFinger1Static(angleLittleFingerTransfer);
+			ChartActivity.transferFinger1Static(angleLittleFingerTransfer);
 //			System.err.println("GripperSettingsRender--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){
 			System.err.println("GripperSettingsRender--------> angleRingFingerTransfer: "+ angleRingFingerTransfer);
-			chatActivity.transferFinger2Static(angleRingFingerTransfer);
+			ChartActivity.transferFinger2Static(angleRingFingerTransfer);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){
 			System.err.println("GripperSettingsRender--------> angleMiddleFingerTransfer: "+ angleMiddleFingerTransfer);
-			chatActivity.transferFinger3Static(angleMiddleFingerTransfer);
+			ChartActivity.transferFinger3Static(angleMiddleFingerTransfer);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){
 			System.err.println("GripperSettingsRender--------> angleForeFingerTransfer: "+ angleForeFingerTransfer);
-			chatActivity.transferFinger4Static(angleForeFingerTransfer);
+			ChartActivity.transferFinger4Static(angleForeFingerTransfer);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
 			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2 real: "+ angleBigFingerTransfer2);
 //			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer1: "+ (100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
-			chatActivity.transferFinger5Static((100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
+			ChartActivity.transferFinger5Static((100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
 //			далее конструкция инвертирования и приведения диапазона для вращения венца большого пальца
 			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2: "+ (100-((int)((float)angleBigFingerTransfer2/90*100))));
-			chatActivity.transferFinger6Static((100-((int)((float)angleBigFingerTransfer2/90*100))));
+			ChartActivity.transferFinger6Static((100-((int)((float)angleBigFingerTransfer2/90*100))));
 		}
 		transferFlag = false;
 	}
@@ -1402,24 +1401,24 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 
 		int indexCount;
 		private int i = 0;
-		void loader(int offset) {
+		void loader() {
 			try {
 				GLES20.glGenBuffers(MAX_NUMBER_DETAILS, vbo, 0);
 				GLES20.glGenBuffers(MAX_NUMBER_DETAILS, ibo, 0);
 
 				for (i = 0; i<MAX_NUMBER_DETAILS; i++){
-					indexCount = chatActivity.getVertexArray(i).length;
+					indexCount = ChartActivity.getVertexArray(i).length;
 					System.err.println("HeightMap--------> количество элементов в массиве №"+(i+1)+" "+indexCount);
 
 					final FloatBuffer heightMapVertexDataBuffer = ByteBuffer
-							.allocateDirect(chatActivity.getVertexArray(i).length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
+							.allocateDirect(ChartActivity.getVertexArray(i).length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
 							.asFloatBuffer();
-					heightMapVertexDataBuffer.put(chatActivity.getVertexArray(i)).position(0);
+					heightMapVertexDataBuffer.put(ChartActivity.getVertexArray(i)).position(0);
 
 					final IntBuffer heightMapIndexDataBuffer = ByteBuffer
-							.allocateDirect(chatActivity.getVertexArray(i).length * BYTES_PER_INT).order(ByteOrder.nativeOrder())
+							.allocateDirect(ChartActivity.getVertexArray(i).length * BYTES_PER_INT).order(ByteOrder.nativeOrder())
 							.asIntBuffer();
-					heightMapIndexDataBuffer.put(chatActivity.getIndicesArray(i)).position(0);
+					heightMapIndexDataBuffer.put(ChartActivity.getIndicesArray(i)).position(0);
 
 					if (vbo[0] > 0 && ibo[0] > 0) {
 						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[i]);
@@ -1461,10 +1460,10 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 							STRIDE, (POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
 					GLES20.glEnableVertexAttribArray(colorAttribute);
 
-					GLES20.glVertexAttribPointer(textursAtribute, TEXTURES_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+					GLES20.glVertexAttribPointer(texturesAttribute, TEXTURES_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
 							STRIDE,
 							(POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(textursAtribute);
+					GLES20.glEnableVertexAttribArray(texturesAttribute);
 
 					// Draw
 					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, ibo[indexesOfBuffer[i]]);

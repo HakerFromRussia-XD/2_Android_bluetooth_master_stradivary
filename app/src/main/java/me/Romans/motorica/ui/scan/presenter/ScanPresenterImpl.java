@@ -76,7 +76,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("MLT") ||
             device.getName().split(" ")[0].equals("FNG") ||
             device.getName().split(" ")[0].equals("FNS")) {
-            chatActivity.monograbVersion = false; //false - многосхват
+            ChartActivity.monograbVersion = false; //false - многосхват
 //            chatActivity.flagUseHDLCProcol = true; //удалить это вот для отладки надо, чтобы не переименовывать комп
         }
         if( device.getName().split("-")[0].equals("STR") ||
@@ -85,14 +85,14 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split(" ")[0].equals("STR") ||
             device.getName().split(" ")[0].equals("CBY") ||
             device.getName().split(" ")[0].equals("HND")){
-            chatActivity.monograbVersion = true; //true - односхват
+            ChartActivity.monograbVersion = true; //true - односхват
 //            chatActivity.flagUseHDLCProcol = true;
         }
         if( device.getName().split("-")[0].equals("IND") ||
             device.getName().split("-")[0].equals(" IND") ||
             device.getName().split(" ")[0].equals("IND")){
-            chatActivity.monograbVersion = true; //true - односхват
-            chatActivity.flagUseHDLCProtocol = true; //true - при использовании протокола hdlc
+            ChartActivity.monograbVersion = true; //true - односхват
+            ChartActivity.flagUseHDLCProtocol = true; //true - при использовании протокола hdlc
         }
         if( device.getName().split("-")[0].equals("MLX") ||
             device.getName().split("-")[0].equals(" MLX") ||
@@ -101,8 +101,8 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split("-")[0].equals(" FNX") ||
             device.getName().split(" ")[0].equals("FNX") ||
             device.getName().split(" ")[0].equals("MacBook")){
-            chatActivity.monograbVersion = false; //false - многосхват
-            chatActivity.flagUseHDLCProtocol = true; //true - при использовании протокола hdlc
+            ChartActivity.monograbVersion = false; //false - многосхват
+            ChartActivity.flagUseHDLCProtocol = true; //true - при использовании протокола hdlc
         }
     }
 

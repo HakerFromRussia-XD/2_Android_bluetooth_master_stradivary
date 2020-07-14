@@ -110,7 +110,7 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
     }
 
     @Override
-    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
+    public void setStartParameters(Integer receiveCurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
 
     }
 
@@ -140,7 +140,7 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
     }
 
     @Override
-    public void setStartParametersCurrent(Integer receiveСurrent) {
+    public void setStartParametersCurrent(Integer receiveCurrent) {
 
     }
 

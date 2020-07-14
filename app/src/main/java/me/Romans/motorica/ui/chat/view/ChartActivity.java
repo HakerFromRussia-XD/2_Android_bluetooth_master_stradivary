@@ -1734,10 +1734,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 
     @Override
     public void setStatus(int resId) {
-        System.out.println("ChatActivity----> resId setText:"+ resId);
-        if (resId == 2131820609){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
-        if (resId == 2131820610){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
-        if (resId == 2131820611){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
+        System.out.println("ChatActivity----> resId setText:"+ resId + "   Айди строчки неподключения: "+R.string.bluetooth_connect_in_3sec);
+        if (resId == R.string.bluetooth_connect_in_3sec){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.VISIBLE);}
+        if (resId == R.string.bluetooth_connected){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
+        if (resId == R.string.bluetooth_connecting){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
     }
 
     @Override
@@ -2040,9 +2040,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Trig2");
                 }
                 while (flagReceptionExpectation){
-                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig1");
-                    flagReceptionExpectation = false;
-                    requestStartTrig1Thread ();
+                    if(isEnable){
+                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig1");
+                        flagReceptionExpectation = false;
+                        requestStartTrig1Thread ();
+                    }
                 }
             }
         });
@@ -2064,9 +2066,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Curr");
                 }
                 while (flagReceptionExpectation){
-                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig2");
-                    flagReceptionExpectation = false;
-                    requestStartTrig2Thread ();
+                    if(isEnable) {
+                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig2");
+                        flagReceptionExpectation = false;
+                        requestStartTrig2Thread();
+                    }
                 }
             }
         });
@@ -2090,9 +2094,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Block");
                 }
                 while (flagReceptionExpectation){
-                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Current");
-                    flagReceptionExpectation = false;
-                    requestStartCurrentThread ();
+                    if(isEnable) {
+                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Current");
+                        flagReceptionExpectation = false;
+                        requestStartCurrentThread();
+                    }
                 }
             }
         });
@@ -2114,9 +2120,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Roughness");
                 }
                 while (flagReceptionExpectation){
-                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Block");
-                    flagReceptionExpectation = false;
-                    requestStartBlockThread ();
+                    if(isEnable) {
+                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Block");
+                        flagReceptionExpectation = false;
+                        requestStartBlockThread();
+                    }
                 }
             }
         });
@@ -2139,9 +2147,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     System.out.println("ChartActivity--------------> конец запросов нач параметров");
                 }
                 while (flagReceptionExpectation){
-                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Roughness");
-                    flagReceptionExpectation = false;
-                    requestStartRoughnessThread ();
+                    if(isEnable) {
+                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Roughness");
+                        flagReceptionExpectation = false;
+                        requestStartRoughnessThread();
+                    }
                 }
             }
         });
@@ -2164,9 +2174,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     System.out.println("ChartActivity--------------> конец запросов нач параметров");
                 }
                 while (flagReceptionExpectation){
-                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Battery");
-                    flagReceptionExpectation = false;
-                    requestBatteryTensionThread ();
+                    if(isEnable) {
+                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Battery");
+                        flagReceptionExpectation = false;
+                        requestBatteryTensionThread();
+                    }
                 }
             }
         });

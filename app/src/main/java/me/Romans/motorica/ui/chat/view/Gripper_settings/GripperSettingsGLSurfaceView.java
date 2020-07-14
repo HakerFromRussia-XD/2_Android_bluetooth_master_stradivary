@@ -19,14 +19,14 @@ public class GripperSettingsGLSurfaceView extends GLSurfaceView implements Error
     
     private float density;
 
-    private boolean selectFlag = false;
+//    private boolean selectFlag = false;
 
 
 	
 	public GripperSettingsGLSurfaceView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
-		FragmentGripperSettings gripperSettingsActivity = new FragmentGripperSettings();
+		new FragmentGripperSettings();
 	}
 	
 	@Override

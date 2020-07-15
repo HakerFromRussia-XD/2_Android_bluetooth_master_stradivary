@@ -384,12 +384,6 @@ public class Bluetooth {
         private byte[] byteMassCRC = new byte[10];
         private volatile boolean mFinish = false;
 
-//        public void finish()
-//        {
-//            System.out.println("BLUETOOTH--------------> ReceiveThread завершение потока connected:" + connected);
-//            mFinish = true;
-//        }
-
         public void run(){
             if (DEBUG) {System.out.println("BLUETOOTH--------------> ReceiveThread connected:" + connected);}
 //            System.out.println("BLUETOOTH--------------> firstRead: " + bluetoothCallback.getFirstRead());
@@ -416,7 +410,6 @@ public class Bluetooth {
                             }
                         }
 
-
                         if (parserCallback.getFlagUseHDLCProcol()){ //выбор ветки для парсинга и отправки
                             branchOfParsing = BluetoothConstantManager.HDLC_PROTOCOL;//парсит hdlc посылки
                         } else {
@@ -434,6 +427,7 @@ public class Bluetooth {
                                 }
                             }
                         }
+
                         if (branchOfParsing == BluetoothConstantManager.RESET_ALL_VARIABLE){
 //                            System.out.println("BLUETOOTH--------------> branchOfParsing -> RESET_ALL_VARIABLE -> resetAllVariables");
                             resetAllVariables();
@@ -916,7 +910,7 @@ public class Bluetooth {
 
         public void resetAllVariables() {
             msgstr.setLength(0);
-            no_error = true;
+            no_error =true;
             summator = 0;
             msgLenght = 0;
             msgRegister = 0;
@@ -927,8 +921,8 @@ public class Bluetooth {
             addressHDLCMassage = 0;
             typeHDLCMassage = 0;
             msgRegister = 0;
-            msgCRC = 12345;
-            i=1;
+            msgCRC=12345;
+            i = 1 ;
 //            System.out.println("BLUETOOTH--------------> RESET ALL VARIABLES");
         }
     }
@@ -1058,7 +1052,7 @@ public class Bluetooth {
                         ThreadHelper.run(runOnUi, activity, new Runnable() {
                             @Override
                             public void run() {
-                                deviceCallback.onError(closeException.getMessage());//Could not connect. New attempt in 3sec...
+                                deviceCallback.onError(closeException.getMessage());
                             }
                         });
                     }

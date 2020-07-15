@@ -108,10 +108,10 @@ public class ScanInteractorImpl implements ScanInteractor {
                 device.getName().split(" ")[0].equals("HND") ||
                 device.getName().split(" ")[0].equals("IND") ||
                 device.getName().split(" ")[0].equals("MacBook")){
-                System.err.println("ScanInteractorImpl--------------> "+device.getName()+":"+(position+1));
+                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
                 items.add(device.getName()+":"+(position+1));//device.getAddress()+" : "+
             } else {
-                System.err.println("ScanInteractorImpl--------------> "+device.getName()+":"+(position+1));
+                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
                 items.add(".");
             }
             position++;

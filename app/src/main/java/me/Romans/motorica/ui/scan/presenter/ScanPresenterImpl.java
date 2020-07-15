@@ -2,7 +2,11 @@ package me.Romans.motorica.ui.scan.presenter;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
+import android.os.Handler;
 
+import java.util.List;
+
+import me.Romans.bluetooth.DeviceCallback;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.scan.interactor.ScanInteractor;
 import me.Romans.motorica.ui.scan.view.ScanView;
@@ -19,6 +23,7 @@ public class ScanPresenterImpl implements ScanPresenter{
     private ScanInteractor interactor;
     private boolean canceledDiscovery = false;
     private boolean firstStart = true;
+    private BluetoothDevice device;
 
     public ScanPresenterImpl(ScanView view, ScanInteractor interactor) {
         this.view = view;
@@ -28,10 +33,15 @@ public class ScanPresenterImpl implements ScanPresenter{
     @Override
     public void onStart(Activity activity) {
         interactor.onStart(bluetoothCallback, activity);
-        if(interactor.isBluetoothEnabled() && firstStart){
-            startScanning();
-            view.showPairedList(interactor.getPairedDevices());
-            firstStart = false;
+        if(interactor.isBluetoothEnabled()){
+            device = interactor.getPairedDevice(6);
+            if (device == null) {device = interactor.getPairedDevice(0);}
+            interactor.checkAvailableDevice(device, communicationCallback);
+            if(firstStart){
+                startScanning();
+                view.showPairedList(interactor.getPairedDevices());
+                firstStart = false;
+            }
         }
         else{
             interactor.enableBluetooth();
@@ -105,6 +115,44 @@ public class ScanPresenterImpl implements ScanPresenter{
             ChartActivity.flagUseHDLCProtocol = true; //true - при использовании протокола hdlc
         }
     }
+
+    @Override
+    public void disconnect(){
+        interactor.disconnect();
+    }
+
+
+    private DeviceCallback communicationCallback = new DeviceCallback() {
+        @Override
+        public void onDeviceConnected(BluetoothDevice device) {
+            System.out.println("ScanPresenter--------------> onDeviceCheckConnected" + device);
+//            interactor.disconnect();
+//            List<String> pairedDevice = interactor.getPairedDevice().toString();
+//            BluetoothDevice nextDevice = interactor.getPairedDevice(1);
+//            if(nextDevice )
+////            interactor.checkAvailableDevice(device, communicationCallback);
+        }
+
+        @Override
+        public void onDeviceDisconnected(final BluetoothDevice device, String message) {
+            System.out.println("ScanPresenter--------------> onDeviceCheckDisconnected");
+        }
+
+        @Override
+        public void onMessage(String message) {
+        }
+
+        @Override
+        public void onError(String message) {
+        }
+
+        @Override
+        public void onConnectError(final BluetoothDevice device, String message) {
+            System.out.println("ScanPresenter--------------> onConnectError " + device);
+//            interactor.disconnect();
+//            interactor.checkAvailableDevice(device, communicationCallback);
+        }
+    };
 
     private DiscoveryCallback discoveryCallback = new DiscoveryCallback() {
         @Override

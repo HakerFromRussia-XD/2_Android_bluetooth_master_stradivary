@@ -22,6 +22,7 @@ import java.lang.invoke.ConstantCallSite;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.zip.CRC32;
 
@@ -198,6 +199,14 @@ public class Bluetooth {
     public void connectToDevice(BluetoothDevice device){
         if (DEBUG) {System.out.println("BLUETOOTH--------------> connectToDevice2:" + device + "connected:" + connected);}
         connectToDevice(device, false);
+    }
+
+    public void checkConnectToDevice(BluetoothDevice device, boolean insecureConnection){
+        new CheckConnectThread(device, insecureConnection).start();
+    }
+
+    public void checkConnectToDevice(BluetoothDevice device){
+        checkConnectToDevice(device, false);
     }
 
     public void disconnect() {
@@ -924,6 +933,7 @@ public class Bluetooth {
         }
     }
 
+
     private class ConnectThread extends Thread {
         ConnectThread(BluetoothDevice device, boolean insecureConnection) {
             if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread connected:" + connected);}
@@ -946,7 +956,7 @@ public class Bluetooth {
 
         public void run() {
             bluetoothAdapter.cancelDiscovery();
-            System.out.println("BLUETOOTH--------------> ConnectThread");
+            System.out.println("BLUETOOTH--------------> ConnectThread " + device);
             try {
                 socket.connect();
                 out = socket.getOutputStream();
@@ -993,6 +1003,70 @@ public class Bluetooth {
             }
         }
     }
+
+    private class CheckConnectThread extends Thread {
+        CheckConnectThread(BluetoothDevice device, boolean insecureConnection) {
+            Bluetooth.this.device=device;
+            try {
+                if(insecureConnection){
+                    Bluetooth.this.socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+                }
+                else{
+                    Bluetooth.this.socket = device.createRfcommSocketToServiceRecord(uuid);
+                }
+            } catch (IOException e) {
+                if(deviceCallback !=null){
+                    deviceCallback.onError(e.getMessage());
+                }
+            }
+        }
+
+        public void run() {
+            bluetoothAdapter.cancelDiscovery();
+            System.out.println("BLUETOOTH--------------> ConnectCheckThread");
+            try {
+                socket.connect();
+                out = socket.getOutputStream();
+                input = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ISO-8859-1"));
+                in = new InputStreamReader(socket.getInputStream());
+                connected=true;
+
+                new ReceiveThread().start();
+
+                if(deviceCallback !=null) {
+                    ThreadHelper.run(runOnUi, activity, new Runnable() {
+                        @Override
+                        public void run() {
+                            deviceCallback.onDeviceConnected(device);
+                        }
+                    });
+                }
+            } catch (final IOException e) {
+                if(deviceCallback !=null) {
+                    ThreadHelper.run(runOnUi, activity, new Runnable() {
+                        @Override
+                        public void run() {
+                            deviceCallback.onConnectError(device, e.getMessage());
+                        }
+                    });
+                }
+
+                try {
+                    socket.close();
+                } catch (final IOException closeException) {
+                    if (deviceCallback != null) {
+                        ThreadHelper.run(runOnUi, activity, new Runnable() {
+                            @Override
+                            public void run() {
+                                deviceCallback.onError(closeException.getMessage());//Could not connect. New attempt in 3sec...
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
 
     private BroadcastReceiver scanReceiver = new BroadcastReceiver() {
         @Override

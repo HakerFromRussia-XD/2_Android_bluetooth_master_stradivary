@@ -12,4 +12,5 @@ public interface ScanPresenter {
     void startScanning();
     void onStart(Activity activity);
     void onStop();
+    void disconnect();
 }

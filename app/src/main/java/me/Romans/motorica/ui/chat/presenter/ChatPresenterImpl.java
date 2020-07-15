@@ -476,7 +476,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             view.enableHWButton(false);
             if(!onPauseActivity){
                 System.out.println("ChatPresenter--------------> pause call "+ false);
-                interactor.connectToDevice(device, communicationCallback);
+//                interactor.connectToDevice(device, communicationCallback);
             }
         }
 
@@ -501,7 +501,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                     @Override
                     public void run() {
                         if(!onPauseActivity){
-                            interactor.connectToDevice(device, communicationCallback);
+//                            interactor.connectToDevice(device, communicationCallback);
                         }
                     }
                 }, 10);
@@ -517,6 +517,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         if (DEBUG) {System.out.println("ChatPresenter--------------> onStart");}
         interactor.onStart(bluetoothCallback, activity);
         if(interactor.isBluetoothEnabled()){
+//            interactor.checkAvailableDevice(device, communicationCallback);
             interactor.connectToDevice(device, communicationCallback);
             interactor.parsingExperimental(parserCallback);
             view.setStatus(R.string.bluetooth_connecting);
@@ -538,16 +539,6 @@ public class ChatPresenterImpl implements ChatPresenter {
     public void onPause() {
         this.disconnect();
         System.out.println("ChatPresenter--------------> onPause");
-    }
-
-    @Override
-    public void setDeviceCallback2(Activity activity){
-        interactor.onStart (bluetoothCallback, activity);
-        if (interactor.isBluetoothEnabled()) {
-            interactor.connectToDevice2(device, communicationCallback);
-        } else {
-            interactor.enableBluetooth();
-        }
     }
 
     @Override

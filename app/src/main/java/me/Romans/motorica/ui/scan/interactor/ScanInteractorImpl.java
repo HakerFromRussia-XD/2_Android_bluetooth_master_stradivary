@@ -8,6 +8,7 @@ import java.util.List;
 
 import me.Romans.bluetooth.Bluetooth;
 import me.Romans.bluetooth.BluetoothCallback;
+import me.Romans.bluetooth.DeviceCallback;
 import me.Romans.bluetooth.DiscoveryCallback;
 
 
@@ -62,6 +63,12 @@ public class ScanInteractorImpl implements ScanInteractor {
     @Override
     public void onStop() {
         this.bluetooth.onStop();
+    }
+
+    @Override
+    public void checkAvailableDevice(BluetoothDevice device, DeviceCallback callback) {
+        bluetooth.setDeviceCallback(callback);
+        bluetooth.checkConnectToDevice(device);
     }
 
     @Override
@@ -142,5 +149,10 @@ public class ScanInteractorImpl implements ScanInteractor {
             return bluetooth.getPairedDevices().get(position);
         }
         return null;
+    }
+
+    @Override
+    public void disconnect(){
+        bluetooth.disconnect();
     }
 }

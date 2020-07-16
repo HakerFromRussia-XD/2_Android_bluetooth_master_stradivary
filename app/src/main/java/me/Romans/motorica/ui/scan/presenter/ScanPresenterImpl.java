@@ -34,8 +34,18 @@ public class ScanPresenterImpl implements ScanPresenter{
     public void onStart(Activity activity) {
         interactor.onStart(bluetoothCallback, activity);
         if(interactor.isBluetoothEnabled()){
-            BluetoothDevice device = interactor.getPairedDevice(checkDevicePosition);
-            interactor.checkAvailableDevice(device, communicationCallback);
+//            BluetoothDevice device = interactor.getPairedDevice(1);
+//            interactor.checkAvailableDevice(device, communicationCallback);
+//            device = interactor.getPairedDevice(0);
+//            interactor.checkAvailableDevice(device, communicationCallback);
+//            device = interactor.getPairedDevice(2);
+//            interactor.checkAvailableDevice(device, communicationCallback);
+//            device = interactor.getPairedDevice(3);
+//            interactor.checkAvailableDevice(device, communicationCallback);
+//            device = interactor.getPairedDevice(4);
+//            interactor.checkAvailableDevice(device, communicationCallback);
+//            device = interactor.getPairedDevice(5);
+//            interactor.checkAvailableDevice(device, communicationCallback);
             if(firstStart){
                 startScanning();
                 view.showPairedList(interactor.getPairedDevices());
@@ -110,7 +120,7 @@ public class ScanPresenterImpl implements ScanPresenter{
             device.getName().split("-")[0].equals(" FNX") ||
             device.getName().split(" ")[0].equals("FNX") ||
             device.getName().split(" ")[0].equals("MacBook")){
-            ChartActivity.monograbVersion = false; //false - многосхват
+            ChartActivity.monograbVersion = true; //false - многосхват
             ChartActivity.flagUseHDLCProtocol = true; //true - при использовании протокола hdlc
         }
     }
@@ -126,17 +136,16 @@ public class ScanPresenterImpl implements ScanPresenter{
         public void onDeviceConnected(BluetoothDevice device) {
             System.out.println("ScanPresenter--------------> onDeviceCheckConnected" + device);
             interactor.disconnect();
-            BluetoothDevice nextDevice = interactor.getPairedDevice(checkDevicePosition++);
-            if (nextDevice == null) {
-                checkDevicePosition = 0;
-                nextDevice = interactor.getPairedDevice(checkDevicePosition);
-            }
-            interactor.checkAvailableDevice(nextDevice, communicationCallback);
+//            BluetoothDevice nextDevice = interactor.getPairedDevice(checkDevicePosition++);
+//            if (nextDevice == null) {
+//                checkDevicePosition = 0;
+//                nextDevice = interactor.getPairedDevice(checkDevicePosition);
+//            }
+//            interactor.checkAvailableDevice(nextDevice, communicationCallback);
         }
 
         @Override
         public void onDeviceDisconnected(final BluetoothDevice device, String message) {
-            System.out.println("ScanPresenter--------------> onDeviceCheckDisconnected");
         }
 
         @Override
@@ -151,12 +160,12 @@ public class ScanPresenterImpl implements ScanPresenter{
         public void onConnectError(final BluetoothDevice device, String message) {
             System.out.println("ScanPresenter--------------> ta samaya oshibka " + device);
             interactor.disconnect();
-            BluetoothDevice nextDevice = interactor.getPairedDevice(checkDevicePosition++);
-            if (nextDevice == null) {
-                checkDevicePosition = 0;
-                nextDevice = interactor.getPairedDevice(checkDevicePosition);
-            }
-            interactor.checkAvailableDevice(nextDevice, communicationCallback);
+//            BluetoothDevice nextDevice = interactor.getPairedDevice(checkDevicePosition++);
+//            if (nextDevice == null) {
+//                checkDevicePosition = 0;
+//                nextDevice = interactor.getPairedDevice(checkDevicePosition);
+//            }
+//            interactor.checkAvailableDevice(nextDevice, communicationCallback);
         }
     };
 

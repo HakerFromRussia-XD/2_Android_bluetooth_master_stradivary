@@ -149,7 +149,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView {
     @Override
     protected void onStop() {
         super.onStop();
-        presenter.disconnect();
+//        presenter.disconnect();
         presenter.onStop();
     }
 }

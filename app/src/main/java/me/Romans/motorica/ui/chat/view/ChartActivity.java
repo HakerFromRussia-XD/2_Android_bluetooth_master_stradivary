@@ -1919,11 +1919,6 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
             seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekBar - 0.25)));//-0.5
             seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekBar - 0.25)));//-0.5
 
-            if (receiveBlockIndication == 1){
-                switchBlockMode.setChecked(true);
-            } else {
-//                switchBlockMode.setChecked(false);
-            }
             System.err.println("Параметры, полученные с кисти:\n" +
                     "Trig CH1: "+receiveLevelTrigCH1+"\n"+
                     "Trig CH2: "+receiveLevelTrigCH2+"\n"+
@@ -1932,6 +1927,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     "Block indication: "+receiveBlockIndication+"\n"+
                     "Roughness: "+receiveRoughnessOfSensors+"\n");
             firstRead = false;
+            if(receiveBlockIndication == 0){switchBlockMode.setChecked(false); imageViewStatus.setImageResource(R.drawable.block_not_use);}
+            if(receiveBlockIndication == 1){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.unblock);}
+            if(receiveBlockIndication == 2){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.unblock);}
+            if(receiveBlockIndication == 3){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.block);}
+
     }
 
     @Override
@@ -2090,9 +2090,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
                 }catch (Exception ignored){}
                 if(!flagReceptionExpectation){
-//                    requestStartBlockThread();
+                    requestStartBlockThread();
 //                    TODO вынесли запрос блокировки до лучших времён
-                    requestStartRoughnessThread();
+//                    requestStartRoughnessThread();
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Block");
                 }
                 if(isEnable) {

@@ -803,13 +803,13 @@ public class Bluetooth {
                                                 }
                                             break;
                                         case BluetoothConstantManager.BLOCK_PERMISSION_HDLC:
-//                                            System.out.println("BLUETOOTH--------------> READ -> BLOCK_PERMISSION_HDLC");
+                                            System.out.println("BLUETOOTH--------------> READ -> BLOCK_PERMISSION_HDLC");
                                             if(addressHDLCMassage == (byte) 0xFA){
                                                 if(i == 6){ msgBlockIndication = (byte) msg; byteMassCRC[1] = (byte) msg;}
                                                 if(i == 7){
                                                     msgCRC = (byte) msg;
-//                                                    System.out.println("BLUETOOTH--------------> принятая CRC= "+msgCRC);
-//                                                    System.out.println("BLUETOOTH--------------> посчитанная CRC= "+calculationCRC(byteMassCRC, 2));
+                                                    System.out.println("BLUETOOTH--------------> принятая CRC= "+msgCRC);
+                                                    System.out.println("BLUETOOTH--------------> посчитанная CRC= "+calculationCRC(byteMassCRC, 2));
                                                 }//обработчик CRC
                                             }
                                                 i++;
@@ -927,6 +927,31 @@ public class Bluetooth {
         }
     }
 
+    private class CheckReceiveThread extends Thread implements Runnable {
+        private volatile boolean mFinish = false;
+        private int msg = 65;
+
+        public void run() {
+
+            try {
+                while ((msg = input.read()) != -1)
+                {
+                    if (!mFinish) {
+                    } else return; //завершение потока
+                }
+            } catch (final IOException e) {
+                connected = false;
+                if (deviceCallback != null) {
+                    ThreadHelper.run(runOnUi, activity, new Runnable() {
+                        @Override
+                        public void run() {
+                            deviceCallback.onDeviceDisconnected(device, e.getMessage());
+                        }
+                    });
+                }
+            }
+        }
+    }
 
     private class ConnectThread extends Thread {
         ConnectThread(BluetoothDevice device, boolean insecureConnection) {
@@ -1016,22 +1041,23 @@ public class Bluetooth {
         }
 
         public void run() {
+            final BluetoothDevice myDevice = device;
             bluetoothAdapter.cancelDiscovery();
-            System.out.println("BLUETOOTH--------------> ConnectCheckThread");
+//            System.out.println("BLUETOOTH--------------> ConnectCheckThread");
             try {
                 socket.connect();
                 out = socket.getOutputStream();
                 input = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ISO-8859-1"));
                 in = new InputStreamReader(socket.getInputStream());
                 connected=true;
-
-                new ReceiveThread().start();
+//
+                new CheckReceiveThread().start();
 
                 if(deviceCallback !=null) {
                     ThreadHelper.run(runOnUi, activity, new Runnable() {
                         @Override
                         public void run() {
-                            deviceCallback.onDeviceConnected(device);
+                            deviceCallback.onDeviceConnected(myDevice);
                         }
                     });
                 }
@@ -1040,7 +1066,7 @@ public class Bluetooth {
                     ThreadHelper.run(runOnUi, activity, new Runnable() {
                         @Override
                         public void run() {
-                            deviceCallback.onConnectError(device, e.getMessage());
+                            deviceCallback.onConnectError(myDevice, e.getMessage());
                         }
                     });
                 }

@@ -34,18 +34,18 @@ public class ScanPresenterImpl implements ScanPresenter{
     public void onStart(Activity activity) {
         interactor.onStart(bluetoothCallback, activity);
         if(interactor.isBluetoothEnabled()){
-//            BluetoothDevice device = interactor.getPairedDevice(1);
-//            interactor.checkAvailableDevice(device, communicationCallback);
-//            device = interactor.getPairedDevice(0);
-//            interactor.checkAvailableDevice(device, communicationCallback);
-//            device = interactor.getPairedDevice(2);
-//            interactor.checkAvailableDevice(device, communicationCallback);
-//            device = interactor.getPairedDevice(3);
-//            interactor.checkAvailableDevice(device, communicationCallback);
-//            device = interactor.getPairedDevice(4);
-//            interactor.checkAvailableDevice(device, communicationCallback);
-//            device = interactor.getPairedDevice(5);
-//            interactor.checkAvailableDevice(device, communicationCallback);
+            BluetoothDevice device = interactor.getPairedDevice(1);
+            interactor.checkAvailableDevice(device, communicationCallback);
+            device = interactor.getPairedDevice(0);
+            interactor.checkAvailableDevice(device, communicationCallback);
+            device = interactor.getPairedDevice(2);
+            interactor.checkAvailableDevice(device, communicationCallback);
+            device = interactor.getPairedDevice(3);
+            interactor.checkAvailableDevice(device, communicationCallback);
+            device = interactor.getPairedDevice(4);
+            interactor.checkAvailableDevice(device, communicationCallback);
+            device = interactor.getPairedDevice(5);
+            interactor.checkAvailableDevice(device, communicationCallback);
             if(firstStart){
                 startScanning();
                 view.showPairedList(interactor.getPairedDevices());

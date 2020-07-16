@@ -936,8 +936,9 @@ public class Bluetooth {
             try {
                 while ((msg = input.read()) != -1)
                 {
-                    if (!mFinish) {
-                    } else return; //завершение потока
+                    return;
+//                    if (!mFinish) {
+//                    } else return; //завершение потока
                 }
             } catch (final IOException e) {
                 connected = false;

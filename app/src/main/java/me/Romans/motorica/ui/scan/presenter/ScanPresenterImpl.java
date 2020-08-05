@@ -36,16 +36,16 @@ public class ScanPresenterImpl implements ScanPresenter{
         if(interactor.isBluetoothEnabled()){
             BluetoothDevice device = interactor.getPairedDevice(1);
             interactor.checkAvailableDevice(device, communicationCallback);
-            device = interactor.getPairedDevice(0);
-            interactor.checkAvailableDevice(device, communicationCallback);
-            device = interactor.getPairedDevice(2);
-            interactor.checkAvailableDevice(device, communicationCallback);
-            device = interactor.getPairedDevice(3);
-            interactor.checkAvailableDevice(device, communicationCallback);
-            device = interactor.getPairedDevice(4);
-            interactor.checkAvailableDevice(device, communicationCallback);
-            device = interactor.getPairedDevice(5);
-            interactor.checkAvailableDevice(device, communicationCallback);
+//            device = interactor.getPairedDevice(0);
+//            interactor.checkAvailableDevice(device, communicationCallback);
+//            device = interactor.getPairedDevice(2);
+//            interactor.checkAvailableDevice(device, communicationCallback);
+//            device = interactor.getPairedDevice(3);
+//            interactor.checkAvailableDevice(device, communicationCallback);
+//            device = interactor.getPairedDevice(4);
+//            interactor.checkAvailableDevice(device, communicationCallback);
+//            device = interactor.getPairedDevice(5);
+//            interactor.checkAvailableDevice(device, communicationCallback);
             if(firstStart){
                 startScanning();
                 view.showPairedList(interactor.getPairedDevices());
@@ -136,12 +136,12 @@ public class ScanPresenterImpl implements ScanPresenter{
         public void onDeviceConnected(BluetoothDevice device) {
             System.out.println("ScanPresenter--------------> onDeviceCheckConnected" + device);
             interactor.disconnect();
-//            BluetoothDevice nextDevice = interactor.getPairedDevice(checkDevicePosition++);
-//            if (nextDevice == null) {
-//                checkDevicePosition = 0;
-//                nextDevice = interactor.getPairedDevice(checkDevicePosition);
-//            }
-//            interactor.checkAvailableDevice(nextDevice, communicationCallback);
+            if(true){
+                BluetoothDevice nextDevice = interactor.getPairedDevice(checkDevicePosition++);
+                if (nextDevice != null) {
+                    interactor.checkAvailableDevice(nextDevice, communicationCallback);
+                }
+            }
         }
 
         @Override
@@ -160,12 +160,10 @@ public class ScanPresenterImpl implements ScanPresenter{
         public void onConnectError(final BluetoothDevice device, String message) {
             System.out.println("ScanPresenter--------------> ta samaya oshibka " + device);
             interactor.disconnect();
-//            BluetoothDevice nextDevice = interactor.getPairedDevice(checkDevicePosition++);
-//            if (nextDevice == null) {
-//                checkDevicePosition = 0;
-//                nextDevice = interactor.getPairedDevice(checkDevicePosition);
-//            }
-//            interactor.checkAvailableDevice(nextDevice, communicationCallback);
+            BluetoothDevice nextDevice = interactor.getPairedDevice(checkDevicePosition++);
+            if (nextDevice != null) {
+                interactor.checkAvailableDevice(nextDevice, communicationCallback);
+            }
         }
     };
 

@@ -18,13 +18,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.invoke.ConstantCallSite;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.UUID;
-import java.util.zip.CRC32;
 
 
 public class Bluetooth {
@@ -392,7 +389,7 @@ public class Bluetooth {
                 {
                     if(BluetoothConstantManager.SHOW_ALL_BT_MASSAGE == true)System.err.println("msg=" + msg + "   i= "+i );
                     if(!mFinish) {
-                        if (!parserCallback.getFlagUseHDLCProcol()){
+                        if (!parserCallback.getFlagUseHDLCProtocol()){
                             if((i == 1)||(i == 2)||((i == (8+msgLenght)))){ //адекватный приём!!!!
                                 summator += msg;
                                 if (summator == 197){
@@ -410,7 +407,7 @@ public class Bluetooth {
                             }
                         }
 
-                        if (parserCallback.getFlagUseHDLCProcol()){ //выбор ветки для парсинга и отправки
+                        if (parserCallback.getFlagUseHDLCProtocol()){ //выбор ветки для парсинга и отправки
                             branchOfParsing = BluetoothConstantManager.HDLC_PROTOCOL;//парсит hdlc посылки
                         } else {
                             if ((i == 1) && (msg == 77)){

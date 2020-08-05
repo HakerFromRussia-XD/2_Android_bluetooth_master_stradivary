@@ -19,7 +19,7 @@ public interface ParserCallback {
     void givsCorrectAcceptance (Boolean correct_acceptence);
     void givsErrorReception(Boolean givsErrorReception);
     void setStartParametersInChartActivity();
-    boolean getFlagUseHDLCProcol();
+    boolean getFlagUseHDLCProtocol();
     boolean getFlagReceptionExpectation();
     void  setFlagReceptionExpectation(Boolean flagReceptionExpectation);
 

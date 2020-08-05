@@ -91,7 +91,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 //        }
 
 //        System.out.println("ChatPresenter--------------> HDLC uses " + parserCallback.getFlagUseHDLCProcol());
-        if(parserCallback.getFlagUseHDLCProcol()){
+        if(parserCallback.getFlagUseHDLCProtocol()){
             interactor.setIterator(1);
             interactor.sendMessageByte(txtbyte);
 //            System.out.println("ChatPresenter--------------> send request ");
@@ -440,7 +440,6 @@ public class ChatPresenterImpl implements ChatPresenter {
         public void givsErrorReception(Boolean givsErrorReception) {
             Boolean bolean = new Boolean(givsErrorReception);
             view.setErrorReception(bolean);
-//            System.out.println("принятая ошибка: " + bolean);
         }
 
         @Override
@@ -449,7 +448,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
 
         @Override
-        public boolean getFlagUseHDLCProcol() {
+        public boolean getFlagUseHDLCProtocol() {
             return flagUseHDLCProtocol;
         }
 

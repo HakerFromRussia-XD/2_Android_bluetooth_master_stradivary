@@ -24,9 +24,9 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) public Switch switchInvert;
     @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
-    public SeekBar seekBarIstop;
-    TextView valueIstop;
-    public TextView valueIstop2;
+    public SeekBar seekBarIStop;
+    TextView valueIStop;
+    public TextView valueIStop2;
     public View view;
     private ChartActivity chatActivity;
     private int maxCurrent = 1500;
@@ -44,12 +44,12 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
 
         if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
         chatActivity.graphThreadFlag = false;
-        chatActivity.updateSeviceSettingsThreadFlag = true;
+        chatActivity.updateServiceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
         chatActivity.layoutSensors.setVisibility(View.GONE);
-        valueIstop2 = view.findViewById(R.id.valueIstop2);
-        valueIstop = view.findViewById(R.id.valueIstop);
-        seekBarIstop = view.findViewById(R.id.seekBarIstopServiceSettings);
+        valueIStop2 = view.findViewById(R.id.valueIstop2);
+        valueIStop = view.findViewById(R.id.valueIstop);
+        seekBarIStop = view.findViewById(R.id.seekBarIstopServiceSettings);
 
 
         save_service_settings.setOnClickListener(new View.OnClickListener() {
@@ -64,7 +64,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
                     chatActivity.startGraphEnteringDataThread();
                     chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
                     chatActivity.myMenu.setGroupVisible(R.id.modes, false);
-                    chatActivity.updateSeviceSettingsThreadFlag = false;
+                    chatActivity.updateServiceSettingsThreadFlag = false;
                     chatActivity.layoutSensors.setVisibility(View.VISIBLE);
                 }
             }
@@ -81,10 +81,10 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if(chatActivity.getFlagUseHDLCProcol()){
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhnessHDLC((byte) (((byte) seekBar.getProgress()) + 1)));
+                if(chatActivity.getFlagUseHDLCProtocol()){
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageRoughnessHDLC((byte) (((byte) seekBar.getProgress()) + 1)));
                 } else {
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeRouhness((byte) (((byte) seekBar.getProgress()) + 1)));
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageRoughness((byte) (((byte) seekBar.getProgress()) + 1)));
                     chatActivity.receiveRoughnessOfSensors = (byte) seekBar.getProgress();
                 }
             }
@@ -96,27 +96,27 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
                 System.err.println("FragmentServiceSettings-------------->");
                 if (switchInvert.isChecked()){
                     chatActivity.invert = 0x01;
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
-                    Integer temp = chatActivity.intValueCH1on;
-                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekbar-0.1)));//-0.5
-                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekbar-0.1)));//-0.5
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                    int temp = chatActivity.intValueCH1on;
+                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
+                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.invertChannel = true;
                 } else {
                     chatActivity.invert = 0x00;
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
-                    Integer temp = chatActivity.intValueCH1on;
-                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekbar-0.1)));//-0.5
-                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekbar-0.1)));//-0.5
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                    int temp = chatActivity.intValueCH1on;
+                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
+                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.invertChannel = false;
                 }
             }
         });
 
-        seekBarIstop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        seekBarIStop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 maxCurrent = seekBar.getProgress();
-                valueIstop.setText(String.valueOf(seekBar.getProgress()));
+                valueIStop.setText(String.valueOf(seekBar.getProgress()));
             }
 
             @Override
@@ -127,12 +127,12 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 maxCurrent = seekBar.getProgress();
                 chatActivity.maxCurrent = maxCurrent;
-                valueIstop.setText(String.valueOf(seekBar.getProgress()));
-                chatActivity.curent = seekBar.getProgress();
-                if(chatActivity.getFlagUseHDLCProcol()){
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvertHDLC(chatActivity.curent));
+                valueIStop.setText(String.valueOf(seekBar.getProgress()));
+                chatActivity.current = seekBar.getProgress();
+                if(chatActivity.getFlagUseHDLCProtocol()){
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvertHDLC(chatActivity.current));
                 } else {
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeCurentSettingsAndInvert(chatActivity.curent, chatActivity.invert));
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                 }
             }
         });
@@ -141,14 +141,14 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
             @Override
             public void onClick(View v) {
                 if (switchNotUseInternalADC.isChecked()){
-                    if(chatActivity.getFlagUseHDLCProcol()){
+                    if(chatActivity.getFlagUseHDLCProtocol()){
                         System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 0");
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeSettingsNotUseInternalADCHDLC((byte) 0x00));
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x00));
                     }
                 } else {
-                    if(chatActivity.getFlagUseHDLCProcol()){
+                    if(chatActivity.getFlagUseHDLCProtocol()){
                         System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 1");
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassegeSettingsNotUseInternalADCHDLC((byte) 0x01));
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x01));
                     }
                 }
             }
@@ -160,14 +160,14 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     @Override
     public void onResume() {
         super.onResume();
-        seekBarIstop.setProgress(chatActivity.maxCurrent);
+        seekBarIStop.setProgress(chatActivity.maxCurrent);
         seekBarRoughness.setProgress(chatActivity.receiveRoughnessOfSensors);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        chatActivity.seekBarIstop.setProgress(maxCurrent);
+        chatActivity.seekBarIStop.setProgress(maxCurrent);
     }
 
 
@@ -182,7 +182,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
             chatActivity.startGraphEnteringDataThread();
             chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
             chatActivity.myMenu.setGroupVisible(R.id.modes, false);
-            chatActivity.updateSeviceSettingsThreadFlag = false;
+            chatActivity.updateServiceSettingsThreadFlag = false;
             chatActivity.layoutSensors.setVisibility(View.VISIBLE);
         }
     }
@@ -227,11 +227,11 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     }
 
     @Override
-    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
+    public void setGeneralValue(int receiveCurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
 
     }
     @Override
-    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
+    public void setStartParameters(Integer receiveCurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
 
     }
 
@@ -261,7 +261,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     }
 
     @Override
-    public void setStartParametersCurrrent(Integer receiveСurrent) {
+    public void setStartParametersCurrent(Integer receiveCurrent) {
 
     }
 

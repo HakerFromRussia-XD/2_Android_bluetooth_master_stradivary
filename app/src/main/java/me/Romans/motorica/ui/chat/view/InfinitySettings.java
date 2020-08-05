@@ -2,6 +2,7 @@ package me.Romans.motorica.ui.chat.view;
 
 
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -21,8 +22,6 @@ import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 
 public class InfinitySettings extends AppCompatActivity implements ChatView {
 
-    private static final String TAG = "Infinity_settings";
-
     @BindView(R.id.seekBarTimeOpen) SeekBar seekBarTimeOpen;
     @BindView(R.id.seekBarTimeClose) SeekBar seekBarTimeClose;
     @BindView(R.id.seekBarSpeedOpen) SeekBar seekBarSpeedOpen;
@@ -35,7 +34,7 @@ public class InfinitySettings extends AppCompatActivity implements ChatView {
     private int intValueTimeClose = 1000;
     private int intValueSpeedOpen = 999;
     private int intValueSpeedClose = 999;
-    public byte[] TextByteTreegInfinitySettings = new byte[9];
+    public byte[] TextByteTriggerInfinitySettings = new byte[9];
 
     @Inject
     ChatPresenter presenter;
@@ -93,38 +92,44 @@ public class InfinitySettings extends AppCompatActivity implements ChatView {
         });
 
         seekBarSpeedOpen.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @SuppressLint("SetTextI18n")
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueSpeedOpen.setText("0." + String.valueOf(seekBar.getProgress()));
+                valueSpeedOpen.setText("0." + seekBar.getProgress());
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                valueSpeedOpen.setText("0." + String.valueOf(seekBar.getProgress()));
+                valueSpeedOpen.setText("0." + seekBar.getProgress());
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                valueSpeedOpen.setText("0." + String.valueOf(seekBar.getProgress()));
+                valueSpeedOpen.setText("0." + seekBar.getProgress());
                 intValueSpeedOpen = seekBarSpeedOpen.getProgress();
                 presenter.onHelloWorld(CompileMassegeInfinitySettings(intValueTimeOpen, intValueTimeClose, intValueSpeedOpen, intValueSpeedClose));
             }
         });
 
         seekBarSpeedClose.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @SuppressLint("SetTextI18n")
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                valueSpeedClose.setText("0." + String.valueOf(seekBar.getProgress()));
+                valueSpeedClose.setText("0." + seekBar.getProgress());
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                valueSpeedClose.setText("0." + String.valueOf(seekBar.getProgress()));
+                valueSpeedClose.setText("0." + seekBar.getProgress());
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                valueSpeedClose.setText("0." + String.valueOf(seekBar.getProgress()));
+                valueSpeedClose.setText("0." + seekBar.getProgress());
                 intValueSpeedClose = seekBarSpeedClose.getProgress();
                 presenter.onHelloWorld(CompileMassegeInfinitySettings(intValueTimeOpen, intValueTimeClose, intValueSpeedOpen, intValueSpeedClose));
             }
@@ -192,12 +197,12 @@ public class InfinitySettings extends AppCompatActivity implements ChatView {
     }
 
     @Override
-    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
+    public void setGeneralValue(int receiveCurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
 
     }
 
     @Override
-    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
+    public void setStartParameters(Integer receiveCurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
 
     }
 
@@ -227,7 +232,7 @@ public class InfinitySettings extends AppCompatActivity implements ChatView {
     }
 
     @Override
-    public void setStartParametersCurrrent(Integer receiveСurrent) {
+    public void setStartParametersCurrent(Integer receiveCurrent) {
 
     }
 
@@ -247,15 +252,15 @@ public class InfinitySettings extends AppCompatActivity implements ChatView {
     }
 
     private byte[] CompileMassegeInfinitySettings (int waitOpenTime, int waitCloseTime, int openSpeed, int closeSpeed){
-        TextByteTreegInfinitySettings[0] = 0x0A;
-        TextByteTreegInfinitySettings[1] = (byte) waitOpenTime;
-        TextByteTreegInfinitySettings[2] = (byte) (waitOpenTime >> 8);
-        TextByteTreegInfinitySettings[3] = (byte) waitCloseTime;
-        TextByteTreegInfinitySettings[4] = (byte) (waitCloseTime >> 8);
-        TextByteTreegInfinitySettings[5] = (byte) openSpeed;
-        TextByteTreegInfinitySettings[6] = (byte) (openSpeed >> 8);
-        TextByteTreegInfinitySettings[7] = (byte) closeSpeed;
-        TextByteTreegInfinitySettings[8] = (byte) (closeSpeed >> 8);
-        return TextByteTreegInfinitySettings;
+        TextByteTriggerInfinitySettings[0] = 0x0A;
+        TextByteTriggerInfinitySettings[1] = (byte) waitOpenTime;
+        TextByteTriggerInfinitySettings[2] = (byte) (waitOpenTime >> 8);
+        TextByteTriggerInfinitySettings[3] = (byte) waitCloseTime;
+        TextByteTriggerInfinitySettings[4] = (byte) (waitCloseTime >> 8);
+        TextByteTriggerInfinitySettings[5] = (byte) openSpeed;
+        TextByteTriggerInfinitySettings[6] = (byte) (openSpeed >> 8);
+        TextByteTriggerInfinitySettings[7] = (byte) closeSpeed;
+        TextByteTriggerInfinitySettings[8] = (byte) (closeSpeed >> 8);
+        return TextByteTriggerInfinitySettings;
     }
 }

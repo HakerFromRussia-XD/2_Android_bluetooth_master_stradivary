@@ -11,15 +11,15 @@ public interface ChatView {
     void showToast(String message);
     void showToastWithoutConnection();
     void onGestureClick(int position);
-    void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension);
-    void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors);
+    void setGeneralValue(int receiveCurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension);
+    void setStartParameters(Integer receiveCurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors);
     void setStartParametersInChartActivity();
     boolean getFirstRead();
     void setFlagReceptionExpectation (Boolean flagReceptionExpectation);
 
     void setStartParametersTrigCH1(Integer receiveLevelTrigCH1);
     void setStartParametersTrigCH2(Integer receiveLevelTrigCH2);
-    void setStartParametersCurrrent(Integer receiveСurrent);
+    void setStartParametersCurrent(Integer receiveCurrent);
     void setStartParametersBlock(Byte receiveBlockIndication);
     void setStartParametersRoughness(Byte receiveRoughnessOfSensors);
     void setStartParametersBattery(Integer receiveBatteryTension);

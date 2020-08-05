@@ -1,12 +1,12 @@
 package me.Romans.motorica.ui.chat.view.Gripper_settings;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +23,6 @@ import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 public class FragmentGripperSettings extends Fragment implements ChatView {
-    private static final String TAG = "FragmentGripperSettings";
     Button gripper_use;
     public SeekBar seekBarSpeedFinger;
     public TextView textSpeedFinger;
@@ -68,12 +67,12 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
             // renderer if you wanted to support both ES 1 and ES 2.
         }
 
-        renderer.angleLittleFingerFloat =  chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger1Angle");
-        renderer.angleRingFingerFloat =  chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger2Angle");
-        renderer.angleMiddleFingerFloat =  chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger3Angle");
-        renderer.angleForeFingerFloat =  chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger4Angle");
-        renderer.angleBigFingerFloat1 =  84 - (int)(((float)chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger5Angle")+60)/100*90);
-        renderer.angleBigFingerFloat2 =  144 - (int)(((float)chatActivity.loadVariable(chatActivity.deviceName+chatActivity.NUMBER_CELL+"intValueFinger6Angle")+60)/100*90);
+        renderer.angleLittleFingerFloat =  chatActivity.loadVariable(ChartActivity.deviceName +chatActivity.NUMBER_CELL+"intValueFinger1Angle");
+        renderer.angleRingFingerFloat =  chatActivity.loadVariable(ChartActivity.deviceName +chatActivity.NUMBER_CELL+"intValueFinger2Angle");
+        renderer.angleMiddleFingerFloat =  chatActivity.loadVariable(ChartActivity.deviceName +chatActivity.NUMBER_CELL+"intValueFinger3Angle");
+        renderer.angleForeFingerFloat =  chatActivity.loadVariable(ChartActivity.deviceName +chatActivity.NUMBER_CELL+"intValueFinger4Angle");
+        renderer.angleBigFingerFloat1 =  84 - (int)(((float)chatActivity.loadVariable(ChartActivity.deviceName +chatActivity.NUMBER_CELL+"intValueFinger5Angle")+60)/100*90);
+        renderer.angleBigFingerFloat2 =  144 - (int)(((float)chatActivity.loadVariable(ChartActivity.deviceName +chatActivity.NUMBER_CELL+"intValueFinger6Angle")+60)/100*90);
 //        Log.e(TAG, "NUMBER_CELL = "+String.valueOf(chatActivity.NUMBER_CELL));
 
         gripper_use.setOnClickListener(new View.OnClickListener(){
@@ -84,12 +83,13 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .remove(chatActivity.fragmentGripperSettings)
                             .commit();
-                    chatActivity.firstTapRcyclerView = true;
+                    chatActivity.firstTapRecyclerView = true;
                     chatActivity.transferThreadFlag = false;
                 }
             }
         });
         seekBarSpeedFinger.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if(seekBarSpeedFinger.getProgress() < 10){textSpeedFinger.setText("0"+seekBarSpeedFinger.getProgress());}
@@ -114,7 +114,7 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
                     .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                     .remove(chatActivity.fragmentGripperSettings)
                     .commit();
-            chatActivity.firstTapRcyclerView = true;
+            chatActivity.firstTapRecyclerView = true;
             chatActivity.transferThreadFlag = false;
         }
     }
@@ -155,9 +155,9 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
     @Override
     public void onGestureClick(int position) { }
     @Override
-    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) { }
+    public void setGeneralValue(int receiveCurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) { }
     @Override
-    public void setStartParameters(Integer receiveСurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) { }
+    public void setStartParameters(Integer receiveCurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) { }
 
     @Override
     public void setStartParametersInChartActivity() {
@@ -185,7 +185,7 @@ public class FragmentGripperSettings extends Fragment implements ChatView {
     }
 
     @Override
-    public void setStartParametersCurrrent(Integer receiveСurrent) {
+    public void setStartParametersCurrent(Integer receiveCurrent) {
 
     }
 

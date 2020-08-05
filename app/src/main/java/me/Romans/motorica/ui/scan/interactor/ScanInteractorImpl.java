@@ -8,6 +8,7 @@ import java.util.List;
 
 import me.Romans.bluetooth.Bluetooth;
 import me.Romans.bluetooth.BluetoothCallback;
+import me.Romans.bluetooth.DeviceCallback;
 import me.Romans.bluetooth.DiscoveryCallback;
 
 
@@ -15,6 +16,7 @@ public class ScanInteractorImpl implements ScanInteractor {
     private Bluetooth bluetooth;
     private DiscoveryCallback presenterDiscoveryCallback;
     private List<BluetoothDevice> discoveredDevices;
+    private int ourGadgets = 0;
 
     public ScanInteractorImpl(Bluetooth bluetooth) {
         this.bluetooth = bluetooth;
@@ -65,6 +67,12 @@ public class ScanInteractorImpl implements ScanInteractor {
     }
 
     @Override
+    public void checkAvailableDevice(BluetoothDevice device, DeviceCallback callback) {
+        bluetooth.setDeviceCallback(callback);
+        bluetooth.checkConnectToDevice(device);
+    }
+
+    @Override
     public boolean isBluetoothEnabled() {
         return bluetooth.isEnabled();
     }
@@ -78,40 +86,45 @@ public class ScanInteractorImpl implements ScanInteractor {
     public List<String> getPairedDevices() {
         List<String> items = new ArrayList<>();
         int position = 0;
+        ourGadgets = 0;
         for(BluetoothDevice device : bluetooth.getPairedDevices()){
             if( device.getName().split("-")[0].equals("MLT") ||
-                device.getName().split("-")[0].equals("FNG") ||
-                device.getName().split("-")[0].equals("FNS") ||
-                device.getName().split("-")[0].equals("MLX") ||
-                device.getName().split("-")[0].equals("FNX") ||
-                device.getName().split(" ")[0].equals("MLT") ||
-                device.getName().split(" ")[0].equals("FNG") ||
-                device.getName().split(" ")[0].equals("FNS") ||
-                device.getName().split(" ")[0].equals("FNX") ||
-                device.getName().split(" ")[0].equals("MLX") ||
-                device.getName().split("-")[0].equals("STR") ||
-                device.getName().split("-")[0].equals("CBY") ||
-                device.getName().split("-")[0].equals("HND") ||
-                device.getName().split("-")[0].equals("IND") ||
-                device.getName().split(" ")[0].equals("STR") ||
-                device.getName().split(" ")[0].equals("CBY") ||
-                device.getName().split(" ")[0].equals("HND") ||
-                device.getName().split(" ")[0].equals("IND") ||
-                device.getName().split(" ")[0].equals("MacBook")){
-                System.err.println("ScanInteractorImpl--------------> "+device.getName()+":"+(position+1));
-                items.add(device.getName()+":"+(position+1));//device.getAddress()+" : "+
+                    device.getName().split("-")[0].equals("FNG") ||
+                    device.getName().split("-")[0].equals("FNS") ||
+                    device.getName().split("-")[0].equals("MLX") ||
+                    device.getName().split("-")[0].equals(" MLX")||
+                    device.getName().split("-")[0].equals("FNX") ||
+                    device.getName().split("-")[0].equals(" FNX")||
+                    device.getName().split(" ")[0].equals("MLT") ||
+                    device.getName().split(" ")[0].equals("FNG") ||
+                    device.getName().split(" ")[0].equals("FNS") ||
+                    device.getName().split(" ")[0].equals("FNX") ||
+                    device.getName().split(" ")[0].equals("MLX") ||
+                    device.getName().split("-")[0].equals("STR") ||
+                    device.getName().split("-")[0].equals("CBY") ||
+                    device.getName().split("-")[0].equals("HND") ||
+                    device.getName().split("-")[0].equals("IND") ||
+                    device.getName().split("-")[0].equals(" IND")||
+                    device.getName().split(" ")[0].equals("STR") ||
+                    device.getName().split(" ")[0].equals("CBY") ||
+                    device.getName().split(" ")[0].equals("HND") ||
+                    device.getName().split(" ")[0].equals("IND")
+            ){//device.getName().split(" ")[0].equals("MacBook")
+                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
+                items.add(device.getName()+":p:"+(position+1));//device.getAddress()+" : "+
+                ourGadgets++;
             } else {
-                System.err.println("ScanInteractorImpl--------------> "+device.getName()+":"+(position+1));
+                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
                 items.add(".");
             }
             position++;
         }
         for (int i = 0; i < items.size(); i++) {
-             if(items.get(i).equals(".") || items.get(i).equals(".\n") || items.get(i).equals(".\r") || items.get(i).equals(".\n\r") || items.get(i).equals(".\r\n")){
-                 System.err.println("ScanInteractorImpl--------------> remove: position="+(i+1));
-                 items.remove(i);
-                 i--;
-             }
+            if(items.get(i).equals(".") || items.get(i).equals(".\n") || items.get(i).equals(".\r") || items.get(i).equals(".\n\r") || items.get(i).equals(".\r\n")){
+                System.err.println("ScanInteractorImpl--------------> remove: position="+(i+1));
+                items.remove(i);
+                i--;
+            }
         }
         return items;
     }
@@ -139,5 +152,14 @@ public class ScanInteractorImpl implements ScanInteractor {
             return bluetooth.getPairedDevices().get(position);
         }
         return null;
+    }
+
+    @Override
+    public void disconnect(){
+        bluetooth.disconnect();
+    }
+
+    public int getOurGadgets() {
+        return ourGadgets;
     }
 }

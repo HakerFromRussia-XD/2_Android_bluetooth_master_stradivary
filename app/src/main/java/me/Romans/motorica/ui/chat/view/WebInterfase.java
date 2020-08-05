@@ -21,11 +21,10 @@ public class WebInterfase extends ChartActivity {
     }
 
     @JavascriptInterface
-    public void showToast (String massege) {
-        testInt = Integer.parseInt(massege);
-        Toast.makeText(context, massege, Toast.LENGTH_SHORT).show();
-        System.err.println("WebInterfase ---------> testInt="+testInt);
-        setTestInt(massege);
+    public void showToast (String massage) {
+        testInt = Integer.parseInt(massage);
+        Toast.makeText(context, massage, Toast.LENGTH_SHORT).show();
+        System.err.println("WebInterface ---------> testInt="+testInt);
     }
 
     @JavascriptInterface

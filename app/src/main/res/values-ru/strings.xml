@@ -109,6 +109,8 @@
     <string name="allows_you_to_set_the_position_of_the_maximum_open_state">Позволяет настоить положение максимально открытого состояния</string>
     <string name="allows_you_to_set_the_position_of_the_maximum_closed_state">Позволяет настоить положение максимально закрытого состояния</string>
     <string name="connection_is_absent">Подключение отсутствует</string>
+    <string name="off_schedules">включение графиков</string>
+    <string name="on_schedules">отключение графиков</string>
 
     <string-array name="numbers">
         <item>0</item>

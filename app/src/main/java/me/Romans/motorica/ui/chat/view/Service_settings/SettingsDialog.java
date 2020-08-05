@@ -4,12 +4,15 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
+import android.support.annotation.NonNull;
+//import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+
+import java.util.Objects;
 
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
@@ -21,10 +24,11 @@ public class SettingsDialog extends AppCompatDialogFragment {
     private EditText password_et;
     private SettingsDialogListener mSettingsDialogListener;
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder settingsDialog = new AlertDialog.Builder(
-                getActivity());
+                Objects.requireNonNull(getActivity()));
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.layout_dialog, null);

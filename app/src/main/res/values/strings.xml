@@ -14,7 +14,7 @@
     <string name="activity_scan_paired_text">Connected devices:</string>
 
     <string name="bluetooth_scanning">Scanning…</string>
-    <string name="bluetooth_scan_finished">Scanning is completed.</string>
+    <string name="bluetooth_scan_finished"></string>//Scanning is completed.
     <string name="bluetooth_pairing">Connection…</string>
     <string name="bluetooth_paired">Device is connected.</string>
     <string name="bluetooth_unpaired">Device is disconnected.</string>
@@ -109,6 +109,8 @@
     <string name="allows_you_to_set_the_position_of_the_maximum_open_state">Allows you to set the position of the maximum open state</string>
     <string name="allows_you_to_set_the_position_of_the_maximum_closed_state">Allows you to set the position of the maximum closed state</string>
     <string name="connection_is_absent">connection is absent</string>
+    <string name="off_schedules">off schedules</string>
+    <string name="on_schedules">on schedules</string>
 
     <string-array name="numbers">
         <item>0</item>

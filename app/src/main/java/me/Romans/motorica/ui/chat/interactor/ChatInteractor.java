@@ -12,7 +12,6 @@ public interface ChatInteractor {
     boolean isBluetoothEnabled();
     void enableBluetooth();
     void connectToDevice(BluetoothDevice device, DeviceCallback callback);
-    void connectToDevice2(BluetoothDevice device, DeviceCallback callback);
     void parsingExperimental(ParserCallback parser);
     void sendMessageByte (byte[] message);
     void setIterator (int i);

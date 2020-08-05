@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Handler;
-import android.provider.Settings;
 
-import me.Romans.bluetooth.BluetoothConstantManager;
 import me.Romans.motorica.ui.chat.interactor.ChatInteractor;
 import me.Romans.bluetooth.BluetoothCallback;
 import me.Romans.bluetooth.DeviceCallback;
@@ -15,14 +13,14 @@ import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
 import static me.Romans.motorica.ui.chat.view.ChartActivity.flagReceptionExpectation;
-import static me.Romans.motorica.ui.chat.view.ChartActivity.flagUseHDLCProcol;
+import static me.Romans.motorica.ui.chat.view.ChartActivity.flagUseHDLCProtocol;
 
 public class ChatPresenterImpl implements ChatPresenter {
     private ChatView view;
     private ChatInteractor interactor;
     private BluetoothDevice device;
     private int attemptConect = 0;
-    private boolean DEBUG = false;
+    private boolean DEBUG = true;
     private byte aByte[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x01, 0x24};
     private byte txtbyteout1[] = {0x4D, 0x54, 0x07, 0x00, 0x01, 0x02, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для отправки порогов сигналов 0x77 заменяемые данные всего 15 байт
     private byte txtbyteout2[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x77, 0x24};                                     //компановка для запроса сигналов на датчиках 0x77 заменяемые данные всего 9 байт
@@ -40,6 +38,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private byte txtbyteout14[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0E, 0x00, 0x77, 0x24};                                     //компановка для включения/отключения(0х01/0х00) блокировки
     private byte txtbyteout15[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0F, 0x00, 0x77, 0x77, 0x24};                               //компановка для задачи номера открытого и закрытого схватов 0x77 заменяемые данные всего 10 байт
     private byte txtbyteout16[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x10, 0x00, 0x77, 0x24};                                     //компановка для установки грубости датчиков 0x77 заменяемые данные всего 9 байт
+    private boolean onPauseActivity = false;
 
     public ChatPresenterImpl(ChatView view, ChatInteractor interactor) {
         this.view = view;
@@ -50,11 +49,15 @@ public class ChatPresenterImpl implements ChatPresenter {
     public void onCreate(Intent intent) {
         if (intent.getExtras() != null) {
             device = intent.getExtras().getParcelable("device");
-            if (DEBUG) {System.out.println("ВАЖНО!!!!!!!!!!!! ДЕВАЙС:" + device);}
+            if (DEBUG) {System.out.println("ВАЖНО!!!!!!!!!!!! ДЕВАЙС:   " + device);}
             view.enableHWButton(false);
         } else {
             if (DEBUG) {System.out.println("ПИЗДА!!!!!!!!!!!! ПОСЫЛКИ НЕТ!");}
         }
+        System.err.println("CRC 0x00 ="+test_CRC((byte) 0x00));
+        System.err.println("CRC 0x01 ="+test_CRC((byte) 0x01));
+        System.err.println("CRC 0x02 ="+test_CRC((byte) 0x02));
+        System.err.println("CRC 0x03 ="+test_CRC((byte) 0x03));
     }
 
         @Override
@@ -88,7 +91,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 //        }
 
 //        System.out.println("ChatPresenter--------------> HDLC uses " + parserCallback.getFlagUseHDLCProcol());
-        if(parserCallback.getFlagUseHDLCProcol()){
+        if(parserCallback.getFlagUseHDLCProtocol()){
             interactor.setIterator(1);
             interactor.sendMessageByte(txtbyte);
 //            System.out.println("ChatPresenter--------------> send request ");
@@ -399,7 +402,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         @Override
         public void givsStartParametersCurrrent(int current) {
             Integer receiveСurrent = new Integer(current);
-            view.setStartParametersCurrrent (receiveСurrent);
+            view.setStartParametersCurrent(receiveСurrent);
         }
 
         @Override
@@ -437,7 +440,6 @@ public class ChatPresenterImpl implements ChatPresenter {
         public void givsErrorReception(Boolean givsErrorReception) {
             Boolean bolean = new Boolean(givsErrorReception);
             view.setErrorReception(bolean);
-//            System.out.println("принятая ошибка: " + bolean);
         }
 
         @Override
@@ -446,8 +448,8 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
 
         @Override
-        public boolean getFlagUseHDLCProcol() {
-            return flagUseHDLCProcol;
+        public boolean getFlagUseHDLCProtocol() {
+            return flagUseHDLCProtocol;
         }
 
         @Override
@@ -464,17 +466,21 @@ public class ChatPresenterImpl implements ChatPresenter {
     private DeviceCallback communicationCallback = new DeviceCallback() {
         @Override
         public void onDeviceConnected(BluetoothDevice device) {
+            if (DEBUG) {System.out.println("ChatPresenter--------------> onDeviceConnected");}
             view.setStatus(R.string.bluetooth_connected);
             view.enableHWButton(true);
+            attemptConect = 0;
         }
 
         @Override
-        public void onDeviceDisconnected(BluetoothDevice device, String message) {
+        public void onDeviceDisconnected(final BluetoothDevice device, String message) {
             if (DEBUG) {System.out.println("ChatPresenter--------------> onDeviceDisconnected");}
             view.setStatus(R.string.bluetooth_connecting);
             view.enableHWButton(false);
-//            interactor.connectToDevice(device, communicationCallback);
-            interactor.parsingExperimental(parserCallback);
+            if(!onPauseActivity){
+                System.out.println("ChatPresenter--------------> pause call "+ false);
+                interactor.connectToDevice(device, communicationCallback);
+            }
         }
 
         @Override
@@ -485,22 +491,21 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
         public void onError(String message) {
-            view.setStatus(message);
         }
 
         @Override
         public void onConnectError(final BluetoothDevice device, String message) {
             if (DEBUG) {System.out.println("ChatPresenter--------------> onConnectError");}
             view.setStatus(R.string.bluetooth_connect_in_3sec);
-//            view.showToast("Подключение №" + attemptConect);
             if (DEBUG) {System.out.println("Подключение №" + attemptConect);}
             attemptConect += 1;
-            if(attemptConect < 51) {
+            if(attemptConect < 5001) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        interactor.connectToDevice(device, communicationCallback);
-                        interactor.parsingExperimental(parserCallback);
+                        if(!onPauseActivity){
+                            interactor.connectToDevice(device, communicationCallback);
+                        }
                     }
                 }, 10);
             } else{
@@ -526,23 +531,16 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void onStop() {
-        interactor.onStop();
+        System.out.println("ChatPresenter--------------> onResume"); interactor.onStop();
     }
 
     @Override
     public void onResume() { System.out.println("ChatPresenter--------------> onResume");}
 
     @Override
-    public void onPause() { System.out.println("ChatPresenter--------------> onPause");}
-
-    @Override
-    public void setDeviceCallback2(Activity activity){
-        interactor.onStart (bluetoothCallback, activity);
-        if (interactor.isBluetoothEnabled()) {
-            interactor.connectToDevice2(device, communicationCallback);
-        } else {
-            interactor.enableBluetooth();
-        }
+    public void onPause() {
+        this.disconnect();
+        System.out.println("ChatPresenter--------------> onPause");
     }
 
     @Override
@@ -590,6 +588,10 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
     };
 
+    public void setOnPauseActivity(boolean onPauseActivity) {
+        this.onPauseActivity = onPauseActivity;
+    }
+
     public byte calculationCRC(byte[] bytes) {
         byte CRC = 0x00;
         for (int i = 1; i < bytes.length-1; i++){
@@ -611,5 +613,13 @@ public class ChatPresenterImpl implements ChatPresenter {
             }
         }
         return CRC;
+    }
+
+    private byte test_CRC  (byte parameter) {
+        byte[] TextByteTrigger = new byte[3];
+        TextByteTrigger[0] = (byte) 0xFA;
+        TextByteTrigger[1] = parameter;
+        TextByteTrigger[2] = (byte) 0x00;
+        return calculationCRC_HDLC(TextByteTrigger);
     }
 }

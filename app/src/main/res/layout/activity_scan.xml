@@ -24,7 +24,7 @@
             android:text="@string/activity_scan_paired_text"
             android:textSize="18sp" />
 
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/activity_scan_paired_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -50,7 +50,7 @@
     <RelativeLayout
         android:id="@+id/activity_scan_layout"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_height="4dp"
         android:layout_alignParentStart="false"
         android:layout_alignParentLeft="true"
         android:visibility="visible"
@@ -62,14 +62,13 @@
             android:layout_height="match_parent"
             android:visibility="gone" />
 
-        <LinearLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#e0e0e0"
-            tools:context="me.Romans.motorica.ui.scan.view.ScanActivity"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            tools:context="me.Romans.motorica.ui.scan.view.ScanActivity">
 
             <ProgressBar
                 android:id="@+id/activity_scan_progress"
@@ -81,9 +80,9 @@
                 android:layout_marginStart="1dp"
                 android:layout_marginLeft="1dp"
                 android:layout_marginBottom="-115dp"
-                android:visibility="gone"
                 android:indeterminate="true"
-                android:padding="10dp" />
+                android:padding="10dp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/activity_scan_state"
@@ -98,17 +97,20 @@
                 android:layout_marginRight="0dp"
                 android:layout_marginBottom="0dp"
                 android:gravity="center_vertical"
-                android:visibility="visible"
                 android:padding="10dp"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:visibility="visible" />
 
             <Button
                 android:id="@+id/activity_scan_button"
+                android:textColor="#FF525252"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:visibility="visible"
-                android:text="@string/activity_scan_button" />
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:text="@string/activity_scan_button"
+                android:visibility="visible" />
+            <!--            style="@style/Widget.AppCompat.Button.Borderless"-->
         </LinearLayout>
 
 

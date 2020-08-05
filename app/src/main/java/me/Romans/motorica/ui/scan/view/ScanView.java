@@ -4,13 +4,12 @@ import android.bluetooth.BluetoothDevice;
 
 import java.util.List;
 
-/**
- * Created by Omar on 20/12/2017.
- */
+import me.Romans.bluetooth.Bluetooth;
+import me.Romans.motorica.ui.scan.data.ScanItem;
 
 public interface ScanView{
     void showPairedList(List<String> items);
-    void addDeviceToScanList(String item);
+    void addDeviceToScanList(String item, BluetoothDevice device);
     void clearScanList();
     void clearPairedList();
     void setScanStatus(String status, boolean enabled);
@@ -19,4 +18,9 @@ public interface ScanView{
     void enableScanButton(boolean enabled);
     void showToast(String message);
     void navigateToChat(String extraName, BluetoothDevice extraDevice);
+    void setNewStageCellScanList (int numberCell, int setImage, String setText);
+    List<ScanItem> getMyScanList ();
+    void loadData();
+    void buildScanListView();
+    boolean isFirstStart();
 }

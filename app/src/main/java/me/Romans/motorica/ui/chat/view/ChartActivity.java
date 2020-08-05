@@ -89,7 +89,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public SeekBar seekBarIStop;
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
     @BindView(R.id.switchIlluminationMode) Switch switchIlluminationMode;
-//    TextView textSpeedFinger;
+    //    TextView textSpeedFinger;
 //    @BindView(R.id.valueStatus) TextView valueStatus;
 //    @BindView(R.id.password_et) EditText password_et;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
@@ -126,11 +126,11 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     private byte numberChannel;
     public byte invert = 0x00;
     public byte block = 0x00;
-//    public byte roughness = 0x00;
+    //    public byte roughness = 0x00;
     public boolean isEnable = false;
     public boolean infiniteAction = false;
     public boolean firstTapRecyclerView = true;
-//    public boolean stateIsOpen = false;
+    //    public boolean stateIsOpen = false;
     public boolean errorReception = false;
     public static String deviceName;
     public double multiplierSeekBar = 13.6363;
@@ -153,9 +153,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public byte[] TextByteSetBlockMode = new byte [2];
     public byte[] TextByteSetSwitchGesture = new byte [3];
     public byte[] TextByteSetRoughness = new byte [2];
-//    for graph
+    //    for graph
     public int receiveCurrent = 0;
-//    public int realCurrent = 0;
+    //    public int realCurrent = 0;
     public int maxCurrent = 1500;
     private int receiveLevelTrigCH1 = 14;
     private int receiveLevelTrigCH2 = 14;
@@ -164,16 +164,16 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     private byte receiveIndicationInvertMode = 0;
     private byte receiveBlockIndication = 0;
     public byte receiveRoughnessOfSensors = 0;
-//    private boolean firstSetStartParametersFlag = true;
+    //    private boolean firstSetStartParametersFlag = true;
 //    public Thread delayThread;
     private LineChart mChart;
     private boolean plotData = true;
     private LineChart mChart2;
     public Thread graphThread;
     public boolean graphThreadFlag = false;
-//    public float iterator = 0;
+    //    public float iterator = 0;
     public boolean invertChannel = false;
-//    for general updates
+    //    for general updates
     public int numberCycle = 0;
     public int receiveCurrentChat = 0;
     public int receiveLevelCH1Chat = 0;
@@ -181,16 +181,16 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public byte receiveIndicationStateChat = 0;
     public int receiveBatteryTensionChat = 0;
     String TAG = "thread";
-//    for animation limits
+    //    for animation limits
     ImageView limit_1;
     ImageView limit_2;
     ObjectAnimator objectAnimator;
     ObjectAnimator objectAnimator2;
     private int limit_sensor_open = 0;
     private int limit_sensor_close = 0;
-//    for delay
+    //    for delay
     private boolean runOnUi;
-//    for fragment gestures settings
+    //    for fragment gestures settings
     public FragmentGestureSettings fragmentGestureSettings;
     public FragmentGripperSettings fragmentGripperSettings;
     public FragmentGestureSettings2 fragmentGestureSettings2;
@@ -199,10 +199,10 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public FragmentServiceSettingsMono fragmentServiceSettingsMono;
     public FragmentManager fragmentManager = getSupportFragmentManager();
     public float heightBottomNavigation;
-//    for 3D part
+    //    for 3D part
     private static String[][] model = new String[19][];
     private static String[] text;
-//    public int indexCount;
+    //    public int indexCount;
     public static int MAX_NUMBER_DETAILS = 19;
     public volatile float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS][];
     public volatile float[][] texturesArray = new float[MAX_NUMBER_DETAILS][];
@@ -210,7 +210,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public volatile static float[][] verticesArray = new float[MAX_NUMBER_DETAILS][1];
     public volatile static int[][] indicesArrayVertices = new int[MAX_NUMBER_DETAILS][1];
     public Thread[] threadFunction = new Thread[MAX_NUMBER_DETAILS];
-//	  for transfer
+    //	  for transfer
     private byte numberFinger;
     public int speedFinger = 0;
     public int lastSpeedFinger = 0;
@@ -239,7 +239,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public static long delay = 200;
     private int delayPauseAfterSending = 200;
     public byte[] TextByteTriggerSettings = new byte[8];
-//    public byte[] TextByteTriggerComplexGestureSettings = new byte[15];
+    //    public byte[] TextByteTriggerComplexGestureSettings = new byte[15];
     public byte[] TextByteTriggerControlComplexGesture = new byte[2];
     public byte[] TextByteTriggerControl = new byte[6];
     public boolean transferThreadFlag = false;
@@ -253,17 +253,17 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
 
     public enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
     public static SelectStation selectStation;
-//    protected WebView webView;
+    //    protected WebView webView;
 //    private boolean showModsOnTopMenu = false;
     public boolean firstRead = true;
-//    for service menu
+    //    for service menu
     public Menu myMenu;
     public Thread updateServiceSettingsThread;
     public boolean updateServiceSettingsThreadFlag = false;
     private boolean showMenu = true;
     private boolean lockServiceSettings = false;
     private int useGesture = 1;
-//    save
+    //    save
     SharedPreferences sharedPreferences;
 
     RecyclerView recyclerView;
@@ -376,9 +376,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         recyclerView.setAdapter(gestureAdapter);
 
         DaggerChatComponent.builder()
-            .bluetoothModule(MyApp.app().bluetoothModule())
-            .chatModule(new ChatModule(this))
-            .build().inject(this);
+                .bluetoothModule(MyApp.app().bluetoothModule())
+                .chatModule(new ChatModule(this))
+                .build().inject(this);
         ButterKnife.bind(this);
 
         ////////initialized graph for channel 1
@@ -909,20 +909,20 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public void openServiceSettings(){
         if(lockServiceSettings){
             if(monograbVersion){
-            System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в monograbVersion");
-            fragmentManager.beginTransaction()
-                    .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                    .add(R.id.view_pager, fragmentServiceSettingsMono)
-                    .commit();
-        } else {
-            System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в multigrabVersion");
-            fragmentManager.beginTransaction()
-                    .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                    .add(R.id.view_pager, fragmentServiceSettings)
-                    .commit();
-            navigation.clearAnimation();
-            navigation.animate().translationY(heightBottomNavigation).setDuration(200);
-        }
+                System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в monograbVersion");
+                fragmentManager.beginTransaction()
+                        .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                        .add(R.id.view_pager, fragmentServiceSettingsMono)
+                        .commit();
+            } else {
+                System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в multigrabVersion");
+                fragmentManager.beginTransaction()
+                        .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                        .add(R.id.view_pager, fragmentServiceSettings)
+                        .commit();
+                navigation.clearAnimation();
+                navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+            }
             myMenu.setGroupVisible(R.id.modes, true);
             myMenu.setGroupVisible(R.id.service_settings, false);
         } else {
@@ -1443,9 +1443,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                 addEntry(receiveLevelCH1Chat);
                                 addEntry2(receiveLevelCH2Chat);
                                 if ((!flagReceptionExpectation ||
-                                    ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST == numberCycle) &&
-                                    (flagUseHDLCProtocol) &&(!flagReadStartParametersHDLC) &&
-                                    (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
+                                        ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST == numberCycle) &&
+                                        (flagUseHDLCProtocol) &&(!flagReadStartParametersHDLC) &&
+                                        (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
                                     if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){
                                         System.err.println("запрос обновления графиков");
                                         presenter.onHelloWorld(CompileMassageMainDataHDLC());
@@ -1525,9 +1525,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                 }
                             }
                             if((isEnable) && (!flagReceptionExpectation
-                                || ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST == numberCycle)
-                                && (flagUseHDLCProtocol) &&(!flagReadStartParametersHDLC) &&
-                                (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
+                                    || ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST == numberCycle)
+                                    && (flagUseHDLCProtocol) &&(!flagReadStartParametersHDLC) &&
+                                    (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
                                 System.err.println("запрос обновления сервисных настроек");
                                 presenter.onHelloWorld(CompileMassageMainDataHDLC());
                                 flagReceptionExpectation = true;
@@ -1915,22 +1915,22 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     }
 
     public void setStartParametersInChartActivity(){
-            if (monograbVersion){ seekBarIStop.setProgress(receiveCurrent);}
-            seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekBar - 0.25)));//-0.5
-            seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekBar - 0.25)));//-0.5
+        if (monograbVersion){ seekBarIStop.setProgress(receiveCurrent);}
+        seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekBar - 0.25)));//-0.5
+        seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekBar - 0.25)));//-0.5
 
-            System.err.println("Параметры, полученные с кисти:\n" +
-                    "Trig CH1: "+receiveLevelTrigCH1+"\n"+
-                    "Trig CH2: "+receiveLevelTrigCH2+"\n"+
-                    "Current: "+ receiveCurrent +"\n"+
-                    "Indication mode: "+receiveIndicationInvertMode+"\n"+
-                    "Block indication: "+receiveBlockIndication+"\n"+
-                    "Roughness: "+receiveRoughnessOfSensors+"\n");
-            firstRead = false;
-            if(receiveBlockIndication == 0){switchBlockMode.setChecked(false); imageViewStatus.setImageResource(R.drawable.block_not_use);}
-            if(receiveBlockIndication == 1){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.unblock);}
-            if(receiveBlockIndication == 2){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.unblock);}
-            if(receiveBlockIndication == 3){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.block);}
+        System.err.println("Параметры, полученные с кисти:\n" +
+                "Trig CH1: "+receiveLevelTrigCH1+"\n"+
+                "Trig CH2: "+receiveLevelTrigCH2+"\n"+
+                "Current: "+ receiveCurrent +"\n"+
+                "Indication mode: "+receiveIndicationInvertMode+"\n"+
+                "Block indication: "+receiveBlockIndication+"\n"+
+                "Roughness: "+receiveRoughnessOfSensors+"\n");
+        firstRead = false;
+        if(receiveBlockIndication == 0){switchBlockMode.setChecked(false); imageViewStatus.setImageResource(R.drawable.block_not_use);}
+        if(receiveBlockIndication == 1){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.unblock);}
+        if(receiveBlockIndication == 2){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.unblock);}
+        if(receiveBlockIndication == 3){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.block);}
 
     }
 
@@ -2020,7 +2020,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     }
 
     //////////////////////////////////////////////////////////////////////////////
-/**                    схема запросов начальных параметров                         **/
+    /**                    схема запросов начальных параметров                         **/
 //  односхват:  ----> Trig1 ----> Trig2 ----> Current ----> Roughness
 //  многосхват: ----> Trig1 ----> Trig2 ----> Roughness
     //////////////////////////////////////////////////////////////////////////////
@@ -2187,7 +2187,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         requestBatteryTensionThread.start();
     }
 
-//    часть отвечающая за установку флага паузы
+    //    часть отвечающая за установку флага паузы
     public void pauseSendingThread (final byte[] SendMassage) {
         pauseSendingThread = new Thread(new Runnable() {
             @Override
@@ -2332,8 +2332,12 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         y1_2.setDrawGridLines(false);
     }
 
-    public void GetPosition_My (BluetoothDevice device){
+    public void getNameFromDevice(BluetoothDevice device){
         deviceName = device.getName();
+    }
+
+    public void getName(String deviceName){
+        this.deviceName =deviceName;
     }
 
     private byte[] CompileMassageSettings(byte numberFinger, int intValueFingerAngle,
@@ -2367,7 +2371,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         TextByteHDLC[1] = (byte) 0x07;
         TextByteHDLC[2] = (byte) 0x07;
         TextByteHDLC[3] = presenter.calculationCRC_HDLC(TextByteHDLC);
-         return TextByteHDLC;
+        return TextByteHDLC;
     }
 
     private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,
@@ -2471,7 +2475,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 return TextByteHDLC5;
         }
     }
-//    public byte[] CompileMassageComplexGestureSettings(int GESTURE_NUMBER, int GripperNumberStart1,
+    //    public byte[] CompileMassageComplexGestureSettings(int GESTURE_NUMBER, int GripperNumberStart1,
 //                                                       int mySensorEvent1, int GripperNumberEnd1,
 //                                                       int GripperNumberStart2, int mySensorEvent2,
 //                                                       int GripperNumberEnd2, int indicatorTypeMessage){
@@ -2604,18 +2608,18 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         byte[] TextByteSetIlluminationMode;
         if (onIlluminationMode) {
             TextByteSetIlluminationMode = new byte[] {(byte) 0xF9, 0x02, 0x24, 0x00, 0x08,
-                                                       (byte) 0xFF, 0x00, 0x00, (byte) 0xFF, 0x00,
-                                                       0x00, (byte) 0xFF, 0x00, 0x00, (byte) 0xFF,
-                                                       0x00, 0x00, (byte) 0xFF, 0x00, 0x00,
-                                                       (byte) 0xFF, 0x00, 0x00, (byte) 0xFF, 0x00,
-                                                       0x00, (byte) 0xFF, 0x00, 0x00, 0x7B};
+                    (byte) 0xFF, 0x00, 0x00, (byte) 0xFF, 0x00,
+                    0x00, (byte) 0xFF, 0x00, 0x00, (byte) 0xFF,
+                    0x00, 0x00, (byte) 0xFF, 0x00, 0x00,
+                    (byte) 0xFF, 0x00, 0x00, (byte) 0xFF, 0x00,
+                    0x00, (byte) 0xFF, 0x00, 0x00, 0x7B};
         }else {
             TextByteSetIlluminationMode = new byte[] {(byte) 0xF9, 0x02, 0x24, 0x00, 0x08,
-                                                       0x00, 0x00, 0x00, 0x00, 0x00,
-                                                       0x00, 0x00, 0x00, 0x00, 0x00,
-                                                       0x00, 0x00, 0x00, 0x00, 0x00,
-                                                       0x00, 0x00, 0x00, 0x00, 0x00,
-                                                       0x00, 0x00, 0x00, (byte) 0x9C};
+                    0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, (byte) 0x9C};
         }
         return TextByteSetIlluminationMode;
     }
@@ -2744,7 +2748,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 }
                 break;
             case 2:
-               if(firstTapRecyclerView) {
+                if(firstTapRecyclerView) {
                     fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, fragmentGestureSettings3)
@@ -2753,7 +2757,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
                     NUMBER_CELL = 0x04;
                     firstTapRecyclerView = false;
-                   showMenu = false;
+                    showMenu = false;
                 }
                 break;
 //            case 3:

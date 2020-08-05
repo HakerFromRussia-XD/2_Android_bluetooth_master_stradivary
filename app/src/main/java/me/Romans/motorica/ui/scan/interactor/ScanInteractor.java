@@ -9,10 +9,6 @@ import me.Romans.bluetooth.BluetoothCallback;
 import me.Romans.bluetooth.DeviceCallback;
 import me.Romans.bluetooth.DiscoveryCallback;
 
-/**
- * Created by Omar on 20/12/2017.
- */
-
 public interface ScanInteractor {
     List<String> getPairedDevices();
     BluetoothDevice getPairedDevice(int position);
@@ -25,4 +21,5 @@ public interface ScanInteractor {
     void onStop();
     void checkAvailableDevice(BluetoothDevice device, DeviceCallback callback);
     void disconnect();
+    int getOurGadgets();
 }

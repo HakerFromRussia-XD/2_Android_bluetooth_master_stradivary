@@ -32,7 +32,8 @@ public class SplashScreen extends AppCompatActivity {
     void askPermissions(){
         Dexter.withActivity(this).withPermissions(
             Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN)
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.ACCESS_COARSE_LOCATION)
             .withListener(new MultiplePermissionsListener() {
                 @Override
                 public void onPermissionsChecked(MultiplePermissionsReport report) {

@@ -1,5 +1,6 @@
 package me.Romans.motorica.data;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -37,7 +38,7 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
     @Override
     public GestureViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mCtx);
-        View view = inflater.inflate(R.layout.gestures_lest_layout, null);
+        @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.gestures_lest_layout, null);
         GestureViewHolder holder = new GestureViewHolder(view, mOnGestureMyListener);
         return new GestureViewHolder(view, mOnGestureMyListener);
     }
@@ -57,108 +58,6 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
     public int getItemCount() {
         return gesturesList.size();
     }
-
-
-    @Override
-    public void setStatus(String status) {
-
-    }
-
-    @Override
-    public void setStatus(int resId) {
-
-    }
-
-    @Override
-    public void setValueCH(int levelCH, int numberChannel) {
-
-    }
-
-    @Override
-    public void setErrorReception(boolean incomeErrorReception) {
-
-    }
-
-    @Override
-    public void appendMessage(String message) {
-
-    }
-
-    @Override
-    public void enableHWButton(boolean enabled) {
-
-    }
-
-    @Override
-    public void showToast(String message) {
-
-    }
-
-    @Override
-    public void showToastWithoutConnection() {
-
-    }
-
-    @Override
-    public void onGestureClick(int position) {
-
-    }
-
-    @Override
-    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
-
-    }
-
-    @Override
-    public void setStartParameters(Integer receiveCurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
-
-    }
-
-    @Override
-    public void setStartParametersInChartActivity() {
-
-    }
-
-    @Override
-    public boolean getFirstRead() {
-        return false;
-    }
-
-    @Override
-    public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
-
-    }
-
-    @Override
-    public void setStartParametersTrigCH1(Integer receiveLevelTrigCH1) {
-
-    }
-
-    @Override
-    public void setStartParametersTrigCH2(Integer receiveLevelTrigCH2) {
-
-    }
-
-    @Override
-    public void setStartParametersCurrent(Integer receiveCurrent) {
-
-    }
-
-    @Override
-    public void setStartParametersBlock(Byte receiveBlockIndication) {
-
-    }
-
-    @Override
-    public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
-
-    }
-
-    @Override
-    public void setStartParametersBattery(Integer receiveBatteryTension) {
-
-    }
-
 
     public class GestureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
@@ -188,5 +87,87 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
 
     public interface OnGestureMyListener{
         void onGestureClick(int position);
+    }
+
+
+    @Override
+    public void setStatus(String status) {
+    }
+
+    @Override
+    public void setStatus(int resId) {
+    }
+
+    @Override
+    public void setValueCH(int levelCH, int numberChannel) {
+    }
+
+    @Override
+    public void setErrorReception(boolean incomeErrorReception) {
+    }
+
+    @Override
+    public void appendMessage(String message) {
+    }
+
+    @Override
+    public void enableHWButton(boolean enabled) {
+    }
+
+    @Override
+    public void showToast(String message) {
+    }
+
+    @Override
+    public void showToastWithoutConnection() {
+    }
+
+    @Override
+    public void onGestureClick(int position) {
+    }
+
+    @Override
+    public void setGeneralValue(int receiveСurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
+    }
+
+    @Override
+    public void setStartParameters(Integer receiveCurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors) {
+    }
+
+    @Override
+    public void setStartParametersInChartActivity() {
+    }
+
+    @Override
+    public boolean getFirstRead() {
+        return false;
+    }
+
+    @Override
+    public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
+    }
+
+    @Override
+    public void setStartParametersTrigCH1(Integer receiveLevelTrigCH1) {
+    }
+
+    @Override
+    public void setStartParametersTrigCH2(Integer receiveLevelTrigCH2) {
+    }
+
+    @Override
+    public void setStartParametersCurrent(Integer receiveCurrent) {
+    }
+
+    @Override
+    public void setStartParametersBlock(Byte receiveBlockIndication) {
+    }
+
+    @Override
+    public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
+    }
+
+    @Override
+    public void setStartParametersBattery(Integer receiveBatteryTension) {
     }
 }

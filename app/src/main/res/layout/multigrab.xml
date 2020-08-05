@@ -184,12 +184,6 @@
                 android:layout_marginRight="2dp"
                 android:visibility="visible">
 
-                <FrameLayout
-                    android:id="@+id/view_pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentBottom="true"
-                    app:layout_behavior="@string/appbar_scrolling_view_behavior"></FrameLayout>
             </com.github.mikephil.charting.charts.LineChart>
 
             <TextView
@@ -1126,6 +1120,13 @@
             android:clipToPadding="true"
             android:visibility="visible"></android.support.v7.widget.RecyclerView>
     </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"></FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

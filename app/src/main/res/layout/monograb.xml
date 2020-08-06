@@ -821,8 +821,8 @@
                 android:layout_toEndOf="@+id/textView4"
                 android:layout_toRightOf="@+id/textView4"
                 android:indeterminate="false"
-                android:max="3000"
-                android:progress="1500"
+                android:max="1500"
+                android:progress="1000"
                 android:progressDrawable="@drawable/track"
                 android:thumb="@drawable/thumb" />
 

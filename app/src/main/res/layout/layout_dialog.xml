@@ -11,9 +11,10 @@
         android:layout_height="wrap_content"
         android:hint="@string/password"
         android:inputType="numberPassword"
-        android:focusedByDefault="true"
+        android:focusedByDefault="false"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:selectAllOnFocus="true"/>
+        android:selectAllOnFocus="false"
+        android:keyboardNavigationCluster="false"/>
 
 </RelativeLayout>

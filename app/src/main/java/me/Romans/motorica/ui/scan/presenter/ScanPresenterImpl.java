@@ -114,6 +114,7 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void pairedItemClick(int position) {
+        if(pairedDeviceNames == null) {pairedDeviceNames = interactor.getPairedDevices();}
         BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(pairedDeviceNames.get(position).split(":")[2])-1);
         ChartActivity chatActivity = new ChartActivity();
         chatActivity.getNameFromDevice(device);

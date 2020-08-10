@@ -2090,9 +2090,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                     Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
                 }catch (Exception ignored){}
                 if(!flagReceptionExpectation){
-                    requestStartBlockThread();
+//                    requestStartBlockThread();
 //                    TODO вынесли запрос блокировки до лучших времён
-//                    requestStartRoughnessThread();
+                    requestStartRoughnessThread();
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Block");
                 }
                 if(isEnable) {

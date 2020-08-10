@@ -616,10 +616,10 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private byte test_CRC  (byte parameter) {
-        byte[] TextByteTrigger = new byte[3];
+        byte[] TextByteTrigger = new byte[4];
         TextByteTrigger[0] = (byte) 0xFA;
         TextByteTrigger[1] = parameter;
-        TextByteTrigger[2] = (byte) 0x00;
+        TextByteTrigger[2] = (byte) 0x03;
         return calculationCRC_HDLC(TextByteTrigger);
     }
 }

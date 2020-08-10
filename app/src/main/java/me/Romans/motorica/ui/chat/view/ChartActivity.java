@@ -243,6 +243,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public byte[] TextByteTriggerControlComplexGesture = new byte[2];
     public byte[] TextByteTriggerControl = new byte[6];
     public boolean transferThreadFlag = false;
+    public boolean mainActivityStarted = false;
     public Thread transferThread;
     public Thread requestStartTrig1Thread;
     public Thread requestStartTrig2Thread;
@@ -329,6 +330,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Objects.requireNonNull(getSupportActionBar()).setSubtitle(deviceName);
+        mainActivityStarted = true;
 
         final float scale = getResources().getDisplayMetrics().density;
 
@@ -1448,7 +1450,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                         (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
                                     if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){
                                         System.err.println("запрос обновления графиков");
-                                        presenter.onHelloWorld(CompileMassageMainDataHDLC());
+//                                        presenter.onHelloWorld(CompileMassageMainDataHDLC());
                                     }
                                     flagReceptionExpectation = true;
 //                                    if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST)
@@ -2038,7 +2040,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 }catch (Exception ignored){}
                 if(!flagReceptionExpectation)
                 {
-                    requestStartTrig2Thread ();
+                    flagReadStartParametersHDLC = false;
+                    firstRead = false;
+                    //requestStartTrig2Thread ();
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Trig2");
                 }
                 if(isEnable){

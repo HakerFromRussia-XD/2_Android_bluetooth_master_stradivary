@@ -1450,7 +1450,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                                         (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
                                     if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){
                                         System.err.println("запрос обновления графиков");
-//                                        presenter.onHelloWorld(CompileMassageMainDataHDLC());
+                                        presenter.onHelloWorld(CompileMassageMainDataHDLC());
                                     }
                                     flagReceptionExpectation = true;
 //                                    if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST)
@@ -2040,9 +2040,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 }catch (Exception ignored){}
                 if(!flagReceptionExpectation)
                 {
-                    flagReadStartParametersHDLC = false;
-                    firstRead = false;
-                    //requestStartTrig2Thread ();
+//                    flagReadStartParametersHDLC = false;
+//                    firstRead = false;
+                    requestStartTrig2Thread ();
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Trig2");
                 }
                 if(isEnable){

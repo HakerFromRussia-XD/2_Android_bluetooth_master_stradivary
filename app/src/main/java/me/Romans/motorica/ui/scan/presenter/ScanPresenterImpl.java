@@ -123,7 +123,7 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void itemClick(int position) {
-        Log.e(TAG, "ScanPresenter--------------> itemClick");
+        Log.e(TAG, "ScanPresenter--------------> itemClick position:"+position);
         if (view.getMyScanList() != null){
             String typeDevice = view.getMyScanList().get(position).getTitle().split(":")[1];
             if(typeDevice.equals("p")){

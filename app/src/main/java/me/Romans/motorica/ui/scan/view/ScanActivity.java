@@ -256,7 +256,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         for(int i = (scanListSize-1); i>((scanListSize-1)-scanDeviceCount); i--){
             Log.e(TAG, "saveData remove: "+scanList.get(i).getTitle()+"    scanList.size(): "+scanListSize+"     i: "+i+"      условие: пока i>"+((scanListSize-1)-scanDeviceCount));//scanList.get(i).getTitle()
             scanList.remove(i);
+//            mScanListAdapter = new ScanListAdapter(this, scanList, this);
         }
+        mScanListAdapter = new ScanListAdapter(this, scanList, this);
+        pairedDeviceList.setAdapter(mScanListAdapter);
         String json = gson.toJson(scanList);
         editor.putString("task list", json);
         editor.apply();

@@ -10,7 +10,7 @@
     <string name="on_update">включение графиков</string>
     <string name="gesture4">parting position</string>
 
-    <string name="activity_scan_button">Scan again</string>
+    <string name="activity_scan_button">Сканировать снова</string>
     <string name="activity_scan_paired_text">Связанные устройства:</string>
 
     <string name="bluetooth_scanning">Сканирование…</string>
@@ -36,7 +36,7 @@
     <string name="_1250">1250</string>
     <string name="_2500">2500</string>
     <string name="state_view">lolol</string>
-    <string name="title_activity_gripper_settings">GripperSettings</string>
+    <string name="title_activity_gripper_settings">Настройки схвата</string>
     <string name="action_Trigger0">сервисное меню</string>//service menu
     <string name="action_Trigger1">классический</string>//classic
     <string name="action_Trigger2">триггерный</string>//trigger mode

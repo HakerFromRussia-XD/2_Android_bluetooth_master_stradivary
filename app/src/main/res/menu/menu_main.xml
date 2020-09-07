@@ -14,37 +14,27 @@
             app:showAsAction="ifRoom"/>
     </group>
     <group
-        android:id="@+id/modes">
+        android:id="@+id/modes"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/action_Trigger1"
             android:orderInCategory="100"
             android:title="@string/action_Trigger1"
             app:showAsAction="never">
-            <menu>
-                <item
-                    android:id="@+id/action_Trigger20"
-                    android:orderInCategory="100"
-                    android:title="@string/action_Trigger2"
-                    app:showAsAction="never"/>
-                <item
-                    android:id="@+id/action_Trigger21"
-                    android:orderInCategory="100"
-                    android:title="@string/action_Trigger2"
-                    app:showAsAction="never"/>
-            </menu>
         </item>
 
         <item
             android:id="@+id/action_Trigger2"
             android:orderInCategory="100"
             android:title="@string/action_Trigger2"
-            app:showAsAction="never"/>
+            app:showAsAction="never"
+            android:checked="true"/>
 
         <item
             android:id="@+id/action_Trigger3"
             android:orderInCategory="100"
             android:title="@string/action_Trigger3"
-            app:showAsAction="never"/>
+            app:showAsAction="never" />
 <!--        <item-->
 <!--            android:id="@+id/action_Trigger4"-->
 <!--            android:orderInCategory="100"-->
@@ -69,19 +59,19 @@
             android:id="@+id/action_Trigger8"
             android:orderInCategory="100"
             android:title="@string/action_Trigger8"
-            app:showAsAction="never"/>
+            app:showAsAction="never" />
         <item
             android:id="@+id/action_Trigger9"
             android:orderInCategory="100"
             android:title="@string/single_channel_by_sensor_1"
-            app:showAsAction="never"/>
+            app:showAsAction="never" />
 <!--    only first channel-->
 
         <item
             android:id="@+id/action_Trigger10"
             android:orderInCategory="100"
             android:title="@string/single_channel_by_sensor_2"
-            app:showAsAction="never"/>
+            app:showAsAction="never" />
 <!--    only first channel-->
     </group>
 

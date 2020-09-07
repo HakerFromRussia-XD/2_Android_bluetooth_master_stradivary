@@ -3,6 +3,7 @@ package me.Romans.motorica.ui.chat.view;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -836,7 +837,9 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         }
         ////////////////////////////////////////////////
 
-
+        if(loadVariable(deviceName +"action_Trigger") == 0) {
+            saveVariable( deviceName+"action_Trigger", 1);
+        }
         ////////////////////////////////////////////////
 /**                scroller initialization                       **/
         ////////////////////////////////////////////////
@@ -1565,6 +1568,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         getMenuInflater().inflate(R.menu.menu_main, menu);
         menu.setGroupVisible(R.id.modes, false);
         menu.setGroupVisible(R.id.service_settings, false);
+        menu.getItem(loadVariable(deviceName +"action_Trigger")).setChecked(true);
         return true;
     }
 
@@ -1575,9 +1579,15 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     public static void transferFinger5Static (int angleFinger5){ intValueFinger5Angle = angleFinger5; }
     public static void transferFinger6Static (int angleFinger6){ intValueFinger6Angle = angleFinger6; }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+//        private tem action_Trigger0 =
+        // ставим галочку напротив
+        if(item.isChecked()){
+            item.setChecked(true);
+        } else {
+            item.setChecked(false);
+        }
         // получим идентификатор выбранного пункта меню
         int id = item.getItemId();
         // Операции для выбранного пункта меню
@@ -1591,7 +1601,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 } else {
                     presenter.onHelloWorld(CompileMassageTriggerMod(1));
                 }
-                infiniteAction = false;
+                saveVariable( deviceName+"action_Trigger", 1);
                 return true;
             case R.id.action_Trigger2:
                 if(flagUseHDLCProtocol){
@@ -1599,7 +1609,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 } else {
                     presenter.onHelloWorld(CompileMassageTriggerMod(2));
                 }
-                infiniteAction = false;
+                saveVariable( deviceName+"action_Trigger", 2);
                 return true;
             case R.id.action_Trigger3:
                 if(flagUseHDLCProtocol){
@@ -1607,7 +1617,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 } else {
                     presenter.onHelloWorld(CompileMassageTriggerMod(3));
                 }
-                infiniteAction = false;
+                saveVariable( deviceName+"action_Trigger", 3);
                 return true;
 //            case R.id.action_Trigger4:
 //                presenter.onHelloWorld(CompileMassegeTreegMod (4));
@@ -1631,7 +1641,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 } else {
                     presenter.onHelloWorld(CompileMassageTriggerMod(8));
                 }
-                infiniteAction = false;
+                saveVariable( deviceName+"action_Trigger", 4);
                 return true;
             case R.id.action_Trigger9:
                 if(flagUseHDLCProtocol){
@@ -1639,7 +1649,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 } else {
                     presenter.onHelloWorld(CompileMassageTriggerMod(9));
                 }
-                infiniteAction = false;
+                saveVariable( deviceName+"action_Trigger", 5);
                 return true;
             case R.id.action_Trigger10:
                 if(flagUseHDLCProtocol){
@@ -1647,7 +1657,7 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
                 } else {
                     presenter.onHelloWorld(CompileMassageTriggerMod(10));
                 }
-                infiniteAction = false;
+                saveVariable( deviceName+"action_Trigger", 6);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

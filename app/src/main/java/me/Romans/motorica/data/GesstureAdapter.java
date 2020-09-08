@@ -14,9 +14,9 @@ import java.util.List;
 
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
-import me.Romans.motorica.ui.chat.view.ChatView;
+import me.Romans.motorica.ui.chat.view.ChartView;
 
-public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.GestureViewHolder> implements ChatView {
+public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.GestureViewHolder> implements ChartView {
 
     private Context mCtx;
     private List<Gesture_my> gesturesList;
@@ -106,12 +106,9 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
     public void setErrorReception(boolean incomeErrorReception) {
     }
 
-    @Override
-    public void appendMessage(String message) {
-    }
 
     @Override
-    public void enableHWButton(boolean enabled) {
+    public void enableInterface(boolean enabled) {
     }
 
     @Override

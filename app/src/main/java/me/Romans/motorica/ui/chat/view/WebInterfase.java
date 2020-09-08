@@ -36,7 +36,6 @@ public class WebInterfase extends ChartActivity {
 
     @JavascriptInterface
     public void close () {
-
     }
 
     @JavascriptInterface

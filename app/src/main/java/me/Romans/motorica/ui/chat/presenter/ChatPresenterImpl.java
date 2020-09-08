@@ -10,13 +10,13 @@ import me.Romans.bluetooth.BluetoothCallback;
 import me.Romans.bluetooth.DeviceCallback;
 import me.Romans.bluetooth.ParserCallback;
 import me.Romans.motorica.R;
-import me.Romans.motorica.ui.chat.view.ChatView;
+import me.Romans.motorica.ui.chat.view.ChartView;
 
 import static me.Romans.motorica.ui.chat.view.ChartActivity.flagReceptionExpectation;
 import static me.Romans.motorica.ui.chat.view.ChartActivity.flagUseHDLCProtocol;
 
 public class ChatPresenterImpl implements ChatPresenter {
-    private ChatView view;
+    private ChartView view;
     private ChatInteractor interactor;
     private BluetoothDevice device;
     private int attemptConect = 0;
@@ -40,7 +40,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private byte txtbyteout16[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x10, 0x00, 0x77, 0x24};                                     //компановка для установки грубости датчиков 0x77 заменяемые данные всего 9 байт
     private boolean onPauseActivity = false;
 
-    public ChatPresenterImpl(ChatView view, ChatInteractor interactor) {
+    public ChatPresenterImpl(ChartView view, ChatInteractor interactor) {
         this.view = view;
         this.interactor = interactor;
     }
@@ -50,7 +50,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         if (intent.getExtras() != null) {
             device = intent.getExtras().getParcelable("device");
             if (DEBUG) {System.out.println("ВАЖНО!!!!!!!!!!!! ДЕВАЙС:   " + device);}
-            view.enableHWButton(false);
+            view.enableInterface(false);
         } else {
             if (DEBUG) {System.out.println("ПИЗДА!!!!!!!!!!!! ПОСЫЛКИ НЕТ!");}
         }
@@ -62,45 +62,10 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         @Override
     public void onHelloWorld(byte[] txtbyte) {
-//        for (int i = 0; i < txtbyte.length; i++) //aByte.length
-//        {
-//            txtbyte[i] = (byte) (txtbyte[i]-((byte) 0x30));
-//            if (txtbyte[i] > 0x0F){
-//                txtbyte[i] = (byte) (txtbyte[i] - 0x07);
-//                if(txtbyte[i] > 0x0F){
-//                    txtbyte[i] = (byte) (txtbyte[i] - 0x20);
-//                }
-//            }
-//            if(i%2==0){
-//                txtbyte[i] = (byte) (txtbyte[i] << 4);
-//            } else {
-//                txtbyte[i-1] = (byte) (txtbyte[i-1]+txtbyte[i]);
-//            }
-//        }
-//        System.arraycopy(txtbyte, 0, txtbyteout, 0, 2);
-//        for (int i=0; i < txtbyte.length; i++){
-//            txtbyteout.add(new byte[(txtbyte[i])]);
-//        }
-//        for (int i = 1; i < txtbyte.length-1; i+=2) //aByte.length
-//        {
-//            txtbyteout.remove(i);
-//        }
-//        for (int i = 0; i < 1; i++) //aByte.length
-//        {
-//            System.arraycopy(txtbyte, i*2, txtbyteout, i, 1);
-//        }
-
 //        System.out.println("ChatPresenter--------------> HDLC uses " + parserCallback.getFlagUseHDLCProcol());
         if(parserCallback.getFlagUseHDLCProtocol()){
             interactor.setIterator(1);
             interactor.sendMessageByte(txtbyte);
-//            System.out.println("ChatPresenter--------------> send request ");
-//            switch (txtbyte[2]){
-//                case BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC:
-//                    break;
-//                case BluetoothConstantManager.CURR_LIMIT_HDLC:
-//                    break;
-//            }
         } else {
             switch (txtbyte[0]) {
                 case 1: //компановка посылки записи порогов на любой канал
@@ -308,7 +273,6 @@ public class ChatPresenterImpl implements ChatPresenter {
                 default:
                     if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
                     if (DEBUG) {System.out.println("--> номер канала получателя:" + txtbyte[1]);}
-                    view.appendMessage("--> отправка на канал" + txtbyte[1]);
                     for (int i = 1; i < txtbyte.length; i++) //aByte.length
                     {
                         System.out.println("--> КОМПАНОВКА ПОСЫЛКИ:" + txtbyte[i]);
@@ -321,21 +285,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     }
 
-//    @Override
-//    public void sendData(byte[] data) {
-//
-//    }
-//
-//    @Override
-//    public void sendData() {
-//        interactor.sendMessagestr(String.valueOf(integer));
-//        System.out.println("принятая длинна:");
-//    }
-
-
     public ParserCallback parserCallback = new ParserCallback(){
-
-        //public TextView CH1;
 
         @Override
         public Integer givsLenhgt(int lenght) {
@@ -468,7 +418,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         public void onDeviceConnected(BluetoothDevice device) {
             if (DEBUG) {System.out.println("ChatPresenter--------------> onDeviceConnected");}
             view.setStatus(R.string.bluetooth_connected);
-            view.enableHWButton(true);
+            view.enableInterface(true);
             attemptConect = 0;
         }
 
@@ -476,7 +426,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         public void onDeviceDisconnected(final BluetoothDevice device, String message) {
             if (DEBUG) {System.out.println("ChatPresenter--------------> onDeviceDisconnected");}
             view.setStatus(R.string.bluetooth_connecting);
-            view.enableHWButton(false);
+            view.enableInterface(false);
             if(!onPauseActivity){
                 System.out.println("ChatPresenter--------------> pause call "+ false);
                 interactor.connectToDevice(device, communicationCallback);
@@ -486,7 +436,6 @@ public class ChatPresenterImpl implements ChatPresenter {
         @Override
         public void onMessage(String message) {
             String string = new String(message);
-            view.appendMessage("<-- " + string);
         }
 
         @Override
@@ -565,7 +514,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             interactor.connectToDevice(device, communicationCallback);
             interactor.parsingExperimental(parserCallback);
             view.setStatus(R.string.bluetooth_connecting);
-            view.enableHWButton(false);
+            view.enableInterface(false);
         }
 
         @Override

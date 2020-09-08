@@ -17,8 +17,6 @@ import java.util.Objects;
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 
-import static me.Romans.motorica.ui.chat.view.ChartActivity.monograbVersion;
-
 public class SettingsDialog extends AppCompatDialogFragment {
     private ChartActivity mChartActivity;
     private EditText password_et;
@@ -40,7 +38,7 @@ public class SettingsDialog extends AppCompatDialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String password = password_et.getText().toString();
-                mSettingsDialogListener.applyTexts(password);
+                mSettingsDialogListener.passwordServiceSettings(password);
 
                 mChartActivity.openServiceSettings();
             }
@@ -69,6 +67,6 @@ public class SettingsDialog extends AppCompatDialogFragment {
     }
 
     public interface SettingsDialogListener {
-        void applyTexts(String password);
+        void passwordServiceSettings(String password);
     }
 }

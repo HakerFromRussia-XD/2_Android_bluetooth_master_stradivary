@@ -9,18 +9,18 @@ import me.Romans.motorica.ui.chat.interactor.ChatInteractor;
 import me.Romans.motorica.ui.chat.interactor.ChatInteractorImpl;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenterImpl;
-import me.Romans.motorica.ui.chat.view.ChatView;
+import me.Romans.motorica.ui.chat.view.ChartView;
 
 @Module
 public class ChatModule {
-    private ChatView view;
+    private ChartView view;
 
-    public ChatModule(ChatView view) {
+    public ChatModule(ChartView view) {
         this.view = view;
     }
 
     @Provides @Singleton
-    public ChatView provideChatView(){
+    public ChartView provideChatView(){
         return view;
     }
 
@@ -30,7 +30,7 @@ public class ChatModule {
     }
 
     @Provides @Singleton
-    public ChatPresenter provideChatPresenter(ChatView view, ChatInteractor interactor){
+    public ChatPresenter provideChatPresenter(ChartView view, ChatInteractor interactor){
         return new ChatPresenterImpl(view, interactor);
     }
 }

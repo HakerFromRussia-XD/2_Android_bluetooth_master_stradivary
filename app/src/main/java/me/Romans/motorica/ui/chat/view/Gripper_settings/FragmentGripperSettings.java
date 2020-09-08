@@ -20,9 +20,9 @@ import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
-import me.Romans.motorica.ui.chat.view.ChartView;
+import me.Romans.motorica.ui.chat.view.ChatView;
 
-public class FragmentGripperSettings extends Fragment implements ChartView {
+public class FragmentGripperSettings extends Fragment implements ChatView {
     Button gripper_use;
     public SeekBar seekBarSpeedFinger;
     public TextView textSpeedFinger;
@@ -141,7 +141,9 @@ public class FragmentGripperSettings extends Fragment implements ChartView {
     @Override
     public void setErrorReception(boolean incomeErrorReception) { }
     @Override
-    public void enableInterface(boolean enabled) { }
+    public void appendMessage(String message) { }
+    @Override
+    public void enableHWButton(boolean enabled) { }
     @Override
     public void showToast(String message) { }
 

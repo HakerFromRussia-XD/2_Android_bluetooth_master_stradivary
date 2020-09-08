@@ -17,9 +17,9 @@ import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
-import me.Romans.motorica.ui.chat.view.ChartView;
+import me.Romans.motorica.ui.chat.view.ChatView;
 
-public class FragmentServiceSettingsMono extends Fragment implements ChartView {
+public class FragmentServiceSettingsMono extends Fragment implements ChatView {
     @BindView(R.id.save_service_settings) Button save_service_settings;
     @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
     @BindView(R.id.switchInvert) public Switch switchInvert;
@@ -204,7 +204,11 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
 
     }
     @Override
-    public void enableInterface(boolean enabled) {
+    public void appendMessage(String message) {
+
+    }
+    @Override
+    public void enableHWButton(boolean enabled) {
 
     }
     @Override

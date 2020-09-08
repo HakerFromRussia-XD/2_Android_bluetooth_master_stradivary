@@ -25,12 +25,12 @@ import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
-import me.Romans.motorica.ui.chat.view.ChartView;
+import me.Romans.motorica.ui.chat.view.ChatView;
 import me.Romans.motorica.utils.ConstantManager;
 
 import static android.support.constraint.Constraints.TAG;
 
-public class FragmentServiceSettings extends Fragment implements ChartView {
+public class FragmentServiceSettings extends Fragment implements ChatView {
     @BindView(R.id.switchInvert) public Switch switchInvert;
     @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
     @BindView(R.id.switchMagnetInvert) Switch switchMagnetInvert;
@@ -90,10 +90,6 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
         chatActivity.updateServiceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
         chatActivity.layoutSensors.setVisibility(View.GONE);
-//        if(chatActivity.loadVariable(chatActivity.deviceName +"action_Trigger") == 0) {
-//            chatActivity.saveVariable( chatActivity.deviceName+"action_Trigger", 1);
-//        }
-
 
         Spinner spinnerNumberOfChannel = view.findViewById(R.id.spinnerNumberOfChannel);
         ArrayAdapter<CharSequence> adapterNumbers = ArrayAdapter.createFromResource(this.getActivity(),
@@ -618,6 +614,11 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
         seekBarRoughness.setProgress(chatActivity.loadVariable(ChartActivity.deviceName +"receiveRoughnessOfSensors"));
 
         chatActivity.invertChannel = chatActivity.loadVariable(ChartActivity.deviceName + "invertChannel") == 0x01;
+//      тоже что и в строчке выше  if (chatActivity.loadVariable(ChartActivity.deviceName +"invertChannel") == 0x01) {
+//            chatActivity.invertChannel = true;
+//        } else {
+//            chatActivity.invertChannel = false;
+//        }
 
         if (chatActivity.loadVariable(ChartActivity.deviceName +"InternalADC") == 0x00) {
             switchNotUseInternalADC.setChecked(true);
@@ -672,7 +673,12 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
     }
 
     @Override
-    public void enableInterface(boolean enabled) {
+    public void appendMessage(String message) {
+
+    }
+
+    @Override
+    public void enableHWButton(boolean enabled) {
 
     }
 

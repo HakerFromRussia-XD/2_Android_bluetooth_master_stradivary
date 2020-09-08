@@ -275,17 +275,18 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     @Inject
     public ChatPresenter presenter;
 
+
     @SuppressLint({"NewApi", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(monograbVersion){
-            System.err.println("односхватная версия");
+            //односхватная версия
             setContentView(R.layout.monograb);
             seekBarIStop = findViewById(R.id.seekBarIstop);
             fragmentServiceSettingsMono = new FragmentServiceSettingsMono();
         } else {
-            System.err.println("многосхватная версия");
+            //многосхватная версия
             setContentView(R.layout.multigrab);
             navigation = findViewById(R.id.navigation);
             navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -302,16 +303,114 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             fragmentGestureSettings3 = new FragmentGestureSettings3();
             fragmentServiceSettings = new FragmentServiceSettings();
         }
+        if(monograbVersion){
+            //односхватная версия
+            seekBarIStop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    maxCurrent = seekBar.getProgress();
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    maxCurrent = seekBar.getProgress();
+                    current = seekBar.getProgress();
+                    if(flagUseHDLCProtocol){
+                        pauseSendingThread(CompileMassageCurentSettingsAndInvertHDLC(current));
+                    } else {
+                        presenter.onHelloWorld(CompileMassageCurentSettingsAndInvert(current, invert));
+                    }
+                }
+            });
+        } else {
+            //многосхватная версия
+            activity_chat_gesture1.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        if (flagUseHDLCProtocol){
+                            useGesture = 1;
+                            gestureUseThread ((byte) 6, (byte) useGesture);
+                        }else{
+                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x00, (byte) 0x01));
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            activity_chat_gesture2.setOnTouchListener(new View.OnTouchListener(){
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        if (flagUseHDLCProtocol){
+                            useGesture = 2;
+                            gestureUseThread ((byte) 7, (byte) useGesture);
+                        }else{
+                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x02, (byte) 0x03));
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            activity_chat_gesture3.setOnTouchListener(new View.OnTouchListener(){
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        if (flagUseHDLCProtocol){
+                            useGesture = 3;
+                            gestureUseThread ((byte) 8, (byte) useGesture);
+                        }else{
+                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x04, (byte) 0x05));
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    if (flagUseHDLCProtocol){
+                        useGesture = 4;
+                        gestureUseThread ((byte) 9, (byte) useGesture);
+                    }else{
+                        presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x06, (byte) 0x06));
+                    }
+                }
+            });
+
+            offUpdate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (flagUseHDLCProtocol){
+                        if(!flagOffUpdateGraphHDLC){
+                            flagOffUpdateGraphHDLC = true;
+                            offUpdate.setText(R.string.on_schedules);
+                        } else {
+                            flagOffUpdateGraphHDLC = false;
+                            offUpdate.setText(R.string.off_schedules);
+                        }
+                    }
+                }
+            });
+        }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Objects.requireNonNull(getSupportActionBar()).setSubtitle(deviceName);
         mainActivityStarted = true;
-
         final float scale = getResources().getDisplayMetrics().density;
+
 
         limit_1 = findViewById(R.id.limit_1);
         limit_2 = findViewById(R.id.limit_2);
         objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
-        
+
+
         //////////////////////////////////////////
         //инициализация и заполнение списка жестов
         gestureMyList = new ArrayList<>();
@@ -353,21 +452,20 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         gestureAdapter = new GesstureAdapter(this, gestureMyList, this);
         recyclerView.setAdapter(gestureAdapter);
         /////////////////////////////////////////////////////////////////////////////////////////
-        
+
+
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
                 .chatModule(new ChatModule(this))
                 .build().inject(this);
         ButterKnife.bind(this);
 
+
         ////////initialized graph for channel 1
         initializedGraphForChannel1();
         ////////initialized graph for channel 2
         initializedGraphForChannel2();
-        Log.e(TAG, "CompileTestMessageHDLC = "+CompileTestMessageHDLC()[0]+
-                " "+CompileTestMessageHDLC()[1]+
-                " "+CompileTestMessageHDLC()[2]+
-                " "+CompileTestMessageHDLC()[3]);
+
 
         seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -669,103 +767,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             }
         });
 
-        if(!monograbVersion){
-            //многосхватная версия
-            activity_chat_gesture1.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        if (flagUseHDLCProtocol){
-                            useGesture = 1;
-                            gestureUseThread ((byte) 6, (byte) useGesture);
-                        }else{
-                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x00, (byte) 0x01));
-                        }
-                    }
-                    return false;
-                }
-            });
 
-            activity_chat_gesture2.setOnTouchListener(new View.OnTouchListener(){
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        if (flagUseHDLCProtocol){
-                            useGesture = 2;
-                            gestureUseThread ((byte) 7, (byte) useGesture);
-                        }else{
-                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x02, (byte) 0x03));
-                        }
-                    }
-                    return false;
-                }
-            });
-
-            activity_chat_gesture3.setOnTouchListener(new View.OnTouchListener(){
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        if (flagUseHDLCProtocol){
-                            useGesture = 3;
-                            gestureUseThread ((byte) 8, (byte) useGesture);
-                        }else{
-                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x04, (byte) 0x05));
-                        }
-                    }
-                    return false;
-                }
-            });
-
-            activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v) {
-                    if (flagUseHDLCProtocol){
-                        useGesture = 4;
-                        gestureUseThread ((byte) 9, (byte) useGesture);
-                    }else{
-                        presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x06, (byte) 0x06));
-                    }
-                }
-            });
-
-            offUpdate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (flagUseHDLCProtocol){
-                        if(!flagOffUpdateGraphHDLC){
-                            flagOffUpdateGraphHDLC = true;
-                            offUpdate.setText(R.string.on_schedules);
-                        } else {
-                            flagOffUpdateGraphHDLC = false;
-                            offUpdate.setText(R.string.off_schedules);
-                        }
-                    }
-                }
-            });
-        } else {
-            //односхватная версия
-            seekBarIStop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    maxCurrent = seekBar.getProgress();
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    maxCurrent = seekBar.getProgress();
-                    current = seekBar.getProgress();
-                    if(flagUseHDLCProtocol){
-                        pauseSendingThread(CompileMassageCurentSettingsAndInvertHDLC(current));
-                    } else {
-                        presenter.onHelloWorld(CompileMassageCurentSettingsAndInvert(current, invert));
-                    }
-                }
-            });
-        }
 
         presenter.onCreate(getIntent());
 
@@ -905,6 +907,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             }
         }
     }
+
 
     //////////////////////////////////////////////////////////////////////////////
     /**                             работа с 3D                                **/
@@ -1448,13 +1451,13 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         graphThread.start();
     }
 
-
     public static void transferFinger1Static (int angleFinger1){ intValueFinger1Angle = angleFinger1; }
     public static void transferFinger2Static (int angleFinger2){ intValueFinger2Angle = angleFinger2; }
     public static void transferFinger3Static (int angleFinger3){ intValueFinger3Angle = angleFinger3; }
     public static void transferFinger4Static (int angleFinger4){ intValueFinger4Angle = angleFinger4; }
     public static void transferFinger5Static (int angleFinger5){ intValueFinger5Angle = angleFinger5; }
     public static void transferFinger6Static (int angleFinger6){ intValueFinger6Angle = angleFinger6; }
+
 
     //////////////////////////////////////////////////////////////////////////////
     /**                        работа с меню в ботбаре                         **/
@@ -1485,6 +1488,8 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             return false;
         }
     };
+
+
     //////////////////////////////////////////////////////////////////////////////
     /**                        работа с меню в апбаре                          **/
     //////////////////////////////////////////////////////////////////////////////
@@ -1498,7 +1503,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        private tem action_Trigger0 =
         // ставим галочку напротив
         if(item.isChecked()){
             item.setChecked(true);
@@ -1536,22 +1540,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 }
                 saveVariable( deviceName+"action_Trigger", 3);
                 return true;
-//            case R.id.action_Trigger4:
-//                presenter.onHelloWorld(CompileMassegeTreegMod (4));
-//                infinitAction = false;
-//                return true;
-//            case R.id.action_Trigger5:
-//                presenter.onHelloWorld(CompileMassegeTreegMod (5));
-//                infinitAction = false;
-//                return true;
-//            case R.id.action_Trigger6:
-//                presenter.onHelloWorld(CompileMassegeTreegMod (6));
-//                infinitAction = false;
-//                return true;
-//            case R.id.action_Trigger7:
-//                presenter.onHelloWorld(CompileMassegeTreegMod (7));
-//                infinitAction = false;
-//                return true;
             case R.id.action_Trigger8:
                 if(flagUseHDLCProtocol){
                     pauseSendingThread(CompileMassageTriggerModHDLC(8));
@@ -1687,67 +1675,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         updateServiceSettingsThread.start();
     }
 
-    private void addEntry(int event){
-
-        LineData data = mChart.getData();
-
-        if(data != null){
-            ILineDataSet set = data.getDataSetByIndex(0);
-
-            if(set == null){
-                set = createSet();
-                data.addDataSet(set);
-            }
-
-            data.addEntry(new Entry(set.getEntryCount(), event), 0);
-            data.notifyDataChanged();
-
-            mChart.notifyDataSetChanged();
-            mChart.setVisibleXRangeMaximum(50);
-            mChart.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
-        }
-    }
-    private void addEntry2(int event){
-
-        LineData data = mChart2.getData();
-
-        if(data != null){
-            ILineDataSet set = data.getDataSetByIndex(0);
-
-            if(set == null){
-                set = createSet();
-                data.addDataSet(set);
-            }
-
-            data.addEntry(new Entry(set.getEntryCount(), event), 0);
-            data.notifyDataChanged();
-
-            mChart2.notifyDataSetChanged();
-            mChart2.setVisibleXRangeMaximum(50);
-            mChart2.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
-
-        }
-    }
-
-    private LineDataSet createSet() {
-        LineDataSet set = new LineDataSet(null, null);
-        set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
-        set.setLineWidth(2f);
-        set.setColor(Color.GREEN);
-        set.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-
-        set.setCircleColor(Color.GREEN);
-        set.setCircleHoleColor(Color.GREEN);
-        set.setCircleSize(1f);
-        set.setFillAlpha(65);
-        set.setFillColor(ColorTemplate.getHoloBlue());
-        set.setHighLightColor(Color.rgb(244, 117, 177));
-        set.setValueTextColor(Color.WHITE);
-        set.setValueTextSize(1f);
-
-        set.setHighLightColor(Color.YELLOW);
-        return set;
-    }
 
     @Override
     public void setStatus(String status) {}
@@ -2013,6 +1940,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         }
     }
 
+
     //////////////////////////////////////////////////////////////////////////////
     /**                схема запросов начальных параметров                     **/
     //  односхват:  ----> Trig1 ----> Trig2 ----> Current ----> Roughness       //
@@ -2208,27 +2136,66 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         pauseSendingThread.start();
     }
 
-    private void gestureUseThread (final byte fakeCellGesture, final byte cellNumGesture) {
-        Thread gestureUseThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
-                System.out.println("ChartActivity--------------> выход на жест ");
-                try {
-                    Thread.sleep(delayPauseAfterSending);
-                } catch (Exception ignored) {}
-                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
-                System.out.println("ChartActivity--------------> выход на жест ");
-                try {
-                    Thread.sleep(delayPauseAfterSending);
-                } catch (Exception ignored) {}
-                pauseSendingThread(CompileMassageSwitchGestureHDLC(cellNumGesture));
-                System.out.println("ChartActivity--------------> применение жеста");
-            }
-        });
-        gestureUseThread.start();
-    }
+    private LineDataSet createSet() {
+        LineDataSet set = new LineDataSet(null, null);
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
+        set.setLineWidth(2f);
+        set.setColor(Color.GREEN);
+        set.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
 
+        set.setCircleColor(Color.GREEN);
+        set.setCircleHoleColor(Color.GREEN);
+        set.setCircleSize(1f);
+        set.setFillAlpha(65);
+        set.setFillColor(ColorTemplate.getHoloBlue());
+        set.setHighLightColor(Color.rgb(244, 117, 177));
+        set.setValueTextColor(Color.WHITE);
+        set.setValueTextSize(1f);
+
+        set.setHighLightColor(Color.YELLOW);
+        return set;
+    }
+    private void addEntry(int event){
+
+        LineData data = mChart.getData();
+
+        if(data != null){
+            ILineDataSet set = data.getDataSetByIndex(0);
+
+            if(set == null){
+                set = createSet();
+                data.addDataSet(set);
+            }
+
+            data.addEntry(new Entry(set.getEntryCount(), event), 0);
+            data.notifyDataChanged();
+
+            mChart.notifyDataSetChanged();
+            mChart.setVisibleXRangeMaximum(50);
+            mChart.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
+        }
+    }
+    private void addEntry2(int event){
+
+        LineData data = mChart2.getData();
+
+        if(data != null){
+            ILineDataSet set = data.getDataSetByIndex(0);
+
+            if(set == null){
+                set = createSet();
+                data.addDataSet(set);
+            }
+
+            data.addEntry(new Entry(set.getEntryCount(), event), 0);
+            data.notifyDataChanged();
+
+            mChart2.notifyDataSetChanged();
+            mChart2.setVisibleXRangeMaximum(50);
+            mChart2.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
+
+        }
+    }
     public void initializedGraphForChannel1(){
         mChart = findViewById(R.id.chartCH1);
 
@@ -2312,6 +2279,10 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         y1_2.setDrawGridLines(false);
     }
 
+
+    //////////////////////////////////////////////////////////////////////////////
+    /**                        работа с меню в апбаре                          **/
+    //////////////////////////////////////////////////////////////////////////////
     private byte[] CompileMassageSettings(byte numberFinger, int intValueFingerAngle,
                                           int intValueFingerSpeed){
         TextByteTriggerSettings[0] = 0x03;
@@ -2334,14 +2305,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteHDLC7[5] = (byte) intValueFingerAngle;
         TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
         return TextByteHDLC7;
-    }
-    private byte[] CompileTestMessageHDLC(){
-        byte[] TextByteHDLC = new byte[4];
-        TextByteHDLC[0] = (byte) 0xFA;
-        TextByteHDLC[1] = (byte) 0x07;
-        TextByteHDLC[2] = (byte) 0x07;
-        TextByteHDLC[3] = presenter.calculationCRC_HDLC(TextByteHDLC);
-        return TextByteHDLC;
     }
     private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,
                                                      int intValueFingerSpeed){
@@ -2658,19 +2621,27 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     showMenu = false;
                 }
                 break;
-//            case 3:
-//                presenter.disconnect();
-//                Intent intent4 = new Intent(this, Gesture_settings4.class);
-//                intent4.putExtra("device", device);
-//                startActivity(intent4);
-//                break;
-//            case 4:
-//                presenter.disconnect();
-//                Intent intent5 = new Intent(this, Gesture_settings5.class);
-//                intent5.putExtra("device", device);
-//                startActivity(intent5);
-//                break;
         }
+    }
+    private void gestureUseThread (final byte fakeCellGesture, final byte cellNumGesture) {
+        Thread gestureUseThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
+                System.out.println("ChartActivity--------------> выход на жест ");
+                try {
+                    Thread.sleep(delayPauseAfterSending);
+                } catch (Exception ignored) {}
+                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
+                System.out.println("ChartActivity--------------> выход на жест ");
+                try {
+                    Thread.sleep(delayPauseAfterSending);
+                } catch (Exception ignored) {}
+                pauseSendingThread(CompileMassageSwitchGestureHDLC(cellNumGesture));
+                System.out.println("ChartActivity--------------> применение жеста");
+            }
+        });
+        gestureUseThread.start();
     }
 
     public void saveVariable (String nameVariableInt, Integer Variable) {

@@ -90,6 +90,10 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
         chatActivity.updateServiceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();
         chatActivity.layoutSensors.setVisibility(View.GONE);
+//        if(chatActivity.loadVariable(chatActivity.deviceName +"action_Trigger") == 0) {
+//            chatActivity.saveVariable( chatActivity.deviceName+"action_Trigger", 1);
+//        }
+
 
         Spinner spinnerNumberOfChannel = view.findViewById(R.id.spinnerNumberOfChannel);
         ArrayAdapter<CharSequence> adapterNumbers = ArrayAdapter.createFromResource(this.getActivity(),
@@ -614,11 +618,6 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
         seekBarRoughness.setProgress(chatActivity.loadVariable(ChartActivity.deviceName +"receiveRoughnessOfSensors"));
 
         chatActivity.invertChannel = chatActivity.loadVariable(ChartActivity.deviceName + "invertChannel") == 0x01;
-//      тоже что и в строчке выше  if (chatActivity.loadVariable(ChartActivity.deviceName +"invertChannel") == 0x01) {
-//            chatActivity.invertChannel = true;
-//        } else {
-//            chatActivity.invertChannel = false;
-//        }
 
         if (chatActivity.loadVariable(ChartActivity.deviceName +"InternalADC") == 0x00) {
             switchNotUseInternalADC.setChecked(true);

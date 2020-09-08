@@ -54,10 +54,6 @@ public class ChatPresenterImpl implements ChatPresenter {
         } else {
             if (DEBUG) {System.out.println("ПИЗДА!!!!!!!!!!!! ПОСЫЛКИ НЕТ!");}
         }
-        System.err.println("CRC 0x00 ="+test_CRC((byte) 0x00));
-        System.err.println("CRC 0x01 ="+test_CRC((byte) 0x01));
-        System.err.println("CRC 0x02 ="+test_CRC((byte) 0x02));
-        System.err.println("CRC 0x03 ="+test_CRC((byte) 0x03));
     }
 
         @Override
@@ -562,13 +558,5 @@ public class ChatPresenterImpl implements ChatPresenter {
             }
         }
         return CRC;
-    }
-
-    private byte test_CRC  (byte parameter) {
-        byte[] TextByteTrigger = new byte[4];
-        TextByteTrigger[0] = (byte) 0xFA;
-        TextByteTrigger[1] = parameter;
-        TextByteTrigger[2] = (byte) 0x03;
-        return calculationCRC_HDLC(TextByteTrigger);
     }
 }

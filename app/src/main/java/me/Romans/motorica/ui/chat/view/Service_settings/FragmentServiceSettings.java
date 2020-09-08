@@ -25,12 +25,12 @@ import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
-import me.Romans.motorica.ui.chat.view.ChatView;
+import me.Romans.motorica.ui.chat.view.ChartView;
 import me.Romans.motorica.utils.ConstantManager;
 
 import static android.support.constraint.Constraints.TAG;
 
-public class FragmentServiceSettings extends Fragment implements ChatView {
+public class FragmentServiceSettings extends Fragment implements ChartView {
     @BindView(R.id.switchInvert) public Switch switchInvert;
     @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
     @BindView(R.id.switchMagnetInvert) Switch switchMagnetInvert;
@@ -673,12 +673,7 @@ public class FragmentServiceSettings extends Fragment implements ChatView {
     }
 
     @Override
-    public void appendMessage(String message) {
-
-    }
-
-    @Override
-    public void enableHWButton(boolean enabled) {
+    public void enableInterface(boolean enabled) {
 
     }
 

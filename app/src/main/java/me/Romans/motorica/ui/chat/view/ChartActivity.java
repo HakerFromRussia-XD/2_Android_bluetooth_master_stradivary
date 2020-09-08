@@ -3,7 +3,6 @@ package me.Romans.motorica.ui.chat.view;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
-import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -71,7 +70,7 @@ import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettingsM
 import me.Romans.motorica.ui.chat.view.Service_settings.SettingsDialog;
 import me.Romans.motorica.utils.ConstantManager;
 
-public class ChartActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener, SettingsDialog.SettingsDialogListener {
+public class ChartActivity extends AppCompatActivity implements ChartView, GesstureAdapter.OnGestureMyListener, SettingsDialog.SettingsDialogListener {
     public static volatile boolean monograbVersion;
     public static volatile boolean flagUseHDLCProtocol = false;
     public static volatile boolean flagReceptionExpectation = false;
@@ -931,10 +930,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
         }
 
     }
-
     @Override
-    public void applyTexts(String password) {
-        //lockServiceSettings = false
+    public void passwordServiceSettings(String password) {
         lockServiceSettings = password.equals("123");
     }
 
@@ -1968,15 +1965,8 @@ public class ChartActivity extends AppCompatActivity implements ChatView, Gesstu
     }
 
 
-
     @Override
-    public void appendMessage(String message) {
-        String str = message + " C-->" + i;//messages.getText()+"\n"+
-        messages.setText(str);
-        i++;
-    }
-    @Override
-    public void enableHWButton(boolean enabled) {
+    public void enableInterface(boolean enabled) {
         isEnable = enabled;
         helloWorld.setEnabled(enabled);
         helloWorld2.setEnabled(enabled);

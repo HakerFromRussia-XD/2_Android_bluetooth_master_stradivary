@@ -21,9 +21,9 @@ import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
-import me.Romans.motorica.ui.chat.view.ChatView;
+import me.Romans.motorica.ui.chat.view.ChartView;
 
-public class FragmentGestureSettings extends Fragment implements ChatView, GesstureAdapter.OnGestureMyListener {
+public class FragmentGestureSettings extends Fragment implements ChartView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.gesture_use) public Button gesture_use;
     private int GESTURE_NUMBER = 0x0000;
 
@@ -142,11 +142,7 @@ public class FragmentGestureSettings extends Fragment implements ChatView, Gesst
 
     }
     @Override
-    public void appendMessage(String message) {
-
-    }
-    @Override
-    public void enableHWButton(boolean enabled) {
+    public void enableInterface(boolean enabled) {
 
     }
     @Override

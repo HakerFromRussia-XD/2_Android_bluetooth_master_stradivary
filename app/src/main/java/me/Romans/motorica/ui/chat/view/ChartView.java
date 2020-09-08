@@ -1,13 +1,12 @@
 package me.Romans.motorica.ui.chat.view;
 
 
-public interface ChatView {
+public interface ChartView {
     void setStatus(String status);
     void setStatus(int resId);
     void setValueCH(int levelCH, int numberChannel);
     void setErrorReception (boolean incomeErrorReception);
-    void appendMessage(String message);
-    void enableHWButton(boolean enabled);
+    void enableInterface(boolean enabled);
     void showToast(String message);
     void showToastWithoutConnection();
     void onGestureClick(int position);

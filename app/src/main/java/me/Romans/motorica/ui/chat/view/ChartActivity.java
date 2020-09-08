@@ -71,10 +71,6 @@ import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettingsM
 import me.Romans.motorica.ui.chat.view.Service_settings.SettingsDialog;
 import me.Romans.motorica.utils.ConstantManager;
 
-/**
- * Created by Omar on 20/12/2017.
- */
-
 public class ChartActivity extends AppCompatActivity implements ChatView, GesstureAdapter.OnGestureMyListener, SettingsDialog.SettingsDialogListener {
     public static volatile boolean monograbVersion;
     public static volatile boolean flagUseHDLCProtocol = false;

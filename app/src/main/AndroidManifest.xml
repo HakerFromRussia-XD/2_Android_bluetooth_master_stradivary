@@ -33,9 +33,6 @@
         </activity>
 
         <activity
-            android:name="me.Romans.motorica.ui.chat.view.InfinitySettings"
-            android:screenOrientation="portrait" />
-        <activity
             android:name="me.Romans.motorica.ui.chat.view.experimental.DualChart"
             android:screenOrientation="landscape"/>
     </application>

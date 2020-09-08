@@ -11,10 +11,6 @@ import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenterImpl;
 import me.Romans.motorica.ui.chat.view.ChatView;
 
-/**
- * Created by Omar on 20/12/2017.
- */
-
 @Module
 public class ChatModule {
     private ChatView view;

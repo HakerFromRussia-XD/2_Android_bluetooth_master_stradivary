@@ -131,7 +131,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public static String deviceName;
     public double multiplierSeekBar = 13.6363;
     public byte[] TextByteTrigger = new byte[8];
-    public byte[] TextByteHDLC7 = new byte[7];
+    public byte[] TextByteTriggerSettings = new byte[7];
     public byte[] TextByteHDLC6 = new byte[6];
     public byte[] TextByteHDLC5 = new byte[5];
     public byte[] TextByteHDLC4 = new byte[4];
@@ -234,7 +234,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public byte NUMBER_CELL = 0x00;
     public static long delay = 200;
     private int delayPauseAfterSending = 200;
-    public byte[] TextByteTriggerSettings = new byte[8];
     //    public byte[] TextByteTriggerComplexGestureSettings = new byte[15];
     public byte[] TextByteTriggerControlComplexGesture = new byte[2];
     public byte[] TextByteTriggerControl = new byte[6];
@@ -2290,6 +2289,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     //////////////////////////////////////////////////////////////////////////////
     private byte[] CompileMassageSettings(byte numberFinger, int intValueFingerAngle,
                                           int intValueFingerSpeed){
+        byte[] TextByteTriggerSettings = new byte[8];
         TextByteTriggerSettings[0] = 0x03;
         TextByteTriggerSettings[1] = numberFinger;
         TextByteTriggerSettings[2] = requestType;
@@ -2302,48 +2302,50 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     }
     private byte[] CompileMessageSettingsHDLC(byte numberFinger, int intValueFingerAngle,
                                               int intValueFingerSpeed){
-        TextByteHDLC7[0] = numberFinger;
-        TextByteHDLC7[1] = requestType;
-        TextByteHDLC7[2] = GESTURE_SETTINGS;
-        TextByteHDLC7[3] = NUMBER_CELL;
-        TextByteHDLC7[4] = (byte) intValueFingerSpeed;
-        TextByteHDLC7[5] = (byte) intValueFingerAngle;
-        TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
-        return TextByteHDLC7;
+        byte[] TextByteTriggerSettings = new byte[7];
+        TextByteTriggerSettings[0] = numberFinger;
+        TextByteTriggerSettings[1] = requestType;
+        TextByteTriggerSettings[2] = GESTURE_SETTINGS;
+        TextByteTriggerSettings[3] = NUMBER_CELL;
+        TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
+        TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
+        TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
     }
     private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,
                                                      int intValueFingerSpeed){
+        byte[] TextByteTriggerSettings = new byte[7];
         if(NUMBER_CELL == 0){
-            TextByteHDLC7[0] = numberFinger;
-            TextByteHDLC7[1] = requestType;
-            TextByteHDLC7[2] = GESTURE_SETTINGS;
-            TextByteHDLC7[3] = 0x06;
-            TextByteHDLC7[4] = (byte) intValueFingerSpeed;
-            TextByteHDLC7[5] = (byte) intValueFingerAngle;
-            TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
+            TextByteTriggerSettings[0] = numberFinger;
+            TextByteTriggerSettings[1] = requestType;
+            TextByteTriggerSettings[2] = GESTURE_SETTINGS;
+            TextByteTriggerSettings[3] = 0x06;
+            TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
+            TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
+            TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
         } else {
             if(NUMBER_CELL == 2){
-                TextByteHDLC7[0] = numberFinger;
-                TextByteHDLC7[1] = requestType;
-                TextByteHDLC7[2] = GESTURE_SETTINGS;
-                TextByteHDLC7[3] = 0x07;
-                TextByteHDLC7[4] = (byte) intValueFingerSpeed;
-                TextByteHDLC7[5] = (byte) intValueFingerAngle;
-                TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
+                TextByteTriggerSettings[0] = numberFinger;
+                TextByteTriggerSettings[1] = requestType;
+                TextByteTriggerSettings[2] = GESTURE_SETTINGS;
+                TextByteTriggerSettings[3] = 0x07;
+                TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
+                TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
+                TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
             } else {
                 if(NUMBER_CELL == 4){
-                    TextByteHDLC7[0] = numberFinger;
-                    TextByteHDLC7[1] = requestType;
-                    TextByteHDLC7[2] = GESTURE_SETTINGS;
-                    TextByteHDLC7[3] = 0x08;
-                    TextByteHDLC7[4] = (byte) intValueFingerSpeed;
-                    TextByteHDLC7[5] = (byte) intValueFingerAngle;
-                    TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
+                    TextByteTriggerSettings[0] = numberFinger;
+                    TextByteTriggerSettings[1] = requestType;
+                    TextByteTriggerSettings[2] = GESTURE_SETTINGS;
+                    TextByteTriggerSettings[3] = 0x08;
+                    TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
+                    TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
+                    TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
                 }
             }
         }
 
-        return TextByteHDLC7;
+        return TextByteTriggerSettings;
     }
     public byte[] CompileMassageSettingsCalibrationHDLC(byte type, byte numberChannel,
                                                         byte rec, int inf, byte bSwitch){
@@ -2354,19 +2356,21 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     case ConstantManager.CLOSE_ANGEL_CALIB_TYPE:
                     case ConstantManager.WIDE_ANGEL_CALIB_TYPE:
                     case ConstantManager.U_CALIB_TYPE:
-                        TextByteHDLC4[0] = numberChannel;
-                        TextByteHDLC4[1] = rec;
-                        TextByteHDLC4[2] = type;
-                        TextByteHDLC4[3] = presenter.calculationCRC_HDLC(TextByteHDLC4);
-                        return TextByteHDLC4;
+                        byte[] TextByteTriggerSettings = new byte[4];
+                        TextByteTriggerSettings[0] = numberChannel;
+                        TextByteTriggerSettings[1] = rec;
+                        TextByteTriggerSettings[2] = type;
+                        TextByteTriggerSettings[3] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
+                        return TextByteTriggerSettings;
                     case ConstantManager.TEMP_CALIB_TYPE:
                     case ConstantManager.CURRENTS_CALIB_TYPE:
-                        TextByteHDLC5[0] = numberChannel;
-                        TextByteHDLC5[1] = rec;
-                        TextByteHDLC5[2] = type;
-                        TextByteHDLC5[3] = (byte) inf;
-                        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
-                        return TextByteHDLC5;
+                        byte[] TextByteTriggerSettings2 = new byte[5];
+                        TextByteTriggerSettings2[0] = numberChannel;
+                        TextByteTriggerSettings2[1] = rec;
+                        TextByteTriggerSettings2[2] = type;
+                        TextByteTriggerSettings2[3] = (byte) inf;
+                        TextByteTriggerSettings2[4] = presenter.calculationCRC_HDLC(TextByteTriggerSettings2);
+                        return TextByteTriggerSettings2;
                 }
             case ConstantManager.WRITE:
                 switch (type){
@@ -2384,32 +2388,35 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     case ConstantManager.MAGNET_INVERT_CALIB_TYPE:
                     case ConstantManager.REVERS_MOTOR_CALIB_TYPE:
                     case ConstantManager.ZERO_CROSSING_CALIB_TYPE:
-                        TextByteHDLC5[0] = numberChannel;
-                        TextByteHDLC5[1] = rec;
-                        TextByteHDLC5[2] = type;
-                        TextByteHDLC5[3] = (byte) inf;
-                        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
-                        return TextByteHDLC5;
+                        byte[] TextByteTriggerSettings = new byte[5];
+                        TextByteTriggerSettings[0] = numberChannel;
+                        TextByteTriggerSettings[1] = rec;
+                        TextByteTriggerSettings[2] = type;
+                        TextByteTriggerSettings[3] = (byte) inf;
+                        TextByteTriggerSettings[4] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
+                        return TextByteTriggerSettings;
                     case ConstantManager.WIDE_ANGEL_CALIB_TYPE:
-                        TextByteHDLC6[0] = numberChannel;
-                        TextByteHDLC6[1] = rec;
-                        TextByteHDLC6[2] = type;
-                        TextByteHDLC6[3] = (byte) (inf >> 8);
-                        TextByteHDLC6[4] = (byte) inf;
-                        TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
-                        return TextByteHDLC6;
+                        byte[] TextByteTriggerSettings2 = new byte[6];
+                        TextByteTriggerSettings2[0] = numberChannel;
+                        TextByteTriggerSettings2[1] = rec;
+                        TextByteTriggerSettings2[2] = type;
+                        TextByteTriggerSettings2[3] = (byte) (inf >> 8);
+                        TextByteTriggerSettings2[4] = (byte) inf;
+                        TextByteTriggerSettings2[5] = presenter.calculationCRC_HDLC(TextByteTriggerSettings2);
+                        return TextByteTriggerSettings2;
                     case ConstantManager.CURRENT_CONTROL_CALIB_TYPE:
-                        TextByteHDLC7[0] = numberChannel;
-                        TextByteHDLC7[1] = rec;
-                        TextByteHDLC7[2] = type;
-                        TextByteHDLC7[3] = bSwitch;
-                        TextByteHDLC7[4] = (byte) (inf >> 8);
-                        TextByteHDLC7[5] = (byte)  inf;
-                        TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
-                        return TextByteHDLC7;
+                        byte[] TextByteTriggerSettings3 = new byte[7];
+                        TextByteTriggerSettings3[0] = numberChannel;
+                        TextByteTriggerSettings3[1] = rec;
+                        TextByteTriggerSettings3[2] = type;
+                        TextByteTriggerSettings3[3] = bSwitch;
+                        TextByteTriggerSettings3[4] = (byte) (inf >> 8);
+                        TextByteTriggerSettings3[5] = (byte)  inf;
+                        TextByteTriggerSettings3[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings3);
+                        return TextByteTriggerSettings3;
                 }
             default:
-                return TextByteHDLC5;
+                return TextByteTriggerSettings;
         }
     }
     public void CompileMassageControlComplexGesture(int GESTURE_NUMBER){

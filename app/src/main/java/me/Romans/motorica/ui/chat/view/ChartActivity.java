@@ -248,6 +248,11 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public Thread requestStartRoughnessThread;
     public Thread requestBatteryTensionThread;
 
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+
     public enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
     public static SelectStation selectStation;
     //    protected WebView webView;
@@ -270,44 +275,18 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     @Inject
     public ChatPresenter presenter;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-//                    Log.i(TAG, "oncliiiiick");
-                    layoutSensors.setVisibility(View.GONE);
-                    myMenu.setGroupVisible(R.id.service_settings, false);
-                    showMenu = false;
-//                    fab.show();
-//                    boolean isSetStartParametersActivityActiveFlag = false;
-                    layoutGestures.setVisibility(View.VISIBLE);
-                    return true;
-                case R.id.navigation_dashboard:
-//                    Log.i(TAG, ":))");
-                    layoutSensors.setVisibility(View.VISIBLE);
-                    myMenu.setGroupVisible(R.id.service_settings, true);
-                    showMenu = true;
-                    fab.hide();
-                    layoutGestures.setVisibility(View.GONE);
-                    return true;
-            }
-            return false;
-        }
-    };
 
     @SuppressLint({"NewApi", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(monograbVersion){
-            System.err.println("односхватная версия");
+            //односхватная версия
             setContentView(R.layout.monograb);
             seekBarIStop = findViewById(R.id.seekBarIstop);
             fragmentServiceSettingsMono = new FragmentServiceSettingsMono();
         } else {
-            System.err.println("многосхватная версия");
+            //многосхватная версия
             setContentView(R.layout.multigrab);
             navigation = findViewById(R.id.navigation);
             navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -324,16 +303,116 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             fragmentGestureSettings3 = new FragmentGestureSettings3();
             fragmentServiceSettings = new FragmentServiceSettings();
         }
+        if(monograbVersion){
+            //односхватная версия
+            seekBarIStop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    maxCurrent = seekBar.getProgress();
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    maxCurrent = seekBar.getProgress();
+                    current = seekBar.getProgress();
+                    if(flagUseHDLCProtocol){
+                        pauseSendingThread(CompileMassageCurentSettingsAndInvertHDLC(current));
+                    } else {
+                        presenter.onHelloWorld(CompileMassageCurentSettingsAndInvert(current, invert));
+                    }
+                }
+            });
+        } else {
+            //многосхватная версия
+            activity_chat_gesture1.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        if (flagUseHDLCProtocol){
+                            useGesture = 1;
+                            gestureUseThread ((byte) 6, (byte) useGesture);
+                        }else{
+                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x00, (byte) 0x01));
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            activity_chat_gesture2.setOnTouchListener(new View.OnTouchListener(){
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        if (flagUseHDLCProtocol){
+                            useGesture = 2;
+                            gestureUseThread ((byte) 7, (byte) useGesture);
+                        }else{
+                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x02, (byte) 0x03));
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            activity_chat_gesture3.setOnTouchListener(new View.OnTouchListener(){
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        if (flagUseHDLCProtocol){
+                            useGesture = 3;
+                            gestureUseThread ((byte) 8, (byte) useGesture);
+                        }else{
+                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x04, (byte) 0x05));
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    if (flagUseHDLCProtocol){
+                        useGesture = 4;
+                        gestureUseThread ((byte) 9, (byte) useGesture);
+                    }else{
+                        presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x06, (byte) 0x06));
+                    }
+                }
+            });
+
+            offUpdate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (flagUseHDLCProtocol){
+                        if(!flagOffUpdateGraphHDLC){
+                            flagOffUpdateGraphHDLC = true;
+                            offUpdate.setText(R.string.on_schedules);
+                        } else {
+                            flagOffUpdateGraphHDLC = false;
+                            offUpdate.setText(R.string.off_schedules);
+                        }
+                    }
+                }
+            });
+        }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Objects.requireNonNull(getSupportActionBar()).setSubtitle(deviceName);
         mainActivityStarted = true;
-
         final float scale = getResources().getDisplayMetrics().density;
+
 
         limit_1 = findViewById(R.id.limit_1);
         limit_2 = findViewById(R.id.limit_2);
         objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
 
+
+        //////////////////////////////////////////
+        //инициализация и заполнение списка жестов
         gestureMyList = new ArrayList<>();
         recyclerView = findViewById(R.id.gestures_list);
         recyclerView.setHasFixedSize(true);
@@ -372,6 +451,8 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
         gestureAdapter = new GesstureAdapter(this, gestureMyList, this);
         recyclerView.setAdapter(gestureAdapter);
+        /////////////////////////////////////////////////////////////////////////////////////////
+
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
@@ -379,14 +460,12 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 .build().inject(this);
         ButterKnife.bind(this);
 
+
         ////////initialized graph for channel 1
         initializedGraphForChannel1();
         ////////initialized graph for channel 2
         initializedGraphForChannel2();
-        Log.e(TAG, "CompileTestMessageHDLC = "+CompileTestMessageHDLC()[0]+
-                " "+CompileTestMessageHDLC()[1]+
-                " "+CompileTestMessageHDLC()[2]+
-                " "+CompileTestMessageHDLC()[3]);
+
 
         seekBarCH1on.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -688,103 +767,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             }
         });
 
-        if(!monograbVersion){
-            //многосхватная версия
-            activity_chat_gesture1.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        if (flagUseHDLCProtocol){
-                            useGesture = 1;
-                            gestureUseThread ((byte) 6, (byte) useGesture);
-                        }else{
-                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x00, (byte) 0x01));
-                        }
-                    }
-                    return false;
-                }
-            });
 
-            activity_chat_gesture2.setOnTouchListener(new View.OnTouchListener(){
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        if (flagUseHDLCProtocol){
-                            useGesture = 2;
-                            gestureUseThread ((byte) 7, (byte) useGesture);
-                        }else{
-                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x02, (byte) 0x03));
-                        }
-                    }
-                    return false;
-                }
-            });
-
-            activity_chat_gesture3.setOnTouchListener(new View.OnTouchListener(){
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        if (flagUseHDLCProtocol){
-                            useGesture = 3;
-                            gestureUseThread ((byte) 8, (byte) useGesture);
-                        }else{
-                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x04, (byte) 0x05));
-                        }
-                    }
-                    return false;
-                }
-            });
-
-            activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v) {
-                    if (flagUseHDLCProtocol){
-                        useGesture = 4;
-                        gestureUseThread ((byte) 9, (byte) useGesture);
-                    }else{
-                        presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x06, (byte) 0x06));
-                    }
-                }
-            });
-
-            offUpdate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (flagUseHDLCProtocol){
-                        if(!flagOffUpdateGraphHDLC){
-                            flagOffUpdateGraphHDLC = true;
-                            offUpdate.setText(R.string.on_schedules);
-                        } else {
-                            flagOffUpdateGraphHDLC = false;
-                            offUpdate.setText(R.string.off_schedules);
-                        }
-                    }
-                }
-            });
-        } else {
-            //односхватная версия
-            seekBarIStop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    maxCurrent = seekBar.getProgress();
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    maxCurrent = seekBar.getProgress();
-                    current = seekBar.getProgress();
-                    if(flagUseHDLCProtocol){
-                        pauseSendingThread(CompileMassageCurentSettingsAndInvertHDLC(current));
-                    } else {
-                        presenter.onHelloWorld(CompileMassageCurentSettingsAndInvert(current, invert));
-                    }
-                }
-            });
-        }
 
         presenter.onCreate(getIntent());
 
@@ -831,31 +814,51 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             threadFunction[j].start();
         }
         ////////////////////////////////////////////////
-
-        if(loadVariable(deviceName +"action_Trigger") == 0) {
-            saveVariable( deviceName+"action_Trigger", 1);
-        }
-        ////////////////////////////////////////////////
-/**                scroller initialization                       **/
-        ////////////////////////////////////////////////
-
-//        webView = findViewById(R.id.gesture_selector);
-//        webView.setWebViewClient(new WebViewClient());
-//        webView.getSettings().setJavaScriptEnabled(true);
-//        webView.setWebChromeClient(new WebChromeClient());у
-//
-//
-//        webView.addJavascriptInterface(new WebInterfase(this), "Android");
-//        webView.loadUrl("file:///android_asset/gesture_selector.html");
-
-
     }
-
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!firstRead){
+            flagReadStartParametersHDLC = false;}
+        presenter.onStart(this);
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        presenter.setOnPauseActivity(true);
+        try {
+            graphThread.interrupt();
+        } catch (Exception ignored){}
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.setOnPauseActivity(false);
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(flagUseHDLCProtocol){} else {
+            if(isEnable){
+                ThreadHelper.run(runOnUi, this, new Runnable() {
+                    @Override
+                    public void run() {
+                        CompileMessageSetGeneralParcel((byte) 0x00);
+                        presenter.onHelloWorld(TextByteSetGeneralParcel);
+                        try {
+                            Thread.sleep(500);
+                        }catch (Exception ignored){}
+                    }
+                });
+                presenter.onHelloWorld(TextByteSetGeneralParcel);
+            }
+        }
+        presenter.disconnect();
+    }
     @Override
     public void onBackPressed() {
         openQuitDialog();
     }
-
     private void openQuitDialog() {
         if (fragmentServiceSettingsMono != null && fragmentServiceSettingsMono.isVisible()) {
             fragmentServiceSettingsMono.backPressed();
@@ -901,46 +904,10 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         }
     }
 
-    private void openSettingsDialog() {
-        SettingsDialog settingsDialog = new SettingsDialog();
-        settingsDialog.show(getSupportFragmentManager(), "settings dialog");
-    }
 
-    public void openServiceSettings(){
-        if(lockServiceSettings){
-            if(monograbVersion){
-                System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в monograbVersion");
-                fragmentManager.beginTransaction()
-                        .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                        .add(R.id.view_pager, fragmentServiceSettingsMono)
-                        .commit();
-            } else {
-                System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в multigrabVersion");
-                fragmentManager.beginTransaction()
-                        .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                        .add(R.id.view_pager, fragmentServiceSettings)
-                        .commit();
-                navigation.clearAnimation();
-                navigation.animate().translationY(heightBottomNavigation).setDuration(200);
-            }
-            myMenu.setGroupVisible(R.id.modes, true);
-            myMenu.setGroupVisible(R.id.service_settings, false);
-        } else {
-            showToast(getString(R.string.not_the_right_password));
-        }
-
-    }
-    @Override
-    public void passwordServiceSettings(String password) {
-        lockServiceSettings = password.equals("123");
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        myMenu = menu;
-        return super.onPrepareOptionsMenu(myMenu);
-    }
-
+    //////////////////////////////////////////////////////////////////////////////
+    /**                             работа с 3D                                **/
+    //////////////////////////////////////////////////////////////////////////////
     public String[] readData(String fileName) {
         try {
             InputStream is = getAssets().open(fileName);
@@ -954,6 +921,12 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             e.printStackTrace();
         }
         return text;
+    }
+    public void loadSTR2(final int i) {
+        parserDataVertices(i);
+        parserDataTextures(i);
+        parserDataNormals(i);
+        parserDataFacets(i);
     }
 
     public static String[] getStringBuffer1()  { return model[0];  }
@@ -981,13 +954,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     }
     public static  int[] getIndicesArray(int i){
         return indicesArrayVertices[i];
-    }
-
-    public void loadSTR2(final int i) {
-        parserDataVertices(i);
-        parserDataTextures(i);
-        parserDataNormals(i);
-        parserDataFacets(i);
     }
 
     public void parserDataVertices(int number){
@@ -1480,6 +1446,161 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         });
         graphThread.start();
     }
+
+    public static void transferFinger1Static (int angleFinger1){ intValueFinger1Angle = angleFinger1; }
+    public static void transferFinger2Static (int angleFinger2){ intValueFinger2Angle = angleFinger2; }
+    public static void transferFinger3Static (int angleFinger3){ intValueFinger3Angle = angleFinger3; }
+    public static void transferFinger4Static (int angleFinger4){ intValueFinger4Angle = angleFinger4; }
+    public static void transferFinger5Static (int angleFinger5){ intValueFinger5Angle = angleFinger5; }
+    public static void transferFinger6Static (int angleFinger6){ intValueFinger6Angle = angleFinger6; }
+
+
+    //////////////////////////////////////////////////////////////////////////////
+    /**                        работа с меню в ботбаре                         **/
+    //////////////////////////////////////////////////////////////////////////////
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        myMenu = menu;
+        return super.onPrepareOptionsMenu(myMenu);
+    }
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    layoutSensors.setVisibility(View.GONE);
+                    myMenu.setGroupVisible(R.id.service_settings, false);
+                    showMenu = false;
+//                    fab.show();
+                    layoutGestures.setVisibility(View.VISIBLE);
+                    return true;
+                case R.id.navigation_dashboard:
+                    layoutSensors.setVisibility(View.VISIBLE);
+                    myMenu.setGroupVisible(R.id.service_settings, true);
+                    showMenu = true;
+                    fab.hide();
+                    layoutGestures.setVisibility(View.GONE);
+                    return true;
+            }
+            return false;
+        }
+    };
+
+
+    //////////////////////////////////////////////////////////////////////////////
+    /**                        работа с меню в апбаре                          **/
+    //////////////////////////////////////////////////////////////////////////////
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.setGroupVisible(R.id.modes, false);
+        menu.setGroupVisible(R.id.service_settings, false);
+        if(loadVariable(deviceName +"action_Trigger") == 0) {
+            saveVariable( deviceName+"action_Trigger", 1);
+        }
+        menu.getItem(loadVariable(deviceName +"action_Trigger")).setChecked(true);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // ставим галочку напротив
+        if(item.isChecked()){
+            item.setChecked(true);
+        } else {
+            item.setChecked(false);
+        }
+        // получим идентификатор выбранного пункта меню
+        int id = item.getItemId();
+        // Операции для выбранного пункта меню
+        switch (id) {
+            case R.id.action_Trigger0:
+                openSettingsDialog();
+                return true;
+            case R.id.action_Trigger1:
+                if(flagUseHDLCProtocol){
+                    pauseSendingThread(CompileMassageTriggerModHDLC(1));
+                } else {
+                    presenter.onHelloWorld(CompileMassageTriggerMod(1));
+                }
+                saveVariable( deviceName+"action_Trigger", 1);
+                return true;
+            case R.id.action_Trigger2:
+                if(flagUseHDLCProtocol){
+                    pauseSendingThread(CompileMassageTriggerModHDLC(2));
+                } else {
+                    presenter.onHelloWorld(CompileMassageTriggerMod(2));
+                }
+                saveVariable( deviceName+"action_Trigger", 2);
+                return true;
+            case R.id.action_Trigger3:
+                if(flagUseHDLCProtocol){
+                    pauseSendingThread(CompileMassageTriggerModHDLC(3));
+                } else {
+                    presenter.onHelloWorld(CompileMassageTriggerMod(3));
+                }
+                saveVariable( deviceName+"action_Trigger", 3);
+                return true;
+            case R.id.action_Trigger8:
+                if(flagUseHDLCProtocol){
+                    pauseSendingThread(CompileMassageTriggerModHDLC(8));
+                } else {
+                    presenter.onHelloWorld(CompileMassageTriggerMod(8));
+                }
+                saveVariable( deviceName+"action_Trigger", 4);
+                return true;
+            case R.id.action_Trigger9:
+                if(flagUseHDLCProtocol){
+                    pauseSendingThread(CompileMassageTriggerModHDLC(9));
+                } else {
+                    presenter.onHelloWorld(CompileMassageTriggerMod(9));
+                }
+                saveVariable( deviceName+"action_Trigger", 5);
+                return true;
+            case R.id.action_Trigger10:
+                if(flagUseHDLCProtocol){
+                    pauseSendingThread(CompileMassageTriggerModHDLC(10));
+                } else {
+                    presenter.onHelloWorld(CompileMassageTriggerMod(10));
+                }
+                saveVariable( deviceName+"action_Trigger", 6);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    private void openSettingsDialog() {
+        SettingsDialog settingsDialog = new SettingsDialog();
+        settingsDialog.show(getSupportFragmentManager(), "settings dialog");
+    }
+    public void openServiceSettings(){
+        if(lockServiceSettings){
+            if(monograbVersion){
+                System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в monograbVersion");
+                fragmentManager.beginTransaction()
+                        .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                        .add(R.id.view_pager, fragmentServiceSettingsMono)
+                        .commit();
+            } else {
+                System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в multigrabVersion");
+                fragmentManager.beginTransaction()
+                        .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
+                        .add(R.id.view_pager, fragmentServiceSettings)
+                        .commit();
+                navigation.clearAnimation();
+                navigation.animate().translationY(heightBottomNavigation).setDuration(200);
+            }
+            myMenu.setGroupVisible(R.id.modes, true);
+            myMenu.setGroupVisible(R.id.service_settings, false);
+        } else {
+            showToast(getString(R.string.not_the_right_password));
+        }
+
+    }
+    @Override
+    public void passwordServiceSettings(String password) {
+        lockServiceSettings = password.equals("123");
+    }
     public void startUpdateThread() {
         updateServiceSettingsThread = new Thread(new Runnable() {
             @Override
@@ -1557,126 +1678,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        menu.setGroupVisible(R.id.modes, false);
-        menu.setGroupVisible(R.id.service_settings, false);
-        menu.getItem(loadVariable(deviceName +"action_Trigger")).setChecked(true);
-        return true;
-    }
-
-    public static void transferFinger1Static (int angleFinger1){ intValueFinger1Angle = angleFinger1; }
-    public static void transferFinger2Static (int angleFinger2){ intValueFinger2Angle = angleFinger2; }
-    public static void transferFinger3Static (int angleFinger3){ intValueFinger3Angle = angleFinger3; }
-    public static void transferFinger4Static (int angleFinger4){ intValueFinger4Angle = angleFinger4; }
-    public static void transferFinger5Static (int angleFinger5){ intValueFinger5Angle = angleFinger5; }
-    public static void transferFinger6Static (int angleFinger6){ intValueFinger6Angle = angleFinger6; }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-//        private tem action_Trigger0 =
-        // ставим галочку напротив
-        if(item.isChecked()){
-            item.setChecked(true);
-        } else {
-            item.setChecked(false);
-        }
-        // получим идентификатор выбранного пункта меню
-        int id = item.getItemId();
-        // Операции для выбранного пункта меню
-        switch (id) {
-            case R.id.action_Trigger0:
-                openSettingsDialog();
-                return true;
-            case R.id.action_Trigger1:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(1));
-                } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(1));
-                }
-                saveVariable( deviceName+"action_Trigger", 1);
-                return true;
-            case R.id.action_Trigger2:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(2));
-                } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(2));
-                }
-                saveVariable( deviceName+"action_Trigger", 2);
-                return true;
-            case R.id.action_Trigger3:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(3));
-                } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(3));
-                }
-                saveVariable( deviceName+"action_Trigger", 3);
-                return true;
-//            case R.id.action_Trigger4:
-//                presenter.onHelloWorld(CompileMassegeTreegMod (4));
-//                infinitAction = false;
-//                return true;
-//            case R.id.action_Trigger5:
-//                presenter.onHelloWorld(CompileMassegeTreegMod (5));
-//                infinitAction = false;
-//                return true;
-//            case R.id.action_Trigger6:
-//                presenter.onHelloWorld(CompileMassegeTreegMod (6));
-//                infinitAction = false;
-//                return true;
-//            case R.id.action_Trigger7:
-//                presenter.onHelloWorld(CompileMassegeTreegMod (7));
-//                infinitAction = false;
-//                return true;
-            case R.id.action_Trigger8:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(8));
-                } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(8));
-                }
-                saveVariable( deviceName+"action_Trigger", 4);
-                return true;
-            case R.id.action_Trigger9:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(9));
-                } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(9));
-                }
-                saveVariable( deviceName+"action_Trigger", 5);
-                return true;
-            case R.id.action_Trigger10:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(10));
-                } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(10));
-                }
-                saveVariable( deviceName+"action_Trigger", 6);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        presenter.setOnPauseActivity(false);
-//        firstRead = false;
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        System.out.println("ChatActivity--------------> onPause");
-        presenter.setOnPauseActivity(true);
-        try {
-            graphThread.interrupt();
-        } catch (Exception ignored){}
-    }
-
-    @Override
     public void setStatus(String status) {}
-
     @Override
     public void setStatus(int resId) {
         System.out.println("ChatActivity----> resId setText:"+ resId + "   Айди строчки неподключения: "+R.string.bluetooth_connect_in_3sec);
@@ -1866,28 +1868,25 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
     }
     @Override
-    public boolean getFirstRead() {
-        return firstRead;
-    }
-
-    @Override
     public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
         ChartActivity.flagReceptionExpectation = flagReceptionExpectation;
     }
-
-//    public void setFlagPauseSending(Boolean flagPauseSending) {
-//        this.flagPauseSending = flagPauseSending;
-//    }
-
-
-
-    public static boolean getFlagReceptionExpectation() {
-        return flagReceptionExpectation;
-    }
-
     @Override
     public void setErrorReception (boolean incomeErrorReception) {
         errorReception = incomeErrorReception;
+    }
+    public void getNameFromDevice(BluetoothDevice device){
+        deviceName = device.getName();
+    }
+    public void getName(String deviceName){
+        this.deviceName =deviceName;
+    }
+    @Override
+    public boolean getFirstRead() {
+        return firstRead;
+    }
+    public boolean getFlagUseHDLCProtocol() {
+        return flagUseHDLCProtocol;
     }
 
 
@@ -1942,6 +1941,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             transferThread.start();
         }
     }
+
 
     //////////////////////////////////////////////////////////////////////////////
     /**                схема запросов начальных параметров                     **/
@@ -2138,29 +2138,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         pauseSendingThread.start();
     }
 
-
-    private void gestureUseThread (final byte fakeCellGesture, final byte cellNumGesture) {
-        Thread gestureUseThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
-                System.out.println("ChartActivity--------------> выход на жест ");
-                try {
-                    Thread.sleep(delayPauseAfterSending);
-                } catch (Exception ignored) {}
-                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
-                System.out.println("ChartActivity--------------> выход на жест ");
-                try {
-                    Thread.sleep(delayPauseAfterSending);
-                } catch (Exception ignored) {}
-                pauseSendingThread(CompileMassageSwitchGestureHDLC(cellNumGesture));
-                System.out.println("ChartActivity--------------> применение жеста");
-            }
-        });
-        gestureUseThread.start();
-    }
-
-
+    //////////////////////////////////////////////////////////////////////////////
+    /**                          работа с графиками                            **/
+    //////////////////////////////////////////////////////////////////////////////
     private LineDataSet createSet() {
         LineDataSet set = new LineDataSet(null, null);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
@@ -2305,12 +2285,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     }
 
 
-    public void getNameFromDevice(BluetoothDevice device){
-        deviceName = device.getName();
-    }
-    public void getName(String deviceName){
-        this.deviceName =deviceName;
-    }
+    //////////////////////////////////////////////////////////////////////////////
+    /**                      составление блютуз посылок                        **/
+    //////////////////////////////////////////////////////////////////////////////
     private byte[] CompileMassageSettings(byte numberFinger, int intValueFingerAngle,
                                           int intValueFingerSpeed){
         TextByteTriggerSettings[0] = 0x03;
@@ -2333,14 +2310,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteHDLC7[5] = (byte) intValueFingerAngle;
         TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
         return TextByteHDLC7;
-    }
-    private byte[] CompileTestMessageHDLC(){
-        byte[] TextByteHDLC = new byte[4];
-        TextByteHDLC[0] = (byte) 0xFA;
-        TextByteHDLC[1] = (byte) 0x07;
-        TextByteHDLC[2] = (byte) 0x07;
-        TextByteHDLC[3] = presenter.calculationCRC_HDLC(TextByteHDLC);
-        return TextByteHDLC;
     }
     private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,
                                                      int intValueFingerSpeed){
@@ -2611,45 +2580,14 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
-
     @Override
     public void showToastWithoutConnection() {
         Toast.makeText(this, R.string.connection_is_absent, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(!firstRead){
-            flagReadStartParametersHDLC = false;}
-        System.err.println("flagReadStartParametersHDLC= "+ flagReadStartParametersHDLC);
-        presenter.onStart(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if(flagUseHDLCProtocol){} else {
-            if(isEnable){
-                ThreadHelper.run(runOnUi, this, new Runnable() {
-                    @Override
-                    public void run() {
-                        CompileMessageSetGeneralParcel((byte) 0x00);
-                        presenter.onHelloWorld(TextByteSetGeneralParcel);
-                        try {
-                            Thread.sleep(500);
-                        }catch (Exception ignored){}
-                    }
-                });
-                presenter.onHelloWorld(TextByteSetGeneralParcel);
-            }
-        }
-        presenter.disconnect();
-    }
-
-    @Override
-    public void onPointerCaptureChanged(boolean hasCapture) {}
-
+    //////////////////////////////////////////////////////////////////////////////
+    /**                      работа с меню выбора жеста                        **/
+    //////////////////////////////////////////////////////////////////////////////
     @Override
     public void onGestureClick(int position) {
         switch (position){
@@ -2692,21 +2630,32 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     showMenu = false;
                 }
                 break;
-//            case 3:
-//                presenter.disconnect();
-//                Intent intent4 = new Intent(this, Gesture_settings4.class);
-//                intent4.putExtra("device", device);
-//                startActivity(intent4);
-//                break;
-//            case 4:
-//                presenter.disconnect();
-//                Intent intent5 = new Intent(this, Gesture_settings5.class);
-//                intent5.putExtra("device", device);
-//                startActivity(intent5);
-//                break;
         }
     }
+    private void gestureUseThread (final byte fakeCellGesture, final byte cellNumGesture) {
+        Thread gestureUseThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
+                System.out.println("ChartActivity--------------> выход на жест ");
+                try {
+                    Thread.sleep(delayPauseAfterSending);
+                } catch (Exception ignored) {}
+                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
+                System.out.println("ChartActivity--------------> выход на жест ");
+                try {
+                    Thread.sleep(delayPauseAfterSending);
+                } catch (Exception ignored) {}
+                pauseSendingThread(CompileMassageSwitchGestureHDLC(cellNumGesture));
+                System.out.println("ChartActivity--------------> применение жеста");
+            }
+        });
+        gestureUseThread.start();
+    }
 
+    //////////////////////////////////////////////////////////////////////////////
+    /**                           работа с памятью                             **/
+    //////////////////////////////////////////////////////////////////////////////
     public void saveVariable (String nameVariableInt, Integer Variable) {
         Log.e(TAG, "saveVariable ----> "+ nameVariableInt +" = "+ Variable);
         sharedPreferences = getSharedPreferences("My_variables" ,MODE_PRIVATE);
@@ -2714,7 +2663,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         editor.putInt(nameVariableInt, Variable);
         editor.apply();
     }
-
     public Integer loadVariable (String nameVariableInt) {
         sharedPreferences = getSharedPreferences("My_variables",MODE_PRIVATE);
         Integer variable = sharedPreferences.getInt(nameVariableInt,0);
@@ -2722,16 +2670,8 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         return variable;
     }
 
+
     private float pxFromDp() {
         return (float) 48 * getApplicationContext().getResources().getDisplayMetrics().density;
-    }
-
-//    public void setTestInt (String massage) {
-//        int testInt2 = Integer.parseInt(massage);
-//        System.err.println("MainActivity ---------> testInt2="+testInt2);
-//    }
-
-    public boolean getFlagUseHDLCProtocol() {
-        return flagUseHDLCProtocol;
     }
 }

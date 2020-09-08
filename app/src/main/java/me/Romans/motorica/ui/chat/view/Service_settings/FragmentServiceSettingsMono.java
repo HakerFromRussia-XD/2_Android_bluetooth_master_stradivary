@@ -96,14 +96,14 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
                 System.err.println("FragmentServiceSettings-------------->");
                 if (switchInvert.isChecked()){
                     chatActivity.invert = 0x01;
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     int temp = chatActivity.intValueCH1on;
                     chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.invertChannel = true;
                 } else {
                     chatActivity.invert = 0x00;
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     int temp = chatActivity.intValueCH1on;
                     chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
@@ -130,9 +130,9 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
                 valueIStop.setText(String.valueOf(seekBar.getProgress()));
                 chatActivity.current = seekBar.getProgress();
                 if(chatActivity.getFlagUseHDLCProtocol()){
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvertHDLC(chatActivity.current));
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvertHDLC(chatActivity.current));
                 } else {
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                 }
             }
         });

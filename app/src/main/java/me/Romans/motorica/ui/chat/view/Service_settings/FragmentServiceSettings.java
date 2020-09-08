@@ -567,9 +567,9 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                 if (switchInvert.isChecked()){
                     chatActivity.invert = 0x01;
                     if(chatActivity.getFlagUseHDLCProtocol()){
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvertHDLC(chatActivity.current));
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvertHDLC(chatActivity.current));
                     } else {
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     }
                     int temp = chatActivity.intValueCH1on;
                     chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
@@ -579,9 +579,9 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                 } else {
                     chatActivity.invert = 0x00;
                     if(chatActivity.getFlagUseHDLCProtocol()){
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvertHDLC(chatActivity.current));
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvertHDLC(chatActivity.current));
                     } else {
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     }
                     int temp = chatActivity.intValueCH1on;
                     chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5

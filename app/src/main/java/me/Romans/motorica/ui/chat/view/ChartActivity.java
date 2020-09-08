@@ -320,9 +320,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     maxCurrent = seekBar.getProgress();
                     current = seekBar.getProgress();
                     if(flagUseHDLCProtocol){
-                        pauseSendingThread(CompileMassageCurentSettingsAndInvertHDLC(current));
+                        pauseSendingThread(CompileMassageCurrentSettingsAndInvertHDLC(current));
                     } else {
-                        presenter.onHelloWorld(CompileMassageCurentSettingsAndInvert(current, invert));
+                        presenter.onHelloWorld(CompileMassageCurrentSettingsAndInvert(current, invert));
                     }
                 }
             });
@@ -2483,19 +2483,19 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
         return TextByteHDLC5;
     }
-    public byte[] CompileMassageCurentSettingsAndInvert(int Curent, byte Invert) {
+    public byte[] CompileMassageCurrentSettingsAndInvert(int Current, byte Invert) {
         TextByteTriggerCurrentSettingsAndInvert[0] = 0x0B;
-        TextByteTriggerCurrentSettingsAndInvert[1] = (byte) Curent;
-        TextByteTriggerCurrentSettingsAndInvert[2] = (byte) (Curent >> 8);
+        TextByteTriggerCurrentSettingsAndInvert[1] = (byte) Current;
+        TextByteTriggerCurrentSettingsAndInvert[2] = (byte) (Current >> 8);
         TextByteTriggerCurrentSettingsAndInvert[3] = Invert;
         return TextByteTriggerCurrentSettingsAndInvert;
     }
-    public byte[] CompileMassageCurentSettingsAndInvertHDLC(int Curent) {
+    public byte[] CompileMassageCurrentSettingsAndInvertHDLC(int Current) {
         TextByteHDLC6[0] = ConstantManager.ADDR_CUR_LIMIT;
         TextByteHDLC6[1] = ConstantManager.WRITE;
         TextByteHDLC6[2] = BluetoothConstantManager.CURR_LIMIT_HDLC;
-        TextByteHDLC6[3] = (byte) Curent;
-        TextByteHDLC6[4] = (byte) (Curent >> 8);
+        TextByteHDLC6[3] = (byte) Current;
+        TextByteHDLC6[4] = (byte) (Current >> 8);
         TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
         return TextByteHDLC6;
     }

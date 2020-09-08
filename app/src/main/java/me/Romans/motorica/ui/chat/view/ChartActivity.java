@@ -1657,68 +1657,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         }
     }
 
-    private void addEntry(int event){
-
-        LineData data = mChart.getData();
-
-        if(data != null){
-            ILineDataSet set = data.getDataSetByIndex(0);
-
-            if(set == null){
-                set = createSet();
-                data.addDataSet(set);
-            }
-
-            data.addEntry(new Entry(set.getEntryCount(), event), 0);
-            data.notifyDataChanged();
-
-            mChart.notifyDataSetChanged();
-            mChart.setVisibleXRangeMaximum(50);
-            mChart.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
-        }
-    }
-    private void addEntry2(int event){
-
-        LineData data = mChart2.getData();
-
-        if(data != null){
-            ILineDataSet set = data.getDataSetByIndex(0);
-
-            if(set == null){
-                set = createSet();
-                data.addDataSet(set);
-            }
-
-            data.addEntry(new Entry(set.getEntryCount(), event), 0);
-            data.notifyDataChanged();
-
-            mChart2.notifyDataSetChanged();
-            mChart2.setVisibleXRangeMaximum(50);
-            mChart2.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
-
-        }
-    }
-
-    private LineDataSet createSet() {
-        LineDataSet set = new LineDataSet(null, null);
-        set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
-        set.setLineWidth(2f);
-        set.setColor(Color.GREEN);
-        set.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-
-        set.setCircleColor(Color.GREEN);
-        set.setCircleHoleColor(Color.GREEN);
-        set.setCircleSize(1f);
-        set.setFillAlpha(65);
-        set.setFillColor(ColorTemplate.getHoloBlue());
-        set.setHighLightColor(Color.rgb(244, 117, 177));
-        set.setValueTextColor(Color.WHITE);
-        set.setValueTextSize(1f);
-
-        set.setHighLightColor(Color.YELLOW);
-        return set;
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -1746,7 +1684,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         if (resId == R.string.bluetooth_connected){borderGray.setVisibility(View.GONE); borderGreen.setVisibility(View.VISIBLE); borderRed.setVisibility(View.GONE);}
         if (resId == R.string.bluetooth_connecting){borderGray.setVisibility(View.VISIBLE); borderGreen.setVisibility(View.GONE); borderRed.setVisibility(View.GONE);}
     }
-
     @Override
     public void setValueCH(int levelCH, int numberChannel) {
         if (invertChannel){
@@ -1769,7 +1706,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             }
         }
     }
-
     @SuppressLint("SetTextI18n")
     @Override
     public void setGeneralValue(int receiveCurrent, int receiveLevelCH1, int receiveLevelCH2, byte receiveIndicationState, int receiveBatteryTension) {
@@ -1850,7 +1786,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             receiveBlockIndication = 1;
         }
     }
-
     @Override
     public void setStartParameters(Integer receiveCurrent, Integer receiveLevelTrigCH1, Integer receiveLevelTrigCH2, Byte receiveIndicationInvertMode, Byte receiveBlockIndication, Byte receiveRoughnessOfSensors)
     {
@@ -1871,7 +1806,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         this.receiveBlockIndication = receiveBlockIndication;
         this.receiveRoughnessOfSensors = receiveRoughnessOfSensors;
     }
-
     @Override
     public void setStartParametersTrigCH1(Integer receiveLevelTrigCH1) {
         if(invertChannel) {
@@ -1882,7 +1816,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             intValueCH2on = receiveLevelTrigCH1;
         }
     }
-
     @Override
     public void setStartParametersTrigCH2(Integer receiveLevelTrigCH2) {
         if(invertChannel) {
@@ -1893,32 +1826,26 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             intValueCH1on = receiveLevelTrigCH2;
         }
     }
-
     @Override
     public void setStartParametersCurrent(Integer receiveCurrent) {
         this.receiveCurrent = receiveCurrent;
     }
-
     @Override
     public void setStartParametersBlock(Byte receiveBlockIndication) {
         this.receiveBlockIndication = receiveBlockIndication;
     }
-
     @Override
     public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
         this.receiveRoughnessOfSensors = receiveRoughnessOfSensors;
     }
-
     @Override
     public void setStartParametersBattery(Integer receiveBatteryTension) {
         this.valueBatteryTension.setText(receiveBatteryTension);
     }
-
     public void setStartTrig(){
         seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekBar - 0.25)));//-0.5
         seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekBar - 0.25)));//-0.5
     }
-
     public void setStartParametersInChartActivity(){
         if (monograbVersion){ seekBarIStop.setProgress(receiveCurrent);}
         seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekBar - 0.25)));//-0.5
@@ -1938,7 +1865,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         if(receiveBlockIndication == 3){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.block);}
 
     }
-
     @Override
     public boolean getFirstRead() {
         return firstRead;
@@ -2018,11 +1944,10 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    /**                    схема запросов начальных параметров                         **/
-//  односхват:  ----> Trig1 ----> Trig2 ----> Current ----> Roughness
-//  многосхват: ----> Trig1 ----> Trig2 ----> Roughness
+    /**                схема запросов начальных параметров                     **/
+    //  односхват:  ----> Trig1 ----> Trig2 ----> Current ----> Roughness       //
+    //  многосхват: ----> Trig1 ----> Trig2 ----> Roughness                     //
     //////////////////////////////////////////////////////////////////////////////
-
     public void requestStartTrig1Thread () {
         requestStartTrig1Thread = new Thread(new Runnable() {
             @Override
@@ -2187,6 +2112,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         requestBatteryTensionThread.start();
     }
 
+
     //    часть отвечающая за установку флага паузы
     public void pauseSendingThread (final byte[] SendMassage) {
         pauseSendingThread = new Thread(new Runnable() {
@@ -2212,21 +2138,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         pauseSendingThread.start();
     }
 
-//    private void levelRecordThread (final byte fakeCellGesture, final byte cellNumGesture) {
-//        Thread levelRecordThread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
-//                System.out.println("ChartActivity--------------> запись порога ");
-//                try {
-//                    Thread.sleep(delayPauseAfterSending);
-//                } catch (Exception ignored) {}
-//                pauseSendingThread(CompileMassageSwitchGestureHDLC(cellNumGesture));
-//                System.out.println("ChartActivity--------------> запрос порога ");
-//            }
-//        });
-//        levelRecordThread.start();
-//    }
 
     private void gestureUseThread (final byte fakeCellGesture, final byte cellNumGesture) {
         Thread gestureUseThread = new Thread(new Runnable() {
@@ -2249,6 +2160,67 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         gestureUseThread.start();
     }
 
+
+    private LineDataSet createSet() {
+        LineDataSet set = new LineDataSet(null, null);
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
+        set.setLineWidth(2f);
+        set.setColor(Color.GREEN);
+        set.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+
+        set.setCircleColor(Color.GREEN);
+        set.setCircleHoleColor(Color.GREEN);
+        set.setCircleSize(1f);
+        set.setFillAlpha(65);
+        set.setFillColor(ColorTemplate.getHoloBlue());
+        set.setHighLightColor(Color.rgb(244, 117, 177));
+        set.setValueTextColor(Color.WHITE);
+        set.setValueTextSize(1f);
+
+        set.setHighLightColor(Color.YELLOW);
+        return set;
+    }
+    private void addEntry(int event){
+
+        LineData data = mChart.getData();
+
+        if(data != null){
+            ILineDataSet set = data.getDataSetByIndex(0);
+
+            if(set == null){
+                set = createSet();
+                data.addDataSet(set);
+            }
+
+            data.addEntry(new Entry(set.getEntryCount(), event), 0);
+            data.notifyDataChanged();
+
+            mChart.notifyDataSetChanged();
+            mChart.setVisibleXRangeMaximum(50);
+            mChart.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
+        }
+    }
+    private void addEntry2(int event){
+
+        LineData data = mChart2.getData();
+
+        if(data != null){
+            ILineDataSet set = data.getDataSetByIndex(0);
+
+            if(set == null){
+                set = createSet();
+                data.addDataSet(set);
+            }
+
+            data.addEntry(new Entry(set.getEntryCount(), event), 0);
+            data.notifyDataChanged();
+
+            mChart2.notifyDataSetChanged();
+            mChart2.setVisibleXRangeMaximum(50);
+            mChart2.moveViewToX(set.getEntryCount()-50);//data.getEntryCount()
+
+        }
+    }
     public void initializedGraphForChannel1(){
         mChart = findViewById(R.id.chartCH1);
 
@@ -2332,14 +2304,13 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         y1_2.setDrawGridLines(false);
     }
 
+
     public void getNameFromDevice(BluetoothDevice device){
         deviceName = device.getName();
     }
-
     public void getName(String deviceName){
         this.deviceName =deviceName;
     }
-
     private byte[] CompileMassageSettings(byte numberFinger, int intValueFingerAngle,
                                           int intValueFingerSpeed){
         TextByteTriggerSettings[0] = 0x03;
@@ -2352,7 +2323,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteTriggerSettings[7] = presenter.calculationCRC(TextByteTriggerSettings);
         return TextByteTriggerSettings;
     }
-
     private byte[] CompileMessageSettingsHDLC(byte numberFinger, int intValueFingerAngle,
                                               int intValueFingerSpeed){
         TextByteHDLC7[0] = numberFinger;
@@ -2364,7 +2334,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteHDLC7[6] = presenter.calculationCRC_HDLC(TextByteHDLC7);
         return TextByteHDLC7;
     }
-
     private byte[] CompileTestMessageHDLC(){
         byte[] TextByteHDLC = new byte[4];
         TextByteHDLC[0] = (byte) 0xFA;
@@ -2373,7 +2342,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteHDLC[3] = presenter.calculationCRC_HDLC(TextByteHDLC);
         return TextByteHDLC;
     }
-
     private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,
                                                      int intValueFingerSpeed){
         if(NUMBER_CELL == 0){
@@ -2475,28 +2443,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 return TextByteHDLC5;
         }
     }
-    //    public byte[] CompileMassageComplexGestureSettings(int GESTURE_NUMBER, int GripperNumberStart1,
-//                                                       int mySensorEvent1, int GripperNumberEnd1,
-//                                                       int GripperNumberStart2, int mySensorEvent2,
-//                                                       int GripperNumberEnd2, int indicatorTypeMessage){
-//        TextByteTriggerComplexGestureSettings[0] = (byte) indicatorTypeMessage;
-//        TextByteTriggerComplexGestureSettings[1] = (byte) (GESTURE_NUMBER >> 8);
-//        TextByteTriggerComplexGestureSettings[2] = (byte) GESTURE_NUMBER;
-//        TextByteTriggerComplexGestureSettings[3] = (byte) (GripperNumberStart1 >> 8);
-//        TextByteTriggerComplexGestureSettings[4] = (byte) GripperNumberStart1;
-//        TextByteTriggerComplexGestureSettings[5] = (byte) (mySensorEvent1 >> 8);
-//        TextByteTriggerComplexGestureSettings[6] = (byte) mySensorEvent1;
-//        TextByteTriggerComplexGestureSettings[7] = (byte) (GripperNumberEnd1 >> 8);
-//        TextByteTriggerComplexGestureSettings[8] = (byte) GripperNumberEnd1;
-//        TextByteTriggerComplexGestureSettings[9] = (byte) (GripperNumberStart2 >> 8);;
-//        TextByteTriggerComplexGestureSettings[10] = (byte) GripperNumberStart2;
-//        TextByteTriggerComplexGestureSettings[11] = (byte) (mySensorEvent2 >> 8);
-//        TextByteTriggerComplexGestureSettings[12] = (byte) mySensorEvent2;
-//        TextByteTriggerComplexGestureSettings[13] = (byte) (GripperNumberEnd2 >> 8);
-//        TextByteTriggerComplexGestureSettings[14] = (byte) GripperNumberEnd2;
-//
-//        return TextByteTriggerComplexGestureSettings;
-//    }
     public void CompileMassageControlComplexGesture(int GESTURE_NUMBER){
         TextByteTriggerControlComplexGesture[0] = 0x06;
         TextByteTriggerControlComplexGesture[1] = (byte) GESTURE_NUMBER;
@@ -2510,7 +2456,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteTriggerControl[5] = presenter.calculationCRC(TextByteTriggerControl);
         return TextByteTriggerControl;
     }
-
     private byte[] CompileMassageControlHDLC(byte numberFinger){
         TextByteHDLC5[0] = numberFinger;
         TextByteHDLC5[1] = 0x02;
@@ -2519,14 +2464,12 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
         return TextByteHDLC5;
     }
-
     private byte[] CompileMassageTriggerMod(int Trigger_id){
         TextByteTriggerMod[0] = 0x08;
         TextByteTriggerMod[1] = (byte) Trigger_id;
         System.out.println("Trigger mod:" + Trigger_id);
         return TextByteTriggerMod;
     }
-
     private byte[] CompileMassageTriggerModHDLC(int Trigger_id){
         TextByteHDLC5[0] = ConstantManager.ADDR_TRIG_MODE;
         TextByteHDLC5[1] = ConstantManager.WRITE;
@@ -2535,7 +2478,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
         return TextByteHDLC5;
     }
-
     private byte[] CompileMassageMainDataHDLC(){
         TextByteHDLC4[0] = ConstantManager.ADDR_MAIN_DATA;
         TextByteHDLC4[1] = ConstantManager.READ;
@@ -2588,7 +2530,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
         return TextByteHDLC6;
     }
-
     private byte[] CompileMessageSetGeneralParcel (byte turningOn){
         TextByteSetGeneralParcel[0] = 0x0C;
         TextByteSetGeneralParcel[1] = turningOn;
@@ -2631,7 +2572,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
         return TextByteHDLC5;
     }
-
     public byte[] CompileMassageSwitchGesture(byte openGesture, byte closeGesture) {
         System.err.println("ChatActivity----> укомпановали байт массив");
         TextByteSetSwitchGesture[0] = 0x0F;
@@ -2639,7 +2579,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteSetSwitchGesture[2] = closeGesture;
         return TextByteSetSwitchGesture;
     }
-
     public byte[] CompileMassageSwitchGestureHDLC(byte numGesture) {
         TextByteHDLC5[0] = (byte) 0xFA;
         TextByteHDLC5[1] = (byte) 0x02;
@@ -2648,7 +2587,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
         return TextByteHDLC5;
     }
-
     public byte[] CompileMassageRoughness(byte roughness) {
         TextByteSetRoughness[0] = 0x10;
         TextByteSetRoughness[1] = roughness; // 0x01 on     0x00 off
@@ -2667,13 +2605,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public void TranslateMassageControlComplexGesture(){
         presenter.onHelloWorld(TextByteTriggerControlComplexGesture);
     }
-//    public void TranslateMassageComplexGestureSettings(){
-//        presenter.onHelloWorld(TextByteTriggerComplexGestureSettings);
-//    }
-//    public void TranslateMassageSwitchGesture(){
-//        System.err.println("ChatActivity----> отправили байт массив");
-//        presenter.onHelloWorld(TextByteSetSwitchGesture);
-//    }
+
 
     @Override
     public void showToast(String message) {

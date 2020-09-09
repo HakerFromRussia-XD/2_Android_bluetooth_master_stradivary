@@ -1,11 +1,8 @@
 package me.Romans.motorica.ui.chat.view.massage_to_send;
 
+
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-
-import javax.inject.Inject;
 
 import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
 import me.Romans.motorica.utils.ConstantManager;
@@ -13,10 +10,7 @@ import me.Romans.motorica.utils.ConstantManager;
 import static me.Romans.motorica.ui.chat.view.ChartActivity.GESTURE_SETTINGS;
 import static me.Romans.motorica.ui.chat.view.ChartActivity.NUMBER_CELL;
 
-public class Massages implements ChatPresenter{
-    @Inject public ChatPresenter presenter;
-
-
+public class Massages implements ChatPresenter {
     //////////////////////////////////////////////////////////////////////////////
     /**                      составление блютуз посылок                        **/
     //////////////////////////////////////////////////////////////////////////////
@@ -30,7 +24,7 @@ public class Massages implements ChatPresenter{
         TextByteTriggerSettings[4] = NUMBER_CELL;
         TextByteTriggerSettings[5] = (byte) intValueFingerSpeed;
         TextByteTriggerSettings[6] = (byte) intValueFingerAngle;
-        TextByteTriggerSettings[7] = presenter.calculationCRC(TextByteTriggerSettings);
+        TextByteTriggerSettings[7] = calculationCRC(TextByteTriggerSettings);
         return TextByteTriggerSettings;
     }
     public byte[] CompileMessageSettingsHDLC(byte numberFinger, int intValueFingerAngle,
@@ -42,9 +36,12 @@ public class Massages implements ChatPresenter{
         TextByteTriggerSettings[3] = NUMBER_CELL;
         TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
         TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
-        TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
+        TextByteTriggerSettings[6] = calculationCRC_HDLC(TextByteTriggerSettings);
         return TextByteTriggerSettings;
     }
+
+
+
 
     @Override
     public void onCreate(Intent intent) {
@@ -52,12 +49,7 @@ public class Massages implements ChatPresenter{
     }
 
     @Override
-    public void onPause() {
-
-    }
-
-    @Override
-    public void onResume() {
+    public void onHelloWorld(byte[] textbyte) {
 
     }
 
@@ -72,7 +64,12 @@ public class Massages implements ChatPresenter{
     }
 
     @Override
-    public void onHelloWorld(byte[] textbyte) {
+    public void onResume() {
+
+    }
+
+    @Override
+    public void onPause() {
 
     }
 
@@ -92,12 +89,27 @@ public class Massages implements ChatPresenter{
     }
 
     @Override
-    public byte calculationCRC(byte[] textByteTreegSettings) {
-        return 0;
+    public byte calculationCRC(byte[] bytes) {
+        byte CRC = 0x00;
+        for (int i = 1; i < bytes.length-1; i++){
+            CRC += bytes[i];
+            CRC = (byte) (CRC << 1);
+        }
+        return CRC;
     }
 
     @Override
-    public byte calculationCRC_HDLC(byte[] textByteTreegSettings) {
-        return 0;
+    public byte calculationCRC_HDLC(byte[] bytes) {
+        byte CRC = (byte) 0xFF;
+        boolean b = false;
+        for (int i = 0; i < bytes.length-1; i++){
+            CRC ^= bytes[i];
+            for (int j = 0; j < 8; j++)
+            {
+                b = ((CRC & 0x80) >> 7) != 0;
+                CRC = (byte) (b  ? (CRC << 1) ^ 0x31 : CRC << 1);
+            }
+        }
+        return CRC;
     }
 }

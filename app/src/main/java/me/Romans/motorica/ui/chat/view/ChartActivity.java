@@ -58,16 +58,17 @@ import me.Romans.motorica.data.GesstureAdapter;
 import me.Romans.motorica.data.Gesture_my;
 import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
-import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings;
-import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings2;
+import me.Romans.motorica.ui.chat.view.gesture_settings.FragmentGestureSettings;
+import me.Romans.motorica.ui.chat.view.gesture_settings.FragmentGestureSettings2;
 import me.Romans.bluetooth.ThreadHelper;
 import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
-import me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings3;
-import me.Romans.motorica.ui.chat.view.Gripper_settings.FragmentGripperSettings;
-import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettings;
-import me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettingsMono;
-import me.Romans.motorica.ui.chat.view.Service_settings.SettingsDialog;
+import me.Romans.motorica.ui.chat.view.gesture_settings.FragmentGestureSettings3;
+import me.Romans.motorica.ui.chat.view.gripper_settings.FragmentGripperSettings;
+import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
+import me.Romans.motorica.ui.chat.view.service_settings.FragmentServiceSettings;
+import me.Romans.motorica.ui.chat.view.service_settings.FragmentServiceSettingsMono;
+import me.Romans.motorica.ui.chat.view.service_settings.SettingsDialog;
 import me.Romans.motorica.utils.ConstantManager;
 
 public class ChartActivity extends AppCompatActivity implements ChartView, GesstureAdapter.OnGestureMyListener, SettingsDialog.SettingsDialogListener {
@@ -108,6 +109,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     @BindView(R.id.borderGray) ImageView borderGray;
     @BindView(R.id.borderGreen) ImageView borderGreen;
     @BindView(R.id.borderRed) ImageView borderRed;
+    Massages mMassages = new Massages();
     public BottomNavigationView navigation;
     public int numberOfChannel = 0;
     public int intValueCH1on = 2500;
@@ -229,9 +231,8 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     private int intValueFinger4Speed = SPEED;
     private int intValueFinger5Speed = SPEED;
     private int intValueFinger6Speed = SPEED;
-    private byte requestType = 0x02;
     public static byte GESTURE_SETTINGS = 0x15;
-    public byte NUMBER_CELL = 0x00;
+    public static byte NUMBER_CELL = 0x00;
     public static long delay = 200;
     private int delayPauseAfterSending = 200;
     //    public byte[] TextByteTriggerComplexGestureSettings = new byte[15];
@@ -1226,9 +1227,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
                         numberFinger = 1;
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
                         }else {
-                            presenter.onHelloWorld(CompileMassageSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
                         }
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Angle", intValueFinger1Angle);
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Speed", intValueFinger1Speed);
@@ -1253,9 +1254,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 //                        System.err.println("ChatActivity--------> angleRingFingerTransfer: "+ intValueFinger2Angle);
                         numberFinger = 2;
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
                         }else {
-                            presenter.onHelloWorld(CompileMassageSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
                         }
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Angle", intValueFinger2Angle);
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Speed", intValueFinger2Speed);
@@ -1279,9 +1280,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 //                        System.err.println("ChatActivity--------> angleMiddleFingerTransfer: "+ intValueFinger3Angle);
                         numberFinger = 3;
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
                         }else {
-                            presenter.onHelloWorld(CompileMassageSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
                         }
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Angle", intValueFinger3Angle);
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Speed", intValueFinger3Speed);
@@ -1305,9 +1306,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 //                        System.err.println("ChatActivity--------> angleForeFingerTransfer: "+ intValueFinger4Angle);
                         numberFinger = 4;
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
                         }else {
-                            presenter.onHelloWorld( CompileMassageSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
+                            presenter.onHelloWorld( mMassages.CompileMassageSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
                         }
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Angle", intValueFinger4Angle);
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Speed", intValueFinger4Speed);
@@ -1331,9 +1332,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 //                        System.err.println("ChatActivity--------> angleBigFingerTransfer1: "+ intValueFinger5Angle);
                         numberFinger = 5;
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
                         }else {
-                            presenter.onHelloWorld(CompileMassageSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
                         }
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Angle", intValueFinger5Angle);
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Speed", intValueFinger5Speed);
@@ -1358,10 +1359,10 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 //                        System.err.println("ChatActivity--------> angleBigFingerTransfer2: "+ intValueFinger6Angle);
                         numberFinger = 6;
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMessageSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
                             //                            System.err.println("ChatActivity--------> Угол шестой степени: "+intValueFinger6Angle);
                         }else {
-                            presenter.onHelloWorld(CompileMassageSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
                         }
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Angle", intValueFinger6Angle);
                         saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Speed", intValueFinger6Speed);
@@ -2287,37 +2288,37 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     //////////////////////////////////////////////////////////////////////////////
     /**                      составление блютуз посылок                        **/
     //////////////////////////////////////////////////////////////////////////////
-    private byte[] CompileMassageSettings(byte numberFinger, int intValueFingerAngle,
-                                          int intValueFingerSpeed){
-        byte[] TextByteTriggerSettings = new byte[8];
-        TextByteTriggerSettings[0] = 0x03;
-        TextByteTriggerSettings[1] = numberFinger;
-        TextByteTriggerSettings[2] = requestType;
-        TextByteTriggerSettings[3] = GESTURE_SETTINGS;
-        TextByteTriggerSettings[4] = NUMBER_CELL;
-        TextByteTriggerSettings[5] = (byte) intValueFingerSpeed;
-        TextByteTriggerSettings[6] = (byte) intValueFingerAngle;
-        TextByteTriggerSettings[7] = presenter.calculationCRC(TextByteTriggerSettings);
-        return TextByteTriggerSettings;
-    }
-    private byte[] CompileMessageSettingsHDLC(byte numberFinger, int intValueFingerAngle,
-                                              int intValueFingerSpeed){
-        byte[] TextByteTriggerSettings = new byte[7];
-        TextByteTriggerSettings[0] = numberFinger;
-        TextByteTriggerSettings[1] = requestType;
-        TextByteTriggerSettings[2] = GESTURE_SETTINGS;
-        TextByteTriggerSettings[3] = NUMBER_CELL;
-        TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
-        TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
-        TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-        return TextByteTriggerSettings;
-    }
+//    private byte[] CompileMassageSettings(byte numberFinger, int intValueFingerAngle,
+//                                          int intValueFingerSpeed){
+//        byte[] TextByteTriggerSettings = new byte[8];
+//        TextByteTriggerSettings[0] = 0x03;
+//        TextByteTriggerSettings[1] = numberFinger;
+//        TextByteTriggerSettings[2] = ConstantManager.WRITE;
+//        TextByteTriggerSettings[3] = GESTURE_SETTINGS;
+//        TextByteTriggerSettings[4] = NUMBER_CELL;
+//        TextByteTriggerSettings[5] = (byte) intValueFingerSpeed;
+//        TextByteTriggerSettings[6] = (byte) intValueFingerAngle;
+//        TextByteTriggerSettings[7] = presenter.calculationCRC(TextByteTriggerSettings);
+//        return TextByteTriggerSettings;
+//    }
+//    private byte[] CompileMessageSettingsHDLC(byte numberFinger, int intValueFingerAngle,
+//                                              int intValueFingerSpeed){
+//        byte[] TextByteTriggerSettings = new byte[7];
+//        TextByteTriggerSettings[0] = numberFinger;
+//        TextByteTriggerSettings[1] = ConstantManager.WRITE;
+//        TextByteTriggerSettings[2] = GESTURE_SETTINGS;
+//        TextByteTriggerSettings[3] = NUMBER_CELL;
+//        TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
+//        TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
+//        TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
+//        return TextByteTriggerSettings;
+//    }
     private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,
                                                      int intValueFingerSpeed){
         byte[] TextByteTriggerSettings = new byte[7];
         if(NUMBER_CELL == 0){
             TextByteTriggerSettings[0] = numberFinger;
-            TextByteTriggerSettings[1] = requestType;
+            TextByteTriggerSettings[1] = ConstantManager.WRITE;
             TextByteTriggerSettings[2] = GESTURE_SETTINGS;
             TextByteTriggerSettings[3] = 0x06;
             TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
@@ -2326,7 +2327,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         } else {
             if(NUMBER_CELL == 2){
                 TextByteTriggerSettings[0] = numberFinger;
-                TextByteTriggerSettings[1] = requestType;
+                TextByteTriggerSettings[1] = ConstantManager.WRITE;
                 TextByteTriggerSettings[2] = GESTURE_SETTINGS;
                 TextByteTriggerSettings[3] = 0x07;
                 TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
@@ -2335,7 +2336,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             } else {
                 if(NUMBER_CELL == 4){
                     TextByteTriggerSettings[0] = numberFinger;
-                    TextByteTriggerSettings[1] = requestType;
+                    TextByteTriggerSettings[1] = ConstantManager.WRITE;
                     TextByteTriggerSettings[2] = GESTURE_SETTINGS;
                     TextByteTriggerSettings[3] = 0x08;
                     TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;

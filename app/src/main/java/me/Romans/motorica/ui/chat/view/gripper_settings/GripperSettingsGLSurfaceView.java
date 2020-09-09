@@ -1,4 +1,4 @@
-package me.Romans.motorica.ui.chat.view.Gripper_settings;
+package me.Romans.motorica.ui.chat.view.gripper_settings;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

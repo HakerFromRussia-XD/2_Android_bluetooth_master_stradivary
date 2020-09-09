@@ -1,4 +1,4 @@
-package me.Romans.motorica.ui.chat.view.Gripper_settings;
+package me.Romans.motorica.ui.chat.view.gripper_settings;
 
 interface ErrorHandler {
 	enum ErrorType {

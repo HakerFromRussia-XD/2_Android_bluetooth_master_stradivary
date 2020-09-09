@@ -1,4 +1,4 @@
-package me.Romans.motorica.ui.chat.view.Gesture_settings;
+package me.Romans.motorica.ui.chat.view.gesture_settings;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,13 +23,12 @@ import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChartView;
 
-public class FragmentGestureSettings extends Fragment implements ChartView, GesstureAdapter.OnGestureMyListener {
+public class FragmentGestureSettings2 extends Fragment implements ChartView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.gesture_use) public Button gesture_use;
-    private int GESTURE_NUMBER = 0x0000;
+    private int GESTURE_NUMBER = 0x0002;
 
     public View view;
     private ChartActivity chatActivity;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -38,8 +37,8 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
-                .chatModule(new ChatModule(FragmentGestureSettings.this))
-                .build().inject(FragmentGestureSettings.this);
+                .chatModule(new ChatModule(FragmentGestureSettings2.this))
+                .build().inject(FragmentGestureSettings2.this);
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
@@ -79,7 +78,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
                         2,
                         6));
 
-        GesstureAdapter gestureAdapter = new GesstureAdapter(getActivity(), gestureMyList, FragmentGestureSettings.this);
+        GesstureAdapter gestureAdapter = new GesstureAdapter(getActivity(), gestureMyList, FragmentGestureSettings2.this);
         recyclerView.setAdapter(gestureAdapter);
 
         gesture_use.setOnClickListener(new View.OnClickListener() {
@@ -95,7 +94,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
                     }
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                            .remove(chatActivity.fragmentGestureSettings)
+                            .remove(chatActivity.fragmentGestureSettings2)
                             .commit();
                     chatActivity.navigation.clearAnimation();
                     chatActivity.navigation.animate().translationY(0).setDuration(200);
@@ -115,7 +114,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
             }
             chatActivity.fragmentManager.beginTransaction()
                     .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                    .remove(chatActivity.fragmentGestureSettings)
+                    .remove(chatActivity.fragmentGestureSettings2)
                     .commit();
             chatActivity.navigation.clearAnimation();
             chatActivity.navigation.animate().translationY(0).setDuration(200);
@@ -123,7 +122,6 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
             chatActivity.startGraphEnteringDataThread();
         }
     }
-
 
     @Override
     public void setStatus(String status) {
@@ -161,7 +159,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
             case 0:
                 if(chatActivity.firstTapRecyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRecyclerView = false;
-                    if (chatActivity.NUMBER_CELL == 1 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL - 0x01);
+                    if (chatActivity.NUMBER_CELL == 3 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL - 0x01);
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
@@ -181,7 +179,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
             case 1:
                 if(chatActivity.firstTapRecyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRecyclerView = false;
-                    if (chatActivity.NUMBER_CELL == 0 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
+                    if (chatActivity.NUMBER_CELL == 2 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
@@ -254,5 +252,4 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
     public void setStartParametersBattery(Integer receiveBatteryTension) {
 
     }
-
 }

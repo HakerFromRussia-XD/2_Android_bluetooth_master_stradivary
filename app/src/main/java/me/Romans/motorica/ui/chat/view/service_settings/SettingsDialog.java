@@ -1,4 +1,4 @@
-package me.Romans.motorica.ui.chat.view.Service_settings;
+package me.Romans.motorica.ui.chat.view.service_settings;
 
 import android.app.Dialog;
 import android.content.Context;

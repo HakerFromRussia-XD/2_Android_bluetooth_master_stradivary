@@ -1,10 +1,9 @@
-package me.Romans.motorica.ui.chat.view.Gesture_settings;
+package me.Romans.motorica.ui.chat.view.gesture_settings;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,14 +23,13 @@ import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChartView;
 
-import static android.support.constraint.Constraints.TAG;
-
-public class FragmentGestureSettings3 extends Fragment implements ChartView, GesstureAdapter.OnGestureMyListener {
+public class FragmentGestureSettings extends Fragment implements ChartView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.gesture_use) public Button gesture_use;
-    private int GESTURE_NUMBER = 0x0004;
+    private int GESTURE_NUMBER = 0x0000;
 
     public View view;
     private ChartActivity chatActivity;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,12 +38,12 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
-                .chatModule(new ChatModule(FragmentGestureSettings3.this))
-                .build().inject(FragmentGestureSettings3.this);
+                .chatModule(new ChatModule(FragmentGestureSettings.this))
+                .build().inject(FragmentGestureSettings.this);
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
-        Log.e(TAG, "NUMBER_CELL = "+String.valueOf(chatActivity.NUMBER_CELL));
+//        Log.e(TAG, "NUMBER_CELL = "+String.valueOf(chatActivity.NUMBER_CELL));
 
         List<Gesture_my> gestureMyList = new ArrayList<>();
         RecyclerView recyclerView = view.findViewById(R.id.gripper_list);
@@ -81,7 +79,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
                         2,
                         6));
 
-        GesstureAdapter gestureAdapter = new GesstureAdapter(getActivity(), gestureMyList, FragmentGestureSettings3.this);
+        GesstureAdapter gestureAdapter = new GesstureAdapter(getActivity(), gestureMyList, FragmentGestureSettings.this);
         recyclerView.setAdapter(gestureAdapter);
 
         gesture_use.setOnClickListener(new View.OnClickListener() {
@@ -89,12 +87,15 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
             public void onClick(View v) {
                 if (getActivity() != null) {
                     if(chatActivity.isEnable){
-                        chatActivity.CompileMassageControlComplexGesture(GESTURE_NUMBER);
-                        chatActivity.TranslateMassageControlComplexGesture();
+                        if(chatActivity.getFlagUseHDLCProtocol()){
+                        } else {
+                            chatActivity.CompileMassageControlComplexGesture(GESTURE_NUMBER);
+                            chatActivity.TranslateMassageControlComplexGesture();
+                        }
                     }
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                            .remove(chatActivity.fragmentGestureSettings3)
+                            .remove(chatActivity.fragmentGestureSettings)
                             .commit();
                     chatActivity.navigation.clearAnimation();
                     chatActivity.navigation.animate().translationY(0).setDuration(200);
@@ -109,15 +110,12 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
     public void backPressed() {
         if (getActivity() != null) {
             if(chatActivity.isEnable){
-                if(chatActivity.getFlagUseHDLCProtocol()){
-                } else {
-                    chatActivity.CompileMassageControlComplexGesture(GESTURE_NUMBER);
-                    chatActivity.TranslateMassageControlComplexGesture();
-                }
+                chatActivity.CompileMassageControlComplexGesture(GESTURE_NUMBER);
+                chatActivity.TranslateMassageControlComplexGesture();
             }
             chatActivity.fragmentManager.beginTransaction()
                     .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                    .remove(chatActivity.fragmentGestureSettings3)
+                    .remove(chatActivity.fragmentGestureSettings)
                     .commit();
             chatActivity.navigation.clearAnimation();
             chatActivity.navigation.animate().translationY(0).setDuration(200);
@@ -125,6 +123,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
             chatActivity.startGraphEnteringDataThread();
         }
     }
+
 
     @Override
     public void setStatus(String status) {
@@ -162,7 +161,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
             case 0:
                 if(chatActivity.firstTapRecyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRecyclerView = false;
-                    if (chatActivity.NUMBER_CELL == 5 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL - 0x01);
+                    if (chatActivity.NUMBER_CELL == 1 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL - 0x01);
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
@@ -182,7 +181,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
             case 1:
                 if(chatActivity.firstTapRecyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRecyclerView = false;
-                    if (chatActivity.NUMBER_CELL == 4 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
+                    if (chatActivity.NUMBER_CELL == 0 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
@@ -199,6 +198,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
                     chatActivity.startTransferThread();
                 }
                 break;
+
         }
     }
     @Override

@@ -22,6 +22,7 @@ import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChartView;
+import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
 
 public class FragmentGestureSettings extends Fragment implements ChartView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.gesture_use) public Button gesture_use;
@@ -29,6 +30,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
 
     public View view;
     private ChartActivity chatActivity;
+    Massages mMassages = new Massages();
 
 
     @Override
@@ -55,8 +57,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
         if(chatActivity.isEnable){
             if(chatActivity.getFlagUseHDLCProtocol()){
             } else {
-                chatActivity.CompileMassageControlComplexGesture(GESTURE_NUMBER);
-                chatActivity.TranslateMassageControlComplexGesture();
+                chatActivity.presenter.onHelloWorld(mMassages.CompileMassageControlComplexGesture(GESTURE_NUMBER));
             }
         }
 
@@ -89,8 +90,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
                     if(chatActivity.isEnable){
                         if(chatActivity.getFlagUseHDLCProtocol()){
                         } else {
-                            chatActivity.CompileMassageControlComplexGesture(GESTURE_NUMBER);
-                            chatActivity.TranslateMassageControlComplexGesture();
+                            chatActivity.presenter.onHelloWorld(mMassages.CompileMassageControlComplexGesture(GESTURE_NUMBER));
                         }
                     }
                     chatActivity.fragmentManager.beginTransaction()
@@ -110,8 +110,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
     public void backPressed() {
         if (getActivity() != null) {
             if(chatActivity.isEnable){
-                chatActivity.CompileMassageControlComplexGesture(GESTURE_NUMBER);
-                chatActivity.TranslateMassageControlComplexGesture();
+                chatActivity.presenter.onHelloWorld(mMassages.CompileMassageControlComplexGesture(GESTURE_NUMBER));
             }
             chatActivity.fragmentManager.beginTransaction()
                     .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)

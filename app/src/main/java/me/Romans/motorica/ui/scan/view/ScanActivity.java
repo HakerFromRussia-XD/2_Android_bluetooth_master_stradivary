@@ -42,25 +42,17 @@ import me.Romans.motorica.ui.scan.data.ScanModule;
 import me.Romans.motorica.ui.scan.presenter.ScanPresenter;
 
 public class ScanActivity extends AppCompatActivity implements ScanView, ScanListAdapter.OnScanMyListener {
-    private static final String TAG = "ScanActivity";
-    //    @BindView(R.id.activity_scan_paired_list)
     RecyclerView pairedDeviceList;
     @BindView(R.id.activity_scan_list) ListView deviceList;
     @BindView(R.id.activity_scan_state) TextView state;
     @BindView(R.id.activity_scan_progress) ProgressBar progress;
     @BindView(R.id.activity_scan_button) Button scanButton;
-    private int position = 0;
     private boolean firstStart = true;
 
     @Inject
-    ScanPresenter presenter;
-
-    private ArrayAdapter<String> scanListAdapter;
-    private ArrayAdapter<String> pairedListAdapter;
+    ScanPresenter presenter;;
 
     //////////////////////////////////////////////
-    boolean change = true;
-    private String[] title;
     int images[] = {R.drawable.circle_16_gray, R.drawable.circle_16_green, R.drawable.circle_16_red, R.drawable.block_not_use, R.drawable.closing};
     int images2[] = {R.drawable.circle_16_green, R.drawable.circle_16_green, R.drawable.circle_16_green, R.drawable.circle_16_green, R.drawable.circle_16_green};
     //////////////////////////////////////////////
@@ -74,10 +66,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);//R.layout.activity_scan R.layout.activity_chat
 
-        Log.e(TAG, "onCreate");
         scanList = new ArrayList<>();
         buildScanListView();
-//        loadData();
 
         DaggerScanComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())
@@ -93,7 +83,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
     @Override
     public void showPairedList(List<String> items) {
-        Log.e(TAG, "showPairedList first-"+firstStart);
         if(firstStart){
             for (int i = 0; i < items.size(); i++)
             {
@@ -109,7 +98,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             loadData();
             buildScanListView();
             pairedDeviceList.setAdapter(mScanListAdapter);
-            Log.e(TAG, "showPairedList alternative branch");
         }
 
     }
@@ -241,7 +229,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
 
     private void saveData(){
-        Log.e(TAG, "saveData");
         SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         Gson gson = new Gson();
@@ -250,13 +237,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         for(ScanItem str: scanList){
             if(str.getTitle().split(":")[1].equals("s")){
                 scanDeviceCount++;
-                Log.e(TAG, "saveData scanDeviceCount: "+scanDeviceCount);
             }
         }
         for(int i = (scanListSize-1); i>((scanListSize-1)-scanDeviceCount); i--){
-            Log.e(TAG, "saveData remove: "+scanList.get(i).getTitle()+"    scanList.size(): "+scanListSize+"     i: "+i+"      условие: пока i>"+((scanListSize-1)-scanDeviceCount));//scanList.get(i).getTitle()
             scanList.remove(i);
-//            mScanListAdapter = new ScanListAdapter(this, scanList, this);
         }
         mScanListAdapter = new ScanListAdapter(this, scanList, this);
         pairedDeviceList.setAdapter(mScanListAdapter);
@@ -267,7 +251,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
     @Override
     public void loadData() {
-        Log.e(TAG, "loadData");
         SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);
         Gson gson = new Gson();
         String json = sharedPreferences.getString("task list", null);

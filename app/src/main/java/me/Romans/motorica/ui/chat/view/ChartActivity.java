@@ -66,6 +66,7 @@ import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.gesture_settings.FragmentGestureSettings3;
 import me.Romans.motorica.ui.chat.view.gripper_settings.FragmentGripperSettings;
 import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
+import me.Romans.motorica.ui.chat.view.model.Load3DModel;
 import me.Romans.motorica.ui.chat.view.service_settings.FragmentServiceSettings;
 import me.Romans.motorica.ui.chat.view.service_settings.FragmentServiceSettingsMono;
 import me.Romans.motorica.ui.chat.view.service_settings.SettingsDialog;
@@ -86,9 +87,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public SeekBar seekBarIStop;
     @BindView(R.id.switchBlockMode) Switch switchBlockMode;
     @BindView(R.id.switchIlluminationMode) Switch switchIlluminationMode;
-    //    TextView textSpeedFinger;
-//    @BindView(R.id.valueStatus) TextView valueStatus;
-//    @BindView(R.id.password_et) EditText password_et;
     @BindView(R.id.valueCH1on) TextView valueCH1on;
     @BindView(R.id.valueCH2on) TextView valueCH2on;
     @BindView(R.id.activity_chat_messages) TextView messages;
@@ -110,6 +108,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     @BindView(R.id.borderGreen) ImageView borderGreen;
     @BindView(R.id.borderRed) ImageView borderRed;
     Massages mMassages = new Massages();
+    Load3DModel mLoad3DModel = new Load3DModel(this);
     public BottomNavigationView navigation;
     public int numberOfChannel = 0;
     public int intValueCH1on = 2500;
@@ -119,41 +118,26 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     private int intValueCH2off = 100;
     private int intValueCH2sleep = 200;
     public int current = 0x00;
-    private int i = 0;
     private byte indicatorTypeMessage;
     private byte numberChannel;
     public byte invert = 0x00;
     public byte block = 0x00;
-    //    public byte roughness = 0x00;
     public boolean isEnable = false;
-    public boolean infiniteAction = false;
     public boolean firstTapRecyclerView = true;
-    //    public boolean stateIsOpen = false;
     public boolean errorReception = false;
     public static String deviceName;
     public double multiplierSeekBar = 13.6363;
     public byte[] TextByteTrigger = new byte[8];
-    public byte[] TextByteTriggerSettings = new byte[7];
     public byte[] TextByteHDLC6 = new byte[6];
-    public byte[] TextByteHDLC5 = new byte[5];
-    public byte[] TextByteHDLC4 = new byte[4];
     public byte[] TextByteReadStartParameterTrig1 = {ConstantManager.ADDR_MIO1, ConstantManager.READ, BluetoothConstantManager.MIO1_TRIG_HDLC, 0x00};
     public byte[] TextByteReadStartParameterTrig2 = {ConstantManager.ADDR_MIO2, ConstantManager.READ, BluetoothConstantManager.MIO2_TRIG_HDLC, 0x00};
     public byte[] TextByteReadStartParameterCurrent = {ConstantManager.ADDR_CUR_LIMIT, ConstantManager.READ, BluetoothConstantManager.CURR_LIMIT_HDLC, 0x00};
     public byte[] TextByteReadStartParameterPermissionBlock = {ConstantManager.ADDR_BLOCK, ConstantManager.READ, BluetoothConstantManager.BLOCK_PERMISSION_HDLC, 0x00};
     public byte[] TextByteReadStartParameterPermissionRoughness = {ConstantManager.ADDR_BUFF_CHOISES, ConstantManager.READ, BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC, 0x00};
     public byte[] TextByteReadStartParameterBattery = {ConstantManager.ADDR_BATTERY, ConstantManager.READ, BluetoothConstantManager.CURR_BAT_HDLC, 0x00};
-    public byte[] TextByteTriggerCurrentSettingsAndInvert = new byte[4];
-    public byte[] TextByteTriggerMod = new byte[2];
-    public byte[] TextByteSensorActivate = new byte[2];
     public byte[] TextByteSetGeneralParcel = new byte[2];
-    public byte[] TextByteReadStartParameters = new byte [2];
-    public byte[] TextByteSetBlockMode = new byte [2];
-    public byte[] TextByteSetSwitchGesture = new byte [3];
-    public byte[] TextByteSetRoughness = new byte [2];
     //    for graph
     public int receiveCurrent = 0;
-    //    public int realCurrent = 0;
     public int maxCurrent = 1500;
     private int receiveLevelTrigCH1 = 14;
     private int receiveLevelTrigCH2 = 14;
@@ -162,14 +146,11 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     private byte receiveIndicationInvertMode = 0;
     private byte receiveBlockIndication = 0;
     public byte receiveRoughnessOfSensors = 0;
-    //    private boolean firstSetStartParametersFlag = true;
-//    public Thread delayThread;
     private LineChart mChart;
     private boolean plotData = true;
     private LineChart mChart2;
     public Thread graphThread;
     public boolean graphThreadFlag = false;
-    //    public float iterator = 0;
     public boolean invertChannel = false;
     //    for general updates
     public int numberCycle = 0;
@@ -235,9 +216,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public static byte NUMBER_CELL = 0x00;
     public static long delay = 200;
     private int delayPauseAfterSending = 200;
-    //    public byte[] TextByteTriggerComplexGestureSettings = new byte[15];
-    public byte[] TextByteTriggerControlComplexGesture = new byte[2];
-    public byte[] TextByteTriggerControl = new byte[6];
     public boolean transferThreadFlag = false;
     public boolean mainActivityStarted = false;
     public Thread transferThread;
@@ -255,8 +233,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
     public enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
     public static SelectStation selectStation;
-    //    protected WebView webView;
-//    private boolean showModsOnTopMenu = false;
     public boolean firstRead = true;
     //    for service menu
     public Menu myMenu;
@@ -320,9 +296,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     maxCurrent = seekBar.getProgress();
                     current = seekBar.getProgress();
                     if(flagUseHDLCProtocol){
-                        pauseSendingThread(CompileMassageCurrentSettingsAndInvertHDLC(current));
+                        pauseSendingThread(mMassages.CompileMassageCurrentSettingsAndInvertHDLC(current));
                     } else {
-                        presenter.onHelloWorld(CompileMassageCurrentSettingsAndInvert(current, invert));
+                        presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(current, invert));
                     }
                 }
             });
@@ -336,7 +312,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             useGesture = 1;
                             gestureUseThread ((byte) 6, (byte) useGesture);
                         }else{
-                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x00, (byte) 0x01));
+                            presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x00, (byte) 0x01));
                         }
                     }
                     return false;
@@ -351,7 +327,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             useGesture = 2;
                             gestureUseThread ((byte) 7, (byte) useGesture);
                         }else{
-                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x02, (byte) 0x03));
+                            presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x02, (byte) 0x03));
                         }
                     }
                     return false;
@@ -366,7 +342,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             useGesture = 3;
                             gestureUseThread ((byte) 8, (byte) useGesture);
                         }else{
-                            presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x04, (byte) 0x05));
+                            presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x04, (byte) 0x05));
                         }
                     }
                     return false;
@@ -380,7 +356,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                         useGesture = 4;
                         gestureUseThread ((byte) 9, (byte) useGesture);
                     }else{
-                        presenter.onHelloWorld(CompileMassageSwitchGesture((byte) 0x06, (byte) 0x06));
+                        presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x06, (byte) 0x06));
                     }
                 }
             });
@@ -670,18 +646,18 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 if (switchBlockMode.isChecked()){
                     block = 0x01;
                     if (flagUseHDLCProtocol){
-                        presenter.onHelloWorld(CompileMassageBlockModeHDLC(block));
+                        presenter.onHelloWorld(mMassages.CompileMassageBlockModeHDLC(block));
                     } else {
-                        presenter.onHelloWorld(CompileMassageBlockMode(block));
+                        presenter.onHelloWorld(mMassages.CompileMassageBlockMode(block));
                     }
                     receiveBlockIndication = 1;
                     imageViewStatus.setImageResource(R.drawable.unblock);
                 } else {
                     block = 0x00;
                     if (flagUseHDLCProtocol){
-                        presenter.onHelloWorld(CompileMassageBlockModeHDLC(block));
+                        presenter.onHelloWorld(mMassages.CompileMassageBlockModeHDLC(block));
                     } else {
-                        presenter.onHelloWorld(CompileMassageBlockMode(block));
+                        presenter.onHelloWorld(mMassages.CompileMassageBlockMode(block));
                     }
                     receiveBlockIndication = 0;
                     imageViewStatus.setImageResource(R.drawable.block_not_use);
@@ -693,9 +669,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             @Override
             public void onClick(View v) {
                 if (switchIlluminationMode.isChecked()){
-                    presenter.onHelloWorld(CompileMassageIlluminationMode(true));
+                    presenter.onHelloWorld(mMassages.CompileMassageIlluminationMode(true));
                 }else {
-                    presenter.onHelloWorld(CompileMassageIlluminationMode(false));
+                    presenter.onHelloWorld(mMassages.CompileMassageIlluminationMode(false));
                 }
             }
         });
@@ -708,11 +684,11 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
                     int numberSensor = 0x07;
                     if(flagUseHDLCProtocol){
-                        if(useGesture == 1){pauseSendingThread(CompileMassageSensorActivate2HDLC((byte) 1));}
-                        if(useGesture == 2){pauseSendingThread(CompileMassageSensorActivate2HDLC((byte) 3));}
-                        if(useGesture == 3){pauseSendingThread(CompileMassageSensorActivate2HDLC((byte) 5));}
+                        if(useGesture == 1){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 1));}
+                        if(useGesture == 2){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 3));}
+                        if(useGesture == 3){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 5));}
                     } else {
-                        presenter.onHelloWorld(CompileMassageSensorActivate(numberSensor));
+                        presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
                     }
                     receiveLevelCH1Chat = 20;
                     receiveLevelCH2Chat = 2500;
@@ -723,9 +699,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     int numberSensor = 0x08;
                     if(flagUseHDLCProtocol){
-                        pauseSendingThread(CompileMassageSensorActivateHDLC());
+                        pauseSendingThread(mMassages.CompileMassageSensorActivateHDLC());
                     } else {
-                        presenter.onHelloWorld(CompileMassageSensorActivate(numberSensor));
+                        presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
                     }
 
                     receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
@@ -743,11 +719,11 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
                     int numberSensor = 0x06;
                     if(flagUseHDLCProtocol){
-                        if(useGesture == 1){pauseSendingThread(CompileMassageSensorActivate2HDLC((byte) 0));}
-                        if(useGesture == 2){pauseSendingThread(CompileMassageSensorActivate2HDLC((byte) 2));}
-                        if(useGesture == 3){pauseSendingThread(CompileMassageSensorActivate2HDLC((byte) 4));}
+                        if(useGesture == 1){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 0));}
+                        if(useGesture == 2){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 2));}
+                        if(useGesture == 3){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 4));}
                     } else {
-                        presenter.onHelloWorld(CompileMassageSensorActivate(numberSensor));
+                        presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
                     }
                     receiveLevelCH1Chat = 2500;
                     receiveLevelCH2Chat = 20;
@@ -756,9 +732,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     int numberSensor = 0x08;
                     if(flagUseHDLCProtocol){
-                        pauseSendingThread(CompileMassageSensorActivateHDLC());
+                        pauseSendingThread(mMassages.CompileMassageSensorActivateHDLC());
                     } else {
-                        presenter.onHelloWorld(CompileMassageSensorActivate(numberSensor));
+                        presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
                     }
                     receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
                     receiveLevelCH2Chat = lastReceiveLevelCH2Chat;
@@ -843,7 +819,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 ThreadHelper.run(runOnUi, this, new Runnable() {
                     @Override
                     public void run() {
-                        CompileMessageSetGeneralParcel((byte) 0x00);
+                        mMassages.CompileMessageSetGeneralParcel((byte) 0x00);
                         presenter.onHelloWorld(TextByteSetGeneralParcel);
                         try {
                             Thread.sleep(500);
@@ -1238,9 +1214,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMassageControlHDLC(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
                         }else {
-                            presenter.onHelloWorld(CompileMassageControl(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
                         }
                         try {
                             Thread.sleep(delay);
@@ -1251,7 +1227,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                         intValueFinger1AngleLast = intValueFinger1Angle;
                     }
                     if(intValueFinger2AngleLast != intValueFinger2Angle && isEnable){
-//                        System.err.println("ChatActivity--------> angleRingFingerTransfer: "+ intValueFinger2Angle);
                         numberFinger = 2;
                         if(flagUseHDLCProtocol){
                             presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
@@ -1264,9 +1239,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMassageControlHDLC(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
                         }else {
-                            presenter.onHelloWorld(CompileMassageControl(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
                         }
                         try {
                             Thread.sleep(delay);
@@ -1277,7 +1252,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                         intValueFinger2AngleLast = intValueFinger2Angle;
                     }
                     if(intValueFinger3AngleLast != intValueFinger3Angle && isEnable){
-//                        System.err.println("ChatActivity--------> angleMiddleFingerTransfer: "+ intValueFinger3Angle);
                         numberFinger = 3;
                         if(flagUseHDLCProtocol){
                             presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
@@ -1290,9 +1264,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMassageControlHDLC(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
                         }else {
-                            presenter.onHelloWorld(CompileMassageControl(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
                         }
                         try {
                             Thread.sleep(delay);
@@ -1303,7 +1277,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                         intValueFinger3AngleLast = intValueFinger3Angle;
                     }
                     if(intValueFinger4AngleLast != intValueFinger4Angle && isEnable){
-//                        System.err.println("ChatActivity--------> angleForeFingerTransfer: "+ intValueFinger4Angle);
                         numberFinger = 4;
                         if(flagUseHDLCProtocol){
                             presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
@@ -1316,9 +1289,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMassageControlHDLC(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
                         }else {
-                            presenter.onHelloWorld(CompileMassageControl(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
                         }
                         try {
                             Thread.sleep(delay);
@@ -1329,7 +1302,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                         intValueFinger4AngleLast = intValueFinger4Angle;
                     }
                     if((intValueFinger5AngleLast != intValueFinger5Angle && isEnable)||(intValueFinger6AngleLast != intValueFinger6Angle && isEnable)){
-//                        System.err.println("ChatActivity--------> angleBigFingerTransfer1: "+ intValueFinger5Angle);
                         numberFinger = 5;
                         if(flagUseHDLCProtocol){
                             presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
@@ -1342,9 +1314,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(CompileMassageControlHDLC(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
                         }else {
-                            presenter.onHelloWorld(CompileMassageControl(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
                         }
                         try {
                             Thread.sleep(delay);
@@ -1356,11 +1328,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                         try {
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
-                            // System.err.println("ChatActivity--------> angleBigFingerTransfer2: "+ intValueFinger6Angle);
                         numberFinger = 6;
                         if(flagUseHDLCProtocol){
                             presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
-                            // System.err.println("ChatActivity--------> Угол шестой степени: "+intValueFinger6Angle);
                         }else {
                             presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
                         }
@@ -1370,9 +1340,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(CompileMassageControlHDLC(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
                         } else {
-                            presenter.onHelloWorld(CompileMassageControl(numberFinger));
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
                         }
                         try {
                             Thread.sleep(delay);
@@ -1412,27 +1382,11 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                                         (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
                                     if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){
                                         System.err.println("запрос обновления графиков");
-                                        presenter.onHelloWorld(CompileMassageMainDataHDLC());
+                                        presenter.onHelloWorld(mMassages.CompileMassageMainDataHDLC());
                                     }
                                     flagReceptionExpectation = true;
-//                                    if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST)
-//                                    {
-//                                        showToast("пропуск команды обновления");
-//                                    }
                                     numberCycle = 0;
                                 }
-//                                else {
-//                                    if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST-1)
-//                                    {
-//                                        System.err.println(
-//                                                "SKIP \n"+
-//                                                "isEnable="+isEnable+" должно быть true \n"+
-//                                                "flagReceptionExpectation="+flagReceptionExpectation+" должен быть false \n"+
-//                                                "flagReadStartParametrsHDLC="+flagReadStartParametrsHDLC+" должен быть false \n"+
-//                                                "flagUseHDLCProcol="+flagUseHDLCProcol+" должен быть true \n"+
-//                                                "numberCycle="+numberCycle+" должен быть от 1 до "+ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST );
-//                                    }
-//                                }
                             }
                         }
                     });
@@ -1519,49 +1473,49 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 return true;
             case R.id.action_Trigger1:
                 if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(1));
+                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(1));
                 } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(1));
+                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(1));
                 }
                 saveVariable( deviceName+"action_Trigger", 1);
                 return true;
             case R.id.action_Trigger2:
                 if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(2));
+                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(2));
                 } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(2));
+                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(2));
                 }
                 saveVariable( deviceName+"action_Trigger", 2);
                 return true;
             case R.id.action_Trigger3:
                 if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(3));
+                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(3));
                 } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(3));
+                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(3));
                 }
                 saveVariable( deviceName+"action_Trigger", 3);
                 return true;
             case R.id.action_Trigger8:
                 if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(8));
+                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(8));
                 } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(8));
+                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(8));
                 }
                 saveVariable( deviceName+"action_Trigger", 4);
                 return true;
             case R.id.action_Trigger9:
                 if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(9));
+                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(9));
                 } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(9));
+                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(9));
                 }
                 saveVariable( deviceName+"action_Trigger", 5);
                 return true;
             case R.id.action_Trigger10:
                 if(flagUseHDLCProtocol){
-                    pauseSendingThread(CompileMassageTriggerModHDLC(10));
+                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(10));
                 } else {
-                    presenter.onHelloWorld(CompileMassageTriggerMod(10));
+                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(10));
                 }
                 saveVariable( deviceName+"action_Trigger", 6);
                 return true;
@@ -1648,7 +1602,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                                     && (flagUseHDLCProtocol) &&(!flagReadStartParametersHDLC) &&
                                     (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
                                 System.err.println("запрос обновления сервисных настроек");
-                                presenter.onHelloWorld(CompileMassageMainDataHDLC());
+                                presenter.onHelloWorld(mMassages.CompileMassageMainDataHDLC());
                                 flagReceptionExpectation = true;
                                 if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST)
                                 {showToast(getString(R.string.admission_of_inquiry_of_updating));}
@@ -1677,6 +1631,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     }
 
 
+    //////////////////////////////////////////////////////////////////////////////
+    /**                           геттеры сеттеры                              **/
+    //////////////////////////////////////////////////////////////////////////////
     @Override
     public void setStatus(String status) {}
     @Override
@@ -1875,6 +1832,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public void setErrorReception (boolean incomeErrorReception) {
         errorReception = incomeErrorReception;
     }
+    public void setReceiveRoughnessOfSensors(byte receiveRoughnessOfSensors) {
+        this.receiveRoughnessOfSensors = receiveRoughnessOfSensors;
+    }
     public void getNameFromDevice(BluetoothDevice device){
         deviceName = device.getName();
     }
@@ -1887,59 +1847,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     }
     public boolean getFlagUseHDLCProtocol() {
         return flagUseHDLCProtocol;
-    }
-
-
-    @Override
-    public void enableInterface(boolean enabled) {
-        isEnable = enabled;
-        helloWorld.setEnabled(enabled);
-        helloWorld2.setEnabled(enabled);
-        seekBarCH1on.setEnabled(enabled);
-        seekBarCH2on.setEnabled(enabled);
-        seekBarCH1on2.setEnabled(enabled);
-        seekBarCH2on2.setEnabled(enabled);
-        switchBlockMode.setEnabled(enabled);
-        switchIlluminationMode.setEnabled(enabled);
-
-        if(!monograbVersion){
-            offUpdate.setEnabled(enabled);
-            activity_chat_gesture1.setEnabled(enabled);
-            activity_chat_gesture2.setEnabled(enabled);
-            activity_chat_gesture3.setEnabled(enabled);
-            activity_chat_gesture4.setEnabled(enabled);
-        } else {
-            seekBarIStop.setEnabled(enabled);
-        }
-        this.runOnUi = true;
-        if(isEnable){
-            if(showMenu){myMenu.setGroupVisible(R.id.service_settings, true);}
-            transferThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if(flagUseHDLCProtocol){
-                        try {
-                            Thread.sleep(20);
-                        }catch (Exception ignored){}
-                        if(firstRead){
-                            setStartTrig();
-//                            presenter.onHelloWorld(testCRC());
-                            if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){requestStartTrig1Thread ();}
-                        }
-                    } else {
-                        try {
-                            Thread.sleep(20);
-                        }catch (Exception ignored){}
-                        presenter.onHelloWorld(CompileMassageReadStartParameters());
-                        try {
-                            Thread.sleep(500);
-                        }catch (Exception ignored){}
-                        presenter.onHelloWorld(CompileMessageSetGeneralParcel((byte) 0x01));
-                    }
-                }
-            });
-            transferThread.start();
-        }
     }
 
 
@@ -2137,6 +2044,58 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         });
         pauseSendingThread.start();
     }
+    @Override
+    public void enableInterface(boolean enabled) {
+        isEnable = enabled;
+        helloWorld.setEnabled(enabled);
+        helloWorld2.setEnabled(enabled);
+        seekBarCH1on.setEnabled(enabled);
+        seekBarCH2on.setEnabled(enabled);
+        seekBarCH1on2.setEnabled(enabled);
+        seekBarCH2on2.setEnabled(enabled);
+        switchBlockMode.setEnabled(enabled);
+        switchIlluminationMode.setEnabled(enabled);
+
+        if(!monograbVersion){
+            offUpdate.setEnabled(enabled);
+            activity_chat_gesture1.setEnabled(enabled);
+            activity_chat_gesture2.setEnabled(enabled);
+            activity_chat_gesture3.setEnabled(enabled);
+            activity_chat_gesture4.setEnabled(enabled);
+        } else {
+            seekBarIStop.setEnabled(enabled);
+        }
+        this.runOnUi = true;
+        if(isEnable){
+            if(showMenu){myMenu.setGroupVisible(R.id.service_settings, true);}
+            transferThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if(flagUseHDLCProtocol){
+                        try {
+                            Thread.sleep(20);
+                        }catch (Exception ignored){}
+                        if(firstRead){
+                            setStartTrig();
+//                            presenter.onHelloWorld(testCRC());
+                            if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){requestStartTrig1Thread ();}
+                        }
+                    } else {
+                        try {
+                            Thread.sleep(20);
+                        }catch (Exception ignored){}
+                        presenter.onHelloWorld(mMassages.CompileMassageReadStartParameters());
+                        try {
+                            Thread.sleep(500);
+                        }catch (Exception ignored){}
+                        presenter.onHelloWorld(mMassages.CompileMessageSetGeneralParcel((byte) 0x01));
+                    }
+                }
+            });
+            transferThread.start();
+        }
+    }
+
 
     //////////////////////////////////////////////////////////////////////////////
     /**                          работа с графиками                            **/
@@ -2285,305 +2244,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     }
 
 
-    //////////////////////////////////////////////////////////////////////////////
-    /**                      составление блютуз посылок                        **/
-    //////////////////////////////////////////////////////////////////////////////
-//    private byte[] CompileMassageSettings(byte numberFinger, int intValueFingerAngle,
-//                                          int intValueFingerSpeed){
-//        byte[] TextByteTriggerSettings = new byte[8];
-//        TextByteTriggerSettings[0] = 0x03;
-//        TextByteTriggerSettings[1] = numberFinger;
-//        TextByteTriggerSettings[2] = ConstantManager.WRITE;
-//        TextByteTriggerSettings[3] = GESTURE_SETTINGS;
-//        TextByteTriggerSettings[4] = NUMBER_CELL;
-//        TextByteTriggerSettings[5] = (byte) intValueFingerSpeed;
-//        TextByteTriggerSettings[6] = (byte) intValueFingerAngle;
-//        TextByteTriggerSettings[7] = presenter.calculationCRC(TextByteTriggerSettings);
-//        return TextByteTriggerSettings;
-//    }
-//    private byte[] CompileMessageSettingsHDLC(byte numberFinger, int intValueFingerAngle,
-//                                              int intValueFingerSpeed){
-//        byte[] TextByteTriggerSettings = new byte[7];
-//        TextByteTriggerSettings[0] = numberFinger;
-//        TextByteTriggerSettings[1] = ConstantManager.WRITE;
-//        TextByteTriggerSettings[2] = GESTURE_SETTINGS;
-//        TextByteTriggerSettings[3] = NUMBER_CELL;
-//        TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
-//        TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
-//        TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-//        return TextByteTriggerSettings;
-//    }
-//    private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,
-//                                                     int intValueFingerSpeed){
-//        byte[] TextByteTriggerSettings = new byte[7];
-//        if(NUMBER_CELL == 0){
-//            TextByteTriggerSettings[0] = numberFinger;
-//            TextByteTriggerSettings[1] = ConstantManager.WRITE;
-//            TextByteTriggerSettings[2] = GESTURE_SETTINGS;
-//            TextByteTriggerSettings[3] = 0x06;
-//            TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
-//            TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
-//            TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-//        } else {
-//            if(NUMBER_CELL == 2){
-//                TextByteTriggerSettings[0] = numberFinger;
-//                TextByteTriggerSettings[1] = ConstantManager.WRITE;
-//                TextByteTriggerSettings[2] = GESTURE_SETTINGS;
-//                TextByteTriggerSettings[3] = 0x07;
-//                TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
-//                TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
-//                TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-//            } else {
-//                if(NUMBER_CELL == 4){
-//                    TextByteTriggerSettings[0] = numberFinger;
-//                    TextByteTriggerSettings[1] = ConstantManager.WRITE;
-//                    TextByteTriggerSettings[2] = GESTURE_SETTINGS;
-//                    TextByteTriggerSettings[3] = 0x08;
-//                    TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
-//                    TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
-//                    TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-//                }
-//            }
-//        }
-//
-//        return TextByteTriggerSettings;
-//    }
-//    public byte[] CompileMassageSettingsCalibrationHDLC(byte type, byte numberChannel,
-//                                                        byte rec, int inf, byte bSwitch){
-//        switch (rec){
-//            case ConstantManager.READ:
-//                switch (type){
-//                    case ConstantManager.OPEN_ANGEL_CALIB_TYPE:
-//                    case ConstantManager.CLOSE_ANGEL_CALIB_TYPE:
-//                    case ConstantManager.WIDE_ANGEL_CALIB_TYPE:
-//                    case ConstantManager.U_CALIB_TYPE:
-//                        byte[] TextByteTriggerSettings = new byte[4];
-//                        TextByteTriggerSettings[0] = numberChannel;
-//                        TextByteTriggerSettings[1] = rec;
-//                        TextByteTriggerSettings[2] = type;
-//                        TextByteTriggerSettings[3] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-//                        return TextByteTriggerSettings;
-//                    case ConstantManager.TEMP_CALIB_TYPE:
-//                    case ConstantManager.CURRENTS_CALIB_TYPE:
-//                        byte[] TextByteTriggerSettings2 = new byte[5];
-//                        TextByteTriggerSettings2[0] = numberChannel;
-//                        TextByteTriggerSettings2[1] = rec;
-//                        TextByteTriggerSettings2[2] = type;
-//                        TextByteTriggerSettings2[3] = (byte) inf;
-//                        TextByteTriggerSettings2[4] = presenter.calculationCRC_HDLC(TextByteTriggerSettings2);
-//                        return TextByteTriggerSettings2;
-//                }
-//            case ConstantManager.WRITE:
-//                switch (type){
-//                    case ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE:
-//                    case ConstantManager.SPEED_CALIB_TYPE:
-//                    case ConstantManager.ANGLE_CALIB_TYPE:
-//                    case ConstantManager.ETE_CALIBRATION_CALIB_TYPE:
-//                    case ConstantManager.EEPROM_SAVE_CALIB_TYPE:
-//                    case ConstantManager.ANGLE_FIX_CALIB_TYPE:
-//                    case ConstantManager.SET_ADDR_CALIB_TYPE:
-//                    case ConstantManager.TEMP_CALIB_TYPE:
-//                    case ConstantManager.CURRENT_TIMEOUT_CALIB_TYPE:
-//                    case ConstantManager.OPEN_ANGEL_CALIB_TYPE:
-//                    case ConstantManager.CLOSE_ANGEL_CALIB_TYPE:
-//                    case ConstantManager.MAGNET_INVERT_CALIB_TYPE:
-//                    case ConstantManager.REVERS_MOTOR_CALIB_TYPE:
-//                    case ConstantManager.ZERO_CROSSING_CALIB_TYPE:
-//                        byte[] TextByteTriggerSettings = new byte[5];
-//                        TextByteTriggerSettings[0] = numberChannel;
-//                        TextByteTriggerSettings[1] = rec;
-//                        TextByteTriggerSettings[2] = type;
-//                        TextByteTriggerSettings[3] = (byte) inf;
-//                        TextByteTriggerSettings[4] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-//                        return TextByteTriggerSettings;
-//                    case ConstantManager.WIDE_ANGEL_CALIB_TYPE:
-//                        byte[] TextByteTriggerSettings2 = new byte[6];
-//                        TextByteTriggerSettings2[0] = numberChannel;
-//                        TextByteTriggerSettings2[1] = rec;
-//                        TextByteTriggerSettings2[2] = type;
-//                        TextByteTriggerSettings2[3] = (byte) (inf >> 8);
-//                        TextByteTriggerSettings2[4] = (byte) inf;
-//                        TextByteTriggerSettings2[5] = presenter.calculationCRC_HDLC(TextByteTriggerSettings2);
-//                        return TextByteTriggerSettings2;
-//                    case ConstantManager.CURRENT_CONTROL_CALIB_TYPE:
-//                        byte[] TextByteTriggerSettings3 = new byte[7];
-//                        TextByteTriggerSettings3[0] = numberChannel;
-//                        TextByteTriggerSettings3[1] = rec;
-//                        TextByteTriggerSettings3[2] = type;
-//                        TextByteTriggerSettings3[3] = bSwitch;
-//                        TextByteTriggerSettings3[4] = (byte) (inf >> 8);
-//                        TextByteTriggerSettings3[5] = (byte)  inf;
-//                        TextByteTriggerSettings3[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings3);
-//                        return TextByteTriggerSettings3;
-//                }
-//            default:
-//                return TextByteTriggerSettings;
-//        }
-//    }
-    public void CompileMassageControlComplexGesture(int GESTURE_NUMBER){
-        TextByteTriggerControlComplexGesture[0] = 0x06;
-        TextByteTriggerControlComplexGesture[1] = (byte) GESTURE_NUMBER;
-    }
-    private byte[] CompileMassageControl(byte numberFinger){
-        TextByteTriggerControl[0] = 0x05;
-        TextByteTriggerControl[1] = numberFinger;
-        TextByteTriggerControl[2] = 0x02;
-        TextByteTriggerControl[3] = 0x14;
-        TextByteTriggerControl[4] = NUMBER_CELL;
-        TextByteTriggerControl[5] = presenter.calculationCRC(TextByteTriggerControl);
-        return TextByteTriggerControl;
-    }
-    private byte[] CompileMassageControlHDLC(byte numberFinger){
-        TextByteHDLC5[0] = numberFinger;
-        TextByteHDLC5[1] = 0x02;
-        TextByteHDLC5[2] = 0x14;
-        TextByteHDLC5[3] = NUMBER_CELL;
-        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
-        return TextByteHDLC5;
-    }
-    private byte[] CompileMassageTriggerMod(int Trigger_id){
-        TextByteTriggerMod[0] = 0x08;
-        TextByteTriggerMod[1] = (byte) Trigger_id;
-        System.out.println("Trigger mod:" + Trigger_id);
-        return TextByteTriggerMod;
-    }
-    private byte[] CompileMassageTriggerModHDLC(int Trigger_id){
-        TextByteHDLC5[0] = ConstantManager.ADDR_TRIG_MODE;
-        TextByteHDLC5[1] = ConstantManager.WRITE;
-        TextByteHDLC5[2] = BluetoothConstantManager.TRIG_MODE_HDLC;
-        TextByteHDLC5[3] = (byte) Trigger_id;
-        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
-        return TextByteHDLC5;
-    }
-    private byte[] CompileMassageMainDataHDLC(){
-        TextByteHDLC4[0] = ConstantManager.ADDR_MAIN_DATA;
-        TextByteHDLC4[1] = ConstantManager.READ;
-        TextByteHDLC4[2] = BluetoothConstantManager.CURR_MAIN_DATA_HDLC;
-        TextByteHDLC4[3] = presenter.calculationCRC_HDLC(TextByteHDLC4);
-        return TextByteHDLC4;
-    }
-    private byte[] CompileMassageSensorActivate(int numberSensor){
-        TextByteSensorActivate[0] = 0x09;
-        TextByteSensorActivate[1] = (byte) numberSensor;
-        return TextByteSensorActivate;
-    }
-    private byte[] CompileMassageSensorActivateHDLC(){
-        TextByteHDLC5[0] = ConstantManager.ADDR_ENDPOINT_POSITION;
-        TextByteHDLC5[1] = ConstantManager.WRITE;
-        TextByteHDLC5[2] = BluetoothConstantManager.ENDPOINT_POSITION;
-        TextByteHDLC5[3] = BluetoothConstantManager.NOP;
-        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
-        return TextByteHDLC5;
-    }
-    private byte[] CompileMassageSensorActivate2HDLC(byte cell){
-        TextByteHDLC5[0] = ConstantManager.ADDR_BRODCAST;
-        TextByteHDLC5[1] = ConstantManager.WRITE;
-        TextByteHDLC5[2] = BluetoothConstantManager.MOVE_HDLC;
-        TextByteHDLC5[3] = cell;
-        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
-        return TextByteHDLC5;
-    }
-    public byte[] CompileMassageSettingsNotUseInternalADCHDLC(byte notUse){
-        TextByteHDLC5[0] = ConstantManager.ADDR_SOURCE_ADC;
-        TextByteHDLC5[1] = ConstantManager.WRITE;
-        TextByteHDLC5[2] = BluetoothConstantManager.ADC_SOURCE_HDLC;
-        TextByteHDLC5[3] = notUse;
-        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
-        return TextByteHDLC5;
-    }
-    public byte[] CompileMassageCurrentSettingsAndInvert(int Current, byte Invert) {
-        TextByteTriggerCurrentSettingsAndInvert[0] = 0x0B;
-        TextByteTriggerCurrentSettingsAndInvert[1] = (byte) Current;
-        TextByteTriggerCurrentSettingsAndInvert[2] = (byte) (Current >> 8);
-        TextByteTriggerCurrentSettingsAndInvert[3] = Invert;
-        return TextByteTriggerCurrentSettingsAndInvert;
-    }
-    public byte[] CompileMassageCurrentSettingsAndInvertHDLC(int Current) {
-        TextByteHDLC6[0] = ConstantManager.ADDR_CUR_LIMIT;
-        TextByteHDLC6[1] = ConstantManager.WRITE;
-        TextByteHDLC6[2] = BluetoothConstantManager.CURR_LIMIT_HDLC;
-        TextByteHDLC6[3] = (byte) Current;
-        TextByteHDLC6[4] = (byte) (Current >> 8);
-        TextByteHDLC6[5] = presenter.calculationCRC_HDLC(TextByteHDLC6);
-        return TextByteHDLC6;
-    }
-    private byte[] CompileMessageSetGeneralParcel (byte turningOn){
-        TextByteSetGeneralParcel[0] = 0x0C;
-        TextByteSetGeneralParcel[1] = turningOn;
-        return TextByteSetGeneralParcel;
-    }
-    private byte[] CompileMassageReadStartParameters() {
-        TextByteReadStartParameters[0] = 0x0D;
-        TextByteReadStartParameters[1] = 0x00;
-        return TextByteReadStartParameters;
-    }
-    private byte[] CompileMassageBlockMode(byte onBlockMode) {
-        TextByteSetBlockMode[0] = 0x0E;
-        TextByteSetBlockMode[1] = onBlockMode; // 0x01 on     0x00 off
-        return TextByteSetBlockMode;
-    }
-    private byte[] CompileMassageIlluminationMode(boolean onIlluminationMode) {
-        byte[] TextByteSetIlluminationMode;
-        if (onIlluminationMode) {
-            TextByteSetIlluminationMode = new byte[] {(byte) 0xF9, 0x02, 0x24, 0x00, 0x08,
-                    (byte) 0xFF, 0x00, 0x00, (byte) 0xFF, 0x00,
-                    0x00, (byte) 0xFF, 0x00, 0x00, (byte) 0xFF,
-                    0x00, 0x00, (byte) 0xFF, 0x00, 0x00,
-                    (byte) 0xFF, 0x00, 0x00, (byte) 0xFF, 0x00,
-                    0x00, (byte) 0xFF, 0x00, 0x00, 0x7B};
-        }else {
-            TextByteSetIlluminationMode = new byte[] {(byte) 0xF9, 0x02, 0x24, 0x00, 0x08,
-                    0x00, 0x00, 0x00, 0x00, 0x00,
-                    0x00, 0x00, 0x00, 0x00, 0x00,
-                    0x00, 0x00, 0x00, 0x00, 0x00,
-                    0x00, 0x00, 0x00, 0x00, 0x00,
-                    0x00, 0x00, 0x00, (byte) 0x9C};
-        }
-        return TextByteSetIlluminationMode;
-    }
-    private byte[] CompileMassageBlockModeHDLC(byte onBlockMode) {
-        TextByteHDLC5[0] = ConstantManager.ADDR_BLOCK;
-        TextByteHDLC5[1] = ConstantManager.WRITE;
-        TextByteHDLC5[2] = BluetoothConstantManager.BLOCK_ON_OFF_HDLC;
-        TextByteHDLC5[3] = onBlockMode; // 0x01 on     0x00 off
-        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
-        return TextByteHDLC5;
-    }
-    public byte[] CompileMassageSwitchGesture(byte openGesture, byte closeGesture) {
-        System.err.println("ChatActivity----> укомпановали байт массив");
-        TextByteSetSwitchGesture[0] = 0x0F;
-        TextByteSetSwitchGesture[1] = openGesture;
-        TextByteSetSwitchGesture[2] = closeGesture;
-        return TextByteSetSwitchGesture;
-    }
-    public byte[] CompileMassageSwitchGestureHDLC(byte numGesture) {
-        TextByteHDLC5[0] = (byte) 0xFA;
-        TextByteHDLC5[1] = (byte) 0x02;
-        TextByteHDLC5[2] = (byte) 0x34;
-        TextByteHDLC5[3] = numGesture;
-        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
-        return TextByteHDLC5;
-    }
-    public byte[] CompileMassageRoughness(byte roughness) {
-        TextByteSetRoughness[0] = 0x10;
-        TextByteSetRoughness[1] = roughness; // 0x01 on     0x00 off
-        return TextByteSetRoughness;
-    }
-    public byte[] CompileMassageRoughnessHDLC(byte roughness) {
-        TextByteHDLC5[0] = ConstantManager.ADDR_BUFF_CHOISES;
-        TextByteHDLC5[1] = ConstantManager.WRITE;
-        TextByteHDLC5[2] = BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC;
-        TextByteHDLC5[3] = roughness;
-        TextByteHDLC5[4] = presenter.calculationCRC_HDLC(TextByteHDLC5);
-        receiveRoughnessOfSensors = roughness;
-        saveVariable( deviceName+"receiveRoughnessOfSensors", (int) receiveRoughnessOfSensors);
-        return TextByteHDLC5;
-    }
-    public void TranslateMassageControlComplexGesture(){
-        presenter.onHelloWorld(TextByteTriggerControlComplexGesture);
-    }
-
-
     @Override
     public void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -2644,17 +2304,17 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         Thread gestureUseThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
+                pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC(fakeCellGesture));
                 System.out.println("ChartActivity--------------> выход на жест ");
                 try {
                     Thread.sleep(delayPauseAfterSending);
                 } catch (Exception ignored) {}
-                pauseSendingThread(CompileMassageSensorActivate2HDLC(fakeCellGesture));
+                pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC(fakeCellGesture));
                 System.out.println("ChartActivity--------------> выход на жест ");
                 try {
                     Thread.sleep(delayPauseAfterSending);
                 } catch (Exception ignored) {}
-                pauseSendingThread(CompileMassageSwitchGestureHDLC(cellNumGesture));
+                pauseSendingThread(mMassages.CompileMassageSwitchGestureHDLC(cellNumGesture));
                 System.out.println("ChartActivity--------------> применение жеста");
             }
         });

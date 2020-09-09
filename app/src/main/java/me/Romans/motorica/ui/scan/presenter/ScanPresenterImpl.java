@@ -51,7 +51,6 @@ public class ScanPresenterImpl implements ScanPresenter{
         positionPairDevice = 0;
         if(interactor.isBluetoothEnabled()){
             startScanning();
-            Log.e(TAG, "ScanPresenter--------------> showPairedList: onStart");
             pairedDeviceNames = interactor.getPairedDevices();
             view.showPairedList(pairedDeviceNames);
             pauseCheckDevicesThread(5000);
@@ -70,7 +69,6 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void startScanning() {
-        Log.e(TAG,"ScanPresenter--------------> startScanning");
         view.clearScanList();
         view.showProgress(true);
         view.enableScanButton(false);
@@ -82,7 +80,6 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void scanItemClick(int position, String name) {
-        Log.e(TAG, "ScanPresenter--------------> scanItemClick position: "+position+" flagDiscovering: "+flagDiscovering+" firstScanClick: "+firstScanClick+" flagCheckingNow: "+flagCheckingNow);
         if(firstScanClick){//исключение многоразавого нажатия на отсканированные давайсы
             if(flagDiscovering){//для отсечения ошибки клика по сканлисту после завершения сканирования
                 canceledDiscovery = true;
@@ -123,15 +120,12 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void itemClick(int position) {
-        Log.e(TAG, "ScanPresenter--------------> itemClick position:"+position);
         if (view.getMyScanList() != null){
             String typeDevice = view.getMyScanList().get(position).getTitle().split(":")[1];
             if(typeDevice.equals("p")){
-                Log.e(TAG, "ScanPresenter--------------> p element position "+position);
                 pairedItemClick(position);
             } else {
                 if(typeDevice.equals("s")){
-                    Log.e(TAG, "ScanPresenter--------------> s element position "+Integer.parseInt(view.getMyScanList().get(position).getTitle().split(":")[2])+"- interactor.getPairedDevices().size() "+ pairedDeviceNames.size()+"="+(position- pairedDeviceNames.size()));
                     scanItemClick(Integer.parseInt(view.getMyScanList().get(position).getTitle().split(":")[2]), view.getMyScanList().get(position).getTitle().split(":")[0]);
                 }
             }
@@ -220,9 +214,6 @@ public class ScanPresenterImpl implements ScanPresenter{
         @Override
         public void onDeviceFound(BluetoothDevice device) {
             boolean check = checkOurName(device.getName()+":s:"+scanListPosition);
-            Log.e(TAG, "ScanPresenter--------------> onDeviceFound Name: "+device.getName()+" checkOurName: "+check);
-            Log.e(TAG, "ScanPresenter--------------> onDeviceFound Address: "+device.getAddress());
-            Log.e(TAG, "ScanPresenter--------------> onDeviceFound Type: "+device.getType());
 
             if(check){//проверяет соответствие серийника найденного устройства соответствию нашим серийникам
                 boolean equals = false;
@@ -240,8 +231,6 @@ public class ScanPresenterImpl implements ScanPresenter{
                         List<ScanItem> scanItemList = view.getMyScanList();
                         boolean canAdd = true;
                         for(int i=0; i<scanItemList.size(); i++){//проверяет есть ли в списке отсканированных устройств вновь найденное
-                            Log.e(TAG, "ScanPresenter--------------> Check Name: "+device.getName()+"   добавляем? "+!scanItemList.get(i).getTitle().split(":")[0].equals(device.getName()));
-                            Log.e(TAG, "ScanPresenter--------------> Check Name: "+scanItemList.get(i).getTitle()+" equals s and "+device.getName());
                             if(scanItemList.get(i).getTitle().split(":")[1].equals("s")){
                                 if(scanItemList.get(i).getTitle().split(":")[0].equals(device.getName())){
                                     canAdd = false;
@@ -284,7 +273,6 @@ public class ScanPresenterImpl implements ScanPresenter{
         @Override
         public void onBluetoothOn() {
             startScanning();
-            Log.e(TAG, "ScanPresenter--------------> showPairedList: onBluetoothOn");
             view.showPairedList(interactor.getPairedDevices());
         }
 
@@ -320,7 +308,6 @@ public class ScanPresenterImpl implements ScanPresenter{
     }
 
     public void setStartFlags (String deviceName){
-        Log.e(TAG,"ScanPresenter--------------> УСТАНАВЛИВАЕМ ФЛАГИ");
         if(     deviceName.split("-")[0].equals("MLT") ||
                 deviceName.split("-")[0].equals("FNG") ||
                 deviceName.split("-")[0].equals("FNS") ||
@@ -388,9 +375,7 @@ public class ScanPresenterImpl implements ScanPresenter{
     private void checkDevices(){
         BluetoothDevice device = interactor.getPairedDevice(checkDevicePosition);
         if (device != null) {
-            Log.e(TAG, "ScanPresenter--------------> checkOurName: "+checkOurName(device.getName()));
             if(checkOurName(device.getName())){
-                Log.e(TAG, "ScanPresenter--------------> ВЫЗОВ ЧЕК ДЕВАЙСА");
                 flagCheckingNow = true;
                 interactor.checkAvailableDevice(device, communicationCallback);
                 checkDevicePosition++;
@@ -408,7 +393,6 @@ public class ScanPresenterImpl implements ScanPresenter{
                 try {
                     Thread.sleep(pauseTime);
                 }catch (Exception ignored){}
-                Log.e(TAG, "ScanPresenter--------------> НАЧАЛО checkDevices");
                 checkDevices();
             }
         });

@@ -18,6 +18,7 @@ import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChartView;
+import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
 
 public class FragmentServiceSettingsMono extends Fragment implements ChartView {
     @BindView(R.id.save_service_settings) Button save_service_settings;
@@ -30,6 +31,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
     public View view;
     private ChartActivity chatActivity;
     private int maxCurrent = 1500;
+    Massages mMassages = new Massages();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -81,12 +83,14 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                byte roughness = (byte) (((byte) seekBar.getProgress()) + 1);
                 if(chatActivity.getFlagUseHDLCProtocol()){
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageRoughnessHDLC((byte) (((byte) seekBar.getProgress()) + 1)));
+                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageRoughnessHDLC(roughness));
                 } else {
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageRoughness((byte) (((byte) seekBar.getProgress()) + 1)));
-                    chatActivity.receiveRoughnessOfSensors = (byte) seekBar.getProgress();
+                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageRoughness(roughness));
                 }
+                chatActivity.setReceiveRoughnessOfSensors(roughness);
+                chatActivity.saveVariable( chatActivity.deviceName+"receiveRoughnessOfSensors", (int) roughness);
             }
         });
 
@@ -96,14 +100,14 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
                 System.err.println("FragmentServiceSettings-------------->");
                 if (switchInvert.isChecked()){
                     chatActivity.invert = 0x01;
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     int temp = chatActivity.intValueCH1on;
                     chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.invertChannel = true;
                 } else {
                     chatActivity.invert = 0x00;
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     int temp = chatActivity.intValueCH1on;
                     chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
@@ -130,9 +134,9 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
                 valueIStop.setText(String.valueOf(seekBar.getProgress()));
                 chatActivity.current = seekBar.getProgress();
                 if(chatActivity.getFlagUseHDLCProtocol()){
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvertHDLC(chatActivity.current));
+                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvertHDLC(chatActivity.current));
                 } else {
-                    chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                 }
             }
         });
@@ -143,12 +147,12 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
                 if (switchNotUseInternalADC.isChecked()){
                     if(chatActivity.getFlagUseHDLCProtocol()){
                         System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 0");
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x00));
+                        chatActivity.presenter.onHelloWorld(mMassages.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x00));
                     }
                 } else {
                     if(chatActivity.getFlagUseHDLCProtocol()){
                         System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 1");
-                        chatActivity.presenter.onHelloWorld(chatActivity.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x01));
+                        chatActivity.presenter.onHelloWorld(mMassages.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x01));
                     }
                 }
             }

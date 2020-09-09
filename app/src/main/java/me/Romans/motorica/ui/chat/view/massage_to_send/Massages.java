@@ -4,6 +4,7 @@ package me.Romans.motorica.ui.chat.view.massage_to_send;
 import android.app.Activity;
 import android.content.Intent;
 
+import me.Romans.bluetooth.BluetoothConstantManager;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
 import me.Romans.motorica.utils.ConstantManager;
 
@@ -147,6 +148,185 @@ public class Massages implements ChatPresenter {
                 return TextByteTriggerSettings4;
         }
     }
+    public byte[] CompileMassageControlComplexGesture(int GESTURE_NUMBER){
+        byte[] TextByteTriggerSettings = new byte[2];
+        TextByteTriggerSettings[0] = 0x06;
+        TextByteTriggerSettings[1] = (byte) GESTURE_NUMBER;
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageControl(byte numberFinger){
+        byte[] TextByteTriggerSettings = new byte[6];
+        TextByteTriggerSettings[0] = 0x05;
+        TextByteTriggerSettings[1] = numberFinger;
+        TextByteTriggerSettings[2] = 0x02;
+        TextByteTriggerSettings[3] = 0x14;
+        TextByteTriggerSettings[4] = NUMBER_CELL;
+        TextByteTriggerSettings[5] = calculationCRC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageControlHDLC(byte numberFinger){
+        byte[] TextByteTriggerSettings = new byte[5];
+        TextByteTriggerSettings[0] = numberFinger;
+        TextByteTriggerSettings[1] = 0x02;
+        TextByteTriggerSettings[2] = 0x14;
+        TextByteTriggerSettings[3] = NUMBER_CELL;
+        TextByteTriggerSettings[4] = calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageTriggerMod(int Trigger_id){
+        byte[] TextByteTriggerSettings = new byte[2];
+        TextByteTriggerSettings[0] = 0x08;
+        TextByteTriggerSettings[1] = (byte) Trigger_id;
+        System.out.println("Trigger mod:" + Trigger_id);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageTriggerModHDLC(int Trigger_id){
+        byte[] TextByteTriggerSettings = new byte[5];
+        TextByteTriggerSettings[0] = ConstantManager.ADDR_TRIG_MODE;
+        TextByteTriggerSettings[1] = ConstantManager.WRITE;
+        TextByteTriggerSettings[2] = BluetoothConstantManager.TRIG_MODE_HDLC;
+        TextByteTriggerSettings[3] = (byte) Trigger_id;
+        TextByteTriggerSettings[4] = calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageMainDataHDLC(){
+        byte[] TextByteTriggerSettings = new byte[4];
+        TextByteTriggerSettings[0] = ConstantManager.ADDR_MAIN_DATA;
+        TextByteTriggerSettings[1] = ConstantManager.READ;
+        TextByteTriggerSettings[2] = BluetoothConstantManager.CURR_MAIN_DATA_HDLC;
+        TextByteTriggerSettings[3] = calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageSensorActivate(int numberSensor){
+        byte[] TextByteTriggerSettings = new byte[4];
+        TextByteTriggerSettings[0] = 0x09;
+        TextByteTriggerSettings[1] = (byte) numberSensor;
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageSensorActivateHDLC(){
+        byte[] TextByteTriggerSettings = new byte[5];
+        TextByteTriggerSettings[0] = ConstantManager.ADDR_ENDPOINT_POSITION;
+        TextByteTriggerSettings[1] = ConstantManager.WRITE;
+        TextByteTriggerSettings[2] = BluetoothConstantManager.ENDPOINT_POSITION;
+        TextByteTriggerSettings[3] = BluetoothConstantManager.NOP;
+        TextByteTriggerSettings[4] = calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageSensorActivate2HDLC(byte cell){
+        byte[] TextByteTriggerSettings = new byte[5];
+        TextByteTriggerSettings[0] = ConstantManager.ADDR_BRODCAST;
+        TextByteTriggerSettings[1] = ConstantManager.WRITE;
+        TextByteTriggerSettings[2] = BluetoothConstantManager.MOVE_HDLC;
+        TextByteTriggerSettings[3] = cell;
+        TextByteTriggerSettings[4] = calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageSettingsNotUseInternalADCHDLC(byte notUse){
+        byte[] TextByteTriggerSettings = new byte[5];
+        TextByteTriggerSettings[0] = ConstantManager.ADDR_SOURCE_ADC;
+        TextByteTriggerSettings[1] = ConstantManager.WRITE;
+        TextByteTriggerSettings[2] = BluetoothConstantManager.ADC_SOURCE_HDLC;
+        TextByteTriggerSettings[3] = notUse;
+        TextByteTriggerSettings[4] = calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageCurrentSettingsAndInvert(int Current, byte Invert) {
+        byte[] TextByteTriggerSettings = new byte[4];
+        TextByteTriggerSettings[0] = 0x0B;
+        TextByteTriggerSettings[1] = (byte) Current;
+        TextByteTriggerSettings[2] = (byte) (Current >> 8);
+        TextByteTriggerSettings[3] = Invert;
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageCurrentSettingsAndInvertHDLC(int Current) {
+        byte[] TextByteTriggerSettings = new byte[6];
+        TextByteTriggerSettings[0] = ConstantManager.ADDR_CUR_LIMIT;
+        TextByteTriggerSettings[1] = ConstantManager.WRITE;
+        TextByteTriggerSettings[2] = BluetoothConstantManager.CURR_LIMIT_HDLC;
+        TextByteTriggerSettings[3] = (byte) Current;
+        TextByteTriggerSettings[4] = (byte) (Current >> 8);
+        TextByteTriggerSettings[5] = calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMessageSetGeneralParcel (byte turningOn){
+        byte[] TextByteTriggerSettings = new byte[2];
+        TextByteTriggerSettings[0] = 0x0C;
+        TextByteTriggerSettings[1] = turningOn;
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageReadStartParameters() {
+        byte[] TextByteTriggerSettings = new byte[2];
+        TextByteTriggerSettings[0] = 0x0D;
+        TextByteTriggerSettings[1] = 0x00;
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageBlockMode(byte onBlockMode) {
+        byte[] TextByteTriggerSettings = new byte[2];
+        TextByteTriggerSettings[0] = 0x0E;
+        TextByteTriggerSettings[1] = onBlockMode; // 0x01 on     0x00 off
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageIlluminationMode(boolean onIlluminationMode) {
+        byte[] TextByteSetIlluminationMode;
+        if (onIlluminationMode) {
+            TextByteSetIlluminationMode = new byte[] {(byte) 0xF9, 0x02, 0x24, 0x00, 0x08,
+                    (byte) 0xFF, 0x00, 0x00, (byte) 0xFF, 0x00,
+                    0x00, (byte) 0xFF, 0x00, 0x00, (byte) 0xFF,
+                    0x00, 0x00, (byte) 0xFF, 0x00, 0x00,
+                    (byte) 0xFF, 0x00, 0x00, (byte) 0xFF, 0x00,
+                    0x00, (byte) 0xFF, 0x00, 0x00, 0x7B};
+        }else {
+            TextByteSetIlluminationMode = new byte[] {(byte) 0xF9, 0x02, 0x24, 0x00, 0x08,
+                    0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, (byte) 0x9C};
+        }
+        return TextByteSetIlluminationMode;
+    }
+    public byte[] CompileMassageBlockModeHDLC(byte onBlockMode) {
+        byte[] TextByteTriggerSettings = new byte[5];
+        TextByteTriggerSettings[0] = ConstantManager.ADDR_BLOCK;
+        TextByteTriggerSettings[1] = ConstantManager.WRITE;
+        TextByteTriggerSettings[2] = BluetoothConstantManager.BLOCK_ON_OFF_HDLC;
+        TextByteTriggerSettings[3] = onBlockMode; // 0x01 on     0x00 off
+        TextByteTriggerSettings[4] = calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageSwitchGesture(byte openGesture, byte closeGesture) {
+        byte[] TextByteTriggerSettings = new byte[3];
+        TextByteTriggerSettings[0] = 0x0F;
+        TextByteTriggerSettings[1] = openGesture;
+        TextByteTriggerSettings[2] = closeGesture;
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageSwitchGestureHDLC(byte numGesture) {
+        byte[] TextByteTriggerSettings = new byte[5];
+        TextByteTriggerSettings[0] = (byte) 0xFA;
+        TextByteTriggerSettings[1] = (byte) 0x02;
+        TextByteTriggerSettings[2] = (byte) 0x34;
+        TextByteTriggerSettings[3] = numGesture;
+        TextByteTriggerSettings[4] = calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageRoughness(byte roughness) {
+        byte[] TextByteTriggerSettings = new byte[5];
+        TextByteTriggerSettings[0] = 0x10;
+        TextByteTriggerSettings[1] = roughness; // 0x01 on     0x00 off
+        return TextByteTriggerSettings;
+    }
+    public byte[] CompileMassageRoughnessHDLC(byte roughness) {
+        byte[] TextByteTriggerSettings = new byte[5];
+        TextByteTriggerSettings[0] = ConstantManager.ADDR_BUFF_CHOISES;
+        TextByteTriggerSettings[1] = ConstantManager.WRITE;
+        TextByteTriggerSettings[2] = BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC;
+        TextByteTriggerSettings[3] = roughness;
+        TextByteTriggerSettings[4] = calculationCRC_HDLC(TextByteTriggerSettings);
+        return TextByteTriggerSettings;
+    }
+
+
     @Override
     public void onCreate(Intent intent) {
 

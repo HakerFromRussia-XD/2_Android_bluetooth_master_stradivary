@@ -1246,7 +1246,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger1Angle, 99));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger1Angle, 99));
                         }
                         intValueFinger1AngleLast = intValueFinger1Angle;
                     }
@@ -1272,7 +1272,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger2Angle, 99));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger2Angle, 99));
                         }
                         intValueFinger2AngleLast = intValueFinger2Angle;
                     }
@@ -1298,7 +1298,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger3Angle, 99));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger3Angle, 99));
                         }
                         intValueFinger3AngleLast = intValueFinger3Angle;
                     }
@@ -1324,7 +1324,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger4Angle, 99));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger4Angle, 99));
                         }
                         intValueFinger4AngleLast = intValueFinger4Angle;
                     }
@@ -1350,17 +1350,17 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger5Angle, 99));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger5Angle, 99));
                         }
                         intValueFinger5AngleLast = intValueFinger5Angle;
                         try {
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
-//                        System.err.println("ChatActivity--------> angleBigFingerTransfer2: "+ intValueFinger6Angle);
+                            // System.err.println("ChatActivity--------> angleBigFingerTransfer2: "+ intValueFinger6Angle);
                         numberFinger = 6;
                         if(flagUseHDLCProtocol){
                             presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
-                            //                            System.err.println("ChatActivity--------> Угол шестой степени: "+intValueFinger6Angle);
+                            // System.err.println("ChatActivity--------> Угол шестой степени: "+intValueFinger6Angle);
                         }else {
                             presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
                         }
@@ -1378,7 +1378,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                             Thread.sleep(delay);
                         }catch (Exception ignored){}
                         if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger6Angle, 30));
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger6Angle, 30));
                         }
                         intValueFinger6AngleLast = intValueFinger6Angle;
                     }
@@ -2313,113 +2313,113 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 //        TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
 //        return TextByteTriggerSettings;
 //    }
-    private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,
-                                                     int intValueFingerSpeed){
-        byte[] TextByteTriggerSettings = new byte[7];
-        if(NUMBER_CELL == 0){
-            TextByteTriggerSettings[0] = numberFinger;
-            TextByteTriggerSettings[1] = ConstantManager.WRITE;
-            TextByteTriggerSettings[2] = GESTURE_SETTINGS;
-            TextByteTriggerSettings[3] = 0x06;
-            TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
-            TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
-            TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-        } else {
-            if(NUMBER_CELL == 2){
-                TextByteTriggerSettings[0] = numberFinger;
-                TextByteTriggerSettings[1] = ConstantManager.WRITE;
-                TextByteTriggerSettings[2] = GESTURE_SETTINGS;
-                TextByteTriggerSettings[3] = 0x07;
-                TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
-                TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
-                TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-            } else {
-                if(NUMBER_CELL == 4){
-                    TextByteTriggerSettings[0] = numberFinger;
-                    TextByteTriggerSettings[1] = ConstantManager.WRITE;
-                    TextByteTriggerSettings[2] = GESTURE_SETTINGS;
-                    TextByteTriggerSettings[3] = 0x08;
-                    TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
-                    TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
-                    TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-                }
-            }
-        }
-
-        return TextByteTriggerSettings;
-    }
-    public byte[] CompileMassageSettingsCalibrationHDLC(byte type, byte numberChannel,
-                                                        byte rec, int inf, byte bSwitch){
-        switch (rec){
-            case ConstantManager.READ:
-                switch (type){
-                    case ConstantManager.OPEN_ANGEL_CALIB_TYPE:
-                    case ConstantManager.CLOSE_ANGEL_CALIB_TYPE:
-                    case ConstantManager.WIDE_ANGEL_CALIB_TYPE:
-                    case ConstantManager.U_CALIB_TYPE:
-                        byte[] TextByteTriggerSettings = new byte[4];
-                        TextByteTriggerSettings[0] = numberChannel;
-                        TextByteTriggerSettings[1] = rec;
-                        TextByteTriggerSettings[2] = type;
-                        TextByteTriggerSettings[3] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-                        return TextByteTriggerSettings;
-                    case ConstantManager.TEMP_CALIB_TYPE:
-                    case ConstantManager.CURRENTS_CALIB_TYPE:
-                        byte[] TextByteTriggerSettings2 = new byte[5];
-                        TextByteTriggerSettings2[0] = numberChannel;
-                        TextByteTriggerSettings2[1] = rec;
-                        TextByteTriggerSettings2[2] = type;
-                        TextByteTriggerSettings2[3] = (byte) inf;
-                        TextByteTriggerSettings2[4] = presenter.calculationCRC_HDLC(TextByteTriggerSettings2);
-                        return TextByteTriggerSettings2;
-                }
-            case ConstantManager.WRITE:
-                switch (type){
-                    case ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE:
-                    case ConstantManager.SPEED_CALIB_TYPE:
-                    case ConstantManager.ANGLE_CALIB_TYPE:
-                    case ConstantManager.ETE_CALIBRATION_CALIB_TYPE:
-                    case ConstantManager.EEPROM_SAVE_CALIB_TYPE:
-                    case ConstantManager.ANGLE_FIX_CALIB_TYPE:
-                    case ConstantManager.SET_ADDR_CALIB_TYPE:
-                    case ConstantManager.TEMP_CALIB_TYPE:
-                    case ConstantManager.CURRENT_TIMEOUT_CALIB_TYPE:
-                    case ConstantManager.OPEN_ANGEL_CALIB_TYPE:
-                    case ConstantManager.CLOSE_ANGEL_CALIB_TYPE:
-                    case ConstantManager.MAGNET_INVERT_CALIB_TYPE:
-                    case ConstantManager.REVERS_MOTOR_CALIB_TYPE:
-                    case ConstantManager.ZERO_CROSSING_CALIB_TYPE:
-                        byte[] TextByteTriggerSettings = new byte[5];
-                        TextByteTriggerSettings[0] = numberChannel;
-                        TextByteTriggerSettings[1] = rec;
-                        TextByteTriggerSettings[2] = type;
-                        TextByteTriggerSettings[3] = (byte) inf;
-                        TextByteTriggerSettings[4] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
-                        return TextByteTriggerSettings;
-                    case ConstantManager.WIDE_ANGEL_CALIB_TYPE:
-                        byte[] TextByteTriggerSettings2 = new byte[6];
-                        TextByteTriggerSettings2[0] = numberChannel;
-                        TextByteTriggerSettings2[1] = rec;
-                        TextByteTriggerSettings2[2] = type;
-                        TextByteTriggerSettings2[3] = (byte) (inf >> 8);
-                        TextByteTriggerSettings2[4] = (byte) inf;
-                        TextByteTriggerSettings2[5] = presenter.calculationCRC_HDLC(TextByteTriggerSettings2);
-                        return TextByteTriggerSettings2;
-                    case ConstantManager.CURRENT_CONTROL_CALIB_TYPE:
-                        byte[] TextByteTriggerSettings3 = new byte[7];
-                        TextByteTriggerSettings3[0] = numberChannel;
-                        TextByteTriggerSettings3[1] = rec;
-                        TextByteTriggerSettings3[2] = type;
-                        TextByteTriggerSettings3[3] = bSwitch;
-                        TextByteTriggerSettings3[4] = (byte) (inf >> 8);
-                        TextByteTriggerSettings3[5] = (byte)  inf;
-                        TextByteTriggerSettings3[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings3);
-                        return TextByteTriggerSettings3;
-                }
-            default:
-                return TextByteTriggerSettings;
-        }
-    }
+//    private byte[] CompileMassageSettingsDubbingHDLC(byte numberFinger, int intValueFingerAngle,
+//                                                     int intValueFingerSpeed){
+//        byte[] TextByteTriggerSettings = new byte[7];
+//        if(NUMBER_CELL == 0){
+//            TextByteTriggerSettings[0] = numberFinger;
+//            TextByteTriggerSettings[1] = ConstantManager.WRITE;
+//            TextByteTriggerSettings[2] = GESTURE_SETTINGS;
+//            TextByteTriggerSettings[3] = 0x06;
+//            TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
+//            TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
+//            TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
+//        } else {
+//            if(NUMBER_CELL == 2){
+//                TextByteTriggerSettings[0] = numberFinger;
+//                TextByteTriggerSettings[1] = ConstantManager.WRITE;
+//                TextByteTriggerSettings[2] = GESTURE_SETTINGS;
+//                TextByteTriggerSettings[3] = 0x07;
+//                TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
+//                TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
+//                TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
+//            } else {
+//                if(NUMBER_CELL == 4){
+//                    TextByteTriggerSettings[0] = numberFinger;
+//                    TextByteTriggerSettings[1] = ConstantManager.WRITE;
+//                    TextByteTriggerSettings[2] = GESTURE_SETTINGS;
+//                    TextByteTriggerSettings[3] = 0x08;
+//                    TextByteTriggerSettings[4] = (byte) intValueFingerSpeed;
+//                    TextByteTriggerSettings[5] = (byte) intValueFingerAngle;
+//                    TextByteTriggerSettings[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
+//                }
+//            }
+//        }
+//
+//        return TextByteTriggerSettings;
+//    }
+//    public byte[] CompileMassageSettingsCalibrationHDLC(byte type, byte numberChannel,
+//                                                        byte rec, int inf, byte bSwitch){
+//        switch (rec){
+//            case ConstantManager.READ:
+//                switch (type){
+//                    case ConstantManager.OPEN_ANGEL_CALIB_TYPE:
+//                    case ConstantManager.CLOSE_ANGEL_CALIB_TYPE:
+//                    case ConstantManager.WIDE_ANGEL_CALIB_TYPE:
+//                    case ConstantManager.U_CALIB_TYPE:
+//                        byte[] TextByteTriggerSettings = new byte[4];
+//                        TextByteTriggerSettings[0] = numberChannel;
+//                        TextByteTriggerSettings[1] = rec;
+//                        TextByteTriggerSettings[2] = type;
+//                        TextByteTriggerSettings[3] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
+//                        return TextByteTriggerSettings;
+//                    case ConstantManager.TEMP_CALIB_TYPE:
+//                    case ConstantManager.CURRENTS_CALIB_TYPE:
+//                        byte[] TextByteTriggerSettings2 = new byte[5];
+//                        TextByteTriggerSettings2[0] = numberChannel;
+//                        TextByteTriggerSettings2[1] = rec;
+//                        TextByteTriggerSettings2[2] = type;
+//                        TextByteTriggerSettings2[3] = (byte) inf;
+//                        TextByteTriggerSettings2[4] = presenter.calculationCRC_HDLC(TextByteTriggerSettings2);
+//                        return TextByteTriggerSettings2;
+//                }
+//            case ConstantManager.WRITE:
+//                switch (type){
+//                    case ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE:
+//                    case ConstantManager.SPEED_CALIB_TYPE:
+//                    case ConstantManager.ANGLE_CALIB_TYPE:
+//                    case ConstantManager.ETE_CALIBRATION_CALIB_TYPE:
+//                    case ConstantManager.EEPROM_SAVE_CALIB_TYPE:
+//                    case ConstantManager.ANGLE_FIX_CALIB_TYPE:
+//                    case ConstantManager.SET_ADDR_CALIB_TYPE:
+//                    case ConstantManager.TEMP_CALIB_TYPE:
+//                    case ConstantManager.CURRENT_TIMEOUT_CALIB_TYPE:
+//                    case ConstantManager.OPEN_ANGEL_CALIB_TYPE:
+//                    case ConstantManager.CLOSE_ANGEL_CALIB_TYPE:
+//                    case ConstantManager.MAGNET_INVERT_CALIB_TYPE:
+//                    case ConstantManager.REVERS_MOTOR_CALIB_TYPE:
+//                    case ConstantManager.ZERO_CROSSING_CALIB_TYPE:
+//                        byte[] TextByteTriggerSettings = new byte[5];
+//                        TextByteTriggerSettings[0] = numberChannel;
+//                        TextByteTriggerSettings[1] = rec;
+//                        TextByteTriggerSettings[2] = type;
+//                        TextByteTriggerSettings[3] = (byte) inf;
+//                        TextByteTriggerSettings[4] = presenter.calculationCRC_HDLC(TextByteTriggerSettings);
+//                        return TextByteTriggerSettings;
+//                    case ConstantManager.WIDE_ANGEL_CALIB_TYPE:
+//                        byte[] TextByteTriggerSettings2 = new byte[6];
+//                        TextByteTriggerSettings2[0] = numberChannel;
+//                        TextByteTriggerSettings2[1] = rec;
+//                        TextByteTriggerSettings2[2] = type;
+//                        TextByteTriggerSettings2[3] = (byte) (inf >> 8);
+//                        TextByteTriggerSettings2[4] = (byte) inf;
+//                        TextByteTriggerSettings2[5] = presenter.calculationCRC_HDLC(TextByteTriggerSettings2);
+//                        return TextByteTriggerSettings2;
+//                    case ConstantManager.CURRENT_CONTROL_CALIB_TYPE:
+//                        byte[] TextByteTriggerSettings3 = new byte[7];
+//                        TextByteTriggerSettings3[0] = numberChannel;
+//                        TextByteTriggerSettings3[1] = rec;
+//                        TextByteTriggerSettings3[2] = type;
+//                        TextByteTriggerSettings3[3] = bSwitch;
+//                        TextByteTriggerSettings3[4] = (byte) (inf >> 8);
+//                        TextByteTriggerSettings3[5] = (byte)  inf;
+//                        TextByteTriggerSettings3[6] = presenter.calculationCRC_HDLC(TextByteTriggerSettings3);
+//                        return TextByteTriggerSettings3;
+//                }
+//            default:
+//                return TextByteTriggerSettings;
+//        }
+//    }
     public void CompileMassageControlComplexGesture(int GESTURE_NUMBER){
         TextByteTriggerControlComplexGesture[0] = 0x06;
         TextByteTriggerControlComplexGesture[1] = (byte) GESTURE_NUMBER;

@@ -26,6 +26,7 @@ import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChartView;
+import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
 import me.Romans.motorica.utils.ConstantManager;
 
 import static android.support.constraint.Constraints.TAG;
@@ -73,6 +74,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
     @BindView(R.id.switchCurrentControl) Switch switchCurrentControl;
     public View view;
     private ChartActivity chatActivity;
+    Massages mMassages = new Massages();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -116,7 +118,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                 public void onClick(View v) {
                     if (getActivity() != null) {
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                                                                     ConstantManager.WRITE, 0x00, (byte) 0x00));
                     }
                 }
@@ -126,7 +128,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                 public void onClick(View v) {
                     if (getActivity() != null) {
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.WRITE, 0x02, (byte) 0x00));
                     }
                 }
@@ -136,7 +138,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                 public void onClick(View v) {
                     if (getActivity() != null) {
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.WRITE, 0x01, (byte) 0x00));
                     }
                 }
@@ -150,7 +152,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK SET " + temp);
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.SET_ADDR_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.SET_ADDR_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  temp, (byte) 0x00));
                         }
                     }
@@ -162,7 +164,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK G SETUP");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.TEMP_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.TEMP_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.READ,  0x00, (byte) 0x00));
                     }
                 }
@@ -176,7 +178,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK S SETUP " + temp);
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.TEMP_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.TEMP_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  temp, (byte) 0x00));}
                     }
                 }
@@ -191,7 +193,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                             if (getActivity() != null) {
                                 System.err.println("CLICK CURRENT CONTROL " + temp);
                                 chatActivity.presenter.onHelloWorld(
-                                        chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENT_CONTROL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                        mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENT_CONTROL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                                 ConstantManager.WRITE,  temp, (byte) 0x01));
                             }
                         }
@@ -199,7 +201,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK CURRENT CONTROL OFF");
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENT_CONTROL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENT_CONTROL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  0x00, (byte) 0x00));
                         }
                     }
@@ -214,7 +216,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK CURRENT TIMEOUT " + temp);
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENT_TIMEOUT_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENT_TIMEOUT_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  temp, (byte) 0x00));
                         }
                     }
@@ -234,7 +236,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK CURRENTS");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENTS_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.CURRENTS_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.READ,  0x00, (byte) 0x00));
                     }
                 }
@@ -246,7 +248,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK ETE CALIB");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.ETE_CALIBRATION_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.ETE_CALIBRATION_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.WRITE, 0x05, (byte) 0x00));
                     }
                 }
@@ -258,7 +260,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK EEPROM SAVE");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.EEPROM_SAVE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.EEPROM_SAVE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.WRITE, 0x01, (byte) 0x00));
                     }
                 }
@@ -270,7 +272,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK ANGLE FIX");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.ANGLE_FIX_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.ANGLE_FIX_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.WRITE, 0x01, (byte) 0x00));
                     }
                 }
@@ -287,7 +289,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK G1");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.READ,  0x00, (byte) 0x00));
                     }
                 }
@@ -315,7 +317,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK S1 " + temp);
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  temp, (byte) 0x00));
                         }
                     }
@@ -330,7 +332,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK S2 " + temp);
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.CLOSE_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.CLOSE_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  temp, (byte) 0x00));
                         }
                     }
@@ -345,7 +347,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK S3 " + temp);
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.WIDE_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.WIDE_ANGEL_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  temp, (byte) 0x00));
                         }
                     }
@@ -358,14 +360,14 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK MAGNET INVERT");
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.MAGNET_INVERT_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.MAGNET_INVERT_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  0x01, (byte) 0x00));
                         }
                     } else {
                         if (getActivity() != null) {
                             System.err.println("CLICK MAGNET INVERT OFF");
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.MAGNET_INVERT_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.MAGNET_INVERT_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  0x00, (byte) 0x00));
                         }
                     }
@@ -379,14 +381,14 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK REVERS MOTOR");
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.REVERS_MOTOR_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.REVERS_MOTOR_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  0x01, (byte) 0x00));
                         }
                     } else {
                         if (getActivity() != null) {
                             System.err.println("CLICK REVERS MOTOR OFF");
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.REVERS_MOTOR_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.REVERS_MOTOR_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  0x00, (byte) 0x00));
                         }
                     }
@@ -400,14 +402,14 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK ZERO CROSSING");
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.ZERO_CROSSING_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.ZERO_CROSSING_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  0x01, (byte) 0x00));
                         }
                     } else {
                         if (getActivity() != null) {
                             System.err.println("CLICK ZERO CROSSING OFF");
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.ZERO_CROSSING_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.ZERO_CROSSING_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE,  0x00, (byte) 0x00));
                         }
                     }
@@ -420,7 +422,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK E");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.E_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.E_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.WRITE,  0x01, (byte) 0x00));
                     }
                 }
@@ -431,7 +433,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK U");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.U_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.U_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.READ,  0x00, (byte) 0x00));
                     }
                 }
@@ -442,7 +444,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK O");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.O_S_C_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.O_S_C_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.WRITE,  0x00, (byte) 0x00));
                     }
                 }
@@ -453,7 +455,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK S4");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.O_S_C_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.O_S_C_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.WRITE,  0x02, (byte) 0x00));
                     }
                 }
@@ -464,7 +466,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK C");
                         chatActivity.presenter.onHelloWorld(
-                                chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.O_S_C_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.O_S_C_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.WRITE,  0x01, (byte) 0x00));
                     }
                 }
@@ -484,7 +486,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK SPEED: "+ seekBar.getProgress());
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.SPEED_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.SPEED_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                                                                         ConstantManager.WRITE, seekBar.getProgress(), (byte) 0x00));
                         }
                     }
@@ -505,7 +507,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         if (getActivity() != null) {
                             System.err.println("CLICK ANGLE: "+ seekBar.getProgress());
                             chatActivity.presenter.onHelloWorld(
-                                    chatActivity.CompileMassageSettingsCalibrationHDLC(ConstantManager.ANGLE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
+                                    mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.ANGLE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                             ConstantManager.WRITE, seekBar.getProgress(), (byte) 0x00));
                         }
                     }

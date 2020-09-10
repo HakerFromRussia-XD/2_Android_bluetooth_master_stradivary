@@ -18,16 +18,17 @@ import static me.Romans.motorica.ui.chat.view.ChartActivity.flagUseHDLCProtocol;
 import static me.Romans.motorica.ui.chat.view.ChartActivity.selectStation;
 
 public class Load3DModel extends ChartActivity {
-    private  static Context context;
-    private static String[] text;
-    private static volatile float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS][];
-    private static volatile float[][] texturesArray = new float[MAX_NUMBER_DETAILS][];
-    private static volatile float[][] normalsArray = new float[MAX_NUMBER_DETAILS][];
-    private ChartActivity chatActivity;
     public static int MAX_NUMBER_DETAILS = 19;
     public volatile static float[][] verticesArray = new float[MAX_NUMBER_DETAILS][1];
     public static String[][] model = new String[19][];
     public volatile static int[][] indicesArrayVertices = new int[MAX_NUMBER_DETAILS][1];
+
+    private static String[] text;
+    public static volatile float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS][];
+    private static volatile float[][] texturesArray = new float[MAX_NUMBER_DETAILS][];
+    private static volatile float[][] normalsArray = new float[MAX_NUMBER_DETAILS][];
+    private ChartActivity chatActivity;
+
     Massages mMassages = new Massages();
 //    @Inject
 //    public ChatPresenter presenter;
@@ -42,7 +43,7 @@ public class Load3DModel extends ChartActivity {
     //////////////////////////////////////////////////////////////////////////////
     public static String[] readData(String fileName) {
         try {
-            InputStream is = context.getAssets().open(fileName);
+            InputStream is = getApplicationContext().getAssets().open(fileName);
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -495,7 +496,7 @@ public class Load3DModel extends ChartActivity {
                         }
                         ChartActivity.intValueFinger4AngleLast = ChartActivity.intValueFinger4Angle;
                     }
-                    if ((ChartActivity.intValueFinger5AngleLast != ChartActivity.intValueFinger5Angle && ChartActivity.isEnable) || (ChartActivity.intValueFinger6AngleLast != ChartActivity.intValueFinger6Angle && chatActivity.isEnable)) {
+                    if ((ChartActivity.intValueFinger5AngleLast != ChartActivity.intValueFinger5Angle && ChartActivity.isEnable) || (ChartActivity.intValueFinger6AngleLast != ChartActivity.intValueFinger6Angle && ChartActivity.isEnable)) {
                         ChartActivity.numberFinger = 5;
                         if (flagUseHDLCProtocol) {
                             presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger5Angle, ChartActivity.intValueFinger5Speed));

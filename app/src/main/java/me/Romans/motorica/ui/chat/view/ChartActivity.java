@@ -2,7 +2,10 @@ package me.Romans.motorica.ui.chat.view;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -870,7 +873,26 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             }
         }
     }
+    public Activity getActivity(Context context)
+    {
+        if (context == null)
+        {
+            return null;
+        }
+        else if (context instanceof ContextWrapper)
+        {
+            if (context instanceof Activity)
+            {
+                return (Activity) context;
+            }
+            else
+            {
+                return getActivity(((ContextWrapper) context).getBaseContext());
+            }
+        }
 
+        return null;
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     /**                             работа с 3D                                **/

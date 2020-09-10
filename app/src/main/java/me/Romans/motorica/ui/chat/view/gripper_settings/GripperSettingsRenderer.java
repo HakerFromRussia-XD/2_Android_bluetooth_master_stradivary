@@ -1368,28 +1368,28 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
 			System.err.println("GripperSettingsRender--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);
-			ChartActivity.transferFinger1Static(angleLittleFingerTransfer);
+			Load3DModel.transferFinger1Static(angleLittleFingerTransfer);
 //			System.err.println("GripperSettingsRender--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){
 			System.err.println("GripperSettingsRender--------> angleRingFingerTransfer: "+ angleRingFingerTransfer);
-			ChartActivity.transferFinger2Static(angleRingFingerTransfer);
+			Load3DModel.transferFinger2Static(angleRingFingerTransfer);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){
 			System.err.println("GripperSettingsRender--------> angleMiddleFingerTransfer: "+ angleMiddleFingerTransfer);
-			ChartActivity.transferFinger3Static(angleMiddleFingerTransfer);
+			Load3DModel.transferFinger3Static(angleMiddleFingerTransfer);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){
 			System.err.println("GripperSettingsRender--------> angleForeFingerTransfer: "+ angleForeFingerTransfer);
-			ChartActivity.transferFinger4Static(angleForeFingerTransfer);
+			Load3DModel.transferFinger4Static(angleForeFingerTransfer);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
 			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2 real: "+ angleBigFingerTransfer2);
 //			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer1: "+ (100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
-			ChartActivity.transferFinger5Static((100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
+			Load3DModel.transferFinger5Static((100-((int)((float)(angleBigFingerTransfer1+60)/90*100))));
 //			далее конструкция инвертирования и приведения диапазона для вращения венца большого пальца
 			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2: "+ (100-((int)((float)angleBigFingerTransfer2/90*100))));
-			ChartActivity.transferFinger6Static((100-((int)((float)angleBigFingerTransfer2/90*100))));
+			Load3DModel.transferFinger6Static((100-((int)((float)angleBigFingerTransfer2/90*100))));
 		}
 		transferFlag = false;
 	}

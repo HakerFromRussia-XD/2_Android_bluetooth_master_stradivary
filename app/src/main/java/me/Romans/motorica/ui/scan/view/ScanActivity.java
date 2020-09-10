@@ -4,15 +4,12 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.annotation.ArrayRes;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -20,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -50,7 +46,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private boolean firstStart = true;
 
     @Inject
-    ScanPresenter presenter;;
+    ScanPresenter presenter;
 
     //////////////////////////////////////////////
     int images[] = {R.drawable.circle_16_gray, R.drawable.circle_16_green, R.drawable.circle_16_red, R.drawable.block_not_use, R.drawable.closing};

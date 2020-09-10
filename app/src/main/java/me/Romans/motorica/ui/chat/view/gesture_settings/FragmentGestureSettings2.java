@@ -46,7 +46,7 @@ public class FragmentGestureSettings2 extends Fragment implements ChartView, Ges
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
-        mLoad3DModel = new Load3DModel(chatActivity.getApplicationContext());
+        mLoad3DModel = new Load3DModel();
 
         List<Gesture_my> gestureMyList = new ArrayList<>();
         RecyclerView recyclerView = view.findViewById(R.id.gripper_list);
@@ -160,13 +160,13 @@ public class FragmentGestureSettings2 extends Fragment implements ChartView, Ges
             case 0:
                 if(chatActivity.firstTapRecyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRecyclerView = false;
-                    if (chatActivity.NUMBER_CELL == 3 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL - 0x01);
+                    if (ChartActivity.NUMBER_CELL == 3 ) ChartActivity.NUMBER_CELL = (byte) (ChartActivity.NUMBER_CELL - 0x01);
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .addToBackStack("myStack")
                             .commit();
-                    for (int j = 0; j< mLoad3DModel.MAX_NUMBER_DETAILS; j++) {
+                    for (int j = 0; j< Load3DModel.MAX_NUMBER_DETAILS; j++) {
                         try {
                             chatActivity.threadFunction[j].join();
                         } catch (InterruptedException e) {
@@ -174,19 +174,19 @@ public class FragmentGestureSettings2 extends Fragment implements ChartView, Ges
                         }
                     }
                     chatActivity.transferThreadFlag = true;
-                    chatActivity.startTransferThread();
+                    mLoad3DModel.startTransferThread();
                 }
                 break;
             case 1:
                 if(chatActivity.firstTapRecyclerView && chatActivity.isEnable){
                     chatActivity.firstTapRecyclerView = false;
-                    if (chatActivity.NUMBER_CELL == 2 ) chatActivity.NUMBER_CELL = (byte) (chatActivity.NUMBER_CELL + 0x01);
+                    if (ChartActivity.NUMBER_CELL == 2 ) ChartActivity.NUMBER_CELL = (byte) (ChartActivity.NUMBER_CELL + 0x01);
                     chatActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .addToBackStack("myStack")
                             .commit();
-                    for (int j = 0; j< mLoad3DModel.MAX_NUMBER_DETAILS; j++) {
+                    for (int j = 0; j< Load3DModel.MAX_NUMBER_DETAILS; j++) {
                         try {
                             chatActivity.threadFunction[j].join();
                         } catch (InterruptedException e) {
@@ -194,7 +194,7 @@ public class FragmentGestureSettings2 extends Fragment implements ChartView, Ges
                         }
                     }
                     chatActivity.transferThreadFlag = true;
-                    chatActivity.startTransferThread();
+                    mLoad3DModel.startTransferThread();
                 }
                 break;
 

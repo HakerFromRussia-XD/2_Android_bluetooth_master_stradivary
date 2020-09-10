@@ -20,6 +20,8 @@ import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.common.RawResourceReader;
 import me.Romans.motorica.ui.chat.view.common.ShaderHelper;
 import me.Romans.motorica.ui.chat.view.common.TextureHelper;
+import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
+import me.Romans.motorica.ui.chat.view.model.Load3DModel;
 
 /**
  * This class implements our custom renderer. Note that the GL10 parameter
@@ -212,9 +214,6 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	private int lastAngleBigFingerInt2 = 0;
 	private int angleBigFingerTransfer2 = 0;
 	private float angle90 = 90;
-
-	public void setChatActivity(ChartActivity chatActivity) {
-	}
 
 	enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
 	public SelectStation selectStation;
@@ -1407,18 +1406,18 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 				GLES20.glGenBuffers(MAX_NUMBER_DETAILS, ibo, 0);
 
 				for (i = 0; i<MAX_NUMBER_DETAILS; i++){
-					indexCount = ChartActivity.getVertexArray(i).length;
+					indexCount = Load3DModel.getVertexArray(i).length;
 					System.err.println("HeightMap--------> количество элементов в массиве №"+(i+1)+" "+indexCount);
 
 					final FloatBuffer heightMapVertexDataBuffer = ByteBuffer
-							.allocateDirect(ChartActivity.getVertexArray(i).length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
+							.allocateDirect(Load3DModel.getVertexArray(i).length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder())
 							.asFloatBuffer();
-					heightMapVertexDataBuffer.put(ChartActivity.getVertexArray(i)).position(0);
+					heightMapVertexDataBuffer.put(Load3DModel.getVertexArray(i)).position(0);
 
 					final IntBuffer heightMapIndexDataBuffer = ByteBuffer
-							.allocateDirect(ChartActivity.getVertexArray(i).length * BYTES_PER_INT).order(ByteOrder.nativeOrder())
+							.allocateDirect(Load3DModel.getVertexArray(i).length * BYTES_PER_INT).order(ByteOrder.nativeOrder())
 							.asIntBuffer();
-					heightMapIndexDataBuffer.put(ChartActivity.getIndicesArray(i)).position(0);
+					heightMapIndexDataBuffer.put(Load3DModel.getIndicesArray(i)).position(0);
 
 					if (vbo[0] > 0 && ibo[0] > 0) {
 						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[i]);

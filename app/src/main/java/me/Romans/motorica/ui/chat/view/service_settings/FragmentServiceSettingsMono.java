@@ -44,7 +44,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
                 .build().inject(FragmentServiceSettingsMono.this);
         ButterKnife.bind(this, view);
 
-        if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
+            if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
         chatActivity.graphThreadFlag = false;
         chatActivity.updateServiceSettingsThreadFlag = true;
         chatActivity.startUpdateThread();

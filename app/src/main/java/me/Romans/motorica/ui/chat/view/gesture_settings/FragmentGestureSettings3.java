@@ -24,6 +24,7 @@ import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChartView;
 import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
+import me.Romans.motorica.ui.chat.view.model.Load3DModel;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -34,6 +35,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
     public View view;
     private ChartActivity chatActivity;
     Massages mMassages = new Massages();
+    Load3DModel mLoad3DModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,7 +49,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
-        Log.e(TAG, "NUMBER_CELL = "+String.valueOf(chatActivity.NUMBER_CELL));
+        mLoad3DModel = new Load3DModel(chatActivity.getApplicationContext());
 
         List<Gesture_my> gestureMyList = new ArrayList<>();
         RecyclerView recyclerView = view.findViewById(R.id.gripper_list);
@@ -167,7 +169,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .addToBackStack("myStack")
                             .commit();
-                    for (int j = 0; j< ChartActivity.MAX_NUMBER_DETAILS; j++) {
+                    for (int j = 0; j< mLoad3DModel.MAX_NUMBER_DETAILS; j++) {
                         try {
                             chatActivity.threadFunction[j].join();
                         } catch (InterruptedException e) {
@@ -187,7 +189,7 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .addToBackStack("myStack")
                             .commit();
-                    for (int j = 0; j< ChartActivity.MAX_NUMBER_DETAILS; j++) {
+                    for (int j = 0; j< mLoad3DModel.MAX_NUMBER_DETAILS; j++) {
                         try {
                             chatActivity.threadFunction[j].join();
                         } catch (InterruptedException e) {

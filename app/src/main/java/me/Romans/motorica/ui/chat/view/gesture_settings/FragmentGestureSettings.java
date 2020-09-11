@@ -177,7 +177,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
                         }
                     }
                     chatActivity.transferThreadFlag = true;
-                    mLoad3DModel.startTransferThread();
+                    chatActivity.startTransferThread();
                 }
                 break;
             case 1:
@@ -197,7 +197,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
                         }
                     }
                     chatActivity.transferThreadFlag = true;
-                    mLoad3DModel.startTransferThread();
+                    chatActivity.startTransferThread();
                 }
                 break;
 

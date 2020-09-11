@@ -2,10 +2,7 @@ package me.Romans.motorica.ui.chat.view;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -108,7 +105,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     @BindView(R.id.borderGreen) ImageView borderGreen;
     @BindView(R.id.borderRed) ImageView borderRed;
     Massages mMassages = new Massages();
-    Load3DModel mLoad3DModel = new Load3DModel(this);//this
+    Load3DModel mLoad3DModel = new Load3DModel(this);
     public BottomNavigationView navigation;
     public int numberOfChannel = 0;
     public int intValueCH1on = 2500;
@@ -122,7 +119,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     private byte numberChannel;
     public byte invert = 0x00;
     public byte block = 0x00;
-    public static boolean isEnable = false;
+    public boolean isEnable = false;
     public boolean firstTapRecyclerView = true;
     public boolean errorReception = false;
     public static String deviceName;
@@ -171,7 +168,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     private boolean runOnUi;
     //    for fragment gestures settings
     public FragmentGestureSettings fragmentGestureSettings;
-    public static FragmentGripperSettings fragmentGripperSettings;
+    public FragmentGripperSettings fragmentGripperSettings;
     public FragmentGestureSettings2 fragmentGestureSettings2;
     public FragmentGestureSettings3 fragmentGestureSettings3;
     public FragmentServiceSettings fragmentServiceSettings;
@@ -184,33 +181,33 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public volatile static int[][] indicesArrayVertices = new int[MAX_NUMBER_DETAILS][1];
     public Thread[] threadFunction = new Thread[MAX_NUMBER_DETAILS];
     //	  for transfer
-    public static byte numberFinger;
-    public static int speedFinger = 0;
-    public static int lastSpeedFinger = 0;
-    public static int SPEED = 99;
+    private byte numberFinger;
+    public int speedFinger = 0;
+    public int lastSpeedFinger = 0;
+    public int SPEED = 99;
     public static int intValueFinger1Angle = 0;
     public static int intValueFinger2Angle = 0;
     public static int intValueFinger3Angle = 0;
     public static int intValueFinger4Angle = 0;
     public static int intValueFinger5Angle = 0;
     public static int intValueFinger6Angle = 0;
-    public static int intValueFinger1AngleLast = 0;
-    public static int intValueFinger2AngleLast = 0;
-    public static int intValueFinger3AngleLast = 0;
-    public static int intValueFinger4AngleLast = 0;
-    public static int intValueFinger5AngleLast = 0;
-    public static int intValueFinger6AngleLast = 0;
-    public static int intValueFinger1Speed = SPEED;
-    public static int intValueFinger2Speed = SPEED;
-    public static int intValueFinger3Speed = SPEED;
-    public static int intValueFinger4Speed = SPEED;
-    public static int intValueFinger5Speed = SPEED;
-    public static int intValueFinger6Speed = SPEED;
+    private static int intValueFinger1AngleLast = 0;
+    private static int intValueFinger2AngleLast = 0;
+    private static int intValueFinger3AngleLast = 0;
+    private static int intValueFinger4AngleLast = 0;
+    private static int intValueFinger5AngleLast = 0;
+    private static int intValueFinger6AngleLast = 0;
+    private int intValueFinger1Speed = SPEED;
+    private int intValueFinger2Speed = SPEED;
+    private int intValueFinger3Speed = SPEED;
+    private int intValueFinger4Speed = SPEED;
+    private int intValueFinger5Speed = SPEED;
+    private int intValueFinger6Speed = SPEED;
     public static byte GESTURE_SETTINGS = 0x15;
     public static byte NUMBER_CELL = 0x00;
     public static long delay = 200;
     private int delayPauseAfterSending = 200;
-    public static boolean transferThreadFlag = false;
+    public boolean transferThreadFlag = false;
     public boolean mainActivityStarted = false;
     public Thread transferThread;
     public Thread requestStartTrig1Thread;
@@ -752,25 +749,25 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         /**          3D initialization               **/
         ////////////////////////////////////////////////
 
-        mLoad3DModel.model[0]  = mLoad3DModel.readData(ConstantManager.MODEDEL_0);
-        mLoad3DModel.model[1]  = mLoad3DModel.readData(ConstantManager.MODEDEL_1);
-        mLoad3DModel.model[2]  = mLoad3DModel.readData(ConstantManager.MODEDEL_2);
-        mLoad3DModel.model[3]  = mLoad3DModel.readData(ConstantManager.MODEDEL_3);
-        mLoad3DModel.model[4]  = mLoad3DModel.readData(ConstantManager.MODEDEL_4);
-        mLoad3DModel.model[5]  = mLoad3DModel.readData(ConstantManager.MODEDEL_5);
-        mLoad3DModel.model[6]  = mLoad3DModel.readData(ConstantManager.MODEDEL_6);
-        mLoad3DModel.model[7]  = mLoad3DModel.readData(ConstantManager.MODEDEL_7);
-        mLoad3DModel.model[8]  = mLoad3DModel.readData(ConstantManager.MODEDEL_8);
-        mLoad3DModel.model[9]  = mLoad3DModel.readData(ConstantManager.MODEDEL_9);
-        mLoad3DModel.model[10] = mLoad3DModel.readData(ConstantManager.MODEDEL_10);
-        mLoad3DModel.model[11] = mLoad3DModel.readData(ConstantManager.MODEDEL_11);
-        mLoad3DModel.model[12] = mLoad3DModel.readData(ConstantManager.MODEDEL_12);
-        mLoad3DModel.model[13] = mLoad3DModel.readData(ConstantManager.MODEDEL_13);
-        mLoad3DModel.model[14] = mLoad3DModel.readData(ConstantManager.MODEDEL_14);
-        mLoad3DModel.model[15] = mLoad3DModel.readData(ConstantManager.MODEDEL_15);
-        mLoad3DModel.model[16] = mLoad3DModel.readData(ConstantManager.MODEDEL_16);
-        mLoad3DModel.model[17] = mLoad3DModel.readData(ConstantManager.MODEDEL_17);
-        mLoad3DModel.model[18] = mLoad3DModel.readData(ConstantManager.MODEDEL_18);
+        Load3DModel.model[0]  = mLoad3DModel.readData(ConstantManager.MODEDEL_0);
+        Load3DModel.model[1]  = mLoad3DModel.readData(ConstantManager.MODEDEL_1);
+        Load3DModel.model[2]  = mLoad3DModel.readData(ConstantManager.MODEDEL_2);
+        Load3DModel.model[3]  = mLoad3DModel.readData(ConstantManager.MODEDEL_3);
+        Load3DModel.model[4]  = mLoad3DModel.readData(ConstantManager.MODEDEL_4);
+        Load3DModel.model[5]  = mLoad3DModel.readData(ConstantManager.MODEDEL_5);
+        Load3DModel.model[6]  = mLoad3DModel.readData(ConstantManager.MODEDEL_6);
+        Load3DModel.model[7]  = mLoad3DModel.readData(ConstantManager.MODEDEL_7);
+        Load3DModel.model[8]  = mLoad3DModel.readData(ConstantManager.MODEDEL_8);
+        Load3DModel.model[9]  = mLoad3DModel.readData(ConstantManager.MODEDEL_9);
+        Load3DModel.model[10] = mLoad3DModel.readData(ConstantManager.MODEDEL_10);
+        Load3DModel.model[11] = mLoad3DModel.readData(ConstantManager.MODEDEL_11);
+        Load3DModel.model[12] = mLoad3DModel.readData(ConstantManager.MODEDEL_12);
+        Load3DModel.model[13] = mLoad3DModel.readData(ConstantManager.MODEDEL_13);
+        Load3DModel.model[14] = mLoad3DModel.readData(ConstantManager.MODEDEL_14);
+        Load3DModel.model[15] = mLoad3DModel.readData(ConstantManager.MODEDEL_15);
+        Load3DModel.model[16] = mLoad3DModel.readData(ConstantManager.MODEDEL_16);
+        Load3DModel.model[17] = mLoad3DModel.readData(ConstantManager.MODEDEL_17);
+        Load3DModel.model[18] = mLoad3DModel.readData(ConstantManager.MODEDEL_18);
 
 
         for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
@@ -873,513 +870,192 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             }
         }
     }
-    public Activity getActivity(Context context)
-    {
-        if (context == null)
-        {
-            return null;
-        }
-        else if (context instanceof ContextWrapper)
-        {
-            if (context instanceof Activity)
-            {
-                return (Activity) context;
-            }
-            else
-            {
-                return getActivity(((ContextWrapper) context).getBaseContext());
-            }
-        }
 
-        return null;
-    }
 
     //////////////////////////////////////////////////////////////////////////////
     /**                             работа с 3D                                **/
     //////////////////////////////////////////////////////////////////////////////
-//    public String[] readData(String fileName) {
-//        try {
-//            InputStream is = getAssets().open(fileName);
-//            int size = is.available();
-//            byte[] buffer = new byte[size];
-//            is.read(buffer);
-//            is.close();
-//            String line = new String(buffer);
-//            text = line.split("#");
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }
-//        return text;
-//    }
-//    public void loadSTR2(final int i) {
-//        parserDataVertices(i);
-//        parserDataTextures(i);
-//        parserDataNormals(i);
-//        parserDataFacets(i);
-//    }
-//
-//    public static String[] getStringBuffer1()  { return model[0];  }
-//    public static String[] getStringBuffer2()  { return model[1];  }
-//    public static String[] getStringBuffer3()  { return model[2];  }
-//    public static String[] getStringBuffer4()  { return model[3];  }
-//    public static String[] getStringBuffer5()  { return model[4];  }
-//    public static String[] getStringBuffer6()  { return model[5];  }
-//    public static String[] getStringBuffer7()  { return model[6];  }
-//    public static String[] getStringBuffer8()  { return model[7];  }
-//    public static String[] getStringBuffer9()  { return model[8];  }
-//    public static String[] getStringBuffer10() { return model[9];  }
-//    public static String[] getStringBuffer11() { return model[10]; }
-//    public static String[] getStringBuffer12() { return model[11]; }
-//    public static String[] getStringBuffer13() { return model[12]; }
-//    public static String[] getStringBuffer14() { return model[13]; }
-//    public static String[] getStringBuffer15() { return model[14]; }
-//    public static String[] getStringBuffer16() { return model[15]; }
-//    public static String[] getStringBuffer17() { return model[16]; }
-//    public static String[] getStringBuffer18() { return model[17]; }
-//    public static String[] getStringBuffer19() { return model[18]; }
-//
-//    public static float[] getVertexArray(int i){
-//        return verticesArray[i];
-//    }
-//    public static  int[] getIndicesArray(int i){
-//        return indicesArrayVertices[i];
-//    }
+    public void startTransferThread () {
+        transferThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (transferThreadFlag){
+                    // пальчики
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger1Speed);}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger2Speed);}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger3Speed);}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger4Speed);}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger6Speed);}
+                    if(lastSpeedFinger != speedFinger && isEnable){
+                        System.err.println("ChatActivity--------> speedFinger: "+ speedFinger);
+                        String.valueOf(selectStation);
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){intValueFinger1Speed = speedFinger;}
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){intValueFinger2Speed = speedFinger;}
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){intValueFinger3Speed = speedFinger;}
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){intValueFinger4Speed = speedFinger;}
+                        if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){intValueFinger6Speed = speedFinger;}
+                        lastSpeedFinger = speedFinger;
+                    }
+                    if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
+                        numberFinger = 1;
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
+                        }else {
+                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
+                        }
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Angle", intValueFinger1Angle);
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Speed", intValueFinger1Speed);
 
-//    public void parserDataVertices(int number){
-//        String text = "";
-//        if      (number ==  0) {text = "#" + getStringBuffer1() [1];}
-//        else if (number ==  1) {text = "#" + getStringBuffer2() [1];}
-//        else if (number ==  2) {text = "#" + getStringBuffer3() [1];}
-//        else if (number ==  3) {text = "#" + getStringBuffer4() [1];}
-//        else if (number ==  4) {text = "#" + getStringBuffer5() [1];}
-//        else if (number ==  5) {text = "#" + getStringBuffer6() [1];}
-//        else if (number ==  6) {text = "#" + getStringBuffer7() [1];}
-//        else if (number ==  7) {text = "#" + getStringBuffer8() [1];}
-//        else if (number ==  8) {text = "#" + getStringBuffer9() [1];}
-//        else if (number ==  9) {text = "#" + getStringBuffer10()[1];}
-//        else if (number == 10) {text = "#" + getStringBuffer11()[1];}
-//        else if (number == 11) {text = "#" + getStringBuffer12()[1];}
-//        else if (number == 12) {text = "#" + getStringBuffer13()[1];}
-//        else if (number == 13) {text = "#" + getStringBuffer14()[1];}
-//        else if (number == 14) {text = "#" + getStringBuffer15()[1];}
-//        else if (number == 15) {text = "#" + getStringBuffer16()[1];}
-//        else if (number == 16) {text = "#" + getStringBuffer17()[1];}
-//        else if (number == 17) {text = "#" + getStringBuffer18()[1];}
-//        else if (number == 18) {text = "#" + getStringBuffer19()[1];}
-//        StringBuilder line = new StringBuilder();
-//        int coordinatesNumber = 0;
-//        for (char msg : text.toCharArray()) {
-//            line.append(msg);
-//            if (msg == 10) {
-//                String[] currentLine = line.toString().split(" ");
-//                if (line.toString().startsWith("# ")) {
-//                    if (currentLine[2].equals("vertices\r\n")) {//\r
-//                        coordinatesNumber = Integer.parseInt(currentLine[1]);
-//                        coordinatesArray[number] = new float[coordinatesNumber * 3];
-////                        System.out.println("Количество вершин: " + coordinatesNumber);
-//                        coordinatesNumber = 0;
-//                    }
-//                } else if (line.toString().startsWith("v ")){
-//                    coordinatesArray[number][coordinatesNumber++] = Float.parseFloat(currentLine[1]);
-//                    coordinatesArray[number][coordinatesNumber++] = Float.parseFloat(currentLine[2]);
-//                    coordinatesArray[number][coordinatesNumber++] = Float.parseFloat(currentLine[3]);
-//                }
-//                line = new StringBuilder();
-//            }
-//        }
-//    }
-//    public void parserDataTextures(int number){
-//        String text = "";
-//        if      (number ==  0) {text = "#" + getStringBuffer1() [2];}
-//        else if (number ==  1) {text = "#" + getStringBuffer2() [2];}
-//        else if (number ==  2) {text = "#" + getStringBuffer3() [2];}
-//        else if (number ==  3) {text = "#" + getStringBuffer4() [2];}
-//        else if (number ==  4) {text = "#" + getStringBuffer5() [2];}
-//        else if (number ==  5) {text = "#" + getStringBuffer6() [2];}
-//        else if (number ==  6) {text = "#" + getStringBuffer7() [2];}
-//        else if (number ==  7) {text = "#" + getStringBuffer8() [2];}
-//        else if (number ==  8) {text = "#" + getStringBuffer9() [2];}
-//        else if (number ==  9) {text = "#" + getStringBuffer10()[2];}
-//        else if (number == 10) {text = "#" + getStringBuffer11()[2];}
-//        else if (number == 11) {text = "#" + getStringBuffer12()[2];}
-//        else if (number == 12) {text = "#" + getStringBuffer13()[2];}
-//        else if (number == 13) {text = "#" + getStringBuffer14()[2];}
-//        else if (number == 14) {text = "#" + getStringBuffer15()[2];}
-//        else if (number == 15) {text = "#" + getStringBuffer16()[2];}
-//        else if (number == 16) {text = "#" + getStringBuffer17()[2];}
-//        else if (number == 17) {text = "#" + getStringBuffer18()[2];}
-//        else if (number == 18) {text = "#" + getStringBuffer19()[2];}
-//        StringBuilder line = new StringBuilder();
-//
-//        int texturesNumber = 0;
-//        for (char msg : text.toCharArray()){
-//            line.append(msg);
-//            if (msg == 10){
-//                String[] currentLine = line.toString().split(" ");
-//                if(line.toString().startsWith("# ")){
-//                    if(currentLine[2].equals("texture")){
-//                        texturesNumber = Integer.parseInt(currentLine[1]);
-//                        texturesArray[number] = new float[texturesNumber*2];
-////                        System.out.println("Количество текстурных координат: " + texturesNumber);
-//                        texturesNumber = 0;
-//                    }
-//                }else if (line.toString().startsWith("vt ")){
-//                    texturesArray[number][texturesNumber] = Float.parseFloat(currentLine[1]);
-//                    texturesArray[number][texturesNumber + 1] = Float.parseFloat(currentLine[2]);
-//                    texturesNumber += 2;
-//                }
-//                line = new StringBuilder();
-//            }
-//        }
-//    }
-//    public void parserDataNormals(int number){
-//        String text = "";
-//        if      (number ==  0) {text = "#" + getStringBuffer1() [3];}
-//        else if (number ==  1) {text = "#" + getStringBuffer2() [3];}
-//        else if (number ==  2) {text = "#" + getStringBuffer3() [3];}
-//        else if (number ==  3) {text = "#" + getStringBuffer4() [3];}
-//        else if (number ==  4) {text = "#" + getStringBuffer5() [3];}
-//        else if (number ==  5) {text = "#" + getStringBuffer6() [3];}
-//        else if (number ==  6) {text = "#" + getStringBuffer7() [3];}
-//        else if (number ==  7) {text = "#" + getStringBuffer8() [3];}
-//        else if (number ==  8) {text = "#" + getStringBuffer9() [3];}
-//        else if (number ==  9) {text = "#" + getStringBuffer10()[3];}
-//        else if (number == 10) {text = "#" + getStringBuffer11()[3];}
-//        else if (number == 11) {text = "#" + getStringBuffer12()[3];}
-//        else if (number == 12) {text = "#" + getStringBuffer13()[3];}
-//        else if (number == 13) {text = "#" + getStringBuffer14()[3];}
-//        else if (number == 14) {text = "#" + getStringBuffer15()[3];}
-//        else if (number == 15) {text = "#" + getStringBuffer16()[3];}
-//        else if (number == 16) {text = "#" + getStringBuffer17()[3];}
-//        else if (number == 17) {text = "#" + getStringBuffer18()[3];}
-//        else if (number == 18) {text = "#" + getStringBuffer19()[3];}
-//        StringBuilder line = new StringBuilder();
-//
-//        int normalsNumber = 0;
-//
-//        for (char msg : text.toCharArray()){
-//            line.append(msg);
-//            if (msg == 10) {
-//                String[] currentLine = line.toString().split(" ");
-//                if (line.toString().startsWith("# ")) {
-//                    if (currentLine[2].equals("vertex")) {
-//                        normalsNumber = Integer.parseInt(currentLine[1]);
-//                        normalsArray[number] = new float[normalsNumber * 3];
-////                        System.out.println("Количество координат нормалей: " + normalsNumber);
-//                        normalsNumber = 0;
-//                    }
-//                } else if (line.toString().startsWith("vn ")) {
-//                    normalsArray[number][normalsNumber] = Float.parseFloat(currentLine[1]);
-//                    normalsArray[number][normalsNumber + 1] = Float.parseFloat(currentLine[2]);
-//                    normalsArray[number][normalsNumber + 2] = Float.parseFloat(currentLine[3]);
-//                    normalsNumber += 3;
-//                }
-//                line = new StringBuilder();
-//            }
-//        }
-//    }
-//    public void parserDataFacets (int number){
-//        String text = "";
-//        if      (number ==  0) {text = "#" + getStringBuffer1() [4];}
-//        else if (number ==  1) {text = "#" + getStringBuffer2() [4];}
-//        else if (number ==  2) {text = "#" + getStringBuffer3() [4];}
-//        else if (number ==  3) {text = "#" + getStringBuffer4() [4];}
-//        else if (number ==  4) {text = "#" + getStringBuffer5() [4];}
-//        else if (number ==  5) {text = "#" + getStringBuffer6() [4];}
-//        else if (number ==  6) {text = "#" + getStringBuffer7() [4];}
-//        else if (number ==  7) {text = "#" + getStringBuffer8() [4];}
-//        else if (number ==  8) {text = "#" + getStringBuffer9() [4];}
-//        else if (number ==  9) {text = "#" + getStringBuffer10()[4];}
-//        else if (number == 10) {text = "#" + getStringBuffer11()[4];}
-//        else if (number == 11) {text = "#" + getStringBuffer12()[4];}
-//        else if (number == 12) {text = "#" + getStringBuffer13()[4];}
-//        else if (number == 13) {text = "#" + getStringBuffer14()[4];}
-//        else if (number == 14) {text = "#" + getStringBuffer15()[4];}
-//        else if (number == 15) {text = "#" + getStringBuffer16()[4];}
-//        else if (number == 16) {text = "#" + getStringBuffer17()[4];}
-//        else if (number == 17) {text = "#" + getStringBuffer18()[4];}
-//        else if (number == 18) {text = "#" + getStringBuffer19()[4];}
-//        StringBuilder line = new StringBuilder();
-//
-//        int indicesVertices = 0;
-//        int indicesCoordinateV;
-//        int indicesNormalsV;
-//        int indicesTextureV;
-//
-//        for (char msg : text.toCharArray()){
-//            line.append(msg);
-//            if (msg == 10){
-//                String[] currentLine = line.toString().split(" ");
-//                if(line.toString().startsWith("# ")){
-//                    if(currentLine[2].equals("facets\r\n")){//\r
-//                        indicesVertices = Integer.parseInt(currentLine[1]);
-//                        verticesArray[number] = new float[indicesVertices*12*3];
-//                        indicesArrayVertices[number] = new int [indicesVertices*3];
-////                        System.out.println("Количество треугольников: " + indicesVertices);
-//                        indicesVertices = 0;
-//                    }
-//                } else if (line.toString().startsWith("f ")){
-//                    //первая тройка
-//                    //координаты вершины
-//                    indicesCoordinateV = (Integer.parseInt(currentLine[1].split("/")[0]) - 1);
-//                    verticesArray[number][indicesVertices * 12] = coordinatesArray[number][indicesCoordinateV * 3];
-//                    verticesArray[number][indicesVertices * 12 + 1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
-//                    verticesArray[number][indicesVertices * 12 + 2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
-//                    //нормали
-//                    indicesNormalsV = (Integer.parseInt(currentLine[1].split("/")[2]) - 1);
-//                    verticesArray[number][indicesVertices * 12 + 3] = normalsArray[number][indicesNormalsV * 3];
-//                    verticesArray[number][indicesVertices * 12 + 4] = normalsArray[number][indicesNormalsV * 3 + 1];
-//                    verticesArray[number][indicesVertices * 12 + 5] = normalsArray[number][indicesNormalsV * 3 + 2];
-//                    //цвета
-//                    verticesArray[number][indicesVertices * 12 + 6] = 1.0f;
-//                    verticesArray[number][indicesVertices * 12 + 7] = 1.0f;
-//                    verticesArray[number][indicesVertices * 12 + 8] = 0.0f;
-//                    verticesArray[number][indicesVertices * 12 + 9] = 0.0f;
-//                    //текстурные координаты
-//                    indicesTextureV = (Integer.parseInt(currentLine[1].split("/")[1]) - 1);
-//                    verticesArray[number][indicesVertices * 12 + 10] = texturesArray[number][indicesTextureV * 2];
-//                    verticesArray[number][indicesVertices * 12 + 11] = texturesArray[number][indicesTextureV * 2 + 1];
-//
-//                    indicesArrayVertices[number][indicesVertices] = indicesVertices++;
-//
-//                    //вторая тройка
-//                    //координаты вершины
-//                    indicesCoordinateV = (Integer.parseInt(currentLine[2].split("/")[0]) - 1);
-//                    verticesArray[number][indicesVertices * 12] = coordinatesArray[number][indicesCoordinateV * 3];
-//                    verticesArray[number][indicesVertices * 12 + 1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
-//                    verticesArray[number][indicesVertices * 12 + 2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
-//                    //нормали
-//                    verticesArray[number][indicesVertices * 12 + 3] = normalsArray[number][(Integer.parseInt(currentLine[2].split("/")[2]) - 1) * 3];
-//                    verticesArray[number][indicesVertices * 12 + 4] = normalsArray[number][(Integer.parseInt(currentLine[2].split("/")[2]) - 1) * 3 + 1];
-//                    verticesArray[number][indicesVertices * 12 + 5] = normalsArray[number][(Integer.parseInt(currentLine[2].split("/")[2]) - 1) * 3 + 2];
-//                    //цвета
-//                    verticesArray[number][indicesVertices * 12 + 6] = 1.0f;
-//                    verticesArray[number][indicesVertices * 12 + 7] = 1.0f;
-//                    verticesArray[number][indicesVertices * 12 + 8] = 0.0f;
-//                    verticesArray[number][indicesVertices * 12 + 9] = 0.0f;
-//                    //текстурные координаты
-//                    indicesTextureV = (Integer.parseInt(currentLine[2].split("/")[1]) - 1);
-//                    verticesArray[number][indicesVertices * 12 + 10] = texturesArray[number][indicesTextureV * 2];
-//                    verticesArray[number][indicesVertices * 12 + 11] = texturesArray[number][indicesTextureV * 2 + 1];
-//
-//                    indicesArrayVertices[number][indicesVertices] = indicesVertices++;
-//
-//                    //третья тройка
-//                    //координаты вершины
-//                    indicesCoordinateV = (Integer.parseInt(currentLine[3].split("/")[0]) - 1);
-//                    verticesArray[number][indicesVertices * 12] = coordinatesArray[number][indicesCoordinateV * 3];
-//                    verticesArray[number][indicesVertices * 12 + 1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
-//                    verticesArray[number][indicesVertices * 12 + 2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
-//                    //нормали
-//                    indicesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\r")[0]) - 1);//.split("\r")[0]
-//                    verticesArray[number][indicesVertices * 12 + 3] = normalsArray[number][indicesNormalsV * 3];
-//                    verticesArray[number][indicesVertices * 12 + 4] = normalsArray[number][indicesNormalsV * 3 + 1];
-//                    verticesArray[number][indicesVertices * 12 + 5] = normalsArray[number][indicesNormalsV * 3 + 2];
-//                    //цвета
-//                    verticesArray[number][indicesVertices * 12 + 6] = 1.0f;
-//                    verticesArray[number][indicesVertices * 12 + 7] = 1.0f;
-//                    verticesArray[number][indicesVertices * 12 + 8] = 0.0f;
-//                    verticesArray[number][indicesVertices * 12 + 9] = 0.0f;
-//                    //текстурные координаты
-//                    indicesTextureV = (Integer.parseInt(currentLine[3].split("/")[1]) - 1);
-//                    verticesArray[number][indicesVertices * 12 + 10] = texturesArray[number][indicesTextureV * 2];
-//                    verticesArray[number][indicesVertices * 12 + 11] = texturesArray[number][indicesTextureV * 2 + 1];
-//
-//                    indicesArrayVertices[number][indicesVertices] = indicesVertices++;
-//                }
-//                line = new StringBuilder();
-//            }
-//        }
-//    }
-//
-//    public void startTransferThread () {
-//        transferThread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while (transferThreadFlag){
-//                    // пальчики
-//                    if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger1Speed);}
-//                    if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger2Speed);}
-//                    if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger3Speed);}
-//                    if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger4Speed);}
-//                    if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger6Speed);}
-//                    if(lastSpeedFinger != speedFinger && isEnable){
-//                        System.err.println("ChatActivity--------> speedFinger: "+ speedFinger);
-//                        String.valueOf(selectStation);
-//                        if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){intValueFinger1Speed = speedFinger;}
-//                        if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){intValueFinger2Speed = speedFinger;}
-//                        if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){intValueFinger3Speed = speedFinger;}
-//                        if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){intValueFinger4Speed = speedFinger;}
-//                        if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){intValueFinger6Speed = speedFinger;}
-//                        lastSpeedFinger = speedFinger;
-//                    }
-//                    if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
-//                        numberFinger = 1;
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
-//                        }else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
-//                        }
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Angle", intValueFinger1Angle);
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Speed", intValueFinger1Speed);
-//
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-//                        }else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-//                        }
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger1Angle, 99));
-//                        }
-//                        intValueFinger1AngleLast = intValueFinger1Angle;
-//                    }
-//                    if(intValueFinger2AngleLast != intValueFinger2Angle && isEnable){
-//                        numberFinger = 2;
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
-//                        }else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
-//                        }
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Angle", intValueFinger2Angle);
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Speed", intValueFinger2Speed);
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-//                        }else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-//                        }
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger2Angle, 99));
-//                        }
-//                        intValueFinger2AngleLast = intValueFinger2Angle;
-//                    }
-//                    if(intValueFinger3AngleLast != intValueFinger3Angle && isEnable){
-//                        numberFinger = 3;
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
-//                        }else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
-//                        }
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Angle", intValueFinger3Angle);
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Speed", intValueFinger3Speed);
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-//                        }else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-//                        }
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger3Angle, 99));
-//                        }
-//                        intValueFinger3AngleLast = intValueFinger3Angle;
-//                    }
-//                    if(intValueFinger4AngleLast != intValueFinger4Angle && isEnable){
-//                        numberFinger = 4;
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
-//                        }else {
-//                            presenter.onHelloWorld( mMassages.CompileMassageSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
-//                        }
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Angle", intValueFinger4Angle);
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Speed", intValueFinger4Speed);
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-//                        }else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-//                        }
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger4Angle, 99));
-//                        }
-//                        intValueFinger4AngleLast = intValueFinger4Angle;
-//                    }
-//                    if((intValueFinger5AngleLast != intValueFinger5Angle && isEnable)||(intValueFinger6AngleLast != intValueFinger6Angle && isEnable)){
-//                        numberFinger = 5;
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
-//                        }else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
-//                        }
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Angle", intValueFinger5Angle);
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Speed", intValueFinger5Speed);
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-//                        }else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-//                        }
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger5Angle, 99));
-//                        }
-//                        intValueFinger5AngleLast = intValueFinger5Angle;
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        numberFinger = 6;
-//                        if(flagUseHDLCProtocol){
-//                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
-//                        }else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
-//                        }
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Angle", intValueFinger6Angle);
-//                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Speed", intValueFinger6Speed);
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if (flagUseHDLCProtocol) {
-//                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-//                        } else {
-//                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-//                        }
-//                        try {
-//                            Thread.sleep(delay);
-//                        }catch (Exception ignored){}
-//                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-//                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger6Angle, 30));
-//                        }
-//                        intValueFinger6AngleLast = intValueFinger6Angle;
-//                    }
-//                    try {
-//                        Thread.sleep(10);
-//                    }catch (Exception ignored){}
-//                }
-//            }
-//        });
-//        transferThread.start();
-//    }
-//
-//    public static void transferFinger1Static (int angleFinger1){ intValueFinger1Angle = angleFinger1; }
-//    public static void transferFinger2Static (int angleFinger2){ intValueFinger2Angle = angleFinger2; }
-//    public static void transferFinger3Static (int angleFinger3){ intValueFinger3Angle = angleFinger3; }
-//    public static void transferFinger4Static (int angleFinger4){ intValueFinger4Angle = angleFinger4; }
-//    public static void transferFinger5Static (int angleFinger5){ intValueFinger5Angle = angleFinger5; }
-//    public static void transferFinger6Static (int angleFinger6){ intValueFinger6Angle = angleFinger6; }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                        }else {
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                        }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger1Angle, 99));
+                        }
+                        intValueFinger1AngleLast = intValueFinger1Angle;
+                    }
+                    if(intValueFinger2AngleLast != intValueFinger2Angle && isEnable){
+                        numberFinger = 2;
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
+                        }else {
+                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
+                        }
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Angle", intValueFinger2Angle);
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Speed", intValueFinger2Speed);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                        }else {
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                        }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger2Angle, 99));
+                        }
+                        intValueFinger2AngleLast = intValueFinger2Angle;
+                    }
+                    if(intValueFinger3AngleLast != intValueFinger3Angle && isEnable){
+                        numberFinger = 3;
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
+                        }else {
+                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
+                        }
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Angle", intValueFinger3Angle);
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Speed", intValueFinger3Speed);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                        }else {
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                        }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger3Angle, 99));
+                        }
+                        intValueFinger3AngleLast = intValueFinger3Angle;
+                    }
+                    if(intValueFinger4AngleLast != intValueFinger4Angle && isEnable){
+                        numberFinger = 4;
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
+                        }else {
+                            presenter.onHelloWorld( mMassages.CompileMassageSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
+                        }
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Angle", intValueFinger4Angle);
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Speed", intValueFinger4Speed);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                        }else {
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                        }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger4Angle, 99));
+                        }
+                        intValueFinger4AngleLast = intValueFinger4Angle;
+                    }
+                    if((intValueFinger5AngleLast != intValueFinger5Angle && isEnable)||(intValueFinger6AngleLast != intValueFinger6Angle && isEnable)){
+                        numberFinger = 5;
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
+                        }else {
+                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
+                        }
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Angle", intValueFinger5Angle);
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Speed", intValueFinger5Speed);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                        }else {
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                        }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger5Angle, 99));
+                        }
+                        intValueFinger5AngleLast = intValueFinger5Angle;
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        numberFinger = 6;
+                        if(flagUseHDLCProtocol){
+                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
+                        }else {
+                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
+                        }
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Angle", intValueFinger6Angle);
+                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Speed", intValueFinger6Speed);
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if (flagUseHDLCProtocol) {
+                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                        } else {
+                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                        }
+                        try {
+                            Thread.sleep(delay);
+                        }catch (Exception ignored){}
+                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger6Angle, 30));
+                        }
+                        intValueFinger6AngleLast = intValueFinger6Angle;
+                    }
+                    try {
+                        Thread.sleep(10);
+                    }catch (Exception ignored){}
+                }
+            }
+        });
+        transferThread.start();
+    }
 
 
     //////////////////////////////////////////////////////////////////////////////
@@ -2016,9 +1692,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             }
         });
         pauseSendingThread.start();
-    }
-    public void sendMassage(byte[] textbyte){
-        presenter.onHelloWorld(textbyte);
     }
     @Override
     public void enableInterface(boolean enabled) {

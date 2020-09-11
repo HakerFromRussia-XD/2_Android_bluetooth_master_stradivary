@@ -5,34 +5,19 @@ import android.content.Context;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.inject.Inject;
-
-import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
-import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
+import me.Romans.motorica.ui.chat.view.gripper_settings.GripperSettingsRenderer;
 
-import static me.Romans.motorica.ui.chat.view.ChartActivity.NUMBER_CELL;
-import static me.Romans.motorica.ui.chat.view.ChartActivity.delay;
-import static me.Romans.motorica.ui.chat.view.ChartActivity.deviceName;
-import static me.Romans.motorica.ui.chat.view.ChartActivity.flagUseHDLCProtocol;
-import static me.Romans.motorica.ui.chat.view.ChartActivity.selectStation;
-
-public class Load3DModel extends ChartActivity {
+public class Load3DModel  {
+    private  static Context context;
+    private static String[] text;
+    private volatile float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS][];
+    private volatile float[][] texturesArray = new float[MAX_NUMBER_DETAILS][];
+    private volatile float[][] normalsArray = new float[MAX_NUMBER_DETAILS][];
     public static int MAX_NUMBER_DETAILS = 19;
     public volatile static float[][] verticesArray = new float[MAX_NUMBER_DETAILS][1];
-    public String[][] model = new String[19][];
+    public static String[][] model = new String[19][];
     public volatile static int[][] indicesArrayVertices = new int[MAX_NUMBER_DETAILS][1];
-    private  Context context;
-    private static String[] text;
-    public static volatile float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS][];
-    private static volatile float[][] texturesArray = new float[MAX_NUMBER_DETAILS][];
-    private static volatile float[][] normalsArray = new float[MAX_NUMBER_DETAILS][];
-    private ChartActivity chatActivity;
-
-    Massages mMassages = new Massages();
-//    @Inject
-//    public ChatPresenter presenter;
-
 
     public Load3DModel(Context context) {
         this.context = context;
@@ -41,7 +26,7 @@ public class Load3DModel extends ChartActivity {
     //////////////////////////////////////////////////////////////////////////////
     /**                           Загрузка модели                              **/
     //////////////////////////////////////////////////////////////////////////////
-    public  String[] readData(String fileName) {
+    public String[] readData(String fileName) {
         try {
             InputStream is = context.getAssets().open(fileName);
             int size = is.available();
@@ -313,25 +298,25 @@ public class Load3DModel extends ChartActivity {
         }
     }
 
-    public String[] getStringBuffer1()  { return model[0];  }
-    public String[] getStringBuffer2()  { return model[1];  }
-    public String[] getStringBuffer3()  { return model[2];  }
-    public String[] getStringBuffer4()  { return model[3];  }
-    public String[] getStringBuffer5()  { return model[4];  }
-    public String[] getStringBuffer6()  { return model[5];  }
-    public String[] getStringBuffer7()  { return model[6];  }
-    public String[] getStringBuffer8()  { return model[7];  }
-    public String[] getStringBuffer9()  { return model[8];  }
-    public String[] getStringBuffer10() { return model[9];  }
-    public String[] getStringBuffer11() { return model[10]; }
-    public String[] getStringBuffer12() { return model[11]; }
-    public String[] getStringBuffer13() { return model[12]; }
-    public String[] getStringBuffer14() { return model[13]; }
-    public String[] getStringBuffer15() { return model[14]; }
-    public String[] getStringBuffer16() { return model[15]; }
-    public String[] getStringBuffer17() { return model[16]; }
-    public String[] getStringBuffer18() { return model[17]; }
-    public String[] getStringBuffer19() { return model[18]; }
+    public static String[] getStringBuffer1()  { return model[0];  }
+    public static String[] getStringBuffer2()  { return model[1];  }
+    public static String[] getStringBuffer3()  { return model[2];  }
+    public static String[] getStringBuffer4()  { return model[3];  }
+    public static String[] getStringBuffer5()  { return model[4];  }
+    public static String[] getStringBuffer6()  { return model[5];  }
+    public static String[] getStringBuffer7()  { return model[6];  }
+    public static String[] getStringBuffer8()  { return model[7];  }
+    public static String[] getStringBuffer9()  { return model[8];  }
+    public static String[] getStringBuffer10() { return model[9];  }
+    public static String[] getStringBuffer11() { return model[10]; }
+    public static String[] getStringBuffer12() { return model[11]; }
+    public static String[] getStringBuffer13() { return model[12]; }
+    public static String[] getStringBuffer14() { return model[13]; }
+    public static String[] getStringBuffer15() { return model[14]; }
+    public static String[] getStringBuffer16() { return model[15]; }
+    public static String[] getStringBuffer17() { return model[16]; }
+    public static String[] getStringBuffer18() { return model[17]; }
+    public static String[] getStringBuffer19() { return model[18]; }
 
 
     //////////////////////////////////////////////////////////////////////////////
@@ -344,223 +329,6 @@ public class Load3DModel extends ChartActivity {
         return indicesArrayVertices[i];
     }
 
-
-    public void startTransferThread () {
-        // пальчики
-        Thread transferThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (ChartActivity.transferThreadFlag) {
-                    // пальчики
-                    if (String.valueOf(selectStation).equals("SELECT_FINGER_1")) {
-                        ChartActivity.fragmentGripperSettings.seekBarSpeedFinger.setProgress(ChartActivity.intValueFinger1Speed);
-                    }
-                    if (String.valueOf(selectStation).equals("SELECT_FINGER_2")) {
-                        ChartActivity.fragmentGripperSettings.seekBarSpeedFinger.setProgress(ChartActivity.intValueFinger2Speed);
-                    }
-                    if (String.valueOf(selectStation).equals("SELECT_FINGER_3")) {
-                        ChartActivity.fragmentGripperSettings.seekBarSpeedFinger.setProgress(ChartActivity.intValueFinger3Speed);
-                    }
-                    if (String.valueOf(selectStation).equals("SELECT_FINGER_4")) {
-                        ChartActivity.fragmentGripperSettings.seekBarSpeedFinger.setProgress(ChartActivity.intValueFinger4Speed);
-                    }
-                    if (String.valueOf(selectStation).equals("SELECT_FINGER_5")) {
-                        ChartActivity.fragmentGripperSettings.seekBarSpeedFinger.setProgress(ChartActivity.intValueFinger6Speed);
-                    }
-                    if (ChartActivity.lastSpeedFinger != ChartActivity.speedFinger && ChartActivity.isEnable) {
-                        System.err.println("ChatActivity--------> speedFinger: " + ChartActivity.speedFinger);
-                        String.valueOf(selectStation);
-                        if (String.valueOf(selectStation).equals("SELECT_FINGER_1")) {
-                            ChartActivity.intValueFinger1Speed = ChartActivity.speedFinger;
-                        }
-                        if (String.valueOf(selectStation).equals("SELECT_FINGER_2")) {
-                            ChartActivity.intValueFinger2Speed = ChartActivity.speedFinger;
-                        }
-                        if (String.valueOf(selectStation).equals("SELECT_FINGER_3")) {
-                            ChartActivity.intValueFinger3Speed = ChartActivity.speedFinger;
-                        }
-                        if (String.valueOf(selectStation).equals("SELECT_FINGER_4")) {
-                            ChartActivity.intValueFinger4Speed = ChartActivity.speedFinger;
-                        }
-                        if (String.valueOf(selectStation).equals("SELECT_FINGER_5")) {
-                            intValueFinger6Speed = ChartActivity.speedFinger;
-                        }
-                        ChartActivity.lastSpeedFinger = ChartActivity.speedFinger;
-                    }
-                    if (ChartActivity.intValueFinger1AngleLast != ChartActivity.intValueFinger1Angle && ChartActivity.isEnable) {
-                        ChartActivity.numberFinger = 1;
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger1Angle, ChartActivity.intValueFinger1Speed));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(ChartActivity.numberFinger, ChartActivity.intValueFinger1Angle, ChartActivity.intValueFinger1Speed));
-                        }
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger1Angle", ChartActivity.intValueFinger1Angle);
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger1Speed", ChartActivity.intValueFinger1Speed);
-
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(ChartActivity.numberFinger));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(ChartActivity.numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)) {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger1Angle, 99));
-                        }
-                        ChartActivity.intValueFinger1AngleLast = ChartActivity.intValueFinger1Angle;
-                    }
-                    if (ChartActivity.intValueFinger2AngleLast != ChartActivity.intValueFinger2Angle && ChartActivity.isEnable) {
-                        ChartActivity.numberFinger = 2;
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger2Angle, ChartActivity.intValueFinger2Speed));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(ChartActivity.numberFinger, ChartActivity.intValueFinger2Angle, ChartActivity.intValueFinger2Speed));
-                        }
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger2Angle", ChartActivity.intValueFinger2Angle);
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger2Speed", ChartActivity.intValueFinger2Speed);
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(ChartActivity.numberFinger));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(ChartActivity.numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)) {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger2Angle, 99));
-                        }
-                        ChartActivity.intValueFinger2AngleLast = ChartActivity.intValueFinger2Angle;
-                    }
-                    if (ChartActivity.intValueFinger3AngleLast != ChartActivity.intValueFinger3Angle && ChartActivity.isEnable) {
-                        ChartActivity.numberFinger = 3;
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger3Angle, ChartActivity.intValueFinger3Speed));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(ChartActivity.numberFinger, ChartActivity.intValueFinger3Angle, ChartActivity.intValueFinger3Speed));
-                        }
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger3Angle", ChartActivity.intValueFinger3Angle);
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger3Speed", ChartActivity.intValueFinger3Speed);
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(ChartActivity.numberFinger));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(ChartActivity.numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)) {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger3Angle, 99));
-                        }
-                        ChartActivity.intValueFinger3AngleLast = ChartActivity.intValueFinger3Angle;
-                    }
-                    if (ChartActivity.intValueFinger4AngleLast != ChartActivity.intValueFinger4Angle && ChartActivity.isEnable) {
-                        ChartActivity.numberFinger = 4;
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger4Angle, ChartActivity.intValueFinger4Speed));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(ChartActivity.numberFinger, ChartActivity.intValueFinger4Angle, ChartActivity.intValueFinger4Speed));
-                        }
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger4Angle", ChartActivity.intValueFinger4Angle);
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger4Speed", ChartActivity.intValueFinger4Speed);
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(ChartActivity.numberFinger));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(ChartActivity.numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)) {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger4Angle, 99));
-                        }
-                        ChartActivity.intValueFinger4AngleLast = ChartActivity.intValueFinger4Angle;
-                    }
-                    if ((ChartActivity.intValueFinger5AngleLast != ChartActivity.intValueFinger5Angle && ChartActivity.isEnable) || (ChartActivity.intValueFinger6AngleLast != ChartActivity.intValueFinger6Angle && ChartActivity.isEnable)) {
-                        ChartActivity.numberFinger = 5;
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger5Angle, ChartActivity.intValueFinger5Speed));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(ChartActivity.numberFinger, ChartActivity.intValueFinger5Angle, ChartActivity.intValueFinger5Speed));
-                        }
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger5Angle", ChartActivity.intValueFinger5Angle);
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger5Speed", ChartActivity.intValueFinger5Speed);
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(ChartActivity.numberFinger));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(ChartActivity.numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)) {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger5Angle, 99));
-                        }
-                        ChartActivity.intValueFinger5AngleLast = ChartActivity.intValueFinger5Angle;
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        ChartActivity.numberFinger = 6;
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger6Angle, ChartActivity.intValueFinger6Speed));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(ChartActivity.numberFinger, ChartActivity.intValueFinger6Angle, ChartActivity.intValueFinger6Speed));
-                        }
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger6Angle", ChartActivity.intValueFinger6Angle);
-                        chatActivity.saveVariable(deviceName + NUMBER_CELL + "intValueFinger6Speed", ChartActivity.intValueFinger6Speed);
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(ChartActivity.numberFinger));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(ChartActivity.numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        } catch (Exception ignored) {
-                        }
-                        if (flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)) {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(ChartActivity.numberFinger, ChartActivity.intValueFinger6Angle, 30));
-                        }
-                        ChartActivity.intValueFinger6AngleLast = ChartActivity.intValueFinger6Angle;
-                    }
-                    try {
-                        Thread.sleep(10);
-                    } catch (Exception ignored) {
-                    }
-                }
-            }
-        });
-        transferThread.start();
-    }
 
     public static void transferFinger1Static (int angleFinger1){ ChartActivity.intValueFinger1Angle = angleFinger1; }
     public static void transferFinger2Static (int angleFinger2){ ChartActivity.intValueFinger2Angle = angleFinger2; }

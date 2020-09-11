@@ -1,4 +1,4 @@
-package me.Romans.motorica.ui.chat.view.massage_to_send;
+package me.Romans.motorica.ui.chat.view;
 
 
 import android.app.Activity;

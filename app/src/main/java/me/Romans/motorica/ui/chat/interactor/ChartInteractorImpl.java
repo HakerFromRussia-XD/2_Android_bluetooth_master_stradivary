@@ -9,10 +9,10 @@ import me.Romans.bluetooth.DeviceCallback;
 import me.Romans.bluetooth.ParserCallback;
 
 
-public class ChatInteractorImpl implements ChatInteractor {
+public class ChartInteractorImpl implements ChatInteractor {
     private Bluetooth bluetooth;
 
-    public ChatInteractorImpl(Bluetooth bluetooth) {
+    public ChartInteractorImpl(Bluetooth bluetooth) {
         this.bluetooth = bluetooth;
     }
 

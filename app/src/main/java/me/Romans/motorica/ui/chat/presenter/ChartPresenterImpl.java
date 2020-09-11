@@ -15,7 +15,7 @@ import me.Romans.motorica.ui.chat.view.ChartView;
 import static me.Romans.motorica.ui.chat.view.ChartActivity.flagReceptionExpectation;
 import static me.Romans.motorica.ui.chat.view.ChartActivity.flagUseHDLCProtocol;
 
-public class ChatPresenterImpl implements ChatPresenter {
+public class ChartPresenterImpl implements ChatPresenter {
     private ChartView view;
     private ChatInteractor interactor;
     private BluetoothDevice device;
@@ -40,7 +40,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private byte txtbyteout16[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x10, 0x00, 0x77, 0x24};                                     //компановка для установки грубости датчиков 0x77 заменяемые данные всего 9 байт
     private boolean onPauseActivity = false;
 
-    public ChatPresenterImpl(ChartView view, ChatInteractor interactor) {
+    public ChartPresenterImpl(ChartView view, ChatInteractor interactor) {
         this.view = view;
         this.interactor = interactor;
     }

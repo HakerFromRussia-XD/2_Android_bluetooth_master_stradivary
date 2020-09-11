@@ -9,7 +9,7 @@ import me.Romans.motorica.ui.chat.view.gesture_settings.FragmentGestureSettings;
 import me.Romans.motorica.ui.chat.view.gesture_settings.FragmentGestureSettings2;
 import me.Romans.motorica.ui.chat.view.gesture_settings.FragmentGestureSettings3;
 import me.Romans.motorica.ui.chat.view.gripper_settings.FragmentGripperSettings;
-import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
+import me.Romans.motorica.ui.chat.view.Massages;
 import me.Romans.motorica.ui.chat.view.service_settings.FragmentServiceSettings;
 import me.Romans.motorica.ui.chat.view.service_settings.FragmentServiceSettingsMono;
 

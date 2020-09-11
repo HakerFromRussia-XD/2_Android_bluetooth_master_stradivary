@@ -20,8 +20,7 @@ import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.common.RawResourceReader;
 import me.Romans.motorica.ui.chat.view.common.ShaderHelper;
 import me.Romans.motorica.ui.chat.view.common.TextureHelper;
-import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
-import me.Romans.motorica.ui.chat.view.model.Load3DModel;
+import me.Romans.motorica.ui.chat.view.Load3DModel;
 
 /**
  * This class implements our custom renderer. Note that the GL10 parameter

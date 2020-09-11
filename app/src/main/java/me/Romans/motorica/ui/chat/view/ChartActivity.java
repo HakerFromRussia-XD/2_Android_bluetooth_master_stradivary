@@ -62,8 +62,6 @@ import me.Romans.motorica.R;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.gesture_settings.FragmentGestureSettings3;
 import me.Romans.motorica.ui.chat.view.gripper_settings.FragmentGripperSettings;
-import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
-import me.Romans.motorica.ui.chat.view.model.Load3DModel;
 import me.Romans.motorica.ui.chat.view.service_settings.FragmentServiceSettings;
 import me.Romans.motorica.ui.chat.view.service_settings.FragmentServiceSettingsMono;
 import me.Romans.motorica.ui.chat.view.service_settings.SettingsDialog;

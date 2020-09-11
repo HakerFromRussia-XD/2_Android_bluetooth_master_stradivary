@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +22,8 @@ import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChartView;
-import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
-import me.Romans.motorica.ui.chat.view.model.Load3DModel;
-
-import static android.support.constraint.Constraints.TAG;
+import me.Romans.motorica.ui.chat.view.Massages;
+import me.Romans.motorica.ui.chat.view.Load3DModel;
 
 public class FragmentGestureSettings3 extends Fragment implements ChartView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.gesture_use) public Button gesture_use;

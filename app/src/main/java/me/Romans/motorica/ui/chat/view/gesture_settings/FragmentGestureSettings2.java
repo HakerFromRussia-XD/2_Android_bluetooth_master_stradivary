@@ -22,8 +22,8 @@ import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChartView;
-import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
-import me.Romans.motorica.ui.chat.view.model.Load3DModel;
+import me.Romans.motorica.ui.chat.view.Massages;
+import me.Romans.motorica.ui.chat.view.Load3DModel;
 
 public class FragmentGestureSettings2 extends Fragment implements ChartView, GesstureAdapter.OnGestureMyListener {
     @BindView(R.id.gesture_use) public Button gesture_use;

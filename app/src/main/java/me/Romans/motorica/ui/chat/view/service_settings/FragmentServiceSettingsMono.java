@@ -18,7 +18,7 @@ import me.Romans.motorica.ui.chat.data.ChatModule;
 import me.Romans.motorica.ui.chat.data.DaggerChatComponent;
 import me.Romans.motorica.ui.chat.view.ChartActivity;
 import me.Romans.motorica.ui.chat.view.ChartView;
-import me.Romans.motorica.ui.chat.view.massage_to_send.Massages;
+import me.Romans.motorica.ui.chat.view.Massages;
 
 public class FragmentServiceSettingsMono extends Fragment implements ChartView {
     @BindView(R.id.save_service_settings) Button save_service_settings;

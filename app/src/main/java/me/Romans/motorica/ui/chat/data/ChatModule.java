@@ -6,9 +6,9 @@ import dagger.Module;
 import dagger.Provides;
 import me.Romans.bluetooth.Bluetooth;
 import me.Romans.motorica.ui.chat.interactor.ChatInteractor;
-import me.Romans.motorica.ui.chat.interactor.ChatInteractorImpl;
+import me.Romans.motorica.ui.chat.interactor.ChartInteractorImpl;
 import me.Romans.motorica.ui.chat.presenter.ChatPresenter;
-import me.Romans.motorica.ui.chat.presenter.ChatPresenterImpl;
+import me.Romans.motorica.ui.chat.presenter.ChartPresenterImpl;
 import me.Romans.motorica.ui.chat.view.ChartView;
 
 @Module
@@ -26,11 +26,11 @@ public class ChatModule {
 
     @Provides @Singleton
     public ChatInteractor provideChatInteractor(Bluetooth bluetooth){
-        return new ChatInteractorImpl(bluetooth);
+        return new ChartInteractorImpl(bluetooth);
     }
 
     @Provides @Singleton
     public ChatPresenter provideChatPresenter(ChartView view, ChatInteractor interactor){
-        return new ChatPresenterImpl(view, interactor);
+        return new ChartPresenterImpl(view, interactor);
     }
 }

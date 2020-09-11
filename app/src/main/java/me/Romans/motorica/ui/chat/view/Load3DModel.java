@@ -1,4 +1,4 @@
-package me.Romans.motorica.ui.chat.view.model;
+package me.Romans.motorica.ui.chat.view;
 
 import android.content.Context;
 

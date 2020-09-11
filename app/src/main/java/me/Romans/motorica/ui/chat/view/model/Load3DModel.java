@@ -20,9 +20,9 @@ import static me.Romans.motorica.ui.chat.view.ChartActivity.selectStation;
 public class Load3DModel extends ChartActivity {
     public static int MAX_NUMBER_DETAILS = 19;
     public volatile static float[][] verticesArray = new float[MAX_NUMBER_DETAILS][1];
-    public static String[][] model = new String[19][];
+    public String[][] model = new String[19][];
     public volatile static int[][] indicesArrayVertices = new int[MAX_NUMBER_DETAILS][1];
-
+    private  Context context;
     private static String[] text;
     public static volatile float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS][];
     private static volatile float[][] texturesArray = new float[MAX_NUMBER_DETAILS][];
@@ -34,16 +34,16 @@ public class Load3DModel extends ChartActivity {
 //    public ChatPresenter presenter;
 
 
-//    public Load3DModel(Context context) {
-//        this.context = context;
-//    }
+    public Load3DModel(Context context) {
+        this.context = context;
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     /**                           Загрузка модели                              **/
     //////////////////////////////////////////////////////////////////////////////
-    public static String[] readData(String fileName) {
+    public  String[] readData(String fileName) {
         try {
-            InputStream is = getApplicationContext().getAssets().open(fileName);
+            InputStream is = context.getAssets().open(fileName);
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -55,7 +55,7 @@ public class Load3DModel extends ChartActivity {
         }
         return text;
     }
-    public static void loadSTR2(final int i) {
+    public void loadSTR2(final int i) {
         parserDataVertices(i);
         parserDataTextures(i);
         parserDataNormals(i);
@@ -66,7 +66,7 @@ public class Load3DModel extends ChartActivity {
     //////////////////////////////////////////////////////////////////////////////
     /**                   Компановка необходимых массивов                      **/
     //////////////////////////////////////////////////////////////////////////////
-    public static void parserDataVertices(int number){
+    public void parserDataVertices(int number){
         String text = "";
         if      (number ==  0) {text = "#" + getStringBuffer1() [1];}
         else if (number ==  1) {text = "#" + getStringBuffer2() [1];}
@@ -109,7 +109,7 @@ public class Load3DModel extends ChartActivity {
             }
         }
     }
-    public static void parserDataTextures(int number){
+    public void parserDataTextures(int number){
         String text = "";
         if      (number ==  0) {text = "#" + getStringBuffer1() [2];}
         else if (number ==  1) {text = "#" + getStringBuffer2() [2];}
@@ -153,7 +153,7 @@ public class Load3DModel extends ChartActivity {
             }
         }
     }
-    public static void parserDataNormals(int number){
+    public void parserDataNormals(int number){
         String text = "";
         if      (number ==  0) {text = "#" + getStringBuffer1() [3];}
         else if (number ==  1) {text = "#" + getStringBuffer2() [3];}
@@ -199,7 +199,7 @@ public class Load3DModel extends ChartActivity {
             }
         }
     }
-    public static void parserDataFacets (int number){
+    public void parserDataFacets (int number){
         String text = "";
         if      (number ==  0) {text = "#" + getStringBuffer1() [4];}
         else if (number ==  1) {text = "#" + getStringBuffer2() [4];}
@@ -313,25 +313,25 @@ public class Load3DModel extends ChartActivity {
         }
     }
 
-    public static String[] getStringBuffer1()  { return model[0];  }
-    public static String[] getStringBuffer2()  { return model[1];  }
-    public static String[] getStringBuffer3()  { return model[2];  }
-    public static String[] getStringBuffer4()  { return model[3];  }
-    public static String[] getStringBuffer5()  { return model[4];  }
-    public static String[] getStringBuffer6()  { return model[5];  }
-    public static String[] getStringBuffer7()  { return model[6];  }
-    public static String[] getStringBuffer8()  { return model[7];  }
-    public static String[] getStringBuffer9()  { return model[8];  }
-    public static String[] getStringBuffer10() { return model[9];  }
-    public static String[] getStringBuffer11() { return model[10]; }
-    public static String[] getStringBuffer12() { return model[11]; }
-    public static String[] getStringBuffer13() { return model[12]; }
-    public static String[] getStringBuffer14() { return model[13]; }
-    public static String[] getStringBuffer15() { return model[14]; }
-    public static String[] getStringBuffer16() { return model[15]; }
-    public static String[] getStringBuffer17() { return model[16]; }
-    public static String[] getStringBuffer18() { return model[17]; }
-    public static String[] getStringBuffer19() { return model[18]; }
+    public String[] getStringBuffer1()  { return model[0];  }
+    public String[] getStringBuffer2()  { return model[1];  }
+    public String[] getStringBuffer3()  { return model[2];  }
+    public String[] getStringBuffer4()  { return model[3];  }
+    public String[] getStringBuffer5()  { return model[4];  }
+    public String[] getStringBuffer6()  { return model[5];  }
+    public String[] getStringBuffer7()  { return model[6];  }
+    public String[] getStringBuffer8()  { return model[7];  }
+    public String[] getStringBuffer9()  { return model[8];  }
+    public String[] getStringBuffer10() { return model[9];  }
+    public String[] getStringBuffer11() { return model[10]; }
+    public String[] getStringBuffer12() { return model[11]; }
+    public String[] getStringBuffer13() { return model[12]; }
+    public String[] getStringBuffer14() { return model[13]; }
+    public String[] getStringBuffer15() { return model[14]; }
+    public String[] getStringBuffer16() { return model[15]; }
+    public String[] getStringBuffer17() { return model[16]; }
+    public String[] getStringBuffer18() { return model[17]; }
+    public String[] getStringBuffer19() { return model[18]; }
 
 
     //////////////////////////////////////////////////////////////////////////////

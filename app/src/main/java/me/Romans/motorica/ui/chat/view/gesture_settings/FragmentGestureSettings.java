@@ -48,7 +48,7 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
         ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
-        mLoad3DModel = new Load3DModel();
+/*        mLoad3DModel = new Load3DModel();*/
 
         List<Gesture_my> gestureMyList = new ArrayList<>();
         RecyclerView recyclerView = view.findViewById(R.id.gripper_list);

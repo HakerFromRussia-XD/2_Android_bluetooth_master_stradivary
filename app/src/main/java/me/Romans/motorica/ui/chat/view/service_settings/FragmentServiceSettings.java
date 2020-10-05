@@ -576,9 +576,6 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     } else {
                         chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     }
-                    int temp = chatActivity.intValueCH1on;
-                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
-                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.invertChannel = true;
                     chatActivity.saveVariable(ChartActivity.deviceName +"invertChannel", 0x01);
                 } else {
@@ -588,12 +585,12 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     } else {
                         chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     }
-                    int temp = chatActivity.intValueCH1on;
-                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
-                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
                     chatActivity.invertChannel = false;
                     chatActivity.saveVariable(ChartActivity.deviceName +"invertChannel", 0x00);
                 }
+                int temp = chatActivity.intValueCH1on;
+                chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
+                chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
             }
         });
 

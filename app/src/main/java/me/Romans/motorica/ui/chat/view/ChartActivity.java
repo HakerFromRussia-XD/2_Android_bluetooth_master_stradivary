@@ -133,7 +133,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public byte[] TextByteSetGeneralParcel = new byte[2];
     //    for graph
     public int receiveCurrent = 0;
-    public int maxCurrent = 1500;
     private int receiveLevelTrigCH1 = 14;
     private int receiveLevelTrigCH2 = 14;
     private int lastReceiveLevelCH1Chat;
@@ -149,7 +148,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public boolean invertChannel = false;
     //    for general updates
     public int numberCycle = 0;
-    public int receiveCurrentChat = 0;
     public int receiveLevelCH1Chat = 0;
     public int receiveLevelCH2Chat = 0;
     public byte receiveIndicationStateChat = 0;
@@ -273,7 +271,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             seekBarIStop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    maxCurrent = seekBar.getProgress();
                 }
 
                 @Override
@@ -282,7 +279,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    maxCurrent = seekBar.getProgress();
                     current = seekBar.getProgress();
                     if(flagUseHDLCProtocol){
                         pauseSendingThread(mMassages.CompileMassageCurrentSettingsAndInvertHDLC(current));
@@ -1225,7 +1221,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                                 } else {
                                     fragmentServiceSettingsMono.switchInvert.setChecked(false);
                                 }
-                                fragmentServiceSettingsMono.seekBarIStop.setProgress(maxCurrent);
+                                fragmentServiceSettingsMono.seekBarIStop.setProgress(current);
                             } else {
                                 if(isEnable){
                                     fragmentServiceSettings.seekBarRoughness.setEnabled(true);
@@ -1322,11 +1318,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             receiveLevelCH1Chat = receiveLevelCH1;
             receiveLevelCH2Chat = receiveLevelCH2;
         }
-        receiveCurrentChat = receiveCurrent;
+
         receiveIndicationStateChat = receiveIndicationState;
         receiveBatteryTensionChat = receiveBatteryTension;
-
-        if((monograbVersion)&&(fragmentServiceSettingsMono.valueIStop2 != null)){fragmentServiceSettingsMono.valueIStop2.setText(String.valueOf(receiveCurrentChat));}
 
         valueBatteryTension.setText(""+receiveBatteryTensionChat); //(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10) удаление знаков после запятой(показания напряжения)
         if (receiveIndicationStateChat == 0){

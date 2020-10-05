@@ -744,6 +744,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         fab.hide();
 
         ////////////////////////////////////////////////
+        /**          3D initialization               **/
         ////////////////////////////////////////////////
 
         Load3DModel.model[0]  = mLoad3DModel.readData(ConstantManager.MODEDEL_0);

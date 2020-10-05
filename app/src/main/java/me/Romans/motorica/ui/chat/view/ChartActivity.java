@@ -1434,7 +1434,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     }
     @Override
     public void setStartParametersCurrent(Integer receiveCurrent) {
-        this.receiveCurrent = receiveCurrent;
+        if(receiveCurrent != 0) this.receiveCurrent = receiveCurrent;
     }
     @Override
     public void setStartParametersBlock(Byte receiveBlockIndication) {

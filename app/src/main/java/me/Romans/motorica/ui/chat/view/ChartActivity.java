@@ -1222,7 +1222,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                                 } else {
                                     fragmentServiceSettingsMono.switchInvert.setChecked(false);
                                 }
-                                fragmentServiceSettingsMono.seekBarIStop.setProgress(current);
                             } else {
                                 if(isEnable){
                                     fragmentServiceSettings.seekBarRoughness.setEnabled(true);

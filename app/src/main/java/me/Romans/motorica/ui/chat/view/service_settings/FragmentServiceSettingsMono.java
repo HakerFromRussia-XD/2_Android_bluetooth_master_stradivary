@@ -29,7 +29,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
     TextView valueIStop;
     public TextView valueIStop2;
     public View view;
-    private ChartActivity chatActivity;
+    private ChartActivity chartActivity;
     Massages mMassages = new Massages();
 
     @Override
@@ -43,30 +43,32 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
                 .build().inject(FragmentServiceSettingsMono.this);
         ButterKnife.bind(this, view);
 
-            if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
-        chatActivity.graphThreadFlag = false;
-        chatActivity.updateServiceSettingsThreadFlag = true;
-        chatActivity.startUpdateThread();
-        chatActivity.layoutSensors.setVisibility(View.GONE);
+            if (getActivity() != null) { chartActivity = (ChartActivity) getActivity();}
+        chartActivity.graphThreadFlag = false;
+        chartActivity.updateServiceSettingsThreadFlag = true;
+        chartActivity.startUpdateThread();
+        chartActivity.layoutSensors.setVisibility(View.GONE);
         valueIStop2 = view.findViewById(R.id.valueIstop2);
         valueIStop = view.findViewById(R.id.valueIstop);
         seekBarIStop = view.findViewById(R.id.seekBarIstopServiceSettings);
+        seekBarIStop.setProgress(chartActivity.current);
+        valueIStop.setText(String.valueOf(seekBarIStop.getProgress()));
 
 
         save_service_settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (getActivity() != null) {
-                    chatActivity.fragmentManager.beginTransaction()
+                    chartActivity.fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                            .remove(chatActivity.fragmentServiceSettingsMono)
+                            .remove(chartActivity.fragmentServiceSettingsMono)
                             .commit();
-                    chatActivity.graphThreadFlag = true;
-                    chatActivity.startGraphEnteringDataThread();
-                    chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
-                    chatActivity.myMenu.setGroupVisible(R.id.modes, false);
-                    chatActivity.updateServiceSettingsThreadFlag = false;
-                    chatActivity.layoutSensors.setVisibility(View.VISIBLE);
+                    chartActivity.graphThreadFlag = true;
+                    chartActivity.startGraphEnteringDataThread();
+                    chartActivity.myMenu.setGroupVisible(R.id.service_settings, true);
+                    chartActivity.myMenu.setGroupVisible(R.id.modes, false);
+                    chartActivity.updateServiceSettingsThreadFlag = false;
+                    chartActivity.layoutSensors.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -83,13 +85,13 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 byte roughness = (byte) (((byte) seekBar.getProgress()) + 1);
-                if(chatActivity.getFlagUseHDLCProtocol()){
-                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageRoughnessHDLC(roughness));
+                if(chartActivity.getFlagUseHDLCProtocol()){
+                    chartActivity.presenter.onHelloWorld(mMassages.CompileMassageRoughnessHDLC(roughness));
                 } else {
-                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageRoughness(roughness));
+                    chartActivity.presenter.onHelloWorld(mMassages.CompileMassageRoughness(roughness));
                 }
-                chatActivity.setReceiveRoughnessOfSensors(roughness);
-                chatActivity.saveVariable( ChartActivity.deviceName +"receiveRoughnessOfSensors", (int) roughness);
+                chartActivity.setReceiveRoughnessOfSensors(roughness);
+                chartActivity.saveVariable( ChartActivity.deviceName +"receiveRoughnessOfSensors", (int) roughness);
             }
         });
 
@@ -98,19 +100,19 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
             public void onClick(View v) {
                 System.err.println("FragmentServiceSettings-------------->");
                 if (switchInvert.isChecked()){
-                    chatActivity.invert = 0x01;
-                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
-                    int temp = chatActivity.intValueCH1on;
-                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
-                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
-                    chatActivity.invertChannel = true;
+                    chartActivity.invert = 0x01;
+                    chartActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chartActivity.current, chartActivity.invert));
+                    int temp = chartActivity.intValueCH1on;
+                    chartActivity.seekBarCH1on2.setProgress((int) (chartActivity.intValueCH2on/(chartActivity.multiplierSeekBar -0.1)));//-0.5
+                    chartActivity.seekBarCH2on2.setProgress((int) (temp/(chartActivity.multiplierSeekBar -0.1)));//-0.5
+                    chartActivity.invertChannel = true;
                 } else {
-                    chatActivity.invert = 0x00;
-                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
-                    int temp = chatActivity.intValueCH1on;
-                    chatActivity.seekBarCH1on2.setProgress((int) (chatActivity.intValueCH2on/(chatActivity.multiplierSeekBar -0.1)));//-0.5
-                    chatActivity.seekBarCH2on2.setProgress((int) (temp/(chatActivity.multiplierSeekBar -0.1)));//-0.5
-                    chatActivity.invertChannel = false;
+                    chartActivity.invert = 0x00;
+                    chartActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chartActivity.current, chartActivity.invert));
+                    int temp = chartActivity.intValueCH1on;
+                    chartActivity.seekBarCH1on2.setProgress((int) (chartActivity.intValueCH2on/(chartActivity.multiplierSeekBar -0.1)));//-0.5
+                    chartActivity.seekBarCH2on2.setProgress((int) (temp/(chartActivity.multiplierSeekBar -0.1)));//-0.5
+                    chartActivity.invertChannel = false;
                 }
             }
         });
@@ -127,12 +129,12 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                chatActivity.current = seekBar.getProgress();
-                chatActivity.saveVariable( ChartActivity.deviceName +"current", chatActivity.current);
-                if(chatActivity.getFlagUseHDLCProtocol()){
-                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvertHDLC(chatActivity.current));
+                chartActivity.current = seekBar.getProgress();
+                chartActivity.saveVariable( ChartActivity.deviceName +"current", chartActivity.current);
+                if(chartActivity.getFlagUseHDLCProtocol()){
+                    chartActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvertHDLC(chartActivity.current));
                 } else {
-                    chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
+                    chartActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chartActivity.current, chartActivity.invert));
                 }
             }
         });
@@ -141,14 +143,14 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
             @Override
             public void onClick(View v) {
                 if (switchNotUseInternalADC.isChecked()){
-                    if(chatActivity.getFlagUseHDLCProtocol()){
+                    if(chartActivity.getFlagUseHDLCProtocol()){
                         System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 0");
-                        chatActivity.presenter.onHelloWorld(mMassages.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x00));
+                        chartActivity.presenter.onHelloWorld(mMassages.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x00));
                     }
                 } else {
-                    if(chatActivity.getFlagUseHDLCProtocol()){
+                    if(chartActivity.getFlagUseHDLCProtocol()){
                         System.err.println("FragmentServiceSettings--------------> CompileMassegeSettingsNotUseInternalADCHDLC 1");
-                        chatActivity.presenter.onHelloWorld(mMassages.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x01));
+                        chartActivity.presenter.onHelloWorld(mMassages.CompileMassageSettingsNotUseInternalADCHDLC((byte) 0x01));
                     }
                 }
             }
@@ -160,30 +162,30 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
     @Override
     public void onResume() {
         super.onResume();
-        seekBarIStop.setProgress(chatActivity.loadVariable((ChartActivity.deviceName +"current")));
-        seekBarRoughness.setProgress(chatActivity.receiveRoughnessOfSensors);
+        seekBarIStop.setProgress(chartActivity.loadVariable((ChartActivity.deviceName +"current")));
+        seekBarRoughness.setProgress(chartActivity.receiveRoughnessOfSensors);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        chatActivity.seekBarIStop.setProgress(chatActivity.loadVariable((ChartActivity.deviceName +"current")));
+        chartActivity.seekBarIStop.setProgress(chartActivity.loadVariable((ChartActivity.deviceName +"current")));
     }
 
 
     public void backPressed() {
         if (getActivity() != null) {
             System.err.println("fragmentServiceSettingsMono----> выполнение  backPressed()");
-            chatActivity.fragmentManager.beginTransaction()
+            chartActivity.fragmentManager.beginTransaction()
                     .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                    .remove(chatActivity.fragmentServiceSettingsMono)
+                    .remove(chartActivity.fragmentServiceSettingsMono)
                     .commit();
-            chatActivity.graphThreadFlag = true;
-            chatActivity.startGraphEnteringDataThread();
-            chatActivity.myMenu.setGroupVisible(R.id.service_settings, true);
-            chatActivity.myMenu.setGroupVisible(R.id.modes, false);
-            chatActivity.updateServiceSettingsThreadFlag = false;
-            chatActivity.layoutSensors.setVisibility(View.VISIBLE);
+            chartActivity.graphThreadFlag = true;
+            chartActivity.startGraphEnteringDataThread();
+            chartActivity.myMenu.setGroupVisible(R.id.service_settings, true);
+            chartActivity.myMenu.setGroupVisible(R.id.modes, false);
+            chartActivity.updateServiceSettingsThreadFlag = false;
+            chartActivity.layoutSensors.setVisibility(View.VISIBLE);
         }
     }
 

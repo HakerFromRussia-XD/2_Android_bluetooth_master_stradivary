@@ -571,18 +571,14 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                 System.err.println("FragmentServiceSettings-------------->");
                 if (switchInvert.isChecked()){
                     chatActivity.invert = 0x01;
-                    if(chatActivity.getFlagUseHDLCProtocol()){
-                        chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvertHDLC(chatActivity.current));
-                    } else {
+                    if(!chatActivity.getFlagUseHDLCProtocol()){
                         chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     }
                     chatActivity.invertChannel = true;
                     chatActivity.saveVariable(ChartActivity.deviceName +"invertChannel", 0x01);
                 } else {
                     chatActivity.invert = 0x00;
-                    if(chatActivity.getFlagUseHDLCProtocol()){
-                        chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvertHDLC(chatActivity.current));
-                    } else {
+                    if(!chatActivity.getFlagUseHDLCProtocol()){
                         chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvert(chatActivity.current, chatActivity.invert));
                     }
                     chatActivity.invertChannel = false;

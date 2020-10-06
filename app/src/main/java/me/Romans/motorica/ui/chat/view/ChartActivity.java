@@ -173,8 +173,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public float heightBottomNavigation;
     //    public int indexCount;
     public static int MAX_NUMBER_DETAILS = 19;
-    public volatile static float[][] verticesArray = new float[MAX_NUMBER_DETAILS][1];
-    public volatile static int[][] indicesArrayVertices = new int[MAX_NUMBER_DETAILS][1];
     public Thread[] threadFunction = new Thread[MAX_NUMBER_DETAILS];
     //	  for transfer
     private byte numberFinger;
@@ -280,6 +278,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     current = seekBar.getProgress();
+                    saveVariable( deviceName+"current",current);
                     if(flagUseHDLCProtocol){
                         pauseSendingThread(mMassages.CompileMassageCurrentSettingsAndInvertHDLC(current));
                     } else {
@@ -287,6 +286,8 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     }
                 }
             });
+            current = loadVariable(deviceName +"current");
+            seekBarIStop.setProgress(current);
         } else {
             //многосхватная версия
             activity_chat_gesture1.setOnTouchListener(new View.OnTouchListener() {
@@ -1428,7 +1429,11 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     }
     @Override
     public void setStartParametersCurrent(Integer receiveCurrent) {
-        if(receiveCurrent != 0) this.receiveCurrent = receiveCurrent;
+        if(receiveCurrent != 0) {
+            this.receiveCurrent = receiveCurrent;
+        } else {
+            this.receiveCurrent = loadVariable(deviceName +"current");
+        }
     }
     @Override
     public void setStartParametersBlock(Byte receiveBlockIndication) {
@@ -1564,7 +1569,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 }catch (Exception ignored){}
                 if(!flagReceptionExpectation){
 //                    requestStartBlockThread();
-//                    TODO вынесли запрос блокировки до лучших времён
+                    //TODO вынесли запрос блокировки до лучших времён
                     requestStartRoughnessThread();
                     System.out.println("ChartActivity--------------> запуск запроса следующей функции Block");
                 }

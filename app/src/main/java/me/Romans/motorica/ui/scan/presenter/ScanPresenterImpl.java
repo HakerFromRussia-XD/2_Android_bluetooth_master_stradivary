@@ -227,7 +227,6 @@ public class ScanPresenterImpl implements ScanPresenter{
                     equals = false;
                 } else {
                     if(device.getType() == 1){//тип один - компьютеры и телефоны, тип - 2 вякая хуйня и те профили в протезах, которые мы хотим отсечь
-                        //TODO организавать проверку на совпадение имён в скан листе
                         List<ScanItem> scanItemList = view.getMyScanList();
                         boolean canAdd = true;
                         for(int i=0; i<scanItemList.size(); i++){//проверяет есть ли в списке отсканированных устройств вновь найденное

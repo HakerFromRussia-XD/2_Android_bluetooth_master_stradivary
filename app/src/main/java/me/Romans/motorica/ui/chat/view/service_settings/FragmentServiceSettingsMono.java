@@ -30,7 +30,6 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
     public TextView valueIStop2;
     public View view;
     private ChartActivity chatActivity;
-    private int maxCurrent = 1500;
     Massages mMassages = new Massages();
 
     @Override
@@ -90,7 +89,7 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
                     chatActivity.presenter.onHelloWorld(mMassages.CompileMassageRoughness(roughness));
                 }
                 chatActivity.setReceiveRoughnessOfSensors(roughness);
-                chatActivity.saveVariable( chatActivity.deviceName+"receiveRoughnessOfSensors", (int) roughness);
+                chatActivity.saveVariable( ChartActivity.deviceName +"receiveRoughnessOfSensors", (int) roughness);
             }
         });
 
@@ -119,7 +118,6 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
         seekBarIStop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                maxCurrent = seekBar.getProgress();
                 valueIStop.setText(String.valueOf(seekBar.getProgress()));
             }
 
@@ -129,10 +127,8 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                maxCurrent = seekBar.getProgress();
-                chatActivity.maxCurrent = maxCurrent;
-                valueIStop.setText(String.valueOf(seekBar.getProgress()));
                 chatActivity.current = seekBar.getProgress();
+                chatActivity.saveVariable( ChartActivity.deviceName +"current", chatActivity.current);
                 if(chatActivity.getFlagUseHDLCProtocol()){
                     chatActivity.presenter.onHelloWorld(mMassages.CompileMassageCurrentSettingsAndInvertHDLC(chatActivity.current));
                 } else {
@@ -164,14 +160,14 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
     @Override
     public void onResume() {
         super.onResume();
-        seekBarIStop.setProgress(chatActivity.maxCurrent);
+        seekBarIStop.setProgress(chatActivity.loadVariable((ChartActivity.deviceName +"current")));
         seekBarRoughness.setProgress(chatActivity.receiveRoughnessOfSensors);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        chatActivity.seekBarIStop.setProgress(maxCurrent);
+        chatActivity.seekBarIStop.setProgress(chatActivity.loadVariable((ChartActivity.deviceName +"current")));
     }
 
 

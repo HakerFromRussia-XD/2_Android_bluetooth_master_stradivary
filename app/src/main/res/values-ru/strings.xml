@@ -111,6 +111,8 @@
     <string name="connection_is_absent">Подключение отсутствует</string>
     <string name="off_schedules">включение графиков</string>
     <string name="on_schedules">отключение графиков</string>
+    <string name="magic_checkbox">Магические чекбоксы</string>
+    <string name="speed_increment">инкремент скорости</string>
 
     <string-array name="numbers">
         <item>0</item>

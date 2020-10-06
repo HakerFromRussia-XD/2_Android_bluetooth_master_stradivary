@@ -117,6 +117,8 @@ public class Massages implements ChatPresenter {
                     case ConstantManager.MAGNET_INVERT_CALIB_TYPE:
                     case ConstantManager.REVERS_MOTOR_CALIB_TYPE:
                     case ConstantManager.ZERO_CROSSING_CALIB_TYPE:
+                    case ConstantManager.SPEED_INCREMENT_TYPE:
+                    case ConstantManager.DISABLE_ANGLE_CONTROL_TYPE:
                         byte[] TextByteTriggerSettings = new byte[5];
                         TextByteTriggerSettings[0] = numberChannel;
                         TextByteTriggerSettings[1] = rec;

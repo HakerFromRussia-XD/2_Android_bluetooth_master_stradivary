@@ -111,6 +111,8 @@
     <string name="connection_is_absent">connection is absent</string>
     <string name="off_schedules">off schedules</string>
     <string name="on_schedules">on schedules</string>
+    <string name="magic_checkbox">Magic checkbox</string>
+    <string name="speed_increment">speed increment</string>
 
     <string-array name="numbers">
         <item>0</item>

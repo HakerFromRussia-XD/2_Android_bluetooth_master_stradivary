@@ -47,6 +47,8 @@ public interface  ConstantManager {
     byte OPEN_STOP_CLOSE_CALIB_TYPE         =0x00;
     byte SET_ADDR_CALIB_TYPE                =0x06;
     byte TEMP_CALIB_TYPE                    =0x07;
+    byte DISABLE_ANGLE_CONTROL_TYPE         =0x09;
+    byte SPEED_INCREMENT_TYPE               =0x0A;
     byte CURRENT_CONTROL_CALIB_TYPE         =0x05;
     byte CURRENT_TIMEOUT_CALIB_TYPE         =0x1C;
     byte CURRENTS_CALIB_TYPE                =0x04;

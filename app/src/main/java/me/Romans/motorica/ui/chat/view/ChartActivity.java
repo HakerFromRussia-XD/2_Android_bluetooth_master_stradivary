@@ -1712,7 +1712,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         }
         this.runOnUi = true;
         if(isEnable){
-            if(showMenu){myMenu.setGroupVisible(R.id.service_settings, true);}
+            if(showMenu){ myMenu.setGroupVisible(R.id.service_settings, true); }
             transferThread = new Thread(new Runnable() {
                 @Override
                 public void run() {

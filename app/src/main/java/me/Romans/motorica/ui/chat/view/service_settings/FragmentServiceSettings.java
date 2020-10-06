@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -72,6 +73,8 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
     @BindView(R.id.seekBarSpeed) SeekBar seekBarSpeed;
     @BindView(R.id.seekBarAngle) SeekBar seekBarAngle;
     @BindView(R.id.switchCurrentControl) Switch switchCurrentControl;
+    @BindView(R.id.checkboxSpeedIncrement) CheckBox checkboxSpeedIncrement;
+    @BindView(R.id.checkboxDisableAngleControl) CheckBox checkboxDisableAngleControl;
     public View view;
     private ChartActivity chatActivity;
     Massages mMassages = new Massages();
@@ -140,6 +143,34 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                         chatActivity.presenter.onHelloWorld(
                                 mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.OPEN_STOP_CLOSE_CALIB_TYPE, (byte) chatActivity.numberOfChannel,
                                         ConstantManager.WRITE, 0x01, (byte) 0x00));
+                    }
+                }
+            });
+            checkboxSpeedIncrement.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getActivity() != null) {
+                        System.err.println("CLICK SPEED INCREMENT " + checkboxSpeedIncrement.isChecked());
+                        if (checkboxSpeedIncrement.isChecked()){
+                            mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.SPEED_INCREMENT_TYPE, (byte) chatActivity.numberOfChannel,
+                                    ConstantManager.WRITE,  (byte) 0x01, (byte) 0x00);
+                        } else {
+                            mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.SPEED_INCREMENT_TYPE, (byte) chatActivity.numberOfChannel,
+                                    ConstantManager.WRITE,  (byte) 0x00, (byte) 0x00);
+                        }
+                    }
+                }
+            });
+            checkboxDisableAngleControl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    System.err.println("CLICK DISABLE ANGEL CONTROL " + checkboxDisableAngleControl.isChecked());
+                    if (checkboxDisableAngleControl.isChecked()){
+                        mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.DISABLE_ANGLE_CONTROL_TYPE, (byte) chatActivity.numberOfChannel,
+                                ConstantManager.WRITE,  (byte) 0x01, (byte) 0x00);
+                    } else {
+                        mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.DISABLE_ANGLE_CONTROL_TYPE, (byte) chatActivity.numberOfChannel,
+                                ConstantManager.WRITE,  (byte) 0x00, (byte) 0x00);
                     }
                 }
             });

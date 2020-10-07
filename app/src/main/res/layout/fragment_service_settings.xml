@@ -301,6 +301,7 @@
                         android:layout_alignParentEnd="true"
                         android:gravity="center"
                         android:layout_weight="1"
+                        android:textSize="10sp"
                         android:text="@string/speed_increment" />
                     <CheckBox
                         android:id="@+id/checkboxSpeedIncrement"
@@ -316,7 +317,8 @@
                         android:layout_alignParentEnd="true"
                         android:gravity="center"
                         android:layout_weight="1"
-                        android:text="@string/speed_increment" />
+                        android:textSize="10sp"
+                        android:text="@string/disable_angel_control" />
                     <CheckBox
                         android:id="@+id/checkboxDisableAngleControl"
                         android:layout_width="wrap_content"
@@ -360,7 +362,7 @@
                         android:inputType="number"
                         android:textColor="#5d5d5d"
                         android:textColorHint="#5d5d5d"
-                        android:textSize="14sp" />
+                        android:textSize="12sp" />
                 </android.support.design.widget.TextInputLayout>
 
                 <Button

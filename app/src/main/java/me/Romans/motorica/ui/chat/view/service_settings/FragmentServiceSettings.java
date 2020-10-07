@@ -152,11 +152,13 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                     if (getActivity() != null) {
                         System.err.println("CLICK SPEED INCREMENT " + checkboxSpeedIncrement.isChecked());
                         if (checkboxSpeedIncrement.isChecked()){
-                            mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.SPEED_INCREMENT_TYPE, (byte) chatActivity.numberOfChannel,
-                                    ConstantManager.WRITE,  (byte) 0x01, (byte) 0x00);
+                            chatActivity.presenter.onHelloWorld(
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.SPEED_INCREMENT_TYPE, (byte) chatActivity.numberOfChannel,
+                                     ConstantManager.WRITE,  (byte) 0x01, (byte) 0x00));
                         } else {
-                            mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.SPEED_INCREMENT_TYPE, (byte) chatActivity.numberOfChannel,
-                                    ConstantManager.WRITE,  (byte) 0x00, (byte) 0x00);
+                            chatActivity.presenter.onHelloWorld(
+                                mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.SPEED_INCREMENT_TYPE, (byte) chatActivity.numberOfChannel,
+                                        ConstantManager.WRITE,  (byte) 0x00, (byte) 0x00));
                         }
                     }
                 }
@@ -166,11 +168,13 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
                 public void onClick(View v) {
                     System.err.println("CLICK DISABLE ANGEL CONTROL " + checkboxDisableAngleControl.isChecked());
                     if (checkboxDisableAngleControl.isChecked()){
-                        mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.DISABLE_ANGLE_CONTROL_TYPE, (byte) chatActivity.numberOfChannel,
-                                ConstantManager.WRITE,  (byte) 0x01, (byte) 0x00);
+                        chatActivity.presenter.onHelloWorld(
+                            mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.DISABLE_ANGLE_CONTROL_TYPE, (byte) chatActivity.numberOfChannel,
+                                    ConstantManager.WRITE,  (byte) 0x01, (byte) 0x00));
                     } else {
-                        mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.DISABLE_ANGLE_CONTROL_TYPE, (byte) chatActivity.numberOfChannel,
-                                ConstantManager.WRITE,  (byte) 0x00, (byte) 0x00);
+                        chatActivity.presenter.onHelloWorld(
+                            mMassages.CompileMassageSettingsCalibrationHDLC(ConstantManager.DISABLE_ANGLE_CONTROL_TYPE, (byte) chatActivity.numberOfChannel,
+                                    ConstantManager.WRITE,  (byte) 0x00, (byte) 0x00));
                     }
                 }
             });

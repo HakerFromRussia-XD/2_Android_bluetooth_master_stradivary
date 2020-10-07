@@ -113,6 +113,7 @@
     <string name="on_schedules">отключение графиков</string>
     <string name="magic_checkbox">Магические чекбоксы</string>
     <string name="speed_increment">инкремент скорости</string>
+    <string name="disable_angel_control">выключение контроля угла</string>
 
     <string-array name="numbers">
         <item>0</item>

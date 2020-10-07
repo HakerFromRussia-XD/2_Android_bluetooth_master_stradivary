@@ -113,6 +113,7 @@
     <string name="on_schedules">on schedules</string>
     <string name="magic_checkbox">Magic checkbox</string>
     <string name="speed_increment">speed increment</string>
+    <string name="disable_angel_control">disable angel control</string>
 
     <string-array name="numbers">
         <item>0</item>

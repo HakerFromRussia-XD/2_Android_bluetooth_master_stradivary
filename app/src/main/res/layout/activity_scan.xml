@@ -8,7 +8,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="#e0e0e0"
-    tools:context="me.Romans.motorica.ui.scan.view.ScanActivity"
+    tools:context=".scan.view.ScanActivity"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -30,10 +30,8 @@
             android:layout_height="match_parent"
             android:layout_below="@+id/activity_scan_paired_text"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
             android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginBottom="0dp" />
 
@@ -42,17 +40,12 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:background="@android:color/darker_gray"
-        android:layout_alignParentLeft="true" />
+        android:background="@android:color/darker_gray" />
 
     <RelativeLayout
         android:id="@+id/activity_scan_layout"
         android:layout_width="wrap_content"
         android:layout_height="4dp"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentLeft="true"
         android:visibility="visible"
         android:layout_weight="1">
 
@@ -62,23 +55,18 @@
             android:layout_height="match_parent"
             android:visibility="gone" />
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#e0e0e0"
             android:orientation="horizontal"
-            tools:context="me.Romans.motorica.ui.scan.view.ScanActivity">
+            tools:context=".scan.view.ScanActivity">
 
             <ProgressBar
                 android:id="@+id/activity_scan_progress"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_above="@+id/activity_scan_button"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="1dp"
-                android:layout_marginLeft="1dp"
                 android:layout_marginBottom="-115dp"
                 android:indeterminate="true"
                 android:padding="10dp"
@@ -88,8 +76,6 @@
                 android:id="@+id/activity_scan_state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
                 android:layout_marginTop="1dp"
@@ -106,7 +92,6 @@
                 android:textColor="#FF525252"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:text="@string/activity_scan_button"
                 android:visibility="visible" />

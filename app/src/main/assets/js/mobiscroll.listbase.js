@@ -106,6 +106,7 @@
             for (i = 0; i < l; i++) {
                 a[i] = s.labels && s.labels[i] ? s.labels[i] : i;
             }
+
             return a;
         }
 

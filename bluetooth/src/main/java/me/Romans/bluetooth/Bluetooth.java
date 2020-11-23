@@ -1257,7 +1257,7 @@ public class Bluetooth {
                 dumpingIVariableThreadFlag = true;
                 try {
                     Thread.sleep(BluetoothConstantManager.TIME_DAMPING_HDLC_MS);
-                }catch (Exception e){}
+                }catch (Exception ignored){}
                 while (dumpingIVariableThreadFlag){
                     System.out.println("BLUETOOTH--------------> обнуления i выполнилось");
                     i =1;
@@ -1270,7 +1270,7 @@ public class Bluetooth {
 
     public byte calculationCRC(byte[] bytes, int length) {
         byte CRC = (byte) 0xff;
-        boolean b = false;
+        boolean b;
         for (int i = 0; i < length; i++){
             CRC ^= bytes[i];
             for (int j = 0; j < 8; j++)

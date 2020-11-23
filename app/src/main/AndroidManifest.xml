@@ -7,13 +7,13 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name="me.Romans.motorica.MyApp"
+        android:name="me.Romans.motorica.old_electronic_by_Misha.MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="me.Romans.motorica.ui.SplashScreen">
+        <activity android:name=".old_electronic_by_Misha.ui.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,10 +21,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="me.Romans.motorica.ui.scan.view.ScanActivity"
+            android:name=".scan.view.ScanActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="me.Romans.motorica.ui.chat.view.ChartActivity"
+            android:name=".old_electronic_by_Misha.ui.chat.view.ChartActivity"
             android:screenOrientation="portrait">
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
@@ -33,7 +33,7 @@
         </activity>
 
         <activity
-            android:name="me.Romans.motorica.ui.chat.view.experimental.DualChart"
+            android:name=".old_electronic_by_Misha.ui.chat.view.experimental.DualChart"
             android:screenOrientation="landscape"/>
     </application>
 

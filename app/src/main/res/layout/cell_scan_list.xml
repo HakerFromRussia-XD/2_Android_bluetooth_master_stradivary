@@ -33,6 +33,7 @@
         android:padding="16dp"
         app:srcCompat="@drawable/circle_16_green"
         tools:ignore="HardcodedText" />
+
     <ProgressBar
         android:id="@+id/activity_check_progress"
         android:layout_width="48dp"

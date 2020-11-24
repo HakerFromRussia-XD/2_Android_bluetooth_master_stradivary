@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/connect_view"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/green"
+        android:visibility="gone"/>
+    <View
+        android:id="@+id/disconnect_view"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/red"
+        android:visibility="gone"/>
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/mainactivity_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+<!--    <com.gigamole.navigationtabbar.ntb.NavigationTabBar-->
+<!--        android:id="@+id/mainactivity_navi"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="60dp"-->
+<!--        app:ntb_inactive_color="@color/dark"-->
+<!--        app:ntb_active_color="@color/orange"-->
+<!--        app:ntb_preview_colors="@array/colors"-->
+<!--        app:ntb_bg_color="@color/cream_white"-->
+<!--        app:ntb_badge_bg_color="@color/deepDark"-->
+<!--        app:ntb_badge_title_color="@color/orange"-->
+<!--        app:ntb_badge_gravity="top"-->
+<!--        app:ntb_badge_position="right"-->
+<!--        app:ntb_badged="true"-->
+<!--        app:ntb_scaled="true"-->
+<!--        app:ntb_swiped="true"-->
+<!--        app:ntb_tinted="true"-->
+<!--        app:ntb_title_mode="active"-->
+<!--        app:ntb_titled="true"/>-->
+
+    <ExpandableListView android:id="@+id/gatt_services_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="0dp"/>
+</LinearLayout>

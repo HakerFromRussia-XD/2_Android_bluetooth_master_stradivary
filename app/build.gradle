@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.Romans.motorica"
-        minSdkVersion 19
+        minSdkVersion 24
         targetSdkVersion 28
         versionCode 12
         versionName "1.5.230"
@@ -32,7 +32,10 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 //    testImplementation 'junit:junit:4.12'
 //    noinspection GradleCompatible
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'
@@ -46,11 +49,12 @@ dependencies {
     implementation project(path: ':bluetooth')
     // dagger2
     implementation 'com.google.dagger:dagger:2.27'
+    implementation 'org.jetbrains:annotations-java5:15.0'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
     // butter knife
-    implementation 'com.jakewharton:butterknife:8.8.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.jakewharton:butterknife:10.0.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
     // dexter (permissions)
     implementation 'com.karumi:dexter:4.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 }

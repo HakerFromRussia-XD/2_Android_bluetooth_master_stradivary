@@ -4,11 +4,7 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -16,8 +12,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -36,13 +38,14 @@ import me.Romans.motorica.scan.data.ScanItem;
 import me.Romans.motorica.scan.data.ScanListAdapter;
 import me.Romans.motorica.scan.data.ScanModule;
 import me.Romans.motorica.scan.presenter.ScanPresenter;
+import me.Romans.motorica.scan.presenter.ScanPresenterImpl;
 
 public class ScanActivity extends AppCompatActivity implements ScanView, ScanListAdapter.OnScanMyListener {
     RecyclerView pairedDeviceList;
-    @BindView(R.id.activity_scan_list) ListView deviceList;
-    @BindView(R.id.activity_scan_state) TextView state;
-    @BindView(R.id.activity_scan_progress) ProgressBar progress;
-    @BindView(R.id.activity_scan_button) Button scanButton;
+    ListView deviceList;
+    TextView state;
+    ProgressBar progress;
+    Button scanButton;
     private boolean firstStart = true;
 
     @Inject
@@ -57,14 +60,21 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
 
+        /////////////////////////////////////////
+        deviceList = findViewById(R.id.activity_scan_list);
+        state = findViewById(R.id.activity_scan_state);
+        progress = findViewById(R.id.activity_scan_progress);
+        scanButton = findViewById(R.id.activity_scan_button);
+        /////////////////////////////////////////
+
         scanList = new ArrayList<>();
         buildScanListView();
 
-        DaggerScanComponent.builder()
-                .bluetoothModule(MyApp.app().bluetoothModule())
-                .scanModule(new ScanModule(this))
-                .build().inject(this);
-        ButterKnife.bind(this);
+//        DaggerScanComponent.builder()
+//                .bluetoothModule(MyApp.app().bluetoothModule())
+//                .scanModule(new ScanModule(this))
+//                .build().inject(this);
+//        ButterKnife.bind(this);
     }
 
     @OnClick(R.id.activity_scan_button)

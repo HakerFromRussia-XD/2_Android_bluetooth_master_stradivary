@@ -1,7 +1,7 @@
 package me.Romans.motorica.old_electronic_by_Misha.ui.chat.view.service_settings;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,7 +25,9 @@ import me.Romans.motorica.old_electronic_by_Misha.ui.chat.view.Massages;
 public class FragmentServiceSettingsMono extends Fragment implements ChartView {
     @BindView(R.id.save_service_settings) Button save_service_settings;
     @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     @BindView(R.id.switchInvert) public Switch switchInvert;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
     public SeekBar seekBarIStop;
     TextView valueIStop;

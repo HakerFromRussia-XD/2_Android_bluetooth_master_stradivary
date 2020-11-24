@@ -1,7 +1,7 @@
 package me.Romans.motorica.old_electronic_by_Misha.ui.chat.view.service_settings;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -19,6 +19,8 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.Romans.motorica.old_electronic_by_Misha.MyApp;
@@ -30,13 +32,19 @@ import me.Romans.motorica.old_electronic_by_Misha.ui.chat.view.ChartView;
 import me.Romans.motorica.old_electronic_by_Misha.ui.chat.view.Massages;
 import me.Romans.motorica.old_electronic_by_Misha.utils.ConstantManager;
 
-import static android.support.constraint.Constraints.TAG;
+import static android.content.ContentValues.TAG;
+
 
 public class FragmentServiceSettings extends Fragment implements ChartView {
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     @BindView(R.id.switchInvert) public Switch switchInvert;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     @BindView(R.id.switchMagnetInvert) Switch switchMagnetInvert;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     @BindView(R.id.switchReversMotor) Switch switchReversMotor;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     @BindView(R.id.switchZeroCrossing) Switch switchZeroCrossing;
     @BindView(R.id.layout_calibration) public RelativeLayout layout_calibration;
     @BindView(R.id.save_service_settings) Button save_service_settings;

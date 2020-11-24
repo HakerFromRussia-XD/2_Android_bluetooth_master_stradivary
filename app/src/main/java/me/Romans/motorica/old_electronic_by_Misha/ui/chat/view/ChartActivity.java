@@ -2,21 +2,12 @@ package me.Romans.motorica.old_electronic_by_Misha.ui.chat.view;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +22,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -40,6 +37,11 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +68,8 @@ import me.Romans.motorica.old_electronic_by_Misha.ui.chat.view.service_settings.
 import me.Romans.motorica.old_electronic_by_Misha.ui.chat.view.service_settings.FragmentServiceSettingsMono;
 import me.Romans.motorica.old_electronic_by_Misha.ui.chat.view.service_settings.SettingsDialog;
 import me.Romans.motorica.old_electronic_by_Misha.utils.ConstantManager;
+
+import static me.Romans.motorica.R.id.view_pager;
 
 public class ChartActivity extends AppCompatActivity implements ChartView, GesstureAdapter.OnGestureMyListener, SettingsDialog.SettingsDialogListener {
     public static volatile boolean monograbVersion;
@@ -235,6 +239,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
     @Inject
     public ChatPresenter presenter;
+
 
 
     @SuppressLint({"NewApi", "ClickableViewAccessibility"})
@@ -1177,13 +1182,13 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в monograbVersion");
                 fragmentManager.beginTransaction()
                         .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                        .add(R.id.view_pager, fragmentServiceSettingsMono)
+                        .add(view_pager, fragmentServiceSettingsMono)
                         .commit();
             } else {
                 System.out.println("ChatActivity----> жмяк по onOptionsItemSelected в multigrabVersion");
                 fragmentManager.beginTransaction()
                         .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                        .add(R.id.view_pager, fragmentServiceSettings)
+                        .add(view_pager, fragmentServiceSettings)
                         .commit();
                 navigation.clearAnimation();
                 navigation.animate().translationY(heightBottomNavigation).setDuration(200);
@@ -1947,7 +1952,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 if(firstTapRecyclerView) {
                     fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                            .add(R.id.view_pager, fragmentGestureSettings)
+                            .add(view_pager, fragmentGestureSettings)
                             .commit();
                     navigation.clearAnimation();
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
@@ -1958,9 +1963,11 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 break;
             case 1:
                 if(firstTapRecyclerView) {
-                    fragmentManager.beginTransaction()
+                    int commit = fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                            .add(R.id.view_pager, fragmentGestureSettings2)
+                            .add(view_pager, fragmentGestureSettings2)
+//                            .add(R.id.view_pager, fragmentGestureSettings2)
+//                            .add(R.id.view_pager, fragmentGestureSettings2)
                             .commit();
                     navigation.clearAnimation();
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
@@ -1973,7 +1980,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 if(firstTapRecyclerView) {
                     fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
-                            .add(R.id.view_pager, fragmentGestureSettings3)
+                            .add(view_pager, fragmentGestureSettings3)
                             .commit();
                     navigation.clearAnimation();
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);

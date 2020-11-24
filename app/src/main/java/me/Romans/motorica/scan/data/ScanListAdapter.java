@@ -3,14 +3,15 @@ package me.Romans.motorica.scan.data;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     @Override
     public ScanViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mCtx);
-        @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.cell_scan_list, null);
+        @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.item_scanlist, null);
         return new ScanViewHolder(view, mOnScanMyListener);
     }
 

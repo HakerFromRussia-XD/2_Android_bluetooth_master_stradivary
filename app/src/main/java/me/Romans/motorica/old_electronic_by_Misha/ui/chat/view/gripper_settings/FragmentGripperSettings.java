@@ -43,7 +43,7 @@ public class FragmentGripperSettings extends Fragment implements ChartView {
                 .bluetoothModule(MyApp.app().bluetoothModule())
                 .chatModule(new ChatModule(FragmentGripperSettings.this))
                 .build().inject(FragmentGripperSettings.this);
-        ButterKnife.bind(this, view);
+//        ButterKnife.bind(this, view);
         if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
 
         gripper_use = view.findViewById(R.id.gripper_use);

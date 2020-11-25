@@ -27,9 +27,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import me.Romans.motorica.old_electronic_by_Misha.MyApp;
 import me.Romans.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 import me.Romans.motorica.R;
@@ -38,7 +35,6 @@ import me.Romans.motorica.scan.data.ScanItem;
 import me.Romans.motorica.scan.data.ScanListAdapter;
 import me.Romans.motorica.scan.data.ScanModule;
 import me.Romans.motorica.scan.presenter.ScanPresenter;
-import me.Romans.motorica.scan.presenter.ScanPresenterImpl;
 
 public class ScanActivity extends AppCompatActivity implements ScanView, ScanListAdapter.OnScanMyListener {
     RecyclerView pairedDeviceList;
@@ -58,8 +54,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DaggerScanComponent.builder()
+                .bluetoothModule(MyApp.app().bluetoothModule())
+                .scanModule(new ScanModule(this))
+                .build().inject(this);
         setContentView(R.layout.activity_scan);
-
         /////////////////////////////////////////
         deviceList = findViewById(R.id.activity_scan_list);
         state = findViewById(R.id.activity_scan_state);
@@ -70,16 +69,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanList = new ArrayList<>();
         buildScanListView();
 
-//        DaggerScanComponent.builder()
-//                .bluetoothModule(MyApp.app().bluetoothModule())
-//                .scanModule(new ScanModule(this))
-//                .build().inject(this);
-//        ButterKnife.bind(this);
-    }
-
-    @OnClick(R.id.activity_scan_button)
-    public void onScan(){
-        presenter.startScanning();
+        scanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.startScanning();
+            }
+        });
     }
 
     @Override

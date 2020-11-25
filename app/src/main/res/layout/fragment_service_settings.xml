@@ -32,9 +32,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/border8"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
                     android:layout_marginStart="14dp"
-                    android:layout_marginLeft="14dp"
                     android:layout_marginTop="14dp"
                     android:text="@string/roughness_of_sensors"
                     android:textSize="14sp" />
@@ -45,19 +43,16 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/border8"
                     android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
                     android:layout_marginStart="-3dp"
-                    android:layout_marginLeft="-3dp"
                     android:layout_marginTop="3dp"
                     android:layout_marginEnd="0dp"
-                    android:layout_marginRight="0dp"
                     android:layout_toEndOf="@+id/textView13"
-                    android:layout_toRightOf="@+id/textView13"
                     android:indeterminate="false"
                     android:max="32"
                     android:progress="13"
                     android:progressDrawable="@drawable/track"
-                    android:thumb="@drawable/thumb" />
+                    android:thumb="@drawable/thumb"
+                    tools:ignore="UnknownIdInLayout" />
 
                 <Switch
                     android:id="@+id/switchInvert"
@@ -65,10 +60,9 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seekBarRoughness"
                     android:layout_alignStart="@+id/seekBarRoughness"
-                    android:layout_alignLeft="@+id/seekBarRoughness"
                     android:layout_marginStart="15dp"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                 <TextView
                     android:id="@+id/valueNotUseInternalADC"
@@ -76,9 +70,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/switchInvert"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
                     android:layout_marginStart="14dp"
-                    android:layout_marginLeft="0dp"
                     android:layout_marginTop="4dp"
                     android:text="@string/internal_ADC"
                     android:textSize="14sp" />
@@ -89,10 +81,9 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/switchInvert"
                     android:layout_alignStart="@+id/seekBarRoughness"
-                    android:layout_alignLeft="@+id/seekBarRoughness"
                     android:layout_marginStart="15dp"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                 <TextView
                     android:id="@+id/valueInvert"
@@ -100,9 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seekBarRoughness"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
                     android:layout_marginStart="14dp"
-                    android:layout_marginLeft="0dp"
                     android:layout_marginTop="4dp"
                     android:text="@string/inverting"
                     android:textSize="14sp" />
@@ -118,7 +107,6 @@
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="0dp"
-                android:layout_marginRight="0dp"
                 android:visibility="visible">
 
                 <ImageView
@@ -130,9 +118,9 @@
                     android:layout_marginStart="0dp"
                     android:layout_marginTop="0dp"
                     android:layout_marginEnd="0dp"
-                    android:layout_marginRight="0dp"
                     android:background="@android:color/darker_gray"
-                    android:visibility="visible" />
+                    android:visibility="visible"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/textView6"
@@ -179,7 +167,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:textSize="10sp"
-                    android:text="@string/open" />
+                    android:text="@string/open"
+                    tools:ignore="SmallSp" />
 
                 <Button
                     android:id="@+id/buttonSTP"
@@ -192,7 +181,7 @@
                     android:background="@drawable/castom_button_calibration"
                     android:text="@string/stop"
                     android:textSize="10sp"
-                    />
+                    tools:ignore="SmallSp" />
 
                 <Button
                     android:id="@+id/buttonCLS"
@@ -205,7 +194,8 @@
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/castom_button_calibration"
                     android:text="@string/close"
-                    android:textSize="10sp"/>
+                    android:textSize="10sp"
+                    tools:ignore="SmallSp" />
 
                 <SeekBar
                     android:id="@+id/seekBarSpeed"
@@ -267,9 +257,9 @@
                     android:layout_marginStart="0dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="0dp"
-                    android:layout_marginRight="0dp"
                     android:background="@android:color/darker_gray"
-                    android:visibility="visible" />
+                    android:visibility="visible"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/textMagicCheckbox"
@@ -296,13 +286,11 @@
                         android:id="@+id/textSpeedIncrement"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/textMagicCheckbox"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentEnd="true"
                         android:gravity="center"
                         android:layout_weight="1"
                         android:textSize="10sp"
-                        android:text="@string/speed_increment" />
+                        android:text="@string/speed_increment"
+                        tools:ignore="SmallSp" />
                     <CheckBox
                         android:id="@+id/checkboxSpeedIncrement"
                         android:layout_width="wrap_content"
@@ -312,13 +300,11 @@
                         android:id="@+id/textDisableAngleControl"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/textMagicCheckbox"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentEnd="true"
                         android:gravity="center"
                         android:layout_weight="1"
                         android:textSize="10sp"
-                        android:text="@string/disable_angel_control" />
+                        android:text="@string/disable_angel_control"
+                        tools:ignore="SmallSp" />
                     <CheckBox
                         android:id="@+id/checkboxDisableAngleControl"
                         android:layout_width="wrap_content"
@@ -338,11 +324,11 @@
                     android:layout_marginStart="0dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="0dp"
-                    android:layout_marginRight="0dp"
                     android:background="@android:color/darker_gray"
-                    android:visibility="visible" />
+                    android:visibility="visible"
+                    tools:ignore="ContentDescription" />
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/wrap_input_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -362,8 +348,9 @@
                         android:inputType="number"
                         android:textColor="#5d5d5d"
                         android:textColorHint="#5d5d5d"
-                        android:textSize="12sp" />
-                </android.support.design.widget.TextInputLayout>
+                        android:textSize="12sp"
+                        tools:ignore="Autofill" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
                     android:id="@+id/buttonSet"
@@ -376,9 +363,10 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:text="@string/set"
-                    android:textSize="10sp"/>
+                    android:textSize="10sp"
+                    tools:ignore="SmallSp" />
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/wrap_input_temp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -398,8 +386,9 @@
                         android:inputType="number"
                         android:textColor="#5d5d5d"
                         android:textColorHint="#5d5d5d"
-                        android:textSize="14sp" />
-                </android.support.design.widget.TextInputLayout>
+                        android:textSize="14sp"
+                        tools:ignore="Autofill" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
                     android:id="@+id/buttonGSetup"
@@ -412,7 +401,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:text="G"
-                    android:textSize="10sp"/>
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
 
                 <Button
                     android:id="@+id/buttonSSetup"
@@ -425,7 +415,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:text="S"
-                    android:textSize="10sp"/>
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
 
                 <Switch
                     android:id="@+id/switchCurrentControl"
@@ -438,9 +429,10 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:textSize="10sp"
-                    android:text="@string/current_control" />
+                    android:text="@string/current_control"
+                    tools:ignore="SmallSp,UseSwitchCompatOrMaterialXml" />
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/wrap_input_current_control"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -460,10 +452,11 @@
                         android:inputType="number"
                         android:textColor="#5d5d5d"
                         android:textColorHint="#5d5d5d"
-                        android:textSize="14sp" />
-                </android.support.design.widget.TextInputLayout>
+                        android:textSize="14sp"
+                        tools:ignore="Autofill" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/wrap_input_current_timeout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -483,8 +476,9 @@
                         android:inputType="number"
                         android:textColor="#5d5d5d"
                         android:textColorHint="#5d5d5d"
-                        android:textSize="14sp" />
-                </android.support.design.widget.TextInputLayout>
+                        android:textSize="14sp"
+                        tools:ignore="Autofill" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:id="@+id/textCurrTimeOut"
@@ -507,7 +501,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:textSize="10sp"
-                    android:text="@string/currents" />
+                    android:text="@string/currents"
+                    tools:ignore="SmallSp" />
 
                 <Button
                     android:id="@+id/buttonMIO"
@@ -520,7 +515,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:textSize="10sp"
-                    android:text="MIO" />
+                    android:text="MIO"
+                    tools:ignore="HardcodedText,SmallSp" />
 
                 <LinearLayout
                     android:id="@+id/linear_buttonEtEClaib"
@@ -532,20 +528,18 @@
                         android:id="@+id/buttonEtEClaib"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_alignTop="@+id/buttonEEPROMSave"
-                        android:layout_alignParentStart="true"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="4dp"
                         android:background="@drawable/castom_button_calibration"
                         style="@style/Text"
                         android:textSize="10sp"
                         android:layout_weight="1"
-                        android:text="@string/ete_calib" />
+                        android:text="@string/ete_calib"
+                        tools:ignore="SmallSp" />
                     <Button
                         android:id="@+id/buttonEEPROMSave"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/buttonMIO"
                         android:layout_marginTop="4dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
@@ -553,20 +547,20 @@
                         style="@style/Text"
                         android:textSize="10sp"
                         android:layout_weight="1"
-                        android:text="@string/eeprom_save" />
+                        android:text="@string/eeprom_save"
+                        tools:ignore="SmallSp" />
                     <Button
                         android:id="@+id/buttonAngleFIX"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_alignTop="@+id/buttonEEPROMSave"
                         android:layout_marginTop="4dp"
-                        android:layout_alignParentEnd="true"
                         android:layout_marginEnd="16dp"
                         android:background="@drawable/castom_button_calibration"
                         style="@style/Text"
                         android:textSize="10sp"
                         android:layout_weight="1"
-                        android:text="@string/angle_fix"/>
+                        android:text="@string/angle_fix"
+                        tools:ignore="SmallSp" />
                 </LinearLayout>
 
                 <ImageView
@@ -579,11 +573,11 @@
                     android:layout_marginStart="0dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="0dp"
-                    android:layout_marginRight="0dp"
                     android:background="@android:color/darker_gray"
-                    android:visibility="visible" />
+                    android:visibility="visible"
+                    tools:ignore="ContentDescription" />
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/wrap_input_open_angle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -603,8 +597,9 @@
                         android:inputType="number"
                         android:textColor="#5d5d5d"
                         android:textColorHint="#5d5d5d"
-                        android:textSize="14sp" />
-                </android.support.design.widget.TextInputLayout>
+                        android:textSize="14sp"
+                        tools:ignore="Autofill" />
+                </com.google.android.material.textfield.TextInputLayout>
                 <Button
                     android:id="@+id/buttonS1"
                     android:layout_width="50dp"
@@ -616,7 +611,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:text="S"
-                    android:textSize="10sp"/>
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
                 <Button
                     android:id="@+id/buttonG1"
                     android:layout_width="50dp"
@@ -628,8 +624,10 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:text="G"
-                    android:textSize="10sp"/>
-                <android.support.design.widget.TextInputLayout
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/wrap_input_close_angle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -649,8 +647,10 @@
                         android:inputType="number"
                         android:textColor="#5d5d5d"
                         android:textColorHint="#5d5d5d"
-                        android:textSize="14sp" />
-                </android.support.design.widget.TextInputLayout>
+                        android:textSize="14sp"
+                        tools:ignore="Autofill" />
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <Button
                     android:id="@+id/buttonS2"
                     android:layout_width="50dp"
@@ -662,7 +662,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:text="S"
-                    android:textSize="10sp"/>
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
                 <Button
                     android:id="@+id/buttonG2"
                     android:layout_width="50dp"
@@ -674,9 +675,10 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:text="G"
-                    android:textSize="10sp"/>
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/wrap_input_wide_angle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -696,8 +698,9 @@
                         android:inputType="number"
                         android:textColor="#5d5d5d"
                         android:textColorHint="#5d5d5d"
-                        android:textSize="14sp" />
-                </android.support.design.widget.TextInputLayout>
+                        android:textSize="14sp"
+                        tools:ignore="Autofill" />
+                </com.google.android.material.textfield.TextInputLayout>
                 <Button
                     android:id="@+id/buttonS3"
                     android:layout_width="50dp"
@@ -709,7 +712,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:text="S"
-                    android:textSize="10sp"/>
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
                 <Button
                     android:id="@+id/buttonG3"
                     android:layout_width="50dp"
@@ -721,7 +725,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:text="G"
-                    android:textSize="10sp"/>
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
 
                 <Switch
                     android:id="@+id/switchMagnetInvert"
@@ -734,7 +739,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:textSize="10sp"
-                    android:text="@string/magnet_invert" />
+                    android:text="@string/magnet_invert"
+                    tools:ignore="SmallSp,UseSwitchCompatOrMaterialXml" />
                 <Switch
                     android:id="@+id/switchReversMotor"
                     android:layout_width="110dp"
@@ -748,7 +754,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:textSize="10sp"
-                    android:layout_centerHorizontal="true"/>
+                    android:layout_centerHorizontal="true"
+                    tools:ignore="SmallSp,UseSwitchCompatOrMaterialXml" />
                 <Switch
                     android:id="@+id/switchZeroCrossing"
                     android:layout_width="110dp"
@@ -760,7 +767,8 @@
                     android:background="@drawable/castom_button_calibration"
                     style="@style/Text"
                     android:textSize="10sp"
-                    android:text="@string/zero_crossing" />
+                    android:text="@string/zero_crossing"
+                    tools:ignore="SmallSp,UseSwitchCompatOrMaterialXml" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -779,7 +787,8 @@
                         style="@style/Text"
                         android:layout_weight="1"
                         android:text="E"
-                        android:textSize="10sp"/>
+                        android:textSize="10sp"
+                        tools:ignore="HardcodedText,ObsoleteLayoutParam,SmallSp" />
 
                     <Button
                         android:id="@+id/buttonO"
@@ -794,7 +803,8 @@
                         style="@style/Text"
                         android:layout_weight="1"
                         android:text="O"
-                        android:textSize="10sp"/>
+                        android:textSize="10sp"
+                        tools:ignore="HardcodedText,ObsoleteLayoutParam,SmallSp" />
 
                     <Button
                         android:id="@+id/buttonS4"
@@ -807,7 +817,8 @@
                         style="@style/Text"
                         android:layout_weight="1"
                         android:text="S"
-                        android:textSize="10sp"/>
+                        android:textSize="10sp"
+                        tools:ignore="HardcodedText,ObsoleteLayoutParam,SmallSp" />
                     <Button
                         android:id="@+id/buttonC"
                         android:layout_width="50dp"
@@ -820,7 +831,8 @@
                         style="@style/Text"
                         android:layout_weight="1"
                         android:text="C"
-                        android:textSize="10sp"/>
+                        android:textSize="10sp"
+                        tools:ignore="HardcodedText,ObsoleteLayoutParam,SmallSp" />
                     <Button
                         android:id="@+id/buttonU"
                         android:layout_width="50dp"
@@ -833,7 +845,8 @@
                         style="@style/Text"
                         android:layout_weight="1"
                         android:text="U"
-                        android:textSize="10sp"/>
+                        android:textSize="10sp"
+                        tools:ignore="HardcodedText,ObsoleteLayoutParam,SmallSp" />
                 </LinearLayout>
             </RelativeLayout>
 

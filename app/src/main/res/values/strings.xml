@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Stradivary Control</string>
     <string name="helloWorld">open</string>
     <string name="helloWorld2">close</string>
@@ -14,7 +14,7 @@
     <string name="activity_scan_paired_text">Connected devices:</string>
 
     <string name="bluetooth_scanning">Scanning…</string>
-    <string name="bluetooth_scan_finished"></string>//Scanning is completed.
+    <string name="bluetooth_scan_finished" />//Scanning is completed.
     <string name="bluetooth_pairing">Connection…</string>
     <string name="bluetooth_paired">Device is connected.</string>
     <string name="bluetooth_unpaired">Device is disconnected.</string>
@@ -41,10 +41,10 @@
     <string name="action_Trigger1">classical</string>//classic
     <string name="action_Trigger2">trigger</string>//trigger mode
     <string name="action_Trigger3">trigger inverted</string>//invert trigger mode
-    <string name="action_Trigger4"></string>//first lock mode
-    <string name="action_Trigger5"></string>//second lock mode
-    <string name="action_Trigger6"></string>//first invert lock mode
-    <string name="action_Trigger7"></string>//second invert lock mode
+    <string name="action_Trigger4" />//first lock mode
+    <string name="action_Trigger5" />//second lock mode
+    <string name="action_Trigger6" />//first invert lock mode
+    <string name="action_Trigger7" />//second invert lock mode
     <string name="action_Trigger8">classical inverted</string>classic inverted
     <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     <string name="lesson_eight_error_could_not_create_vbo">Could not create vertex buffer object: %s</string>
@@ -66,8 +66,8 @@
     <string name="single_channel_by_sensor_1">single channel by sensor 1</string>
     <string name="single_channel_by_sensor_2">single channel by sensor 2</string>
     <string name="advanced_settings">Advanced settings</string>
-    <string name="ok">ok</string>
-    <string name="cancel">cancel</string>
+    <string name="ok">OK</string>
+    <string name="cancel" tools:ignore="ButtonCase">cancel</string>
     <string name="password">password</string>
     <string name="calibration">Calibration:</string>
     <string name="number_of_channel">Number of channel:</string>

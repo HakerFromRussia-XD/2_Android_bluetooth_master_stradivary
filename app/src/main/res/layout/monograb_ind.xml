@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -20,48 +20,45 @@
             android:layout_width="match_parent"
             android:layout_height="4dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginStart="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:layout_marginRight="0dp"
             android:background="@android:color/darker_gray"
-            android:visibility="visible" />
+            android:visibility="visible"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/borderGreen"
             android:layout_width="match_parent"
             android:layout_height="4dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginStart="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:layout_marginRight="0dp"
             android:background="@android:color/holo_green_light"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/borderRed"
             android:layout_width="match_parent"
             android:layout_height="4dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginStart="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:layout_marginRight="0dp"
             android:background="@android:color/holo_red_light"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
 
         <RelativeLayout
             android:id="@+id/gestures_list_relative"
@@ -74,7 +71,7 @@
             android:visibility="visible"
             tools:ignore="MissingConstraints">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/gestures_list"
                 android:layout_width="wrap_content"
                 android:layout_height="200dp"
@@ -84,7 +81,7 @@
                 android:layout_marginBottom="0dp"
                 android:clipChildren="false"
                 android:clipToPadding="true"
-                android:visibility="visible"></android.support.v7.widget.RecyclerView>
+                android:visibility="visible" />
         </RelativeLayout>
     </RelativeLayout>
 
@@ -93,7 +90,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="0dp"
         app:layout_constraintBottom_toTopOf="@+id/navigation"
@@ -122,17 +118,15 @@
                 android:layout_width="340dp"
                 android:layout_height="260dp"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="0dp"
                 android:layout_marginRight="0dp"
                 android:visibility="visible"
-                tools:ignore="NotSibling"></com.github.mikephil.charting.charts.LineChart>
+                tools:ignore="NotSibling" />
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chartCH2"
@@ -140,15 +134,11 @@
                 android:layout_height="260dp"
                 android:layout_below="@+id/limit_1"
                 android:layout_alignStart="@+id/chartCH1"
-                android:layout_alignLeft="@+id/chartCH1"
                 android:layout_alignEnd="@+id/chartCH1"
-                android:layout_alignRight="@+id/chartCH1"
                 android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="0dp"
-                android:layout_marginRight="2dp"
-                android:visibility="visible"></com.github.mikephil.charting.charts.LineChart>
+                android:visibility="visible" />
 
             <TextView
                 android:id="@+id/name_graph_1"
@@ -156,13 +146,12 @@
                 android:layout_height="wrap_content"
                 android:layout_alignTop="@+id/seekBarCH1on"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="36dp"
-                android:layout_marginLeft="36dp"
                 android:layout_marginTop="0dp"
                 android:text="@string/opening"
                 android:textColor="#FFFFFFFF"
-                android:textSize="9sp" />
+                android:textSize="9sp"
+                tools:ignore="SmallSp" />
 
             <ImageView
                 android:id="@+id/imageViewStatusOpen"
@@ -170,11 +159,10 @@
                 android:layout_height="12dp"
                 android:layout_above="@+id/border2"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
                 android:layout_marginBottom="7dp"
-                app:srcCompat="@drawable/circle_16_gray" />
+                app:srcCompat="@drawable/circle_16_gray"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/name_graph_2"
@@ -182,13 +170,12 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border2"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="36dp"
-                android:layout_marginLeft="36dp"
                 android:layout_marginTop="-1dp"
                 android:text="@string/closing"
                 android:textColor="#FFFFFFFF"
-                android:textSize="9sp" />
+                android:textSize="9sp"
+                tools:ignore="SmallSp" />
 
             <ImageView
                 android:id="@+id/imageViewStatusClose"
@@ -196,11 +183,10 @@
                 android:layout_height="12dp"
                 android:layout_above="@+id/border3"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
                 android:layout_marginBottom="7dp"
-                app:srcCompat="@drawable/circle_16_gray" />
+                app:srcCompat="@drawable/circle_16_gray"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/activity_chat_messages"
@@ -208,13 +194,9 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/activity_chat_hello_world"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="17dp"
-                android:layout_marginLeft="17dp"
                 android:layout_marginEnd="9dp"
-                android:layout_marginRight="9dp"
                 android:layout_marginBottom="519dp"
                 android:scrollbars="vertical"
                 android:textSize="18sp"
@@ -252,34 +234,28 @@
                 android:layout_width="wrap_content"
                 android:layout_height="3dp"
                 android:layout_alignEnd="@+id/chartCH1"
-                android:layout_alignRight="@+id/chartCH1"
                 android:layout_alignBottom="@+id/chartCH1"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="35dp"
                 android:layout_marginTop="226dp"
                 android:layout_marginEnd="15dp"
-                android:layout_marginRight="15dp"
                 android:layout_marginBottom="0dp"
                 android:background="@android:color/holo_red_dark"
-                tools:ignore="RtlCompat" />
+                tools:ignore="ContentDescription,RtlCompat" />
 
             <ImageView
                 android:id="@+id/limit_2"
                 android:layout_width="wrap_content"
                 android:layout_height="3dp"
                 android:layout_alignEnd="@+id/limit_1"
-                android:layout_alignRight="@+id/limit_1"
                 android:layout_alignBottom="@+id/chartCH2"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="35dp"
                 android:layout_marginTop="460dp"
                 android:layout_marginEnd="0dp"
-                android:layout_marginRight="321dp"
                 android:layout_marginBottom="0dp"
                 android:background="@android:color/holo_red_dark"
-                tools:ignore="RtlCompat" />
+                tools:ignore="ContentDescription,RtlCompat" />
 
             <View
                 android:id="@+id/border7"
@@ -295,9 +271,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
                 android:layout_alignStart="@+id/chartCH1"
-                android:layout_alignLeft="@+id/chartCH1"
                 android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
                 android:layout_marginTop="4dp"
                 android:text="@string/helloWorld"
                 android:visibility="visible"
@@ -310,12 +284,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginRight="16dp"
                 android:layout_marginBottom="0dp"
                 android:text="@string/helloWorld2"
                 android:visibility="visible"
@@ -331,9 +302,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/chartCH2"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="15dp"
-                android:layout_marginLeft="15dp"
                 android:layout_marginTop="19dp"
                 android:text="@string/compressive_force"
                 tools:ignore="RtlCompat" />
@@ -345,11 +314,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/chartCH1"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentEnd="false"
-                android:layout_alignParentRight="false"
                 android:layout_marginStart="358dp"
-                android:layout_marginLeft="358dp"
                 android:layout_marginTop="-15dp"
                 android:text="@string/_2500"
                 android:textAllCaps="false"
@@ -364,10 +330,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/chartCH1"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="35dp"
-                android:layout_marginLeft="200dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginBottom="-3dp"
                 android:indeterminate="false"
@@ -384,9 +348,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/valueCH1on"
                 android:layout_alignStart="@+id/seekBarCH1on"
-                android:layout_alignLeft="@+id/seekBarCH1on"
                 android:layout_alignEnd="@+id/seekBarCH1on"
-                android:layout_alignRight="@+id/seekBarCH1on"
                 android:layout_alignBottom="@+id/chartCH2"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
@@ -408,15 +370,11 @@
                 android:layout_alignBottom="@+id/chartCH1"
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginEnd="-550dp"
-                android:layout_marginRight="-500dp"
                 android:layout_marginBottom="-3dp"
                 android:layout_toStartOf="@+id/seekBarCH1on"
-                android:layout_toLeftOf="@+id/seekBarCH1on"
                 android:layout_toEndOf="@+id/seekBarCH1on"
-                android:layout_toRightOf="@+id/seekBarCH1on"
                 android:indeterminate="false"
                 android:max="220"
                 android:progress="80"
@@ -431,9 +389,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/valueCH1on"
                 android:layout_alignStart="@+id/seekBarCH1on2"
-                android:layout_alignLeft="@+id/seekBarCH1on2"
                 android:layout_alignEnd="@+id/seekBarCH1on2"
-                android:layout_alignRight="@+id/seekBarCH1on2"
                 android:layout_alignBottom="@+id/chartCH2"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
@@ -454,14 +410,10 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/chartCH2"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="4dp"
-                android:layout_marginLeft="4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="0dp"
-                android:layout_marginRight="0dp"
                 android:layout_toEndOf="@+id/textView4"
-                android:layout_toRightOf="@+id/textView4"
                 android:indeterminate="false"
                 android:max="1200"
                 android:progress="900"
@@ -474,16 +426,15 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/chartCH2"
                 android:layout_alignParentEnd="false"
-                android:layout_alignParentRight="false"
                 android:layout_marginStart="69dp"
-                android:layout_marginLeft="69dp"
                 android:layout_marginTop="27dp"
                 android:text="2500"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:typeface="monospace"
                 android:visibility="gone"
-                app:fontFamily="sans-serif-medium" />
+                app:fontFamily="sans-serif-medium"
+                tools:ignore="HardcodedText" />
 
         </RelativeLayout>
     </ScrollView>
@@ -498,19 +449,18 @@
 <!--        app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
 <!--    </FrameLayout>-->
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
         android:src="@android:drawable/stat_notify_more"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/navigation"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints,UnknownIdInLayout" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

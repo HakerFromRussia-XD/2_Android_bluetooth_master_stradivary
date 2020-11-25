@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_intro3"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -26,7 +27,8 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:scaleType="fitXY"
-            android:src="@drawable/img_mobile" />
+            android:src="@drawable/img_mobile"
+            tools:ignore="ContentDescription" />
 
     </LinearLayout>
 
@@ -42,7 +44,8 @@
         android:paddingRight="32dp"
         android:text="изящество"
         android:textColor="#ffffff"
-        android:textSize="28sp" />
+        android:textSize="28sp"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/textView9"
@@ -55,7 +58,8 @@
         android:paddingRight="64dp"
         android:text="приложение 'трекер инсулина' \n использует NFC,\n чтобы обеспечить пользователям удобство."
         android:textColor="#ffffff"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        tools:ignore="HardcodedText" />
 
     <Space
         android:layout_width="match_parent"

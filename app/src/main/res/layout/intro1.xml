@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_intro1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -24,7 +25,8 @@
         android:paddingRight="32dp"
         android:text="трекер инсулина"
         android:textColor="#ffffff"
-        android:textSize="30sp" />
+        android:textSize="30sp"
+        tools:ignore="HardcodedText" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -40,7 +42,8 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:scaleType="fitXY"
-            android:src="@drawable/img_waterdrop" />
+            android:src="@drawable/img_waterdrop"
+            tools:ignore="ContentDescription" />
 
     </LinearLayout>
 
@@ -55,7 +58,8 @@
         android:paddingRight="64dp"
         android:text="добро пожаловать."
         android:textColor="#ffffff"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:layout_width="fill_parent"

@@ -32,7 +32,7 @@
         android:layout_marginEnd="0dp"
         android:padding="16dp"
         app:srcCompat="@drawable/circle_16_green"
-        tools:ignore="HardcodedText" />
+        tools:ignore="ContentDescription,HardcodedText" />
 
     <ProgressBar
         android:id="@+id/activity_check_progress"

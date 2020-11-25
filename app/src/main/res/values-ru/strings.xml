@@ -41,10 +41,10 @@
     <string name="action_Trigger1">классический</string>//classic
     <string name="action_Trigger2">триггерный</string>//trigger mode
     <string name="action_Trigger3">триггерный инвертированный</string>//invert trigger mode
-    <string name="action_Trigger4"></string>//first lock mode
-    <string name="action_Trigger5"></string>//second lock mode
-    <string name="action_Trigger6"></string>//first invert lock mode
-    <string name="action_Trigger7"></string>//second invert lock mode
+    <string name="action_Trigger4" />//first lock mode
+    <string name="action_Trigger5" />//second lock mode
+    <string name="action_Trigger6" />//first invert lock mode
+    <string name="action_Trigger7" />//second invert lock mode
     <string name="action_Trigger8">классический инвертированный</string>classic inverted
     <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     <string name="lesson_eight_error_could_not_create_vbo">Could not create vertex buffer object: %s</string>

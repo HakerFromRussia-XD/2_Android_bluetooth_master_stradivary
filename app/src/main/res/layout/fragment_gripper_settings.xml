@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".old_electronic_by_Misha.ui.chat.view.gripper_settings.FragmentGripperSettings">
 
-    <me.Romans.motorica.old_electronic_by_Misha.ui.chat.view.gripper_settings.GripperSettingsGLSurfaceView
+    <me.romans.motorica.old_electronic_by_Misha.ui.chat.view.gripper_settings.GripperSettingsGLSurfaceView
         android:id="@+id/gl_surface_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

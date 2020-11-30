@@ -1,10 +1,9 @@
 package me.romans.motorica.old_electronic_by_Misha;
 
-import android.app.Application;
-
 import me.romans.motorica.old_electronic_by_Misha.data.BluetoothModule;
+import androidx.multidex.MultiDexApplication;
 
-public class MyApp extends Application {
+public class MyApp extends MultiDexApplication {
     private static MyApp app;
     private BluetoothModule bluetoothModule;
 

@@ -15,23 +15,37 @@ package me.romans.motorica.new_electronic_by_Rodeon
 
 import androidx.multidex.MultiDexApplication
 import dagger.Component
+import me.romans.motorica.old_electronic_by_Misha.MyApp
+import me.romans.motorica.old_electronic_by_Misha.data.BluetoothModule
 import javax.inject.Singleton
+import me.romans.motorica.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
 
 
 class WDApplication : MultiDexApplication() {
+  private var app: MyApp? = null
+  private var bluetoothModule: BluetoothModule? = null
 
   override fun onCreate() {
     super.onCreate()
+//    app = this
     component = DaggerWDApplication_ApplicationComponent.builder()
-        .applicationModule(ApplicationModule(this))
+        .applicationModule(ApplicationModule1(this))
         .build()
+    bluetoothModule = BluetoothModule(this)
   }
 
   @Singleton
-  @Component(modules = [ApplicationModule::class])
+  @Component(modules = [ApplicationModule1::class])
   interface ApplicationComponent : ApplicationGraph
 
   companion object {
     lateinit var component: ApplicationComponent
+  }
+
+  fun app(): MyApp? {
+    return app
+  }
+  fun bluetoothModule(): BluetoothModule? {
+    return bluetoothModule
   }
 }

@@ -38,10 +38,4 @@ class ApplicationModule(private val application: Application) {
         null,
         SqliteManager.DATABASE_VERSION)
   }
-
-//  @Provides
-//  @Singleton
-//  internal fun provideAlarmUtils(): AlarmUtils {
-//    return AlarmUtils(this.application)
-//  }
 }

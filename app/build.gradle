@@ -109,3 +109,5 @@ dependencies {
     implementation 'com.karumi:dexter:4.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 }
+
+apply from: '../spotless.gradle'

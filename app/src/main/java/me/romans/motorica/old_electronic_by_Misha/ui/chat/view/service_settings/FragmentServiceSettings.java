@@ -35,54 +35,50 @@ import me.romans.motorica.old_electronic_by_Misha.utils.ConstantManager;
 import static android.content.ContentValues.TAG;
 
 
+@SuppressLint("UseSwitchCompatOrMaterialCode")
 public class FragmentServiceSettings extends Fragment implements ChartView {
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    @BindView(R.id.switchInvert) public Switch switchInvert;
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    @BindView(R.id.switchNotUseInternalADC) public Switch switchNotUseInternalADC;
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    @BindView(R.id.switchMagnetInvert) Switch switchMagnetInvert;
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    @BindView(R.id.switchReversMotor) Switch switchReversMotor;
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    @BindView(R.id.switchZeroCrossing) Switch switchZeroCrossing;
-    @BindView(R.id.layout_calibration) public RelativeLayout layout_calibration;
-    @BindView(R.id.save_service_settings) Button save_service_settings;
-    @BindView(R.id.buttonOPN) Button buttonOPN;
-    @BindView(R.id.buttonCLS) Button buttonCLS;
-    @BindView(R.id.buttonSTP) Button buttonSTP;
-    @BindView(R.id.buttonSet) Button buttonSet;
-    @BindView(R.id.buttonGSetup) Button buttonGSetup;
-    @BindView(R.id.buttonSSetup) Button buttonSSetup;
-    @BindView(R.id.buttonCurrents) Button buttonCurrents;
-    @BindView(R.id.buttonMIO) Button buttonMIO;
-    @BindView(R.id.buttonEtEClaib) Button buttonEtECalibration;
-    @BindView(R.id.buttonEEPROMSave) Button buttonEEPROMSave;
-    @BindView(R.id.buttonAngleFIX) Button buttonAngleFIX;
-    @BindView(R.id.buttonG1) Button buttonG1;
-    @BindView(R.id.buttonG2) Button buttonG2;
-    @BindView(R.id.buttonG3) Button buttonG3;
-    @BindView(R.id.buttonS1) Button buttonS1;
-    @BindView(R.id.buttonS2) Button buttonS2;
-    @BindView(R.id.buttonS3) Button buttonS3;
-    @BindView(R.id.buttonE) Button buttonE;
-    @BindView(R.id.buttonO) Button buttonO;
-    @BindView(R.id.buttonS4) Button buttonS4;
-    @BindView(R.id.buttonC) Button buttonC;
-    @BindView(R.id.buttonU) Button buttonU;
-    @BindView(R.id.editTextAddr) EditText editTextAddress;
-    @BindView(R.id.editTextTemp) EditText editTextTemp;
-    @BindView(R.id.editTextMaxCurrentValue) EditText editTextMaxCurrentValue;
-    @BindView(R.id.editTextCurrTimeOut) EditText editTextCurrTimeOut;
-    @BindView(R.id.editTextOpenAngle) EditText editTextOpenAngle;
-    @BindView(R.id.editTextCloseAngle) EditText editTextCloseAngle;
-    @BindView(R.id.editTextWideAngle) EditText editTextWideAngle;
-    @BindView(R.id.seekBarRoughness) public SeekBar seekBarRoughness;
-    @BindView(R.id.seekBarSpeed) SeekBar seekBarSpeed;
-    @BindView(R.id.seekBarAngle) SeekBar seekBarAngle;
-    @BindView(R.id.switchCurrentControl) Switch switchCurrentControl;
-    @BindView(R.id.checkboxSpeedIncrement) CheckBox checkboxSpeedIncrement;
-    @BindView(R.id.checkboxDisableAngleControl) CheckBox checkboxDisableAngleControl;
+    public Switch switchInvert;
+    public Switch switchNotUseInternalADC;
+    Switch switchMagnetInvert;
+    Switch switchReversMotor;
+    Switch switchZeroCrossing;
+    public RelativeLayout layout_calibration;
+    Button save_service_settings;
+    Button buttonOPN;
+    Button buttonCLS;
+    Button buttonSTP;
+    Button buttonSet;
+    Button buttonGSetup;
+    Button buttonSSetup;
+    Button buttonCurrents;
+    Button buttonMIO;
+    Button buttonEtECalibration;
+    Button buttonEEPROMSave;
+    Button buttonAngleFIX;
+    Button buttonG1;
+    Button buttonG2;
+    Button buttonG3;
+    Button buttonS1;
+    Button buttonS2;
+    Button buttonS3;
+    Button buttonE;
+    Button buttonO;
+    Button buttonS4;
+    Button buttonC;
+    Button buttonU;
+    EditText editTextAddress;
+    EditText editTextTemp;
+    EditText editTextMaxCurrentValue;
+    EditText editTextCurrTimeOut;
+    EditText editTextOpenAngle;
+    EditText editTextCloseAngle;
+    EditText editTextWideAngle;
+    public SeekBar seekBarRoughness;
+    SeekBar seekBarSpeed;
+    SeekBar seekBarAngle;
+    Switch switchCurrentControl;
+    CheckBox checkboxSpeedIncrement;
+    CheckBox checkboxDisableAngleControl;
     public View view;
     private ChartActivity chatActivity;
     Massages mMassages = new Massages();
@@ -105,6 +101,49 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
         chatActivity.layoutSensors.setVisibility(View.GONE);
 
         Spinner spinnerNumberOfChannel = view.findViewById(R.id.spinnerNumberOfChannel);
+        switchInvert = view.findViewById(R.id.switchInvert);
+        switchNotUseInternalADC = view.findViewById(R.id.switchNotUseInternalADC);
+        switchMagnetInvert = view.findViewById(R.id.switchMagnetInvert);
+        switchReversMotor = view.findViewById(R.id.switchReversMotor);
+        switchZeroCrossing = view.findViewById(R.id.switchZeroCrossing);
+        layout_calibration = view.findViewById(R.id.layout_calibration);
+        save_service_settings = view.findViewById(R.id.save_service_settings);
+        buttonOPN = view.findViewById(R.id.buttonOPN);
+        buttonCLS = view.findViewById(R.id.buttonCLS);
+        buttonSTP = view.findViewById(R.id.buttonSTP);
+        buttonSet = view.findViewById(R.id.buttonSet);
+        buttonGSetup = view.findViewById(R.id.buttonGSetup);
+        buttonSSetup = view.findViewById(R.id.buttonSSetup);
+        buttonCurrents = view.findViewById(R.id.buttonCurrents);
+        buttonMIO = view.findViewById(R.id.buttonMIO);
+        buttonEtECalibration = view.findViewById(R.id.buttonEtEClaib);
+        buttonEEPROMSave = view.findViewById(R.id.buttonEEPROMSave);
+        buttonAngleFIX = view.findViewById(R.id.buttonAngleFIX);
+        buttonG1 = view.findViewById(R.id.buttonG1);
+        buttonG2 = view.findViewById(R.id.buttonG2);
+        buttonG3 = view.findViewById(R.id.buttonG3);
+        buttonS1 = view.findViewById(R.id.buttonS1);
+        buttonS2 = view.findViewById(R.id.buttonS2);
+        buttonS3 = view.findViewById(R.id.buttonS3);
+        buttonE = view.findViewById(R.id.buttonE);
+        buttonO = view.findViewById(R.id.buttonO);
+        buttonS4 = view.findViewById(R.id.buttonS4);
+        buttonC = view.findViewById(R.id.buttonC);
+        buttonU = view.findViewById(R.id.buttonU);
+        editTextAddress = view.findViewById(R.id.editTextAddr);
+        editTextTemp = view.findViewById(R.id.editTextTemp);
+        editTextMaxCurrentValue = view.findViewById(R.id.editTextMaxCurrentValue);
+        editTextCurrTimeOut = view.findViewById(R.id.editTextCurrTimeOut);
+        editTextOpenAngle = view.findViewById(R.id.editTextOpenAngle);
+        editTextCloseAngle = view.findViewById(R.id.editTextCloseAngle);
+        editTextWideAngle = view.findViewById(R.id.editTextWideAngle);
+        seekBarRoughness = view.findViewById(R.id.seekBarRoughness);
+        seekBarSpeed = view.findViewById(R.id.seekBarSpeed);
+        seekBarAngle = view.findViewById(R.id.seekBarAngle);
+        switchCurrentControl  = view.findViewById(R.id.switchCurrentControl);
+        checkboxSpeedIncrement = view.findViewById(R.id.checkboxSpeedIncrement);
+        checkboxDisableAngleControl  = view.findViewById(R.id.checkboxDisableAngleControl);
+
         ArrayAdapter<CharSequence> adapterNumbers = ArrayAdapter.createFromResource(this.getActivity(),
                 R.array.numbers,
                 android.R.layout.simple_spinner_item);

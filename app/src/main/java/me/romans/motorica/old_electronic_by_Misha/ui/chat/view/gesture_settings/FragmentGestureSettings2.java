@@ -27,7 +27,7 @@ import me.romans.motorica.old_electronic_by_Misha.ui.chat.view.Massages;
 import me.romans.motorica.old_electronic_by_Misha.ui.chat.view.Load3DModel;
 
 public class FragmentGestureSettings2 extends Fragment implements ChartView, GesstureAdapter.OnGestureMyListener {
-    @BindView(R.id.gesture_use) public Button gesture_use;
+    public Button gesture_use;
     private int GESTURE_NUMBER = 0x0002;
 
     public View view;
@@ -39,6 +39,7 @@ public class FragmentGestureSettings2 extends Fragment implements ChartView, Ges
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_gesture_settings, container, false);
+        gesture_use = view.findViewById(R.id.gesture_use);
 
         DaggerChatComponent.builder()
                 .bluetoothModule(MyApp.app().bluetoothModule())

@@ -251,8 +251,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     System.err.println("DeviceControlActivity-------> момент начала выстраивания списка параметров")
     if (gattServices == null) return
     var uuid: String?
-    val unknownServiceString = resources.getString(R.string.unknown_service)
-    val unknownCharaString = resources.getString(R.string.unknown_characteristic)
+    val unknownServiceString = ("unknown_service")
+    val unknownCharaString =("unknown_characteristic")
     val gattServiceData = ArrayList<HashMap<String, String?>>()
     val gattCharacteristicData = ArrayList<ArrayList<HashMap<String, String?>>>()
     mGattCharacteristics = java.util.ArrayList()

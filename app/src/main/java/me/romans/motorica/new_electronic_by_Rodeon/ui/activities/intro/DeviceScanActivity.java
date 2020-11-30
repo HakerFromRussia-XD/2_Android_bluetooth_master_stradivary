@@ -84,7 +84,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         mHandler = new Handler();
         // Checks if Bluetooth is supported on the device.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "ошибка 1", Toast.LENGTH_SHORT).show();
             finish();
         }
         final BluetoothManager bluetoothManager =
@@ -92,7 +92,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         mBluetoothAdapter = bluetoothManager.getAdapter();
         checkLocationPermission();
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, R.string.bt_not_supported, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "ошибка 2", Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -112,8 +112,8 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
                 new AlertDialog.Builder(this)
-                        .setTitle(R.string.title_location_permission)
-                        .setMessage(R.string.text_location_permission)
+                        .setTitle("ошибка 3")
+                        .setMessage("ошибка 4")
                         .setPositiveButton(R.string.ok, (dialogInterface, i) -> ActivityCompat.requestPermissions(DeviceScanActivity.this,
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                                 MY_PERMISSIONS_REQUEST_LOCATION))

@@ -21,10 +21,10 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
+//import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
 
-import me.romans.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter;
-import me.romans.motorica.new_electronic_by_Rodeon.utils.BundleUtils;
+//import me.romans.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter;
+//import me.romans.motorica.new_electronic_by_Rodeon.utils.BundleUtils;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 /** Developed by skydoves on 2017-08-19. Copyright (c) 2017 skydoves rights reserved. */
@@ -110,9 +110,9 @@ public abstract class BaseActivity<Presenter extends BasePresenter, ViewType ext
    *
    * @return {@link WDApplication} instance
    */
-  protected @NonNull WDApplication application() {
-    return (WDApplication) getApplication();
-  }
+//  protected @NonNull WDApplication application() {
+//    return (WDApplication) getApplication();
+//  }
 
   /** triggers a back press */
   public void goBack() {
@@ -142,18 +142,18 @@ public abstract class BaseActivity<Presenter extends BasePresenter, ViewType ext
   @SuppressWarnings("unchecked")
   private void assignPresenter(final @Nullable Bundle presenterEnvelope) {
     if (this.presenter == null) {
-      final RequirePresenter annotation = getClass().getAnnotation(RequirePresenter.class);
-      final Class<Presenter> presenterClass =
-          annotation == null ? null : (Class<Presenter>) annotation.value();
-      if (presenterClass != null) {
-        this.presenter =
-            ActivityPresenterManager.Companion.getInstance()
-                .fetch(
-                    this,
-                    presenterClass,
-                    BundleUtils.INSTANCE.maybeGetBundle(presenterEnvelope, PRESENTER_KEY));
-        this.presenter.setBaseView(baseView);
-      }
+//      final RequirePresenter annotation = getClass().getAnnotation(RequirePresenter.class);
+//      final Class<Presenter> presenterClass =
+//          annotation == null ? null : (Class<Presenter>) annotation.value();
+//      if (presenterClass != null) {
+//        this.presenter =
+//            ActivityPresenterManager.Companion.getInstance()
+//                .fetch(
+//                    this,
+//                    presenterClass,
+//                    BundleUtils.INSTANCE.maybeGetBundle(presenterEnvelope, PRESENTER_KEY));
+//        this.presenter.setBaseView(baseView);
+//      }
     }
   }
 }

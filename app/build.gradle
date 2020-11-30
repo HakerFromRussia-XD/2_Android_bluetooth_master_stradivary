@@ -1,32 +1,38 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
-    compileOptions{
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
     compileSdkVersion 28
-    buildToolsVersion "29.0.3"
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "com.Romans.motorica"
         minSdkVersion 18
-        multiDexEnabled true
         targetSdkVersion 28
         versionCode 12
         versionName "1.5.230"
-    }
-
-    lintOptions{
-        checkReleaseBuilds false
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     buildTypes {
         release {
             minifyEnabled false
+            debuggable false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    compileOptions {
+        sourceCompatibility "1.8"
+        targetCompatibility "1.8"
+    }
+
+    lintOptions{
+        checkReleaseBuilds false
     }
 }
 
@@ -51,6 +57,8 @@ dependencies {
     implementation "com.google.dagger:dagger:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
     annotationProcessor "com.google.dagger:dagger-android-processor:$daggerVersion"
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+    kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
 
     // rxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'

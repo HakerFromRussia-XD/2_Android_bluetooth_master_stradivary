@@ -70,7 +70,7 @@ class StartActivity : AppIntro(), BaseView {
     addSlide(SlideFragment.newInstance(R.layout.intro2))
     addSlide(SlideFragment.newInstance(R.layout.intro3))
     addSlide(SlideFragment.newInstance(R.layout.intro4))
-    setDoneText(getString(R.string.start))
+    setDoneText("start")
   }
 
   override fun onSkipPressed(currentFragment: Fragment?) {

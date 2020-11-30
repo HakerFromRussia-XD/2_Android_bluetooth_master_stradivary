@@ -263,7 +263,7 @@
                 android:id="@+id/activity_chat_messages"
                 android:layout_width="325dp"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/activity_chat_hello_world"
+                android:layout_above="@+id/open_btn"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentEnd="true"
                 android:layout_marginStart="17dp"
@@ -367,7 +367,7 @@
                 android:background="@android:color/darker_gray" />
 
             <Button
-                android:id="@+id/activity_chat_hello_world"
+                android:id="@+id/open_btn"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
@@ -380,7 +380,7 @@
                 android:background="@drawable/castom_batton"/>
 
             <Button
-                android:id="@+id/activity_chat_hello_world2"
+                android:id="@+id/close_btn"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"

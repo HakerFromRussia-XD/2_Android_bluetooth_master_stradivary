@@ -79,33 +79,31 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     private boolean flagOffUpdateGraphHDLC = false;
     public Thread pauseSendingThread;
     private boolean flagReadStartParametersHDLC = true;
-    @BindView(R.id.seekBarCH1on) SeekBar seekBarCH1on;
-    @BindView(R.id.seekBarCH2on) SeekBar seekBarCH2on;
-    @BindView(R.id.seekBarCH1on2) public SeekBar seekBarCH1on2;
-    @BindView(R.id.seekBarCH2on2) public SeekBar seekBarCH2on2;
+    SeekBar seekBarCH1on;
+    SeekBar seekBarCH2on;
+    public SeekBar seekBarCH1on2;
+    public SeekBar seekBarCH2on2;
     public SeekBar seekBarIStop;
-    @BindView(R.id.switchBlockMode) Switch switchBlockMode;
-    @BindView(R.id.switchIlluminationMode) Switch switchIlluminationMode;
-    @BindView(R.id.valueCH1on) TextView valueCH1on;
-    @BindView(R.id.valueCH2on) TextView valueCH2on;
-    @BindView(R.id.activity_chat_messages) TextView messages;
-    @BindView(R.id.valueBatteryTension) TextView valueBatteryTension;
-    @BindView(R.id.layout_sensors) public RelativeLayout layoutSensors;
-    @BindView(R.id.gestures_list_relative) RelativeLayout layoutGestures;
-    @BindView(R.id.activity_chat_hello_world) Button helloWorld;
-    @BindView(R.id.activity_chat_hello_world2) Button helloWorld2;
+    Switch switchBlockMode;
+    Switch switchIlluminationMode;
+    TextView valueCH2on;
+    TextView valueBatteryTension;
+    public RelativeLayout layoutSensors;
+    RelativeLayout layoutGestures;
+    Button openBtn;
+    Button closeBtn;
     Button offUpdate;
     Button activity_chat_gesture1;
     Button activity_chat_gesture2;
     Button activity_chat_gesture3;
     Button activity_chat_gesture4;
-    @BindView(R.id.fab) FloatingActionButton fab;
-    @BindView(R.id.imageViewStatus) ImageView imageViewStatus;
-    @BindView(R.id.imageViewStatusOpen) ImageView imageViewStatusOpen;
-    @BindView(R.id.imageViewStatusClose) ImageView imageViewStatusClose;
-    @BindView(R.id.borderGray) ImageView borderGray;
-    @BindView(R.id.borderGreen) ImageView borderGreen;
-    @BindView(R.id.borderRed) ImageView borderRed;
+    FloatingActionButton fab;
+    ImageView imageViewStatus;
+    ImageView imageViewStatusOpen;
+    ImageView imageViewStatusClose;
+    ImageView borderGray;
+    ImageView borderGreen;
+    ImageView borderRed;
     Massages mMassages = new Massages();
     Load3DModel mLoad3DModel = new Load3DModel(this);
     public BottomNavigationView navigation;
@@ -269,6 +267,26 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             fragmentGestureSettings3 = new FragmentGestureSettings3();
             fragmentServiceSettings = new FragmentServiceSettings();
         }
+        seekBarCH1on = findViewById(R.id.seekBarCH1on);
+        seekBarCH2on = findViewById(R.id.seekBarCH2on);
+        seekBarCH1on2 = findViewById(R.id.seekBarCH1on2);
+        seekBarCH2on2 = findViewById(R.id.seekBarCH2on2);
+        switchBlockMode = findViewById(R.id.switchBlockMode);
+        switchIlluminationMode = findViewById(R.id.switchIlluminationMode);
+        valueCH2on = findViewById(R.id.valueCH2on);
+        valueBatteryTension = findViewById(R.id.valueBatteryTension);
+        layoutSensors = findViewById(R.id.layout_sensors);
+        layoutGestures = findViewById(R.id.gestures_list_relative);
+        openBtn = findViewById(R.id.open_btn);
+        closeBtn = findViewById(R.id.close_btn);
+        fab = findViewById(R.id.fab);
+        imageViewStatus = findViewById(R.id.imageViewStatus);
+        imageViewStatusOpen = findViewById(R.id.imageViewStatusOpen);
+        imageViewStatusClose = findViewById(R.id.imageViewStatusClose);
+        borderGray = findViewById(R.id.borderGray);
+        borderGreen = findViewById(R.id.borderGreen);
+        borderRed = findViewById(R.id.borderRed);
+
         if(monograbVersion){
             //односхватная версия
             seekBarIStop.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -667,7 +685,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             }
         });
 
-        helloWorld2.setOnTouchListener(new View.OnTouchListener() {
+        closeBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -702,7 +720,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             }
         });
 
-        helloWorld.setOnTouchListener(new View.OnTouchListener() {
+        openBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -1697,8 +1715,8 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     @Override
     public void enableInterface(boolean enabled) {
         isEnable = enabled;
-        helloWorld.setEnabled(enabled);
-        helloWorld2.setEnabled(enabled);
+        openBtn.setEnabled(enabled);
+        closeBtn.setEnabled(enabled);
         seekBarCH1on.setEnabled(enabled);
         seekBarCH2on.setEnabled(enabled);
         seekBarCH1on2.setEnabled(enabled);

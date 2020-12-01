@@ -52,6 +52,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.romans.bluetooth.BluetoothConstantManager;
+import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.romans.motorica.old_electronic_by_Misha.MyApp;
 import me.romans.motorica.old_electronic_by_Misha.data.GesstureAdapter;
 import me.romans.motorica.old_electronic_by_Misha.data.Gesture_my;
@@ -440,7 +441,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
 
         DaggerChatComponent.builder()
-                .bluetoothModule(MyApp.app().bluetoothModule())
+                .bluetoothModule(WDApplication.app().bluetoothModule())
                 .chatModule(new ChatModule(this))
                 .build().inject(this);
         ButterKnife.bind(this);
@@ -1847,7 +1848,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         mChart.setData(data);
 
         Legend legend = mChart.getLegend();
-
         legend.setForm(Legend.LegendForm.LINE);
         legend.setTextColor(Color.WHITE);
         legend.setForm(Legend.LegendForm.NONE);

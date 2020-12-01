@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.romans.motorica.old_electronic_by_Misha.MyApp;
 import me.romans.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 import me.romans.motorica.R;
@@ -55,7 +56,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DaggerScanComponent.builder()
-                .bluetoothModule(MyApp.app().bluetoothModule())
+                .bluetoothModule(WDApplication.app().bluetoothModule())
                 .scanModule(new ScanModule(this))
                 .build().inject(this);
         setContentView(R.layout.activity_scan);

@@ -22,29 +22,38 @@ import me.romans.motorica.new_electronic_by_Rodeon.ApplicationModule as Applicat
 
 
 class WDApplication : MultiDexApplication() {
-  private var app: MyApp? = null
   private var bluetoothModule: BluetoothModule? = null
+
 
   override fun onCreate() {
     super.onCreate()
-//    app = this
+    app = this
     component = DaggerWDApplication_ApplicationComponent.builder()
         .applicationModule(ApplicationModule1(this))
         .build()
     bluetoothModule = BluetoothModule(this)
   }
 
+  companion object {
+    var app: WDApplication? = null
+
+    lateinit var component: ApplicationComponent
+
+    @JvmStatic
+    fun app(): WDApplication? {
+      return app
+    }
+  }
+
   @Singleton
   @Component(modules = [ApplicationModule1::class])
   interface ApplicationComponent : ApplicationGraph
 
-  companion object {
-    lateinit var component: ApplicationComponent
-  }
 
-  fun app(): MyApp? {
-    return app
-  }
+
+
+
+
   fun bluetoothModule(): BluetoothModule? {
     return bluetoothModule
   }

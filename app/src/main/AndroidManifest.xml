@@ -20,12 +20,12 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="me.romans.motorica.old_electronic_by_Misha.ui.SplashScreen">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+<!--        <activity android:name="me.romans.motorica.old_electronic_by_Misha.ui.SplashScreen">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
         <activity
             android:name="me.romans.motorica.scan.view.ScanActivity"
             android:screenOrientation="portrait" />
@@ -36,12 +36,12 @@
 
 
 
-<!--        <activity android:name="me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.DeviceScanActivity">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
+        <activity android:name="me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.DeviceScanActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:theme="@style/AppTheme.NoActionBar"
             android:name="me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity">

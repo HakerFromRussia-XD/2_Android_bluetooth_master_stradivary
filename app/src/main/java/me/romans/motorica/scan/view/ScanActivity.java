@@ -69,12 +69,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanList = new ArrayList<>();
         buildScanListView();
 
-        scanButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.startScanning();
-            }
-        });
+        scanButton.setOnClickListener(v -> presenter.startScanning());
     }
 
     @Override

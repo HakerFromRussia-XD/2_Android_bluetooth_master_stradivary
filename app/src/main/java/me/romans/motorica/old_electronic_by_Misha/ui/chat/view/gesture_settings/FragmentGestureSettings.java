@@ -12,9 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.romans.motorica.old_electronic_by_Misha.MyApp;
 import me.romans.motorica.R;
 import me.romans.motorica.old_electronic_by_Misha.data.GesstureAdapter;
@@ -43,11 +45,11 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
         view = inflater.inflate(R.layout.fragment_gesture_settings, container, false);
         gesture_use = view.findViewById(R.id.gesture_use);
 
-//        DaggerChatComponent.builder()
-//                .bluetoothModule(MyApp.app().bluetoothModule())
-//                .chatModule(new ChatModule(FragmentGestureSettings.this))
-//                .build().inject(FragmentGestureSettings.this);
-//        ButterKnife.bind(this, view);
+        DaggerChatComponent.builder()
+                .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())
+                .chatModule(new ChatModule(FragmentGestureSettings.this))
+                .build().inject(FragmentGestureSettings.this);
+        ButterKnife.bind(this, view);
 
         if (getActivity() != null) {chatActivity = (ChartActivity) getActivity();}
 /*        mLoad3DModel = new Load3DModel();*/

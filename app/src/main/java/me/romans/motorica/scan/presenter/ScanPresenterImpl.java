@@ -2,13 +2,17 @@ package me.romans.motorica.scan.presenter;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 
 import java.util.List;
 
 import me.romans.bluetooth.DeviceCallback;
+import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
+import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
 import me.romans.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 import me.romans.motorica.scan.data.ScanItem;
 import me.romans.motorica.scan.interactor.ScanInteractor;
+import me.romans.motorica.scan.view.ScanActivity;
 import me.romans.motorica.scan.view.ScanView;
 import me.romans.bluetooth.BluetoothCallback;
 import me.romans.bluetooth.DiscoveryCallback;
@@ -118,6 +122,13 @@ public class ScanPresenterImpl implements ScanPresenter{
     }
 
     @Override
+    public void leItemClick(int position) {
+        final BluetoothDevice device = view.getLeDevices().get(position);
+        if (device == null) return;
+        view.navigateToLEChat("device", device);
+    }
+
+    @Override
     public void itemClick(int position) {
         if (view.getMyScanList() != null){
             String typeDevice = view.getMyScanList().get(position).getTitle().split(":")[1];
@@ -126,6 +137,13 @@ public class ScanPresenterImpl implements ScanPresenter{
             } else {
                 if(typeDevice.equals("s")){
                     scanItemClick(Integer.parseInt(view.getMyScanList().get(position).getTitle().split(":")[2]), view.getMyScanList().get(position).getTitle().split(":")[0]);
+                } else {
+                    if (typeDevice.equals("l")) {
+                        leItemClick(Integer.parseInt(view.getMyScanList().get(position).getTitle().split(":")[2]));
+                        System.err.println("=======================================================================");
+                        System.err.println("l itemClick -----> position: "+position);
+                        System.err.println("l itemClick -----> view.getMyScanList().get(position).getTitle().split(\":\")[0]: "+view.getMyScanList().get(position).getTitle().split(":")[0]);
+                    }
                 }
             }
         }
@@ -212,9 +230,11 @@ public class ScanPresenterImpl implements ScanPresenter{
 
         @Override
         public void onDeviceFound(BluetoothDevice device) {
+            System.err.println("=======================================================================");
             boolean check = checkOurName(device.getName()+":s:"+scanListPosition);
 
             if(check){//проверяет соответствие серийника найденного устройства соответствию нашим серийникам
+//            if(true){
                 boolean equals = false;
                 if(pairedDeviceNames == null) {pairedDeviceNames=interactor.getPairedDevices();}
                 for(int i=0; i<pairedDeviceNames.size(); i++){//меняет флаг если наше устройство уже находится в списке спаренных
@@ -243,6 +263,7 @@ public class ScanPresenterImpl implements ScanPresenter{
                     }
                 }
             }
+            System.err.println("ScanPresenterImpl ---------> найдено устройство: "+device.getName()+ " scanListPosition: "+scanListPosition);
             scanListPosition++;
         }
 

@@ -15,6 +15,9 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import java.util.Objects;
+
+import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.romans.motorica.old_electronic_by_Misha.MyApp;
 import me.romans.motorica.R;
 import me.romans.motorica.old_electronic_by_Misha.ui.chat.data.ChatModule;
@@ -39,7 +42,7 @@ public class FragmentGripperSettings extends Fragment implements ChartView {
         view = inflater.inflate(R.layout.fragment_gripper_settings, container, false);
 
         DaggerChatComponent.builder()
-                .bluetoothModule(MyApp.app().bluetoothModule())
+                .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())
                 .chatModule(new ChatModule(FragmentGripperSettings.this))
                 .build().inject(FragmentGripperSettings.this);
 //        ButterKnife.bind(this, view);

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.romans.motorica.R;
@@ -84,6 +85,10 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     public void showPairedList(List<String> items) { }
     @Override
     public void addDeviceToScanList(String item, BluetoothDevice device) { }
+
+    @Override
+    public void addLEDeviceToScanList(String item, BluetoothDevice device) { }
+
     @Override
     public void clearScanList() { }
     @Override
@@ -100,6 +105,10 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     public void showToast(String message) { }
     @Override
     public void navigateToChat(String extraName, BluetoothDevice extraDevice) { }
+
+    @Override
+    public void navigateToLEChat(String extraName, BluetoothDevice extraDevice) { }
+
     @Override
     public void setNewStageCellScanList(int numberCell, int setImage, String setText) { }
     @Override
@@ -114,4 +123,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     public boolean isFirstStart() {
         return false;
     }
+
+    @Override
+    public ArrayList<BluetoothDevice> getLeDevices() { return null; }
 }

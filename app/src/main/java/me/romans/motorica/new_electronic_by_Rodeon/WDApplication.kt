@@ -15,7 +15,6 @@ package me.romans.motorica.new_electronic_by_Rodeon
 
 import androidx.multidex.MultiDexApplication
 import dagger.Component
-import me.romans.motorica.old_electronic_by_Misha.MyApp
 import me.romans.motorica.old_electronic_by_Misha.data.BluetoothModule
 import javax.inject.Singleton
 import me.romans.motorica.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
@@ -48,11 +47,6 @@ class WDApplication : MultiDexApplication() {
   @Singleton
   @Component(modules = [ApplicationModule1::class])
   interface ApplicationComponent : ApplicationGraph
-
-
-
-
-
 
   fun bluetoothModule(): BluetoothModule? {
     return bluetoothModule

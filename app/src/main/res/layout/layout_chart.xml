@@ -160,7 +160,7 @@
                                 android:text="open"
                                 android:visibility="visible"
                                 style="@style/Text"
-                                android:background="@drawable/castom_batton"
+                                android:background="@drawable/custom_button_le"
                                 tools:ignore="HardcodedText" />
                         </RelativeLayout>
                         <RelativeLayout
@@ -176,7 +176,7 @@
                                     android:text="close"
                                     android:visibility="visible"
                                     style="@style/Text"
-                                    android:background="@drawable/castom_batton"
+                                    android:background="@drawable/custom_button_le"
                                     tools:ignore="HardcodedText" />
                         </RelativeLayout>
                     </LinearLayout>
@@ -235,8 +235,8 @@
                                 android:paddingStart="16dp"
                                 android:max="255"
                                 android:progress="230"
-                                android:progressDrawable="@drawable/track"
-                                android:thumb="@drawable/thumb"/>
+                                android:progressDrawable="@drawable/track_le"
+                                android:thumb="@drawable/thumb_le"/>
                         </RelativeLayout>
                     </LinearLayout>
                 </RelativeLayout>
@@ -293,8 +293,8 @@
                                 android:paddingStart="16dp"
                                 android:max="255"
                                 android:progress="160"
-                                android:progressDrawable="@drawable/track"
-                                android:thumb="@drawable/thumb"/>
+                                android:progressDrawable="@drawable/track_le"
+                                android:thumb="@drawable/thumb_le"/>
                         </RelativeLayout>
                     </LinearLayout>
                 </RelativeLayout>
@@ -351,8 +351,8 @@
                                 android:paddingStart="16dp"
                                 android:max="255"
                                 android:progress="100"
-                                android:progressDrawable="@drawable/track"
-                                android:thumb="@drawable/thumb"/>
+                                android:progressDrawable="@drawable/track_le"
+                                android:thumb="@drawable/thumb_le"/>
                         </RelativeLayout>
                     </LinearLayout>
                 </RelativeLayout>
@@ -409,8 +409,8 @@
                                 android:paddingStart="16dp"
                                 android:max="69"
                                 android:progress="20"
-                                android:progressDrawable="@drawable/track"
-                                android:thumb="@drawable/thumb"/>
+                                android:progressDrawable="@drawable/track_le"
+                                android:thumb="@drawable/thumb_le"/>
                         </RelativeLayout>
                     </LinearLayout>
                 </RelativeLayout>
@@ -467,8 +467,8 @@
                                 android:paddingStart="16dp"
                                 android:max="9"
                                 android:progress="2"
-                                android:progressDrawable="@drawable/track"
-                                android:thumb="@drawable/thumb"/>
+                                android:progressDrawable="@drawable/track_le"
+                                android:thumb="@drawable/thumb_le"/>
                         </RelativeLayout>
                     </LinearLayout>
                 </RelativeLayout>
@@ -524,6 +524,9 @@
                                 android:layout_alignParentStart="true"
                                 android:scrollbarSize="48dp"
                                 android:ellipsize="middle"
+                                android:paddingStart="16dp"
+                                android:thumb="@drawable/switch_le_thumb"
+                                android:track="@drawable/switch_le_truck"
                                 tools:ignore="UseSwitchCompatOrMaterialXml" />
                         </RelativeLayout>
                     </LinearLayout>

@@ -52,7 +52,7 @@
                         android:text="@string/use_gesture"
                         android:visibility="visible"
                         style="@style/Text"
-                        android:background="@drawable/castom_batton"/>
+                        android:background="@drawable/custom_button"/>
                 </LinearLayout>
             </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

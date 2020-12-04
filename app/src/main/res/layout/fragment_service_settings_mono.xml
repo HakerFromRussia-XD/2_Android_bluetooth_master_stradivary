@@ -149,7 +149,7 @@
                     android:text="@string/save"
                     android:visibility="visible"
                     style="@style/Text"
-                    android:background="@drawable/castom_batton"/>
+                    android:background="@drawable/custom_button"/>
             </LinearLayout>
 
 

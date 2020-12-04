@@ -67,8 +67,8 @@
                         android:paddingStart="16dp"
                         android:max="255"
                         android:progress="230"
-                        android:progressDrawable="@drawable/track"
-                        android:thumb="@drawable/thumb"/>
+                        android:progressDrawable="@drawable/track_le"
+                        android:thumb="@drawable/thumb_le"/>
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
@@ -126,8 +126,8 @@
                         android:paddingStart="16dp"
                         android:max="255"
                         android:progress="230"
-                        android:progressDrawable="@drawable/track"
-                        android:thumb="@drawable/thumb"/>
+                        android:progressDrawable="@drawable/track_le"
+                        android:thumb="@drawable/thumb_le"/>
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>

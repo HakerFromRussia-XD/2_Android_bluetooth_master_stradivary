@@ -371,7 +371,7 @@
                 android:text="@string/helloWorld"
                 android:visibility="visible"
                 style="@style/Text"
-                android:background="@drawable/castom_batton"/>
+                android:background="@drawable/custom_button"/>
 
             <Button
                 android:id="@+id/close_btn"
@@ -386,7 +386,7 @@
                 android:text="@string/helloWorld2"
                 android:visibility="visible"
                 style="@style/Text"
-                android:background="@drawable/castom_batton"/>
+                android:background="@drawable/custom_button"/>
 
             <Button
                 android:id="@+id/activity_chat_gesture1"
@@ -400,7 +400,7 @@
                 android:text="@string/gesture1"
                 android:visibility="visible"
                 style="@style/Text"
-                android:background="@drawable/castom_batton"/>
+                android:background="@drawable/custom_button"/>
 
             <!--<TextView-->
             <!--android:id="@+id/textView"-->
@@ -498,7 +498,7 @@
                 android:text="@string/gesture2"
                 android:visibility="visible"
                 style="@style/Text"
-                android:background="@drawable/castom_batton"/>
+                android:background="@drawable/custom_button"/>
 
             <Button
                 android:id="@+id/activity_chat_off_update"
@@ -512,7 +512,7 @@
                 android:layout_marginTop="112dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="0dp"
-                android:background="@drawable/castom_batton"
+                android:background="@drawable/custom_button"
                 android:text="@string/off_update"
                 android:visibility="visible" />
 
@@ -528,7 +528,7 @@
                 android:text="@string/gesture3"
                 android:visibility="visible"
                 style="@style/Text"
-                android:background="@drawable/castom_batton"/>
+                android:background="@drawable/custom_button"/>
 
             <Button
                 android:id="@+id/activity_chat_gesture4"

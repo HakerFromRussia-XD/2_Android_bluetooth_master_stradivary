@@ -170,7 +170,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     })
     open_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        System.err.println("CH1" + seekBar.progress)
+        System.err.println("CH1 = " + seekBar.progress)
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -183,7 +183,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     })
     close_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        System.err.println("CH2" + seekBar.progress)
+        System.err.println("CH2 = " + seekBar.progress)
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}

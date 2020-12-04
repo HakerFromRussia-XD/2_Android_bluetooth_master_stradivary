@@ -4,12 +4,12 @@
     <item
         android:state_pressed="false"
         android:state_enabled="true"
-        android:drawable="@drawable/button_default_calibration"/>
+        android:drawable="@drawable/button_le_default"/>
     <item
         android:state_pressed="true"
-        android:drawable="@drawable/button_pressed_calibration"/>
+        android:drawable="@drawable/button_le_pressed"/>
     <item
         android:state_enabled="false"
-        android:drawable="@drawable/batton_disabled"/>
+        android:drawable="@drawable/button_disabled"/>
 
 </selector>

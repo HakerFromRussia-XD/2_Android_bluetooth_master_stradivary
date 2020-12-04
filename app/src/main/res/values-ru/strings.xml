@@ -13,13 +13,13 @@
     <string name="activity_scan_button">Сканировать снова</string>
     <string name="activity_scan_paired_text">Связанные устройства:</string>
 
-    <string name="bluetooth_scanning">Сканирование…</string>
-    <string name="bluetooth_scan_finished">Сканирование завершено.</string>
-    <string name="bluetooth_pairing">Соединение…</string>
+    <string name="bluetooth_scanning">сканирование…</string>
+    <string name="bluetooth_scan_finished">сканирование завершено.</string>
+    <string name="bluetooth_pairing">соединение…</string>
     <string name="bluetooth_paired">Девайс соединён.</string>
     <string name="bluetooth_unpaired">Девайс отсоединён.</string>
     <string name="bluetooth_connected">Девайс подключён.</string>
-    <string name="bluetooth_connecting">Подключение…</string>
+    <string name="bluetooth_connecting">подключение…</string>
     <string name="bluetooth_disconnected">Девайс не подключён.</string>
     <string name="bluetooth_connect_in_3sec">Подключиться не удалось…</string>
     <string name="bluetooth_turning_on">Bluetooth выключен…</string>

@@ -11,7 +11,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+
+import java.util.Objects;
+
 import butterknife.ButterKnife;
+import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.romans.motorica.old_electronic_by_Misha.MyApp;
 import me.romans.motorica.R;
 import me.romans.motorica.old_electronic_by_Misha.ui.chat.data.ChatModule;
@@ -39,12 +43,12 @@ public class FragmentServiceSettingsMono extends Fragment implements ChartView {
         view = inflater.inflate(R.layout.fragment_service_settings_mono, container, false);
 
         DaggerChatComponent.builder()
-                .bluetoothModule(MyApp.app().bluetoothModule())
+                .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())
                 .chatModule(new ChatModule(FragmentServiceSettingsMono.this))
                 .build().inject(FragmentServiceSettingsMono.this);
         ButterKnife.bind(this, view);
 
-            if (getActivity() != null) { chartActivity = (ChartActivity) getActivity();}
+        if (getActivity() != null) { chartActivity = (ChartActivity) getActivity();}
         chartActivity.graphThreadFlag = false;
         chartActivity.updateServiceSettingsThreadFlag = true;
         chartActivity.startUpdateThread();

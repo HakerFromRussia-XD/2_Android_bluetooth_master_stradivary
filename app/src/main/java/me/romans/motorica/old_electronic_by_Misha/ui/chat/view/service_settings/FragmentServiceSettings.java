@@ -21,8 +21,11 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import java.util.Objects;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.romans.motorica.old_electronic_by_Misha.MyApp;
 import me.romans.motorica.R;
 import me.romans.motorica.old_electronic_by_Misha.ui.chat.data.ChatModule;
@@ -89,7 +92,7 @@ public class FragmentServiceSettings extends Fragment implements ChartView {
         view = inflater.inflate(R.layout.fragment_service_settings, container, false);
 
         DaggerChatComponent.builder()
-                .bluetoothModule(MyApp.app().bluetoothModule())
+                .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())
                 .chatModule(new ChatModule(FragmentServiceSettings.this))
                 .build().inject(FragmentServiceSettings.this);
         ButterKnife.bind(this, view);

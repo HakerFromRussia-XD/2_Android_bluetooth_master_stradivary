@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -55,7 +56,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     RecyclerView pairedDeviceList;
     ListView deviceList;
     TextView state;
-    ProgressBar progress;
+    LottieAnimationView progress;
     Button scanButton;
     private boolean firstStart = true;
 
@@ -91,7 +92,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         setContentView(R.layout.activity_scan);
         /////////////////////////////////////////
         deviceList = findViewById(R.id.activity_scan_list);
-        state = findViewById(R.id.activity_scan_state);
+//        state = findViewById(R.id.activity_scan_state);
         progress = findViewById(R.id.activity_scan_progress);
         scanButton = findViewById(R.id.activity_scan_button);
         /////////////////////////////////////////
@@ -131,17 +132,17 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 invalidateOptionsMenu();
                 progress.setVisibility(View.GONE);
                 scanButton.setEnabled(true);
-//                scanButton.setText("SCAN AGAIN");
+                scanButton.setText("SCAN AGAIN");
             }, SCAN_PERIOD);
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
             scanButton.setEnabled(false);
-//            scanButton.setText("SCANNING");
+            scanButton.setText("SCANNING");
         } else {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             scanButton.setEnabled(true);
-//            scanButton.setText("SCAN AGAIN");
+            scanButton.setText("SCAN AGAIN");
         }
         progress.setVisibility(enable?View.VISIBLE:View.GONE);
         invalidateOptionsMenu();
@@ -224,8 +225,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
     @Override
     public void setScanStatus(int resId, boolean enabled) {
-        state.setVisibility(enabled?View.VISIBLE:View.GONE);
-        state.setText(resId);
+//        state.setVisibility(enabled?View.VISIBLE:View.GONE);
+//        state.setText(resId);
     }
 
     @Override

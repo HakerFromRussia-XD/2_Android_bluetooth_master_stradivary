@@ -228,7 +228,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     set.color = Color.rgb(255, 171, 0)
     set.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
     set.setCircleColor(Color.TRANSPARENT)
-//    set.setCircleColorHole(Color.TRANSPARENT)
+    set.circleHoleColor = Color.TRANSPARENT
     set.fillColor = ColorTemplate.getHoloBlue()
     set.highLightColor = Color.rgb(244, 117, 177)
     set.valueTextColor = Color.TRANSPARENT
@@ -241,7 +241,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     set2.color = Color.WHITE
     set2.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
     set2.setCircleColor(Color.TRANSPARENT)
-//    set2.setCircleColorHole(Color.TRANSPARENT)
+    set2.circleHoleColor = Color.TRANSPARENT
     set2.fillColor = ColorTemplate.getHoloBlue()
     set2.highLightColor = Color.rgb(244, 117, 177)
     set2.valueTextColor = Color.TRANSPARENT

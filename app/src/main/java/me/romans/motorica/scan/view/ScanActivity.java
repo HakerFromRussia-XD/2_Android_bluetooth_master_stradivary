@@ -279,7 +279,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     public void navigateToLEChat(String extraName, BluetoothDevice extraDevice) {
         if (extraDevice == null) return;
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
-        intent.putExtra(extraName, extraDevice);
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, extraDevice.getName());
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;

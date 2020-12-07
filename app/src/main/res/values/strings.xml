@@ -10,12 +10,12 @@
     <string name="on_update">on schedules</string>
     <string name="gesture4">parting position</string>
 
-    <string name="scan_again">SCAN AGAIN</string>
+    <string name="scan_again">scan again</string>
     <string name="activity_scan_paired_text">Connected devices:</string>
 
-    <string name="bluetooth_scanning">SCANNING…</string>
+    <string name="bluetooth_scanning">scanning…</string>
     <string name="bluetooth_scan_finished" />//Scanning is completed.
-    <string name="bluetooth_pairing">Connection…</string>
+    <string name="bluetooth_pairing">connection…</string>
     <string name="bluetooth_paired">Device is connected.</string>
     <string name="bluetooth_unpaired">Device is disconnected.</string>
     <string name="bluetooth_connected">Device is connected.</string>

@@ -240,8 +240,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
     @Override
     public void setScanStatus(int resId, boolean enabled) {
-//        state.setVisibility(enabled?View.VISIBLE:View.GONE);
-//        state.setText(resId);
+        scanButton.setText(resId);
     }
 
     @Override

@@ -73,9 +73,6 @@ public class ScanPresenterImpl implements ScanPresenter{
     @Override
     public void startScanning() {
         view.clearScanList();
-//        view.showProgress(true);
-//        view.enableScanButton(false);
-        view.setScanStatus(R.string.bluetooth_scanning, true);
         interactor.scanDevices(discoveryCallback);
         canceledDiscovery = false;
         scanListPosition = 0;
@@ -91,16 +88,12 @@ public class ScanPresenterImpl implements ScanPresenter{
                 positionPairDevice = position;
                 interactor.pair(position);
                 view.setScanStatus(R.string.bluetooth_pairing, true);
-//                view.showProgress(true);
-//                view.enableScanButton(false);
             } else {
                 canceledDiscovery = true;
                 flagPairNewDevice = true;
                 positionPairDevice = position;// функция interactor.pair(position); вызавается после завершения чека доступности текущего утройства
                 if (!flagCheckingNow) {interactor.pair(position);}//или сразу, если все спаренные устройства уже проверенны
                 view.setScanStatus(R.string.bluetooth_pairing, true);
-//                view.showProgress(true);
-//                view.enableScanButton(false);
             }
             ChartActivity chatActivity = new ChartActivity();
             chatActivity.getName(name);
@@ -221,7 +214,6 @@ public class ScanPresenterImpl implements ScanPresenter{
         @Override
         public void onDiscoveryFinished() {
             if(!canceledDiscovery){
-                view.setScanStatus(R.string.bluetooth_scan_finished, false);
 //                view.showProgress(false);
 //                view.enableScanButton(true);
                 flagDiscovering = false;//мой флаг, для отсечения ошибки клика по сканлисту после завершения сканирования

@@ -7,7 +7,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Android_bluetooth_master_stradivary.iml" filepath="$PROJECT_DIR$/.idea/modules/Android_bluetooth_master_stradivary.iml" group="Android_bluetooth_master_stradivary" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="Android_bluetooth_master_stradivary/app" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/bluetooth/bluetooth.iml" filepath="$PROJECT_DIR$/.idea/modules/bluetooth/bluetooth.iml" group="Android_bluetooth_master_stradivary/bluetooth" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bluetooth/me.Romans.libraries-bluetooth.iml" filepath="$PROJECT_DIR$/.idea/modules/bluetooth/me.Romans.libraries-bluetooth.iml" group="2_Android_bluetooth_master_stradivary/bluetooth" />
     </modules>
   </component>
 </project>

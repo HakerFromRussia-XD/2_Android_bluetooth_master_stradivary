@@ -13,18 +13,22 @@
 
 package me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main
 
+//import com.skydoves.waterdays.services.receivers.AlarmBootReceiver
+//import com.skydoves.waterdays.services.receivers.LocalWeatherReceiver
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
 import android.content.*
 import android.nfc.NfcAdapter
-import android.os.Bundle
-import android.os.IBinder
-import android.os.Parcel
-import android.os.Parcelable
+import android.os.*
 import android.view.View
+import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
+import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.layout_chart.*
+import kotlinx.android.synthetic.main.layout_sens_settings.*
 import me.romans.motorica.R
 import me.romans.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager
@@ -33,14 +37,8 @@ import me.romans.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.romans.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.romans.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.romans.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
-//import com.skydoves.waterdays.services.receivers.AlarmBootReceiver
-//import com.skydoves.waterdays.services.receivers.LocalWeatherReceiver
 import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapter
 import me.romans.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
-import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.layout_chart.*
-import kotlinx.android.synthetic.main.layout_sens_settings.*
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
@@ -151,7 +149,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (data != null) {
       if (data[0].toInt() == 1){ state = 1 }
       if (data[0].toInt() == 0){ state = 2 }
-      System.err.println("open data[0]="+data[0]+" data[1]="+data[1])
+      System.err.println("open data[0]=" + data[0] + " data[1]=" + data[1])
     }
   }
 
@@ -168,11 +166,18 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     enableInterface(false)
   }
 
-  @SuppressLint("CheckResult")
+  @SuppressLint("CheckResult", "NewApi")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
     initBaseView(this)
+    //changing statusbar
+    if (Build.VERSION.SDK_INT >= 21) {
+      val window = this.window
+      window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+      window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+      window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+    }
 
     val intent = intent
     mDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME)
@@ -364,7 +369,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
   fun getDataSens1(): Int { return dataSens1 }
   fun getDataSens2(): Int { return dataSens2 }
-  fun setSensorsDataThreadFlag (value: Boolean){ sensorsDataThreadFlag = value }
+  fun setSensorsDataThreadFlag(value: Boolean){ sensorsDataThreadFlag = value }
   override fun writeToParcel(parcel: Parcel, flags: Int) {
     parcel.writeByte(if (sensorsDataThreadFlag) 1 else 0)
     parcel.writeString(mDeviceName)

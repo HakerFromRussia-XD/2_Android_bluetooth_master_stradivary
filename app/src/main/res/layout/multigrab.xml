@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="me.Romans.motorica.ui.chat.view.ChartActivity">
+    tools:context=".old_electronic_by_Misha.ui.chat.view.ChartActivity">
 
-    <android.support.design.widget.BottomNavigationView
+    <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="0dp"
         android:layout_height="46dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:background="?android:attr/windowBackground"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -36,48 +34,45 @@
             android:layout_width="match_parent"
             android:layout_height="4dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginStart="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:layout_marginRight="0dp"
             android:background="@android:color/darker_gray"
-            android:visibility="visible" />
+            android:visibility="visible"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/borderGreen"
             android:layout_width="match_parent"
             android:layout_height="4dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginStart="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:layout_marginRight="0dp"
             android:background="@android:color/holo_green_light"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/borderRed"
             android:layout_width="match_parent"
             android:layout_height="4dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginStart="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:layout_marginRight="0dp"
             android:background="@android:color/holo_red_light"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
     </RelativeLayout>
 
     <ScrollView
@@ -85,7 +80,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="48dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -111,62 +105,21 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="MissingConstraints,WebViewLayout">
 
-            <TextView
-                android:id="@+id/textView12"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border5"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_marginStart="14dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginTop="14dp"
-                android:text="@string/battery_power"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/textView8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border5"
-                android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginTop="14dp"
-                android:layout_toEndOf="@+id/valueBatteryTension"
-                android:layout_toRightOf="@+id/valueBatteryTension"
-                android:text="%"
-                android:textSize="14sp" />
-
-            <View
-                android:id="@+id/border6"
-                android:layout_width="4dp"
-                android:layout_height="104dp"
-                android:layout_below="@+id/border5"
-                android:layout_alignBottom="@+id/border8"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="0dp"
-                android:layout_marginBottom="0dp"
-                android:layout_toEndOf="@+id/textView8"
-                android:layout_toRightOf="@+id/textView8"
-                android:background="@android:color/darker_gray" />
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chartCH1"
                 android:layout_width="340dp"
                 android:layout_height="260dp"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="0dp"
                 android:layout_marginRight="0dp"
                 android:visibility="visible"
-                tools:ignore="NotSibling"></com.github.mikephil.charting.charts.LineChart>
+                tools:ignore="NotSibling" />
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chartCH2"
@@ -174,22 +127,12 @@
                 android:layout_height="260dp"
                 android:layout_below="@+id/limit_1"
                 android:layout_alignStart="@+id/chartCH1"
-                android:layout_alignLeft="@+id/chartCH1"
                 android:layout_alignEnd="@+id/chartCH1"
-                android:layout_alignRight="@+id/chartCH1"
                 android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="0dp"
-                android:layout_marginRight="2dp"
                 android:visibility="visible">
 
-                <FrameLayout
-                    android:id="@+id/view_pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentBottom="true"
-                    app:layout_behavior="@string/appbar_scrolling_view_behavior"></FrameLayout>
             </com.github.mikephil.charting.charts.LineChart>
 
             <TextView
@@ -198,13 +141,12 @@
                 android:layout_height="wrap_content"
                 android:layout_alignTop="@+id/seekBarCH1on"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="36dp"
-                android:layout_marginLeft="36dp"
                 android:layout_marginTop="0dp"
                 android:text="@string/opening"
                 android:textColor="#FFFFFFFF"
-                android:textSize="9sp" />
+                android:textSize="9sp"
+                tools:ignore="SmallSp" />
 
             <ImageView
                 android:id="@+id/imageViewStatusOpen"
@@ -212,11 +154,10 @@
                 android:layout_height="12dp"
                 android:layout_above="@+id/border2"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
                 android:layout_marginBottom="7dp"
-                app:srcCompat="@drawable/circle_16_gray" />
+                app:srcCompat="@drawable/circle_16_gray"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/name_graph_2"
@@ -224,75 +165,33 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border2"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="36dp"
-                android:layout_marginLeft="36dp"
                 android:layout_marginTop="-1dp"
                 android:text="@string/closing"
                 android:textColor="#FFFFFFFF"
-                android:textSize="9sp" />
+                android:textSize="9sp"
+                tools:ignore="SmallSp" />
 
             <ImageView
                 android:id="@+id/imageViewStatusClose"
                 android:layout_width="12dp"
                 android:layout_height="12dp"
-                android:layout_above="@+id/border3"
+                android:layout_above="@+id/border7"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
                 android:layout_marginBottom="7dp"
-                app:srcCompat="@drawable/circle_16_gray" />
-
-<!--            <TextView-->
-<!--                android:id="@+id/valueCH1off"-->
-<!--                android:layout_width="42dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@+id/chartCH1"-->
-<!--                android:layout_alignParentStart="true"-->
-<!--                android:layout_alignParentLeft="true"-->
-<!--                android:layout_alignParentEnd="false"-->
-<!--                android:layout_alignParentRight="false"-->
-<!--                android:layout_marginStart="80dp"-->
-<!--                android:layout_marginLeft="80dp"-->
-<!--                android:layout_marginTop="49dp"-->
-<!--                android:text="@string/_100"-->
-<!--                android:textAllCaps="false"-->
-<!--                android:textStyle="bold"-->
-<!--                android:typeface="monospace"-->
-<!--                app:fontFamily="sans-serif-medium" />-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/valueCH1sleep"-->
-<!--                android:layout_width="42dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@+id/chartCH1"-->
-<!--                android:layout_alignParentStart="true"-->
-<!--                android:layout_alignParentLeft="true"-->
-<!--                android:layout_alignParentEnd="false"-->
-<!--                android:layout_alignParentRight="false"-->
-<!--                android:layout_marginStart="80dp"-->
-<!--                android:layout_marginLeft="80dp"-->
-<!--                android:layout_marginTop="72dp"-->
-<!--                android:text="200"-->
-<!--                android:textAllCaps="false"-->
-<!--                android:textStyle="bold"-->
-<!--                android:typeface="monospace"-->
-<!--                app:fontFamily="sans-serif-medium" />-->
+                app:srcCompat="@drawable/circle_16_gray"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/activity_chat_messages"
                 android:layout_width="325dp"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/activity_chat_hello_world"
+                android:layout_above="@+id/open_btn"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="17dp"
-                android:layout_marginLeft="17dp"
                 android:layout_marginEnd="9dp"
-                android:layout_marginRight="9dp"
                 android:layout_marginBottom="519dp"
                 android:scrollbars="vertical"
                 android:textSize="18sp"
@@ -309,128 +208,69 @@
                 android:background="@android:color/darker_gray"
                 tools:ignore="RtlCompat" />
 
-            <View
-                android:id="@+id/border3"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_below="@+id/chartCH2"
-                android:layout_marginTop="0dp"
-                android:background="@android:color/darker_gray" />
-
-            <View
-                android:id="@+id/border5"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_below="@+id/chartCH2"
-                android:layout_marginTop="-0dp"
-                android:background="@android:color/darker_gray" />
-
-            <View
-                android:id="@+id/border8"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_below="@+id/border5"
-                android:layout_marginTop="47dp"
-                android:background="@android:color/darker_gray" />
-
             <ImageView
                 android:id="@+id/limit_1"
                 android:layout_width="wrap_content"
                 android:layout_height="3dp"
                 android:layout_alignEnd="@+id/chartCH1"
-                android:layout_alignRight="@+id/chartCH1"
                 android:layout_alignBottom="@+id/chartCH1"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="35dp"
                 android:layout_marginTop="226dp"
                 android:layout_marginEnd="15dp"
-                android:layout_marginRight="15dp"
                 android:layout_marginBottom="0dp"
                 android:background="@android:color/holo_red_dark"
-                tools:ignore="RtlCompat" />
+                tools:ignore="ContentDescription,RtlCompat" />
 
             <ImageView
                 android:id="@+id/limit_2"
                 android:layout_width="wrap_content"
                 android:layout_height="3dp"
                 android:layout_alignEnd="@+id/limit_1"
-                android:layout_alignRight="@+id/limit_1"
                 android:layout_alignBottom="@+id/chartCH2"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="35dp"
                 android:layout_marginTop="460dp"
                 android:layout_marginEnd="0dp"
-                android:layout_marginRight="321dp"
                 android:layout_marginBottom="0dp"
                 android:background="@android:color/holo_red_dark"
-                tools:ignore="RtlCompat" />
-
-            <TextView
-                android:id="@+id/textView13"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border8"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_marginStart="14dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginTop="14dp"
-                android:text="@string/illumination"
-                android:textSize="14sp" />
-
-            <Switch
-                android:id="@+id/switchIlluminationMode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border8"
-                android:layout_marginStart="14dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_toEndOf="@+id/textView13" />
+                tools:ignore="ContentDescription,RtlCompat" />
 
             <View
                 android:id="@+id/border7"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:layout_below="@+id/border8"
-                android:layout_marginTop="47dp"
+                android:layout_below="@+id/chartCH2"
+                android:layout_marginTop="0dp"
                 android:background="@android:color/darker_gray" />
 
             <Button
-                android:id="@+id/activity_chat_hello_world"
+                android:id="@+id/open_btn"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
                 android:layout_alignStart="@+id/chartCH1"
-                android:layout_alignLeft="@+id/chartCH1"
                 android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
                 android:layout_marginTop="3dp"
                 android:text="@string/helloWorld"
                 android:visibility="visible"
                 style="@style/Text"
-                android:background="@drawable/castom_batton"/>
+                android:background="@drawable/custom_button"/>
 
             <Button
-                android:id="@+id/activity_chat_hello_world2"
+                android:id="@+id/close_btn"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginRight="16dp"
                 android:layout_marginBottom="0dp"
                 android:text="@string/helloWorld2"
                 android:visibility="visible"
                 style="@style/Text"
-                android:background="@drawable/castom_batton"/>
+                android:background="@drawable/custom_button"/>
 
             <Button
                 android:id="@+id/activity_chat_gesture1"
@@ -438,101 +278,13 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
                 android:layout_marginTop="57dp"
                 android:layout_marginBottom="0dp"
                 android:text="@string/gesture1"
                 android:visibility="visible"
                 style="@style/Text"
-                android:background="@drawable/castom_batton"/>
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignStart="@+id/chartCH1"-->
-            <!--android:layout_alignLeft="@+id/chartCH1"-->
-            <!--android:layout_marginStart="0dp"-->
-            <!--android:layout_marginLeft="0dp"-->
-            <!--android:layout_marginTop="4dp"-->
-            <!--android:text="@string/ch1" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView9"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_alignStart="@+id/chartCH1"-->
-            <!--android:layout_alignLeft="@+id/chartCH1"-->
-            <!--android:layout_marginTop="4dp"-->
-            <!--android:text="CH2:" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView2"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignStart="@+id/chartCH1"-->
-            <!--android:layout_alignLeft="@+id/chartCH1"-->
-            <!--android:layout_marginStart="0dp"-->
-            <!--android:layout_marginLeft="0dp"-->
-            <!--android:layout_marginTop="27dp"-->
-            <!--android:text="@string/ch1_on" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView10"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_alignStart="@+id/chartCH1"-->
-            <!--android:layout_alignLeft="@+id/chartCH1"-->
-            <!--android:layout_marginTop="27dp"-->
-            <!--android:text="CH2 on:" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView5"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignStart="@+id/chartCH1"-->
-            <!--android:layout_alignLeft="@+id/chartCH1"-->
-            <!--android:layout_marginStart="0dp"-->
-            <!--android:layout_marginLeft="0dp"-->
-            <!--android:layout_marginTop="49dp"-->
-            <!--android:text="@string/ch1_off" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView11"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_alignStart="@+id/chartCH1"-->
-            <!--android:layout_alignLeft="@+id/chartCH1"-->
-            <!--android:layout_marginTop="49dp"-->
-            <!--android:text="CH2 off:" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView7"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignStart="@+id/chartCH1"-->
-            <!--android:layout_alignLeft="@+id/chartCH1"-->
-            <!--android:layout_marginTop="72dp"-->
-            <!--android:text="CH1 sleep:" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView12"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_alignStart="@+id/chartCH1"-->
-            <!--android:layout_alignLeft="@+id/chartCH1"-->
-            <!--android:layout_marginTop="72dp"-->
-            <!--android:text="CH2 sleep:" />-->
+                android:background="@drawable/custom_button"/>
 
             <Button
                 android:id="@+id/activity_chat_gesture2"
@@ -544,7 +296,7 @@
                 android:text="@string/gesture2"
                 android:visibility="visible"
                 style="@style/Text"
-                android:background="@drawable/castom_batton"/>
+                android:background="@drawable/custom_button"/>
 
             <Button
                 android:id="@+id/activity_chat_off_update"
@@ -558,7 +310,7 @@
                 android:layout_marginTop="112dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="0dp"
-                android:background="@drawable/castom_batton"
+                android:background="@drawable/custom_button"
                 android:text="@string/off_update"
                 android:visibility="visible" />
 
@@ -568,15 +320,13 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginTop="57dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginRight="16dp"
                 android:layout_marginBottom="0dp"
                 android:text="@string/gesture3"
                 android:visibility="visible"
                 style="@style/Text"
-                android:background="@drawable/castom_batton"/>
+                android:background="@drawable/custom_button"/>
 
             <Button
                 android:id="@+id/activity_chat_gesture4"
@@ -584,173 +334,12 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
                 android:layout_marginTop="111dp"
                 android:layout_marginEnd="15dp"
-                android:layout_marginRight="15dp"
                 android:layout_marginBottom="0dp"
                 android:text="@string/gesture4"
                 android:visibility="gone" />
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView3"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_marginStart="146dp"-->
-            <!--android:layout_marginLeft="146dp"-->
-            <!--android:layout_marginTop="26dp"-->
-            <!--android:text="@string/mv" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView4"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_marginStart="125dp"-->
-            <!--android:layout_marginLeft="125dp"-->
-            <!--android:layout_marginTop="4dp"-->
-            <!--android:text="@string/mv" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView6"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_marginStart="114dp"-->
-            <!--android:layout_marginLeft="114dp"-->
-            <!--android:layout_marginTop="4dp"-->
-            <!--android:text="@string/mv" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView14"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_marginStart="3dp"-->
-            <!--android:layout_marginLeft="3dp"-->
-            <!--android:layout_marginTop="49dp"-->
-            <!--android:layout_toEndOf="@+id/valueCH2on"-->
-            <!--android:layout_toRightOf="@+id/valueCH2on"-->
-            <!--android:text="@string/mv" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView15"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_marginStart="114dp"-->
-            <!--android:layout_marginLeft="114dp"-->
-            <!--android:layout_marginTop="27dp"-->
-            <!--android:text="@string/mv" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView13"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_marginStart="125dp"-->
-            <!--android:layout_marginLeft="125dp"-->
-            <!--android:layout_marginTop="49dp"-->
-            <!--android:text="@string/mv" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView8"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_marginStart="125dp"-->
-            <!--android:layout_marginLeft="125dp"-->
-            <!--android:layout_marginTop="72dp"-->
-            <!--android:text="ms" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/textView16"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_marginStart="114dp"-->
-            <!--android:layout_marginLeft="114dp"-->
-            <!--android:layout_marginTop="71dp"-->
-            <!--android:text="ms" />-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/textView4"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@+id/chartCH2"-->
-<!--                android:layout_alignParentStart="true"-->
-<!--                android:layout_alignParentLeft="true"-->
-<!--                android:layout_marginStart="15dp"-->
-<!--                android:layout_marginLeft="15dp"-->
-<!--                android:layout_marginTop="28dp"-->
-<!--                android:text="I макс:"-->
-<!--                tools:ignore="RtlCompat" />-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/textView7"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@+id/chartCH2"-->
-<!--                android:layout_alignParentStart="true"-->
-<!--                android:layout_alignParentLeft="true"-->
-<!--                android:layout_marginStart="15dp"-->
-<!--                android:layout_marginLeft="15dp"-->
-<!--                android:layout_marginTop="9dp"-->
-<!--                android:text="I реал:"-->
-<!--                tools:ignore="RtlCompat" />-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/textView24"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@+id/chartCH2"-->
-<!--                android:layout_marginStart="5dp"-->
-<!--                android:layout_marginLeft="5dp"-->
-<!--                android:layout_marginTop="29dp"-->
-<!--                android:layout_toEndOf="@+id/valueIstop"-->
-<!--                android:layout_toRightOf="@+id/valueIstop"-->
-<!--                android:text="mA" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/valueCH1"-->
-            <!--android:layout_width="42dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_alignParentEnd="false"-->
-            <!--android:layout_alignParentRight="false"-->
-            <!--android:layout_marginStart="80dp"-->
-            <!--android:layout_marginLeft="80dp"-->
-            <!--android:layout_marginTop="4dp"-->
-            <!--android:text="@string/_1250"-->
-            <!--android:textAllCaps="false"-->
-            <!--android:textStyle="bold"-->
-            <!--android:typeface="monospace"-->
-            <!--app:fontFamily="sans-serif-medium" />-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/textView6"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@+id/chartCH2"-->
-<!--                android:layout_marginStart="5dp"-->
-<!--                android:layout_marginLeft="5dp"-->
-<!--                android:layout_marginTop="10dp"-->
-<!--                android:layout_toEndOf="@+id/valueIstop"-->
-<!--                android:layout_toRightOf="@+id/valueIstop"-->
-<!--                android:text="mA" />-->
 
             <TextView
                 android:id="@+id/valueCH1on"
@@ -758,11 +347,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/chartCH1"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentEnd="false"
-                android:layout_alignParentRight="false"
                 android:layout_marginStart="358dp"
-                android:layout_marginLeft="358dp"
                 android:layout_marginTop="-15dp"
                 android:text="@string/_2500"
                 android:textAllCaps="false"
@@ -777,10 +363,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/chartCH1"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="35dp"
-                android:layout_marginLeft="200dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginBottom="-3dp"
                 android:indeterminate="false"
@@ -797,9 +381,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/valueCH1on"
                 android:layout_alignStart="@+id/seekBarCH1on"
-                android:layout_alignLeft="@+id/seekBarCH1on"
                 android:layout_alignEnd="@+id/seekBarCH1on"
-                android:layout_alignRight="@+id/seekBarCH1on"
                 android:layout_alignBottom="@+id/chartCH2"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
@@ -821,15 +403,11 @@
                 android:layout_alignBottom="@+id/chartCH1"
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginEnd="-550dp"
-                android:layout_marginRight="-500dp"
                 android:layout_marginBottom="-3dp"
                 android:layout_toStartOf="@+id/seekBarCH1on"
-                android:layout_toLeftOf="@+id/seekBarCH1on"
                 android:layout_toEndOf="@+id/seekBarCH1on"
-                android:layout_toRightOf="@+id/seekBarCH1on"
                 android:indeterminate="false"
                 android:max="220"
                 android:progress="0"
@@ -844,9 +422,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/valueCH1on"
                 android:layout_alignStart="@+id/seekBarCH1on2"
-                android:layout_alignLeft="@+id/seekBarCH1on2"
                 android:layout_alignEnd="@+id/seekBarCH1on2"
-                android:layout_alignRight="@+id/seekBarCH1on2"
                 android:layout_alignBottom="@+id/chartCH2"
                 android:layout_marginStart="0dp"
                 android:layout_marginLeft="0dp"
@@ -861,238 +437,31 @@
                 android:rotation="-90"
                 android:thumb="@drawable/thumb_invisible" />
 
-            <!--<SeekBar-->
-            <!--android:id="@+id/seekBarCH1off"-->
-            <!--android:layout_width="240dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_marginStart="150dp"-->
-            <!--android:layout_marginLeft="150dp"-->
-            <!--android:layout_marginTop="49dp"-->
-            <!--android:max="2500"-->
-            <!--android:progress="100" />-->
-
-            <!--<SeekBar-->
-            <!--android:id="@+id/seekBarCH2off"-->
-            <!--android:layout_width="240dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_marginStart="139dp"-->
-            <!--android:layout_marginLeft="139dp"-->
-            <!--android:layout_marginTop="49dp"-->
-            <!--android:layout_marginEnd="0dp"-->
-            <!--android:layout_marginRight="0dp"-->
-            <!--android:max="2500"-->
-            <!--android:progress="100" />-->
-
-            <!--<SeekBar-->
-            <!--android:id="@+id/seekBarCH1sleep"-->
-            <!--android:layout_width="240dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH1"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_marginStart="150dp"-->
-            <!--android:layout_marginLeft="150dp"-->
-            <!--android:layout_marginTop="72dp"-->
-            <!--android:max="500"-->
-            <!--android:progress="200" />-->
-
-            <!--<SeekBar-->
-            <!--android:id="@+id/seekBarCH2sleep"-->
-            <!--android:layout_width="240dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_marginStart="139dp"-->
-            <!--android:layout_marginLeft="139dp"-->
-            <!--android:layout_marginTop="72dp"-->
-            <!--android:layout_marginEnd="0dp"-->
-            <!--android:layout_marginRight="0dp"-->
-            <!--android:max="500"-->
-            <!--android:progress="200" />-->
-
-<!--            <SeekBar-->
-<!--                android:id="@+id/seekBarIstop"-->
-<!--                android:layout_width="240dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@+id/limit_2"-->
-<!--                android:layout_alignParentEnd="true"-->
-<!--                android:layout_alignParentRight="true"-->
-<!--                android:layout_marginStart="5dp"-->
-<!--                android:layout_marginLeft="5dp"-->
-<!--                android:layout_marginTop="10dp"-->
-<!--                android:layout_marginEnd="0dp"-->
-<!--                android:layout_marginRight="0dp"-->
-<!--                android:layout_toEndOf="@+id/textView24"-->
-<!--                android:layout_toRightOf="@+id/textView24"-->
-<!--                android:indeterminate="false"-->
-<!--                android:max="3000"-->
-<!--                android:progress="1500"-->
-<!--                android:progressDrawable="@drawable/track"-->
-<!--                android:thumb="@drawable/thumb" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/valueCH2"-->
-            <!--android:layout_width="42dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_alignParentEnd="false"-->
-            <!--android:layout_alignParentRight="false"-->
-            <!--android:layout_marginStart="69dp"-->
-            <!--android:layout_marginLeft="69dp"-->
-            <!--android:layout_marginTop="4dp"-->
-            <!--android:text="@string/_1250"-->
-            <!--android:textAllCaps="false"-->
-            <!--android:textStyle="bold"-->
-            <!--android:typeface="monospace"-->
-            <!--app:fontFamily="sans-serif-medium" />-->
-
-
-
             <TextView
                 android:id="@+id/valueCH2on"
                 android:layout_width="42dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/chartCH2"
                 android:layout_alignParentEnd="false"
-                android:layout_alignParentRight="false"
                 android:layout_marginStart="69dp"
-                android:layout_marginLeft="69dp"
                 android:layout_marginTop="27dp"
                 android:text="2500"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:typeface="monospace"
                 android:visibility="gone"
-                app:fontFamily="sans-serif-medium" />
-
-            <!--<TextView-->
-            <!--android:id="@+id/valueCH2off"-->
-            <!--android:layout_width="42dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_alignParentEnd="false"-->
-            <!--android:layout_alignParentRight="false"-->
-            <!--android:layout_marginStart="69dp"-->
-            <!--android:layout_marginLeft="69dp"-->
-            <!--android:layout_marginTop="49dp"-->
-            <!--android:text="100"-->
-            <!--android:textAllCaps="false"-->
-            <!--android:textStyle="bold"-->
-            <!--android:typeface="monospace"-->
-            <!--app:fontFamily="sans-serif-medium" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/valueCH2sleep"-->
-            <!--android:layout_width="41dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/chartCH2"-->
-            <!--android:layout_alignParentEnd="false"-->
-            <!--android:layout_alignParentRight="false"-->
-            <!--android:layout_marginStart="68dp"-->
-            <!--android:layout_marginLeft="68dp"-->
-            <!--android:layout_marginTop="72dp"-->
-            <!--android:text="200"-->
-            <!--android:textAllCaps="false"-->
-            <!--android:textStyle="bold"-->
-            <!--android:typeface="monospace"-->
-            <!--app:fontFamily="sans-serif-medium" />-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/valueIstop"-->
-<!--                android:layout_width="41dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@+id/chartCH2"-->
-<!--                android:layout_alignParentEnd="false"-->
-<!--                android:layout_alignParentRight="false"-->
-<!--                android:layout_marginStart="68dp"-->
-<!--                android:layout_marginLeft="68dp"-->
-<!--                android:layout_marginTop="29dp"-->
-<!--                android:text="1500"-->
-<!--                android:textAllCaps="false"-->
-<!--                android:textStyle="bold"-->
-<!--                android:typeface="monospace"-->
-<!--                app:fontFamily="sans-serif-medium" />-->
-
-            <TextView
-                android:id="@+id/valueBatteryTension"
-                android:layout_width="30dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border5"
-                android:layout_marginStart="4dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="14dp"
-                android:layout_toEndOf="@+id/textView12"
-                android:layout_toRightOf="@+id/textView12"
-                android:text="000"
-                android:gravity="center|center_horizontal"
-                android:textAllCaps="false"
-                android:textStyle="bold"
-                android:typeface="monospace"
-                app:fontFamily="sans-serif-medium" />
-
-<!--            <TextView-->
-<!--                android:id="@+id/valueIstop2"-->
-<!--                android:layout_width="41dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@+id/chartCH2"-->
-<!--                android:layout_alignParentEnd="false"-->
-<!--                android:layout_alignParentRight="false"-->
-<!--                android:layout_marginStart="68dp"-->
-<!--                android:layout_marginLeft="68dp"-->
-<!--                android:layout_marginTop="10dp"-->
-<!--                android:text="0000"-->
-<!--                android:textAllCaps="false"-->
-<!--                android:textStyle="bold"-->
-<!--                android:typeface="monospace"-->
-<!--                app:fontFamily="sans-serif-medium" />-->
-
-            <TextView
-                android:id="@+id/valueInvert2"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/border5"
-                android:layout_marginTop="14dp"
-                android:layout_marginEnd="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_toStartOf="@+id/switchBlockMode"
-                android:layout_toLeftOf="@+id/switchBlockMode"
-                android:text="@string/blocking"
-                android:textSize="14sp" />
-
-            <Switch
-                android:id="@+id/switchBlockMode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/border5"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginRight="10dp" />
+                app:fontFamily="sans-serif-medium"
+                tools:ignore="HardcodedText" />
 
             <WebView
                 android:id="@+id/gesture_selector"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/activity_chat_hello_world"
+                android:layout_below="@+id/open_btn"
                 android:layout_marginTop="3dp"
                 tools:ignore="MissingConstraints"
                 android:visibility="gone"/>
 
-            <ImageView
-                android:id="@+id/imageViewStatus"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_below="@+id/border3"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="4dp"
-                android:layout_marginRight="17dp"
-                android:layout_toStartOf="@+id/valueInvert2"
-                android:layout_toLeftOf="@+id/valueInvert2"
-                app:srcCompat="@drawable/block_not_use" />
         </RelativeLayout>
     </ScrollView>
 
@@ -1114,7 +483,7 @@
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="MissingConstraints">
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/gestures_list"
             android:layout_width="wrap_content"
             android:layout_height="200dp"
@@ -1124,17 +493,23 @@
             android:layout_marginBottom="0dp"
             android:clipChildren="false"
             android:clipToPadding="true"
-            android:visibility="visible"></android.support.v7.widget.RecyclerView>
+            android:visibility="visible" />
     </RelativeLayout>
 
-    <android.support.design.widget.FloatingActionButton
+    <FrameLayout
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
         android:src="@android:drawable/stat_notify_more"
         android:visibility="gone"
@@ -1142,4 +517,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="MissingConstraints" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

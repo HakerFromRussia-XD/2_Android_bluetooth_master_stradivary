@@ -1,14 +1,21 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
+    ext {
+        kotlinVersion = '1.3.30'
+        ankoVersion = '0.10.1'
+        daggerVersion = '2.27'
+        spotlessVersion = '3.22.0'
+    }
     repositories {
         jcenter()
+        mavenCentral()
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:4.0.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:$spotlessVersion"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -17,6 +24,9 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven {
+            url "https://jitpack.io"
+        }
         google()
     }
 }

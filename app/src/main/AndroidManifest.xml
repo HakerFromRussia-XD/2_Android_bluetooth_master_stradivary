@@ -1,43 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.Romans.motorica">
+    package="me.romans.motorica">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+<!--    android:name="me.romans.motorica.old_electronic_by_Misha.MyApp"-->
     <application
-        android:name="me.Romans.motorica.MyApp"
+        android:name=".new_electronic_by_Rodeon.WDApplication"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="me.Romans.motorica.ui.SplashScreen">
+        <activity android:name="me.romans.motorica.old_electronic_by_Misha.ui.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="me.Romans.motorica.ui.scan.view.ScanActivity"
+            android:name="me.romans.motorica.scan.view.ScanActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="me.Romans.motorica.ui.chat.view.ChartActivity"
+            android:name="me.romans.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity"
             android:screenOrientation="portrait">
+        </activity>
+
+
+
+<!--        <activity android:name="me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.DeviceScanActivity">-->
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
+<!--        </activity>-->
+        <activity
+            android:theme="@style/AppTheme.NoActionBar"
+            android:name="me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="waterdays_nfc/*" />
+            </intent-filter>
         </activity>
+        <activity
+            android:theme="@style/AppTheme.NoActionBar"
+            android:name="me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity" />
 
-        <activity
-            android:name="me.Romans.motorica.ui.chat.view.InfinitySettings"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="me.Romans.motorica.ui.chat.view.experimental.DualChart"
-            android:screenOrientation="landscape"/>
+        <service android:name="me.romans.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService" android:enabled="true"/>
+
     </application>
 
 </manifest>

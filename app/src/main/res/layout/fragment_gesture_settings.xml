@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="me.Romans.motorica.ui.chat.view.Gesture_settings.FragmentGestureSettings">
+    tools:context=".old_electronic_by_Misha.ui.chat.view.gesture_settings.FragmentGestureSettings">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/maunLayout"
@@ -22,10 +21,10 @@
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
                 android:visibility="visible"
-                tools:context="me.Romans.motorica.ui.scan.view.ScanActivity"
+                tools:context=".scan.view.ScanActivity"
                 tools:ignore="MissingConstraints">
 
-                <android.support.v7.widget.RecyclerView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/gripper_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -34,7 +33,7 @@
                     android:layout_alignParentBottom="true"
                     android:layout_marginBottom="64dp"
                     android:background="#ffffffff"
-                    android:layout_marginTop="0dp"></android.support.v7.widget.RecyclerView>
+                    android:layout_marginTop="0dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -48,13 +47,12 @@
                         android:id="@+id/gesture_use"
                         android:layout_width="200dp"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
                         android:layout_gravity="center"
                         android:layout_marginBottom="16dp"
                         android:text="@string/use_gesture"
                         android:visibility="visible"
                         style="@style/Text"
-                        android:background="@drawable/castom_batton"/>
+                        android:background="@drawable/custom_button"/>
                 </LinearLayout>
             </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

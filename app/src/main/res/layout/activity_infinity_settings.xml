@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         tools:context="me.aflak.motorica.ui.scan.view.ScanActivity"
-        tools:ignore="MissingConstraints">
+        tools:ignore="MissingConstraints,UnknownIdInLayout">
 
         <TextView
             android:id="@+id/valueTimeClose"
@@ -29,17 +29,15 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/chartCH1"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentEnd="false"
-            android:layout_alignParentRight="false"
             android:layout_marginStart="50dp"
-            android:layout_marginLeft="50dp"
             android:layout_marginTop="49dp"
             android:text="1000"
             android:textAllCaps="false"
             android:textStyle="bold"
             android:typeface="monospace"
-            app:fontFamily="sans-serif-medium" />
+            app:fontFamily="sans-serif-medium"
+            tools:ignore="HardcodedText" />
 
         <View
             android:layout_width="match_parent"
@@ -63,9 +61,7 @@
             android:layout_width="206dp"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:layout_marginStart="60dp"
             android:layout_marginLeft="60dp"
@@ -73,7 +69,8 @@
             android:layout_marginRight="60dp"
             android:layout_marginBottom="16dp"
             android:text="Сохранить"
-            android:visibility="visible" />
+            android:visibility="visible"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView"
@@ -81,9 +78,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/chartCH1"
             android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
             android:layout_marginTop="4dp"
-            android:text="Time:" />
+            android:text="Time:"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView9"
@@ -91,7 +88,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginTop="72dp"
-            android:text="Speed:" />
+            android:text="Speed:"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView2"
@@ -99,11 +97,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/chartCH1"
             android:layout_alignStart="@+id/chartCH1"
-            android:layout_alignLeft="@+id/chartCH1"
             android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
             android:layout_marginTop="27dp"
-            android:text="t откр:" />
+            android:text="t откр:"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView10"
@@ -111,7 +108,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginTop="94dp"
-            android:text="v откр:" />
+            android:text="v откр:"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView5"
@@ -119,11 +117,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/chartCH1"
             android:layout_alignStart="@+id/chartCH1"
-            android:layout_alignLeft="@+id/chartCH1"
             android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
             android:layout_marginTop="49dp"
-            android:text="t закр:" />
+            android:text="t закр:"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView11"
@@ -131,7 +128,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginTop="116dp"
-            android:text="v закр:" />
+            android:text="v закр:"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView21"
@@ -139,7 +137,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginTop="141dp"
-            android:text="Количество циклов:" />
+            android:text="Количество циклов:"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView3"
@@ -147,35 +146,32 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/chartCH1"
             android:layout_alignStart="@+id/textView13"
-            android:layout_alignLeft="@+id/textView13"
             android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
             android:layout_marginTop="27dp"
-            android:text="ms" />
+            android:text="ms"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView14"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginStart="89dp"
-            android:layout_marginLeft="89dp"
             android:layout_marginTop="116dp"
-            android:text="rad/s" />
+            android:text="rad/s"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView15"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/textView14"
-            android:layout_alignLeft="@+id/textView14"
             android:layout_alignParentTop="true"
             android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
             android:layout_marginTop="93dp"
-            android:text="rad/s" />
+            android:text="rad/s"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/textView13"
@@ -183,11 +179,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/chartCH1"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_marginStart="89dp"
-            android:layout_marginLeft="89dp"
             android:layout_marginTop="49dp"
-            android:text="ms" />
+            android:text="ms"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/valueTimeOpen"
@@ -195,17 +190,15 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/chartCH1"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentEnd="false"
-            android:layout_alignParentRight="false"
             android:layout_marginStart="50dp"
-            android:layout_marginLeft="50dp"
             android:layout_marginTop="27dp"
             android:text="1000"
             android:textAllCaps="false"
             android:textStyle="bold"
             android:typeface="monospace"
-            app:fontFamily="sans-serif-medium" />
+            app:fontFamily="sans-serif-medium"
+            tools:ignore="HardcodedText" />
 
         <SeekBar
             android:id="@+id/seekBarTimeOpen"
@@ -213,9 +206,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/chartCH1"
             android:layout_alignStart="@+id/seekBarTimeClose"
-            android:layout_alignLeft="@+id/seekBarTimeClose"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginStart="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="27dp"
@@ -230,14 +221,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginStart="4dp"
-            android:layout_marginLeft="4dp"
             android:layout_marginTop="116dp"
             android:layout_marginEnd="0dp"
-            android:layout_marginRight="0dp"
             android:layout_toEndOf="@+id/textView14"
-            android:layout_toRightOf="@+id/textView14"
             android:max="999"
             android:progress="999" />
 
@@ -247,14 +234,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/chartCH1"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginStart="4dp"
-            android:layout_marginLeft="4dp"
             android:layout_marginTop="49dp"
             android:layout_marginEnd="0dp"
-            android:layout_marginRight="0dp"
             android:layout_toEndOf="@+id/textView13"
-            android:layout_toRightOf="@+id/textView13"
             android:max="2000"
             android:progress="1000" />
 
@@ -263,10 +246,8 @@
             android:layout_width="185dp"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/seekBarSpeedClose"
-            android:layout_alignLeft="@+id/seekBarSpeedClose"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginStart="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="95dp"
@@ -281,33 +262,30 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="false"
-            android:layout_alignParentRight="false"
             android:layout_marginStart="50dp"
-            android:layout_marginLeft="50dp"
             android:layout_marginTop="94dp"
             android:text="0.999"
             android:textAllCaps="false"
             android:textStyle="bold"
             android:typeface="monospace"
-            app:fontFamily="sans-serif-medium" />
+            app:fontFamily="sans-serif-medium"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/valueFinger2Angle2"
             android:layout_width="239dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_gravity="right"
             android:layout_marginStart="6dp"
-            android:layout_marginLeft="6dp"
             android:layout_marginTop="141dp"
             android:layout_marginEnd="0dp"
-            android:layout_marginRight="0dp"
             android:layout_toEndOf="@+id/textView21"
             android:layout_toRightOf="@+id/textView21"
             android:text="0"
             android:textStyle="bold"
-            app:fontFamily="sans-serif-medium" />
+            app:fontFamily="sans-serif-medium"
+            tools:ignore="HardcodedText,RtlHardcoded" />
 
         <TextView
             android:id="@+id/valueSpeedClose"
@@ -315,15 +293,14 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="false"
-            android:layout_alignParentRight="false"
             android:layout_marginStart="50dp"
-            android:layout_marginLeft="50dp"
             android:layout_marginTop="116dp"
             android:text="0.999"
             android:textAllCaps="false"
             android:textStyle="bold"
             android:typeface="monospace"
-            app:fontFamily="sans-serif-medium" />
+            app:fontFamily="sans-serif-medium"
+            tools:ignore="HardcodedText" />
     </RelativeLayout>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

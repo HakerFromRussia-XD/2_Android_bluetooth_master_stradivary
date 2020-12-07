@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="me.Romans.motorica.ui.chat.view.Service_settings.FragmentServiceSettingsMono">
+    tools:context=".old_electronic_by_Misha.ui.chat.view.service_settings.FragmentServiceSettingsMono">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/maunLayout"
         android:layout_width="match_parent"
@@ -30,9 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/seekBarRoughness"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="15dp"
-                android:layout_marginLeft="15dp"
                 android:layout_marginTop="5dp"
                 android:text="@string/I_real"
                 tools:ignore="RtlCompat" />
@@ -43,9 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/seekBarRoughness"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="15dp"
-                android:layout_marginLeft="15dp"
                 android:layout_marginTop="24dp"
                 android:text="@string/I_max"
                 tools:ignore="RtlCompat" />
@@ -56,17 +52,13 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/seekBarRoughness"
                 android:layout_alignStart="@+id/seekBarRoughness"
-                android:layout_alignLeft="@+id/seekBarRoughness"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="-1dp"
-                android:layout_marginLeft="-1dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="1dp"
-                android:layout_marginRight="1dp"
                 android:indeterminate="false"
-                android:max="3000"
-                android:progress="1500"
+                android:max="1200"
+                android:progress="1000"
                 android:progressDrawable="@drawable/track"
                 android:thumb="@drawable/thumb" />
 
@@ -76,9 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border8"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
                 android:layout_marginTop="14dp"
                 android:text="@string/roughness_of_sensors"
                 android:textSize="14sp" />
@@ -89,19 +79,16 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border8"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginStart="-3dp"
-                android:layout_marginLeft="-3dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginEnd="0dp"
-                android:layout_marginRight="0dp"
                 android:layout_toEndOf="@+id/textView13"
-                android:layout_toRightOf="@+id/textView13"
                 android:indeterminate="false"
                 android:max="32"
                 android:progress="13"
                 android:progressDrawable="@drawable/track"
-                android:thumb="@drawable/thumb" />
+                android:thumb="@drawable/thumb"
+                tools:ignore="UnknownIdInLayout" />
 
             <TextView
                 android:id="@+id/valueInvert"
@@ -109,9 +96,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/seekBarIstopServiceSettings"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="14dp"
-                android:layout_marginLeft="0dp"
                 android:layout_marginTop="4dp"
                 android:text="@string/inverting"
                 android:textSize="14sp" />
@@ -122,10 +107,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/seekBarIstopServiceSettings"
                 android:layout_alignStart="@+id/seekBarRoughness"
-                android:layout_alignLeft="@+id/seekBarRoughness"
                 android:layout_marginStart="15dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
 
             <TextView
                 android:id="@+id/valueNotUseInternalADC"
@@ -133,9 +117,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/switchInvert"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="14dp"
-                android:layout_marginLeft="0dp"
                 android:layout_marginTop="4dp"
                 android:text="@string/internal_ADC"
                 android:textSize="14sp" />
@@ -146,10 +128,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/switchInvert"
                 android:layout_alignStart="@+id/seekBarRoughness"
-                android:layout_alignLeft="@+id/seekBarRoughness"
                 android:layout_marginStart="15dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -163,14 +144,14 @@
                     android:id="@+id/save_service_settings"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
                     android:layout_gravity="center"
                     android:layout_marginBottom="16dp"
                     android:text="@string/save"
                     android:visibility="visible"
                     style="@style/Text"
-                    android:background="@drawable/castom_batton"/>
+                    android:background="@drawable/custom_button"/>
             </LinearLayout>
+
 
             <TextView
                 android:id="@+id/valueIstop2"
@@ -178,15 +159,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/seekBarRoughness"
                 android:layout_marginStart="9dp"
-                android:layout_marginLeft="9dp"
                 android:layout_marginTop="5dp"
                 android:layout_toEndOf="@+id/textView4"
-                android:layout_toRightOf="@+id/textView4"
                 android:text="0000"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:typeface="monospace"
-                app:fontFamily="sans-serif-medium" />
+                app:fontFamily="sans-serif-medium"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/valueIstop"
@@ -194,15 +174,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/seekBarRoughness"
                 android:layout_marginStart="9dp"
-                android:layout_marginLeft="9dp"
                 android:layout_marginTop="24dp"
                 android:layout_toEndOf="@+id/textView4"
-                android:layout_toRightOf="@+id/textView4"
                 android:text="1500"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:typeface="monospace"
-                app:fontFamily="sans-serif-medium" />
+                app:fontFamily="sans-serif-medium"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/textView24"
@@ -210,10 +189,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/seekBarRoughness"
                 android:layout_marginStart="5dp"
-                android:layout_marginLeft="5dp"
                 android:layout_marginTop="24dp"
                 android:layout_toEndOf="@+id/valueIstop"
-                android:layout_toRightOf="@+id/valueIstop"
                 android:text="@string/mA" />
             <TextView
                 android:id="@+id/textView6"
@@ -221,10 +198,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/seekBarRoughness"
                 android:layout_marginStart="5dp"
-                android:layout_marginLeft="5dp"
                 android:layout_marginTop="5dp"
                 android:layout_toEndOf="@+id/valueIstop"
-                android:layout_toRightOf="@+id/valueIstop"
                 android:text="@string/mA" />
         </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

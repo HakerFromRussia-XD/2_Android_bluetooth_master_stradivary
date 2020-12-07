@@ -10,16 +10,16 @@
     <string name="on_update">включение графиков</string>
     <string name="gesture4">parting position</string>
 
-    <string name="activity_scan_button">Scan again</string>
+    <string name="scan_again">сканировать снова</string>
     <string name="activity_scan_paired_text">Связанные устройства:</string>
 
-    <string name="bluetooth_scanning">Сканирование…</string>
-    <string name="bluetooth_scan_finished">Сканирование завершено.</string>
-    <string name="bluetooth_pairing">Соединение…</string>
+    <string name="bluetooth_scanning">сканирование…</string>
+    <string name="bluetooth_scan_finished">сканирование завершено.</string>
+    <string name="bluetooth_pairing">соединение…</string>
     <string name="bluetooth_paired">Девайс соединён.</string>
     <string name="bluetooth_unpaired">Девайс отсоединён.</string>
     <string name="bluetooth_connected">Девайс подключён.</string>
-    <string name="bluetooth_connecting">Подключение…</string>
+    <string name="bluetooth_connecting">подключение…</string>
     <string name="bluetooth_disconnected">Девайс не подключён.</string>
     <string name="bluetooth_connect_in_3sec">Подключиться не удалось…</string>
     <string name="bluetooth_turning_on">Bluetooth выключен…</string>
@@ -36,15 +36,15 @@
     <string name="_1250">1250</string>
     <string name="_2500">2500</string>
     <string name="state_view">lolol</string>
-    <string name="title_activity_gripper_settings">GripperSettings</string>
+    <string name="title_activity_gripper_settings">Настройки схвата</string>
     <string name="action_Trigger0">сервисное меню</string>//service menu
     <string name="action_Trigger1">классический</string>//classic
     <string name="action_Trigger2">триггерный</string>//trigger mode
     <string name="action_Trigger3">триггерный инвертированный</string>//invert trigger mode
-    <string name="action_Trigger4"></string>//first lock mode
-    <string name="action_Trigger5"></string>//second lock mode
-    <string name="action_Trigger6"></string>//first invert lock mode
-    <string name="action_Trigger7"></string>//second invert lock mode
+    <string name="action_Trigger4" />//first lock mode
+    <string name="action_Trigger5" />//second lock mode
+    <string name="action_Trigger6" />//first invert lock mode
+    <string name="action_Trigger7" />//second invert lock mode
     <string name="action_Trigger8">классический инвертированный</string>classic inverted
     <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     <string name="lesson_eight_error_could_not_create_vbo">Could not create vertex buffer object: %s</string>
@@ -111,6 +111,10 @@
     <string name="connection_is_absent">Подключение отсутствует</string>
     <string name="off_schedules">включение графиков</string>
     <string name="on_schedules">отключение графиков</string>
+    <string name="magic_checkbox">Магические чекбоксы</string>
+    <string name="speed_increment">инкремент скорости</string>
+    <string name="disable_angel_control">выключение контроля угла</string>
+
 
     <string-array name="numbers">
         <item>0</item>

@@ -300,9 +300,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     open_btn.isEnabled = enabled
     shutdown_current_sb.isEnabled = enabled
     start_up_step_sb.isEnabled = enabled
-    start_up_time_sb.isEnabled = enabled
     dead_zone_sb.isEnabled = enabled
-    sensitivity_sb.isEnabled = enabled
     brake_motor_sb.isEnabled = enabled
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled

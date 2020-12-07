@@ -4,11 +4,9 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -19,7 +17,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,11 +47,9 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.romans.bluetooth.BluetoothConstantManager;
 import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
-import me.romans.motorica.old_electronic_by_Misha.MyApp;
 import me.romans.motorica.old_electronic_by_Misha.data.GesstureAdapter;
 import me.romans.motorica.old_electronic_by_Misha.data.Gesture_my;
 import me.romans.motorica.old_electronic_by_Misha.ui.chat.data.ChatModule;
@@ -70,7 +65,7 @@ import me.romans.motorica.old_electronic_by_Misha.ui.chat.view.service_settings.
 import me.romans.motorica.old_electronic_by_Misha.ui.chat.view.service_settings.FragmentServiceSettingsMono;
 import me.romans.motorica.old_electronic_by_Misha.ui.chat.view.service_settings.SettingsDialog;
 import me.romans.motorica.old_electronic_by_Misha.utils.ConstantManager;
-
+import timber.log.Timber;
 import static me.romans.motorica.R.id.view_pager;
 
 public class ChartActivity extends AppCompatActivity implements ChartView, GesstureAdapter.OnGestureMyListener, SettingsDialog.SettingsDialogListener {
@@ -86,8 +81,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public SeekBar seekBarCH1on2;
     public SeekBar seekBarCH2on2;
     public SeekBar seekBarIStop;
-    Switch switchBlockMode;
-    Switch switchIlluminationMode;
     TextView valueCH2on;
     TextView valueBatteryTension;
     public RelativeLayout layoutSensors;
@@ -100,7 +93,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     Button activity_chat_gesture3;
     Button activity_chat_gesture4;
     FloatingActionButton fab;
-    ImageView imageViewStatus;
     ImageView imageViewStatusOpen;
     ImageView imageViewStatusClose;
     ImageView borderGray;
@@ -120,7 +112,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     private byte indicatorTypeMessage;
     private byte numberChannel;
     public byte invert = 0x00;
-    public byte block = 0x00;
     public boolean isEnable = false;
     public boolean firstTapRecyclerView = true;
     public boolean errorReception = false;
@@ -131,9 +122,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public byte[] TextByteReadStartParameterTrig1 = {ConstantManager.ADDR_MIO1, ConstantManager.READ, BluetoothConstantManager.MIO1_TRIG_HDLC, 0x00};
     public byte[] TextByteReadStartParameterTrig2 = {ConstantManager.ADDR_MIO2, ConstantManager.READ, BluetoothConstantManager.MIO2_TRIG_HDLC, 0x00};
     public byte[] TextByteReadStartParameterCurrent = {ConstantManager.ADDR_CUR_LIMIT, ConstantManager.READ, BluetoothConstantManager.CURR_LIMIT_HDLC, 0x00};
-    public byte[] TextByteReadStartParameterPermissionBlock = {ConstantManager.ADDR_BLOCK, ConstantManager.READ, BluetoothConstantManager.BLOCK_PERMISSION_HDLC, 0x00};
     public byte[] TextByteReadStartParameterPermissionRoughness = {ConstantManager.ADDR_BUFF_CHOISES, ConstantManager.READ, BluetoothConstantManager.ADC_BUFF_CHOISES_HDLC, 0x00};
-    public byte[] TextByteReadStartParameterBattery = {ConstantManager.ADDR_BATTERY, ConstantManager.READ, BluetoothConstantManager.CURR_BAT_HDLC, 0x00};
     public byte[] TextByteSetGeneralParcel = new byte[2];
     //    for graph
     public int receiveCurrent = 0;
@@ -156,7 +145,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public int receiveLevelCH2Chat = 0;
     public byte receiveIndicationStateChat = 0;
     public int receiveBatteryTensionChat = 0;
-    String TAG = "thread";
     //    for animation limits
     ImageView limit_1;
     ImageView limit_2;
@@ -211,9 +199,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public Thread requestStartTrig1Thread;
     public Thread requestStartTrig2Thread;
     public Thread requestStartCurrentThread;
-    public Thread requestStartBlockThread;
     public Thread requestStartRoughnessThread;
-    public Thread requestBatteryTensionThread;
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
@@ -281,16 +267,12 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         seekBarCH2on = findViewById(R.id.seekBarCH2on);
         seekBarCH1on2 = findViewById(R.id.seekBarCH1on2);
         seekBarCH2on2 = findViewById(R.id.seekBarCH2on2);
-        switchBlockMode = findViewById(R.id.switchBlockMode);
-        switchIlluminationMode = findViewById(R.id.switchIlluminationMode);
         valueCH2on = findViewById(R.id.valueCH2on);
-        valueBatteryTension = findViewById(R.id.valueBatteryTension);
         layoutSensors = findViewById(R.id.layout_sensors);
         layoutGestures = findViewById(R.id.gestures_list_relative);
         openBtn = findViewById(R.id.open_btn);
         closeBtn = findViewById(R.id.close_btn);
         fab = findViewById(R.id.fab);
-        imageViewStatus = findViewById(R.id.imageViewStatus);
         imageViewStatusOpen = findViewById(R.id.imageViewStatusOpen);
         imageViewStatusClose = findViewById(R.id.imageViewStatusClose);
         borderGray = findViewById(R.id.borderGray);
@@ -323,74 +305,59 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             seekBarIStop.setProgress(current);
         } else {
             //многосхватная версия
-            activity_chat_gesture1.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        if (flagUseHDLCProtocol){
-                            useGesture = 1;
-                            gestureUseThread ((byte) 6, (byte) useGesture);
-                        }else{
-                            presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x00, (byte) 0x01));
-                        }
-                    }
-                    return false;
-                }
-            });
-
-            activity_chat_gesture2.setOnTouchListener(new View.OnTouchListener(){
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        if (flagUseHDLCProtocol){
-                            useGesture = 2;
-                            gestureUseThread ((byte) 7, (byte) useGesture);
-                        }else{
-                            presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x02, (byte) 0x03));
-                        }
-                    }
-                    return false;
-                }
-            });
-
-            activity_chat_gesture3.setOnTouchListener(new View.OnTouchListener(){
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        if (flagUseHDLCProtocol){
-                            useGesture = 3;
-                            gestureUseThread ((byte) 8, (byte) useGesture);
-                        }else{
-                            presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x04, (byte) 0x05));
-                        }
-                    }
-                    return false;
-                }
-            });
-
-            activity_chat_gesture4.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v) {
+            activity_chat_gesture1.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (flagUseHDLCProtocol){
-                        useGesture = 4;
-                        gestureUseThread ((byte) 9, (byte) useGesture);
+                        useGesture = 1;
+                        gestureUseThread ((byte) 6, (byte) useGesture);
                     }else{
-                        presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x06, (byte) 0x06));
+                        presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x00, (byte) 0x01));
                     }
+                }
+                return false;
+            });
+
+            activity_chat_gesture2.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (flagUseHDLCProtocol){
+                        useGesture = 2;
+                        gestureUseThread ((byte) 7, (byte) useGesture);
+                    }else{
+                        presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x02, (byte) 0x03));
+                    }
+                }
+                return false;
+            });
+
+            activity_chat_gesture3.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (flagUseHDLCProtocol){
+                        useGesture = 3;
+                        gestureUseThread ((byte) 8, (byte) useGesture);
+                    }else{
+                        presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x04, (byte) 0x05));
+                    }
+                }
+                return false;
+            });
+
+            activity_chat_gesture4.setOnClickListener(v -> {
+                if (flagUseHDLCProtocol){
+                    useGesture = 4;
+                    gestureUseThread ((byte) 9, (byte) useGesture);
+                }else{
+                    presenter.onHelloWorld(mMassages.CompileMassageSwitchGesture((byte) 0x06, (byte) 0x06));
                 }
             });
 
-            offUpdate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (flagUseHDLCProtocol){
-                        if(!flagOffUpdateGraphHDLC){
-                            flagOffUpdateGraphHDLC = true;
-                            offUpdate.setText(R.string.on_schedules);
-                        } else {
-                            flagOffUpdateGraphHDLC = false;
-                            offUpdate.setText(R.string.off_schedules);
-                        }
+            offUpdate.setOnClickListener(v -> {
+                if (flagUseHDLCProtocol){
+                    if(!flagOffUpdateGraphHDLC){
+                        flagOffUpdateGraphHDLC = true;
+                        offUpdate.setText(R.string.on_schedules);
+                    } else {
+                        flagOffUpdateGraphHDLC = false;
+                        offUpdate.setText(R.string.off_schedules);
                     }
                 }
             });
@@ -450,7 +417,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
 
         DaggerChatComponent.builder()
-                .bluetoothModule(WDApplication.app().bluetoothModule())
+                .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())
                 .chatModule(new ChatModule(this))
                 .build().inject(this);
         ButterKnife.bind(this);
@@ -466,7 +433,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 intValueCH1on = (int) (seekBarCH1on.getProgress()* multiplierSeekBar);
-//                System.err.println("ChatActivity--------> seekBarCH1on : onProgressChanged - intValueCH1on=" + intValueCH1on);
             }
 
             @Override
@@ -642,124 +608,79 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         });
 
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Новый жест добавлен", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
-                gestureMyList.add(
-                        new Gesture_my(
-                                1,
-                                R.drawable.gesture4,
-                                "bla bla bla",
-                                "Нажмите для редактирования начального и конечного состояний",
-                                "Жест №"+4,
-                                2,
-                                123));
-                recyclerView.setAdapter(gestureAdapter);
-            }
+        fab.setOnClickListener(view -> {
+            Snackbar.make(view, "Новый жест добавлен", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+            gestureMyList.add(
+                    new Gesture_my(
+                            1,
+                            R.drawable.gesture4,
+                            "bla bla bla",
+                            "Нажмите для редактирования начального и конечного состояний",
+                            "Жест №"+4,
+                            2,
+                            123));
+            recyclerView.setAdapter(gestureAdapter);
         });
 
-        switchBlockMode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (switchBlockMode.isChecked()){
-                    block = 0x01;
-                    if (flagUseHDLCProtocol){
-                        presenter.onHelloWorld(mMassages.CompileMassageBlockModeHDLC(block));
-                    } else {
-                        presenter.onHelloWorld(mMassages.CompileMassageBlockMode(block));
-                    }
-                    receiveBlockIndication = 1;
-                    imageViewStatus.setImageResource(R.drawable.unblock);
+        closeBtn.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                lastReceiveLevelCH1Chat = receiveLevelCH1Chat;
+                lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
+                int numberSensor = 0x07;
+                if(flagUseHDLCProtocol){
+                    if(useGesture == 1){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 1));}
+                    if(useGesture == 2){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 3));}
+                    if(useGesture == 3){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 5));}
                 } else {
-                    block = 0x00;
-                    if (flagUseHDLCProtocol){
-                        presenter.onHelloWorld(mMassages.CompileMassageBlockModeHDLC(block));
-                    } else {
-                        presenter.onHelloWorld(mMassages.CompileMassageBlockMode(block));
-                    }
-                    receiveBlockIndication = 0;
-                    imageViewStatus.setImageResource(R.drawable.block_not_use);
+                    presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
                 }
-            }
-        });
-
-        switchIlluminationMode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (switchIlluminationMode.isChecked()){
-                    presenter.onHelloWorld(mMassages.CompileMassageIlluminationMode(true));
-                }else {
-                    presenter.onHelloWorld(mMassages.CompileMassageIlluminationMode(false));
-                }
-            }
-        });
-
-        closeBtn.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    lastReceiveLevelCH1Chat = receiveLevelCH1Chat;
-                    lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
-                    int numberSensor = 0x07;
-                    if(flagUseHDLCProtocol){
-                        if(useGesture == 1){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 1));}
-                        if(useGesture == 2){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 3));}
-                        if(useGesture == 3){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 5));}
-                    } else {
-                        presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
-                    }
-                    receiveLevelCH1Chat = 20;
-                    receiveLevelCH2Chat = 2500;
-                    if(flagUseHDLCProtocol){System.out.println("ChatActivity----> flagReceptionExpectation " + flagReceptionExpectation);}
+                receiveLevelCH1Chat = 20;
+                receiveLevelCH2Chat = 2500;
+                if(flagUseHDLCProtocol){System.out.println("ChatActivity----> flagReceptionExpectation " + flagReceptionExpectation);}
 //                    else {showToast("not IND");}
-                }
-
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    int numberSensor = 0x08;
-                    if(flagUseHDLCProtocol){
-                        pauseSendingThread(mMassages.CompileMassageSensorActivateHDLC());
-                    } else {
-                        presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
-                    }
-
-                    receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
-                    receiveLevelCH2Chat = lastReceiveLevelCH2Chat;
-                }
-                return false;
             }
+
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                int numberSensor = 0x08;
+                if(flagUseHDLCProtocol){
+                    pauseSendingThread(mMassages.CompileMassageSensorActivateHDLC());
+                } else {
+                    presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
+                }
+
+                receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
+                receiveLevelCH2Chat = lastReceiveLevelCH2Chat;
+            }
+            return false;
         });
 
-        openBtn.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    lastReceiveLevelCH1Chat = receiveLevelCH1Chat;
-                    lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
-                    int numberSensor = 0x06;
-                    if(flagUseHDLCProtocol){
-                        if(useGesture == 1){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 0));}
-                        if(useGesture == 2){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 2));}
-                        if(useGesture == 3){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 4));}
-                    } else {
-                        presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
-                    }
-                    receiveLevelCH1Chat = 2500;
-                    receiveLevelCH2Chat = 20;
+        openBtn.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                lastReceiveLevelCH1Chat = receiveLevelCH1Chat;
+                lastReceiveLevelCH2Chat = receiveLevelCH2Chat;
+                int numberSensor = 0x06;
+                if(flagUseHDLCProtocol){
+                    if(useGesture == 1){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 0));}
+                    if(useGesture == 2){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 2));}
+                    if(useGesture == 3){pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC((byte) 4));}
+                } else {
+                    presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
                 }
-
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    int numberSensor = 0x08;
-                    if(flagUseHDLCProtocol){
-                        pauseSendingThread(mMassages.CompileMassageSensorActivateHDLC());
-                    } else {
-                        presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
-                    }
-                    receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
-                    receiveLevelCH2Chat = lastReceiveLevelCH2Chat;
-                }
-                return false;
+                receiveLevelCH1Chat = 2500;
+                receiveLevelCH2Chat = 20;
             }
+
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                int numberSensor = 0x08;
+                if(flagUseHDLCProtocol){
+                    pauseSendingThread(mMassages.CompileMassageSensorActivateHDLC());
+                } else {
+                    presenter.onHelloWorld(mMassages.CompileMassageSensorActivate(numberSensor));
+                }
+                receiveLevelCH1Chat = lastReceiveLevelCH1Chat;
+                receiveLevelCH2Chat = lastReceiveLevelCH2Chat;
+            }
+            return false;
         });
 
 
@@ -800,12 +721,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
         for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
             final int finalJ = j;
-            threadFunction[j] = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    mLoad3DModel.loadSTR2(finalJ);
-                }
-            });
+            threadFunction[j] = new Thread(() -> mLoad3DModel.loadSTR2(finalJ));
             threadFunction[j].start();
         }
         ////////////////////////////////////////////////
@@ -833,17 +749,14 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     @Override
     protected void onStop() {
         super.onStop();
-        if(flagUseHDLCProtocol){} else {
+        if(!flagUseHDLCProtocol){
             if(isEnable){
-                ThreadHelper.run(runOnUi, this, new Runnable() {
-                    @Override
-                    public void run() {
-                        mMassages.CompileMessageSetGeneralParcel((byte) 0x00);
-                        presenter.onHelloWorld(TextByteSetGeneralParcel);
-                        try {
-                            Thread.sleep(500);
-                        }catch (Exception ignored){}
-                    }
+                ThreadHelper.run(runOnUi, this, () -> {
+                    mMassages.CompileMessageSetGeneralParcel((byte) 0x00);
+                    presenter.onHelloWorld(TextByteSetGeneralParcel);
+                    try {
+                        Thread.sleep(500);
+                    }catch (Exception ignored){}
                 });
                 presenter.onHelloWorld(TextByteSetGeneralParcel);
             }
@@ -877,17 +790,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                                         ChartActivity.this);
                                 quitDialog.setTitle(R.string.leave);
 
-                                quitDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        finish();
-                                    }
-                                });
+                                quitDialog.setPositiveButton(R.string.ok, (dialog, which) -> finish());
 
-                                quitDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                    }
+                                quitDialog.setNegativeButton(R.string.no, (dialog, which) -> {
                                 });
 
                                 quitDialog.show();
@@ -904,182 +809,179 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     /**                             работа с 3D                                **/
     //////////////////////////////////////////////////////////////////////////////
     public void startTransferThread () {
-        transferThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (transferThreadFlag){
-                    // пальчики
-                    if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger1Speed);}
-                    if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger2Speed);}
-                    if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger3Speed);}
-                    if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger4Speed);}
-                    if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger6Speed);}
-                    if(lastSpeedFinger != speedFinger && isEnable){
-                        System.err.println("ChatActivity--------> speedFinger: "+ speedFinger);
-                        String.valueOf(selectStation);
-                        if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){intValueFinger1Speed = speedFinger;}
-                        if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){intValueFinger2Speed = speedFinger;}
-                        if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){intValueFinger3Speed = speedFinger;}
-                        if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){intValueFinger4Speed = speedFinger;}
-                        if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){intValueFinger6Speed = speedFinger;}
-                        lastSpeedFinger = speedFinger;
+        transferThread = new Thread(() -> {
+            while (transferThreadFlag){
+                // пальчики
+                if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger1Speed);}
+                if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger2Speed);}
+                if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger3Speed);}
+                if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger4Speed);}
+                if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){fragmentGripperSettings.seekBarSpeedFinger.setProgress(intValueFinger6Speed);}
+                if(lastSpeedFinger != speedFinger && isEnable){
+                    System.err.println("ChatActivity--------> speedFinger: "+ speedFinger);
+                    String.valueOf(selectStation);
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){intValueFinger1Speed = speedFinger;}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){intValueFinger2Speed = speedFinger;}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){intValueFinger3Speed = speedFinger;}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){intValueFinger4Speed = speedFinger;}
+                    if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){intValueFinger6Speed = speedFinger;}
+                    lastSpeedFinger = speedFinger;
+                }
+                if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
+                    numberFinger = 1;
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
+                    }else {
+                        presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
                     }
-                    if(intValueFinger1AngleLast != intValueFinger1Angle && isEnable){
-                        numberFinger = 1;
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
-                        }else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger1Angle, intValueFinger1Speed));
-                        }
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Angle", intValueFinger1Angle);
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Speed", intValueFinger1Speed);
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Angle", intValueFinger1Angle);
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger1Speed", intValueFinger1Speed);
 
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-                        }else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger1Angle, 99));
-                        }
-                        intValueFinger1AngleLast = intValueFinger1Angle;
-                    }
-                    if(intValueFinger2AngleLast != intValueFinger2Angle && isEnable){
-                        numberFinger = 2;
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
-                        }else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
-                        }
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Angle", intValueFinger2Angle);
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Speed", intValueFinger2Speed);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-                        }else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger2Angle, 99));
-                        }
-                        intValueFinger2AngleLast = intValueFinger2Angle;
-                    }
-                    if(intValueFinger3AngleLast != intValueFinger3Angle && isEnable){
-                        numberFinger = 3;
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
-                        }else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
-                        }
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Angle", intValueFinger3Angle);
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Speed", intValueFinger3Speed);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-                        }else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger3Angle, 99));
-                        }
-                        intValueFinger3AngleLast = intValueFinger3Angle;
-                    }
-                    if(intValueFinger4AngleLast != intValueFinger4Angle && isEnable){
-                        numberFinger = 4;
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
-                        }else {
-                            presenter.onHelloWorld( mMassages.CompileMassageSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
-                        }
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Angle", intValueFinger4Angle);
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Speed", intValueFinger4Speed);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-                        }else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger4Angle, 99));
-                        }
-                        intValueFinger4AngleLast = intValueFinger4Angle;
-                    }
-                    if((intValueFinger5AngleLast != intValueFinger5Angle && isEnable)||(intValueFinger6AngleLast != intValueFinger6Angle && isEnable)){
-                        numberFinger = 5;
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
-                        }else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
-                        }
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Angle", intValueFinger5Angle);
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Speed", intValueFinger5Speed);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-                        }else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger5Angle, 99));
-                        }
-                        intValueFinger5AngleLast = intValueFinger5Angle;
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        numberFinger = 6;
-                        if(flagUseHDLCProtocol){
-                            presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
-                        }else {
-                            presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
-                        }
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Angle", intValueFinger6Angle);
-                        saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Speed", intValueFinger6Speed);
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if (flagUseHDLCProtocol) {
-                            presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
-                        } else {
-                            presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
-                        }
-                        try {
-                            Thread.sleep(delay);
-                        }catch (Exception ignored){}
-                        if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
-                            presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger6Angle, 30));
-                        }
-                        intValueFinger6AngleLast = intValueFinger6Angle;
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                    }else {
+                        presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
                     }
                     try {
-                        Thread.sleep(10);
+                        Thread.sleep(delay);
                     }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                        presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger1Angle, 99));
+                    }
+                    intValueFinger1AngleLast = intValueFinger1Angle;
                 }
+                if(intValueFinger2AngleLast != intValueFinger2Angle && isEnable){
+                    numberFinger = 2;
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
+                    }else {
+                        presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger2Angle, intValueFinger2Speed));
+                    }
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Angle", intValueFinger2Angle);
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger2Speed", intValueFinger2Speed);
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                    }else {
+                        presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                    }
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                        presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger2Angle, 99));
+                    }
+                    intValueFinger2AngleLast = intValueFinger2Angle;
+                }
+                if(intValueFinger3AngleLast != intValueFinger3Angle && isEnable){
+                    numberFinger = 3;
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
+                    }else {
+                        presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger3Angle, intValueFinger3Speed));
+                    }
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Angle", intValueFinger3Angle);
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger3Speed", intValueFinger3Speed);
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                    }else {
+                        presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                    }
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                        presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger3Angle, 99));
+                    }
+                    intValueFinger3AngleLast = intValueFinger3Angle;
+                }
+                if(intValueFinger4AngleLast != intValueFinger4Angle && isEnable){
+                    numberFinger = 4;
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
+                    }else {
+                        presenter.onHelloWorld( mMassages.CompileMassageSettings(numberFinger, intValueFinger4Angle, intValueFinger4Speed));
+                    }
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Angle", intValueFinger4Angle);
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger4Speed", intValueFinger4Speed);
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                    }else {
+                        presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                    }
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                        presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger4Angle, 99));
+                    }
+                    intValueFinger4AngleLast = intValueFinger4Angle;
+                }
+                if((intValueFinger5AngleLast != intValueFinger5Angle && isEnable)||(intValueFinger6AngleLast != intValueFinger6Angle && isEnable)){
+                    numberFinger = 5;
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
+                    }else {
+                        presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger5Angle, intValueFinger5Speed));
+                    }
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Angle", intValueFinger5Angle);
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger5Speed", intValueFinger5Speed);
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                    }else {
+                        presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                    }
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                        presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger5Angle, 99));
+                    }
+                    intValueFinger5AngleLast = intValueFinger5Angle;
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    numberFinger = 6;
+                    if(flagUseHDLCProtocol){
+                        presenter.onHelloWorld(mMassages.CompileMessageSettingsHDLC(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
+                    }else {
+                        presenter.onHelloWorld(mMassages.CompileMassageSettings(numberFinger, intValueFinger6Angle, intValueFinger6Speed));
+                    }
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Angle", intValueFinger6Angle);
+                    saveVariable(deviceName+NUMBER_CELL+"intValueFinger6Speed", intValueFinger6Speed);
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if (flagUseHDLCProtocol) {
+                        presenter.onHelloWorld(mMassages.CompileMassageControlHDLC(numberFinger));
+                    } else {
+                        presenter.onHelloWorld(mMassages.CompileMassageControl(numberFinger));
+                    }
+                    try {
+                        Thread.sleep(delay);
+                    }catch (Exception ignored){}
+                    if(flagUseHDLCProtocol && (NUMBER_CELL == 0 || NUMBER_CELL == 2 || NUMBER_CELL == 4)){
+                        presenter.onHelloWorld(mMassages.CompileMassageSettingsDubbingHDLC(numberFinger, intValueFinger6Angle, 30));
+                    }
+                    intValueFinger6AngleLast = intValueFinger6Angle;
+                }
+                try {
+                    Thread.sleep(10);
+                }catch (Exception ignored){}
             }
         });
         transferThread.start();
@@ -1233,57 +1135,53 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         lockServiceSettings = password.equals("123");
     }
     public void startUpdateThread() {
-        updateServiceSettingsThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (updateServiceSettingsThreadFlag){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(monograbVersion){
-                                if(isEnable){
-                                    fragmentServiceSettingsMono.seekBarRoughness.setEnabled(true);
-                                    fragmentServiceSettingsMono.switchInvert.setEnabled(true);
-                                    fragmentServiceSettingsMono.seekBarIStop.setEnabled(true);
-                                } else {
-                                    fragmentServiceSettingsMono.seekBarRoughness.setEnabled(false);
-                                    fragmentServiceSettingsMono.switchInvert.setEnabled(false);
-                                    fragmentServiceSettingsMono.seekBarIStop.setEnabled(false);
-                                }
-                                if(invertChannel){
-                                    fragmentServiceSettingsMono.switchInvert.setChecked(true);
-                                } else {
-                                    fragmentServiceSettingsMono.switchInvert.setChecked(false);
-                                }
-                            } else {
-                                if(isEnable){
-                                    fragmentServiceSettings.seekBarRoughness.setEnabled(true);
-                                    fragmentServiceSettings.switchInvert.setEnabled(true);
-                                    fragmentServiceSettings.switchNotUseInternalADC.setEnabled(true);
-                                    fragmentServiceSettings.layout_calibration.setVisibility(View.VISIBLE);
-                                } else {
-                                    fragmentServiceSettings.seekBarRoughness.setEnabled(false);
-                                    fragmentServiceSettings.switchInvert.setEnabled(false);
-                                    fragmentServiceSettings.switchNotUseInternalADC.setEnabled(false);
-                                    fragmentServiceSettings.layout_calibration.setVisibility(View.GONE);
-                                }
-                                if(invertChannel){
-                                    fragmentServiceSettings.switchInvert.setChecked(true);
-                                } else {
-                                    fragmentServiceSettings.switchInvert.setChecked(false);
-                                }
-                            }
-                            if((isEnable) && (!flagReceptionExpectation
-                                    || ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST == numberCycle)
-                                    && (flagUseHDLCProtocol) &&(!flagReadStartParametersHDLC) &&
-                                    (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
-                                System.err.println("запрос обновления сервисных настроек");
-                                presenter.onHelloWorld(mMassages.CompileMassageMainDataHDLC());
-                                flagReceptionExpectation = true;
-                                if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST)
-                                {showToast(getString(R.string.admission_of_inquiry_of_updating));}
-                                numberCycle = 0;
-                            }
+        updateServiceSettingsThread = new Thread(() -> {
+            while (updateServiceSettingsThreadFlag){
+                runOnUiThread(() -> {
+                    if(monograbVersion){
+                        if(isEnable){
+                            fragmentServiceSettingsMono.seekBarRoughness.setEnabled(true);
+                            fragmentServiceSettingsMono.switchInvert.setEnabled(true);
+                            fragmentServiceSettingsMono.seekBarIStop.setEnabled(true);
+                        } else {
+                            fragmentServiceSettingsMono.seekBarRoughness.setEnabled(false);
+                            fragmentServiceSettingsMono.switchInvert.setEnabled(false);
+                            fragmentServiceSettingsMono.seekBarIStop.setEnabled(false);
+                        }
+                        if(invertChannel){
+                            fragmentServiceSettingsMono.switchInvert.setChecked(true);
+                        } else {
+                            fragmentServiceSettingsMono.switchInvert.setChecked(false);
+                        }
+                    } else {
+                        if(isEnable){
+                            fragmentServiceSettings.seekBarRoughness.setEnabled(true);
+                            fragmentServiceSettings.switchInvert.setEnabled(true);
+                            fragmentServiceSettings.switchNotUseInternalADC.setEnabled(true);
+                            fragmentServiceSettings.layout_calibration.setVisibility(View.VISIBLE);
+                        } else {
+                            fragmentServiceSettings.seekBarRoughness.setEnabled(false);
+                            fragmentServiceSettings.switchInvert.setEnabled(false);
+                            fragmentServiceSettings.switchNotUseInternalADC.setEnabled(false);
+                            fragmentServiceSettings.layout_calibration.setVisibility(View.GONE);
+                        }
+                        if(invertChannel){
+                            fragmentServiceSettings.switchInvert.setChecked(true);
+                        } else {
+                            fragmentServiceSettings.switchInvert.setChecked(false);
+                        }
+                    }
+                    if((isEnable) && (!flagReceptionExpectation
+                            || ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST == numberCycle)
+                            && (flagUseHDLCProtocol) &&(!flagReadStartParametersHDLC) &&
+                            (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
+                        System.err.println("запрос обновления сервисных настроек");
+                        presenter.onHelloWorld(mMassages.CompileMassageMainDataHDLC());
+                        flagReceptionExpectation = true;
+                        if(numberCycle == ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST)
+                        {showToast(getString(R.string.admission_of_inquiry_of_updating));}
+                        numberCycle = 0;
+                    }
 //                            else {
 //                                System.err.println(
 //                                          "SKIP \n"+
@@ -1293,14 +1191,12 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 //                                          "flagUseHDLCProcol="+flagUseHDLCProcol+" должен быть true \n"+
 //                                          "numberCycle="+numberCycle+" должен быть от 1 до 4 \n" );
 //                            }
-                            numberCycle++;
-                            System.err.println("UpdateThread work");
-                        }
-                    });
-                    try {
-                        Thread.sleep(500);
-                    }catch (Exception ignored){}
-                }
+                    numberCycle++;
+                    System.err.println("UpdateThread work");
+                });
+                try {
+                    Thread.sleep(500);
+                }catch (Exception ignored){}
             }
         });
         updateServiceSettingsThread.start();
@@ -1357,65 +1253,30 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
         valueBatteryTension.setText(""+receiveBatteryTensionChat); //(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10) удаление знаков после запятой(показания напряжения)
         if (receiveIndicationStateChat == 0){
-//            valueStatus.setText("покой");
             imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
             imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
-//            imageViewStatus.setImageResource(R.drawable.sleeping);
-            if (receiveBlockIndication == 1){
-                imageViewStatus.setImageResource(R.drawable.unblock);
-//                System.err.println("ChatActivity----> разблокированно");
-            } else {
-                imageViewStatus.setImageResource(R.drawable.block_not_use);
-//                System.err.println("ChatActivity----> блокировка не используется");
-            }
         }
         if (receiveIndicationStateChat == 1){
             if(invertChannel){
-//                valueStatus.setText("открытие");
                 imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
                 imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
-//                imageViewStatus.setImageResource(R.drawable.opening);
             } else  {
-//                valueStatus.setText("закрытие");
                 imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
                 imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
-//                imageViewStatus.setImageResource(R.drawable.closing);
-            }
-            if (receiveBlockIndication == 1){
-                imageViewStatus.setImageResource(R.drawable.unblock);
-//                System.err.println("ChatActivity----> разблокированно");
-            } else {
-                imageViewStatus.setImageResource(R.drawable.block_not_use);
-//                System.err.println("ChatActivity----> блокировка не используется");
             }
         }
         if (receiveIndicationStateChat == 2){
             if(invertChannel){
-//                valueStatus.setText("закрытие");
                 imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
                 imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
-//                imageViewStatus.setImageResource(R.drawable.closing);
             } else  {
-//                valueStatus.setText("открытие");
                 imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
                 imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
-//                imageViewStatus.setImageResource(R.drawable.opening);
-            }
-            if (receiveBlockIndication == 1){
-                imageViewStatus.setImageResource(R.drawable.unblock);
-//                System.err.println("ChatActivity----> разблокированно");
-            } else {
-                imageViewStatus.setImageResource(R.drawable.block_not_use);
-//                System.err.println("ChatActivity----> блокировка не используется");
             }
         }
         if (receiveIndicationStateChat == 3){
-//            valueStatus.setText("блок");
             imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
             imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
-//            switchBlockMode.setChecked(true);
-            imageViewStatus.setImageResource(R.drawable.block);
-//            System.err.println("ChatActivity----> заблокированно");
             receiveBlockIndication = 1;
         }
     }
@@ -1496,11 +1357,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 "Block indication: "+receiveBlockIndication+"\n"+
                 "Roughness: "+receiveRoughnessOfSensors+"\n");
         firstRead = false;
-        if(receiveBlockIndication == 0){switchBlockMode.setChecked(false); imageViewStatus.setImageResource(R.drawable.block_not_use);}
-        if(receiveBlockIndication == 1){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.unblock);}
-        if(receiveBlockIndication == 2){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.unblock);}
-        if(receiveBlockIndication == 3){switchBlockMode.setChecked(true); imageViewStatus.setImageResource(R.drawable.block);}
-
     }
     @Override
     public void setFlagReceptionExpectation(Boolean flagReceptionExpectation) {
@@ -1534,190 +1390,118 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     //  многосхват: ----> Trig1 ----> Trig2 ----> Roughness                     //
     //////////////////////////////////////////////////////////////////////////////
     public void requestStartTrig1Thread () {
-        requestStartTrig1Thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                TextByteReadStartParameterTrig1[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterTrig1);
-                presenter.onHelloWorld(TextByteReadStartParameterTrig1);
-                flagReceptionExpectation = true;
-                System.out.println("ChartActivity--------------> отправка запроса Trig1= "+TextByteReadStartParameterTrig1[2]);
-                try {
-                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
-                }catch (Exception ignored){}
-                if(!flagReceptionExpectation)
-                {
-//                    flagReadStartParametersHDLC = false;
-//                    firstRead = false;
-                    requestStartTrig2Thread ();
-                    System.out.println("ChartActivity--------------> запуск запроса следующей функции Trig2");
-                }
-                if(isEnable){
-                    while (flagReceptionExpectation){
-                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig1");
-                        flagReceptionExpectation = false;
-                        requestStartTrig1Thread ();
-                    }
+        requestStartTrig1Thread = new Thread(() -> {
+            TextByteReadStartParameterTrig1[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterTrig1);
+            presenter.onHelloWorld(TextByteReadStartParameterTrig1);
+            flagReceptionExpectation = true;
+            System.out.println("ChartActivity--------------> отправка запроса Trig1= "+TextByteReadStartParameterTrig1[2]);
+            try {
+                Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
+            }catch (Exception ignored){}
+            if(!flagReceptionExpectation)
+            {
+                requestStartTrig2Thread ();
+                System.out.println("ChartActivity--------------> запуск запроса следующей функции Trig2");
+            }
+            if(isEnable){
+                while (flagReceptionExpectation){
+                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig1");
+                    flagReceptionExpectation = false;
+                    requestStartTrig1Thread ();
                 }
             }
         });
         requestStartTrig1Thread.start();
     }
     public void requestStartTrig2Thread () {
-        requestStartTrig2Thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                TextByteReadStartParameterTrig2[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterTrig2);
-                presenter.onHelloWorld(TextByteReadStartParameterTrig2);
-                flagReceptionExpectation = true;
-                System.out.println("ChartActivity--------------> отправка запроса Trig2= "+TextByteReadStartParameterTrig2[2]);
-                try {
-                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
-                }catch (Exception ignored){}
-                if(!flagReceptionExpectation){
-                    if(monograbVersion){requestStartCurrentThread();} else {requestStartRoughnessThread();}
-                    System.out.println("ChartActivity--------------> запуск запроса следующей функции Curr");
-                }
-                if(isEnable) {
-                    while (flagReceptionExpectation){
-                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig2");
-                        flagReceptionExpectation = false;
-                        requestStartTrig2Thread();
-                    }
+        requestStartTrig2Thread = new Thread(() -> {
+            TextByteReadStartParameterTrig2[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterTrig2);
+            presenter.onHelloWorld(TextByteReadStartParameterTrig2);
+            flagReceptionExpectation = true;
+            System.out.println("ChartActivity--------------> отправка запроса Trig2= "+TextByteReadStartParameterTrig2[2]);
+            try {
+                Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
+            }catch (Exception ignored){}
+            if(!flagReceptionExpectation){
+                if(monograbVersion){requestStartCurrentThread();} else {requestStartRoughnessThread();}
+                System.out.println("ChartActivity--------------> запуск запроса следующей функции Curr");
+            }
+            if(isEnable) {
+                while (flagReceptionExpectation){
+                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Trig2");
+                    flagReceptionExpectation = false;
+                    requestStartTrig2Thread();
                 }
             }
         });
         requestStartTrig2Thread.start();
     }
     public void requestStartCurrentThread () {
-        requestStartCurrentThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                TextByteReadStartParameterCurrent[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterCurrent);
-                presenter.onHelloWorld(TextByteReadStartParameterCurrent);
-                flagReceptionExpectation = true;
-                System.out.println("ChartActivity--------------> отправка запроса Current= "+TextByteReadStartParameterCurrent[2]);
-                try {
-                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
-                }catch (Exception ignored){}
-                if(!flagReceptionExpectation){
-//                    requestStartBlockThread();
-                    //TODO вынесли запрос блокировки до лучших времён
-                    requestStartRoughnessThread();
-                    System.out.println("ChartActivity--------------> запуск запроса следующей функции Block");
-                }
-                if(isEnable) {
-                    while (flagReceptionExpectation){
-                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Current");
-                        flagReceptionExpectation = false;
-                        requestStartCurrentThread();
-                    }
+        requestStartCurrentThread = new Thread(() -> {
+            TextByteReadStartParameterCurrent[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterCurrent);
+            presenter.onHelloWorld(TextByteReadStartParameterCurrent);
+            flagReceptionExpectation = true;
+            System.out.println("ChartActivity--------------> отправка запроса Current= "+TextByteReadStartParameterCurrent[2]);
+            try {
+                Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
+            }catch (Exception ignored){}
+            if(!flagReceptionExpectation){
+                //TODO вынесли запрос блокировки до лучших времён
+                requestStartRoughnessThread();
+                System.out.println("ChartActivity--------------> запуск запроса следующей функции Block");
+            }
+            if(isEnable) {
+                while (flagReceptionExpectation){
+                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Current");
+                    flagReceptionExpectation = false;
+                    requestStartCurrentThread();
                 }
             }
         });
         requestStartCurrentThread.start();
     }
-    public void requestStartBlockThread () {
-        requestStartBlockThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                TextByteReadStartParameterPermissionBlock[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterPermissionBlock);
-                presenter.onHelloWorld(TextByteReadStartParameterPermissionBlock);
-                flagReceptionExpectation = true;
-                System.out.println("ChartActivity--------------> отправка запроса Block= "+TextByteReadStartParameterPermissionBlock[2]);
-                try {
-                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
-                }catch (Exception ignored){}
-                if(!flagReceptionExpectation){
-//                    requestStartRoughnessThread();
-                    System.out.println("ChartActivity--------------> запуск запроса следующей функции Roughness");
-                }
-                if(isEnable) {
-                    while (flagReceptionExpectation){
-                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Block");
-                        flagReceptionExpectation = false;
-                        requestStartBlockThread();
-                    }
-                }
-            }
-        });
-        requestStartBlockThread.start();
-    }
     public void requestStartRoughnessThread () {
-        requestStartRoughnessThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                TextByteReadStartParameterPermissionRoughness[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterPermissionRoughness);
-                presenter.onHelloWorld(TextByteReadStartParameterPermissionRoughness);
-                flagReceptionExpectation = true;
-                System.out.println("ChartActivity--------------> отправка запроса Roughness= "+TextByteReadStartParameterPermissionRoughness[2]);
-                try {
-                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
-                }catch (Exception ignored){}
-                if(!flagReceptionExpectation){
-                    flagReadStartParametersHDLC = false;
-                    firstRead = false;
-                    System.out.println("ChartActivity--------------> конец запросов нач параметров");
-                }
-                if(isEnable) {
-                    while (flagReceptionExpectation){
-                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Roughness");
-                        flagReceptionExpectation = false;
-                        requestStartRoughnessThread();
-                    }
+        requestStartRoughnessThread = new Thread(() -> {
+            TextByteReadStartParameterPermissionRoughness[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterPermissionRoughness);
+            presenter.onHelloWorld(TextByteReadStartParameterPermissionRoughness);
+            flagReceptionExpectation = true;
+            System.out.println("ChartActivity--------------> отправка запроса Roughness= "+TextByteReadStartParameterPermissionRoughness[2]);
+            try {
+                Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
+            }catch (Exception ignored){}
+            if(!flagReceptionExpectation){
+                flagReadStartParametersHDLC = false;
+                firstRead = false;
+                System.out.println("ChartActivity--------------> конец запросов нач параметров");
+            }
+            if(isEnable) {
+                while (flagReceptionExpectation){
+                    System.out.println("ChartActivity--------------> рекурсивный запуск запроса Roughness");
+                    flagReceptionExpectation = false;
+                    requestStartRoughnessThread();
                 }
             }
         });
         requestStartRoughnessThread.start();
     }
-    public void requestBatteryTensionThread () {
-        requestBatteryTensionThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                TextByteReadStartParameterBattery[3] = presenter.calculationCRC_HDLC(TextByteReadStartParameterBattery);
-                presenter.onHelloWorld(TextByteReadStartParameterBattery);
-                flagReceptionExpectation = true;
-                System.out.println("ChartActivity--------------> отправка запроса Battery= "+TextByteReadStartParameterBattery[2]);
-                try {
-                    Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
-                }catch (Exception ignored){}
-                if(!flagReceptionExpectation){
-                    flagReadStartParametersHDLC = false;
-                    firstRead = false;
-                    System.out.println("ChartActivity--------------> конец запросов нач параметров");
-                }
-                if(isEnable) {
-                    while (flagReceptionExpectation){
-                        System.out.println("ChartActivity--------------> рекурсивный запуск запроса Battery");
-                        flagReceptionExpectation = false;
-                        requestBatteryTensionThread();
-                    }
-                }
-            }
-        });
-        requestBatteryTensionThread.start();
-    }
-
 
     //    часть отвечающая за установку флага паузы
     public void pauseSendingThread (final byte[] SendMassage) {
-        pauseSendingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                flagPauseSending = true;
-                System.out.println("ChartActivity--------------> ПАУЗЫ УСТАНОВКА ");
-                try {
-                    Thread.sleep(delayPauseAfterSending);
-                }catch (Exception ignored){}
-                System.out.println("ChartActivity--------------> ПАУЗЫ ОТПРАВКА ");
-                presenter.onHelloWorld(SendMassage);
-                try {
-                    Thread.sleep(delayPauseAfterSending);
-                }catch (Exception ignored){}
-                System.out.println("ChartActivity--------------> ПАУЗЫ ОТМЕНА");
-                flagPauseSending = false;
-                if (numberCycle > ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST){
-                    numberCycle = 0;
-                }
+        pauseSendingThread = new Thread(() -> {
+            flagPauseSending = true;
+            System.out.println("ChartActivity--------------> ПАУЗЫ УСТАНОВКА ");
+            try {
+                Thread.sleep(delayPauseAfterSending);
+            }catch (Exception ignored){}
+            System.out.println("ChartActivity--------------> ПАУЗЫ ОТПРАВКА ");
+            presenter.onHelloWorld(SendMassage);
+            try {
+                Thread.sleep(delayPauseAfterSending);
+            }catch (Exception ignored){}
+            System.out.println("ChartActivity--------------> ПАУЗЫ ОТМЕНА");
+            flagPauseSending = false;
+            if (numberCycle > ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST){
+                numberCycle = 0;
             }
         });
         pauseSendingThread.start();
@@ -1731,8 +1515,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         seekBarCH2on.setEnabled(enabled);
         seekBarCH1on2.setEnabled(enabled);
         seekBarCH2on2.setEnabled(enabled);
-        switchBlockMode.setEnabled(enabled);
-        switchIlluminationMode.setEnabled(enabled);
 
         if(!monograbVersion){
             offUpdate.setEnabled(enabled);
@@ -1746,28 +1528,24 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         this.runOnUi = true;
         if(isEnable){
             if(showMenu){ myMenu.setGroupVisible(R.id.service_settings, true); }
-            transferThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if(flagUseHDLCProtocol){
-                        try {
-                            Thread.sleep(20);
-                        }catch (Exception ignored){}
-                        if(firstRead){
-                            setStartTrig();
-//                            presenter.onHelloWorld(testCRC());
-                            if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){requestStartTrig1Thread ();}
-                        }
-                    } else {
-                        try {
-                            Thread.sleep(20);
-                        }catch (Exception ignored){}
-                        presenter.onHelloWorld(mMassages.CompileMassageReadStartParameters());
-                        try {
-                            Thread.sleep(500);
-                        }catch (Exception ignored){}
-                        presenter.onHelloWorld(mMassages.CompileMessageSetGeneralParcel((byte) 0x01));
+            transferThread = new Thread(() -> {
+                if(flagUseHDLCProtocol){
+                    try {
+                        Thread.sleep(20);
+                    }catch (Exception ignored){}
+                    if(firstRead){
+                        setStartTrig();
+                        if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){requestStartTrig1Thread ();}
                     }
+                } else {
+                    try {
+                        Thread.sleep(20);
+                    }catch (Exception ignored){}
+                    presenter.onHelloWorld(mMassages.CompileMassageReadStartParameters());
+                    try {
+                        Thread.sleep(500);
+                    }catch (Exception ignored){}
+                    presenter.onHelloWorld(mMassages.CompileMessageSetGeneralParcel((byte) 0x01));
                 }
             });
             transferThread.start();
@@ -1920,41 +1698,35 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         y1_2.setDrawGridLines(false);
     }
     public void startGraphEnteringDataThread() {
-        graphThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (graphThreadFlag){
-                    if(plotData){
-                        addEntry(2);
-                        addEntry2(2);
-                        plotData = false;
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (isEnable && !errorReception) {
-                                addEntry(receiveLevelCH1Chat);
-                                addEntry2(receiveLevelCH2Chat);
-                                if ((!flagReceptionExpectation ||
-                                        ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST == numberCycle) &&
-                                        (flagUseHDLCProtocol) &&(!flagReadStartParametersHDLC) &&
-                                        (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
-                                    if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){
-                                        System.err.println("запрос обновления графиков");
-                                        presenter.onHelloWorld(mMassages.CompileMassageMainDataHDLC());
-                                    }
-                                    flagReceptionExpectation = true;
-                                    numberCycle = 0;
-                                }
-                            }
-                        }
-                    });
-                    numberCycle++;
-                    if (numberCycle > ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST) {numberCycle = 0;}
-                    try {
-                        Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY);
-                    }catch (Exception ignored){}
+        graphThread = new Thread(() -> {
+            while (graphThreadFlag){
+                if(plotData){
+                    addEntry(2);
+                    addEntry2(2);
+                    plotData = false;
                 }
+                runOnUiThread(() -> {
+                    if (isEnable && !errorReception) {
+                        addEntry(receiveLevelCH1Chat);
+                        addEntry2(receiveLevelCH2Chat);
+                        if ((!flagReceptionExpectation ||
+                                ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST == numberCycle) &&
+                                (flagUseHDLCProtocol) &&(!flagReadStartParametersHDLC) &&
+                                (!flagPauseSending) && (!flagOffUpdateGraphHDLC)){
+                            if(!ConstantManager.DISABLE_UPDATIONG_GRAPH){
+                                System.err.println("запрос обновления графиков");
+                                presenter.onHelloWorld(mMassages.CompileMassageMainDataHDLC());
+                            }
+                            flagReceptionExpectation = true;
+                            numberCycle = 0;
+                        }
+                    }
+                });
+                numberCycle++;
+                if (numberCycle > ConstantManager.SKIP_GRAPH_СYCLE_FOR_SEND_UPDATE_REQUEST) {numberCycle = 0;}
+                try {
+                    Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY);
+                }catch (Exception ignored){}
             }
         });
         graphThread.start();
@@ -1990,11 +1762,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 break;
             case 1:
                 if(firstTapRecyclerView) {
-                    int commit = fragmentManager.beginTransaction()
+                    fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.show_fr, R.animator.remove_fr)
                             .add(view_pager, fragmentGestureSettings2)
-//                            .add(R.id.view_pager, fragmentGestureSettings2)
-//                            .add(R.id.view_pager, fragmentGestureSettings2)
                             .commit();
                     navigation.clearAnimation();
                     navigation.animate().translationY(heightBottomNavigation).setDuration(200);
@@ -2019,22 +1789,19 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         }
     }
     private void gestureUseThread (final byte fakeCellGesture, final byte cellNumGesture) {
-        Thread gestureUseThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC(fakeCellGesture));
-                System.out.println("ChartActivity--------------> выход на жест ");
-                try {
-                    Thread.sleep(delayPauseAfterSending);
-                } catch (Exception ignored) {}
-                pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC(fakeCellGesture));
-                System.out.println("ChartActivity--------------> выход на жест ");
-                try {
-                    Thread.sleep(delayPauseAfterSending);
-                } catch (Exception ignored) {}
-                pauseSendingThread(mMassages.CompileMassageSwitchGestureHDLC(cellNumGesture));
-                System.out.println("ChartActivity--------------> применение жеста");
-            }
+        Thread gestureUseThread = new Thread(() -> {
+            pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC(fakeCellGesture));
+            System.out.println("ChartActivity--------------> выход на жест ");
+            try {
+                Thread.sleep(delayPauseAfterSending);
+            } catch (Exception ignored) {}
+            pauseSendingThread(mMassages.CompileMassageSensorActivate2HDLC(fakeCellGesture));
+            System.out.println("ChartActivity--------------> выход на жест ");
+            try {
+                Thread.sleep(delayPauseAfterSending);
+            } catch (Exception ignored) {}
+            pauseSendingThread(mMassages.CompileMassageSwitchGestureHDLC(cellNumGesture));
+            System.out.println("ChartActivity--------------> применение жеста");
         });
         gestureUseThread.start();
     }
@@ -2042,17 +1809,19 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     //////////////////////////////////////////////////////////////////////////////
     /**                           работа с памятью                             **/
     //////////////////////////////////////////////////////////////////////////////
+    @SuppressLint("LogNotTimber")
     public void saveVariable (String nameVariableInt, Integer Variable) {
-        Log.e(TAG, "saveVariable ----> "+ nameVariableInt +" = "+ Variable);
+        Timber.e("saveVariable ----> " + nameVariableInt + " = " + Variable);
         sharedPreferences = getSharedPreferences("My_variables" ,MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(nameVariableInt, Variable);
         editor.apply();
     }
+    @SuppressLint("LogNotTimber")
     public Integer loadVariable (String nameVariableInt) {
         sharedPreferences = getSharedPreferences("My_variables",MODE_PRIVATE);
         Integer variable = sharedPreferences.getInt(nameVariableInt,0);
-        Log.e(TAG, "loadVariable ----> "+ nameVariableInt +" = "+ variable);
+        Timber.e("loadVariable ----> " + nameVariableInt + " = " + variable);
         return variable;
     }
 

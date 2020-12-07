@@ -82,7 +82,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/Widget.AppCompat.Button.Borderless"
-                android:text="@string/activity_scan_button"
+                android:text="@string/scan_again"
                 android:visibility="visible" />
             <!--            style="@style/Widget.AppCompat.Button.Borderless"-->
         </LinearLayout>

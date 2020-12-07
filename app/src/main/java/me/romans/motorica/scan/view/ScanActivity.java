@@ -141,17 +141,17 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 invalidateOptionsMenu();
                 progress.setVisibility(View.GONE);
                 scanButton.setEnabled(true);
-                scanButton.setText("SCAN AGAIN");
+                scanButton.setText(R.string.scan_again);
             }, SCAN_PERIOD);
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
             scanButton.setEnabled(false);
-            scanButton.setText("SCANNING");
+            scanButton.setText(R.string.bluetooth_scanning);
         } else {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             scanButton.setEnabled(true);
-            scanButton.setText("SCAN AGAIN");
+            scanButton.setText(R.string.scan_again);
         }
         progress.setVisibility(enable?View.VISIBLE:View.GONE);
         invalidateOptionsMenu();
@@ -203,15 +203,21 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             }
         }
         if (canAdd) {
-            mLeDevices.add(device);
-            scanList.add(
-                    new ScanItem(
-                            R.drawable.circle_16_blue,
-                            item+scanListBLEPosition,
-                            false));
-            pairedDeviceList.setAdapter(mScanListAdapter);
-            scanListBLEPosition++;
+            if(checkOurLEName(item)){
+                mLeDevices.add(device);
+                scanList.add(
+                        new ScanItem(
+                                R.drawable.circle_16_blue,
+                                item+scanListBLEPosition,
+                                false));
+                pairedDeviceList.setAdapter(mScanListAdapter);
+                scanListBLEPosition++;
+            }
         }
+    }
+    private boolean checkOurLEName (String deviceName){
+        return deviceName.split(":")[0].equals("HRSTM") ||
+                deviceName.split(":")[0].equals("BLE_test_service—•——");
     }
 
     @Override

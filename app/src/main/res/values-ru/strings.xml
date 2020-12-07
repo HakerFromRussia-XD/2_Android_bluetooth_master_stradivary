@@ -10,7 +10,7 @@
     <string name="on_update">включение графиков</string>
     <string name="gesture4">parting position</string>
 
-    <string name="activity_scan_button">Сканировать снова</string>
+    <string name="scan_again">сканировать снова</string>
     <string name="activity_scan_paired_text">Связанные устройства:</string>
 
     <string name="bluetooth_scanning">сканирование…</string>
@@ -114,6 +114,7 @@
     <string name="magic_checkbox">Магические чекбоксы</string>
     <string name="speed_increment">инкремент скорости</string>
     <string name="disable_angel_control">выключение контроля угла</string>
+
 
     <string-array name="numbers">
         <item>0</item>

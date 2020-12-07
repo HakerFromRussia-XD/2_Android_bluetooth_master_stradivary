@@ -18,8 +18,8 @@ public interface ScanView{
     void showProgress(boolean enabled);
     void enableScanButton(boolean enabled);
     void showToast(String message);
-    void navigateToChat(String extraName, BluetoothDevice extraDevice);
-    void navigateToLEChat(String extraName, BluetoothDevice extraDevice);
+    void navigateToChart(String extraName, BluetoothDevice extraDevice);
+    void navigateToLEChart(String extraName, BluetoothDevice extraDevice);
     void setNewStageCellScanList (int numberCell, int setImage, String setText);
     List<ScanItem> getMyScanList ();
     void loadData();

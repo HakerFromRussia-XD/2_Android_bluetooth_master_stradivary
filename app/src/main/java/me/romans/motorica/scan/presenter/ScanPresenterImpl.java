@@ -2,17 +2,13 @@ package me.romans.motorica.scan.presenter;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
 
 import java.util.List;
 
 import me.romans.bluetooth.DeviceCallback;
-import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
-import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
 import me.romans.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 import me.romans.motorica.scan.data.ScanItem;
 import me.romans.motorica.scan.interactor.ScanInteractor;
-import me.romans.motorica.scan.view.ScanActivity;
 import me.romans.motorica.scan.view.ScanView;
 import me.romans.bluetooth.BluetoothCallback;
 import me.romans.bluetooth.DiscoveryCallback;
@@ -111,14 +107,14 @@ public class ScanPresenterImpl implements ScanPresenter{
         BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(pairedDeviceNames.get(position).split(":")[2])-1);
         ChartActivity chatActivity = new ChartActivity();
         chatActivity.getNameFromDevice(device);
-        view.navigateToChat("device", device);
+        view.navigateToChart("device", device);
     }
 
     @Override
     public void leItemClick(int position) {
         final BluetoothDevice device = view.getLeDevices().get(position);
         if (device == null) return;
-        view.navigateToLEChat("device", device);
+        view.navigateToLEChart("device", device);
     }
 
     @Override
@@ -261,7 +257,7 @@ public class ScanPresenterImpl implements ScanPresenter{
 
         @Override
         public void onDevicePaired(BluetoothDevice device) {
-            view.navigateToChat("device", device);
+            view.navigateToChart("device", device);
         }
 
         @Override

@@ -104,10 +104,10 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     @Override
     public void showToast(String message) { }
     @Override
-    public void navigateToChat(String extraName, BluetoothDevice extraDevice) { }
+    public void navigateToChart(String extraName, BluetoothDevice extraDevice) { }
 
     @Override
-    public void navigateToLEChat(String extraName, BluetoothDevice extraDevice) { }
+    public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) { }
 
     @Override
     public void setNewStageCellScanList(int numberCell, int setImage, String setText) { }

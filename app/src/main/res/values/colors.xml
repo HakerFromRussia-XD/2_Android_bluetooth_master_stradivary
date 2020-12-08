@@ -9,4 +9,7 @@
     <color name="orange">#FFAB00</color>
     <color name="darkOrange">#CC8900</color>
     <color name="blueStatusBar">#007991</color>
+    <color name="ripple">#c0c0c0</color>
+    <color name="start_gradient">#d0d0d0</color>
+    <color name="end_gradient">#e0e0e0</color>
 </resources>

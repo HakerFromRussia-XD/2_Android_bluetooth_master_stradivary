@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.Romans.motorica"
-        minSdkVersion 18
+        minSdkVersion 23
         targetSdkVersion 28
         versionCode 12
         versionName "1.5.230"

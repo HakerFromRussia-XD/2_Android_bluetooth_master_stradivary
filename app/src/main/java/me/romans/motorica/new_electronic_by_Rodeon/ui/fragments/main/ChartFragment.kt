@@ -82,7 +82,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     super.onActivityCreated(savedInstanceState)
 
     // set dateCount
-    dateCount = -DateUtils.getDateDay(DateUtils.getFarDay(0), DateUtils.dateFormat)
+//    dateCount = -DateUtils.getDateDay(DateUtils.getFarDay(0), DateUtils.dateFormat)
 //    initializeChart(DateUtils.getDateDay("2020-10-16", DateUtils.dateFormat))//2020-10-14  DateUtils.getFarDay(0)
 
     ////////initialized graph

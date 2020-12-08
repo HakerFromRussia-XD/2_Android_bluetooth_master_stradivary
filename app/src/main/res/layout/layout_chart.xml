@@ -95,7 +95,6 @@
                     android:textSize="6sp"
                     tools:ignore="HardcodedText,SmallSp" />
             </LinearLayout>
-
             <LinearLayout
                 android:id="@+id/limit_CH2"
                 android:layout_width="wrap_content"
@@ -275,7 +274,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textStyle="bold"
-                                android:text="160"
+                                android:text="65"
                                 android:layout_centerVertical="true"
                                 android:layout_centerHorizontal="true"
                                 style="@style/Text"

@@ -3,7 +3,6 @@ package me.romans.motorica.old_electronic_by_Misha.ui.chat.view.service_settings
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +10,8 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -34,20 +35,13 @@ public class SettingsDialog extends AppCompatDialogFragment {
 
         settingsDialog.setView(view);
         settingsDialog.setTitle(R.string.advanced_settings);
-        settingsDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String password = password_et.getText().toString();
-                mSettingsDialogListener.passwordServiceSettings(password);
-
-                mChartActivity.openServiceSettings();
-            }
+        settingsDialog.setPositiveButton(R.string.ok, (dialog, which) -> {
+            String password = password_et.getText().toString();
+            mSettingsDialogListener.passwordServiceSettings(password);
+            mChartActivity.openServiceSettings();
         });
 
-        settingsDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
+        settingsDialog.setNegativeButton(R.string.cancel, (dialog, which) -> {
         });
 
         password_et = view.findViewById(R.id.password_et);
@@ -56,7 +50,7 @@ public class SettingsDialog extends AppCompatDialogFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NotNull Context context) {
         super.onAttach(context);
         try {
             mSettingsDialogListener = (SettingsDialogListener) context;

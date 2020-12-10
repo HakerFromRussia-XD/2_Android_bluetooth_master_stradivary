@@ -252,9 +252,9 @@ public class FragmentGestureSettings3 extends Fragment implements ChartView, Ges
 
     }
 
-    @Override
-    public void setStartParametersBattery(Integer receiveBatteryTension) {
-
-    }
+//    @Override
+//    public void setStartParametersBattery(Integer receiveBatteryTension) {
+//
+//    }
 
 }

@@ -200,9 +200,9 @@ public class FragmentGripperSettings extends Fragment implements ChartView {
 
     }
 
-    @Override
-    public void setStartParametersBattery(Integer receiveBatteryTension) {
-
-    }
+//    @Override
+//    public void setStartParametersBattery(Integer receiveBatteryTension) {
+//
+//    }
 
 }

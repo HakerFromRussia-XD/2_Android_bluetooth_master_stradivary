@@ -21,5 +21,5 @@ public interface ChartView {
     void setStartParametersCurrent(Integer receiveCurrent);
     void setStartParametersBlock(Byte receiveBlockIndication);
     void setStartParametersRoughness(Byte receiveRoughnessOfSensors);
-    void setStartParametersBattery(Integer receiveBatteryTension);
+//    void setStartParametersBattery(Integer receiveBatteryTension);
 }

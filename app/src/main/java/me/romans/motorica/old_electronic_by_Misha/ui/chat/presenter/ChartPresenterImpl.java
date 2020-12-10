@@ -365,8 +365,8 @@ public class ChartPresenterImpl implements ChatPresenter {
 
         @Override
         public void givsStartParametersBattery(int batteryTension) {
-            Integer receiveBatteryTension = new Integer(batteryTension);
-            view.setStartParametersBattery (receiveBatteryTension);
+//            Integer receiveBatteryTension = new Integer(batteryTension);
+//            view.setStartParametersBattery (receiveBatteryTension);
         }
 
 

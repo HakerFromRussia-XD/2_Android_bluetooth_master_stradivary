@@ -82,7 +82,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public SeekBar seekBarCH2on2;
     public SeekBar seekBarIStop;
     TextView valueCH2on;
-    TextView valueBatteryTension;
+//    TextView valueBatteryTension;
     public RelativeLayout layoutSensors;
     RelativeLayout layoutGestures;
     Button openBtn;
@@ -233,12 +233,10 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //changing statusbar
-        if (android.os.Build.VERSION.SDK_INT >= 21){
-            Window window = this.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark));
-        }
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark));
 
         if(monograbVersion){
             //односхватная версия
@@ -1249,9 +1247,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         }
 
         receiveIndicationStateChat = receiveIndicationState;
-        receiveBatteryTensionChat = receiveBatteryTension;
+//        receiveBatteryTensionChat = receiveBatteryTension;
 
-        valueBatteryTension.setText(""+receiveBatteryTensionChat); //(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10) удаление знаков после запятой(показания напряжения)
+//        valueBatteryTension.setText(""+receiveBatteryTensionChat); //(receiveBatteryTensionChat/1000 + "." + (receiveBatteryTensionChat%1000)/10) удаление знаков после запятой(показания напряжения)
         if (receiveIndicationStateChat == 0){
             imageViewStatusOpen.setImageResource(R.drawable.circle_16_gray);
             imageViewStatusClose.setImageResource(R.drawable.circle_16_gray);
@@ -1277,7 +1275,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         if (receiveIndicationStateChat == 3){
             imageViewStatusOpen.setImageResource(R.drawable.circle_16_green);
             imageViewStatusClose.setImageResource(R.drawable.circle_16_green);
-            receiveBlockIndication = 1;
+//            receiveBlockIndication = 1;
         }
     }
     @Override
@@ -1297,7 +1295,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         }
         this.receiveCurrent = receiveCurrent;
         this.receiveIndicationInvertMode = receiveIndicationInvertMode;
-        this.receiveBlockIndication = receiveBlockIndication;
+//        this.receiveBlockIndication = receiveBlockIndication;
         this.receiveRoughnessOfSensors = receiveRoughnessOfSensors;
     }
     @Override
@@ -1336,10 +1334,10 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
         this.receiveRoughnessOfSensors = receiveRoughnessOfSensors;
     }
-    @Override
-    public void setStartParametersBattery(Integer receiveBatteryTension) {
-        this.valueBatteryTension.setText(receiveBatteryTension);
-    }
+//    @Override
+//    public void setStartParametersBattery(Integer receiveBatteryTension) {
+//        this.valueBatteryTension.setText(receiveBatteryTension);
+//    }
     public void setStartTrig(){
         seekBarCH1on2.setProgress((int) (receiveLevelTrigCH1 / (multiplierSeekBar - 0.25)));//-0.5
         seekBarCH2on2.setProgress((int) (receiveLevelTrigCH2 / (multiplierSeekBar - 0.25)));//-0.5

@@ -165,7 +165,7 @@ public class GesstureAdapter extends RecyclerView.Adapter<GesstureAdapter.Gestur
     public void setStartParametersRoughness(Byte receiveRoughnessOfSensors) {
     }
 
-    @Override
-    public void setStartParametersBattery(Integer receiveBatteryTension) {
-    }
+//    @Override
+//    public void setStartParametersBattery(Integer receiveBatteryTension) {
+//    }
 }

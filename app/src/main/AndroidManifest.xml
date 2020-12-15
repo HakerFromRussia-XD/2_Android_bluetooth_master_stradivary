@@ -44,7 +44,8 @@
 <!--        </activity>-->
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name="me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity">
+            android:name="me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />

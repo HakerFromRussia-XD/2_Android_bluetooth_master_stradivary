@@ -415,7 +415,7 @@
                 android:layout_marginEnd="0dp"
                 android:layout_toEndOf="@+id/textView4"
                 android:indeterminate="false"
-                android:max="1200"
+                android:max="1500"
                 android:progress="900"
                 android:progressDrawable="@drawable/track"
                 android:thumb="@drawable/thumb" />

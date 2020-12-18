@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-<!--    android:name="me.romans.motorica.old_electronic_by_Misha.MyApp"-->
     <application
         android:name=".new_electronic_by_Rodeon.WDApplication"
         android:allowBackup="true"
@@ -34,14 +33,6 @@
             android:screenOrientation="portrait">
         </activity>
 
-
-
-<!--        <activity android:name="me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.DeviceScanActivity">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
         <activity
             android:theme="@style/AppTheme.NoActionBar"
             android:name="me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity"

@@ -1,7 +1,4 @@
-/*
- * Copyright (C) 2016 skydoves
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
+/* Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -46,12 +43,6 @@ import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivi
 import me.romans.motorica.new_electronic_by_Rodeon.utils.DateUtils
 import kotlinx.android.synthetic.main.layout_chart.*
 import javax.inject.Inject
-
-/**
- * Created by skydoves on 2016-10-15.
- * Updated by skydoves on 2017-08-17.
- * Copyright (c) 2017 skydoves rights reserved.
- */
 
 @Suppress("DEPRECATION")
 class ChartFragment : Fragment(), OnChartValueSelectedListener {
@@ -189,7 +180,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     graphThreadFlag = true
     startGraphEnteringDataThread()
   }
-
   override fun onPause() {
     super.onPause()
     graphThreadFlag = false
@@ -311,10 +301,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     graphThread?.start()
   }
 
-  override fun onValueSelected(e: Entry?, h: Highlight?) {
-  }
-
-  override fun onNothingSelected() {
-
-  }
+  override fun onValueSelected(e: Entry?, h: Highlight?) {}
+  override fun onNothingSelected() {}
 }

@@ -207,14 +207,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           mSectionsPagerAdapter.notifyDataSetChanged()
         }
   }
-
   override fun initializeUI() {
     mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
     mainactivity_viewpager.adapter = mSectionsPagerAdapter
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_viewpager, mainactivity_navi)
   }
-
   override fun onResume() {
     super.onResume()
     val filter = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
@@ -233,18 +231,15 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       mBluetoothLeService!!.connect(mDeviceAddress)
     }
   }
-
   override fun onPause() {
     super.onPause()
     unregisterReceiver(mGattUpdateReceiver)
   }
-
   override fun onDestroy() {
     super.onDestroy()
     unbindService(mServiceConnection)
     mBluetoothLeService = null
   }
-
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
     setIntent(intent)

@@ -114,6 +114,9 @@
     <string name="magic_checkbox">Magic checkbox</string>
     <string name="speed_increment">speed increment</string>
     <string name="disable_angel_control">disable angel control</string>
+    <string name="gesture_1_btn">tuning gesture №1</string>
+    <string name="gesture_2_btn">tuning gesture №2</string>
+    <string name="gesture_3_btn">tuning gesture №3</string>
 
     <string-array name="numbers">
         <item>0</item>

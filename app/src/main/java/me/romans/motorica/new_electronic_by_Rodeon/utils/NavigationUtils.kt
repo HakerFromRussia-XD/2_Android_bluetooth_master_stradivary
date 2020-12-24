@@ -18,11 +18,13 @@ package me.romans.motorica.new_electronic_by_Rodeon.utils
 
 import android.content.Context
 import android.graphics.Color
+import android.icu.util.TimeUnit.values
 import androidx.core.content.ContextCompat
 import androidx.viewpager.widget.ViewPager
 
 import com.gigamole.navigationtabbar.ntb.NavigationTabBar
 import me.romans.motorica.R
+import java.time.chrono.JapaneseEra.values
 
 import java.util.ArrayList
 
@@ -42,7 +44,7 @@ object NavigationUtils {
         NavigationTabBar.Model.Builder(
             ContextCompat.getDrawable(mContext, R.drawable.ic_mechanics),
             Color.parseColor(colors[3]))
-            .title("настройка механики")
+            .title("настройка механики")//"настройка механики")
             .badgeTitle("new")
             .build()
     )

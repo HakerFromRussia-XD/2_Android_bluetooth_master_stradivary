@@ -1,7 +1,4 @@
-/*
- * Copyright (C) 2016 skydoves
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
+/* Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -24,17 +21,12 @@ import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragme
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.MainWaterFragment
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.SensSettingsFragment
 
-/**
- * Developed by skydoves on 2017-08-19.
- * Copyright (c) 2017 skydoves rights reserved.
- */
-
 class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
 
   override fun getItem(position: Int): Fragment {
-    var fragment: Fragment = MainWaterFragment()
+    var fragment: Fragment = ChartFragment()
     when (position) {
-      0 -> fragment = MainWaterFragment()//AlarmFragment()
+      0 -> fragment = GestureFragment()//AlarmFragment()
       1 -> fragment = ChartFragment()//MainWaterFragment()
       2 -> fragment = SensSettingsFragment()//ChartFragment()
 //      3 -> fragment = EnvironmentFragment()

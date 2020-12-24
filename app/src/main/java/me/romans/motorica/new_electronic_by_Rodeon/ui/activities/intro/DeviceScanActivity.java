@@ -168,8 +168,6 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
 
     private void scanLeDevice(final boolean enable) {
         if (enable) {
-            //TODO работаем тут
-            // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(() -> {
                 mScanning = false;
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);

@@ -40,6 +40,8 @@ interface ApplicationGraph {
 
   fun inject(target_: GestureFragment)
 
+  fun inject(target_: GripperFragment)
+
 //  fun inject(target_: DailyFragment)
 
 //  fun inject(target_: SetBubbleColorActivity)

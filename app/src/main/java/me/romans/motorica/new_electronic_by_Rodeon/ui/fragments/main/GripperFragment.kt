@@ -5,22 +5,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import kotlinx.android.synthetic.main.layout_gestures.*
 import me.romans.motorica.R
 import me.romans.motorica.new_electronic_by_Rodeon.WDApplication
 import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 
-class GestureFragment: Fragment(), OnChartValueSelectedListener {
+class GripperFragment: Fragment(), OnChartValueSelectedListener {
     private var rootView: View? = null
     private var main: MainActivity? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.layout_gestures, container, false)
+        val rootView = inflater.inflate(R.layout.layout_gripper_settings_le, container, false)
         WDApplication.component.inject(this)
         this.rootView = rootView
         if (activity != null) { main = activity as MainActivity? }
@@ -30,17 +28,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
     @SuppressLint("ClickableViewAccessibility")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        gesture_1_btn.setOnClickListener {
-            Toast.makeText(context, "gesture_1_btn OnClick", Toast.LENGTH_SHORT).show()
-            main?.openFragment("fignia","vagnaia infa")
-        }
-        gesture_2_btn.setOnClickListener {
-            Toast.makeText(context, "gesture_2_btn OnClick", Toast.LENGTH_SHORT).show()
-        }
-        gesture_3_btn.setOnClickListener {
-            Toast.makeText(context, "gesture_3_btn OnClick", Toast.LENGTH_SHORT).show()
-        }
     }
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {}

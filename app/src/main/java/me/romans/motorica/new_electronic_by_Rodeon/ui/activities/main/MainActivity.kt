@@ -23,6 +23,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
+import android.widget.Toast
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_chart.*
@@ -41,6 +42,10 @@ import me.romans.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
+//import com.an
+//import com.androidexception.andexalertdialog.AndExAlertDialog
+//import com.androidexception.andexalertdialog.AndExAlertDialogListener
+
 
 @RequirePresenter(MainPresenter::class)
 class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable {
@@ -210,7 +215,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun initializeUI() {
     mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
     mainactivity_viewpager.adapter = mSectionsPagerAdapter
-    mainactivity_viewpager.offscreenPageLimit = 3
+    mainactivity_viewpager.offscreenPageLimit = 4
     NavigationUtils.setComponents(baseContext, mainactivity_viewpager, mainactivity_navi)
   }
   override fun onResume() {
@@ -353,7 +358,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
 
-  private fun makeGattUpdateIntentFilter(): IntentFilter? {
+  private fun makeGattUpdateIntentFilter(): IntentFilter {
     val intentFilter = IntentFilter()
     intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED)
     intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED)
@@ -393,5 +398,59 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     override fun newArray(size: Int): Array<MainActivity?> {
       return arrayOfNulls(size)
     }
+  }
+
+  fun openFragment(name: String, info: String) {
+//    AndExAlertDialog.Builder(this)
+//            .setTitle("Забираю")
+//            .setMessage("Введите количество забираемых деталей")
+//            .setOneBtnText("Одну")
+//            .setTwoBtnText("Две")
+//            .setThreeBtnText("Три")
+//            .setPositiveBtnText("Ok")
+//            .setNegativeBtnText("Отмена")
+//            .setImage(R.drawable.process, 20)
+//            .setEditText(true, false, "другое количество", com.androidexception.andexalertdialog.InputType.PASSWORD)
+//            .setCancelableOnTouchOutside(true)
+//            .OnOneClicked(object : AndExAlertDialogListener() {
+//              fun OnClick(input: String) {
+//                Toast.makeText(this@MainActivity, "you typed one$input", Toast.LENGTH_SHORT).show()
+//              }
+//            })
+//            .OnTwoClicked(object : AndExAlertDialogListener() {
+//              fun OnClick(input: String) {
+//                Toast.makeText(this@MainActivity, "you typed two$input", Toast.LENGTH_SHORT).show()
+//              }
+//            })
+//            .OnThreeClicked(object : AndExAlertDialogListener() {
+//              fun OnClick(input: String) {
+//                Toast.makeText(this@MainActivity, "you typed three$input", Toast.LENGTH_SHORT).show()
+//              }
+//            })
+//            .OnPositiveClicked(object : AndExAlertDialogListener() {
+//              fun OnClick(input: String) {
+//                Toast.makeText(this@MainActivity, "you typed $input", Toast.LENGTH_SHORT).show()
+//              }
+//            })
+//            .OnNegativeClicked(object : AndExAlertDialogListener() {
+//              fun OnClick(input: String) {
+//                Toast.makeText(this@MainActivity, "you typed $input", Toast.LENGTH_SHORT).show()
+//              }
+//            })
+//            .build()
+
+//    var dialog = CustomDialogFragment()
+//
+//    dialog.show(supportFragmentManager, "customDialog")
+
+//    val bundle = Bundle()
+//    bundle.putString("info", info)
+//
+//    val transaction = this.supportFragmentManager.beginTransaction()
+//    val gripperFragment = GripperFragment()
+//    gripperFragment.arguments = bundle
+//
+//    transaction.replace(R.id.mainactivity_viewpager, gripperFragment)
+//    transaction.commit()
   }
 }

@@ -24,7 +24,8 @@
         android:id="@+id/mainactivity_viewpager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        />
 
     <com.gigamole.navigationtabbar.ntb.NavigationTabBar
         android:id="@+id/mainactivity_navi"

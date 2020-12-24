@@ -1,1 +1,2 @@
 include ':app', ':bluetooth'
+include ':app', ':andexalertdialog'

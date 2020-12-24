@@ -23,7 +23,6 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
-import android.widget.Toast
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_chart.*
@@ -37,11 +36,13 @@ import me.romans.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import me.romans.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.romans.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapter
+import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomDialogFragment
 import me.romans.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.romans.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
+
 //import com.an
 //import com.androidexception.andexalertdialog.AndExAlertDialog
 //import com.androidexception.andexalertdialog.AndExAlertDialogListener
@@ -439,9 +440,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 //            })
 //            .build()
 
-//    var dialog = CustomDialogFragment()
-//
-//    dialog.show(supportFragmentManager, "customDialog")
+    val dialog = CustomDialogFragment()
+
+    dialog.show(supportFragmentManager, "customDialog")
 
 //    val bundle = Bundle()
 //    bundle.putString("info", info)

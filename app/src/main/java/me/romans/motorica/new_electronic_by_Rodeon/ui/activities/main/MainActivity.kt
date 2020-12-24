@@ -13,8 +13,6 @@
 
 package me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main
 
-//import com.skydoves.waterdays.services.receivers.AlarmBootReceiver
-//import com.skydoves.waterdays.services.receivers.LocalWeatherReceiver
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
@@ -38,6 +36,7 @@ import me.romans.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import me.romans.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.romans.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapter
+import me.romans.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.romans.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
@@ -166,24 +165,31 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     enableInterface(false)
   }
 
+  /**
+   * show badge with delay
+   * @param position
+   */
+  private fun showBadge(position: Int) {
+    mainactivity_navi.postDelayed({
+      val model = mainactivity_navi.models[position]
+      mainactivity_navi.postDelayed({ model.showBadge() }, 100)
+    }, 200)
+  }
+
   @SuppressLint("CheckResult", "NewApi")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
     initBaseView(this)
     //changing statusbar
-    if (Build.VERSION.SDK_INT >= 21) {
-      val window = this.window
-      window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-      window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-      window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
-    }
+    val window = this.window
+    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+    window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
 
     val intent = intent
     mDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME)
     mDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS)
-
-    // Sets up UI references.
 
     // Sets up UI references.
     mGattServicesList = findViewById(R.id.gatt_services_list)
@@ -193,16 +199,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
 
-
-    // set boot receiver
-//    val receiver = ComponentName(this, AlarmBootReceiver::class.java)
-//    val pm = packageManager
-//    pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-
     RxUpdateMainEvent.getInstance().observable
         .compose(bindToLifecycle())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe {
+        .subscribe { flag ->
+          if (!flag) showBadge(0)
           mSectionsPagerAdapter.notifyDataSetChanged()
         }
   }
@@ -210,7 +211,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun initializeUI() {
     mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
     mainactivity_viewpager.adapter = mSectionsPagerAdapter
-    mainactivity_viewpager.offscreenPageLimit = 5
+    mainactivity_viewpager.offscreenPageLimit = 3
+    NavigationUtils.setComponents(baseContext, mainactivity_viewpager, mainactivity_navi)
   }
 
   override fun onResume() {
@@ -373,8 +375,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     parcel.writeString(mDeviceName)
     parcel.writeString(mDeviceAddress)
     parcel.writeByte(if (mConnected) 1 else 0)
-    parcel.writeParcelable(mNotifyCharacteristic, flags)
-    parcel.writeParcelable(mCharacteristic, flags)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      parcel.writeParcelable(mNotifyCharacteristic, flags)
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      parcel.writeParcelable(mCharacteristic, flags)
+    }
     parcel.writeInt(dataSens1)
     parcel.writeInt(dataSens2)
     parcel.writeInt(state)

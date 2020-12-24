@@ -2,10 +2,13 @@
   <dictionary name="pro">
     <words>
       <w>hrstm</w>
+      <w>mainactivity</w>
       <w>monograb</w>
       <w>motorica</w>
+      <w>navi</w>
       <w>rodeon</w>
       <w>statusbar</w>
+      <w>ubyte</w>
     </words>
   </dictionary>
 </component>

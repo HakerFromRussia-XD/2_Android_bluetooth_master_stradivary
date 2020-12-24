@@ -67,6 +67,7 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_mainchart"
                 android:layout_width="match_parent"
+                android:layout_marginEnd="-14dp"
                 android:layout_height="320dp"
                 android:foregroundGravity="center" />
 
@@ -78,7 +79,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
+                android:layout_marginEnd="16dp"
                 android:orientation="vertical"
                 tools:ignore="UseCompoundDrawables">
                 <ImageView
@@ -104,7 +105,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
+                android:layout_marginEnd="16dp"
                 android:orientation="vertical"
                 tools:ignore="UseCompoundDrawables">
                 <ImageView
@@ -134,19 +135,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:weightSum="5">
+                android:weightSum="5.3">
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1">
+                    android:layout_weight="1.3">
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:paddingLeft="16dp"
                         android:paddingRight="16dp"
-                        android:weightSum="2"
-                        tools:ignore="DisableBaselineAlignment">
+                        android:weightSum="2">
                         <RelativeLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -154,7 +154,7 @@
                             <Button
                                 android:id="@+id/open_btn"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="36dp"
                                 android:layout_marginTop="16dp"
                                 android:layout_marginEnd="8dp"
                                 android:text="open"
@@ -170,7 +170,7 @@
                                 <Button
                                     android:id="@+id/close_btn"
                                     android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
+                                    android:layout_height="36dp"
                                     android:layout_marginTop="16dp"
                                     android:layout_marginStart="8dp"
                                     android:text="close"
@@ -231,7 +231,7 @@
                                 android:id="@+id/shutdown_current_sb"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:paddingEnd="16dp"
+                                android:paddingEnd="0dp"
                                 android:paddingStart="16dp"
                                 android:max="255"
                                 android:progress="230"
@@ -292,7 +292,7 @@
                                 android:layout_height="match_parent"
                                 android:max="99"
                                 android:paddingStart="16dp"
-                                android:paddingEnd="16dp"
+                                android:paddingEnd="0dp"
                                 android:progress="65"
                                 android:progressDrawable="@drawable/track_le"
                                 android:thumb="@drawable/thumb_le" />
@@ -348,7 +348,7 @@
                                 android:id="@+id/dead_zone_sb"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:paddingEnd="16dp"
+                                android:paddingEnd="0dp"
                                 android:paddingStart="16dp"
                                 android:max="69"
                                 android:progress="20"

@@ -34,9 +34,9 @@ class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) 
   override fun getItem(position: Int): Fragment {
     var fragment: Fragment = MainWaterFragment()
     when (position) {
-      0 -> fragment = ChartFragment()//AlarmFragment()
-      1 -> fragment = SensSettingsFragment()//MainWaterFragment()
-//      2 -> fragment = EnvironmentFragment()//ChartFragment()
+      0 -> fragment = MainWaterFragment()//AlarmFragment()
+      1 -> fragment = ChartFragment()//MainWaterFragment()
+      2 -> fragment = SensSettingsFragment()//ChartFragment()
 //      3 -> fragment = EnvironmentFragment()
 //      4 -> fragment = EnvironmentFragment()
     }
@@ -46,6 +46,6 @@ class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) 
   override fun getCount(): Int = COUNT_PAGERS
 
   companion object {
-    const val COUNT_PAGERS = 2
+    const val COUNT_PAGERS = 3
   }
 }

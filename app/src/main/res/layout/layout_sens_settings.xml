@@ -59,16 +59,17 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2.5">
+
                     <androidx.appcompat.widget.AppCompatSeekBar
                         android:id="@+id/correlator_noise_threshold_1_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:paddingEnd="16dp"
-                        android:paddingStart="16dp"
                         android:max="255"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="0dp"
                         android:progress="230"
                         android:progressDrawable="@drawable/track_le"
-                        android:thumb="@drawable/thumb_le"/>
+                        android:thumb="@drawable/thumb_le" />
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
@@ -122,7 +123,7 @@
                         android:id="@+id/correlator_noise_threshold_2_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:paddingEnd="16dp"
+                        android:paddingEnd="0dp"
                         android:paddingStart="16dp"
                         android:max="255"
                         android:progress="230"

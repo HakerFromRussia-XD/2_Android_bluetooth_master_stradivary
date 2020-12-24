@@ -26,24 +26,24 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-<!--    <com.gigamole.navigationtabbar.ntb.NavigationTabBar-->
-<!--        android:id="@+id/mainactivity_navi"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="60dp"-->
-<!--        app:ntb_inactive_color="@color/dark"-->
-<!--        app:ntb_active_color="@color/orange"-->
-<!--        app:ntb_preview_colors="@array/colors"-->
-<!--        app:ntb_bg_color="@color/cream_white"-->
-<!--        app:ntb_badge_bg_color="@color/deepDark"-->
-<!--        app:ntb_badge_title_color="@color/orange"-->
-<!--        app:ntb_badge_gravity="top"-->
-<!--        app:ntb_badge_position="right"-->
-<!--        app:ntb_badged="true"-->
-<!--        app:ntb_scaled="true"-->
-<!--        app:ntb_swiped="true"-->
-<!--        app:ntb_tinted="true"-->
-<!--        app:ntb_title_mode="active"-->
-<!--        app:ntb_titled="true"/>-->
+    <com.gigamole.navigationtabbar.ntb.NavigationTabBar
+        android:id="@+id/mainactivity_navi"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:ntb_inactive_color="@color/cream_white"
+        app:ntb_active_color="@color/orange"
+        app:ntb_preview_colors="@array/colors"
+        app:ntb_bg_color="@color/light_gray"
+        app:ntb_badge_bg_color="@color/light_gray"
+        app:ntb_badge_title_color="@color/orange"
+        app:ntb_badge_gravity="top"
+        app:ntb_badge_position="right"
+        app:ntb_badged="true"
+        app:ntb_scaled="true"
+        app:ntb_swiped="true"
+        app:ntb_tinted="true"
+        app:ntb_title_mode="active"
+        app:ntb_titled="true"/>
 
     <ExpandableListView android:id="@+id/gatt_services_list"
         android:layout_width="match_parent"

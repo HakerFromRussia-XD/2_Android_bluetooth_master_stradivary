@@ -15,92 +15,100 @@ import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRIT
 import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 
 class CustomDialogFragment: DialogFragment() {
+    private var rootView: View? = null
     private var main: MainActivity? = null
     private var openStage = 0b00000000
     private var closeStage = 0b00000000
+    private val openState: Byte = 1
+    private val closeState: Byte = 0
 
-    @SuppressLint("SetTextI18n")
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.layout_gripper_settings_le, container, false)
+        rootView = view
         if (activity != null) { main = activity as MainActivity? }
+        return view
+    }
+
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
 
         //info block
-        view.tv_andex_alert_dialog_layout_title.text = view.tv_andex_alert_dialog_layout_title.text.toString() + main?.getMNumberGesture()+ " configurator"
-        view.v_andex_alert_dialog_layout_one.setOnClickListener {Toast.makeText(context, "Блок настройки состояний первого пальца", Toast.LENGTH_SHORT).show()}
-        view.v_andex_alert_dialog_layout_two.setOnClickListener {Toast.makeText(context, "Блок настройки состояний второго пальца", Toast.LENGTH_SHORT).show()}
-        view.v_andex_alert_dialog_layout_three.setOnClickListener {Toast.makeText(context, "Блок настройки состояний третьего пальца", Toast.LENGTH_SHORT).show()}
-        view.v_andex_alert_dialog_layout_four.setOnClickListener {Toast.makeText(context, "Блок настройки состояний четвёртого пальца", Toast.LENGTH_SHORT).show()}
-        view.v_andex_alert_dialog_layout_five.setOnClickListener {Toast.makeText(context, "Блок настройки состояний пятого пальца", Toast.LENGTH_SHORT).show()}
+        rootView?.tv_andex_alert_dialog_layout_title?.text  = rootView?.tv_andex_alert_dialog_layout_title?.text.toString() + main?.getMNumberGesture()+ " configurator"
+        rootView?.v_andex_alert_dialog_layout_one?.setOnClickListener {Toast.makeText(context, "Блок настройки состояний первого пальца", Toast.LENGTH_SHORT).show()}
+        rootView?.v_andex_alert_dialog_layout_two?.setOnClickListener {Toast.makeText(context, "Блок настройки состояний второго пальца", Toast.LENGTH_SHORT).show()}
+        rootView?.v_andex_alert_dialog_layout_three?.setOnClickListener {Toast.makeText(context, "Блок настройки состояний третьего пальца", Toast.LENGTH_SHORT).show()}
+        rootView?.v_andex_alert_dialog_layout_four?.setOnClickListener {Toast.makeText(context, "Блок настройки состояний четвёртого пальца", Toast.LENGTH_SHORT).show()}
+        rootView?.v_andex_alert_dialog_layout_five?.setOnClickListener {Toast.makeText(context, "Блок настройки состояний пятого пальца", Toast.LENGTH_SHORT).show()}
 
         //control block
-        view.finger_1_open_sb.setOnClickListener {
-            openStage = if (view.finger_1_open_sb.isChecked) openStage or 0b00000001
+        rootView?.finger_1_open_sb?.setOnClickListener {
+            openStage = if (rootView?.finger_1_open_sb!!.isChecked) openStage or 0b00000001
             else openStage and 0b11111110
             Toast.makeText(context, "finger_1_open_sb Click $openStage", Toast.LENGTH_SHORT).show()
-            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE)
         }
-        view.finger_1_close_sb.setOnClickListener {
-            closeStage = if (view.finger_1_close_sb.isChecked) closeStage or 0b00000001
+        rootView?.finger_1_close_sb?.setOnClickListener {
+            closeStage = if (rootView?.finger_1_close_sb!!.isChecked) closeStage or 0b00000001
             else closeStage and 0b11111110
             Toast.makeText(context, "finger_1_close_sb Click $closeStage", Toast.LENGTH_SHORT).show()
-            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE)
         }
-        view.finger_2_open_sb.setOnClickListener {
-            openStage = if (view.finger_2_open_sb.isChecked) openStage or 0b00000010
+        rootView?.finger_2_open_sb?.setOnClickListener {
+            openStage = if (rootView?.finger_2_open_sb!!.isChecked) openStage or 0b00000010
             else openStage and 0b11111101
             Toast.makeText(context, "finger_2_open_sb Click $openStage", Toast.LENGTH_SHORT).show()
-            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE)
         }
-        view.finger_2_close_sb.setOnClickListener {
-            closeStage = if (view.finger_2_close_sb.isChecked) closeStage or 0b00000010
+        rootView?.finger_2_close_sb?.setOnClickListener {
+            closeStage = if (rootView?.finger_2_close_sb!!.isChecked) closeStage or 0b00000010
             else closeStage and 0b11111101
             Toast.makeText(context, "finger_2_close_sb Click $closeStage", Toast.LENGTH_SHORT).show()
-            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE)
         }
-        view.finger_3_open_sb.setOnClickListener {
-            openStage = if (view.finger_3_open_sb.isChecked) openStage or 0b00000100
+        rootView?.finger_3_open_sb?.setOnClickListener {
+            openStage = if (rootView?.finger_3_open_sb!!.isChecked) openStage or 0b00000100
             else openStage and 0b11111011
             Toast.makeText(context, "finger_3_open_sb Click $openStage", Toast.LENGTH_SHORT).show()
-            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE)
         }
-        view.finger_3_close_sb.setOnClickListener {
-            closeStage = if (view.finger_3_close_sb.isChecked) closeStage or 0b00000100
+        rootView?.finger_3_close_sb?.setOnClickListener {
+            closeStage = if (rootView?.finger_3_close_sb!!.isChecked) closeStage or 0b00000100
             else closeStage and 0b11111011
             Toast.makeText(context, "finger_3_close_sb Click $closeStage", Toast.LENGTH_SHORT).show()
-            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE)
         }
-        view.finger_4_open_sb.setOnClickListener {
-            openStage = if (view.finger_4_open_sb.isChecked) openStage or 0b00001000
+        rootView?.finger_4_open_sb?.setOnClickListener {
+            openStage = if (rootView?.finger_4_open_sb!!.isChecked) openStage or 0b00001000
             else openStage and 0b11110111
             Toast.makeText(context, "finger_4_open_sb Click $openStage", Toast.LENGTH_SHORT).show()
-            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE)
         }
-        view.finger_4_close_sb.setOnClickListener {
-            closeStage = if (view.finger_4_close_sb.isChecked) closeStage or 0b00001000
+        rootView?.finger_4_close_sb?.setOnClickListener {
+            closeStage = if (rootView?.finger_4_close_sb!!.isChecked) closeStage or 0b00001000
             else closeStage and 0b11110111
             Toast.makeText(context, "finger_4_close_sb Click $closeStage", Toast.LENGTH_SHORT).show()
-            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE)
         }
-        view.finger_5_open_sb.setOnClickListener {
-            openStage = if (view.finger_5_open_sb.isChecked) openStage or 0b00010000
+        rootView?.finger_5_open_sb?.setOnClickListener {
+            openStage = if (rootView?.finger_5_open_sb!!.isChecked) openStage or 0b00010000
             else openStage and 0b11101111
             Toast.makeText(context, "finger_5_open_sb Click $openStage", Toast.LENGTH_SHORT).show()
-            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE)
         }
-        view.finger_5_close_sb.setOnClickListener {
-            closeStage = if (view.finger_5_close_sb.isChecked) closeStage or 0b00010000
+        rootView?.finger_5_close_sb?.setOnClickListener {
+            closeStage = if (rootView?.finger_5_close_sb!!.isChecked) closeStage or 0b00010000
             else closeStage and 0b11101111
             Toast.makeText(context, "finger_5_close_sb Click $closeStage", Toast.LENGTH_SHORT).show()
-            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE)
         }
 
 
-        view.v_andex_alert_dialog_layout_confirm.setOnClickListener { dismiss() }
-        view.v_andex_alert_dialog_layout_cancel.setOnClickListener { dismiss() }
-        return view
+        rootView?.v_andex_alert_dialog_layout_confirm?.setOnClickListener { dismiss() }
+        rootView?.v_andex_alert_dialog_layout_cancel?.setOnClickListener { dismiss() }
     }
 }

@@ -1,5 +1,6 @@
 package me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,17 +9,27 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import kotlinx.android.synthetic.main.layout_gripper_settings_le.view.*
 import me.romans.motorica.R
+import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
+import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE
+import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE
+import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 
 class CustomDialogFragment: DialogFragment() {
+    private var main: MainActivity? = null
+    private var openStage = 0b00000000
+    private var closeStage = 0b00000000
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.layout_gripper_settings_le, container, false)
+        if (activity != null) { main = activity as MainActivity? }
 
         //info block
+        view.tv_andex_alert_dialog_layout_title.text = view.tv_andex_alert_dialog_layout_title.text.toString() + main?.getMNumberGesture()+ " configurator"
         view.v_andex_alert_dialog_layout_one.setOnClickListener {Toast.makeText(context, "Блок настройки состояний первого пальца", Toast.LENGTH_SHORT).show()}
         view.v_andex_alert_dialog_layout_two.setOnClickListener {Toast.makeText(context, "Блок настройки состояний второго пальца", Toast.LENGTH_SHORT).show()}
         view.v_andex_alert_dialog_layout_three.setOnClickListener {Toast.makeText(context, "Блок настройки состояний третьего пальца", Toast.LENGTH_SHORT).show()}
@@ -27,104 +38,69 @@ class CustomDialogFragment: DialogFragment() {
 
         //control block
         view.finger_1_open_sb.setOnClickListener {
-            if (view.finger_1_open_sb.isChecked) Toast.makeText(context, "finger_1_open_sb Click 1", Toast.LENGTH_SHORT).show()
-            if (!view.finger_1_open_sb.isChecked) Toast.makeText(context, "finger_1_open_sb Click 0", Toast.LENGTH_SHORT).show()
+            openStage = if (view.finger_1_open_sb.isChecked) openStage or 0b00000001
+            else openStage and 0b11111110
+            Toast.makeText(context, "finger_1_open_sb Click $openStage", Toast.LENGTH_SHORT).show()
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+        }
+        view.finger_1_close_sb.setOnClickListener {
+            closeStage = if (view.finger_1_close_sb.isChecked) closeStage or 0b00000001
+            else closeStage and 0b11111110
+            Toast.makeText(context, "finger_1_close_sb Click $closeStage", Toast.LENGTH_SHORT).show()
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+        }
+        view.finger_2_open_sb.setOnClickListener {
+            openStage = if (view.finger_2_open_sb.isChecked) openStage or 0b00000010
+            else openStage and 0b11111101
+            Toast.makeText(context, "finger_2_open_sb Click $openStage", Toast.LENGTH_SHORT).show()
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+        }
+        view.finger_2_close_sb.setOnClickListener {
+            closeStage = if (view.finger_2_close_sb.isChecked) closeStage or 0b00000010
+            else closeStage and 0b11111101
+            Toast.makeText(context, "finger_2_close_sb Click $closeStage", Toast.LENGTH_SHORT).show()
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+        }
+        view.finger_3_open_sb.setOnClickListener {
+            openStage = if (view.finger_3_open_sb.isChecked) openStage or 0b00000100
+            else openStage and 0b11111011
+            Toast.makeText(context, "finger_3_open_sb Click $openStage", Toast.LENGTH_SHORT).show()
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+        }
+        view.finger_3_close_sb.setOnClickListener {
+            closeStage = if (view.finger_3_close_sb.isChecked) closeStage or 0b00000100
+            else closeStage and 0b11111011
+            Toast.makeText(context, "finger_3_close_sb Click $closeStage", Toast.LENGTH_SHORT).show()
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+        }
+        view.finger_4_open_sb.setOnClickListener {
+            openStage = if (view.finger_4_open_sb.isChecked) openStage or 0b00001000
+            else openStage and 0b11110111
+            Toast.makeText(context, "finger_4_open_sb Click $openStage", Toast.LENGTH_SHORT).show()
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+        }
+        view.finger_4_close_sb.setOnClickListener {
+            closeStage = if (view.finger_4_close_sb.isChecked) closeStage or 0b00001000
+            else closeStage and 0b11110111
+            Toast.makeText(context, "finger_4_close_sb Click $closeStage", Toast.LENGTH_SHORT).show()
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+        }
+        view.finger_5_open_sb.setOnClickListener {
+            openStage = if (view.finger_5_open_sb.isChecked) openStage or 0b00010000
+            else openStage and 0b11101111
+            Toast.makeText(context, "finger_5_open_sb Click $openStage", Toast.LENGTH_SHORT).show()
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
+        }
+        view.finger_5_close_sb.setOnClickListener {
+            closeStage = if (view.finger_5_close_sb.isChecked) closeStage or 0b00010000
+            else closeStage and 0b11101111
+            Toast.makeText(context, "finger_5_close_sb Click $closeStage", Toast.LENGTH_SHORT).show()
+            main?.bleCommand(byteArrayOf((main?.getMNumberGesture()!!-1).toByte(), openStage.toByte(), closeStage.toByte()), ADD_GESTURE, WRITE)
         }
 
-        view.finger_1_close_sb.setOnClickListener { Toast.makeText(context, "finger_1_close_sb Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
 
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }//        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }//        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }м
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }//        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }//        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }//        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }//        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-////        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-        //        view.v_andex_alert_dialog_layout_one.setOnClickListener() { Toast.makeText(context, "One Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_two.setOnClickListener() { Toast.makeText(context, "Two Click", Toast.LENGTH_SHORT).show() }
-//        view.v_andex_alert_dialog_layout_three.setOnClickListener() { Toast.makeText(context, "Three Click", Toast.LENGTH_SHORT).show() }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        view.v_andex_alert_dialog_layout_confirm.setOnClickListener { dismiss() }
+        view.v_andex_alert_dialog_layout_cancel.setOnClickListener { dismiss() }
         return view
     }
 }

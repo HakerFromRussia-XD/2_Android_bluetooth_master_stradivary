@@ -117,6 +117,11 @@
     <string name="gesture_1_btn">tuning gesture №1</string>
     <string name="gesture_2_btn">tuning gesture №2</string>
     <string name="gesture_3_btn">tuning gesture №3</string>
+    <string name="gesture_4_btn">tuning gesture №4</string>
+    <string name="gesture_5_btn">tuning gesture №5</string>
+    <string name="gesture_6_btn">tuning gesture №6</string>
+    <string name="gesture_7_btn">tuning gesture №7</string>
+    <string name="gesture_8_btn">tuning gesture №8</string>
 
     <string-array name="numbers">
         <item>0</item>

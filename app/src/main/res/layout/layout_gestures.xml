@@ -43,4 +43,64 @@
         android:visibility="visible"
         app:layout_constraintTop_toBottomOf="@+id/gesture_2_btn"
         tools:layout_editor_absoluteX="16dp" />
+
+    <Button
+        android:id="@+id/gesture_4_btn"
+        style="@style/Text"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/custom_button_le"
+        android:text="@string/gesture_4_btn"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/gesture_3_btn"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <Button
+        android:id="@+id/gesture_5_btn"
+        style="@style/Text"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/custom_button_le"
+        android:text="@string/gesture_5_btn"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/gesture_4_btn"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <Button
+        android:id="@+id/gesture_6_btn"
+        style="@style/Text"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/custom_button_le"
+        android:text="@string/gesture_6_btn"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/gesture_5_btn"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <Button
+        android:id="@+id/gesture_7_btn"
+        style="@style/Text"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/custom_button_le"
+        android:text="@string/gesture_7_btn"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/gesture_6_btn"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <Button
+        android:id="@+id/gesture_8_btn"
+        style="@style/Text"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/custom_button_le"
+        android:text="@string/gesture_8_btn"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/gesture_7_btn"
+        tools:layout_editor_absoluteX="16dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

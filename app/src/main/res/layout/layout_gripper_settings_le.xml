@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:gravity="center"
-            android:text="gesture configurator"
+            android:text="gesture "
             android:textAlignment="center"
             android:textColor="#000"
             android:textSize="18sp"
@@ -133,14 +133,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="finger 1"
+            android:text="little finger"
             android:textAlignment="center"
             android:textColor="#1377E6"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
-            app:layout_constraintTop_toBottomOf="@+id/view5" />
+            app:layout_constraintTop_toBottomOf="@+id/view5"
+            tools:ignore="DuplicateIds" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_one"
@@ -199,15 +200,15 @@
             tools:ignore="UnknownId" />
 
         <TextView
-            android:id="@+id/tv_andex_alert_dialog_layout_message"
+            android:id="@+id/tv_andex_alert_dialog_layout_message_2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="finger 2"
+            android:text="ring finger"
             android:textAlignment="center"
             android:textColor="#1377E6"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
@@ -269,15 +270,15 @@
             app:layout_constraintTop_toBottomOf="@+id/view6" />
 
         <TextView
-            android:id="@+id/tv_andex_alert_dialog_layout_message"
+            android:id="@+id/tv_andex_alert_dialog_layout_message_3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="finger 3"
+            android:text="middle finger"
             android:textAlignment="center"
             android:textColor="#1377E6"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
@@ -339,15 +340,15 @@
             app:layout_constraintTop_toBottomOf="@+id/view7" />
 
         <TextView
-            android:id="@+id/tv_andex_alert_dialog_layout_message"
+            android:id="@+id/tv_andex_alert_dialog_layout_message_4"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="finger 4"
+            android:text="forefinger"
             android:textAlignment="center"
             android:textColor="#1377E6"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
@@ -409,15 +410,15 @@
             app:layout_constraintTop_toBottomOf="@+id/view8" />
 
         <TextView
-            android:id="@+id/tv_andex_alert_dialog_layout_message"
+            android:id="@+id/tv_andex_alert_dialog_layout_message_5"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="finger 5"
+            android:text="thumb"
             android:textAlignment="center"
             android:textColor="#1377E6"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"

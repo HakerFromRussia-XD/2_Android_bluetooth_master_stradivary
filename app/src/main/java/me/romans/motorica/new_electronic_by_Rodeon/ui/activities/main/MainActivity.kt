@@ -69,6 +69,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var state = 0
   private var subscribeThread: Thread? = null
   private var moveThread: Thread? = null
+  private var mNumberGesture = 0
 
 
   private val listName = "NAME"
@@ -340,6 +341,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         }
       }
     }
+    System.err.println("bleCommand")
   }
 
   private fun startSubscribeSensorsDataThread() {
@@ -370,6 +372,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
   fun getDataSens1(): Int { return dataSens1 }
   fun getDataSens2(): Int { return dataSens2 }
+  fun getMNumberGesture(): Int { return mNumberGesture }
   fun setSensorsDataThreadFlag(value: Boolean){ sensorsDataThreadFlag = value }
   override fun writeToParcel(parcel: Parcel, flags: Int) {
     parcel.writeByte(if (sensorsDataThreadFlag) 1 else 0)
@@ -401,57 +404,10 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
   }
 
-  fun openFragment(name: String, info: String) {
-//    AndExAlertDialog.Builder(this)
-//            .setTitle("Забираю")
-//            .setMessage("Введите количество забираемых деталей")
-//            .setOneBtnText("Одну")
-//            .setTwoBtnText("Две")
-//            .setThreeBtnText("Три")
-//            .setPositiveBtnText("Ok")
-//            .setNegativeBtnText("Отмена")
-//            .setImage(R.drawable.process, 20)
-//            .setEditText(true, false, "другое количество", com.androidexception.andexalertdialog.InputType.PASSWORD)
-//            .setCancelableOnTouchOutside(true)
-//            .OnOneClicked(object : AndExAlertDialogListener() {
-//              fun OnClick(input: String) {
-//                Toast.makeText(this@MainActivity, "you typed one$input", Toast.LENGTH_SHORT).show()
-//              }
-//            })
-//            .OnTwoClicked(object : AndExAlertDialogListener() {
-//              fun OnClick(input: String) {
-//                Toast.makeText(this@MainActivity, "you typed two$input", Toast.LENGTH_SHORT).show()
-//              }
-//            })
-//            .OnThreeClicked(object : AndExAlertDialogListener() {
-//              fun OnClick(input: String) {
-//                Toast.makeText(this@MainActivity, "you typed three$input", Toast.LENGTH_SHORT).show()
-//              }
-//            })
-//            .OnPositiveClicked(object : AndExAlertDialogListener() {
-//              fun OnClick(input: String) {
-//                Toast.makeText(this@MainActivity, "you typed $input", Toast.LENGTH_SHORT).show()
-//              }
-//            })
-//            .OnNegativeClicked(object : AndExAlertDialogListener() {
-//              fun OnClick(input: String) {
-//                Toast.makeText(this@MainActivity, "you typed $input", Toast.LENGTH_SHORT).show()
-//              }
-//            })
-//            .build()
-
+  fun openFragment(numberGesture: Int) {
     val dialog = CustomDialogFragment()
-
-    dialog.show(supportFragmentManager, "customDialog")
-
-//    val bundle = Bundle()
-//    bundle.putString("info", info)
-//
-//    val transaction = this.supportFragmentManager.beginTransaction()
-//    val gripperFragment = GripperFragment()
-//    gripperFragment.arguments = bundle
-//
-//    transaction.replace(R.id.mainactivity_viewpager, gripperFragment)
-//    transaction.commit()
+    mNumberGesture = numberGesture
+    dialog.show(supportFragmentManager, "custom dialog")
   }
+
 }

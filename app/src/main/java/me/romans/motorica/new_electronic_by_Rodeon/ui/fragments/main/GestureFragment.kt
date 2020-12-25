@@ -31,16 +31,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        gesture_1_btn.setOnClickListener {
-            Toast.makeText(context, "gesture_1_btn OnClick", Toast.LENGTH_SHORT).show()
-            main?.openFragment("fignia","vagnaia infa")
-        }
-        gesture_2_btn.setOnClickListener {
-            Toast.makeText(context, "gesture_2_btn OnClick", Toast.LENGTH_SHORT).show()
-        }
-        gesture_3_btn.setOnClickListener {
-            Toast.makeText(context, "gesture_3_btn OnClick", Toast.LENGTH_SHORT).show()
-        }
+        gesture_1_btn.setOnClickListener { main?.openFragment("fignia","vagnaia infa") }
+        gesture_2_btn.setOnClickListener {}
+        gesture_3_btn.setOnClickListener {}
     }
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {}

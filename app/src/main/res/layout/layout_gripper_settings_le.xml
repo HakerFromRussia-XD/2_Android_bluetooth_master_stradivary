@@ -1,27 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cv"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:cardBackgroundColor="#e1e1e1">
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#e1e1e1">
+        android:background="#e1e1e1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/tv_andex_alert_dialog_layout_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:text="gesture configurator"
+            android:textAlignment="center"
+            android:textColor="#000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_andex_alert_dialog_layout_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/open_hand"
+            android:layout_marginTop="16dp"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
+            app:layout_constraintTop_toBottomOf="@+id/tv_andex_alert_dialog_layout_title"
+            tools:ignore="ContentDescription" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_andex_alert_dialog_layout_image_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.16" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_andex_alert_dialog_layout_image_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.33090025" />
 
         <ImageView
             android:id="@+id/iv_andex_alert_dialog_layout_image2"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="24dp"
             android:scaleType="fitCenter"
+            android:src="@drawable/close_hand"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_andex_alert_dialog_layout_image"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
-            app:layout_constraintTop_toTopOf="parent"
             tools:ignore="ContentDescription" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -29,91 +75,45 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.3" />
+            app:layout_constraintGuide_percent="0.67" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gl_andex_alert_dialog_layout_image_right2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.7" />
-
-        <TextView
-            android:id="@+id/tv_andex_alert_dialog_layout_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:gravity="center"
-            android:textAlignment="center"
-            android:textColor="#000"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_andex_alert_dialog_layout_image2"
-            tools:text="Title" />
+            app:layout_constraintGuide_percent="0.84" />
 
         <TextView
             android:id="@+id/tv_andex_alert_dialog_layout_title2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
             android:gravity="center"
+            android:text="open"
             android:textAlignment="center"
             android:textColor="#000"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/iv_andex_alert_dialog_layout_image2"
-            tools:text="Просто рандомный текст" />
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
+            app:layout_constraintTop_toBottomOf="@+id/iv_andex_alert_dialog_layout_image" />
 
         <TextView
-            android:id="@+id/tv_andex_alert_dialog_layout_message"
+            android:id="@+id/tv_andex_alert_dialog_layout_title3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
             android:gravity="center"
+            android:text="close"
             android:textAlignment="center"
             android:textColor="#000"
-            android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view8"
-            tools:text="message" />
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            app:layout_constraintTop_toBottomOf="@+id/iv_andex_alert_dialog_layout_image2" />
 
-        <EditText
-            android:id="@+id/et_andex_alert_dialog_layout_input"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/andex_alert_dialog_et_background_selector2"
-            android:padding="12dp"
-            android:textColor="#000"
-            android:textColorHint="#ccc"
-            android:textSize="14sp"
-            android:inputType="numberSigned"
-            app:layout_constraintEnd_toEndOf="@+id/tv_andex_alert_dialog_layout_message"
-            app:layout_constraintStart_toStartOf="@+id/tv_andex_alert_dialog_layout_message"
-            app:layout_constraintTop_toBottomOf="@+id/tv_andex_alert_dialog_layout_message"
-            tools:hint="input..."
-            tools:ignore="Autofill,LabelFor" />
-
-        <View
-            android:id="@+id/view4"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="24dp"
-            android:background="#aaa"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_andex_alert_dialog_layout_input" />
 
         <View
             android:id="@+id/view5"
@@ -124,7 +124,67 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_andex_alert_dialog_layout_title" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_andex_alert_dialog_layout_title2" />
+
+
+        <TextView
+            android:id="@+id/tv_andex_alert_dialog_layout_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="finger 1"
+            android:textAlignment="center"
+            android:textColor="#1377E6"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintTop_toBottomOf="@+id/view5" />
+
+        <View
+            android:id="@+id/v_andex_alert_dialog_layout_one"
+            android:layout_width="410dp"
+            android:layout_height="0dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintBottom_toTopOf="@+id/view6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view5" />
+
+        <Switch
+            android:id="@+id/finger_1_open_sb"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:ellipsize="middle"
+            android:paddingEnd="0dp"
+            android:scrollbarSize="48dp"
+            android:thumb="@drawable/switch_le_thumb_blue"
+            android:track="@drawable/switch_le_truck_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/view6"
+            app:layout_constraintTop_toBottomOf="@+id/view5"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
+            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+
+        <Switch
+            android:id="@+id/finger_1_close_sb"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:ellipsize="middle"
+            android:paddingEnd="0dp"
+            android:scrollbarSize="48dp"
+            android:thumb="@drawable/switch_le_thumb_blue"
+            android:track="@drawable/switch_le_truck_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/view6"
+            app:layout_constraintTop_toBottomOf="@+id/view5"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
 
         <View
             android:id="@+id/view6"
@@ -138,65 +198,20 @@
             app:layout_constraintTop_toBottomOf="@+id/view5"
             tools:ignore="UnknownId" />
 
-        <View
-            android:id="@+id/view7"
+        <TextView
+            android:id="@+id/tv_andex_alert_dialog_layout_message"
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="54dp"
-            android:background="#aaa"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="finger 2"
+            android:textAlignment="center"
+            android:textColor="#1377E6"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
             app:layout_constraintTop_toBottomOf="@+id/view6" />
-
-        <View
-            android:id="@+id/view8"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="54dp"
-            android:background="#aaa"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view7" />
-
-        <TextView
-            android:id="@+id/tv_andex_alert_dialog_layout_one_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#1377E6"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/view6"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view5"
-            tools:text="One" />
-
-        <View
-            android:id="@+id/v_andex_alert_dialog_layout_one"
-            android:layout_width="300dp"
-            android:layout_height="0dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintBottom_toTopOf="@+id/view6"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view5" />
-
-        <TextView
-            android:id="@+id/tv_andex_alert_dialog_layout_two_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#1377E6"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/view7"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view6"
-            tools:text="Two" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_two"
@@ -210,18 +225,63 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/view6" />
 
-        <TextView
-            android:id="@+id/tv_andex_alert_dialog_layout_three_text"
+        <Switch
+            android:id="@+id/finger_2_open_sb"
             android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:ellipsize="middle"
+            android:paddingEnd="0dp"
+            android:scrollbarSize="48dp"
+            android:thumb="@drawable/switch_le_thumb_blue"
+            android:track="@drawable/switch_le_truck_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/view7"
+            app:layout_constraintTop_toBottomOf="@+id/view6"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
+            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+
+        <Switch
+            android:id="@+id/finger_2_close_sb"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:ellipsize="middle"
+            android:paddingEnd="0dp"
+            android:scrollbarSize="48dp"
+            android:thumb="@drawable/switch_le_thumb_blue"
+            android:track="@drawable/switch_le_truck_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/view7"
+            app:layout_constraintTop_toBottomOf="@+id/view6"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+
+        <View
+            android:id="@+id/view7"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="54dp"
+            android:background="#aaa"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view6" />
+
+        <TextView
+            android:id="@+id/tv_andex_alert_dialog_layout_message"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="finger 3"
+            android:textAlignment="center"
             android:textColor="#1377E6"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/view8"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view7"
-            tools:text="Three" />
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintTop_toBottomOf="@+id/view7" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_three"
@@ -234,6 +294,189 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/view7" />
+
+        <Switch
+            android:id="@+id/finger_3_open_sb"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:ellipsize="middle"
+            android:paddingEnd="0dp"
+            android:scrollbarSize="48dp"
+            android:thumb="@drawable/switch_le_thumb_blue"
+            android:track="@drawable/switch_le_truck_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/view8"
+            app:layout_constraintTop_toBottomOf="@+id/view7"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
+            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+
+        <Switch
+            android:id="@+id/finger_3_close_sb"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:ellipsize="middle"
+            android:paddingEnd="0dp"
+            android:scrollbarSize="48dp"
+            android:thumb="@drawable/switch_le_thumb_blue"
+            android:track="@drawable/switch_le_truck_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/view8"
+            app:layout_constraintTop_toBottomOf="@+id/view7"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+
+        <View
+            android:id="@+id/view8"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="54dp"
+            android:background="#aaa"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view7" />
+
+        <TextView
+            android:id="@+id/tv_andex_alert_dialog_layout_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="finger 4"
+            android:textAlignment="center"
+            android:textColor="#1377E6"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintTop_toBottomOf="@+id/view8" />
+
+        <View
+            android:id="@+id/v_andex_alert_dialog_layout_four"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintBottom_toTopOf="@+id/view9"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view8" />
+
+        <Switch
+            android:id="@+id/finger_4_open_sb"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:ellipsize="middle"
+            android:paddingEnd="0dp"
+            android:scrollbarSize="48dp"
+            android:thumb="@drawable/switch_le_thumb_blue"
+            android:track="@drawable/switch_le_truck_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/view9"
+            app:layout_constraintTop_toBottomOf="@+id/view8"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
+            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+
+        <Switch
+            android:id="@+id/finger_4_close_sb"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:ellipsize="middle"
+            android:paddingEnd="0dp"
+            android:scrollbarSize="48dp"
+            android:thumb="@drawable/switch_le_thumb_blue"
+            android:track="@drawable/switch_le_truck_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/view9"
+            app:layout_constraintTop_toBottomOf="@+id/view8"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+
+        <View
+            android:id="@+id/view9"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="54dp"
+            android:background="#aaa"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view8" />
+
+        <TextView
+            android:id="@+id/tv_andex_alert_dialog_layout_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="finger 5"
+            android:textAlignment="center"
+            android:textColor="#1377E6"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintTop_toBottomOf="@+id/view9" />
+
+        <View
+            android:id="@+id/v_andex_alert_dialog_layout_five"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintBottom_toTopOf="@+id/view4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view9" />
+
+        <Switch
+            android:id="@+id/finger_5_open_sb"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:ellipsize="middle"
+            android:paddingEnd="0dp"
+            android:scrollbarSize="48dp"
+            android:thumb="@drawable/switch_le_thumb_blue"
+            android:track="@drawable/switch_le_truck_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/view9"
+            app:layout_constraintTop_toBottomOf="@+id/view4"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
+            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+
+        <Switch
+            android:id="@+id/finger_5_close_sb"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:ellipsize="middle"
+            android:paddingEnd="0dp"
+            android:scrollbarSize="48dp"
+            android:thumb="@drawable/switch_le_thumb_blue"
+            android:track="@drawable/switch_le_truck_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/view9"
+            app:layout_constraintTop_toBottomOf="@+id/view4"
+            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+
+        <View
+            android:id="@+id/view4"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="54dp"
+            android:background="#aaa"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view9" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_button_divider"
@@ -251,6 +494,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
+            android:text="Save"
             android:textColor="#1377E6"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -258,16 +502,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/v_andex_alert_dialog_layout_button_divider"
-            app:layout_constraintTop_toBottomOf="@+id/view4"
-            tools:text="Yes" />
+            app:layout_constraintTop_toBottomOf="@+id/view4" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_confirm"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
-            android:background="?android:attr/selectableItemBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/v_andex_alert_dialog_layout_button_divider"
@@ -277,21 +520,21 @@
             android:id="@+id/tv_andex_alert_dialog_layout_cancel_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Cancel"
             android:textColor="#1377E6"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/v_andex_alert_dialog_layout_button_divider"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view4"
-            tools:text="No" />
+            app:layout_constraintTop_toBottomOf="@+id/view4" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_cancel"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
-            android:background="?android:attr/selectableItemBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/v_andex_alert_dialog_layout_button_divider"
             app:layout_constraintStart_toStartOf="parent"

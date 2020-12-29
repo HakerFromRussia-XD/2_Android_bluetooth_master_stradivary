@@ -36,7 +36,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     @Override
     public ScanViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mCtx);
-        @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.item_scanlist_2, null);
+        @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.item_scanlist, null);
         return new ScanViewHolder(view, mOnScanMyListener);
     }
 

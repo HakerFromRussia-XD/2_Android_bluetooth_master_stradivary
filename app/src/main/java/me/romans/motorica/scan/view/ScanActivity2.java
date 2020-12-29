@@ -1,17 +1,4 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro;
+package me.romans.motorica.scan.view;
 
 import android.Manifest;
 import android.app.Activity;
@@ -24,8 +11,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -35,18 +23,36 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 import me.romans.motorica.R;
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
+import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.ScanItem;
+import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
+import me.romans.motorica.scan.data.ScanListAdapter;
+import me.romans.motorica.scan.presenter.ScanPresenter;
 
-/**
- * Activity for scanning and displaying available Bluetooth LE devices.
- */
-public class DeviceScanActivity extends AppCompatActivity implements ScanView, ScanListAdapter.OnScanMyListener {
-//    private LeDeviceListAdapter mLeDeviceListAdapter;
+public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanListAdapter.OnScanMyListener  {
+    // BT
+    RecyclerView pairedDeviceList;
+    ListView deviceList;
+    LottieAnimationView progress;
+    Button scanButton;
+
+    @Inject
+    ScanPresenter presenter;
+
+    ScanListAdapter mScanListAdapter;
+    ArrayList<ScanItem> scanList;
+
+    //    private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
     private boolean mScanning;
     private Handler mHandler;
@@ -55,13 +61,11 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private int scanListBLEPosition = 0;
 
-    RecyclerView pairedDeviceList;
-    ScanListAdapter mScanListAdapter;
-    ArrayList<ScanItem> scanList;
     private ArrayList<BluetoothDevice> mLeDevices;
-    ProgressBar progress;
-    Button scanButton;
+
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,9 +73,8 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
 
         setContentView(R.layout.activity_scan);
         scanList = new ArrayList<>();
-        buildScanListView();
         mLeDevices = new ArrayList<>();
-//        progress = findViewById(R.id.activity_scan_progress);
+        progress = findViewById(R.id.activity_scan_progress);
         scanButton = findViewById(R.id.activity_scan_button);
 
         mHandler = new Handler();
@@ -83,7 +86,6 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-        checkLocationPermission();
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "3", Toast.LENGTH_SHORT).show();
             finish();
@@ -95,43 +97,6 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
             pairedDeviceList.setAdapter(mScanListAdapter);
             scanLeDevice(true);
         });
-    }
-
-
-    public void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-                new AlertDialog.Builder(this)
-                        .setTitle("1")
-                        .setMessage("2")
-                        .setPositiveButton(R.string.ok, (dialogInterface, i) -> ActivityCompat.requestPermissions(DeviceScanActivity.this,
-                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                MY_PERMISSIONS_REQUEST_LOCATION))
-                        .create()
-                        .show();
-
-
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NotNull String[] permissions, @NotNull int[] grantResults) {
-        if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION);//Request location updates:
-            }
-        }
     }
 
 
@@ -169,7 +134,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
                 mScanning = false;
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 invalidateOptionsMenu();
-//                progress.setVisibility(View.GONE);
+                progress.setVisibility(View.GONE);
                 scanButton.setEnabled(true);
                 scanButton.setText("SCAN AGAIN");
             }, SCAN_PERIOD);
@@ -183,7 +148,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
             scanButton.setEnabled(true);
             scanButton.setText("SCAN AGAIN");
         }
-//        progress.setVisibility(enable?View.VISIBLE:View.GONE);
+        progress.setVisibility(enable?View.VISIBLE:View.GONE);
         invalidateOptionsMenu();
     }
 
@@ -198,7 +163,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
                     System.err.println("DeviceScanActivity ---------> device address:"+device.getAddress());
                     System.err.println("DeviceScanActivity ---------> device bound state:"+device.getBondState());
 
-                    addDeviceToScanList(device.getName(), device);
+//                    addDeviceToScanList(device.getName(), device);
                 }
             });
 
@@ -214,6 +179,11 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
             mScanning = false;
         }
         startActivity(intent);
+    }
+
+    @Override
+    public void showPairedList(List<String> items) {
+
     }
 
     @Override
@@ -236,12 +206,81 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
     }
 
     @Override
+    public void addLEDeviceToScanList(String item, BluetoothDevice device) {
+
+    }
+
+    @Override
     public void clearScanList() { }
 
+    @Override
+    public void clearPairedList() {
+
+    }
+
+    @Override
+    public void setScanStatus(String status, boolean enabled) {
+
+    }
+
+    @Override
+    public void setScanStatus(int resId, boolean enabled) {
+
+    }
+
+    @Override
+    public void showProgress(boolean enabled) {
+
+    }
+
+    @Override
+    public void enableScanButton(boolean enabled) {
+
+    }
+
+    @Override
+    public void showToast(String message) {
+
+    }
+
+    @Override
+    public void navigateToChart(String extraName, BluetoothDevice extraDevice) {
+
+    }
+
+    @Override
+    public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) {
+
+    }
+
+    @Override
+    public void setNewStageCellScanList(int numberCell, int setImage, String setText) {
+
+    }
+
+    public List<me.romans.motorica.scan.data.ScanItem> getMyScanList() {
+        return null;
+    }
+
+    @Override
+    public void loadData() {
+
+    }
+
     public void buildScanListView() {
-        pairedDeviceList = findViewById(R.id.activity_scan_paired_list);
-        pairedDeviceList.setHasFixedSize(true);
-        pairedDeviceList.setLayoutManager(new LinearLayoutManager(this));
-        mScanListAdapter = new ScanListAdapter(this, scanList, (ScanListAdapter.OnScanMyListener) this);
+//        pairedDeviceList = findViewById(R.id.activity_scan_paired_list);
+//        pairedDeviceList.setHasFixedSize(true);
+//        pairedDeviceList.setLayoutManager(new LinearLayoutManager(this));
+//        mScanListAdapter = new ScanListAdapter(this, scanList, this);
+    }
+
+    @Override
+    public boolean isFirstStart() {
+        return false;
+    }
+
+    @Override
+    public ArrayList<BluetoothDevice> getLeDevices() {
+        return null;
     }
 }

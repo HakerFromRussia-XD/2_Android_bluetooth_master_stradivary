@@ -18,10 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 import me.romans.motorica.scan.view.ScanActivity;
-
-/**
- * Created by Omar on 20/12/2017.
- */
+import me.romans.motorica.scan.view.ScanActivity2;
 
 public class SplashScreen extends AppCompatActivity {
 
@@ -40,7 +37,8 @@ public class SplashScreen extends AppCompatActivity {
                 @Override
                 public void onPermissionsChecked(MultiplePermissionsReport report) {
                     if(report.areAllPermissionsGranted()){
-                        Intent intent = new Intent(SplashScreen.this, ScanActivity.class);
+                        Intent intent = new Intent(SplashScreen.this, ScanActivity2.class);
+                        //TODO вернуть запускаемый активити на ScanActivity
                         startActivity(intent);
                         finish();
                     }

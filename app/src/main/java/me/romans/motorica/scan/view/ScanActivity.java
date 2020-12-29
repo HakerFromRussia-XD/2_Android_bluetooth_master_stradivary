@@ -71,13 +71,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
-//    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private int scanListBLEPosition = 0;
 
     private ArrayList<BluetoothDevice> mLeDevices;
 
 
-    @SuppressLint({"NewApi", "ClickableViewAccessibility"})
+    @SuppressLint({ "ClickableViewAccessibility"})
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,27 +86,15 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 .build().inject(this);
         setContentView(R.layout.activity_scan);
         //changing statusbar
-        if (android.os.Build.VERSION.SDK_INT >= 21){
-            Window window = this.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark));
-        }
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark));
         /////////////////////////////////////////
         deviceList = findViewById(R.id.activity_scan_list);
         progress = findViewById(R.id.activity_scan_progress);
         scanButton = findViewById(R.id.activity_scan_button);
         /////////////////////////////////////////
-
-        scanList = new ArrayList<>();
-        buildScanListView();
-        scanButton.setOnClickListener(v -> {
-            scanListBLEPosition = 0;
-            mLeDevices.clear();
-            pairedDeviceList.setAdapter(mScanListAdapter);
-            scanLeDevice(true);
-            presenter.startScanning();
-        });
 
         /// BLE
         mLeDevices = new ArrayList<>();
@@ -124,6 +111,16 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             Toast.makeText(this, "BT не завёлся", Toast.LENGTH_SHORT).show();
             finish();
         }
+
+        scanList = new ArrayList<>();
+        buildScanListView();
+        scanButton.setOnClickListener(v -> {
+            scanListBLEPosition = 0;
+            mLeDevices.clear();
+            pairedDeviceList.setAdapter(mScanListAdapter);
+            scanLeDevice(true);
+            presenter.startScanning();
+        });
     }
 
     private void scanLeDevice(final boolean enable) {
@@ -154,6 +151,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             (device, rssi, scanRecord) -> runOnUiThread(() -> {
                 if(device.getName() != null){
+                    System.err.println("\n=======================================================================");
                     System.err.println("DeviceScanActivity ---------> device name:"+device.getName());
 
                     addLEDeviceToScanList(device.getName()+":l:", device);
@@ -190,7 +188,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             }
         }
         if (canAdd) {
-            if(checkOurLEName(item)){
+            if(true){//checkOurLEName(item)){
                 mLeDevices.add(device);
                 scanList.add(
                         new ScanItem(

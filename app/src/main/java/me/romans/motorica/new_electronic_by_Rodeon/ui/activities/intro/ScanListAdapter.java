@@ -12,12 +12,11 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import me.romans.motorica.R;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import me.romans.motorica.R;
 
 
 public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanViewHolder> implements ScanView {

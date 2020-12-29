@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.romans.motorica.R;
+import me.romans.motorica.scan.view.ScanActivity2;
 import me.romans.motorica.scan.view.ScanView;
 
 public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanViewHolder> implements ScanView {

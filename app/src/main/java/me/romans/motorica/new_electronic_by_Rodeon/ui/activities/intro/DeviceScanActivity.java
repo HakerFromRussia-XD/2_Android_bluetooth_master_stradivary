@@ -41,6 +41,7 @@ import java.util.ArrayList;
 
 import me.romans.motorica.R;
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
+import me.romans.motorica.scan.data.ScanItem;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.

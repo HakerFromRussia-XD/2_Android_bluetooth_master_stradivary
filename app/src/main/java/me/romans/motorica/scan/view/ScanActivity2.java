@@ -1,8 +1,6 @@
 package me.romans.motorica.scan.view;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -20,14 +18,10 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +32,9 @@ import javax.inject.Inject;
 import me.romans.motorica.R;
 import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
-import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.ScanItem;
 import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
 import me.romans.motorica.scan.data.DaggerScanComponent;
+import me.romans.motorica.scan.data.ScanItem;
 import me.romans.motorica.scan.data.ScanListAdapter;
 import me.romans.motorica.scan.data.ScanModule;
 import me.romans.motorica.scan.presenter.ScanPresenter;
@@ -110,6 +104,7 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
         }
 
         scanList = new ArrayList<>();
+        buildScanListView();
         scanButton.setOnClickListener(v -> {
             scanList.clear();
             mLeDevices.clear();
@@ -277,8 +272,8 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
 
     }
 
-    public List<me.romans.motorica.scan.data.ScanItem> getMyScanList() {
-        return null;
+    public ArrayList<ScanItem> getMyScanList() {
+        return scanList;
     }
 
     @Override
@@ -287,10 +282,10 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
     }
 
     public void buildScanListView() {
-//        pairedDeviceList = findViewById(R.id.activity_scan_paired_list);
-//        pairedDeviceList.setHasFixedSize(true);
-//        pairedDeviceList.setLayoutManager(new LinearLayoutManager(this));
-//        mScanListAdapter = new ScanListAdapter(this, scanList, this);
+        pairedDeviceList = findViewById(R.id.activity_scan_paired_list);
+        pairedDeviceList.setHasFixedSize(true);
+        pairedDeviceList.setLayoutManager(new LinearLayoutManager(this));
+        mScanListAdapter = new ScanListAdapter(this, scanList,this);
     }
 
     @Override

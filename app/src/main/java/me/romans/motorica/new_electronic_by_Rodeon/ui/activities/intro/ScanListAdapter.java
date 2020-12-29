@@ -14,19 +14,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.romans.motorica.R;
+import me.romans.motorica.scan.data.ScanItem;
 
 
 public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanViewHolder> implements ScanView {
 
     private Context mCtx;
-    private List<ScanItem> mScanList;
+    private ArrayList<ScanItem> mScanList;
     private OnScanMyListener mOnScanMyListener;
 
 
-    public ScanListAdapter(Context  mCtx, List<ScanItem> mScanList, OnScanMyListener onScanMyListener) {
+    public ScanListAdapter(Context  mCtx, ArrayList<ScanItem> mScanList, OnScanMyListener onScanMyListener) {
         this.mCtx = mCtx;
         this.mScanList = mScanList;
         this.mOnScanMyListener = onScanMyListener;

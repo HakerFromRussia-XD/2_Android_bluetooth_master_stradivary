@@ -338,7 +338,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
 
-    public List<ScanItem> getMyScanList () {
+    public ArrayList<ScanItem> getMyScanList () {
         return scanList;
     }
 

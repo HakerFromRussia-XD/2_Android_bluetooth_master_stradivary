@@ -12,6 +12,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -29,14 +31,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
 import me.romans.motorica.R;
+import me.romans.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
 import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.ScanItem;
 import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
+import me.romans.motorica.scan.data.DaggerScanComponent;
 import me.romans.motorica.scan.data.ScanListAdapter;
+import me.romans.motorica.scan.data.ScanModule;
 import me.romans.motorica.scan.presenter.ScanPresenter;
 
 public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanListAdapter.OnScanMyListener  {
@@ -70,27 +76,40 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        DaggerScanComponent.builder()
+                .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())
+                .scanModule(new ScanModule(this))
+                .build().inject(this);
         setContentView(R.layout.activity_scan);
-        scanList = new ArrayList<>();
-        mLeDevices = new ArrayList<>();
+        //changing statusbar
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark));
+
+        /////////////////////////////////////////
+        deviceList = findViewById(R.id.activity_scan_list);
         progress = findViewById(R.id.activity_scan_progress);
         scanButton = findViewById(R.id.activity_scan_button);
+        /////////////////////////////////////////
 
+        /// BLE
+        mLeDevices = new ArrayList<>();
         mHandler = new Handler();
         // Checks if Bluetooth is supported on the device.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, "4", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "BLE не завёлся", Toast.LENGTH_SHORT).show();
             finish();
         }
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "3", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "BT не завёлся", Toast.LENGTH_SHORT).show();
             finish();
         }
 
+        scanList = new ArrayList<>();
         scanButton.setOnClickListener(v -> {
             scanList.clear();
             mLeDevices.clear();

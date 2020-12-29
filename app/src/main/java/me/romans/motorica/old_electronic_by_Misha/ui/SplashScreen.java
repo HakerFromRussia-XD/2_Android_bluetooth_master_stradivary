@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 import me.romans.motorica.scan.view.ScanActivity;
-import me.romans.motorica.scan.view.ScanActivity2;
 
 public class SplashScreen extends AppCompatActivity {
 

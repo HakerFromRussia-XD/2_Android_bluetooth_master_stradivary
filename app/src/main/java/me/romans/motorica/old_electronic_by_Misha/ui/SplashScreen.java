@@ -37,7 +37,7 @@ public class SplashScreen extends AppCompatActivity {
                 @Override
                 public void onPermissionsChecked(MultiplePermissionsReport report) {
                     if(report.areAllPermissionsGranted()){
-                        Intent intent = new Intent(SplashScreen.this, ScanActivity2.class);
+                        Intent intent = new Intent(SplashScreen.this, ScanActivity.class);
                         //TODO вернуть запускаемый активити на ScanActivity
                         startActivity(intent);
                         finish();

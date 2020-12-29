@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="me.romans.motorica.scan.view.ScanActivity2"
+            android:name="me.romans.motorica.scan.view.ScanActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name="me.romans.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity"

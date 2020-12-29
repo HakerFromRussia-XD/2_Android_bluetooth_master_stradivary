@@ -122,6 +122,38 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             presenter.startScanning();
         });
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        presenter.onStart(this);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.setOnPauseActivity(false);
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+        scanListBLEPosition = 0;
+        mLeDevices.clear();
+        pairedDeviceList.setAdapter(mScanListAdapter);
+        scanLeDevice(true);
+        presenter.startScanning();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveData();
+        presenter.setOnPauseActivity(true);
+        scanLeDevice(false);
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        presenter.setOnPauseActivity(true);
+        presenter.onStop();
+    }
 
     private void scanLeDevice(final boolean enable) {
         if (enable) {
@@ -176,7 +208,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             buildScanListView();
             pairedDeviceList.setAdapter(mScanListAdapter);
         }
-
     }
 
     @Override
@@ -188,7 +219,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             }
         }
         if (canAdd) {
-            if(true){//checkOurLEName(item)){
+            if(checkOurLEName(item)){
                 mLeDevices.add(device);
                 scanList.add(
                         new ScanItem(
@@ -211,16 +242,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
 
-    @Override
-    public void setScanStatus(String status, boolean enabled) {
-        state.setVisibility(enabled?View.VISIBLE:View.GONE);
-        state.setText(status);
-    }
-
-    @Override
-    public void setScanStatus(int resId, boolean enabled) {
-        scanButton.setText(resId);
-    }
 
     @Override
     public void clearScanList() {
@@ -245,6 +266,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
 
+    @Override
+    public void setScanStatus(String status, boolean enabled) { }
+    @Override
+    public void setScanStatus(int resId, boolean enabled) { }
     @Override
     public void showProgress(boolean enabled) {
         progress.setVisibility(enabled?View.VISIBLE:View.GONE);
@@ -281,42 +306,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
         startActivity(intent);
         finish();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        presenter.onStart(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        presenter.setOnPauseActivity(false);
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
-        scanListBLEPosition = 0;
-        mLeDevices.clear();
-        pairedDeviceList.setAdapter(mScanListAdapter);
-        scanLeDevice(true);
-        presenter.startScanning();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        saveData();
-        presenter.setOnPauseActivity(true);
-        scanLeDevice(false);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        presenter.setOnPauseActivity(true);
-        presenter.onStop();
     }
 
     public boolean isFirstStart() {

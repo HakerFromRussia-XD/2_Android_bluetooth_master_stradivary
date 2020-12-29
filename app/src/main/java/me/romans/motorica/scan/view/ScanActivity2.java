@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,7 +23,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +49,7 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
     ListView deviceList;
     LottieAnimationView progress;
     Button scanButton;
+    private boolean firstStart = true;
 
     @Inject
     ScanPresenter presenter;
@@ -80,7 +85,6 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark));
-
         /////////////////////////////////////////
         deviceList = findViewById(R.id.activity_scan_list);
         progress = findViewById(R.id.activity_scan_progress);
@@ -112,8 +116,6 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
             scanLeDevice(true);
         });
     }
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -125,16 +127,6 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // User chose not to enable Bluetooth.
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            finish();
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         scanLeDevice(false);
@@ -142,25 +134,23 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
 
     private void scanLeDevice(final boolean enable) {
         if (enable) {
-            //TODO работаем тут
-            // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(() -> {
                 mScanning = false;
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 invalidateOptionsMenu();
                 progress.setVisibility(View.GONE);
                 scanButton.setEnabled(true);
-                scanButton.setText("SCAN AGAIN");
+                scanButton.setText(R.string.scan_again);
             }, SCAN_PERIOD);
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
             scanButton.setEnabled(false);
-            scanButton.setText("SCANNING");
+            scanButton.setText(R.string.bluetooth_scanning);
         } else {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             scanButton.setEnabled(true);
-            scanButton.setText("SCAN AGAIN");
+            scanButton.setText(R.string.scan_again);
         }
         progress.setVisibility(enable?View.VISIBLE:View.GONE);
         invalidateOptionsMenu();
@@ -177,9 +167,96 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
                     System.err.println("DeviceScanActivity ---------> device address:"+device.getAddress());
                     System.err.println("DeviceScanActivity ---------> device bound state:"+device.getBondState());
 
-//                    addDeviceToScanList(device.getName(), device);
+                    addLEDeviceToScanList(device.getName()+":l:", device);
                 }
             });
+
+    @Override
+    public void showPairedList(List<String> items) {
+        if(firstStart){
+            for (int i = 0; i < items.size(); i++)
+            {
+                scanList.add(
+                        new ScanItem(
+                                R.drawable.circle_16_gray,
+                                items.get(i),
+                                true));
+            }
+            pairedDeviceList.setAdapter(mScanListAdapter);
+            firstStart = false;
+        } else {
+            loadData();
+            buildScanListView();
+            pairedDeviceList.setAdapter(mScanListAdapter);
+        }
+    }
+
+    @Override
+    public void addLEDeviceToScanList(String item, BluetoothDevice device) {
+        boolean canAdd = true;
+        for (int i = 0; i<scanList.size(); i++) {
+            if(scanList.get(i).getTitle().split(":")[0].equals(item.split(":")[0])){
+                canAdd = false;
+            }
+        }
+        if (canAdd) {
+            if(true){//checkOurLEName(item)){
+                mLeDevices.add(device);
+                scanList.add(
+                        new ScanItem(
+                                R.drawable.circle_16_blue,
+                                item+scanListBLEPosition,
+                                false));
+                pairedDeviceList.setAdapter(mScanListAdapter);
+                scanListBLEPosition++;
+            }
+        }
+    }
+
+    @Override
+    public void addDeviceToScanList(String item, BluetoothDevice device) {
+        scanList.add(
+                new ScanItem(
+                        R.drawable.circle_16_blue,
+                        item,
+                        false));
+        pairedDeviceList.setAdapter(mScanListAdapter);
+    }
+
+    @Override
+    public void clearScanList() {
+        int scanDeviceCount = 0;
+        int scanListSize = scanList.size();
+        //вычисление числа неспаренных устройств в списке
+        for(ScanItem str: scanList){
+            if(str.getTitle().split(":")[1].equals("s") || str.getTitle().split(":")[1].equals("l")){
+                scanDeviceCount++;
+            }
+        }
+        //удаление этого числа элементов из конца списка
+        if (scanListSize > ((scanListSize - 1) - scanDeviceCount) + 1) {
+            scanList.subList(((scanListSize - 1) - scanDeviceCount) + 1, scanListSize).clear();
+        }
+        pairedDeviceList.setAdapter(mScanListAdapter);
+    }
+
+    @Override
+    public void clearPairedList() {
+        scanList.clear();
+        pairedDeviceList.setAdapter(mScanListAdapter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // User chose not to enable Bluetooth.
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
+            finish();
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
 
     @Override
     public void onScanClick(int position) {
@@ -196,52 +273,9 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
     }
 
     @Override
-    public void showPairedList(List<String> items) {
-
-    }
-
+    public void setScanStatus(String status, boolean enabled) { }
     @Override
-    public void addDeviceToScanList(String item, BluetoothDevice device) {
-        boolean canAdd = true;
-        for (int i = 0; i<scanList.size(); i++) {
-            if(scanList.get(i).getTitle().equals(item)){
-                canAdd = false;
-            }
-        }
-        if (canAdd) {
-            mLeDevices.add(device);
-            scanList.add(
-                    new ScanItem(
-                            R.drawable.circle_16_blue,
-                            item,
-                            false));
-            pairedDeviceList.setAdapter(mScanListAdapter);
-        }
-    }
-
-    @Override
-    public void addLEDeviceToScanList(String item, BluetoothDevice device) {
-
-    }
-
-    @Override
-    public void clearScanList() { }
-
-    @Override
-    public void clearPairedList() {
-
-    }
-
-    @Override
-    public void setScanStatus(String status, boolean enabled) {
-
-    }
-
-    @Override
-    public void setScanStatus(int resId, boolean enabled) {
-
-    }
-
+    public void setScanStatus(int resId, boolean enabled) { }
     @Override
     public void showProgress(boolean enabled) {
 
@@ -276,11 +310,6 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
         return scanList;
     }
 
-    @Override
-    public void loadData() {
-
-    }
-
     public void buildScanListView() {
         pairedDeviceList = findViewById(R.id.activity_scan_paired_list);
         pairedDeviceList.setHasFixedSize(true);
@@ -296,5 +325,14 @@ public class ScanActivity2 extends AppCompatActivity implements ScanView, ScanLi
     @Override
     public ArrayList<BluetoothDevice> getLeDevices() {
         return null;
+    }
+
+    @Override
+    public void loadData() {
+        SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("scan list", null);
+        Type type = new TypeToken<ArrayList<ScanItem>>() {}.getType();
+        scanList = gson.fromJson(json, type);
     }
 }

@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import me.romans.motorica.R;
 import me.romans.motorica.scan.data.ScanItem;
@@ -43,6 +42,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
         return new ScanViewHolder(view, mOnScanMyListener);
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onBindViewHolder(@NotNull ScanViewHolder holder, int position) {
         ScanItem item = mScanList.get(position);
@@ -86,7 +86,4 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
 
     @Override
     public void addDeviceToScanList(String item, BluetoothDevice device) {  }
-    @Override
-    public void clearScanList() { }
-
 }

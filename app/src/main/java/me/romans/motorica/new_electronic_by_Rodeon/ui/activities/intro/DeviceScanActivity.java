@@ -236,8 +236,6 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         }
     }
 
-    @Override
-    public void clearScanList() { }
 
     public void buildScanListView() {
         pairedDeviceList = findViewById(R.id.activity_scan_paired_list);

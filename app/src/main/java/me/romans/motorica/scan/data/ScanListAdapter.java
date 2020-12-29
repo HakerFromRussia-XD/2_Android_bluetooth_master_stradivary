@@ -22,10 +22,10 @@ import me.romans.motorica.scan.view.ScanView;
 public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanViewHolder> implements ScanView {
 
     private Context mCtx;
-    private List<ScanItem> mScanList;
+    private ArrayList<ScanItem> mScanList;
     private OnScanMyListener mOnScanMyListener;
 
-    public ScanListAdapter(Context  mCtx, List<ScanItem> mScanList, OnScanMyListener onScanMyListener) {
+    public ScanListAdapter(Context  mCtx, ArrayList<ScanItem> mScanList, OnScanMyListener onScanMyListener) {
         this.mCtx = mCtx;
         this.mScanList = mScanList;
         this.mOnScanMyListener = onScanMyListener;
@@ -36,7 +36,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     @Override
     public ScanViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mCtx);
-        @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.item_scanlist, null);
+        @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.item_scanlist_2, null);
         return new ScanViewHolder(view, mOnScanMyListener);
     }
 
@@ -112,7 +112,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     @Override
     public void setNewStageCellScanList(int numberCell, int setImage, String setText) { }
     @Override
-    public List<ScanItem> getMyScanList() {
+    public ArrayList<ScanItem> getMyScanList() {
         return null;
     }
     @Override

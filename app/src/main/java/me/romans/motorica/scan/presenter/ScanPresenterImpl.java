@@ -3,6 +3,7 @@ package me.romans.motorica.scan.presenter;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.romans.bluetooth.DeviceCallback;
@@ -234,7 +235,7 @@ public class ScanPresenterImpl implements ScanPresenter{
                     equals = false;
                 } else {
                     if(device.getType() == 1){//тип один - компьютеры и телефоны, тип - 2 вякая хуйня и те профили в протезах, которые мы хотим отсечь
-                        List<ScanItem> scanItemList = view.getMyScanList();
+                        ArrayList<ScanItem> scanItemList = view.getMyScanList();
                         boolean canAdd = true;
                         for(int i=0; i<scanItemList.size(); i++){//проверяет есть ли в списке отсканированных устройств вновь найденное
                             if(scanItemList.get(i).getTitle().split(":")[1].equals("s")){

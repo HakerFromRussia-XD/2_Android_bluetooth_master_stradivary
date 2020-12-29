@@ -1,5 +1,6 @@
 package me.romans.motorica.scan.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +32,7 @@ public class MyAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         LayoutInflater layoutInflater = (LayoutInflater) mContext.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View row = layoutInflater.inflate(R.layout.item_scanlist, parent, false);
+        @SuppressLint("ViewHolder") View row = layoutInflater.inflate(R.layout.item_scanlist, parent, false);
         ImageView images = row.findViewById(R.id.imageView);
         TextView myTitle = row.findViewById(R.id.textViewTitle);
 

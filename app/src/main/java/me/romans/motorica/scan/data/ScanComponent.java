@@ -5,13 +5,11 @@ import javax.inject.Singleton;
 import dagger.Component;
 import me.romans.motorica.old_electronic_by_Misha.data.BluetoothModule;
 import me.romans.motorica.scan.view.ScanActivity;
-
-/**
- * Created by Omar on 20/12/2017.
- */
+import me.romans.motorica.scan.view.ScanActivity2;
 
 @Singleton
 @Component(modules = {BluetoothModule.class, ScanModule.class})
 public interface ScanComponent {
     void inject(ScanActivity scanActivity);
+    void inject(ScanActivity2 scanActivity2);
 }

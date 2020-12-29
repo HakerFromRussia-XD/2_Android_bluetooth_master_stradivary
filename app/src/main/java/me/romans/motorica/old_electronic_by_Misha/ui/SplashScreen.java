@@ -18,10 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 import me.romans.motorica.scan.view.ScanActivity;
-
-/**
- * Created by Omar on 20/12/2017.
- */
+import me.romans.motorica.scan.view.ScanActivity2;
 
 public class SplashScreen extends AppCompatActivity {
 

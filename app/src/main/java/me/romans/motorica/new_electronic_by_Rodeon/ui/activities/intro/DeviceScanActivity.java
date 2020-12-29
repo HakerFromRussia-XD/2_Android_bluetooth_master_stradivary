@@ -72,12 +72,13 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         scanList = new ArrayList<>();
         buildScanListView();
         mLeDevices = new ArrayList<>();
-        progress = findViewById(R.id.activity_scan_progress);
+//        progress = findViewById(R.id.activity_scan_progress);
         scanButton = findViewById(R.id.activity_scan_button);
 
         mHandler = new Handler();
         // Checks if Bluetooth is supported on the device.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+
             Toast.makeText(this, "BLE не завёлся", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -85,6 +86,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if (mBluetoothAdapter == null) {
+
             Toast.makeText(this, "BT не завёлся", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -97,6 +99,31 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         });
     }
 
+
+
+    public void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                new AlertDialog.Builder(this)
+                        .setTitle("1")
+                        .setMessage("2")
+                        .setPositiveButton(R.string.ok, (dialogInterface, i) -> ActivityCompat.requestPermissions(DeviceScanActivity.this,
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                MY_PERMISSIONS_REQUEST_LOCATION))
+                        .create()
+                        .show();
+
+
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+        }
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -145,7 +172,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
                 mScanning = false;
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 invalidateOptionsMenu();
-                progress.setVisibility(View.GONE);
+//                progress.setVisibility(View.GONE);
                 scanButton.setEnabled(true);
                 scanButton.setText("SCAN AGAIN");
             }, SCAN_PERIOD);
@@ -159,7 +186,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
             scanButton.setEnabled(true);
             scanButton.setText("SCAN AGAIN");
         }
-        progress.setVisibility(enable?View.VISIBLE:View.GONE);
+//        progress.setVisibility(enable?View.VISIBLE:View.GONE);
         invalidateOptionsMenu();
     }
 
@@ -211,8 +238,10 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         }
     }
 
+
     @Override
     public void clearScanList() { }
+
 
     public void buildScanListView() {
         pairedDeviceList = findViewById(R.id.activity_scan_paired_list);

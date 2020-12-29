@@ -4,5 +4,4 @@ import android.bluetooth.BluetoothDevice;
 
 public interface ScanView {
     void addDeviceToScanList(String item, BluetoothDevice device);
-    void clearScanList();
 }

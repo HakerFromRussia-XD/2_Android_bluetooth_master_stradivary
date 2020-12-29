@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -41,7 +42,6 @@ import java.util.ArrayList;
 
 import me.romans.motorica.R;
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
-import me.romans.motorica.scan.data.ScanItem;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
@@ -78,15 +78,16 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         mHandler = new Handler();
         // Checks if Bluetooth is supported on the device.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, "4", Toast.LENGTH_SHORT).show();
+
+            Toast.makeText(this, "BLE не завёлся", Toast.LENGTH_SHORT).show();
             finish();
         }
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-        checkLocationPermission();
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "3", Toast.LENGTH_SHORT).show();
+
+            Toast.makeText(this, "BT не завёлся", Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -97,6 +98,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
             scanLeDevice(true);
         });
     }
+
 
 
     public void checkLocationPermission() {
@@ -235,6 +237,10 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
             pairedDeviceList.setAdapter(mScanListAdapter);
         }
     }
+
+
+    @Override
+    public void clearScanList() { }
 
 
     public void buildScanListView() {

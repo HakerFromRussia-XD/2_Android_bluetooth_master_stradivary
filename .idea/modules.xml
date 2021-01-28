@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2_Android_bluetooth_master_stradivary.iml" filepath="$PROJECT_DIR$/.idea/modules/2_Android_bluetooth_master_stradivary.iml" group="2_Android_bluetooth_master_stradivary" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary-app.iml" group="2_Android_bluetooth_master_stradivary/app" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Android_bluetooth_master_stradivary.iml" filepath="$PROJECT_DIR$/.idea/modules/Android_bluetooth_master_stradivary.iml" group="Android_bluetooth_master_stradivary" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="Android_bluetooth_master_stradivary/app" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/bluetooth/bluetooth.iml" filepath="$PROJECT_DIR$/.idea/modules/bluetooth/bluetooth.iml" group="Android_bluetooth_master_stradivary/bluetooth" />

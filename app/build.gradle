@@ -8,7 +8,7 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.Romans.motorica"
+        applicationId "com.romans.motorica"
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 15
@@ -19,7 +19,6 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
             debuggable false
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

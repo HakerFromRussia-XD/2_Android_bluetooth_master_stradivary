@@ -8,18 +8,17 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.Romans.motorica"
+        applicationId "com.romans.motorica"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 14
-        versionName "2.0.297"
+        versionCode 15
+        versionName "2.0.319"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
 
     buildTypes {
         release {
-            minifyEnabled false
             debuggable false
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

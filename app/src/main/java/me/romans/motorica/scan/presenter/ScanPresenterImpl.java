@@ -1,7 +1,12 @@
 package me.romans.motorica.scan.presenter;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +44,10 @@ public class ScanPresenterImpl implements ScanPresenter{
     private boolean firstScanClick = true;
     private boolean flagCheckingNow = false;
 
+    // BLE
+    private BluetoothAdapter mBluetoothAdapter;
+    private Handler mHandler;
+
     public ScanPresenterImpl(ScanView view, ScanInteractor interactor) {
         this.view = view;
         this.interactor = interactor;
@@ -58,7 +67,9 @@ public class ScanPresenterImpl implements ScanPresenter{
         else{
             interactor.enableBluetooth();
         }
+        
     }
+
 
     @Override
     public void onStop() {

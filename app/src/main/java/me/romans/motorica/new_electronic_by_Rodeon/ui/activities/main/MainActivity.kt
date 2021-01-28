@@ -172,16 +172,16 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     enableInterface(false)
   }
 
-  /**
-   * show badge with delay
-   * @param position
-   */
-  private fun showBadge(position: Int) {
-    mainactivity_navi.postDelayed({
-      val model = mainactivity_navi.models[position]
-      mainactivity_navi.postDelayed({ model.showBadge() }, 100)
-    }, 200)
-  }
+//  /**
+//   * show badge with delay
+//   * @param position
+//   */
+//  private fun showBadge(position: Int) {
+//    mainactivity_navi.postDelayed({
+//      val model = mainactivity_navi.models[position]
+//      mainactivity_navi.postDelayed({ model.showBadge() }, 100)
+//    }, 200)
+//  }
 
   @SuppressLint("CheckResult", "NewApi")
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -209,8 +209,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     RxUpdateMainEvent.getInstance().observable
         .compose(bindToLifecycle())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { flag ->
-          if (!flag) showBadge(0)
+        .subscribe {
+//          if (!flag) showBadge(0)
           mSectionsPagerAdapter.notifyDataSetChanged()
         }
   }
@@ -218,7 +218,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
     mainactivity_viewpager.adapter = mSectionsPagerAdapter
     mainactivity_viewpager.offscreenPageLimit = 4
-    NavigationUtils.setComponents(baseContext, mainactivity_viewpager, mainactivity_navi)
+//    NavigationUtils.setComponents(baseContext, mainactivity_viewpager, mainactivity_navi)
   }
   override fun onResume() {
     super.onResume()
@@ -381,8 +381,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     parcel.writeByte(if (mConnected) 1 else 0)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       parcel.writeParcelable(mNotifyCharacteristic, flags)
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       parcel.writeParcelable(mCharacteristic, flags)
     }
     parcel.writeInt(dataSens1)

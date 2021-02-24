@@ -356,8 +356,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
 
     private boolean checkOurLEName (@NotNull String deviceName){
-        return deviceName.split(":")[0].equals("HRSTM") ||
-                deviceName.split(":")[0].equals("BLE_test_service—•——");
+//        return deviceName.split(":")[0].equals("HRSTM") ||
+//                deviceName.split(":")[0].equals("BLE_test_service—•——");
+        return true;
     }
 
     private void saveData(){

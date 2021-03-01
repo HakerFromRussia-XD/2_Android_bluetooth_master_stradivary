@@ -9,6 +9,7 @@ public interface ConstantManager {
     boolean SHOW_EVERYONE_RECEIVE_BYTE = false;
     String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    String EXTRAS_DEVICE_TYPE = "DEVICE_TYPE";
     ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
     ////////////////////////////////////////////////

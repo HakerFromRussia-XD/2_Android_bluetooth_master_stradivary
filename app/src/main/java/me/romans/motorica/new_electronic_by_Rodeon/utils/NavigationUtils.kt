@@ -29,7 +29,7 @@ import java.time.chrono.JapaneseEra.values
 import java.util.ArrayList
 
 object NavigationUtils {
-  fun getNavigationModels(mContext: Context): ArrayList<NavigationTabBar.Model> {
+  private fun getNavigationModels(mContext: Context): ArrayList<NavigationTabBar.Model> {
     val colors = mContext.resources.getStringArray(R.array.colors)
     val models = ArrayList<NavigationTabBar.Model>()//здесь можно настроить боттом навигэйшен бар
     models.add(

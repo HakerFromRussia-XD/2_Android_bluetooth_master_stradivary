@@ -55,6 +55,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private lateinit var mSectionsPagerAdapter: SectionsPagerAdapter
   private var mDeviceName: String? = null
   private var mDeviceAddress: String? = null
+  private var mDeviceType: String? = null
   private var mBluetoothLeService: BluetoothLeService? = null
   private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
   private var mGattServicesList: ExpandableListView? = null
@@ -84,6 +85,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
+      if (mDeviceType.equals("FESTO_A"))
+      {
+        System.err.println("mDeviceType: $mDeviceType")
+        mainactivity_navi.visibility = View.GONE
+        //TODO Здесь можно выставлять флаг, меняющий логику в зависимости от имени
+      }
     }
 
     override fun onServiceDisconnected(componentName: ComponentName) {
@@ -136,6 +143,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     sensorsDataThreadFlag = parcel.readByte() != 0.toByte()
     mDeviceName = parcel.readString()
     mDeviceAddress = parcel.readString()
+    mDeviceType = parcel.readString()
     mConnected = parcel.readByte() != 0.toByte()
     mNotifyCharacteristic = parcel.readParcelable(BluetoothGattCharacteristic::class.java.classLoader)
     mCharacteristic = parcel.readParcelable(BluetoothGattCharacteristic::class.java.classLoader)
@@ -196,6 +204,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     val intent = intent
     mDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME)
     mDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS)
+    mDeviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE)
 
     // Sets up UI references.
     mGattServicesList = findViewById(R.id.gatt_services_list)
@@ -377,6 +386,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     parcel.writeByte(if (sensorsDataThreadFlag) 1 else 0)
     parcel.writeString(mDeviceName)
     parcel.writeString(mDeviceAddress)
+    parcel.writeString(mDeviceType)
     parcel.writeByte(if (mConnected) 1 else 0)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       parcel.writeParcelable(mNotifyCharacteristic, flags)

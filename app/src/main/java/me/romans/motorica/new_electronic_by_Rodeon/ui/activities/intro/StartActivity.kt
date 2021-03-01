@@ -34,11 +34,10 @@ import javax.inject.Inject
 
 @Suppress("NAME_SHADOWING")
 class StartActivity : AppIntro(), BaseView {
-  val EXTRAS_DEVICE_NAME = "DEVICE_NAME"
-  val EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS"
 
   private var mDeviceName: String? = null
   private var mDeviceAddress: String? = null
+  private var mDeviceType: String? = null
   @Inject
   lateinit var preferenceManager: PreferenceManager
   @Inject
@@ -49,14 +48,17 @@ class StartActivity : AppIntro(), BaseView {
     WDApplication.component.inject(this)
 
     val intent = intent
-    mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
-    mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS)
+    mDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME)
+    mDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS)
+    mDeviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE)
+    System.err.println("StartActivity mDeviceType: $mDeviceType")
     preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, false)//для выключения интро при последующем запуске
 
     if (!preferenceManager.getBoolean(PreferenceKeys.NEWBE.first, PreferenceKeys.NEWBE.second)) {
       val intent = Intent(this, MainActivity::class.java)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, mDeviceName)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
+      intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, mDeviceType)
       startActivity(intent)
       finish()
       return
@@ -88,6 +90,7 @@ class StartActivity : AppIntro(), BaseView {
     val intent = Intent(this, MainActivity::class.java)
     intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, mDeviceName)
     intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
+    intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, mDeviceType)
     startActivity(intent)
     preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, false)//для выключения интро при последующем запуске
     finish()

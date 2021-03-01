@@ -199,7 +199,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     setContentView(R.layout.activity_main)
     initBaseView(this)
     //changing statusbar
-    System.err.println("track 2")
     val window = this.window
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -227,18 +226,18 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           mSectionsPagerAdapter.notifyDataSetChanged()
         }
   }
-  override fun initializeUI() {}
-  fun initUI() {
-    System.err.println("track 1")
+  private fun initUI() {
     if ( mDeviceType.equals("FESTO_A") ) {
       mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter
+      mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
     } else {
       mSectionsPagerAdapter2 = SectionsPagerAdapterMonograb(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter2
+      mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
     }
     mainactivity_viewpager.offscreenPageLimit = 3
-    NavigationUtils.setComponents(baseContext, mainactivity_viewpager, mainactivity_navi)
+    NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
   override fun onResume() {
     super.onResume()
@@ -430,5 +429,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mNumberGesture = numberGesture
     dialog.show(supportFragmentManager, "custom dialog")
   }
+  override fun initializeUI() {}
 
 }

@@ -59,9 +59,8 @@ object NavigationUtils {
     return models
   }
 
-  fun setComponents(context: Context, viewPager: ViewPager, navigationTabBar: NavigationTabBar) {
+  fun setComponents(context: Context, navigationTabBar: NavigationTabBar) {
     navigationTabBar.models = getNavigationModels(context)
-    navigationTabBar.setViewPager(viewPager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
     navigationTabBar.setOnPageChangeListener(object : ViewPager.OnPageChangeListener {
       override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 

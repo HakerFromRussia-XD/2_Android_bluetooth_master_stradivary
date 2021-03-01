@@ -36,6 +36,7 @@ import me.romans.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import me.romans.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.romans.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapter
+import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograb
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomDialogFragment
 import me.romans.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.romans.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
@@ -53,6 +54,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var sensorsDataThreadFlag: Boolean = false
   private var nAdapter: NfcAdapter? = null
   private lateinit var mSectionsPagerAdapter: SectionsPagerAdapter
+  private lateinit var mSectionsPagerAdapter2: SectionsPagerAdapterMonograb
   private var mDeviceName: String? = null
   private var mDeviceAddress: String? = null
   private var mDeviceType: String? = null
@@ -85,7 +87,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
-      if (mDeviceType.equals("FESTO_A"))
+      if (!mDeviceType.equals("FESTO_A"))
       {
         System.err.println("mDeviceType: $mDeviceType")
         mainactivity_navi.visibility = View.GONE
@@ -150,6 +152,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     dataSens1 = parcel.readInt()
     dataSens2 = parcel.readInt()
     state = parcel.readInt()
+    System.err.println("track 3")
   }
 
   private fun displayData(data: ByteArray?) {
@@ -196,6 +199,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     setContentView(R.layout.activity_main)
     initBaseView(this)
     //changing statusbar
+    System.err.println("track 2")
     val window = this.window
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -205,6 +209,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME)
     mDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS)
     mDeviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE)
+    initUI()
 
     // Sets up UI references.
     mGattServicesList = findViewById(R.id.gatt_services_list)
@@ -222,10 +227,17 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           mSectionsPagerAdapter.notifyDataSetChanged()
         }
   }
-  override fun initializeUI() {
-    mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
-    mainactivity_viewpager.adapter = mSectionsPagerAdapter
-    mainactivity_viewpager.offscreenPageLimit = 4
+  override fun initializeUI() {}
+  fun initUI() {
+    System.err.println("track 1")
+    if ( mDeviceType.equals("FESTO_A") ) {
+      mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+      mainactivity_viewpager.adapter = mSectionsPagerAdapter
+    } else {
+      mSectionsPagerAdapter2 = SectionsPagerAdapterMonograb(supportFragmentManager)
+      mainactivity_viewpager.adapter = mSectionsPagerAdapter2
+    }
+    mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_viewpager, mainactivity_navi)
   }
   override fun onResume() {

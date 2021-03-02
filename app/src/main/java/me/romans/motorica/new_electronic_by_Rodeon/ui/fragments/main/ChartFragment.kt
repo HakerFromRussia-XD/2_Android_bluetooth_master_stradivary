@@ -91,19 +91,19 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     close_btn.setOnTouchListener { _, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.bleCommand(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
       }
       if (event.action == MotionEvent.ACTION_UP) {
-        main?.bleCommand(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
       }
       false
     }
     open_btn.setOnTouchListener { _, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.bleCommand(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE,6)
       }
       if (event.action == MotionEvent.ACTION_UP) {
-        main?.bleCommand(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE,6)
       }
       false
     }
@@ -114,7 +114,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE,0)
       }
     })
     start_up_step_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -124,7 +124,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE,1)
       }
     })
     dead_zone_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -134,7 +134,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE,3)
       }
     })
     open_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -144,7 +144,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE,4)
         objectAnimator = ObjectAnimator.ofFloat(limitCH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
         objectAnimator?.duration = 200
         objectAnimator?.start()
@@ -157,7 +157,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE,5)
         objectAnimator2 = ObjectAnimator.ofFloat(limitCh2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
         objectAnimator2?.duration = 200
         objectAnimator2?.start()
@@ -166,10 +166,10 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     brake_motor_sb.setOnClickListener {
       if (brake_motor_sb.isChecked) {
         brakeMotorTv.text = 1.toString()
-        main?.bleCommand(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE,10)
       } else {
         brakeMotorTv.text = 0.toString()
-        main?.bleCommand(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE)
+        main?.bleCommandConnector(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE,10)
       }
     }
   }

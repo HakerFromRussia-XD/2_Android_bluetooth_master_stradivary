@@ -43,6 +43,8 @@ import me.romans.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.experimental.and
+import kotlin.experimental.xor
 
 //import com.an
 //import com.androidexception.andexalertdialog.AndExAlertDialog
@@ -68,6 +70,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var mCharacteristic: BluetoothGattCharacteristic? = null
   private var dataSens1 = 0x00
   private var dataSens2 = 0x00
+  private var gcVer     = 0x00
+  private var bmsVer    = 0x00
+  private var sensVer   = 0x00
+
   private var state = 0
   private var subscribeThread: Thread? = null
   private var moveThread: Thread? = null
@@ -148,9 +154,19 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
   }
   private fun displayData(data: ByteArray?) {
-    if (data != null) {
-      dataSens1 = castUnsignedCharToInt(data[1])
-      dataSens2 = castUnsignedCharToInt(data[2])
+    if (data != null){
+      if (castUnsignedCharToInt(data[0]) != 0x01) {
+        if (data.size == 3) {
+          dataSens1 = castUnsignedCharToInt(data[1])
+          dataSens2 = castUnsignedCharToInt(data[2])
+        } else if (data.size == 6) {
+          dataSens1 = castUnsignedCharToInt(data[1])
+          dataSens2 = castUnsignedCharToInt(data[2])
+          gcVer     = castUnsignedCharToInt(data[3])
+          bmsVer    = castUnsignedCharToInt(data[4])
+          sensVer   = castUnsignedCharToInt(data[5])
+        }
+      }
     }
   }
   private fun displayDataWriteOpen(data: ByteArray?) {
@@ -341,17 +357,90 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     sensorsDataThreadFlag = enabled
-//    startSubscribeSensorsDataThread()
-    //TODO заменить startSubscribeSensorsDataThread на запуск потока чтения данных характеристики
     if ( mDeviceType.equals("FESTO_A") ) {
-      runReadData()
+//      runReadData()
+      //TODO включить после теста записи
     } else {
       startSubscribeSensorsDataThread()
     }
-//    startReadDataThread()
 //    startChangeStateThread()
   }
 
+  fun bleCommandConnector(byteArray: ByteArray?, Command: String, typeCommand: String, register: Int) {
+    if ( mDeviceType.equals("FESTO_A") ) {
+      val length = byteArray!!.size + 2
+      val sendByteMassive = ByteArray(length+2)
+      sendByteMassive[0] = 0x01
+      sendByteMassive[1] = length.toByte()
+      when (register) {
+        0-> {
+          sendByteMassive[2] = 0x00
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = calculationCRC(sendByteMassive)
+        }
+        1-> {
+          sendByteMassive[2] = 0x01
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = calculationCRC(sendByteMassive)
+        }
+        3 -> {
+          sendByteMassive[2] = 0x03
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = calculationCRC(sendByteMassive)
+        }
+        4 -> {
+          sendByteMassive[2] = 0x04
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = calculationCRC(sendByteMassive)
+        }
+        5 -> {
+          sendByteMassive[2] = 0x05
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = calculationCRC(sendByteMassive)
+        }
+        6 -> {
+          sendByteMassive[2] = 0x06
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = byteArray[1]
+          sendByteMassive[5] = calculationCRC(sendByteMassive)
+        }
+        7 -> {
+          sendByteMassive[2] = 0x07
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = byteArray[1]
+          sendByteMassive[5] = calculationCRC(sendByteMassive)
+        }
+        10 -> {
+          sendByteMassive[2] = 10.toByte()
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = calculationCRC(sendByteMassive)
+        }
+        11 -> {
+          sendByteMassive[2] = 11.toByte()
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = byteArray[1]
+          sendByteMassive[5] = byteArray[2]
+          sendByteMassive[6] = calculationCRC(sendByteMassive)
+        }
+        12 -> {
+          sendByteMassive[2] = 12.toByte()
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = byteArray[1]
+          sendByteMassive[5] = byteArray[2]
+          sendByteMassive[6] = byteArray[3]
+          sendByteMassive[7] = calculationCRC(sendByteMassive)
+        }
+        13 -> {
+          sendByteMassive[2] = 13.toByte()
+          sendByteMassive[3] = byteArray[0]
+          sendByteMassive[4] = calculationCRC(sendByteMassive)
+        }
+      }
+      bleCommand(sendByteMassive, FESTO_A_CHARACTERISTIC, WRITE_WR)
+    } else {
+      bleCommand(byteArray, Command, typeCommand)
+    }
+  }
   fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
     for (i in mGattCharacteristics.indices) {
       for (j in mGattCharacteristics[i].indices) {
@@ -470,4 +559,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   override fun initializeUI() {}
 
+  private fun calculationCRC(bytes: ByteArray): Byte {
+    var crc = 0xFF.toByte()
+    var b: Boolean
+    for (i in 0 until bytes.size - 1) {
+      crc = crc xor bytes[i]
+      for (j in 0..7) {
+        b = (crc and 0x80.toByte()).toInt() shr 7 != 0
+        crc = (if (b) (crc.toInt() shl 1 xor 0x31).toByte() else (crc.toInt() shl 1).toByte())
+      }
+    }
+    return crc
+  }
 }

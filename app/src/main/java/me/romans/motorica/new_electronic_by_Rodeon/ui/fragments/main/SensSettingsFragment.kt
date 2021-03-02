@@ -69,7 +69,7 @@ class SensSettingsFragment : Fragment() {
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf(0x01, seekBar.progress.toByte(), 0x01), SENS_OPTIONS, WRITE)
+        main?.bleCommandConnector(byteArrayOf(0x01, seekBar.progress.toByte(), 0x01), SENS_OPTIONS, WRITE,11)
       }
     })
 
@@ -79,7 +79,7 @@ class SensSettingsFragment : Fragment() {
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf(0x01, seekBar.progress.toByte(), 0x02), SENS_OPTIONS, WRITE)
+        main?.bleCommandConnector(byteArrayOf(0x01, seekBar.progress.toByte(), 0x02), SENS_OPTIONS, WRITE,11)
       }
     })
   }

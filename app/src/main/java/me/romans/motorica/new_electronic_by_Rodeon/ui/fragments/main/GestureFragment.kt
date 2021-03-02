@@ -38,42 +38,42 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             main?.openFragment(1)
             true
         }
-        gesture_1_btn.setOnClickListener { main?.bleCommand(byteArrayOf(0), SET_GESTURE, WRITE) }
+        gesture_1_btn.setOnClickListener { main?.bleCommandConnector(byteArrayOf(0), SET_GESTURE, WRITE,13) }
         gesture_2_btn.setOnLongClickListener {
             main?.openFragment(2)
             true
         }
-        gesture_2_btn.setOnClickListener { main?.bleCommand(byteArrayOf(1), SET_GESTURE, WRITE) }
+        gesture_2_btn.setOnClickListener { main?.bleCommandConnector(byteArrayOf(1), SET_GESTURE, WRITE,13) }
         gesture_3_btn.setOnLongClickListener {
             main?.openFragment(3)
             true
         }
-        gesture_3_btn.setOnClickListener { main?.bleCommand(byteArrayOf(2), SET_GESTURE, WRITE) }
+        gesture_3_btn.setOnClickListener { main?.bleCommandConnector(byteArrayOf(2), SET_GESTURE, WRITE,13) }
         gesture_4_btn.setOnLongClickListener {
             main?.openFragment(4)
             true
         }
-        gesture_4_btn.setOnClickListener { main?.bleCommand(byteArrayOf(3), SET_GESTURE, WRITE) }
+        gesture_4_btn.setOnClickListener { main?.bleCommandConnector(byteArrayOf(3), SET_GESTURE, WRITE,13) }
         gesture_5_btn.setOnLongClickListener {
             main?.openFragment(5)
             true
         }
-        gesture_5_btn.setOnClickListener { main?.bleCommand(byteArrayOf(4), SET_GESTURE, WRITE) }
+        gesture_5_btn.setOnClickListener { main?.bleCommandConnector(byteArrayOf(4), SET_GESTURE, WRITE,13) }
         gesture_6_btn.setOnLongClickListener {
             main?.openFragment(6)
             true
         }
-        gesture_6_btn.setOnClickListener { main?.bleCommand(byteArrayOf(5), SET_GESTURE, WRITE) }
+        gesture_6_btn.setOnClickListener { main?.bleCommandConnector(byteArrayOf(5), SET_GESTURE, WRITE,13) }
         gesture_7_btn.setOnLongClickListener {
             main?.openFragment(7)
             true
         }
-        gesture_7_btn.setOnClickListener { main?.bleCommand(byteArrayOf(6), SET_GESTURE, WRITE) }
+        gesture_7_btn.setOnClickListener { main?.bleCommandConnector(byteArrayOf(6), SET_GESTURE, WRITE,13) }
         gesture_8_btn.setOnLongClickListener {
             main?.openFragment(8)
             true
         }
-        gesture_8_btn.setOnClickListener { main?.bleCommand(byteArrayOf(7), SET_GESTURE, WRITE) }
+        gesture_8_btn.setOnClickListener { main?.bleCommandConnector(byteArrayOf(7), SET_GESTURE, WRITE,13) }
     }
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {}

@@ -24,6 +24,8 @@ import me.romans.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteMana
 import me.romans.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 
 import javax.inject.Inject
+import kotlin.experimental.and
+import kotlin.experimental.xor
 
 class MainPresenter : BasePresenter<MainActivityView>() {
 
@@ -42,4 +44,18 @@ class MainPresenter : BasePresenter<MainActivityView>() {
   var weatherAlarm: Boolean
     get() = preferenceManager.getBoolean(PreferenceKeys.ALARM_WEAHTER.first, PreferenceKeys.ALARM_WEAHTER.second)
     set(value) = preferenceManager.putBoolean(PreferenceKeys.ALARM_WEAHTER.first, value)
+
+
+//  fun calculationCRC(bytes: ByteArray): Byte {
+//    var CRC = 0xFF.toByte()
+//    var b = false
+//    for (i in 0 until bytes.size - 1) {
+//      CRC = CRC xor bytes[i]
+//      for (j in 0..7) {
+//        b = (CRC and 0x80.toByte()).toInt() shr 7 != 0
+//        CRC = (if (b) (CRC.toInt() shl 1 xor 0x31).toByte() else (CRC.toInt() shl 1).toByte())
+//      }
+//    }
+//    return 0x00//CRC
+//  }
 }

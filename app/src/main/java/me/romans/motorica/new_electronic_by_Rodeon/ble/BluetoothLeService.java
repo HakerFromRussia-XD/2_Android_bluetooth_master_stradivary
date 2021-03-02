@@ -28,6 +28,8 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +37,7 @@ import timber.log.Timber;
 
 import static me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.SHOW_EVERYONE_RECEIVE_BYTE;
 import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_MOTOR_HDLE;
+import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.FESTO_A_CHARACTERISTIC;
 import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT;
 import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_MOTOR_HDLE;
 
@@ -62,6 +65,8 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String MIO_DATA =
             "com.example.bluetooth.le.MIO_DATA";
+    public final static String FESTO_A_DATA =
+            "com.example.bluetooth.le.FESTO_A_DATA";
     public final static String OPEN_MOTOR_DATA =
             "com.example.bluetooth.le.OPEN_MOTOR_DATA";
     public final static String CLOSE_MOTOR_DATA =
@@ -184,6 +189,9 @@ public class BluetoothLeService extends Service {
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
                 intent.putExtra(MIO_DATA, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(FESTO_A_CHARACTERISTIC)) {
+                intent.putExtra(FESTO_A_DATA, data);
             }
             if (String.valueOf(characteristic.getUuid()).equals(OPEN_MOTOR_HDLE)){
                 intent.putExtra(OPEN_MOTOR_DATA, data);

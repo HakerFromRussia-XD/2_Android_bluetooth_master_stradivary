@@ -49,7 +49,7 @@ import kotlin.collections.ArrayList
 
 
 @RequirePresenter(MainPresenter::class)
-class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable {
+open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable {
 
   private var sensorsDataThreadFlag: Boolean = false
   private var nAdapter: NfcAdapter? = null
@@ -72,6 +72,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var subscribeThread: Thread? = null
   private var moveThread: Thread? = null
   private var mNumberGesture = 0
+  // Очередь для задачь работы с BLE
+  private val queue = me.romans.motorica.new_electronic_by_Rodeon.services.receivers.BlockingQueue()
 
 
   private val listName = "NAME"
@@ -132,12 +134,30 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             displayGattServices(mBluetoothLeService!!.supportedGattServices)
           }
           BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-            displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA)) //вывод на график данных из характеристики показаний пульса
+            if (mDeviceType.equals("FESTO_A")) { // новая схема обработки данных
+              displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
+            } else {
+              displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
+            }
+             //вывод на график данных из характеристики показаний пульса
             displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.OPEN_MOTOR_DATA))
             displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.CLOSE_MOTOR_DATA))
             setSensorsDataThreadFlag(intent.getBooleanExtra(BluetoothLeService.SENSORS_DATA_THREAD_FLAG, true))
           }
       }
+    }
+  }
+  private fun displayData(data: ByteArray?) {
+    if (data != null) {
+      dataSens1 = castUnsignedCharToInt(data[1])
+      dataSens2 = castUnsignedCharToInt(data[2])
+    }
+  }
+  private fun displayDataWriteOpen(data: ByteArray?) {
+    if (data != null) {
+      if (data[0].toInt() == 1){ state = 1 }
+      if (data[0].toInt() == 0){ state = 2 }
+      System.err.println("open data[0]=" + data[0] + " data[1]=" + data[1])
     }
   }
 
@@ -152,21 +172,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     dataSens1 = parcel.readInt()
     dataSens2 = parcel.readInt()
     state = parcel.readInt()
-    System.err.println("track 3")
-  }
-
-  private fun displayData(data: ByteArray?) {
-    if (data != null) {
-      dataSens1 = castUnsignedCharToInt(data[1])
-      dataSens2 = castUnsignedCharToInt(data[2])
-    }
-  }
-  private fun displayDataWriteOpen(data: ByteArray?) {
-    if (data != null) {
-      if (data[0].toInt() == 1){ state = 1 }
-      if (data[0].toInt() == 0){ state = 2 }
-      System.err.println("open data[0]=" + data[0] + " data[1]=" + data[1])
-    }
   }
 
   private fun castUnsignedCharToInt(Ubyte: Byte): Int {
@@ -225,6 +230,14 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           if (!flag) showBadge(0)
           mSectionsPagerAdapter.notifyDataSetChanged()
         }
+
+    val worker = Thread {
+      while (true) {
+        val task: Runnable = queue.get()
+        task.run()
+      }
+    }
+    worker.start()
   }
   private fun initUI() {
     if ( mDeviceType.equals("FESTO_A") ) {
@@ -330,7 +343,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     sensorsDataThreadFlag = enabled
 //    startSubscribeSensorsDataThread()
     //TODO заменить startSubscribeSensorsDataThread на запуск потока чтения данных характеристики
-    startReadDataThread()
+    if ( mDeviceType.equals("FESTO_A") ) {
+      runReadData()
+    } else {
+      startSubscribeSensorsDataThread()
+    }
+//    startReadDataThread()
 //    startChangeStateThread()
   }
 
@@ -389,21 +407,15 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     subscribeThread?.start()
   }
 
-  private fun startReadDataThread() {
-    val readDataThread: Thread?
-    readDataThread = Thread {
-      var i = 0
-      while (true) {
-//        runOnUiThread {
-          bleCommand(byteArrayOf(0x01, i.toByte()), FESTO_A_CHARACTERISTIC, WRITE_WR)
-          i++
-//        }
-        try {
-          Thread.sleep(1)
-        } catch (ignored: Exception) {}
-      }
+  private fun runReadData() { getReadData().let { queue.put(it) } }
+  open fun getReadData(): Runnable { return Runnable { readData() } }
+  private fun readData() {
+    while (true) {
+        bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
+      try {
+        Thread.sleep(1)
+      } catch (ignored: Exception) {}
     }
-    readDataThread.start()
   }
 
 

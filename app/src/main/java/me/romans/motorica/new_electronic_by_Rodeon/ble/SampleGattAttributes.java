@@ -40,9 +40,11 @@ public class SampleGattAttributes {
     public static String SET_REVERSE = "0000fe50-8e22-4541-9d4c-21edae82ed19";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     public static String MY_TEST_MEASUREMENT = "00002a00-0000-1000-8000-00805f9b34fb";
+    public static String FESTO_A_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb";
     // Sample Commands.
     public static String READ = "READ";
     public static String WRITE = "WRITE";
+    public static String WRITE_WR = "WRITE_WR";
     public static String NOTIFY = "NOTIFY";
 
 

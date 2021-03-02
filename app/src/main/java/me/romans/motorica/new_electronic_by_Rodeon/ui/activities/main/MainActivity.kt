@@ -328,7 +328,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     sensorsDataThreadFlag = enabled
-    startSubscribeSensorsDataThread()
+//    startSubscribeSensorsDataThread()
+    //TODO заменить startSubscribeSensorsDataThread на запуск потока чтения данных характеристики
+    startReadDataThread()
 //    startChangeStateThread()
   }
 
@@ -341,6 +343,14 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
               mCharacteristic?.value = byteArray
               mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+            }
+          }
+
+          if (typeCommand == WRITE_WR){
+            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0) {
+              mCharacteristic?.value = byteArray
+              mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+              System.err.println("WRITE_NO_RESPONSE")
             }
           }
 
@@ -377,6 +387,23 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
     }
     subscribeThread?.start()
+  }
+
+  private fun startReadDataThread() {
+    val readDataThread: Thread?
+    readDataThread = Thread {
+      var i = 0
+      while (true) {
+//        runOnUiThread {
+          bleCommand(byteArrayOf(0x01, i.toByte()), FESTO_A_CHARACTERISTIC, WRITE_WR)
+          i++
+//        }
+        try {
+          Thread.sleep(1)
+        } catch (ignored: Exception) {}
+      }
+    }
+    readDataThread.start()
   }
 
 

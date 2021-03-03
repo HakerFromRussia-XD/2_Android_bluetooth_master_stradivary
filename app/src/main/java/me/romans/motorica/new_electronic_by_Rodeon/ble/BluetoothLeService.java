@@ -185,21 +185,23 @@ public class BluetoothLeService extends Service {
         if (data != null && data.length > 0) {
             for(byte byteChar : data){
                 if(SHOW_EVERYONE_RECEIVE_BYTE) System.err.println("BluetoothLeService-------------> append massage: " + String.format("%02X ", byteChar));
+
             }
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
                 intent.putExtra(MIO_DATA, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
-            }
+            } else {System.err.println("BluetoothLeService-------------> данные не на график");}
             if (String.valueOf(characteristic.getUuid()).equals(FESTO_A_CHARACTERISTIC)) {
                 intent.putExtra(FESTO_A_DATA, data);
-            }
+                System.err.println("BluetoothLeService-------------> данные на график");
+            } else {System.err.println("BluetoothLeService-------------> данные не на график");}
             if (String.valueOf(characteristic.getUuid()).equals(OPEN_MOTOR_HDLE)){
                 intent.putExtra(OPEN_MOTOR_DATA, data);
             }
             if (String.valueOf(characteristic.getUuid()).equals(CLOSE_MOTOR_HDLE)){
                 intent.putExtra(CLOSE_MOTOR_DATA, data);
             }
-            else {System.err.println("BluetoothLeService-------------> данные не на график");}
+
         }
         sendBroadcast(intent);
     }

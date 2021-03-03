@@ -91,19 +91,27 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     close_btn.setOnTouchListener { _, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+        main?.readDataFlag = false
+//        main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+        main?.globalSemaphore = true
+        main?.runWriteData()
       }
       if (event.action == MotionEvent.ACTION_UP) {
+        main?.readDataFlag = false
         main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
       }
       false
     }
     open_btn.setOnTouchListener { _, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
+        main?.readDataFlag = false
         main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE,6)
+
       }
       if (event.action == MotionEvent.ACTION_UP) {
+        main?.readDataFlag = false
         main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE,6)
+
       }
       false
     }

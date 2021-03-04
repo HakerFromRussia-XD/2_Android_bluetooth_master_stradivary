@@ -274,12 +274,14 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) {
         if (extraDevice == null) return;
-        //TODO наш костыль начинает свой путь тут
+        //TODO наш костыль начинает свой путь тут(заменить на считанное имя устройства)
         String FESTO_A = "FESTO_A";
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, extraDevice.getName());
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, FESTO_A);
+        System.err.println("EXTRAS_DEVICE_NAME: " + extraDevice.getName());
+        System.err.println("EXTRAS_DEVICE_ADDRESS: " + extraDevice.getAddress());
 
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);

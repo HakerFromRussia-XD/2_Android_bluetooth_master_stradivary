@@ -30,6 +30,7 @@ import kotlinx.android.synthetic.main.layout_sens_settings.*
 import me.romans.motorica.R
 import me.romans.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager
+import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.EXTRAS_DEVICE_TYPE
 import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.romans.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.romans.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
@@ -43,7 +44,6 @@ import me.romans.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.experimental.and
 import kotlin.experimental.xor
 
 //import com.an
@@ -54,12 +54,11 @@ import kotlin.experimental.xor
 open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable {
 
   private var sensorsDataThreadFlag: Boolean = false
-  private var nAdapter: NfcAdapter? = null
   private lateinit var mSectionsPagerAdapter: SectionsPagerAdapter
   private lateinit var mSectionsPagerAdapter2: SectionsPagerAdapterMonograb
   private var mDeviceName: String? = null
   private var mDeviceAddress: String? = null
-  private var mDeviceType: String? = null
+  var mDeviceType: String? = null
   private var mBluetoothLeService: BluetoothLeService? = null
   private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
   private var mGattServicesList: ExpandableListView? = null
@@ -76,12 +75,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private var state = 0
   private var subscribeThread: Thread? = null
-  private var moveThread: Thread? = null
   private var mNumberGesture = 0
   // Очередь для задачь работы с BLE
   private val queue = me.romans.motorica.new_electronic_by_Rodeon.services.receivers.BlockingQueue()
   var readDataFlag = true
-  internal var globalSemaphore = true // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
+  private var globalSemaphore = true // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
 
 
   private val listName = "NAME"
@@ -97,10 +95,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
-      if (!mDeviceType.equals("FESTO_A"))
+      if (!mDeviceType.equals(EXTRAS_DEVICE_TYPE))
       {
         mainactivity_navi.visibility = View.GONE
-        //TODO Здесь можно выставлять флаг, меняющий логику в зависимости от имени
       }
     }
 
@@ -141,7 +138,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             displayGattServices(mBluetoothLeService!!.supportedGattServices)
           }
           BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-            if (mDeviceType.equals("FESTO_A")) { // новая схема обработки данных
+            if (mDeviceType.equals(EXTRAS_DEVICE_TYPE)) { // новая схема обработки данных
               displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
@@ -156,7 +153,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayData(data: ByteArray?) {
     if (data != null){
-      if (castUnsignedCharToInt(data[0]) != 0x01) {
+      if (castUnsignedCharToInt(data[0]) != 0xAA) {
         if (data.size == 3) {
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
@@ -169,6 +166,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
       } else {
         globalSemaphore = false
+        readDataFlag = true
+        runReadData()
       }
     }
   }
@@ -250,7 +249,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     worker.start()
   }
   private fun initUI() {
-    if ( mDeviceType.equals("FESTO_A") ) {
+    if ( mDeviceType.equals(EXTRAS_DEVICE_TYPE) ) {
       mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter
       mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -351,7 +350,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     sensorsDataThreadFlag = enabled
-    if ( mDeviceType.equals("FESTO_A") ) {
+    if ( mDeviceType.equals(EXTRAS_DEVICE_TYPE) ) {
       runReadData()
 //      TODO включить после теста записи
     } else {
@@ -361,76 +360,79 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   fun bleCommandConnector(byteArray: ByteArray?, Command: String, typeCommand: String, register: Int) {
-    if ( mDeviceType.equals("FESTO_A") ) {
+    if ( mDeviceType.equals(EXTRAS_DEVICE_TYPE) ) {
       val length = byteArray!!.size + 2
-      val sendByteMassive = ByteArray(length + 2)
-      sendByteMassive[0] = 0x01
-      sendByteMassive[1] = length.toByte()
+      val sendByteMassive = ByteArray(length + 3)
+      sendByteMassive[0] = 0xAA.toByte()
+      sendByteMassive[1] = 0xAA.toByte()
+      sendByteMassive[2] = length.toByte()
       when (register) {
         0 -> {
-          sendByteMassive[2] = 0x00
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[3] = 0x00
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
         }
         1 -> {
-          sendByteMassive[2] = 0x01
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[3] = 0x01
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
         }
         3 -> {
-          sendByteMassive[2] = 0x03
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[3] = 0x03
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
         }
         4 -> {
-          sendByteMassive[2] = 0x04
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[3] = 0x04
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
         }
         5 -> {
-          sendByteMassive[2] = 0x05
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[3] = 0x05
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
         }
         6 -> {
-          sendByteMassive[2] = 0x06
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = byteArray[1]
-          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
-        }
-        7 -> {
-          sendByteMassive[2] = 0x07
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = byteArray[1]
-          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
-        }
-        10 -> {
-          sendByteMassive[2] = 10.toByte()
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = crcCalc(sendByteMassive, 4)
-        }
-        11 -> {
-          sendByteMassive[2] = 11.toByte()
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = byteArray[1]
-          sendByteMassive[5] = byteArray[2]
+          sendByteMassive[3] = 0x06
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = byteArray[1]
           sendByteMassive[6] = crcCalc(sendByteMassive, 4)
         }
-        12 -> {
-          sendByteMassive[2] = 12.toByte()
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = byteArray[1]
-          sendByteMassive[5] = byteArray[2]
-          sendByteMassive[6] = byteArray[3]
+        7 -> {
+          sendByteMassive[3] = 0x07
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = byteArray[1]
+          sendByteMassive[6] = crcCalc(sendByteMassive, 4)
+        }
+        10 -> {
+          sendByteMassive[3] = 10.toByte()
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
+        }
+        11 -> {
+          sendByteMassive[3] = 11.toByte()
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = byteArray[1]
+          sendByteMassive[6] = byteArray[2]
           sendByteMassive[7] = crcCalc(sendByteMassive, 4)
         }
+        12 -> {
+          sendByteMassive[3] = 12.toByte()
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = byteArray[1]
+          sendByteMassive[6] = byteArray[2]
+          sendByteMassive[7] = byteArray[3]
+          sendByteMassive[8] = crcCalc(sendByteMassive, 4)
+        }
         13 -> {
-          sendByteMassive[2] = 13.toByte()
-          sendByteMassive[3] = byteArray[0]
-          sendByteMassive[4] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[3] = 13.toByte()
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
         }
       }
-      bleCommand(sendByteMassive, FESTO_A_CHARACTERISTIC, WRITE_WR)
+      readDataFlag = false
+      globalSemaphore = true
+      runWriteData(sendByteMassive, FESTO_A_CHARACTERISTIC, WRITE_WR)
     } else {
       bleCommand(byteArray, Command, typeCommand)
     }
@@ -489,30 +491,24 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     subscribeThread?.start()
   }
 
-
-  fun runWriteData() { getWriteData().let { queue.put(it) } }
-  open fun getWriteData(): Runnable { return Runnable { writeData() } }
-  private fun writeData() {
-    var i = 10
-
-    while (i != 0) {
-      if (globalSemaphore) {
-        bleCommand(byteArrayOf(0x01, 0x02, 0x03), FESTO_A_CHARACTERISTIC, WRITE_WR)
-        i--
-      }
-      try {
-        Thread.sleep(50)
-      } catch (ignored: Exception) {}
-    }
+  private fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
+  open fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
+  private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
+    try {
+      Thread.sleep(150)
+    } catch (ignored: Exception) {}
+    bleCommand(byteArray, Command, typeCommand)
+    System.err.println("writeData")
   }
 
   private fun runReadData() { getReadData().let { queue.put(it) } }
   open fun getReadData(): Runnable { return Runnable { readData() } }
   private fun readData() {
     while (readDataFlag) {
-        bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
+      bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
+      System.err.println("readData")
       try {
-        Thread.sleep(1)
+        Thread.sleep(10)
       } catch (ignored: Exception) {}
     }
   }
@@ -548,18 +544,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     parcel.writeInt(state)
   }
 
-  override fun describeContents(): Int {
-    return 0
-  }
+  override fun describeContents(): Int { return 0 }
 
   companion object CREATOR : Parcelable.Creator<MainActivity> {
-    override fun createFromParcel(parcel: Parcel): MainActivity {
-      return MainActivity(parcel)
-    }
-
-    override fun newArray(size: Int): Array<MainActivity?> {
-      return arrayOfNulls(size)
-    }
+    override fun createFromParcel(parcel: Parcel): MainActivity { return MainActivity(parcel) }
+    override fun newArray(size: Int): Array<MainActivity?> { return arrayOfNulls(size) }
   }
 
   fun openFragment(numberGesture: Int) {

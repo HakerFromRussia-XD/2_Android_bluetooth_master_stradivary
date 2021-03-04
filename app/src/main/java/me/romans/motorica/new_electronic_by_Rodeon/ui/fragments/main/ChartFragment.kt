@@ -42,6 +42,7 @@ import me.romans.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteMana
 import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.romans.motorica.new_electronic_by_Rodeon.utils.DateUtils
 import kotlinx.android.synthetic.main.layout_chart.*
+import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.EXTRAS_DEVICE_TYPE
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
@@ -51,7 +52,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   lateinit var sqliteManager: SqliteManager
 
   private var rootView: View? = null
-  private var dateCount = 0
   private var main: MainActivity? = null
   private var graphThread: Thread? = null
   private var graphThreadFlag = false
@@ -91,27 +91,20 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     close_btn.setOnTouchListener { _, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.readDataFlag = false
-//        main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-        main?.globalSemaphore = true
-        main?.runWriteData()
+        main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
       }
       if (event.action == MotionEvent.ACTION_UP) {
-        main?.readDataFlag = false
         main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
       }
       false
     }
     open_btn.setOnTouchListener { _, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.readDataFlag = false
         main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE,6)
 
       }
       if (event.action == MotionEvent.ACTION_UP) {
-        main?.readDataFlag = false
         main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE,6)
-
       }
       false
     }
@@ -180,6 +173,13 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         main?.bleCommandConnector(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE,10)
       }
     }
+    //TODO
+    if ( main?.mDeviceType.equals(EXTRAS_DEVICE_TYPE) ) {
+      shutdown_current_rl.visibility = View.GONE
+      start_up_step_rl.visibility = View.GONE
+      dead_zone_rl.visibility = View.GONE
+      brake_motor_rl.visibility = View.GONE
+    }
   }
 
   override fun onResume() {
@@ -197,7 +197,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   //////////////////////////////////////////////////////////////////////////////
   /**                          работа с графиками                            **/
   //////////////////////////////////////////////////////////////////////////////
-  private fun createSet(): LineDataSet? {
+  private fun createSet(): LineDataSet {
     val set = LineDataSet(null, null)
     set.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
     set.lineWidth = 2f
@@ -210,7 +210,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     set.valueTextColor = Color.TRANSPARENT
     return set
   }
-  private fun createSet2(): LineDataSet? {
+  private fun createSet2(): LineDataSet {
     val set2 = LineDataSet(null, null)
     set2.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
     set2.lineWidth = 2f
@@ -234,7 +234,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       data.addDataSet(set2)
     }
 
-    data.addEntry(Entry(set!!.entryCount.toFloat(), sens1.toFloat()), 0)
+    data.addEntry(Entry(set.entryCount.toFloat(), sens1.toFloat()), 0)
     data.addEntry(Entry(set2!!.entryCount.toFloat(), sens2.toFloat()), 1)
     data.notifyDataChanged()
     chart_mainchart.notifyDataSetChanged()

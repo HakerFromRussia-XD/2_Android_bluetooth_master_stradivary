@@ -12,9 +12,50 @@
         android:orientation="vertical"
         tools:ignore="UselessParent">
 
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="320dp">
+
+            <TextView
+                android:id="@+id/driver_tv"
+                style="@style/Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp"
+                android:text="driver: 1.00v"
+                android:textSize="10sp"
+                tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
+
+            <TextView
+                android:id="@+id/bms_tv"
+                style="@style/Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_toEndOf="@+id/driver_tv"
+                android:text="bms: 1.00v"
+                android:textSize="10sp"
+                tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
+
+            <TextView
+                android:id="@+id/sensor_tv"
+                style="@style/Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_toEndOf="@+id/bms_tv"
+                android:text="sens: 1.00v"
+                android:textSize="10sp"
+                tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -41,6 +82,8 @@
                         android:progressDrawable="@drawable/track_invisible"
                         android:rotation="-90"
                         android:thumb="@drawable/thumb_invisible" />
+
+
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="0dp"

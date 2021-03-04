@@ -10,7 +10,7 @@ public interface ConstantManager {
     String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     //TODO тут настраивается имя модуля, для подключения нового протокола
-    String EXTRAS_DEVICE_TYPE = "FESTO_A";
+    String EXTRAS_DEVICE_TYPE = "BT05";
     ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
     ////////////////////////////////////////////////

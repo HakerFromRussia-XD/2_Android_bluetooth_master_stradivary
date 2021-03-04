@@ -29,7 +29,8 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText" />
 
         <ImageView
             android:id="@+id/iv_andex_alert_dialog_layout_image"
@@ -97,7 +98,8 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
-            app:layout_constraintTop_toBottomOf="@+id/iv_andex_alert_dialog_layout_image" />
+            app:layout_constraintTop_toBottomOf="@+id/iv_andex_alert_dialog_layout_image"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/tv_andex_alert_dialog_layout_title3"
@@ -112,7 +114,8 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
-            app:layout_constraintTop_toBottomOf="@+id/iv_andex_alert_dialog_layout_image2" />
+            app:layout_constraintTop_toBottomOf="@+id/iv_andex_alert_dialog_layout_image2"
+            tools:ignore="HardcodedText" />
 
 
         <View
@@ -141,7 +144,7 @@
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
             app:layout_constraintTop_toBottomOf="@+id/view5"
-            tools:ignore="DuplicateIds" />
+            tools:ignore="DuplicateIds,HardcodedText" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_one"
@@ -212,7 +215,8 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
-            app:layout_constraintTop_toBottomOf="@+id/view6" />
+            app:layout_constraintTop_toBottomOf="@+id/view6"
+            tools:ignore="HardcodedText" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_two"
@@ -282,7 +286,8 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
-            app:layout_constraintTop_toBottomOf="@+id/view7" />
+            app:layout_constraintTop_toBottomOf="@+id/view7"
+            tools:ignore="HardcodedText" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_three"
@@ -352,7 +357,8 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
-            app:layout_constraintTop_toBottomOf="@+id/view8" />
+            app:layout_constraintTop_toBottomOf="@+id/view8"
+            tools:ignore="HardcodedText" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_four"
@@ -422,7 +428,8 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
-            app:layout_constraintTop_toBottomOf="@+id/view9" />
+            app:layout_constraintTop_toBottomOf="@+id/view9"
+            tools:ignore="HardcodedText" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_five"
@@ -503,7 +510,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/v_andex_alert_dialog_layout_button_divider"
-            app:layout_constraintTop_toBottomOf="@+id/view4" />
+            app:layout_constraintTop_toBottomOf="@+id/view4"
+            tools:ignore="HardcodedText" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_confirm"
@@ -527,7 +535,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/v_andex_alert_dialog_layout_button_divider"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view4" />
+            app:layout_constraintTop_toBottomOf="@+id/view4"
+            tools:ignore="HardcodedText" />
 
         <View
             android:id="@+id/v_andex_alert_dialog_layout_cancel"

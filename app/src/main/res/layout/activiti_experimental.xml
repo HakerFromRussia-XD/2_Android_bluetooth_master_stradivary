@@ -25,6 +25,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints,NotSibling,RtlCompat"></com.github.mikephil.charting.charts.LineChart>
+        tools:ignore="MissingConstraints,NotSibling,RtlCompat,RtlHardcoded" />
 
 </android.support.constraint.ConstraintLayout>

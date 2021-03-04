@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".old_electronic_by_Misha.ui.chat.view.service_settings.FragmentServiceSettingsMono">
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/maunLayout"
+        android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

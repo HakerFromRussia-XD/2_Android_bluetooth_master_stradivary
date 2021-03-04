@@ -141,27 +141,27 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     open_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH1 = " + seekBar.progress)
+        objectAnimator = ObjectAnimator.ofFloat(limitCH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
+        objectAnimator?.duration = 200
+        objectAnimator?.start()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE,4)
-        objectAnimator = ObjectAnimator.ofFloat(limitCH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
-        objectAnimator?.duration = 200
-        objectAnimator?.start()
       }
     })
     close_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH2 = " + seekBar.progress)
+        objectAnimator2 = ObjectAnimator.ofFloat(limitCh2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
+        objectAnimator2?.duration = 200
+        objectAnimator2?.start()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE,5)
-        objectAnimator2 = ObjectAnimator.ofFloat(limitCh2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
-        objectAnimator2?.duration = 200
-        objectAnimator2?.start()
       }
     })
     brake_motor_sb.setOnClickListener {
@@ -173,7 +173,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         main?.bleCommandConnector(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE,10)
       }
     }
-    //TODO
+
+    //Скрывает настройки, которые не актуальны для многосхватной бионики
     if ( main?.mDeviceType.equals(EXTRAS_DEVICE_TYPE) ) {
       shutdown_current_rl.visibility = View.GONE
       start_up_step_rl.visibility = View.GONE

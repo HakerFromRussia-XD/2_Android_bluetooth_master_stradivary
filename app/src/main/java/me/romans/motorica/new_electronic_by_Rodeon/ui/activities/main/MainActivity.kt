@@ -30,7 +30,7 @@ import kotlinx.android.synthetic.main.layout_sens_settings.*
 import me.romans.motorica.R
 import me.romans.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager
-import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.EXTRAS_DEVICE_TYPE
+import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.romans.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.romans.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
@@ -151,18 +151,27 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
     }
   }
+  @SuppressLint("SetTextI18n")
   private fun displayData(data: ByteArray?) {
     if (data != null){
       if (castUnsignedCharToInt(data[0]) != 0xAA) {
+        System.err.println("data.size: " + data.size)
         if (data.size == 3) {
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
-        } else if (data.size == 6) {
+        } else if (data.size == 10) {
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
           gcVer     = castUnsignedCharToInt(data[3])
           bmsVer    = castUnsignedCharToInt(data[4])
           sensVer   = castUnsignedCharToInt(data[5])
+          driver_tv.text = "driver: " +castUnsignedCharToInt(data[3]).toFloat()/100 + "v"
+          bms_tv.text = "bms: " +castUnsignedCharToInt(data[4]).toFloat()/100 + "v"
+          sensor_tv.text = "sens: " +castUnsignedCharToInt(data[5]).toFloat()/100 + "v"
+          open_CH_sb.progress = castUnsignedCharToInt(data[6])
+          close_CH_sb.progress = castUnsignedCharToInt(data[7])
+          correlator_noise_threshold_1_sb.progress = castUnsignedCharToInt(data[8])
+          correlator_noise_threshold_2_sb.progress = castUnsignedCharToInt(data[9])
         }
       } else {
         globalSemaphore = false
@@ -219,9 +228,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
 
     val intent = intent
-    mDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME)
-    mDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS)
-    mDeviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE)
+    mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
+    mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS)
+    mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE)
+    System.err.println("mDeviceType: $mDeviceType")
     initUI()
 
     // Sets up UI references.

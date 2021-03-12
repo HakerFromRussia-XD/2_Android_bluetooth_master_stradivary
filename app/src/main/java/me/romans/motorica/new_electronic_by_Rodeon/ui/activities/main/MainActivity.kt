@@ -29,7 +29,6 @@ import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_sens_settings.*
 import me.romans.motorica.R
 import me.romans.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
-import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.romans.motorica.new_electronic_by_Rodeon.compose.BaseActivity
@@ -46,8 +45,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.experimental.xor
 
-//import com.an
-//import com.androidexception.andexalertdialog.AndExAlertDialog
 
 
 @RequirePresenter(MainPresenter::class)
@@ -78,7 +75,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var mNumberGesture = 0
   // Очередь для задачь работы с BLE
   private val queue = me.romans.motorica.new_electronic_by_Rodeon.services.receivers.BlockingQueue()
-  var readDataFlag = true
+  private var readDataFlag = true
   private var globalSemaphore = true // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
 
 
@@ -95,8 +92,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
-      if (!mDeviceType.equals(EXTRAS_DEVICE_TYPE))
-      {
+      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2))
+      {} else {
         mainactivity_navi.visibility = View.GONE
       }
     }
@@ -138,10 +135,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             displayGattServices(mBluetoothLeService!!.supportedGattServices)
           }
           BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-            if (mDeviceType.equals(EXTRAS_DEVICE_TYPE)) { // новая схема обработки данных
+            if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2))) { // новая схема обработки данных
               displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
+              System.err.println("попадаем сюда")
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
+              System.err.println("попадаем не сюда")
             }
              //вывод на график данных из характеристики показаний пульса
             displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.OPEN_MOTOR_DATA))
@@ -154,9 +153,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   @SuppressLint("SetTextI18n")
   private fun displayData(data: ByteArray?) {
     if (data != null){
+      System.err.println("BluetoothLeService-------------> прошли первый иф")
       if (castUnsignedCharToInt(data[0]) != 0xAA) {
+        System.err.println("BluetoothLeService-------------> прошли второй иф")
         System.err.println("data.size: " + data.size)
         if (data.size == 3) {
+          System.err.println("BluetoothLeService-------------> прошли третий иф. Распарсили нотификацию")
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
         } else if (data.size == 10) {
@@ -259,7 +261,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     worker.start()
   }
   private fun initUI() {
-    if ( mDeviceType.equals(EXTRAS_DEVICE_TYPE) ) {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) ) {
       mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter
       mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -283,6 +285,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val i = Intent(this, javaClass)
     i.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
+    readDataFlag = true
     //BLE
     registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
     if (mBluetoothLeService != null) {
@@ -297,6 +300,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     super.onDestroy()
     unbindService(mServiceConnection)
     mBluetoothLeService = null
+    readDataFlag = false
   }
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
@@ -360,7 +364,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     sensorsDataThreadFlag = enabled
-    if ( mDeviceType.equals(EXTRAS_DEVICE_TYPE) ) {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) ) {
       runReadData()
 //      TODO включить после теста записи
     } else {
@@ -370,7 +374,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   fun bleCommandConnector(byteArray: ByteArray?, Command: String, typeCommand: String, register: Int) {
-    if ( mDeviceType.equals(EXTRAS_DEVICE_TYPE) ) {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) ) {
       val length = byteArray!!.size + 2
       val sendByteMassive = ByteArray(length + 3)
       sendByteMassive[0] = 0xAA.toByte()
@@ -493,9 +497,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           System.err.println("startSubscribeSensorsDataThread попытка подписки")
         }
         try {
-          Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
-        } catch (ignored: Exception) {
-        }
+          Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
+        } catch (ignored: Exception) { }
       }
     }
     subscribeThread?.start()

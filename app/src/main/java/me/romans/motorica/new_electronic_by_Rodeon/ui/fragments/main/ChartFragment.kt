@@ -43,6 +43,7 @@ import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivi
 import me.romans.motorica.new_electronic_by_Rodeon.utils.DateUtils
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.EXTRAS_DEVICE_TYPE
+import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.EXTRAS_DEVICE_TYPE_2
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
@@ -175,7 +176,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
-    if ( main?.mDeviceType.equals(EXTRAS_DEVICE_TYPE) ) {
+    if ( main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) ) {
       shutdown_current_rl.visibility = View.GONE
       start_up_step_rl.visibility = View.GONE
       dead_zone_rl.visibility = View.GONE

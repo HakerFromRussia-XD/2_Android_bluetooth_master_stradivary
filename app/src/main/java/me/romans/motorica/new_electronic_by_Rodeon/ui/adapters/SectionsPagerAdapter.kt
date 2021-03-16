@@ -28,7 +28,6 @@ class SectionsPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) 
     when (position) {
       0 -> fragment = GestureFragment()//AlarmFragment()
       1 -> fragment = ChartFragment()//MainWaterFragment()
-//      2 -> fragment = SensSettingsFragment()//ChartFragment()
     }
     return fragment
   }

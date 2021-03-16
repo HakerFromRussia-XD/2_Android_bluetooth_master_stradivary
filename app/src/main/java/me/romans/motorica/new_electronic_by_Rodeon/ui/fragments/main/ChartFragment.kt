@@ -17,6 +17,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -25,7 +26,6 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -38,7 +38,6 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.romans.motorica.R
 import me.romans.motorica.new_electronic_by_Rodeon.WDApplication
-import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.romans.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -62,7 +61,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var plotData = true
   var objectAnimator: ObjectAnimator? = null
   var objectAnimator2: ObjectAnimator? = null
-  private var testBool = true
+  private var showAdvancedSettings = false
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -81,9 +80,10 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 //    dateCount = -DateUtils.getDateDay(DateUtils.getFarDay(0), DateUtils.dateFormat)
 //    initializeChart(DateUtils.getDateDay("2020-10-16", DateUtils.dateFormat))//2020-10-14  DateUtils.getFarDay(0)
 
-    ////////initialized graph
+
     initializedSensorGraph()
     initializedUI()
+    showAdvancedSettings = preferenceManager.getBoolean(PreferenceKeys.ADVANCED_SETTINGS, false)
 
 
     val shutdownCurrentTv = rootView!!.findViewById(R.id.shutdown_current_tv) as TextView
@@ -183,17 +183,29 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         main?.bleCommandConnector(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE, 10)
       }
     }
+
+
+
     driver_tv.setOnLongClickListener {
-      main?.testFun(testBool)
-      testBool = if (testBool) {
-        Toast.makeText(context, "включение спецменю", Toast.LENGTH_SHORT).show()
+      showAdvancedSettings = if (showAdvancedSettings) {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
         false
       } else {
-        Toast.makeText(context, "выключение спецменю", Toast.LENGTH_SHORT).show()
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
         true
       }
+      preferenceManager.putBoolean(PreferenceKeys.ADVANCED_SETTINGS, showAdvancedSettings)
       false
     }
+
+
+
     thresholds_blocking_sw.setOnClickListener{
       if (thresholds_blocking_sw.isChecked) {
         thresholds_blocking_tv.text = "on"
@@ -335,10 +347,10 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
             addEntry(115, 150)
             plotData = false
           }
-          addEntry(main?.getDataSens1()!!, main?.getDataSens2()!!)
+          addEntry(main!!.getDataSens1(), main!!.getDataSens2())
         }
         try {
-          Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
+          Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) {
         }
       }

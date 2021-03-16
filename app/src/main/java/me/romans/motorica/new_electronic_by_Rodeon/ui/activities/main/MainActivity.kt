@@ -23,10 +23,10 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
+import android.widget.Toast
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_chart.*
-import kotlinx.android.synthetic.main.layout_sens_settings.*
 import me.romans.motorica.R
 import me.romans.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
@@ -37,6 +37,8 @@ import me.romans.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.romans.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapter
 import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograb
+import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograbWithAdvancedSettings
+import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterWithAdvancedSettings
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomDialogFragment
 import me.romans.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.romans.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
@@ -46,13 +48,14 @@ import kotlin.collections.ArrayList
 import kotlin.experimental.xor
 
 
-
 @RequirePresenter(MainPresenter::class)
 open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable {
 
   private var sensorsDataThreadFlag: Boolean = false
   private lateinit var mSectionsPagerAdapter: SectionsPagerAdapter
-  private lateinit var mSectionsPagerAdapter2: SectionsPagerAdapterMonograb
+  private lateinit var mSectionsPagerAdapterMonograb: SectionsPagerAdapterMonograb
+  private lateinit var mSectionsPagerAdapterWithAdvancedSettings: SectionsPagerAdapterWithAdvancedSettings
+  private lateinit var mSectionsPagerAdapterMonograbWithAdvancedSettings: SectionsPagerAdapterMonograbWithAdvancedSettings
   private var mDeviceName: String? = null
   private var mDeviceAddress: String? = null
   var mDeviceType: String? = null
@@ -267,16 +270,41 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter
       mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-      NavigationUtils.showAdvancedSettings = false
     } else {
-      mSectionsPagerAdapter2 = SectionsPagerAdapterMonograb(supportFragmentManager)
-      mainactivity_viewpager.adapter = mSectionsPagerAdapter2
+      mSectionsPagerAdapterMonograb = SectionsPagerAdapterMonograb(supportFragmentManager)
+      mainactivity_viewpager.adapter = mSectionsPagerAdapterMonograb
       mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
     }
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
-  fun testFun(showAdvancedSettings: Boolean) {
+  fun showAdvancedSettings(showAdvancedSettings: Boolean) {
+    mainactivity_viewpager.isSaveFromParentEnabled = false
+    if (showAdvancedSettings) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+        mSectionsPagerAdapterWithAdvancedSettings = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapterWithAdvancedSettings
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
+      } else {
+        mSectionsPagerAdapterMonograbWithAdvancedSettings= SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapterMonograbWithAdvancedSettings
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+      }
+    } else {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+        mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+        NavigationUtils.showAdvancedSettings = false
+      } else {
+        mSectionsPagerAdapterMonograb = SectionsPagerAdapterMonograb(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapterMonograb
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+      }
+    }
+
+    Toast.makeText(this, "Advanced settings: $showAdvancedSettings", Toast.LENGTH_SHORT).show()
+
     NavigationUtils.showAdvancedSettings = showAdvancedSettings
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
@@ -524,7 +552,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   private fun runReadData() {
-    getReadData().let { queue.put(it) }
+//    getReadData().let { queue.put(it) }
   }
   open fun getReadData(): Runnable { return Runnable { readData() } }
   private fun readData() {

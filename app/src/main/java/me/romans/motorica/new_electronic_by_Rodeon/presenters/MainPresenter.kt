@@ -44,4 +44,8 @@ class MainPresenter : BasePresenter<MainActivityView>() {
   var weatherAlarm: Boolean
     get() = preferenceManager.getBoolean(PreferenceKeys.ALARM_WEAHTER.first, PreferenceKeys.ALARM_WEAHTER.second)
     set(value) = preferenceManager.putBoolean(PreferenceKeys.ALARM_WEAHTER.first, value)
+
+  fun getShowAdvancedSettings(): Boolean {
+    return preferenceManager.getBoolean(PreferenceKeys.ADVANCED_SETTINGS, false)
+  }
 }

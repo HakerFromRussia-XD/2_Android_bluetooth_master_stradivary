@@ -21,12 +21,13 @@ import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragme
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.MainWaterFragment
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.SensSettingsFragment
 
-class SectionsPagerAdapterMonograb(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
+class SectionsPagerAdapterMonograbWithAdvancedSettings(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
 
   override fun getItem(position: Int): Fragment {
     var fragment: Fragment = ChartFragment()
     when (position) {
       0 -> fragment = ChartFragment()//AlarmFragment()
+      1 -> fragment = SensSettingsFragment()//MainWaterFragment()
     }
     return fragment
   }
@@ -34,7 +35,7 @@ class SectionsPagerAdapterMonograb(fm: FragmentManager) : FragmentStatePagerAdap
   override fun getCount(): Int = COUNT_PAGERS
 
   companion object {
-    const val COUNT_PAGERS = 1
+    const val COUNT_PAGERS = 2
 
   }
 }

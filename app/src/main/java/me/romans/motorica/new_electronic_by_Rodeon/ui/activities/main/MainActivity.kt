@@ -261,18 +261,23 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
     worker.start()
   }
+
   private fun initUI() {
     if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
       mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter
       mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-      NavigationUtils.showAdvancedSettings = true
+      NavigationUtils.showAdvancedSettings = false
     } else {
       mSectionsPagerAdapter2 = SectionsPagerAdapterMonograb(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter2
       mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
     }
     mainactivity_viewpager.offscreenPageLimit = 3
+    NavigationUtils.setComponents(baseContext, mainactivity_navi)
+  }
+  fun testFun(showAdvancedSettings: Boolean) {
+    NavigationUtils.showAdvancedSettings = showAdvancedSettings
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
   override fun onResume() {

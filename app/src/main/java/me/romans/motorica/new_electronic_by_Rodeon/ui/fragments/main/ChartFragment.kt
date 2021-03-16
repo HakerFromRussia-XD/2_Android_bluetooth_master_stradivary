@@ -62,6 +62,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var plotData = true
   var objectAnimator: ObjectAnimator? = null
   var objectAnimator2: ObjectAnimator? = null
+  private var testBool = true
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -183,8 +184,14 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
     }
     driver_tv.setOnLongClickListener {
-//      if()
-      Toast.makeText(context, "Долгое нажатие на драйвер", Toast.LENGTH_SHORT).show()
+      main?.testFun(testBool)
+      testBool = if (testBool) {
+        Toast.makeText(context, "включение спецменю", Toast.LENGTH_SHORT).show()
+        false
+      } else {
+        Toast.makeText(context, "выключение спецменю", Toast.LENGTH_SHORT).show()
+        true
+      }
       false
     }
     thresholds_blocking_sw.setOnClickListener{

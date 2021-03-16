@@ -153,7 +153,9 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
+        if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+          main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
+        }
       }
     })
     close_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -166,7 +168,9 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
+        if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+          main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
+        }
       }
     })
     brake_motor_sw.setOnClickListener {
@@ -186,10 +190,10 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     thresholds_blocking_sw.setOnClickListener{
       if (thresholds_blocking_sw.isChecked) {
         thresholds_blocking_tv.text = "on"
-        preferenceManager.putBoolean("THRESHOLDS_BLOCKING", true)
+        preferenceManager.putBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, true)
       } else {
         thresholds_blocking_tv.text = "off"
-        preferenceManager.putBoolean("THRESHOLDS_BLOCKING", false)
+        preferenceManager.putBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
     }
 
@@ -204,8 +208,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   }
 
   private fun initializedUI() {
-    thresholds_blocking_sw.isChecked = preferenceManager.getBoolean("THRESHOLDS_BLOCKING", false)
-    if (preferenceManager.getBoolean("THRESHOLDS_BLOCKING", false)) thresholds_blocking_tv.text = "on"
+    thresholds_blocking_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)
+    if (preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) thresholds_blocking_tv.text = "on"
   }
 
   override fun onResume() {

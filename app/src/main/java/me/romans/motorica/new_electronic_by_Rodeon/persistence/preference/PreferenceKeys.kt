@@ -18,7 +18,7 @@ import android.util.Pair
 
 object PreferenceKeys {
   val NEWBE = Pair("NEWBE", true)
-//  val THRESHOLDS_BLOCKING = Pair("THRESHOLDS_BLOCKING", true)
+  const val THRESHOLDS_BLOCKING = "THRESHOLDS_BLOCKING"
   val INIT_CAPACITY = Pair("INIT_CAPACITY", false)
   val WATER_GOAL = Pair("WaterGoal", "2000")
   val LOCALINDEX = Pair("localIndex", 0)

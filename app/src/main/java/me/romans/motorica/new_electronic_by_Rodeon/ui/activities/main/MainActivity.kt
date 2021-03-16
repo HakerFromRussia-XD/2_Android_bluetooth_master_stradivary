@@ -518,7 +518,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     System.err.println("writeData")
   }
 
-  private fun runReadData() { getReadData().let { queue.put(it) } }
+  private fun runReadData() {
+    getReadData().let { queue.put(it) }
+  }
   open fun getReadData(): Runnable { return Runnable { readData() } }
   private fun readData() {
     while (readDataFlag) {

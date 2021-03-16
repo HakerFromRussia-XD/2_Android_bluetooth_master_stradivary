@@ -78,7 +78,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var readDataFlag = true
   private var globalSemaphore = true // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
   // Переменная работы с дополнительными настройками
-  private var showAdvancedSettings = false
+//  private var showAdvancedSettings = false
 
   private val listName = "NAME"
   private val listUUID = "UUID"
@@ -138,10 +138,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
             if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))) { // новая схема обработки данных
               displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
-              System.err.println("попадаем сюда")
+//              System.err.println("попадаем сюда")
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
-              System.err.println("попадаем не сюда")
+//              System.err.println("попадаем не сюда")
             }
              //вывод на график данных из характеристики показаний пульса
             displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.OPEN_MOTOR_DATA))
@@ -154,12 +154,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   @SuppressLint("SetTextI18n")
   private fun displayData(data: ByteArray?) {
     if (data != null){
-      System.err.println("BluetoothLeService-------------> прошли первый иф")
+//      System.err.println("BluetoothLeService-------------> прошли первый иф")
       if (castUnsignedCharToInt(data[0]) != 0xAA) {
-        System.err.println("BluetoothLeService-------------> прошли второй иф")
-        System.err.println("data.size: " + data.size)
+//        System.err.println("BluetoothLeService-------------> прошли второй иф")
+//        System.err.println("data.size: " + data.size)
         if (data.size == 3) {
-          System.err.println("BluetoothLeService-------------> прошли третий иф. Распарсили нотификацию")
+//          System.err.println("BluetoothLeService-------------> прошли третий иф. Распарсили нотификацию")
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
         } else if (data.size == 10) {
@@ -173,8 +173,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           sensor_tv.text = "sens: " +castUnsignedCharToInt(data[5]).toFloat()/100 + "v"
           open_CH_sb.progress = castUnsignedCharToInt(data[6])
           close_CH_sb.progress = castUnsignedCharToInt(data[7])
-          correlator_noise_threshold_1_sb.progress = castUnsignedCharToInt(data[8])
-          correlator_noise_threshold_2_sb.progress = castUnsignedCharToInt(data[9])
+//          correlator_noise_threshold_1_sb.progress = castUnsignedCharToInt(data[8])
+//          correlator_noise_threshold_2_sb.progress = castUnsignedCharToInt(data[9])
         }
       } else {
         globalSemaphore = false
@@ -266,6 +266,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter
       mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+      NavigationUtils.showAdvancedSettings = true
     } else {
       mSectionsPagerAdapter2 = SectionsPagerAdapterMonograb(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter2
@@ -361,9 +362,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     shutdown_current_sb.isEnabled = enabled
     start_up_step_sb.isEnabled = enabled
     dead_zone_sb.isEnabled = enabled
-    brake_motor_sb.isEnabled = enabled
-    correlator_noise_threshold_1_sb.isEnabled = enabled
-    correlator_noise_threshold_2_sb.isEnabled = enabled
+    brake_motor_sw.isEnabled = enabled
+
+//    preferenceManager.getBoolean("THRESHOLDS_BLOCKING", false)
+//    correlator_noise_threshold_1_sb.isEnabled = enabled
+//    correlator_noise_threshold_2_sb.isEnabled = enabled
     sensorsDataThreadFlag = enabled
     if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
       runReadData()
@@ -520,7 +523,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun readData() {
     while (readDataFlag) {
       bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
-      System.err.println("readData")
+//      System.err.println("readData")
       try {
         Thread.sleep(10)
       } catch (ignored: Exception) {}

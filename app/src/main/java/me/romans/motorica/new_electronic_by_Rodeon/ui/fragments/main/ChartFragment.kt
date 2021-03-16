@@ -41,6 +41,8 @@ import me.romans.motorica.new_electronic_by_Rodeon.WDApplication
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
+import me.romans.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import me.romans.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.romans.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import javax.inject.Inject
@@ -50,6 +52,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
   @Inject
   lateinit var sqliteManager: SqliteManager
+  @Inject
+  lateinit var preferenceManager: PreferenceManager
 
   private var rootView: View? = null
   private var main: MainActivity? = null
@@ -78,6 +82,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     ////////initialized graph
     initializedSensorGraph()
+    initializedUI()
 
 
     val shutdownCurrentTv = rootView!!.findViewById(R.id.shutdown_current_tv) as TextView
@@ -164,8 +169,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
       }
     })
-    brake_motor_sb.setOnClickListener {
-      if (brake_motor_sb.isChecked) {
+    brake_motor_sw.setOnClickListener {
+      if (brake_motor_sw.isChecked) {
         brakeMotorTv.text = 1.toString()
         main?.bleCommandConnector(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE, 10)
       } else {
@@ -178,6 +183,15 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       Toast.makeText(context, "Долгое нажатие на драйвер", Toast.LENGTH_SHORT).show()
       false
     }
+    thresholds_blocking_sw.setOnClickListener{
+      if (thresholds_blocking_sw.isChecked) {
+        thresholds_blocking_tv.text = "on"
+        preferenceManager.putBoolean("THRESHOLDS_BLOCKING", true)
+      } else {
+        thresholds_blocking_tv.text = "off"
+        preferenceManager.putBoolean("THRESHOLDS_BLOCKING", false)
+      }
+    }
 
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
@@ -187,6 +201,11 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       dead_zone_rl.visibility = View.GONE
       brake_motor_rl.visibility = View.GONE
     }
+  }
+
+  private fun initializedUI() {
+    thresholds_blocking_sw.isChecked = preferenceManager.getBoolean("THRESHOLDS_BLOCKING", false)
+    if (preferenceManager.getBoolean("THRESHOLDS_BLOCKING", false)) thresholds_blocking_tv.text = "on"
   }
 
   override fun onResume() {

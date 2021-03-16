@@ -1,7 +1,4 @@
-/*
- * Copyright (C) 2016 skydoves
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
+/*Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,12 +14,6 @@
 package me.romans.motorica.new_electronic_by_Rodeon.persistence.preference
 
 import android.content.Context
-
-/**
- * Created by skydoves on 2016-10-15.
- * Updated by skydoves on 2017-08-17.
- * Copyright (c) 2017 skydoves rights reserved.
- */
 
 class PreferenceManager(private val mContext: Context) {
 

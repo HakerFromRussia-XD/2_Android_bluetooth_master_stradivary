@@ -190,11 +190,11 @@ public class BluetoothLeService extends Service {
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
                 intent.putExtra(MIO_DATA, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
-                System.err.println("BluetoothLeService-------------> данные на график c нотификации");
+//                System.err.println("BluetoothLeService-------------> данные на график c нотификации");
             }
             if (String.valueOf(characteristic.getUuid()).equals(FESTO_A_CHARACTERISTIC)) {
                 intent.putExtra(FESTO_A_DATA, data);
-                System.err.println("BluetoothLeService-------------> данные на график с чтения");
+//                System.err.println("BluetoothLeService-------------> данные на график с чтения");
             }
             if (String.valueOf(characteristic.getUuid()).equals(OPEN_MOTOR_HDLE)){
                 intent.putExtra(OPEN_MOTOR_DATA, data);

@@ -1,7 +1,4 @@
-/*
- * Copyright (C) 2016 skydoves
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
+/*Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,13 +15,10 @@ package me.romans.motorica.new_electronic_by_Rodeon.persistence.preference
 
 import android.util.Pair
 
-/**
- * Developed by skydoves on 2017-08-19.
- * Copyright (c) 2017 skydoves rights reserved.
- */
 
 object PreferenceKeys {
   val NEWBE = Pair("NEWBE", true)
+//  val THRESHOLDS_BLOCKING = Pair("THRESHOLDS_BLOCKING", true)
   val INIT_CAPACITY = Pair("INIT_CAPACITY", false)
   val WATER_GOAL = Pair("WaterGoal", "2000")
   val LOCALINDEX = Pair("localIndex", 0)

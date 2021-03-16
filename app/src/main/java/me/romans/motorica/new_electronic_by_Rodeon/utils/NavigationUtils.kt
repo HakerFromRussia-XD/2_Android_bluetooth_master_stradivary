@@ -29,33 +29,54 @@ import java.time.chrono.JapaneseEra.values
 import java.util.ArrayList
 
 object NavigationUtils {
+  var showAdvancedSettings = false
+
   private fun getNavigationModels(mContext: Context): ArrayList<NavigationTabBar.Model> {
     val colors = mContext.resources.getStringArray(R.array.colors)
     val models = ArrayList<NavigationTabBar.Model>()//здесь можно настроить боттом навигэйшен бар
-    models.add(
-        NavigationTabBar.Model.Builder(
-            ContextCompat.getDrawable(mContext, R.drawable.ic_gestures),
-            Color.parseColor(colors[1]))
-            .title("настройка жестов")
-            .badgeTitle("new")
-            .build()
-    )
-    models.add(
-        NavigationTabBar.Model.Builder(
-            ContextCompat.getDrawable(mContext, R.drawable.ic_mechanics),
-            Color.parseColor(colors[3]))
-            .title("настройка механики")//"настройка механики")
-            .badgeTitle("new")
-            .build()
-    )
-    models.add(
-        NavigationTabBar.Model.Builder(
-            ContextCompat.getDrawable(mContext, R.drawable.ic_sensors),
-            Color.parseColor(colors[4]))
-            .title("настройка датчиков")
-            .badgeTitle("new")
-            .build()
-    )
+    if (showAdvancedSettings) {
+      models.add(
+              NavigationTabBar.Model.Builder(
+                      ContextCompat.getDrawable(mContext, R.drawable.ic_gestures),
+                      Color.parseColor(colors[1]))
+                      .title("настройка жестов")
+                      .badgeTitle("new")
+                      .build()
+      )
+      models.add(
+              NavigationTabBar.Model.Builder(
+                      ContextCompat.getDrawable(mContext, R.drawable.ic_mechanics),
+                      Color.parseColor(colors[3]))
+                      .title("основные настройки")//"настройка механики")
+                      .badgeTitle("new")
+                      .build()
+      )
+      models.add(
+              NavigationTabBar.Model.Builder(
+                      ContextCompat.getDrawable(mContext, R.drawable.ic_sensors),
+                      Color.parseColor(colors[4]))
+                      .title("спецнастройки")
+                      .badgeTitle("new")
+                      .build()
+      )
+    } else {
+      models.add(
+              NavigationTabBar.Model.Builder(
+                      ContextCompat.getDrawable(mContext, R.drawable.ic_gestures),
+                      Color.parseColor(colors[1]))
+                      .title("настройка жестов")
+                      .badgeTitle("new")
+                      .build()
+      )
+      models.add(
+              NavigationTabBar.Model.Builder(
+                      ContextCompat.getDrawable(mContext, R.drawable.ic_mechanics),
+                      Color.parseColor(colors[3]))
+                      .title("основные настройки")//"настройка механики")
+                      .badgeTitle("new")
+                      .build()
+      )
+    }
     return models
   }
 

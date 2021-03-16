@@ -25,6 +25,7 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -34,16 +35,14 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
+import kotlinx.android.synthetic.main.layout_chart.*
 import me.romans.motorica.R
 import me.romans.motorica.new_electronic_by_Rodeon.WDApplication
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager
+import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.romans.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
-import me.romans.motorica.new_electronic_by_Rodeon.utils.DateUtils
-import kotlinx.android.synthetic.main.layout_chart.*
-import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.EXTRAS_DEVICE_TYPE
-import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.EXTRAS_DEVICE_TYPE_2
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
@@ -101,11 +100,11 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
     open_btn.setOnTouchListener { _, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE,6)
+        main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
 
       }
       if (event.action == MotionEvent.ACTION_UP) {
-        main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE,6)
+        main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
       }
       false
     }
@@ -116,7 +115,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE,0)
+        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
       }
     })
     start_up_step_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -126,7 +125,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE,1)
+        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE, 1)
       }
     })
     dead_zone_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -136,7 +135,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE,3)
+        main?.bleCommandConnector(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE, 3)
       }
     })
     open_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -149,7 +148,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE,4)
+        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
       }
     })
     close_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -162,21 +161,27 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE,5)
+        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
       }
     })
     brake_motor_sb.setOnClickListener {
       if (brake_motor_sb.isChecked) {
         brakeMotorTv.text = 1.toString()
-        main?.bleCommandConnector(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE,10)
+        main?.bleCommandConnector(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE, 10)
       } else {
         brakeMotorTv.text = 0.toString()
-        main?.bleCommandConnector(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE,10)
+        main?.bleCommandConnector(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE, 10)
       }
     }
+    driver_tv.setOnLongClickListener {
+//      if()
+      Toast.makeText(context, "Долгое нажатие на драйвер", Toast.LENGTH_SHORT).show()
+      false
+    }
+
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
-    if ( main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) ) {
+    if ( main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
       shutdown_current_rl.visibility = View.GONE
       start_up_step_rl.visibility = View.GONE
       dead_zone_rl.visibility = View.GONE
@@ -286,18 +291,18 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       while (graphThreadFlag) {
         main?.runOnUiThread {
           if (plotData) {
-            addEntry(10,255)
-            addEntry(115,150)
-            addEntry(10,255)
-            addEntry(115,150)
-            addEntry(10,255)
-            addEntry(115,150)
-            addEntry(10,255)
-            addEntry(115,150)
-            addEntry(10,255)
-            addEntry(115,150)
-            addEntry(10,255)
-            addEntry(115,150)
+            addEntry(10, 255)
+            addEntry(115, 150)
+            addEntry(10, 255)
+            addEntry(115, 150)
+            addEntry(10, 255)
+            addEntry(115, 150)
+            addEntry(10, 255)
+            addEntry(115, 150)
+            addEntry(10, 255)
+            addEntry(115, 150)
+            addEntry(10, 255)
+            addEntry(115, 150)
             plotData = false
           }
           addEntry(main?.getDataSens1()!!, main?.getDataSens2()!!)

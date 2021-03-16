@@ -77,7 +77,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private val queue = me.romans.motorica.new_electronic_by_Rodeon.services.receivers.BlockingQueue()
   private var readDataFlag = true
   private var globalSemaphore = true // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
-
+  // Переменная работы с дополнительными настройками
+  private var showAdvancedSettings = false
 
   private val listName = "NAME"
   private val listUUID = "UUID"
@@ -92,7 +93,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
-      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2))
+      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))
       {} else {
         mainactivity_navi.visibility = View.GONE
       }
@@ -135,7 +136,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             displayGattServices(mBluetoothLeService!!.supportedGattServices)
           }
           BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-            if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2))) { // новая схема обработки данных
+            if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))) { // новая схема обработки данных
               displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
               System.err.println("попадаем сюда")
             } else {
@@ -261,7 +262,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     worker.start()
   }
   private fun initUI() {
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) ) {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
       mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter
       mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -364,7 +365,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     sensorsDataThreadFlag = enabled
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) ) {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
       runReadData()
 //      TODO включить после теста записи
     } else {
@@ -374,7 +375,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   fun bleCommandConnector(byteArray: ByteArray?, Command: String, typeCommand: String, register: Int) {
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) ) {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)  || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))  {
       val length = byteArray!!.size + 2
       val sendByteMassive = ByteArray(length + 3)
       sendByteMassive[0] = 0xAA.toByte()

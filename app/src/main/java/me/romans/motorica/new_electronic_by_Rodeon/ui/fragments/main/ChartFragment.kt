@@ -15,6 +15,8 @@ package me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -47,7 +49,7 @@ import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivi
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
-class ChartFragment : Fragment(), OnChartValueSelectedListener {
+open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
   @Inject
   lateinit var sqliteManager: SqliteManager
@@ -58,10 +60,14 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var main: MainActivity? = null
   private var graphThread: Thread? = null
   private var graphThreadFlag = false
+  private var testThreadFlag = true
   private var plotData = true
   var objectAnimator: ObjectAnimator? = null
   var objectAnimator2: ObjectAnimator? = null
   private var showAdvancedSettings = false
+  private var mSettings: SharedPreferences? = null
+
+  private var testThread: Thread? = null
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -76,6 +82,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
 
+    System.err.println("фрагмент   onActivityCreated")
     // set dateCount
 //    dateCount = -DateUtils.getDateDay(DateUtils.getFarDay(0), DateUtils.dateFormat)
 //    initializeChart(DateUtils.getDateDay("2020-10-16", DateUtils.dateFormat))//2020-10-14  DateUtils.getFarDay(0)
@@ -84,6 +91,17 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     initializedSensorGraph()
     initializedUI()
     showAdvancedSettings = preferenceManager.getBoolean(PreferenceKeys.ADVANCED_SETTINGS, false)
+
+
+    mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+    startTestThread()
+
+//    main?.showAdvancedSettings(showAdvancedSettings)
+
+//    graphThreadFlag = false
+//    Handler().postDelayed({
+//      main?.showAdvancedSettings(showAdvancedSettings)
+//    }, 100)
 
 
     val shutdownCurrentTv = rootView!!.findViewById(R.id.shutdown_current_tv) as TextView
@@ -216,7 +234,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
     }
 
-
     //Скрывает настройки, которые не актуальны для многосхватной бионики
     if ( main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
       shutdown_current_rl.visibility = View.GONE
@@ -235,6 +252,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     super.onResume()
     System.err.println("ChartFragment onResume")
     graphThreadFlag = true
+    testThreadFlag = true
     startGraphEnteringDataThread()
   }
   override fun onPause() {
@@ -242,7 +260,10 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     graphThreadFlag = false
     System.err.println("ChartFragment onPause")
   }
-
+  override fun onDestroy() {
+    super.onDestroy()
+    testThreadFlag = false
+  }
   //////////////////////////////////////////////////////////////////////////////
   /**                          работа с графиками                            **/
   //////////////////////////////////////////////////////////////////////////////
@@ -360,4 +381,21 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
   override fun onValueSelected(e: Entry?, h: Highlight?) {}
   override fun onNothingSelected() {}
+
+  fun testChange (test: Int) {
+    open_CH_sb.progress = test
+  }
+
+  private fun startTestThread() {
+    testThread = Thread {
+      while (testThreadFlag) {
+        open_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0)
+        System.err.println("фрагмент startTestThread " + mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0))
+        try {
+          Thread.sleep(1000)
+        } catch (ignored: Exception) { }
+      }
+    }
+    testThread?.start()
+  }
 }

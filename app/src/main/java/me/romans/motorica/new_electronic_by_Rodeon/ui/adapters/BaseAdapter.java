@@ -1,7 +1,4 @@
-/*
- * Copyright (C) 2016 skydoves
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
+/*Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -16,7 +13,6 @@
 
 package me.romans.motorica.new_electronic_by_Rodeon.ui.adapters;
 
-/** Developed by skydoves on 2017-08-20. Copyright (c) 2017 skydoves rights reserved. */
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

@@ -24,7 +24,6 @@ import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.romans.motorica.R
@@ -33,7 +32,8 @@ import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.romans.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.romans.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
-import me.romans.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
+import me.romans.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import me.romans.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.romans.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapter
 import me.romans.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograb
@@ -44,6 +44,7 @@ import me.romans.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.romans.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
+import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.experimental.xor
 
@@ -51,8 +52,11 @@ import kotlin.experimental.xor
 @RequirePresenter(MainPresenter::class)
 open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable {
 
+  @Inject
+  lateinit var preferenceManager: PreferenceManager
+
   private var sensorsDataThreadFlag: Boolean = false
-  private lateinit var mSectionsPagerAdapter: SectionsPagerAdapter
+//  private lateinit var mSectionsPagerAdapter: SectionsPagerAdapter
   private lateinit var mSectionsPagerAdapterMonograb: SectionsPagerAdapterMonograb
   private lateinit var mSectionsPagerAdapterWithAdvancedSettings: SectionsPagerAdapterWithAdvancedSettings
   private lateinit var mSectionsPagerAdapterMonograbWithAdvancedSettings: SectionsPagerAdapterMonograbWithAdvancedSettings
@@ -72,6 +76,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var gcVer     = 0x00
   private var bmsVer    = 0x00
   private var sensVer   = 0x00
+
+  private var mSettings: SharedPreferences? = null
+  private var test = 0
 
   private var state = 0
   private var subscribeThread: Thread? = null
@@ -174,8 +181,19 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           driver_tv.text = "driver: " +castUnsignedCharToInt(data[3]).toFloat()/100 + "v"
           bms_tv.text = "bms: " +castUnsignedCharToInt(data[4]).toFloat()/100 + "v"
           sensor_tv.text = "sens: " +castUnsignedCharToInt(data[5]).toFloat()/100 + "v"
-          open_CH_sb.progress = castUnsignedCharToInt(data[6])
+//          open_CH_sb.progress = castUnsignedCharToInt(data[6])
           close_CH_sb.progress = castUnsignedCharToInt(data[7])
+//          if ( )
+          test = castUnsignedCharToInt(data[6])
+
+          if (test != mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0)) {
+            val editor: SharedPreferences.Editor = mSettings!!.edit()
+            editor.putInt(PreferenceKeys.ADVANCED_SETTINGS, test)
+            editor.apply()
+
+            System.err.println("фрагмент " + mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0))
+          }
+
 //          correlator_noise_threshold_1_sb.progress = castUnsignedCharToInt(data[8])
 //          correlator_noise_threshold_2_sb.progress = castUnsignedCharToInt(data[9])
         }
@@ -233,12 +251,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
 
+    mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+
     val intent = intent
     mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
     mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS)
     mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE)
     System.err.println("mDeviceType: $mDeviceType")
-    initUI()
+
 
     // Sets up UI references.
     mGattServicesList = findViewById(R.id.gatt_services_list)
@@ -248,13 +268,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
 
-    RxUpdateMainEvent.getInstance().observable
-        .compose(bindToLifecycle())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { flag ->
-          if (!flag) showBadge(0)
-          mSectionsPagerAdapter.notifyDataSetChanged()
-        }
+//    RxUpdateMainEvent.getInstance().observable
+//        .compose(bindToLifecycle())
+//        .observeOn(AndroidSchedulers.mainThread())
+//        .subscribe { flag ->
+//          if (!flag) showBadge(0)
+//          mSectionsPagerAdapter.notifyDataSetChanged()
+//        }
 
     val worker = Thread {
       while (true) {
@@ -263,17 +283,26 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
     }
     worker.start()
+
+
+
+    initUI()
   }
 
   private fun initUI() {
+    mSectionsPagerAdapterWithAdvancedSettings = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
+    mSectionsPagerAdapterMonograbWithAdvancedSettings= SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
     if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
-      mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+      val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
       mainactivity_viewpager.adapter = mSectionsPagerAdapter
       mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+//      System.err.println("фрагмент  загруженное количество: mSectionsPagerAdapter  " + mSectionsPagerAdapter.count + " ADVANCED_SETTINGS: " + preferenceManager.getBoolean(PreferenceKeys.ADVANCED_SETTINGS, false))
     } else {
-      mSectionsPagerAdapterMonograb = SectionsPagerAdapterMonograb(supportFragmentManager)
-      mainactivity_viewpager.adapter = mSectionsPagerAdapterMonograb
+      val mSectionsPagerAdapter =  SectionsPagerAdapterMonograb(supportFragmentManager)
+      mainactivity_viewpager.adapter = mSectionsPagerAdapter
       mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+//      presenter.setShowAdvancedSettings(true)
+//      System.err.println("фрагмент  загруженное количество:  mSectionsPagerAdapterMonograb  " + mSectionsPagerAdapter.count + " ADVANCED_SETTINGS: " + presenter.getShowAdvancedSettings())
     }
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
@@ -282,32 +311,66 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mainactivity_viewpager.isSaveFromParentEnabled = false
     if (showAdvancedSettings) {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
-        mSectionsPagerAdapterWithAdvancedSettings = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapterWithAdvancedSettings
+        val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
+        System.err.println("фрагмент  3")
       } else {
-        mSectionsPagerAdapterMonograbWithAdvancedSettings= SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapterMonograbWithAdvancedSettings
+        val mSectionsPagerAdapter =  SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+        System.err.println("фрагмент  1 загруженное количество: mSectionsPagerAdapter  " + mSectionsPagerAdapter.count)
       }
     } else {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
-        mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+        val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-        NavigationUtils.showAdvancedSettings = false
+        System.err.println("фрагмент  4")
       } else {
-        mSectionsPagerAdapterMonograb = SectionsPagerAdapterMonograb(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapterMonograb
+        val mSectionsPagerAdapter =  SectionsPagerAdapterMonograb(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+        System.err.println("фрагмент  2 загруженное количество: mSectionsPagerAdapter  " + mSectionsPagerAdapter.count)
       }
     }
 
     Toast.makeText(this, "Advanced settings: $showAdvancedSettings", Toast.LENGTH_SHORT).show()
 
     NavigationUtils.showAdvancedSettings = showAdvancedSettings
+    mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
+
+
+//
+//  open fun destroyAllItem() {
+//    var mPosition: Int = mainactivity_viewpager.getCurrentItem()
+//    val mPositionMax: Int = mainactivity_viewpager.getCurrentItem() + 1
+//    if (TABLE.size() > 0 && mPosition < TABLE.size()) {
+//      if (mPosition > 0) {
+//        mPosition--
+//      }
+//      for (i in mPosition until mPositionMax) {
+//        try {
+//          val objectobject: Any = this.instantiateItem(mainactivity_viewpager, TABLE.get(i).intValue())
+//          if (objectobject != null) destroyItem(mainactivity_viewpager, TABLE.get(i).intValue(), objectobject)
+//        } catch (e: java.lang.Exception) {
+//          Log.i(TAG, "no more Fragment in FragmentPagerAdapter")
+//        }
+//      }
+//    }
+//  }
+//  open fun destroyItem(container: ViewGroup?, position: Int, `object`: Any) {
+//    super.destroyItem(container, position, `object`)
+//    if (position <= getCount()) {
+//      val manager: FragmentManager = (`object` as Fragment).getFragmentManager()
+//      val trans: FragmentTransaction = manager.beginTransaction()
+//      trans.remove(`object` as Fragment)
+//      trans.commit()
+//    }
+//  }
+
   override fun onResume() {
     super.onResume()
     val filter = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
@@ -397,13 +460,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     dead_zone_sb.isEnabled = enabled
     brake_motor_sw.isEnabled = enabled
 
-//    preferenceManager.getBoolean("THRESHOLDS_BLOCKING", false)
 //    correlator_noise_threshold_1_sb.isEnabled = enabled
 //    correlator_noise_threshold_2_sb.isEnabled = enabled
     sensorsDataThreadFlag = enabled
     if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
       runReadData()
-//      TODO включить после теста записи
     } else {
       startSubscribeSensorsDataThread()
     }
@@ -552,13 +613,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   private fun runReadData() {
-//    getReadData().let { queue.put(it) }
+    getReadData().let { queue.put(it) }
   }
   open fun getReadData(): Runnable { return Runnable { readData() } }
   private fun readData() {
     while (readDataFlag) {
       bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
-//      System.err.println("readData")
       try {
         Thread.sleep(10)
       } catch (ignored: Exception) {}

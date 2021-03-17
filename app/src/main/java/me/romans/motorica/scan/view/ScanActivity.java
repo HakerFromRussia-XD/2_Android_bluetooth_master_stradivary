@@ -277,7 +277,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, extraDevice.getName());
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
-        //TODO наш костыль начинает свой путь тут(заменить на считанное имя устройства)
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, extraDevice.getName());
 
         if (mScanning) {

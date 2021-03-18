@@ -13,6 +13,7 @@
 
 package me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
@@ -184,6 +185,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //          open_CH_sb.progress = castUnsignedCharToInt(data[6])
           close_CH_sb.progress = castUnsignedCharToInt(data[7])
 //          if ( )
+//          shutdown_current_sb.progress = castUnsignedCharToInt(data[6])
+
           test = castUnsignedCharToInt(data[6])
 
           if (test != mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0)) {
@@ -304,6 +307,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //      presenter.setShowAdvancedSettings(true)
 //      System.err.println("фрагмент  загруженное количество:  mSectionsPagerAdapterMonograb  " + mSectionsPagerAdapter.count + " ADVANCED_SETTINGS: " + presenter.getShowAdvancedSettings())
     }
+
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }

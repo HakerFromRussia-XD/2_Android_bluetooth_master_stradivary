@@ -94,7 +94,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
 
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-    startTestThread()
+    Handler().postDelayed({
+      startTestThread()
+    }, 500)
 
 //    main?.showAdvancedSettings(showAdvancedSettings)
 
@@ -390,6 +392,10 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     testThread = Thread {
       while (testThreadFlag) {
         open_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0)
+
+        ObjectAnimator.ofInt(shutdown_current_sb, "progress", mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0)).setDuration(200).start()
+        //TODO код плавного изменения уровня seekBar'a
+
         System.err.println("фрагмент startTestThread " + mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0))
         try {
           Thread.sleep(1000)

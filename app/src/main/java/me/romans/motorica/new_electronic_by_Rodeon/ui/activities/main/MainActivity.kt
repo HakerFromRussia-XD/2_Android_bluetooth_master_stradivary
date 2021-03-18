@@ -171,39 +171,25 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
           if (castUnsignedCharToInt(data[3]) != mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 0)) {
-            val editor: SharedPreferences.Editor = mSettings!!.edit()
-            editor.putInt(PreferenceKeys.DRIVER_NUM, castUnsignedCharToInt(data[3]))
-            editor.apply()
+            saveInt(PreferenceKeys.DRIVER_NUM, castUnsignedCharToInt(data[3]))
           }
           if (castUnsignedCharToInt(data[4]) != mSettings!!.getInt(PreferenceKeys.BMS_NUM, 0)) {
-            val editor: SharedPreferences.Editor = mSettings!!.edit()
-            editor.putInt(PreferenceKeys.BMS_NUM, castUnsignedCharToInt(data[4]))
-            editor.apply()
+            saveInt(PreferenceKeys.BMS_NUM, castUnsignedCharToInt(data[4]))
           }
           if (castUnsignedCharToInt(data[5]) != mSettings!!.getInt(PreferenceKeys.SENS_NUM, 0)) {
-            val editor: SharedPreferences.Editor = mSettings!!.edit()
-            editor.putInt(PreferenceKeys.SENS_NUM, castUnsignedCharToInt(data[5]))
-            editor.apply()
+            saveInt(PreferenceKeys.SENS_NUM, castUnsignedCharToInt(data[5]))
           }
           if (castUnsignedCharToInt(data[6]) != mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 0)) {
-            val editor: SharedPreferences.Editor = mSettings!!.edit()
-            editor.putInt(PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[6]))
-            editor.apply()
+            saveInt(PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[6]))
           }
           if (castUnsignedCharToInt(data[7]) != mSettings!!.getInt(PreferenceKeys.CLOSE_CH_NUM, 0)) {
-            val editor: SharedPreferences.Editor = mSettings!!.edit()
-            editor.putInt(PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[7]))
-            editor.apply()
+            saveInt(PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[7]))
           }
           if (castUnsignedCharToInt(data[8]) != mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 0)) {
-            val editor: SharedPreferences.Editor = mSettings!!.edit()
-            editor.putInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, castUnsignedCharToInt(data[8]))
-            editor.apply()
+            saveInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, castUnsignedCharToInt(data[8]))
           }
           if (castUnsignedCharToInt(data[9]) != mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 0)) {
-            val editor: SharedPreferences.Editor = mSettings!!.edit()
-            editor.putInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, castUnsignedCharToInt(data[9]))
-            editor.apply()
+            saveInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, castUnsignedCharToInt(data[9]))
           }
         }
       } else {
@@ -238,17 +224,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     enableInterface(false)
   }
 
-  /**
-   * show badge with delay
-   * @param position
-   */
-  private fun showBadge(position: Int) {
-    mainactivity_navi.postDelayed({
-      val model = mainactivity_navi.models[position]
-      mainactivity_navi.postDelayed({ model.showBadge() }, 100)
-    }, 200)
-  }
-
   @SuppressLint("CheckResult", "NewApi")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -277,14 +252,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
 
-//    RxUpdateMainEvent.getInstance().observable
-//        .compose(bindToLifecycle())
-//        .observeOn(AndroidSchedulers.mainThread())
-//        .subscribe { flag ->
-//          if (!flag) showBadge(0)
-//          mSectionsPagerAdapter.notifyDataSetChanged()
-//        }
-
     val worker = Thread {
       while (true) {
         val task: Runnable = queue.get()
@@ -292,8 +259,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
     }
     worker.start()
-
-
 
     initUI()
   }
@@ -349,34 +314,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
 
-
-//
-//  open fun destroyAllItem() {
-//    var mPosition: Int = mainactivity_viewpager.getCurrentItem()
-//    val mPositionMax: Int = mainactivity_viewpager.getCurrentItem() + 1
-//    if (TABLE.size() > 0 && mPosition < TABLE.size()) {
-//      if (mPosition > 0) {
-//        mPosition--
-//      }
-//      for (i in mPosition until mPositionMax) {
-//        try {
-//          val objectobject: Any = this.instantiateItem(mainactivity_viewpager, TABLE.get(i).intValue())
-//          if (objectobject != null) destroyItem(mainactivity_viewpager, TABLE.get(i).intValue(), objectobject)
-//        } catch (e: java.lang.Exception) {
-//          Log.i(TAG, "no more Fragment in FragmentPagerAdapter")
-//        }
-//      }
-//    }
-//  }
-//  open fun destroyItem(container: ViewGroup?, position: Int, `object`: Any) {
-//    super.destroyItem(container, position, `object`)
-//    if (position <= getCount()) {
-//      val manager: FragmentManager = (`object` as Fragment).getFragmentManager()
-//      val trans: FragmentTransaction = manager.beginTransaction()
-//      trans.remove(`object` as Fragment)
-//      trans.commit()
-//    }
-//  }
 
   override fun onResume() {
     super.onResume()
@@ -462,10 +399,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun enableInterface(enabled: Boolean) {
     close_btn.isEnabled = enabled
     open_btn.isEnabled = enabled
-//    shutdown_current_sb.isEnabled = enabled
-//    start_up_step_sb.isEnabled = enabled
-//    dead_zone_sb.isEnabled = enabled
-//    brake_motor_sw.isEnabled = enabled
 
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
@@ -714,5 +647,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       cast += 256
     }
     return cast
+  }
+
+  private fun saveInt (key: String, variable: Int) {
+    val editor: SharedPreferences.Editor = mSettings!!.edit()
+    editor.putInt(key, variable)
+    editor.apply()
   }
 }

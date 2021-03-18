@@ -16,11 +16,11 @@ package me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -46,6 +46,7 @@ class SensSettingsFragment : Fragment() {
   private var rootView: View? = null
   private var mContext: Context? = null
   private var main: MainActivity? = null
+  private var mSettings: SharedPreferences? = null
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     val rootView = inflater.inflate(R.layout.layout_sens_settings, container, false)
@@ -63,6 +64,8 @@ class SensSettingsFragment : Fragment() {
 
   @SuppressLint("SetTextI18n", "CheckResult")
   private fun initializeUI() {
+    mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+
     val shutdownCurrentTv = rootView!!.findViewById(R.id.shutdown_current_tv) as TextView
     val startUpStepTv = rootView!!.findViewById(R.id.start_up_step_tv) as TextView
     val deadZoneTv = rootView!!.findViewById(R.id.dead_zone_tv) as TextView
@@ -76,6 +79,7 @@ class SensSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+        preferenceManager.putInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
       }
     })
     start_up_step_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -86,6 +90,7 @@ class SensSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE, 1)
+        preferenceManager.putInt(PreferenceKeys.STAR_UP_STEP_NUM, seekBar.progress)
       }
     })
     dead_zone_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -96,15 +101,18 @@ class SensSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         main?.bleCommandConnector(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE, 3)
+        preferenceManager.putInt(PreferenceKeys.DEAD_ZONE_NUM, (seekBar.progress))
       }
     })
     brake_motor_sw.setOnClickListener {
       if (brake_motor_sw.isChecked) {
         brakeMotorTv.text = 1.toString()
         main?.bleCommandConnector(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE, 10)
+        preferenceManager.putBoolean(PreferenceKeys.USE_BRAKE_MOTOR_NUM, true)
       } else {
         brakeMotorTv.text = 0.toString()
         main?.bleCommandConnector(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE, 10)
+        preferenceManager.putBoolean(PreferenceKeys.USE_BRAKE_MOTOR_NUM, false)
       }
     }
 
@@ -115,5 +123,16 @@ class SensSettingsFragment : Fragment() {
       dead_zone_rl.visibility = View.GONE
       brake_motor_rl.visibility = View.GONE
     }
+
+//    if (preferenceManager.getBoolean(PreferenceKeys.USE_BRAKE_MOTOR, true) == null) preferenceManager.putBoolean(PreferenceKeys.USE_BRAKE_MOTOR, false)
+    brake_motor_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.USE_BRAKE_MOTOR_NUM, true)
+    if (preferenceManager.getBoolean(PreferenceKeys.USE_BRAKE_MOTOR_NUM, true)) brake_motor_tv.text = 1.toString()
+
+    main?.runOnUiThread {
+      ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 250)).setDuration(200).start()
+      ObjectAnimator.ofInt(start_up_step_sb, "progress", preferenceManager.getInt(PreferenceKeys.STAR_UP_STEP_NUM, 0)).setDuration(200).start()
+      ObjectAnimator.ofInt(dead_zone_sb, "progress", preferenceManager.getInt(PreferenceKeys.DEAD_ZONE_NUM, 0)).setDuration(200).start()
+    }
+
   }
 }

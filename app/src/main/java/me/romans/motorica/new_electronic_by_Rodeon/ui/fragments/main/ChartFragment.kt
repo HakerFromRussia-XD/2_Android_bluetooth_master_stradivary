@@ -80,12 +80,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
 
-    System.err.println("фрагмент   onActivityCreated")
-    // set dateCount
-//    dateCount = -DateUtils.getDateDay(DateUtils.getFarDay(0), DateUtils.dateFormat)
-//    initializeChart(DateUtils.getDateDay("2020-10-16", DateUtils.dateFormat))//2020-10-14  DateUtils.getFarDay(0)
-
-
     initializedSensorGraph()
     initializedUI()
     showAdvancedSettings = preferenceManager.getBoolean(PreferenceKeys.ADVANCED_SETTINGS, false)
@@ -95,13 +89,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     Handler().postDelayed({
       startUpdatingUIThread()
     }, 500)
-
-//    main?.showAdvancedSettings(showAdvancedSettings)
-
-//    graphThreadFlag = false
-//    Handler().postDelayed({
-//      main?.showAdvancedSettings(showAdvancedSettings)
-//    }, 100)
 
     val limitCH1 = rootView!!.findViewById(R.id.limit_CH1) as LinearLayout
     val limitCh2 = rootView!!.findViewById(R.id.limit_CH2) as LinearLayout
@@ -206,7 +193,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         preferenceManager.putBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
     }
-
   }
 
   @SuppressLint("SetTextI18n")

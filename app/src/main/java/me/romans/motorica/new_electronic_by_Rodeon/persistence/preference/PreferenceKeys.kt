@@ -28,6 +28,14 @@ object PreferenceKeys {
   const val DRIVER_NUM = "DRIVER_NUM"
   const val BMS_NUM = "BMS_NUM"
   const val SENS_NUM = "SENS_NUM"
+
+
+
+  const val SHUTDOWN_CURRENT_NUM = "SHUTDOWN_CURRENT_NUM"
+  const val STAR_UP_STEP_NUM = "STAR_UP_STEP_NUM"
+  const val DEAD_ZONE_NUM = "DEAD_ZONE_NUM"
+  const val USE_BRAKE_MOTOR_NUM = "USE_BRAKE_MOTOR_NUM"
+
   val INIT_CAPACITY = Pair("INIT_CAPACITY", false)
   val WATER_GOAL = Pair("WaterGoal", "2000")
   val LOCALINDEX = Pair("localIndex", 0)

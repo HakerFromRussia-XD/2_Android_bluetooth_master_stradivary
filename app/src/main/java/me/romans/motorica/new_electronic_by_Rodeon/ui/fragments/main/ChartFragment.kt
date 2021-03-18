@@ -45,6 +45,7 @@ import me.romans.motorica.new_electronic_by_Rodeon.persistence.preference.Prefer
 import me.romans.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.romans.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import me.romans.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
@@ -82,8 +83,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     initializedSensorGraph()
     initializedUI()
-    showAdvancedSettings = preferenceManager.getBoolean(PreferenceKeys.ADVANCED_SETTINGS, false)
-
+    showAdvancedSettings = NavigationUtils.showAdvancedSettings
 
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
     Handler().postDelayed({
@@ -181,7 +181,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         }, 100)
         true
       }
-      preferenceManager.putBoolean(PreferenceKeys.ADVANCED_SETTINGS, showAdvancedSettings)
       false
     }
     thresholds_blocking_sw.setOnClickListener{
@@ -350,9 +349,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 0)).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 0)).setDuration(200).start()
         }
-
-//        ObjectAnimator.ofInt(shutdown_current_sb, "progress", mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0)).setDuration(200).start()
-        //TODO код плавного изменения уровня seekBar'a
 
         System.err.println("фрагмент startTestThread " + mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 0))
         try {

@@ -264,19 +264,28 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   private fun initUI() {
-    mSectionsPagerAdapterWithAdvancedSettings = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
-    mSectionsPagerAdapterMonograbWithAdvancedSettings= SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
-      val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
-      mainactivity_viewpager.adapter = mSectionsPagerAdapter
-      mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-//      System.err.println("фрагмент  загруженное количество: mSectionsPagerAdapter  " + mSectionsPagerAdapter.count + " ADVANCED_SETTINGS: " + preferenceManager.getBoolean(PreferenceKeys.ADVANCED_SETTINGS, false))
+    System.err.println("lol  " + mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4))
+    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+        val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
+      } else {
+        val mSectionsPagerAdapter =  SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+      }
+      NavigationUtils.showAdvancedSettings = true
     } else {
-      val mSectionsPagerAdapter =  SectionsPagerAdapterMonograb(supportFragmentManager)
-      mainactivity_viewpager.adapter = mSectionsPagerAdapter
-      mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-//      presenter.setShowAdvancedSettings(true)
-//      System.err.println("фрагмент  загруженное количество:  mSectionsPagerAdapterMonograb  " + mSectionsPagerAdapter.count + " ADVANCED_SETTINGS: " + presenter.getShowAdvancedSettings())
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+        val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+      } else {
+        val mSectionsPagerAdapter =  SectionsPagerAdapterMonograb(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+      }
     }
 
     mainactivity_viewpager.offscreenPageLimit = 3
@@ -284,6 +293,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {
+    if (showAdvancedSettings) {
+      saveInt(PreferenceKeys.ADVANCED_SETTINGS, 1)
+    }  else {
+      saveInt(PreferenceKeys.ADVANCED_SETTINGS, 0)
+    }
+
+
     mainactivity_viewpager.isSaveFromParentEnabled = false
     if (showAdvancedSettings) {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
@@ -652,6 +668,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun saveInt (key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putInt(key, variable)
+    editor.apply()
+  }
+  private fun saveBool (key: String, variable: Boolean) {
+    val editor: SharedPreferences.Editor = mSettings!!.edit()
+    editor.putBoolean(key, variable)
     editor.apply()
   }
 }

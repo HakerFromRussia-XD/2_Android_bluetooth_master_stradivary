@@ -13,7 +13,6 @@
 
 package me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main
 
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
@@ -74,12 +73,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var mCharacteristic: BluetoothGattCharacteristic? = null
   private var dataSens1 = 0x00
   private var dataSens2 = 0x00
-  private var gcVer     = 0x00
-  private var bmsVer    = 0x00
-  private var sensVer   = 0x00
-
   private var mSettings: SharedPreferences? = null
-  private var test = 0
 
   private var state = 0
   private var subscribeThread: Thread? = null
@@ -176,29 +170,41 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         } else if (data.size == 10) {
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
-          gcVer     = castUnsignedCharToInt(data[3])
-          bmsVer    = castUnsignedCharToInt(data[4])
-          sensVer   = castUnsignedCharToInt(data[5])
-          driver_tv.text = "driver: " +castUnsignedCharToInt(data[3]).toFloat()/100 + "v"
-          bms_tv.text = "bms: " +castUnsignedCharToInt(data[4]).toFloat()/100 + "v"
-          sensor_tv.text = "sens: " +castUnsignedCharToInt(data[5]).toFloat()/100 + "v"
-//          open_CH_sb.progress = castUnsignedCharToInt(data[6])
-          close_CH_sb.progress = castUnsignedCharToInt(data[7])
-//          if ( )
-//          shutdown_current_sb.progress = castUnsignedCharToInt(data[6])
-
-          test = castUnsignedCharToInt(data[6])
-
-          if (test != mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0)) {
+          if (castUnsignedCharToInt(data[3]) != mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 0)) {
             val editor: SharedPreferences.Editor = mSettings!!.edit()
-            editor.putInt(PreferenceKeys.ADVANCED_SETTINGS, test)
+            editor.putInt(PreferenceKeys.DRIVER_NUM, castUnsignedCharToInt(data[3]))
             editor.apply()
-
-            System.err.println("фрагмент " + mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0))
           }
-
-//          correlator_noise_threshold_1_sb.progress = castUnsignedCharToInt(data[8])
-//          correlator_noise_threshold_2_sb.progress = castUnsignedCharToInt(data[9])
+          if (castUnsignedCharToInt(data[4]) != mSettings!!.getInt(PreferenceKeys.BMS_NUM, 0)) {
+            val editor: SharedPreferences.Editor = mSettings!!.edit()
+            editor.putInt(PreferenceKeys.BMS_NUM, castUnsignedCharToInt(data[4]))
+            editor.apply()
+          }
+          if (castUnsignedCharToInt(data[5]) != mSettings!!.getInt(PreferenceKeys.SENS_NUM, 0)) {
+            val editor: SharedPreferences.Editor = mSettings!!.edit()
+            editor.putInt(PreferenceKeys.SENS_NUM, castUnsignedCharToInt(data[5]))
+            editor.apply()
+          }
+          if (castUnsignedCharToInt(data[6]) != mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 0)) {
+            val editor: SharedPreferences.Editor = mSettings!!.edit()
+            editor.putInt(PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[6]))
+            editor.apply()
+          }
+          if (castUnsignedCharToInt(data[7]) != mSettings!!.getInt(PreferenceKeys.CLOSE_CH_NUM, 0)) {
+            val editor: SharedPreferences.Editor = mSettings!!.edit()
+            editor.putInt(PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[7]))
+            editor.apply()
+          }
+          if (castUnsignedCharToInt(data[8]) != mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 0)) {
+            val editor: SharedPreferences.Editor = mSettings!!.edit()
+            editor.putInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, castUnsignedCharToInt(data[8]))
+            editor.apply()
+          }
+          if (castUnsignedCharToInt(data[9]) != mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 0)) {
+            val editor: SharedPreferences.Editor = mSettings!!.edit()
+            editor.putInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, castUnsignedCharToInt(data[9]))
+            editor.apply()
+          }
         }
       } else {
         globalSemaphore = false
@@ -311,6 +317,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
+
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {
     mainactivity_viewpager.isSaveFromParentEnabled = false
     if (showAdvancedSettings) {
@@ -318,24 +325,20 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
-        System.err.println("фрагмент  3")
       } else {
         val mSectionsPagerAdapter =  SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
-        System.err.println("фрагмент  1 загруженное количество: mSectionsPagerAdapter  " + mSectionsPagerAdapter.count)
       }
     } else {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-        System.err.println("фрагмент  4")
       } else {
         val mSectionsPagerAdapter =  SectionsPagerAdapterMonograb(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-        System.err.println("фрагмент  2 загруженное количество: mSectionsPagerAdapter  " + mSectionsPagerAdapter.count)
       }
     }
 
@@ -459,13 +462,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun enableInterface(enabled: Boolean) {
     close_btn.isEnabled = enabled
     open_btn.isEnabled = enabled
-    shutdown_current_sb.isEnabled = enabled
-    start_up_step_sb.isEnabled = enabled
-    dead_zone_sb.isEnabled = enabled
-    brake_motor_sw.isEnabled = enabled
+//    shutdown_current_sb.isEnabled = enabled
+//    start_up_step_sb.isEnabled = enabled
+//    dead_zone_sb.isEnabled = enabled
+//    brake_motor_sw.isEnabled = enabled
 
-//    correlator_noise_threshold_1_sb.isEnabled = enabled
-//    correlator_noise_threshold_2_sb.isEnabled = enabled
+    correlator_noise_threshold_1_sb.isEnabled = enabled
+    correlator_noise_threshold_2_sb.isEnabled = enabled
+
     sensorsDataThreadFlag = enabled
     if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
       runReadData()

@@ -14,6 +14,7 @@
         android:layout_marginTop="24dp"
         tools:ignore="UselessParent">
         <RelativeLayout
+            android:id="@+id/shutdown_current_rl"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
@@ -24,7 +25,7 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:weightSum="4"
-                android:baselineAligned="false">
+                tools:ignore="DisableBaselineAlignment">
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -35,22 +36,80 @@
                         android:textStyle="bold"
                         android:layout_centerVertical="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_alignParentStart="true"
-                        android:text="correlator out noise threshold 1"
-                        android:textSize="9sp"
+                        android:layout_alignParentLeft="true"
+                        android:text="shutdown current"
                         style="@style/Text"
-                        tools:ignore="HardcodedText,SmallSp" />
+                        tools:ignore="HardcodedText,RtlHardcoded" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5">
                     <TextView
-                        android:id="@+id/correlator_noise_threshold_1_tv"
+                        android:id="@+id/shutdown_current_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:text="230"
+                        android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true"
+                        style="@style/Text"
+                        tools:ignore="HardcodedText" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.5">
+                    <androidx.appcompat.widget.AppCompatSeekBar
+                        android:id="@+id/shutdown_current_sb"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingEnd="0dp"
+                        android:paddingStart="16dp"
+                        android:max="255"
+                        android:progress="230"
+                        android:progressDrawable="@drawable/track_le"
+                        android:thumb="@drawable/thumb_le"/>
+                </RelativeLayout>
+            </LinearLayout>
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/start_up_step_rl"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:weightSum="4"
+                tools:ignore="DisableBaselineAlignment">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentStart="true"
+                        android:text="start up step"
+                        style="@style/Text"
+                        tools:ignore="HardcodedText" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5">
+                    <TextView
+                        android:id="@+id/start_up_step_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:text="65"
                         android:layout_centerVertical="true"
                         android:layout_centerHorizontal="true"
                         style="@style/Text"
@@ -62,19 +121,20 @@
                     android:layout_weight="2.5">
 
                     <androidx.appcompat.widget.AppCompatSeekBar
-                        android:id="@+id/correlator_noise_threshold_1_sb"
+                        android:id="@+id/start_up_step_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:max="255"
+                        android:max="99"
                         android:paddingStart="16dp"
                         android:paddingEnd="0dp"
-                        android:progress="230"
+                        android:progress="65"
                         android:progressDrawable="@drawable/track_le"
                         android:thumb="@drawable/thumb_le" />
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
         <RelativeLayout
+            android:id="@+id/dead_zone_rl"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
@@ -85,7 +145,7 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:weightSum="4"
-                android:baselineAligned="false">
+                tools:ignore="DisableBaselineAlignment">
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -95,23 +155,21 @@
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:layout_centerVertical="true"
-                        android:layout_alignParentEnd="true"
                         android:layout_alignParentStart="true"
-                        android:text="correlator out noise threshold 2"
-                        android:textSize="9sp"
+                        android:text="dead zone"
                         style="@style/Text"
-                        tools:ignore="HardcodedText,SmallSp" />
+                        tools:ignore="HardcodedText" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5">
                     <TextView
-                        android:id="@+id/correlator_noise_threshold_2_tv"
+                        android:id="@+id/dead_zone_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
-                        android:text="230"
+                        android:text="50"
                         android:layout_centerVertical="true"
                         android:layout_centerHorizontal="true"
                         style="@style/Text"
@@ -122,15 +180,75 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2.5">
                     <androidx.appcompat.widget.AppCompatSeekBar
-                        android:id="@+id/correlator_noise_threshold_2_sb"
+                        android:id="@+id/dead_zone_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:paddingEnd="0dp"
                         android:paddingStart="16dp"
-                        android:max="255"
-                        android:progress="230"
+                        android:max="69"
+                        android:progress="20"
                         android:progressDrawable="@drawable/track_le"
                         android:thumb="@drawable/thumb_le"/>
+                </RelativeLayout>
+            </LinearLayout>
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/brake_motor_rl"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:weightSum="4"
+                tools:ignore="DisableBaselineAlignment">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentStart="true"
+                        android:text="use brake motor"
+                        style="@style/Text"
+                        tools:ignore="HardcodedText" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5">
+                    <TextView
+                        android:id="@+id/brake_motor_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:text="0"
+                        android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true"
+                        style="@style/Text"
+                        tools:ignore="HardcodedText" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.5">
+                    <Switch
+                        android:id="@+id/brake_motor_sw"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentStart="true"
+                        android:scrollbarSize="48dp"
+                        android:ellipsize="middle"
+                        android:paddingStart="16dp"
+                        android:thumb="@drawable/switch_le_thumb"
+                        android:track="@drawable/switch_le_truck"
+                        tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>

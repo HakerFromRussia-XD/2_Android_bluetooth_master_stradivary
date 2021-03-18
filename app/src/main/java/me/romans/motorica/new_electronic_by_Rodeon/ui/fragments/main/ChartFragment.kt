@@ -26,7 +26,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.SeekBar
-import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.components.XAxis
@@ -62,12 +61,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var graphThreadFlag = false
   private var testThreadFlag = true
   private var plotData = true
-  var objectAnimator: ObjectAnimator? = null
-  var objectAnimator2: ObjectAnimator? = null
   private var showAdvancedSettings = false
   private var mSettings: SharedPreferences? = null
-
-  private var testThread: Thread? = null
+  var objectAnimator: ObjectAnimator? = null
+  var objectAnimator2: ObjectAnimator? = null
+  private var updatingUIThread: Thread? = null
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -78,7 +76,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     return rootView
   }
 
-  @SuppressLint("ClickableViewAccessibility")
+  @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
 
@@ -95,7 +93,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
     Handler().postDelayed({
-      startTestThread()
+      startUpdatingUIThread()
     }, 500)
 
 //    main?.showAdvancedSettings(showAdvancedSettings)
@@ -105,15 +103,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 //      main?.showAdvancedSettings(showAdvancedSettings)
 //    }, 100)
 
-
-    val shutdownCurrentTv = rootView!!.findViewById(R.id.shutdown_current_tv) as TextView
-    val startUpStepTv = rootView!!.findViewById(R.id.start_up_step_tv) as TextView
-    val deadZoneTv = rootView!!.findViewById(R.id.dead_zone_tv) as TextView
-    val brakeMotorTv = rootView!!.findViewById(R.id.brake_motor_tv) as TextView
-    val scale = resources.displayMetrics.density
     val limitCH1 = rootView!!.findViewById(R.id.limit_CH1) as LinearLayout
     val limitCh2 = rootView!!.findViewById(R.id.limit_CH2) as LinearLayout
-
+    val scale = resources.displayMetrics.density
+    val correlatorNoiseThreshold1Tv = rootView!!.findViewById(R.id.correlator_noise_threshold_1_tv) as TextView
+    val correlatorNoiseThreshold2Tv = rootView!!.findViewById(R.id.correlator_noise_threshold_2_tv) as TextView
 
     close_btn.setOnTouchListener { _, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
@@ -134,37 +128,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
       false
     }
-    shutdown_current_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        shutdownCurrentTv.text = seekBar.progress.toString()
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-      }
-    })
-    start_up_step_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        startUpStepTv.text = seekBar.progress.toString()
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE, 1)
-      }
-    })
-    dead_zone_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        deadZoneTv.text = (seekBar.progress + 30).toString()
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE, 3)
-      }
-    })
-    open_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+    open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH1 = " + seekBar.progress)
         objectAnimator = ObjectAnimator.ofFloat(limitCH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
@@ -179,7 +143,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         }
       }
     })
-    close_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+    close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH2 = " + seekBar.progress)
         objectAnimator2 = ObjectAnimator.ofFloat(limitCh2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
@@ -194,18 +158,28 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         }
       }
     })
-    brake_motor_sw.setOnClickListener {
-      if (brake_motor_sw.isChecked) {
-        brakeMotorTv.text = 1.toString()
-        main?.bleCommandConnector(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE, 10)
-      } else {
-        brakeMotorTv.text = 0.toString()
-        main?.bleCommandConnector(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE, 10)
+    correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        correlatorNoiseThreshold1Tv.text = seekBar.progress.toString()
       }
-    }
-
-
-
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+          main?.bleCommandConnector(byteArrayOf(0x01, seekBar.progress.toByte(), 0x01), SENS_OPTIONS, WRITE,11)
+        }
+      }
+    })
+    correlator_noise_threshold_2_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        correlatorNoiseThreshold2Tv.text = seekBar.progress.toString()
+      }
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+          main?.bleCommandConnector(byteArrayOf(0x01, seekBar.progress.toByte(), 0x02), SENS_OPTIONS, WRITE,11)
+        }
+      }
+    })
     driver_tv.setOnLongClickListener {
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
@@ -223,9 +197,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       preferenceManager.putBoolean(PreferenceKeys.ADVANCED_SETTINGS, showAdvancedSettings)
       false
     }
-
-
-
     thresholds_blocking_sw.setOnClickListener{
       if (thresholds_blocking_sw.isChecked) {
         thresholds_blocking_tv.text = "on"
@@ -236,15 +207,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
     }
 
-    //Скрывает настройки, которые не актуальны для многосхватной бионики
-    if ( main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
-      shutdown_current_rl.visibility = View.GONE
-      start_up_step_rl.visibility = View.GONE
-      dead_zone_rl.visibility = View.GONE
-      brake_motor_rl.visibility = View.GONE
-    }
   }
 
+  @SuppressLint("SetTextI18n")
   private fun initializedUI() {
     thresholds_blocking_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) thresholds_blocking_tv.text = "on"
@@ -266,6 +231,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     super.onDestroy()
     testThreadFlag = false
   }
+
   //////////////////////////////////////////////////////////////////////////////
   /**                          работа с графиками                            **/
   //////////////////////////////////////////////////////////////////////////////
@@ -384,24 +350,30 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   override fun onValueSelected(e: Entry?, h: Highlight?) {}
   override fun onNothingSelected() {}
 
-  fun testChange (test: Int) {
-    open_CH_sb.progress = test
-  }
 
-  private fun startTestThread() {
-    testThread = Thread {
+  @SuppressLint("SetTextI18n")
+  private fun startUpdatingUIThread() {
+    updatingUIThread = Thread {
       while (testThreadFlag) {
-        open_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0)
+        open_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 0)
+        close_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.CLOSE_CH_NUM, 0)
+        main?.runOnUiThread {
+          driver_tv.text = "driver: " +(mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 0)).toFloat()/100 + "v"
+          bms_tv.text = "bms: " +(mSettings!!.getInt(PreferenceKeys.BMS_NUM, 0)).toFloat()/100 + "v"
+          sensor_tv.text = "sens: " +(mSettings!!.getInt(PreferenceKeys.SENS_NUM, 0)).toFloat()/100 + "v"
+          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 0)).setDuration(200).start()
+          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 0)).setDuration(200).start()
+        }
 
-        ObjectAnimator.ofInt(shutdown_current_sb, "progress", mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0)).setDuration(200).start()
+//        ObjectAnimator.ofInt(shutdown_current_sb, "progress", mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0)).setDuration(200).start()
         //TODO код плавного изменения уровня seekBar'a
 
-        System.err.println("фрагмент startTestThread " + mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 0))
+        System.err.println("фрагмент startTestThread " + mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 0))
         try {
           Thread.sleep(1000)
         } catch (ignored: Exception) { }
       }
     }
-    testThread?.start()
+    updatingUIThread?.start()
   }
 }

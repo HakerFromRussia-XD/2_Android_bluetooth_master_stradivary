@@ -25,6 +25,7 @@ import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.romans.motorica.R
 import me.romans.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
@@ -56,10 +57,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   lateinit var preferenceManager: PreferenceManager
 
   private var sensorsDataThreadFlag: Boolean = false
-//  private lateinit var mSectionsPagerAdapter: SectionsPagerAdapter
-  private lateinit var mSectionsPagerAdapterMonograb: SectionsPagerAdapterMonograb
-  private lateinit var mSectionsPagerAdapterWithAdvancedSettings: SectionsPagerAdapterWithAdvancedSettings
-  private lateinit var mSectionsPagerAdapterMonograbWithAdvancedSettings: SectionsPagerAdapterMonograbWithAdvancedSettings
   private var mDeviceName: String? = null
   private var mDeviceAddress: String? = null
   var mDeviceType: String? = null
@@ -82,8 +79,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private val queue = me.romans.motorica.new_electronic_by_Rodeon.services.receivers.BlockingQueue()
   private var readDataFlag = true
   private var globalSemaphore = true // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
-  // Переменная работы с дополнительными настройками
 //  private var showAdvancedSettings = false
+  private var swapOpenCloseButton = false
+  internal var countCommand = 0
+  private var actionState = READ
 
   private val listName = "NAME"
   private val listUUID = "UUID"
@@ -143,6 +142,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
             if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))) { // новая схема обработки данных
               displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
+              intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
 //              System.err.println("попадаем сюда")
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
@@ -193,9 +193,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
         }
       } else {
-        globalSemaphore = false
-        readDataFlag = true
-        runReadData()
+        countCommand--
+        System.err.println("Count command before start read: $countCommand")
+        if (countCommand == 0) {
+          globalSemaphore = false
+          readDataFlag = true
+          runReadData()
+        }
       }
     }
   }
@@ -204,6 +208,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       if (data[0].toInt() == 1){ state = 1 }
       if (data[0].toInt() == 0){ state = 2 }
     }
+  }
+  fun setActionState(value: String) {
+    actionState = value
   }
 
   constructor(parcel: Parcel) : this() {
@@ -264,7 +271,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   private fun initUI() {
-    System.err.println("lol  " + mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4))
     if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
@@ -415,9 +421,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun enableInterface(enabled: Boolean) {
     close_btn.isEnabled = enabled
     open_btn.isEnabled = enabled
-
+    thresholds_blocking_sw.isEnabled = enabled
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
+    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+        swap_sensors_sw.isEnabled = enabled
+        swap_open_close_sw.isEnabled = enabled
+        reset_to_factory_settings_btn.isEnabled = enabled
+      }
+    }
 
     sensorsDataThreadFlag = enabled
     if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
@@ -425,7 +438,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     } else {
       startSubscribeSensorsDataThread()
     }
-//    startChangeStateThread()
   }
 
   fun bleCommandConnector(byteArray: ByteArray?, Command: String, typeCommand: String, register: Int) {
@@ -439,51 +451,51 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         0 -> {
           sendByteMassive[3] = 0x00
           sendByteMassive[4] = byteArray[0]
-          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[5] = crcCalc(sendByteMassive)
         }
         1 -> {
           sendByteMassive[3] = 0x01
           sendByteMassive[4] = byteArray[0]
-          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[5] = crcCalc(sendByteMassive)
         }
         3 -> {
           sendByteMassive[3] = 0x03
           sendByteMassive[4] = byteArray[0]
-          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[5] = crcCalc(sendByteMassive)
         }
         4 -> {
           sendByteMassive[3] = 0x04
           sendByteMassive[4] = byteArray[0]
-          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[5] = crcCalc(sendByteMassive)
         }
         5 -> {
           sendByteMassive[3] = 0x05
           sendByteMassive[4] = byteArray[0]
-          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[5] = crcCalc(sendByteMassive)
         }
         6 -> {
           sendByteMassive[3] = 0x06
           sendByteMassive[4] = byteArray[0]
           sendByteMassive[5] = byteArray[1]
-          sendByteMassive[6] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[6] = crcCalc(sendByteMassive)
         }
         7 -> {
           sendByteMassive[3] = 0x07
           sendByteMassive[4] = byteArray[0]
           sendByteMassive[5] = byteArray[1]
-          sendByteMassive[6] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[6] = crcCalc(sendByteMassive)
         }
         10 -> {
           sendByteMassive[3] = 10.toByte()
           sendByteMassive[4] = byteArray[0]
-          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[5] = crcCalc(sendByteMassive)
         }
         11 -> {
           sendByteMassive[3] = 11.toByte()
           sendByteMassive[4] = byteArray[0]
           sendByteMassive[5] = byteArray[1]
           sendByteMassive[6] = byteArray[2]
-          sendByteMassive[7] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[7] = crcCalc(sendByteMassive)
         }
         12 -> {
           sendByteMassive[3] = 12.toByte()
@@ -491,12 +503,22 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           sendByteMassive[5] = byteArray[1]
           sendByteMassive[6] = byteArray[2]
           sendByteMassive[7] = byteArray[3]
-          sendByteMassive[8] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[8] = crcCalc(sendByteMassive)
         }
         13 -> {
           sendByteMassive[3] = 13.toByte()
           sendByteMassive[4] = byteArray[0]
-          sendByteMassive[5] = crcCalc(sendByteMassive, 4)
+          sendByteMassive[5] = crcCalc(sendByteMassive)
+        }
+        14 -> {
+          sendByteMassive[3] = 14.toByte()
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive)
+        }
+        15 -> {
+          sendByteMassive[3] = 15.toByte()
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive)
         }
       }
       readDataFlag = false
@@ -563,10 +585,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   open fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
   private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
     try {
-      Thread.sleep(150)
+      Thread.sleep(200)
     } catch (ignored: Exception) {}
     bleCommand(byteArray, Command, typeCommand)
-    System.err.println("writeData")
+    try {
+      Thread.sleep(100)
+    } catch (ignored: Exception) {}
   }
 
   private fun runReadData() {
@@ -627,7 +651,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   override fun initializeUI() {}
 
-  open fun crcCalc(data: ByteArray, count: Int): Byte {
+  open fun crcCalc(data: ByteArray): Byte {
     var countLocal = data.size - 1
     val crcTable = byteArrayOf(
             0, 94, 188.toByte(), 226.toByte(), 97, 63, 221.toByte(), 131.toByte(), 194.toByte(), 156.toByte(), 126, 32, 163.toByte(), 253.toByte(), 31, 65,
@@ -670,9 +694,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     editor.putInt(key, variable)
     editor.apply()
   }
-  private fun saveBool (key: String, variable: Boolean) {
-    val editor: SharedPreferences.Editor = mSettings!!.edit()
-    editor.putBoolean(key, variable)
-    editor.apply()
+
+  fun setSwapOpenCloseButton(swap: Boolean) {
+    swapOpenCloseButton = swap
+  }
+  fun getSwapOpenCloseButton() : Boolean {
+    return swapOpenCloseButton
+  }
+  fun incrementCountCommand() {
+    countCommand++
   }
 }

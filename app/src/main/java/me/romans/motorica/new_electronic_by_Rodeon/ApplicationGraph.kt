@@ -18,7 +18,7 @@ import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActi
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.*
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.MainWaterFragment
-import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.SensSettingsFragment
+import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.AdvancedSettingsFragment
 
 
 interface ApplicationGraph {
@@ -36,7 +36,7 @@ interface ApplicationGraph {
 
   fun inject(target_: MainWaterFragment)
 
-  fun inject(target_: SensSettingsFragment)
+  fun inject(target_: AdvancedSettingsFragment)
 
   fun inject(target_: GestureFragment)
 

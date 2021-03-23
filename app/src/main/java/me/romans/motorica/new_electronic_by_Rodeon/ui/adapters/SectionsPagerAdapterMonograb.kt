@@ -16,10 +16,7 @@ package me.romans.motorica.new_electronic_by_Rodeon.ui.adapters
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.*
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
-import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.MainWaterFragment
-import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.SensSettingsFragment
 
 class SectionsPagerAdapterMonograb(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
 

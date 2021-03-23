@@ -178,7 +178,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:weightSum="6.5">
+                android:weightSum="5.5">
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
@@ -323,7 +323,7 @@
                                 android:textStyle="bold"
                                 android:layout_centerVertical="true"
                                 android:layout_alignParentStart="true"
-                                android:text="thresholds blocking"
+                                android:text="settings blocking"
                                 style="@style/Text"
                                 tools:ignore="HardcodedText" />
                         </RelativeLayout>
@@ -346,14 +346,17 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.5">
+
                             <Switch
                                 android:id="@+id/thresholds_blocking_sw"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_alignParentStart="true"
-                                android:scrollbarSize="48dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_marginEnd="0dp"
                                 android:ellipsize="middle"
                                 android:paddingStart="16dp"
+                                android:scrollbarSize="48dp"
                                 android:thumb="@drawable/switch_le_thumb"
                                 android:track="@drawable/switch_le_truck"
                                 tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
@@ -370,7 +373,8 @@
                         android:orientation="horizontal"
                         android:paddingLeft="16dp"
                         android:paddingRight="16dp"
-                        android:weightSum="2">
+                        android:weightSum="2"
+                        tools:ignore="DisableBaselineAlignment">
                         <RelativeLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"

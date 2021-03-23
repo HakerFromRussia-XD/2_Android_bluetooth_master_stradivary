@@ -44,7 +44,7 @@ object NavigationUtils {
               NavigationTabBar.Model.Builder(
                       ContextCompat.getDrawable(mContext, R.drawable.ic_mechanics),
                       Color.parseColor(colors[3]))
-                      .title("основные настройки")//"настройка механики")
+                      .title("настройки датчиков")//"настройка механики")
                       .badgeTitle("new")
                       .build()
       )
@@ -69,7 +69,7 @@ object NavigationUtils {
               NavigationTabBar.Model.Builder(
                       ContextCompat.getDrawable(mContext, R.drawable.ic_mechanics),
                       Color.parseColor(colors[3]))
-                      .title("основные настройки")//"настройка механики")
+                      .title("настройки датчиков")//"настройка механики")
                       .badgeTitle("new")
                       .build()
       )

@@ -18,8 +18,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.*
 import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
-import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.MainWaterFragment
-import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.SensSettingsFragment
+import me.romans.motorica.new_electronic_by_Rodeon.ui.fragments.main.AdvancedSettingsFragment
 
 class SectionsPagerAdapterWithAdvancedSettings(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
 
@@ -28,7 +27,7 @@ class SectionsPagerAdapterWithAdvancedSettings(fm: FragmentManager) : FragmentSt
     when (position) {
       0 -> fragment = GestureFragment()//AlarmFragment()
       1 -> fragment = ChartFragment()//MainWaterFragment()
-      2 -> fragment = SensSettingsFragment()//ChartFragment()
+      2 -> fragment = AdvancedSettingsFragment()//ChartFragment()
     }
     return fragment
   }

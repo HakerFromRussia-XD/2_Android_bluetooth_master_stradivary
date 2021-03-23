@@ -39,7 +39,10 @@ import static me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager.SH
 import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_MOTOR_HDLE;
 import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.FESTO_A_CHARACTERISTIC;
 import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT;
+import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.NOTIFY;
 import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_MOTOR_HDLE;
+import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.READ;
+import static me.romans.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE;
 
 
 public class BluetoothLeService extends Service {
@@ -55,35 +58,20 @@ public class BluetoothLeService extends Service {
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
 
-    public final static String ACTION_GATT_CONNECTED =
-            "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
-    public final static String ACTION_GATT_DISCONNECTED =
-            "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
-    public final static String ACTION_GATT_SERVICES_DISCOVERED =
-            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
-    public final static String ACTION_DATA_AVAILABLE =
-            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
-    public final static String MIO_DATA =
-            "com.example.bluetooth.le.MIO_DATA";
-    public final static String FESTO_A_DATA =
-            "com.example.bluetooth.le.FESTO_A_DATA";
-    public final static String OPEN_MOTOR_DATA =
-            "com.example.bluetooth.le.OPEN_MOTOR_DATA";
-    public final static String CLOSE_MOTOR_DATA =
-            "com.example.bluetooth.le.CLOSE_MOTOR_DATA";
-    public final static String SENSORS_DATA_THREAD_FLAG =
-            "com.example.bluetooth.le.SENSORS_DATA_THREAD_FLAG";
-    public final static String SIMPLE_SEARCH_DATA =
-            "com.example.bluetooth.le.SIMPLE_SEARCH_DATA";
-    public final static String SIMPLE2_SEARCH_DATA =
-            "com.example.bluetooth.le.SIMPLE2_SEARCH_DATA";
+    public final static String ACTION_GATT_CONNECTED = "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
+    public final static String ACTION_STATE = "com.example.bluetooth.le.ACTION_STATE";
+    public final static String ACTION_GATT_DISCONNECTED = "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
+    public final static String ACTION_GATT_SERVICES_DISCOVERED = "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
+    public final static String ACTION_DATA_AVAILABLE = "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
+    public final static String MIO_DATA = "com.example.bluetooth.le.MIO_DATA";
+    public final static String FESTO_A_DATA = "com.example.bluetooth.le.FESTO_A_DATA";
+    public final static String OPEN_MOTOR_DATA = "com.example.bluetooth.le.OPEN_MOTOR_DATA";
+    public final static String CLOSE_MOTOR_DATA = "com.example.bluetooth.le.CLOSE_MOTOR_DATA";
+    public final static String SENSORS_DATA_THREAD_FLAG = "com.example.bluetooth.le.SENSORS_DATA_THREAD_FLAG";
 
 
 
-    public final static UUID UUID_HEART_RATE_MEASUREMENT =
-            UUID.fromString(MIO_MEASUREMENT);
-    public final static UUID UUID_MY_TEST_MEASUREMENT =
-            UUID.fromString(SampleGattAttributes.MY_TEST_MEASUREMENT);
+    public final static UUID UUID_HEART_RATE_MEASUREMENT = UUID.fromString(MIO_MEASUREMENT);
 
 
     // Implements callback methods for GATT events that the app cares about.  For example,
@@ -122,7 +110,7 @@ public class BluetoothLeService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(characteristic);
+                broadcastUpdate(characteristic, READ);
             }
         }
 
@@ -130,7 +118,7 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(characteristic);
+                broadcastUpdate(characteristic, WRITE);
             } else if (status == BluetoothGatt.GATT_FAILURE) {
                 System.err.println("запись не удалась");
             }
@@ -139,7 +127,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-            broadcastUpdate(characteristic);
+            broadcastUpdate(characteristic, NOTIFY);
         }
     };
 
@@ -148,37 +136,8 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
     }
 
-    private void broadcastUpdate(final BluetoothGattCharacteristic characteristic) {
+    private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
         final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
-
-        /**
-        // This is special handling for the Heart Rate Measurement profile.  Data parsing is
-        // carried out as per profile specifications:
-        // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
-        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
-            int flag = characteristic.getProperties();
-            int format = -1;
-            if ((flag & 0x01) != 0) {
-                format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                Log.d(TAG, "Heart rate format UINT16.");
-            } else {
-                format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                Log.d(TAG, "Heart rate format UINT8.");
-            }
-            final int heartRate = characteristic.getIntValue(format, 1);
-            Log.d(TAG, String.format("Received heart rate: %d", heartRate));
-            intent.putExtra(MIO_DATA, String.valueOf(heartRate));
-        } else {
-            // For all other profiles, writes the data formatted in HEX.
-            final byte[] data = characteristic.getValue();
-            if (data != null && data.length > 0) {
-                final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for(byte byteChar : data)
-                    stringBuilder.append(String.format("%02X ", byteChar));
-                intent.putExtra(MIO_DATA, new String(data) + "\n" + stringBuilder.toString());
-            }
-        }
-        **/
 
         final byte[] data = characteristic.getValue();
 
@@ -193,7 +152,8 @@ public class BluetoothLeService extends Service {
 //                System.err.println("BluetoothLeService-------------> данные на график c нотификации");
             }
             if (String.valueOf(characteristic.getUuid()).equals(FESTO_A_CHARACTERISTIC)) {
-                intent.putExtra(FESTO_A_DATA, data);
+                if (state.equals(READ)) { intent.putExtra(FESTO_A_DATA, data); intent.putExtra(ACTION_STATE, READ);}
+                if (state.equals(WRITE)) { intent.putExtra(FESTO_A_DATA, data); intent.putExtra(ACTION_STATE, WRITE);}
 //                System.err.println("BluetoothLeService-------------> данные на график с чтения");
             }
             if (String.valueOf(characteristic.getUuid()).equals(OPEN_MOTOR_HDLE)){

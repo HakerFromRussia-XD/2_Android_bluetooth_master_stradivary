@@ -76,43 +76,6 @@ class AdvancedSettingsFragment : Fragment() {
         preferenceManager.putInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
       }
     })
-    start_up_step_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        start_up_step_tv.text = seekBar.progress.toString()
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE, 1)
-        main?.incrementCountCommand()
-        preferenceManager.putInt(PreferenceKeys.STAR_UP_STEP_NUM, seekBar.progress)
-      }
-    })
-    dead_zone_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        dead_zone_tv.text = (seekBar.progress + 30).toString()
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE, 3)
-        main?.incrementCountCommand()
-        preferenceManager.putInt(PreferenceKeys.DEAD_ZONE_NUM, (seekBar.progress))
-      }
-    })
-    brake_motor_sw.setOnClickListener {
-      if (brake_motor_sw.isChecked) {
-        brake_motor_tv.text = 1.toString()
-        main?.bleCommandConnector(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE, 10)
-        main?.incrementCountCommand()
-        preferenceManager.putBoolean(PreferenceKeys.USE_BRAKE_MOTOR_NUM, true)
-      } else {
-        brake_motor_tv.text = 0.toString()
-        main?.bleCommandConnector(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE, 10)
-        main?.incrementCountCommand()
-        preferenceManager.putBoolean(PreferenceKeys.USE_BRAKE_MOTOR_NUM, false)
-      }
-    }
     swap_sensors_sw.setOnClickListener {
       if (swap_sensors_sw.isChecked) {
         swap_sensors_tv.text = 1.toString()
@@ -145,23 +108,16 @@ class AdvancedSettingsFragment : Fragment() {
     //Скрывает настройки, которые не актуальны для многосхватной бионики
     if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_3)) {
       shutdown_current_rl.visibility = View.GONE
-      start_up_step_rl.visibility = View.GONE
-      dead_zone_rl.visibility = View.GONE
-      brake_motor_rl.visibility = View.GONE
     }
 
 //    if (preferenceManager.getBoolean(PreferenceKeys.USE_BRAKE_MOTOR, true) == null) preferenceManager.putBoolean(PreferenceKeys.USE_BRAKE_MOTOR, false)
-    brake_motor_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.USE_BRAKE_MOTOR_NUM, true)
     swap_sensors_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.SET_REVERSE_NUM, false)
     swap_open_close_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
-    if (preferenceManager.getBoolean(PreferenceKeys.USE_BRAKE_MOTOR_NUM, true)) brake_motor_tv.text = 1.toString()
     if (preferenceManager.getBoolean(PreferenceKeys.SET_REVERSE_NUM, false)) swap_sensors_tv.text = 1.toString()
     if (preferenceManager.getBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv.text = 1.toString()
 
     main?.runOnUiThread {
-      ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 250)).setDuration(200).start()
-      ObjectAnimator.ofInt(start_up_step_sb, "progress", preferenceManager.getInt(PreferenceKeys.STAR_UP_STEP_NUM, 50)).setDuration(200).start()
-      ObjectAnimator.ofInt(dead_zone_sb, "progress", preferenceManager.getInt(PreferenceKeys.DEAD_ZONE_NUM, 40)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
     }
   }
 }

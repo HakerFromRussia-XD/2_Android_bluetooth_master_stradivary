@@ -67,6 +67,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   var objectAnimator: ObjectAnimator? = null
   var objectAnimator2: ObjectAnimator? = null
   private var updatingUIThread: Thread? = null
+  private var scale = 0F
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -90,11 +91,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       startUpdatingUIThread()
     }, 500)
 
-    val limitCH1 = rootView!!.findViewById(R.id.limit_CH1) as LinearLayout
-    val limitCh2 = rootView!!.findViewById(R.id.limit_CH2) as LinearLayout
-    val scale = resources.displayMetrics.density
-    val correlatorNoiseThreshold1Tv = rootView!!.findViewById(R.id.correlator_noise_threshold_1_tv) as TextView
-    val correlatorNoiseThreshold2Tv = rootView!!.findViewById(R.id.correlator_noise_threshold_2_tv) as TextView
+    main?.setSwapOpenCloseButton(preferenceManager.getBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))
+    scale = resources.displayMetrics.density
 
     close_btn.setOnTouchListener { _, event ->
       if (!main?.getSwapOpenCloseButton()!!) {
@@ -124,12 +122,10 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (event.action == MotionEvent.ACTION_DOWN) {
           main?.incrementCountCommand()
           main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-          System.err.println("Count command tap: " + main?.countCommand)
         }
         if (event.action == MotionEvent.ACTION_UP) {
           main?.incrementCountCommand()
           main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-          System.err.println("Count command tap: " + main?.countCommand)
         }
       } else {
         if (event.action == MotionEvent.ACTION_DOWN) {
@@ -146,7 +142,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH1 = " + seekBar.progress)
-        objectAnimator = ObjectAnimator.ofFloat(limitCH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
+        objectAnimator = ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
         objectAnimator?.duration = 200
         objectAnimator?.start()
       }
@@ -162,7 +158,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH2 = " + seekBar.progress)
-        objectAnimator2 = ObjectAnimator.ofFloat(limitCh2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
+        objectAnimator2 = ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
         objectAnimator2?.duration = 200
         objectAnimator2?.start()
       }
@@ -177,7 +173,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     })
     correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        correlatorNoiseThreshold1Tv.text = seekBar.progress.toString()
+        correlator_noise_threshold_1_tv.text = seekBar.progress.toString()
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -189,7 +185,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     })
     correlator_noise_threshold_2_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        correlatorNoiseThreshold2Tv.text = seekBar.progress.toString()
+        correlator_noise_threshold_2_tv.text = seekBar.progress.toString()
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -372,14 +368,20 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private fun startUpdatingUIThread() {
     updatingUIThread = Thread {
       while (testThreadFlag) {
-        open_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 0)
-        close_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.CLOSE_CH_NUM, 0)
+        open_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 30)
+        close_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.CLOSE_CH_NUM, 30)
         main?.runOnUiThread {
-          driver_tv.text = "driver: " +(mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 0)).toFloat()/100 + "v"
-          bms_tv.text = "bms: " +(mSettings!!.getInt(PreferenceKeys.BMS_NUM, 0)).toFloat()/100 + "v"
-          sensor_tv.text = "sens: " +(mSettings!!.getInt(PreferenceKeys.SENS_NUM, 0)).toFloat()/100 + "v"
-          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 0)).setDuration(200).start()
-          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 0)).setDuration(200).start()
+          objectAnimator = ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (open_CH_sb.progress * scale * 1.04f))
+          objectAnimator?.duration = 200
+          objectAnimator?.start()
+          objectAnimator = ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (close_CH_sb.progress * scale * 1.04f))
+          objectAnimator?.duration = 200
+          objectAnimator?.start()
+          driver_tv.text = "driver: " +(mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 100)).toFloat()/100 + "v"
+          bms_tv.text = "bms: " +(mSettings!!.getInt(PreferenceKeys.BMS_NUM, 100)).toFloat()/100 + "v"
+          sensor_tv.text = "sens: " +(mSettings!!.getInt(PreferenceKeys.SENS_NUM, 100)).toFloat()/100 + "v"
+          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 22)).setDuration(200).start()
+          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 22)).setDuration(200).start()
         }
 
         System.err.println("фрагмент startTestThread " + mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 0))

@@ -81,7 +81,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var globalSemaphore = true // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
 //  private var showAdvancedSettings = false
   private var swapOpenCloseButton = false
-  internal var countCommand = 0
+  private var countCommand = 0
   private var actionState = READ
 
   private val listName = "NAME"
@@ -697,6 +697,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   fun setSwapOpenCloseButton(swap: Boolean) {
     swapOpenCloseButton = swap
+    if (swap) {
+      saveInt(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, 1)
+    } else {
+      saveInt(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, 0)
+    }
+
   }
   fun getSwapOpenCloseButton() : Boolean {
     return swapOpenCloseButton

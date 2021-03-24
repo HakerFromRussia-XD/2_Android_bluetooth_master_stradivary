@@ -368,7 +368,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 
         limit_1 = findViewById(R.id.limit_1);
         limit_2 = findViewById(R.id.limit_2);
-        objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
+        objectAnimator = ObjectAnimator.ofFloat(limit_1, "y", limit_sensor_open);
 
 
         //////////////////////////////////////////
@@ -474,7 +474,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
 //                System.err.println("ChatActivity--------> seekBarCH1on : обновление порога СH1");
                 intValueCH1on = (int) (seekBarCH1on2.getProgress()* multiplierSeekBar);
                 limit_sensor_open = seekBar.getProgress();
-                objectAnimator =ObjectAnimator.ofFloat(limit_1, "y", ((235*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
+                objectAnimator = ObjectAnimator.ofFloat(limit_1, "y", ((235*scale + 0.5f)-(limit_sensor_open*scale + 0.5f)));
                 objectAnimator.setDuration(200);
                 objectAnimator.start();
 //                System.err.println("ChatActivity--------> seekBarCH1on2 : onProgressChanged - intValueCH1on=" + intValueCH1on);

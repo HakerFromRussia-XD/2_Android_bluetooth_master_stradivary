@@ -30,6 +30,7 @@ import me.romans.motorica.new_electronic_by_Rodeon.persistence.preference.Prefer
 import me.romans.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.romans.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
+import kotlinx.android.synthetic.main.layout_chart.*
 import me.romans.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.romans.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import javax.inject.Inject
@@ -45,6 +46,7 @@ class AdvancedSettingsFragment : Fragment() {
   private var mContext: Context? = null
   private var main: MainActivity? = null
   private var mSettings: SharedPreferences? = null
+  private var scale = 0F
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     val rootView = inflater.inflate(R.layout.layout_advanced_settings, container, false)
@@ -52,6 +54,7 @@ class AdvancedSettingsFragment : Fragment() {
     if (activity != null) { main = activity as MainActivity? }
     this.rootView = rootView
     this.mContext = context
+    scale = resources.displayMetrics.density
     return rootView
   }
 
@@ -103,6 +106,23 @@ class AdvancedSettingsFragment : Fragment() {
     reset_to_factory_settings_btn.setOnClickListener {
       main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
       main?.incrementCountCommand()
+      swap_open_close_tv.text = 0.toString()
+      main?.setSwapOpenCloseButton(false)
+      preferenceManager.putBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
+      swap_sensors_sw.isChecked = false
+      swap_sensors_tv.text = 0.toString()
+      preferenceManager.putBoolean(PreferenceKeys.SET_REVERSE_NUM, false)
+      swap_open_close_sw.isChecked = false
+      preferenceManager.putInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
+      ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+//      open_CH_sb.progress = 30
+//      close_CH_sb.progress = 30
+//      ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
+//      ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
+//
+//      ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 22).setDuration(200).start()
+//      correlator_noise_threshold_2_sb.progress = 22
+//      ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 22).setDuration(200).start()
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики

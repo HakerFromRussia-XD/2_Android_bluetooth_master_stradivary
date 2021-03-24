@@ -24,9 +24,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.SeekBar
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -64,8 +62,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var plotData = true
   private var showAdvancedSettings = false
   private var mSettings: SharedPreferences? = null
-  var objectAnimator: ObjectAnimator? = null
-  var objectAnimator2: ObjectAnimator? = null
   private var updatingUIThread: Thread? = null
   private var scale = 0F
 
@@ -142,9 +138,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH1 = " + seekBar.progress)
-        objectAnimator = ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
-        objectAnimator?.duration = 200
-        objectAnimator?.start()
+        ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f)).setDuration(200).start()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -158,9 +152,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH2 = " + seekBar.progress)
-        objectAnimator2 = ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
-        objectAnimator2?.duration = 200
-        objectAnimator2?.start()
+        ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f)).setDuration(200).start()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -371,20 +363,14 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         open_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 30)
         close_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.CLOSE_CH_NUM, 30)
         main?.runOnUiThread {
-          objectAnimator = ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (open_CH_sb.progress * scale * 1.04f))
-          objectAnimator?.duration = 200
-          objectAnimator?.start()
-          objectAnimator = ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (close_CH_sb.progress * scale * 1.04f))
-          objectAnimator?.duration = 200
-          objectAnimator?.start()
           driver_tv.text = "driver: " +(mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 100)).toFloat()/100 + "v"
           bms_tv.text = "bms: " +(mSettings!!.getInt(PreferenceKeys.BMS_NUM, 100)).toFloat()/100 + "v"
           sensor_tv.text = "sens: " +(mSettings!!.getInt(PreferenceKeys.SENS_NUM, 100)).toFloat()/100 + "v"
+          ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
+          ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 22)).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 22)).setDuration(200).start()
         }
-
-        System.err.println("фрагмент startTestThread " + mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 0))
         try {
           Thread.sleep(1000)
         } catch (ignored: Exception) { }

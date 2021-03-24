@@ -12,7 +12,7 @@ public interface ConstantManager {
     //TODO тут настраивается имена модулей, которые будут работаь с навеесным блютуз модулем(BT05 поумолчанию)
     String EXTRAS_DEVICE_TYPE = "FEST-A";
     String EXTRAS_DEVICE_TYPE_2 = "BT05";
-    String EXTRAS_DEVICE_TYPE_3 = "BLE_test_service—•—";
+    String EXTRAS_DEVICE_TYPE_3 = "BLE_tesst_service—•—";
 
     ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();

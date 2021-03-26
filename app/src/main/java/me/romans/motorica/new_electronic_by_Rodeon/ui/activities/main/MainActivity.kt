@@ -299,6 +299,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {
+    NavigationUtils.showAdvancedSettings = showAdvancedSettings
     if (showAdvancedSettings) {
       saveInt(PreferenceKeys.ADVANCED_SETTINGS, 1)
     }  else {
@@ -331,7 +332,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     Toast.makeText(this, "Advanced settings: $showAdvancedSettings", Toast.LENGTH_SHORT).show()
 
-    NavigationUtils.showAdvancedSettings = showAdvancedSettings
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }

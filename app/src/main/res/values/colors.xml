@@ -15,4 +15,6 @@
     <color name="deepDark">#343434</color>
     <color name="end_gradient">#e0e0e0</color>
     <color name="dark">#45494A</color>
+    <color name="open_threshold">#ffab00</color>
+    <color name="close_threshold">#ffffff</color>
 </resources>

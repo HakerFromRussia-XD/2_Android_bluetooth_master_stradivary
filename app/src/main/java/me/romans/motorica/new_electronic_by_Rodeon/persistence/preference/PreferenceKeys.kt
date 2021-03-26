@@ -37,6 +37,7 @@ object PreferenceKeys {
   const val USE_BRAKE_MOTOR_NUM = "USE_BRAKE_MOTOR_NUM"
   const val SET_REVERSE_NUM = "SET_REVERSE_NUM"
   const val SWAP_OPEN_CLOSE_NUM = "SWAP_OPEN_CLOSE_NUM"
+  const val SET_ONE_CHANNEL_NUM = "SET_ONE_CHANNEL_NUM"
 
   val INIT_CAPACITY = Pair("INIT_CAPACITY", false)
   val WATER_GOAL = Pair("WaterGoal", "2000")

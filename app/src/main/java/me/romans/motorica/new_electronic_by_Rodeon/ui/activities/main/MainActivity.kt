@@ -520,6 +520,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           sendByteMassive[4] = byteArray[0]
           sendByteMassive[5] = crcCalc(sendByteMassive)
         }
+        16 -> {
+          sendByteMassive[3] = 16.toByte()
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive)
+        }
       }
       readDataFlag = false
       globalSemaphore = true

@@ -103,6 +103,19 @@ class AdvancedSettingsFragment : Fragment() {
         preferenceManager.putBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
       }
     }
+    single_channel_control_sw.setOnClickListener {
+      if (single_channel_control_sw.isChecked) {
+        single_channel_control_tv.text = 1.toString()
+        main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
+        main?.incrementCountCommand()
+        preferenceManager.putBoolean(PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
+      } else {
+        single_channel_control_tv.text = 0.toString()
+        main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
+        main?.incrementCountCommand()
+        preferenceManager.putBoolean(PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+      }
+    }
     reset_to_factory_settings_btn.setOnClickListener {
       main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
       main?.incrementCountCommand()
@@ -115,14 +128,6 @@ class AdvancedSettingsFragment : Fragment() {
       swap_open_close_sw.isChecked = false
       preferenceManager.putInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
       ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
-//      open_CH_sb.progress = 30
-//      close_CH_sb.progress = 30
-//      ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
-//      ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
-//
-//      ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 22).setDuration(200).start()
-//      correlator_noise_threshold_2_sb.progress = 22
-//      ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 22).setDuration(200).start()
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
@@ -133,8 +138,10 @@ class AdvancedSettingsFragment : Fragment() {
 //    if (preferenceManager.getBoolean(PreferenceKeys.USE_BRAKE_MOTOR, true) == null) preferenceManager.putBoolean(PreferenceKeys.USE_BRAKE_MOTOR, false)
     swap_sensors_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.SET_REVERSE_NUM, false)
     swap_open_close_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
+    single_channel_control_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
     if (preferenceManager.getBoolean(PreferenceKeys.SET_REVERSE_NUM, false)) swap_sensors_tv.text = 1.toString()
     if (preferenceManager.getBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv.text = 1.toString()
+    if (preferenceManager.getBoolean(PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv.text = 1.toString()
 
     main?.runOnUiThread {
       ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()

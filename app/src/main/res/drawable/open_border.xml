@@ -4,6 +4,7 @@
 
     <solid android:color="@color/open_threshold"/>
     <size android:height="400dp" android:width="4dp"/>
-    <corners android:topLeftRadius="7.5dp"/>
+    <corners android:topLeftRadius="7.5dp"
+             android:bottomLeftRadius="7.5dp"/>
 
 </shape>

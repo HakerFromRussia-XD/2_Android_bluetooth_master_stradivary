@@ -170,12 +170,12 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     })
     correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        correlator_noise_threshold_1_tv.text = seekBar.progress.toString()
+        correlator_noise_threshold_1_tv.text = progress.toString()
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
-          main?.bleCommandConnector(byteArrayOf(0x01, seekBar.progress.toByte(), 0x01), SENS_OPTIONS, WRITE,11)
+          main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
           main?.incrementCountCommand()
         }
       }
@@ -187,7 +187,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
-          main?.bleCommandConnector(byteArrayOf(0x01, seekBar.progress.toByte(), 0x02), SENS_OPTIONS, WRITE,11)
+          main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS, WRITE,11)
           main?.incrementCountCommand()
         }
       }
@@ -375,8 +375,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           sensor_tv.text = "sens: " +(mSettings!!.getInt(PreferenceKeys.SENS_NUM, 100)).toFloat()/100 + "v"
           ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 22)).setDuration(200).start()
-          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 22)).setDuration(200).start()
+          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 22))).setDuration(200).start()
+          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 22))).setDuration(200).start()
         }
         try {
           Thread.sleep(1000)

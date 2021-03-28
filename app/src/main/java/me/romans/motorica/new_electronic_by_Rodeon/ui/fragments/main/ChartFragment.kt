@@ -137,8 +137,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
     open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        System.err.println("CH1 = " + seekBar.progress)
-        ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f)).setDuration(200).start()
+        System.err.println("CH1 = $progress")
+        ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+        ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+
+        open_threshold_tv.text = progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -151,8 +154,10 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     })
     close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        System.err.println("CH2 = " + seekBar.progress)
-        ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f)).setDuration(200).start()
+        System.err.println("CH2 = $progress")
+        ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()
+        ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+        close_threshold_tv.text = progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -313,11 +318,13 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     y.textColor = Color.WHITE
     y.mAxisMaximum = 255f
     y.mAxisMinimum = 0f
-    y.textSize = 12f
+    y.textSize = 0f
+    y.textColor = Color.TRANSPARENT
     y.setDrawGridLines(true)
     y.setDrawAxisLine(false)
     y.setStartAtZero(true)
     y.gridColor = Color.WHITE
+    chart_mainchart.axisRight.gridColor = Color.TRANSPARENT
     chart_mainchart.axisRight.axisLineColor = Color.TRANSPARENT
     chart_mainchart.axisRight.textColor = Color.TRANSPARENT
   }
@@ -366,8 +373,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           driver_tv.text = "driver: " +(mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 100)).toFloat()/100 + "v"
           bms_tv.text = "bms: " +(mSettings!!.getInt(PreferenceKeys.BMS_NUM, 100)).toFloat()/100 + "v"
           sensor_tv.text = "sens: " +(mSettings!!.getInt(PreferenceKeys.SENS_NUM, 100)).toFloat()/100 + "v"
-          ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
+          ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
+          ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 22)).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 22)).setDuration(200).start()
         }

@@ -143,8 +143,6 @@
                 android:layout_height="320dp"
                 android:foregroundGravity="center" />
 
-
-
             <RelativeLayout
                 android:id="@+id/limit_CH1"
                 android:layout_width="wrap_content"

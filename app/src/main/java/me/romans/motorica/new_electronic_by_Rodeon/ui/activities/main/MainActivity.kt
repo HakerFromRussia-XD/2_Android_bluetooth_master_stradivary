@@ -83,6 +83,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var swapOpenCloseButton = false
   private var countCommand = 0
   private var actionState = READ
+  var savingSettingsWhenModified = false
 
   private val listName = "NAME"
   private val listUUID = "UUID"
@@ -167,6 +168,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //          System.err.println("BluetoothLeService-------------> прошли третий иф. Распарсили нотификацию")
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
+          savingSettingsWhenModified = true
         } else if (data.size == 10) {
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
@@ -694,7 +696,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     return cast
   }
 
-  private fun saveInt (key: String, variable: Int) {
+  internal fun saveInt (key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putInt(key, variable)
     editor.apply()

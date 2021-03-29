@@ -142,6 +142,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
 
         open_threshold_tv.text = progress.toString()
+
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -149,6 +150,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
           main?.incrementCountCommand()
+          if (main?.savingSettingsWhenModified == true) {
+            main?.saveInt(PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
+          }
         }
       }
     })
@@ -165,6 +169,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
           main?.incrementCountCommand()
+          if (main?.savingSettingsWhenModified == true) {
+            main?.saveInt(PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
+          }
         }
       }
     })
@@ -177,6 +184,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
           main?.incrementCountCommand()
+          if (main?.savingSettingsWhenModified == true) {
+            main?.saveInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
+          }
         }
       }
     })
@@ -189,6 +199,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS, WRITE,11)
           main?.incrementCountCommand()
+          if (main?.savingSettingsWhenModified == true) {
+            main?.saveInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
+          }
         }
       }
     })

@@ -379,7 +379,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private fun startUpdatingUIThread() {
     updatingUIThread = Thread {
       while (testThreadFlag) {
-        System.err.println("read mDeviceAddress key: " + main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM)
         open_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
         close_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
         main?.runOnUiThread {

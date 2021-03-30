@@ -29,8 +29,6 @@ object PreferenceKeys {
   const val BMS_NUM = "BMS_NUM"
   const val SENS_NUM = "SENS_NUM"
 
-
-
   const val SHUTDOWN_CURRENT_NUM = "SHUTDOWN_CURRENT_NUM"
   const val STAR_UP_STEP_NUM = "STAR_UP_STEP_NUM"
   const val DEAD_ZONE_NUM = "DEAD_ZONE_NUM"
@@ -38,6 +36,10 @@ object PreferenceKeys {
   const val SET_REVERSE_NUM = "SET_REVERSE_NUM"
   const val SWAP_OPEN_CLOSE_NUM = "SWAP_OPEN_CLOSE_NUM"
   const val SET_ONE_CHANNEL_NUM = "SET_ONE_CHANNEL_NUM"
+
+  const val GESTURE_OPEN_STATE_NUM = "GESTURE_OPEN_STATE_NUM"
+  const val GESTURE_CLOSE_STATE_NUM = "GESTURE_CLOSE_STATE_NUM"
+
 
   val INIT_CAPACITY = Pair("INIT_CAPACITY", false)
   val WATER_GOAL = Pair("WaterGoal", "2000")

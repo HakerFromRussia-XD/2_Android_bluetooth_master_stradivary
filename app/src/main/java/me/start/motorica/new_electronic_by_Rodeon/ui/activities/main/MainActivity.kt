@@ -98,7 +98,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
-      System.err.println("mDeviceAddress:"+mDeviceAddress)
       if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))
       {} else {
         mainactivity_navi.visibility = View.GONE
@@ -698,7 +697,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   internal fun saveInt (key: String, variable: Int) {
-    System.err.println("save mDeviceAddress key: $key")
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putInt(key, variable)
     editor.apply()

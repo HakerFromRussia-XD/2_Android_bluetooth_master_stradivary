@@ -15,10 +15,6 @@ import me.start.bluetooth.DiscoveryCallback;
 import me.start.motorica.R;
 
 
-/**
- * Created by Omar on 20/12/2017.
- */
-
 public class ScanPresenterImpl implements ScanPresenter{
     private static final String TAG = "ScanPresenterImpl";
     private ScanView view;

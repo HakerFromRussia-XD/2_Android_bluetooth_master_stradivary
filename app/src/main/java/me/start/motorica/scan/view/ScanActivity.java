@@ -151,11 +151,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
 
     // Device scan callback.
-    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+    private final BluetoothAdapter.LeScanCallback mLeScanCallback =
             (device, rssi, scanRecord) -> runOnUiThread(() -> {
                 if(device.getName() != null){
-                    System.err.println("DeviceScanActivity ---------> device name:"+device.getName());
-
+                    System.err.println("DeviceScanActivity ---------> device name: "+device.getName()+ "   Uuids: "+device.getUuids());
+                    System.err.println("DeviceScanActivity ---------> device rssi: "+rssi);
                     addLEDeviceToScanList(device.getName()+":l:", device);
                 }
             });

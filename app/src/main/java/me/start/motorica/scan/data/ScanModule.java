@@ -11,9 +11,6 @@ import me.start.motorica.scan.interactor.ScanInteractorImpl;
 import me.start.motorica.scan.presenter.ScanPresenterImpl;
 import me.start.motorica.scan.view.ScanView;
 
-/**
- * Created by Omar on 20/12/2017.
- */
 
 @Module
 public class ScanModule {

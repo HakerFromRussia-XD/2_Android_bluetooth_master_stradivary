@@ -82,12 +82,12 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     initializedUI()
     showAdvancedSettings = NavigationUtils.showAdvancedSettings
 
-    mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+    mSettings = context?.getSharedPreferences(main?.mDeviceAddress + PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
     Handler().postDelayed({
       startUpdatingUIThread()
     }, 500)
 
-    main?.setSwapOpenCloseButton(preferenceManager.getBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))
+    main?.setSwapOpenCloseButton(preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))
     scale = resources.displayMetrics.density
 
     close_btn.setOnTouchListener { _, event ->
@@ -147,11 +147,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
           main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
           }
         }
       }
@@ -166,11 +166,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
           main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
           }
         }
       }
@@ -181,11 +181,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
           main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
           }
         }
       }
@@ -196,11 +196,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS, WRITE,11)
           main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
           }
         }
       }
@@ -224,18 +224,18 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     thresholds_blocking_sw.setOnClickListener{
       if (thresholds_blocking_sw.isChecked) {
         thresholds_blocking_tv.text = "on"
-        preferenceManager.putBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, true)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
       } else {
         thresholds_blocking_tv.text = "off"
-        preferenceManager.putBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
     }
   }
 
   @SuppressLint("SetTextI18n")
   private fun initializedUI() {
-    thresholds_blocking_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)
-    if (preferenceManager.getBoolean(PreferenceKeys.THRESHOLDS_BLOCKING, false)) thresholds_blocking_tv.text = "on"
+    thresholds_blocking_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) thresholds_blocking_tv.text = "on"
   }
 
   override fun onResume() {
@@ -380,16 +380,16 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private fun startUpdatingUIThread() {
     updatingUIThread = Thread {
       while (testThreadFlag) {
-        open_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 30)
-        close_CH_sb.progress = mSettings!!.getInt(PreferenceKeys.CLOSE_CH_NUM, 30)
+        open_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
+        close_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
         main?.runOnUiThread {
-          driver_tv.text = "driver: " +(mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 100)).toFloat()/100 + "v"
-          bms_tv.text = "bms: " +(mSettings!!.getInt(PreferenceKeys.BMS_NUM, 100)).toFloat()/100 + "v"
-          sensor_tv.text = "sens: " +(mSettings!!.getInt(PreferenceKeys.SENS_NUM, 100)).toFloat()/100 + "v"
+          driver_tv.text = "driver: " +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 100)).toFloat()/100 + "v"
+          bms_tv.text = "bms: " +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.BMS_NUM, 100)).toFloat()/100 + "v"
+          sensor_tv.text = "sens: " +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SENS_NUM, 100)).toFloat()/100 + "v"
           ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 22))).setDuration(200).start()
-          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 22))).setDuration(200).start()
+          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 22))).setDuration(200).start()
+          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 22))).setDuration(200).start()
         }
         try {
           Thread.sleep(1000)

@@ -64,7 +64,7 @@ class AdvancedSettingsFragment : Fragment() {
 
   @SuppressLint("SetTextI18n", "CheckResult")
   private fun initializeUI() {
-    mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+    mSettings = context?.getSharedPreferences(main?.mDeviceAddress + PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
     shutdown_current_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -75,7 +75,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
         main?.incrementCountCommand()
-        preferenceManager.putInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
+        preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
       }
     })
     swap_sensors_sw.setOnClickListener {
@@ -83,23 +83,23 @@ class AdvancedSettingsFragment : Fragment() {
         swap_sensors_tv.text = 1.toString()
         main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
         main?.incrementCountCommand()
-        preferenceManager.putBoolean(PreferenceKeys.SET_REVERSE_NUM, true)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
       } else {
         swap_sensors_tv.text = 0.toString()
         main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
         main?.incrementCountCommand()
-        preferenceManager.putBoolean(PreferenceKeys.SET_REVERSE_NUM, false)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
       }
     }
     swap_open_close_sw.setOnClickListener {
       if (swap_open_close_sw.isChecked) {
         swap_open_close_tv.text = 1.toString()
         main?.setSwapOpenCloseButton(true)
-        preferenceManager.putBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, true)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, true)
       } else {
         swap_open_close_tv.text = 0.toString()
         main?.setSwapOpenCloseButton(false)
-        preferenceManager.putBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
       }
     }
     single_channel_control_sw.setOnClickListener {
@@ -107,12 +107,12 @@ class AdvancedSettingsFragment : Fragment() {
         single_channel_control_tv.text = 1.toString()
         main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
         main?.incrementCountCommand()
-        preferenceManager.putBoolean(PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
       } else {
         single_channel_control_tv.text = 0.toString()
         main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
         main?.incrementCountCommand()
-        preferenceManager.putBoolean(PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
       }
     }
     reset_to_factory_settings_btn.setOnClickListener {
@@ -120,13 +120,13 @@ class AdvancedSettingsFragment : Fragment() {
       main?.incrementCountCommand()
       swap_open_close_tv.text = 0.toString()
       main?.setSwapOpenCloseButton(false)
-      preferenceManager.putBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
+      preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
       swap_sensors_sw.isChecked = false
       swap_sensors_tv.text = 0.toString()
-      preferenceManager.putBoolean(PreferenceKeys.SET_REVERSE_NUM, false)
+      preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
       swap_open_close_sw.isChecked = false
-      preferenceManager.putInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
-      ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+      preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
+      ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
@@ -135,15 +135,15 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
 //    if (preferenceManager.getBoolean(PreferenceKeys.USE_BRAKE_MOTOR, true) == null) preferenceManager.putBoolean(PreferenceKeys.USE_BRAKE_MOTOR, false)
-    swap_sensors_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.SET_REVERSE_NUM, false)
-    swap_open_close_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
-    single_channel_control_sw.isChecked = preferenceManager.getBoolean(PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
-    if (preferenceManager.getBoolean(PreferenceKeys.SET_REVERSE_NUM, false)) swap_sensors_tv.text = 1.toString()
-    if (preferenceManager.getBoolean(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv.text = 1.toString()
-    if (preferenceManager.getBoolean(PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv.text = 1.toString()
+    swap_sensors_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+    swap_open_close_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
+    single_channel_control_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) swap_sensors_tv.text = 1.toString()
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv.text = 1.toString()
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv.text = 1.toString()
 
     main?.runOnUiThread {
-      ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
     }
   }
 }

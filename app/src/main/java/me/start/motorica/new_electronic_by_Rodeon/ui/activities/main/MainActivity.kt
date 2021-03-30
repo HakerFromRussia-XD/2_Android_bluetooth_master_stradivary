@@ -58,7 +58,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private var sensorsDataThreadFlag: Boolean = false
   private var mDeviceName: String? = null
-  private var mDeviceAddress: String? = null
+  internal var mDeviceAddress: String? = null
   var mDeviceType: String? = null
   private var mBluetoothLeService: BluetoothLeService? = null
   private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
@@ -98,6 +98,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
+      System.err.println("mDeviceAddress:"+mDeviceAddress)
       if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))
       {} else {
         mainactivity_navi.visibility = View.GONE
@@ -173,25 +174,25 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
           if (castUnsignedCharToInt(data[3]) != mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 0)) {
-            saveInt(PreferenceKeys.DRIVER_NUM, castUnsignedCharToInt(data[3]))
+            saveInt(mDeviceAddress + PreferenceKeys.DRIVER_NUM, castUnsignedCharToInt(data[3]))
           }
           if (castUnsignedCharToInt(data[4]) != mSettings!!.getInt(PreferenceKeys.BMS_NUM, 0)) {
-            saveInt(PreferenceKeys.BMS_NUM, castUnsignedCharToInt(data[4]))
+            saveInt(mDeviceAddress + PreferenceKeys.BMS_NUM, castUnsignedCharToInt(data[4]))
           }
           if (castUnsignedCharToInt(data[5]) != mSettings!!.getInt(PreferenceKeys.SENS_NUM, 0)) {
-            saveInt(PreferenceKeys.SENS_NUM, castUnsignedCharToInt(data[5]))
+            saveInt(mDeviceAddress + PreferenceKeys.SENS_NUM, castUnsignedCharToInt(data[5]))
           }
           if (castUnsignedCharToInt(data[6]) != mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 0)) {
-            saveInt(PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[6]))
+            saveInt(mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[6]))
           }
           if (castUnsignedCharToInt(data[7]) != mSettings!!.getInt(PreferenceKeys.CLOSE_CH_NUM, 0)) {
-            saveInt(PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[7]))
+            saveInt(mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[7]))
           }
           if (castUnsignedCharToInt(data[8]) != mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 0)) {
-            saveInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, castUnsignedCharToInt(data[8]))
+            saveInt(mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, castUnsignedCharToInt(data[8]))
           }
           if (castUnsignedCharToInt(data[9]) != mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 0)) {
-            saveInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, castUnsignedCharToInt(data[9]))
+            saveInt(mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, castUnsignedCharToInt(data[9]))
           }
         }
       } else {
@@ -244,7 +245,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
 
-    mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+    mSettings = getSharedPreferences(mDeviceAddress + PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
     val intent = intent
     mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
@@ -273,7 +274,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   private fun initUI() {
-    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+    if (mSettings!!.getInt(mDeviceAddress + PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
@@ -303,9 +304,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {
     NavigationUtils.showAdvancedSettings = showAdvancedSettings
     if (showAdvancedSettings) {
-      saveInt(PreferenceKeys.ADVANCED_SETTINGS, 1)
+      saveInt(mDeviceAddress + PreferenceKeys.ADVANCED_SETTINGS, 1)
     }  else {
-      saveInt(PreferenceKeys.ADVANCED_SETTINGS, 0)
+      saveInt(mDeviceAddress + PreferenceKeys.ADVANCED_SETTINGS, 0)
     }
 
 
@@ -426,7 +427,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     thresholds_blocking_sw.isEnabled = enabled
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
-    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+    if (mSettings!!.getInt(mDeviceAddress + PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
         swap_sensors_sw.isEnabled = enabled
         swap_open_close_sw.isEnabled = enabled
@@ -705,9 +706,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   fun setSwapOpenCloseButton(swap: Boolean) {
     swapOpenCloseButton = swap
     if (swap) {
-      saveInt(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, 1)
+      saveInt(mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, 1)
     } else {
-      saveInt(PreferenceKeys.SWAP_OPEN_CLOSE_NUM, 0)
+      saveInt(mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, 0)
     }
 
   }

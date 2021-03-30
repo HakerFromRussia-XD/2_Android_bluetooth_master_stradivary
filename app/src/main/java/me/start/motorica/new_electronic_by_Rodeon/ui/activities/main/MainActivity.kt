@@ -58,7 +58,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private var sensorsDataThreadFlag: Boolean = false
   private var mDeviceName: String? = null
-  internal var mDeviceAddress: String? = null
+  var mDeviceAddress: String? = null
   var mDeviceType: String? = null
   private var mBluetoothLeService: BluetoothLeService? = null
   private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
@@ -166,7 +166,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //        System.err.println("BluetoothLeService-------------> прошли второй иф")
 //        System.err.println("data.size: " + data.size)
         if (data.size == 3) {
-//          System.err.println("BluetoothLeService-------------> прошли третий иф. Распарсили нотификацию")
+//          System.err.println("mDeviceAddress-------------> прошли третий иф. Распарсили нотификацию")
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
           savingSettingsWhenModified = true
@@ -245,7 +245,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
 
-    mSettings = getSharedPreferences(mDeviceAddress + PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+    mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
     val intent = intent
     mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
@@ -274,7 +274,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   private fun initUI() {
-    if (mSettings!!.getInt(mDeviceAddress + PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
@@ -304,9 +304,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {
     NavigationUtils.showAdvancedSettings = showAdvancedSettings
     if (showAdvancedSettings) {
-      saveInt(mDeviceAddress + PreferenceKeys.ADVANCED_SETTINGS, 1)
+      saveInt(PreferenceKeys.ADVANCED_SETTINGS, 1)
     }  else {
-      saveInt(mDeviceAddress + PreferenceKeys.ADVANCED_SETTINGS, 0)
+      saveInt(PreferenceKeys.ADVANCED_SETTINGS, 0)
     }
 
 
@@ -427,7 +427,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     thresholds_blocking_sw.isEnabled = enabled
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
-    if (mSettings!!.getInt(mDeviceAddress + PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
         swap_sensors_sw.isEnabled = enabled
         swap_open_close_sw.isEnabled = enabled
@@ -698,6 +698,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   internal fun saveInt (key: String, variable: Int) {
+    System.err.println("save mDeviceAddress key: $key")
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putInt(key, variable)
     editor.apply()

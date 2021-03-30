@@ -64,7 +64,7 @@ class AdvancedSettingsFragment : Fragment() {
 
   @SuppressLint("SetTextI18n", "CheckResult")
   private fun initializeUI() {
-    mSettings = context?.getSharedPreferences(main?.mDeviceAddress + PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+    mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
     shutdown_current_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {

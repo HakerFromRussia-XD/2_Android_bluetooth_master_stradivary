@@ -82,7 +82,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     initializedUI()
     showAdvancedSettings = NavigationUtils.showAdvancedSettings
 
-    mSettings = context?.getSharedPreferences(main?.mDeviceAddress + PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+    mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
     Handler().postDelayed({
       startUpdatingUIThread()
     }, 500)
@@ -142,7 +142,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
 
         open_threshold_tv.text = progress.toString()
-
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -380,6 +379,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private fun startUpdatingUIThread() {
     updatingUIThread = Thread {
       while (testThreadFlag) {
+        System.err.println("read mDeviceAddress key: " + main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM)
         open_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
         close_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
         main?.runOnUiThread {
@@ -388,6 +388,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           sensor_tv.text = "sens: " +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SENS_NUM, 100)).toFloat()/100 + "v"
           ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
+          ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
+          ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 22))).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 22))).setDuration(200).start()
         }

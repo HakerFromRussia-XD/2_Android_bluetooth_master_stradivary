@@ -184,7 +184,7 @@
                     android:layout_marginBottom="0dp"
                     android:textAlignment="center"
                     android:fontFamily="@font/font_open_sans"
-                    android:text="152"
+                    android:text="30"
                     android:textColor="@color/cream_white"
                     android:textSize="9sp"
                     tools:ignore="HardcodedText,RtlSymmetry,SmallSp" />
@@ -249,7 +249,7 @@
                     android:layout_marginEnd="0dp"
                     android:layout_marginBottom="0dp"
                     android:fontFamily="@font/font_open_sans"
-                    android:text="152"
+                    android:text="30"
                     android:textAlignment="center"
                     android:textColor="@color/open_threshold"
                     android:textSize="9sp"

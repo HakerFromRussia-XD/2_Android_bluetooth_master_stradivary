@@ -21,9 +21,9 @@ import me.start.motorica.scan.view.ScanView;
 
 public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanViewHolder> implements ScanView {
 
-    private Context mCtx;
-    private List<ScanItem> mScanList;
-    private OnScanMyListener mOnScanMyListener;
+    private final Context mCtx;
+    private final List<ScanItem> mScanList;
+    private final OnScanMyListener mOnScanMyListener;
 
     public ScanListAdapter(Context  mCtx, List<ScanItem> mScanList, OnScanMyListener onScanMyListener) {
         this.mCtx = mCtx;

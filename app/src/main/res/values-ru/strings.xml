@@ -114,14 +114,14 @@
     <string name="magic_checkbox">Магические чекбоксы</string>
     <string name="speed_increment">инкремент скорости</string>
     <string name="disable_angel_control">выключение контроля угла</string>
-    <string name="gesture_1_btn">настройка жеста №1</string>
-    <string name="gesture_2_btn">настройка жеста №2</string>
-    <string name="gesture_3_btn">настройка жеста №3</string>
-    <string name="gesture_4_btn">настройка жеста №4</string>
-    <string name="gesture_5_btn">настройка жеста №5</string>
-    <string name="gesture_6_btn">настройка жеста №6</string>
-    <string name="gesture_7_btn">настройка жеста №7</string>
-    <string name="gesture_8_btn">настройка жеста №8</string>
+    <string name="gesture_1_btn">жест №1</string>
+    <string name="gesture_2_btn">жест №2</string>
+    <string name="gesture_3_btn">жест №3</string>
+    <string name="gesture_4_btn">жест №4</string>
+    <string name="gesture_5_btn">жест №5</string>
+    <string name="gesture_6_btn">жест №6</string>
+    <string name="gesture_7_btn">жест №7</string>
+    <string name="gesture_8_btn">жест №8</string>
 
 
     <string-array name="numbers">

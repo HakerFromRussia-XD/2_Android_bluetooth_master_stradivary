@@ -1,4 +1,4 @@
-# Stradivari Control [ ![Download](https://api.bintray.com/packages/omaflak/maven/bluetooth/images/download.svg) ](https://motorica.org/)
+# Motorica Start [ ![Download](https://api.bintray.com/packages/omaflak/maven/bluetooth/images/download.svg) ](https://motorica.org/)
 
 <img src="Logotype primary.png" width="60%" height="60%" />
 

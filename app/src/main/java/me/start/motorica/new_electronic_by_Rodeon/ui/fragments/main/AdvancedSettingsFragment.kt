@@ -73,22 +73,26 @@ class AdvancedSettingsFragment : Fragment() {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-        main?.incrementCountCommand()
-        preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+          main?.incrementCountCommand()
+          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
+        }
       }
     })
     swap_sensors_sw.setOnClickListener {
-      if (swap_sensors_sw.isChecked) {
-        swap_sensors_tv.text = 1.toString()
-        main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
-        main?.incrementCountCommand()
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
-      } else {
-        swap_sensors_tv.text = 0.toString()
-        main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
-        main?.incrementCountCommand()
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+      if (!main?.lockWriteBeforeFirstRead!!) {
+        if (swap_sensors_sw.isChecked) {
+          swap_sensors_tv.text = 1.toString()
+          main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
+          main?.incrementCountCommand()
+          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
+        } else {
+          swap_sensors_tv.text = 0.toString()
+          main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
+          main?.incrementCountCommand()
+          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+        }
       }
     }
     swap_open_close_sw.setOnClickListener {
@@ -103,30 +107,44 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
     single_channel_control_sw.setOnClickListener {
-      if (single_channel_control_sw.isChecked) {
-        single_channel_control_tv.text = 1.toString()
-        main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
-        main?.incrementCountCommand()
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
-      } else {
-        single_channel_control_tv.text = 0.toString()
-        main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
-        main?.incrementCountCommand()
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+      if (!main?.lockWriteBeforeFirstRead!!) {
+        if (single_channel_control_sw.isChecked) {
+          single_channel_control_tv.text = 1.toString()
+          main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
+          main?.incrementCountCommand()
+          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
+        } else {
+          single_channel_control_tv.text = 0.toString()
+          main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
+          main?.incrementCountCommand()
+          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+        }
       }
     }
     reset_to_factory_settings_btn.setOnClickListener {
-      main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
-      main?.incrementCountCommand()
-      swap_open_close_tv.text = 0.toString()
-      main?.setSwapOpenCloseButton(false)
-      preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
-      swap_sensors_sw.isChecked = false
-      swap_sensors_tv.text = 0.toString()
-      preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
-      swap_open_close_sw.isChecked = false
-      preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
-      ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+      if (!main?.lockWriteBeforeFirstRead!!) {
+        main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
+        main?.incrementCountCommand()
+
+        swap_open_close_tv.text = 0.toString()
+        main?.setSwapOpenCloseButton(false)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
+
+        swap_sensors_sw.isChecked = false
+        swap_sensors_tv.text = 0.toString()
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+
+        swap_open_close_sw.isChecked = false
+        swap_open_close_tv.text = 0.toString()
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
+
+        preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
+        ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+
+        single_channel_control_sw.isChecked = false
+        single_channel_control_tv.text = 0.toString()
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+      }
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики

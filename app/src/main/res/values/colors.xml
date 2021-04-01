@@ -7,10 +7,12 @@
 <!--    <color name="cream_white">#faf0dc</color>-->
     <color name="light_gray">#45494A</color>
     <color name="green">#0f9b0f</color>
+    <color name="darkGreen">#00790f</color>
     <color name="red">#f12711</color>
     <color name="orange">#FFAB00</color>
     <color name="darkOrange">#CC8900</color>
     <color name="blueStatusBar">#007991</color>
+    <color name="blueAccent">#4bacc8</color>
     <color name="ripple">#c0c0c0</color>
     <color name="start_gradient">#d0d0d0</color>
     <color name="deepDark">#343434</color>

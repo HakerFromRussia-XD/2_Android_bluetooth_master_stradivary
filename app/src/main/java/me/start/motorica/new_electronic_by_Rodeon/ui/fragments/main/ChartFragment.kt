@@ -91,46 +91,50 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     scale = resources.displayMetrics.density
 
     close_btn.setOnTouchListener { _, event ->
-      if (!main?.getSwapOpenCloseButton()!!) {
-        if (event.action == MotionEvent.ACTION_DOWN) {
-          main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-          main?.incrementCountCommand()
-        }
-        if (event.action == MotionEvent.ACTION_UP) {
-          main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-          main?.incrementCountCommand()
-        }
-      } else {
-        if (event.action == MotionEvent.ACTION_DOWN) {
-          main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-          main?.incrementCountCommand()
+      if (!main?.lockWriteBeforeFirstRead!!) {
+        if (!main?.getSwapOpenCloseButton()!!) {
+          if (event.action == MotionEvent.ACTION_DOWN) {
+            main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+            main?.incrementCountCommand()
+          }
+          if (event.action == MotionEvent.ACTION_UP) {
+            main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+            main?.incrementCountCommand()
+          }
+        } else {
+          if (event.action == MotionEvent.ACTION_DOWN) {
+            main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
+            main?.incrementCountCommand()
 
-        }
-        if (event.action == MotionEvent.ACTION_UP) {
-          main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-          main?.incrementCountCommand()
+          }
+          if (event.action == MotionEvent.ACTION_UP) {
+            main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
+            main?.incrementCountCommand()
+          }
         }
       }
       false
     }
     open_btn.setOnTouchListener { _, event ->
-      if (!main?.getSwapOpenCloseButton()!!) {
-        if (event.action == MotionEvent.ACTION_DOWN) {
-          main?.incrementCountCommand()
-          main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-        }
-        if (event.action == MotionEvent.ACTION_UP) {
-          main?.incrementCountCommand()
-          main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-        }
-      } else {
-        if (event.action == MotionEvent.ACTION_DOWN) {
-          main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-          main?.incrementCountCommand()
-        }
-        if (event.action == MotionEvent.ACTION_UP) {
-          main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-          main?.incrementCountCommand()
+      if (!main?.lockWriteBeforeFirstRead!!) {
+        if (!main?.getSwapOpenCloseButton()!!) {
+          if (event.action == MotionEvent.ACTION_DOWN) {
+            main?.incrementCountCommand()
+            main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
+          }
+          if (event.action == MotionEvent.ACTION_UP) {
+            main?.incrementCountCommand()
+            main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
+          }
+        } else {
+          if (event.action == MotionEvent.ACTION_DOWN) {
+            main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+            main?.incrementCountCommand()
+          }
+          if (event.action == MotionEvent.ACTION_UP) {
+            main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+            main?.incrementCountCommand()
+          }
         }
       }
       false
@@ -146,7 +150,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
           main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
@@ -165,7 +169,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
           main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
@@ -180,7 +184,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
           main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
@@ -195,7 +199,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {//отправка команды изменения порога на протез только если блокировка не активна
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS, WRITE,11)
           main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {

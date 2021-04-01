@@ -27,6 +27,7 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import kotlinx.android.synthetic.main.layout_chart.*
+import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
@@ -84,6 +85,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var countCommand = 0
   private var actionState = READ
   var savingSettingsWhenModified = false
+  var lockWriteBeforeFirstRead = true //переменная, необходимая для ожидания первого пришедшего ответа от устройства на
+  // отправленный запрос чтения. Если не ожидать её, то поток чтения не перезамускается
 
   private val listName = "NAME"
   private val listUUID = "UUID"
@@ -194,6 +197,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             saveInt(mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, castUnsignedCharToInt(data[9]))
           }
         }
+        lockWriteBeforeFirstRead = false
       } else {
         countCommand--
         System.err.println("Count command before start read: $countCommand")
@@ -426,10 +430,26 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     thresholds_blocking_sw.isEnabled = enabled
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
-    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+      gesture_1_btn.isEnabled = enabled
+      gesture_2_btn.isEnabled = enabled
+      gesture_3_btn.isEnabled = enabled
+      gesture_4_btn.isEnabled = enabled
+      gesture_5_btn.isEnabled = enabled
+      gesture_6_btn.isEnabled = enabled
+      gesture_7_btn.isEnabled = enabled
+      gesture_8_btn.isEnabled = enabled
+      gesture_settings_2_btn.isEnabled = enabled
+      gesture_settings_3_btn.isEnabled = enabled
+      gesture_settings_4_btn.isEnabled = enabled
+      gesture_settings_5_btn.isEnabled = enabled
+      gesture_settings_6_btn.isEnabled = enabled
+      gesture_settings_7_btn.isEnabled = enabled
+      gesture_settings_8_btn.isEnabled = enabled
+      if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
         swap_sensors_sw.isEnabled = enabled
         swap_open_close_sw.isEnabled = enabled
+        single_channel_control_sw.isEnabled = enabled
         reset_to_factory_settings_btn.isEnabled = enabled
       }
     }

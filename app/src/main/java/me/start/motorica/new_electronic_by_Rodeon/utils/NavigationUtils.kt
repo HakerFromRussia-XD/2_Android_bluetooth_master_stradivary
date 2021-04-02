@@ -34,23 +34,23 @@ object NavigationUtils {
               NavigationTabBar.Model.Builder(
                       ContextCompat.getDrawable(mContext, R.drawable.ic_gestures),
                       Color.parseColor(colors[1]))
-                      .title("настройка жестов")
-                      .badgeTitle("new")
-                      .build()
-      )
-      models.add(
-              NavigationTabBar.Model.Builder(
-                      ContextCompat.getDrawable(mContext, R.drawable.ic_mechanics),
-                      Color.parseColor(colors[3]))
-                      .title("настройки датчиков")//"настройка механики")
+                      .title(mContext.resources.getString(R.string.setting_up_gestures))
                       .badgeTitle("new")
                       .build()
       )
       models.add(
               NavigationTabBar.Model.Builder(
                       ContextCompat.getDrawable(mContext, R.drawable.ic_sensors),
+                      Color.parseColor(colors[3]))
+                      .title(mContext.resources.getString(R.string.sensor_settings))//"настройка механики")
+                      .badgeTitle("new")
+                      .build()
+      )
+      models.add(
+              NavigationTabBar.Model.Builder(
+                      ContextCompat.getDrawable(mContext, R.drawable.ic_mechanics),
                       Color.parseColor(colors[4]))
-                      .title("спецнастройки")
+                      .title(mContext.resources.getString(R.string.special_settings))
                       .badgeTitle("new")
                       .build()
       )
@@ -59,15 +59,15 @@ object NavigationUtils {
               NavigationTabBar.Model.Builder(
                       ContextCompat.getDrawable(mContext, R.drawable.ic_gestures),
                       Color.parseColor(colors[1]))
-                      .title("настройка жестов")
+                      .title(mContext.resources.getString(R.string.setting_up_gestures))
                       .badgeTitle("new")
                       .build()
       )
       models.add(
               NavigationTabBar.Model.Builder(
-                      ContextCompat.getDrawable(mContext, R.drawable.ic_mechanics),
+                      ContextCompat.getDrawable(mContext, R.drawable.ic_sensors),
                       Color.parseColor(colors[3]))
-                      .title("настройки датчиков")//"настройка механики")
+                      .title(mContext.resources.getString(R.string.sensor_settings))//"настройка механики")
                       .badgeTitle("new")
                       .build()
       )

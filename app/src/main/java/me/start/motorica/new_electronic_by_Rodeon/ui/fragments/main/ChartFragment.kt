@@ -20,6 +20,7 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -77,7 +78,10 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-
+    if (main?.locate?.contains("ru")!!) {
+      opening_sensor_sensitivity_tv.textSize = 8f
+      closing_sensor_sensitivity_tv.textSize = 8f
+    }
     initializedSensorGraph()
     initializedUI()
     showAdvancedSettings = NavigationUtils.showAdvancedSettings
@@ -226,13 +230,21 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
     thresholds_blocking_sw.setOnClickListener{
       if (thresholds_blocking_sw.isChecked) {
-        thresholds_blocking_tv.text = "on"
+//        thresholds_blocking_tv.text = resources.getString(R.string.on)
+        thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
       } else {
-        thresholds_blocking_tv.text = "off"
+        thresholds_blocking_tv.text = resources.getString(R.string.off)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
     }
+
+//    thresholds_blocking_sw.setOnDragListener {
+//      if (thresholds_blocking_sw.isChecked) {
+//        thresholds_blocking_tv.text = resources.getString(R.string.on)
+//        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
+//      }
+//    }
   }
 
   @SuppressLint("SetTextI18n")
@@ -386,9 +398,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         open_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
         close_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
         main?.runOnUiThread {
-          driver_tv.text = "driver: " +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 100)).toFloat()/100 + "v"
-          bms_tv.text = "bms: " +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.BMS_NUM, 100)).toFloat()/100 + "v"
-          sensor_tv.text = "sens: " +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SENS_NUM, 100)).toFloat()/100 + "v"
+          driver_tv.text = resources.getString(R.string.driver) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 1)).toFloat()/100 + "v"
+          bms_tv.text = resources.getString(R.string.bms) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.BMS_NUM, 1)).toFloat()/100 + "v"
+          sensor_tv.text = resources.getString(R.string.sens) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SENS_NUM, 1)).toFloat()/100 + "v"
           ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()

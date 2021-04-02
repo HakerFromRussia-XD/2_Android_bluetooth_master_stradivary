@@ -30,6 +30,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
+import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import javax.inject.Inject
@@ -65,6 +66,13 @@ class AdvancedSettingsFragment : Fragment() {
   @SuppressLint("SetTextI18n", "CheckResult")
   private fun initializeUI() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+    if (main?.locate?.contains("ru")!!) {
+      shutdown_current_text_tv.textSize = 11f
+      swap_sensors_text_tv.textSize = 11f
+      swap_button_open_close_tv.textSize = 11f
+      single_channel_control_text_tv.textSize = 11f
+      reset_to_factory_settings_btn.textSize = 12f
+    }
 
     shutdown_current_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {

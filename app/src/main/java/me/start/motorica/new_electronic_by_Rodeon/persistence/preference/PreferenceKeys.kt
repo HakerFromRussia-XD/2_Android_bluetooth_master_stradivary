@@ -40,6 +40,8 @@ object PreferenceKeys {
   const val GESTURE_OPEN_STATE_NUM = "GESTURE_OPEN_STATE_NUM"
   const val GESTURE_CLOSE_STATE_NUM = "GESTURE_CLOSE_STATE_NUM"
 
+  const val SELECT_GESTURE_NUM = "SELECT_GESTURE_NUM"
+
 
   val INIT_CAPACITY = Pair("INIT_CAPACITY", false)
   val WATER_GOAL = Pair("WaterGoal", "2000")

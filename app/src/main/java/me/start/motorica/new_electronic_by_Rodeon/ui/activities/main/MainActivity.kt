@@ -87,6 +87,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   var savingSettingsWhenModified = false
   var lockWriteBeforeFirstRead = true //переменная, необходимая для ожидания первого пришедшего ответа от устройства на
   // отправленный запрос чтения. Если не ожидать её, то поток чтения не перезамускается
+  internal var locate = ""
 
   private val listName = "NAME"
   private val listUUID = "UUID"
@@ -247,6 +248,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+
+    locate = Locale.getDefault().toString()
 
     mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 

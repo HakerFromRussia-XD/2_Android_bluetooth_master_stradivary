@@ -31,15 +31,16 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1">
                     <TextView
+                        android:id="@+id/shutdown_current_text_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:layout_centerVertical="true"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentLeft="true"
-                        android:text="shutdown current"
+                        android:text="@string/shutdown_current"
                         style="@style/Text"
-                        tools:ignore="HardcodedText,RtlHardcoded" />
+                        tools:ignore="RtlHardcoded" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="0dp"
@@ -272,15 +273,15 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2">
+
                     <TextView
+                        android:id="@+id/swap_sensors_text_tv"
+                        style="@style/Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:layout_centerVertical="true"
                         android:layout_alignParentStart="true"
-                        android:text="swap sensors"
-                        style="@style/Text"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/swap_sensors"
+                        android:textStyle="bold" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="0dp"
@@ -336,14 +337,14 @@
                     android:layout_height="match_parent"
                     android:layout_weight="2">
                     <TextView
+                        android:id="@+id/swap_button_open_close_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:layout_centerVertical="true"
                         android:layout_alignParentStart="true"
-                        android:text="swap button open/close"
-                        style="@style/Text"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/swap_button_open_close"
+                        style="@style/Text"/>
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="0dp"
@@ -399,14 +400,14 @@
                     android:layout_height="match_parent"
                     android:layout_weight="2">
                     <TextView
+                        android:id="@+id/single_channel_control_text_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:layout_centerVertical="true"
                         android:layout_alignParentStart="true"
-                        android:text="single channel control"
-                        style="@style/Text"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/single_channel_control"
+                        style="@style/Text"/>
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="0dp"
@@ -457,10 +458,9 @@
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
-                android:text="reset to factory settings"
+                android:text="@string/reset_to_factory_settings"
                 style="@style/Text"
-                android:background="@drawable/custom_button_le"
-                tools:ignore="HardcodedText"/>
+                android:background="@drawable/custom_button_le"/>
         </RelativeLayout>
     </LinearLayout>
 </RelativeLayout>

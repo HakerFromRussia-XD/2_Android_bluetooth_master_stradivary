@@ -3,7 +3,7 @@
     android:shape="rectangle">
 
     <solid
-        android:color="@color/darkGreen"/>
+        android:color="@color/darkSelectedButton"/>
 
     <padding
         android:bottom="7dp"
@@ -13,7 +13,7 @@
 
     <stroke
         android:width="2dp"
-        android:color="#fff"/>
+        android:color="@color/darkOrange"/>
 
     <corners
         android:radius="22dp"/>

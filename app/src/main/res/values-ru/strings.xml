@@ -122,6 +122,30 @@
     <string name="gesture_6_btn">жест №6</string>
     <string name="gesture_7_btn">жест №7</string>
     <string name="gesture_8_btn">жест №8</string>
+    <string name="test">тест</string>
+    <string name="setting_up_gestures">настройки жестов</string>
+    <string name="sensor_settings">настройки датчиков</string>
+    <string name="special_settings">спецнастройки</string>
+    <string name="driver_0_00v">драйвер: 0.00v</string>
+    <string name="driver">"драйвер: "</string>
+    <string name="bms_0_00v">бмс: 0.00v</string>
+    <string name="bms">"бмс: "</string>
+    <string name="sens_0_00v">сенсоры: 0.00v</string>
+    <string name="sens">"сенсоры: "</string>
+    <string name="open_threshold">порог открытия</string>
+    <string name="close_threshold">порог закрытия</string>
+    <string name="opening_sensor_sensitivity">чувствительность датчика открытия</string>
+    <string name="closing_sensor_sensitivity">чувствительность датчика закрытия</string>
+    <string name="settings_blocking">блокировка настроек</string>
+    <string name="close_btn">закрыть</string>
+    <string name="open_btn">открыть</string>
+    <string name="swap_sensors">поменять сенсоры</string>
+    <string name="swap_button_open_close">поменять кнопки открыть/закрыть</string>
+    <string name="single_channel_control">одноканальное управление</string>
+    <string name="reset_to_factory_settings">востановить к заводским настройкам</string>
+    <string name="off">нет</string>
+    <string name="on">да</string>
+    <string name="shutdown_current">ток отсечки</string>
 
 
     <string-array name="numbers">

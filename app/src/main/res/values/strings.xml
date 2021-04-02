@@ -122,6 +122,30 @@
     <string name="gesture_6_btn">gesture №6</string>
     <string name="gesture_7_btn">gesture №7</string>
     <string name="gesture_8_btn">gesture №8</string>
+    <string name="test">test</string>
+    <string name="setting_up_gestures">setting up gestures</string>
+    <string name="sensor_settings">sensor settings</string>
+    <string name="special_settings">special settings</string>
+    <string name="driver_0_00v">driver: 0.00v</string>
+    <string name="driver">"driver: "</string>
+    <string name="bms_0_00v">bms: 0.00v</string>
+    <string name="bms">"bms: "</string>
+    <string name="sens_0_00v">sens: 0.00v</string>
+    <string name="sens">"sens: "</string>
+    <string name="open_threshold">open threshold</string>
+    <string name="close_threshold">close threshold</string>
+    <string name="opening_sensor_sensitivity">opening sensor sensitivity</string>
+    <string name="closing_sensor_sensitivity">closing sensor sensitivity</string>
+    <string name="settings_blocking">settings blocking</string>
+    <string name="close_btn">close</string>
+    <string name="open_btn">open</string>
+    <string name="swap_sensors">swap sensors</string>
+    <string name="swap_button_open_close">swap button open/close</string>
+    <string name="single_channel_control">single channel control</string>
+    <string name="reset_to_factory_settings">reset to factory settings</string>
+    <string name="off">off</string>
+    <string name="on">on</string>
+    <string name="shutdown_current">shutdown current</string>
 
     <string-array name="numbers">
         <item>0</item>

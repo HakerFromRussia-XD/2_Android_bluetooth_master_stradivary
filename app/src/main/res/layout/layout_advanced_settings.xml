@@ -9,15 +9,17 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="24dp"
         android:orientation="vertical"
         android:weightSum="14"
-        android:layout_marginTop="24dp"
         tools:ignore="UselessParent">
+
         <RelativeLayout
             android:id="@+id/shutdown_current_rl"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -26,241 +28,250 @@
                 android:paddingRight="16dp"
                 android:weightSum="4"
                 tools:ignore="DisableBaselineAlignment">
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
+
                     <TextView
                         android:id="@+id/shutdown_current_text_tv"
+                        style="@style/Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentStart="true"
                         android:layout_alignParentLeft="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="0dp"
                         android:text="@string/shutdown_current"
-                        style="@style/Text"
+                        android:textStyle="bold"
                         tools:ignore="RtlHardcoded" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5">
+
                     <TextView
                         android:id="@+id/shutdown_current_tv"
+                        style="@style/Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:text="230"
-                        android:layout_centerVertical="true"
                         android:layout_centerHorizontal="true"
-                        style="@style/Text"
+                        android:layout_centerVertical="true"
+                        android:text="230"
+                        android:textStyle="bold"
                         tools:ignore="HardcodedText" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2.5">
+
                     <androidx.appcompat.widget.AppCompatSeekBar
                         android:id="@+id/shutdown_current_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:paddingEnd="0dp"
-                        android:paddingStart="16dp"
                         android:max="169"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="0dp"
                         android:progress="0"
                         android:progressDrawable="@drawable/track_le"
-                        android:thumb="@drawable/thumb_le"/>
+                        android:thumb="@drawable/thumb_le" />
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/start_up_step_rl"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:layout_weight="1">-->
-<!--            <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:orientation="horizontal"-->
-<!--                android:paddingLeft="16dp"-->
-<!--                android:paddingRight="16dp"-->
-<!--                android:weightSum="4"-->
-<!--                tools:ignore="DisableBaselineAlignment">-->
-<!--                <RelativeLayout-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_weight="1">-->
-<!--                    <TextView-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:textStyle="bold"-->
-<!--                        android:layout_centerVertical="true"-->
-<!--                        android:layout_alignParentStart="true"-->
-<!--                        android:text="start up step"-->
-<!--                        style="@style/Text"-->
-<!--                        tools:ignore="HardcodedText" />-->
-<!--                </RelativeLayout>-->
-<!--                <RelativeLayout-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_weight="0.5">-->
-<!--                    <TextView-->
-<!--                        android:id="@+id/start_up_step_tv"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:textStyle="bold"-->
-<!--                        android:text="65"-->
-<!--                        android:layout_centerVertical="true"-->
-<!--                        android:layout_centerHorizontal="true"-->
-<!--                        style="@style/Text"-->
-<!--                        tools:ignore="HardcodedText" />-->
-<!--                </RelativeLayout>-->
-<!--                <RelativeLayout-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="2.5">-->
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/start_up_step_rl"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="0dp"-->
+        <!--            android:layout_weight="1">-->
+        <!--            <LinearLayout-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:orientation="horizontal"-->
+        <!--                android:paddingLeft="16dp"-->
+        <!--                android:paddingRight="16dp"-->
+        <!--                android:weightSum="4"-->
+        <!--                tools:ignore="DisableBaselineAlignment">-->
+        <!--                <RelativeLayout-->
+        <!--                    android:layout_width="0dp"-->
+        <!--                    android:layout_height="match_parent"-->
+        <!--                    android:layout_weight="1">-->
+        <!--                    <TextView-->
+        <!--                        android:layout_width="wrap_content"-->
+        <!--                        android:layout_height="wrap_content"-->
+        <!--                        android:textStyle="bold"-->
+        <!--                        android:layout_centerVertical="true"-->
+        <!--                        android:layout_alignParentStart="true"-->
+        <!--                        android:text="start up step"-->
+        <!--                        style="@style/Text"-->
+        <!--                        tools:ignore="HardcodedText" />-->
+        <!--                </RelativeLayout>-->
+        <!--                <RelativeLayout-->
+        <!--                    android:layout_width="0dp"-->
+        <!--                    android:layout_height="match_parent"-->
+        <!--                    android:layout_weight="0.5">-->
+        <!--                    <TextView-->
+        <!--                        android:id="@+id/start_up_step_tv"-->
+        <!--                        android:layout_width="wrap_content"-->
+        <!--                        android:layout_height="wrap_content"-->
+        <!--                        android:textStyle="bold"-->
+        <!--                        android:text="65"-->
+        <!--                        android:layout_centerVertical="true"-->
+        <!--                        android:layout_centerHorizontal="true"-->
+        <!--                        style="@style/Text"-->
+        <!--                        tools:ignore="HardcodedText" />-->
+        <!--                </RelativeLayout>-->
+        <!--                <RelativeLayout-->
+        <!--                    android:layout_width="0dp"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_weight="2.5">-->
 
-<!--                    <androidx.appcompat.widget.AppCompatSeekBar-->
-<!--                        android:id="@+id/start_up_step_sb"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="match_parent"-->
-<!--                        android:max="99"-->
-<!--                        android:paddingStart="16dp"-->
-<!--                        android:paddingEnd="0dp"-->
-<!--                        android:progress="65"-->
-<!--                        android:progressDrawable="@drawable/track_le"-->
-<!--                        android:thumb="@drawable/thumb_le" />-->
-<!--                </RelativeLayout>-->
-<!--            </LinearLayout>-->
-<!--        </RelativeLayout>-->
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/dead_zone_rl"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:layout_weight="1">-->
-<!--            <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:orientation="horizontal"-->
-<!--                android:paddingLeft="16dp"-->
-<!--                android:paddingRight="16dp"-->
-<!--                android:weightSum="4"-->
-<!--                tools:ignore="DisableBaselineAlignment">-->
-<!--                <RelativeLayout-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_weight="1">-->
-<!--                    <TextView-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:textStyle="bold"-->
-<!--                        android:layout_centerVertical="true"-->
-<!--                        android:layout_alignParentStart="true"-->
-<!--                        android:text="dead zone"-->
-<!--                        style="@style/Text"-->
-<!--                        tools:ignore="HardcodedText" />-->
-<!--                </RelativeLayout>-->
-<!--                <RelativeLayout-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_weight="0.5">-->
-<!--                    <TextView-->
-<!--                        android:id="@+id/dead_zone_tv"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:textStyle="bold"-->
-<!--                        android:text="50"-->
-<!--                        android:layout_centerVertical="true"-->
-<!--                        android:layout_centerHorizontal="true"-->
-<!--                        style="@style/Text"-->
-<!--                        tools:ignore="HardcodedText" />-->
-<!--                </RelativeLayout>-->
-<!--                <RelativeLayout-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="2.5">-->
-<!--                    <androidx.appcompat.widget.AppCompatSeekBar-->
-<!--                        android:id="@+id/dead_zone_sb"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="match_parent"-->
-<!--                        android:paddingEnd="0dp"-->
-<!--                        android:paddingStart="16dp"-->
-<!--                        android:max="69"-->
-<!--                        android:progress="20"-->
-<!--                        android:progressDrawable="@drawable/track_le"-->
-<!--                        android:thumb="@drawable/thumb_le"/>-->
-<!--                </RelativeLayout>-->
-<!--            </LinearLayout>-->
-<!--        </RelativeLayout>-->
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/brake_motor_rl"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:layout_weight="1">-->
-<!--            <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:orientation="horizontal"-->
-<!--                android:paddingLeft="16dp"-->
-<!--                android:paddingRight="16dp"-->
-<!--                android:weightSum="4"-->
-<!--                tools:ignore="DisableBaselineAlignment">-->
-<!--                <RelativeLayout-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_weight="2">-->
-<!--                    <TextView-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:textStyle="bold"-->
-<!--                        android:layout_centerVertical="true"-->
-<!--                        android:layout_alignParentStart="true"-->
-<!--                        android:text="use brake motor"-->
-<!--                        style="@style/Text"-->
-<!--                        tools:ignore="HardcodedText" />-->
-<!--                </RelativeLayout>-->
-<!--                <RelativeLayout-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_weight="0.5">-->
-<!--                    <TextView-->
-<!--                        android:id="@+id/brake_motor_tv"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:textStyle="bold"-->
-<!--                        android:text="0"-->
-<!--                        android:layout_centerVertical="true"-->
-<!--                        android:layout_centerHorizontal="true"-->
-<!--                        style="@style/Text"-->
-<!--                        tools:ignore="HardcodedText" />-->
-<!--                </RelativeLayout>-->
-<!--                <RelativeLayout-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="1.5">-->
+        <!--                    <androidx.appcompat.widget.AppCompatSeekBar-->
+        <!--                        android:id="@+id/start_up_step_sb"-->
+        <!--                        android:layout_width="match_parent"-->
+        <!--                        android:layout_height="match_parent"-->
+        <!--                        android:max="99"-->
+        <!--                        android:paddingStart="16dp"-->
+        <!--                        android:paddingEnd="0dp"-->
+        <!--                        android:progress="65"-->
+        <!--                        android:progressDrawable="@drawable/track_le"-->
+        <!--                        android:thumb="@drawable/thumb_le" />-->
+        <!--                </RelativeLayout>-->
+        <!--            </LinearLayout>-->
+        <!--        </RelativeLayout>-->
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/dead_zone_rl"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="0dp"-->
+        <!--            android:layout_weight="1">-->
+        <!--            <LinearLayout-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:orientation="horizontal"-->
+        <!--                android:paddingLeft="16dp"-->
+        <!--                android:paddingRight="16dp"-->
+        <!--                android:weightSum="4"-->
+        <!--                tools:ignore="DisableBaselineAlignment">-->
+        <!--                <RelativeLayout-->
+        <!--                    android:layout_width="0dp"-->
+        <!--                    android:layout_height="match_parent"-->
+        <!--                    android:layout_weight="1">-->
+        <!--                    <TextView-->
+        <!--                        android:layout_width="wrap_content"-->
+        <!--                        android:layout_height="wrap_content"-->
+        <!--                        android:textStyle="bold"-->
+        <!--                        android:layout_centerVertical="true"-->
+        <!--                        android:layout_alignParentStart="true"-->
+        <!--                        android:text="dead zone"-->
+        <!--                        style="@style/Text"-->
+        <!--                        tools:ignore="HardcodedText" />-->
+        <!--                </RelativeLayout>-->
+        <!--                <RelativeLayout-->
+        <!--                    android:layout_width="0dp"-->
+        <!--                    android:layout_height="match_parent"-->
+        <!--                    android:layout_weight="0.5">-->
+        <!--                    <TextView-->
+        <!--                        android:id="@+id/dead_zone_tv"-->
+        <!--                        android:layout_width="wrap_content"-->
+        <!--                        android:layout_height="wrap_content"-->
+        <!--                        android:textStyle="bold"-->
+        <!--                        android:text="50"-->
+        <!--                        android:layout_centerVertical="true"-->
+        <!--                        android:layout_centerHorizontal="true"-->
+        <!--                        style="@style/Text"-->
+        <!--                        tools:ignore="HardcodedText" />-->
+        <!--                </RelativeLayout>-->
+        <!--                <RelativeLayout-->
+        <!--                    android:layout_width="0dp"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_weight="2.5">-->
+        <!--                    <androidx.appcompat.widget.AppCompatSeekBar-->
+        <!--                        android:id="@+id/dead_zone_sb"-->
+        <!--                        android:layout_width="match_parent"-->
+        <!--                        android:layout_height="match_parent"-->
+        <!--                        android:paddingEnd="0dp"-->
+        <!--                        android:paddingStart="16dp"-->
+        <!--                        android:max="69"-->
+        <!--                        android:progress="20"-->
+        <!--                        android:progressDrawable="@drawable/track_le"-->
+        <!--                        android:thumb="@drawable/thumb_le"/>-->
+        <!--                </RelativeLayout>-->
+        <!--            </LinearLayout>-->
+        <!--        </RelativeLayout>-->
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/brake_motor_rl"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="0dp"-->
+        <!--            android:layout_weight="1">-->
+        <!--            <LinearLayout-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:orientation="horizontal"-->
+        <!--                android:paddingLeft="16dp"-->
+        <!--                android:paddingRight="16dp"-->
+        <!--                android:weightSum="4"-->
+        <!--                tools:ignore="DisableBaselineAlignment">-->
+        <!--                <RelativeLayout-->
+        <!--                    android:layout_width="0dp"-->
+        <!--                    android:layout_height="match_parent"-->
+        <!--                    android:layout_weight="2">-->
+        <!--                    <TextView-->
+        <!--                        android:layout_width="wrap_content"-->
+        <!--                        android:layout_height="wrap_content"-->
+        <!--                        android:textStyle="bold"-->
+        <!--                        android:layout_centerVertical="true"-->
+        <!--                        android:layout_alignParentStart="true"-->
+        <!--                        android:text="use brake motor"-->
+        <!--                        style="@style/Text"-->
+        <!--                        tools:ignore="HardcodedText" />-->
+        <!--                </RelativeLayout>-->
+        <!--                <RelativeLayout-->
+        <!--                    android:layout_width="0dp"-->
+        <!--                    android:layout_height="match_parent"-->
+        <!--                    android:layout_weight="0.5">-->
+        <!--                    <TextView-->
+        <!--                        android:id="@+id/brake_motor_tv"-->
+        <!--                        android:layout_width="wrap_content"-->
+        <!--                        android:layout_height="wrap_content"-->
+        <!--                        android:textStyle="bold"-->
+        <!--                        android:text="0"-->
+        <!--                        android:layout_centerVertical="true"-->
+        <!--                        android:layout_centerHorizontal="true"-->
+        <!--                        style="@style/Text"-->
+        <!--                        tools:ignore="HardcodedText" />-->
+        <!--                </RelativeLayout>-->
+        <!--                <RelativeLayout-->
+        <!--                    android:layout_width="0dp"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_weight="1.5">-->
 
-<!--                    <Switch-->
-<!--                        android:id="@+id/brake_motor_sw"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="match_parent"-->
-<!--                        android:layout_alignParentStart="true"-->
-<!--                        android:layout_alignParentEnd="true"-->
-<!--                        android:layout_marginEnd="0dp"-->
-<!--                        android:ellipsize="middle"-->
-<!--                        android:paddingStart="16dp"-->
-<!--                        android:scrollbarSize="48dp"-->
-<!--                        android:thumb="@drawable/switch_le_thumb"-->
-<!--                        android:track="@drawable/switch_le_truck"-->
-<!--                        tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />-->
-<!--                </RelativeLayout>-->
-<!--            </LinearLayout>-->
-<!--        </RelativeLayout>-->
+        <!--                    <Switch-->
+        <!--                        android:id="@+id/brake_motor_sw"-->
+        <!--                        android:layout_width="wrap_content"-->
+        <!--                        android:layout_height="match_parent"-->
+        <!--                        android:layout_alignParentStart="true"-->
+        <!--                        android:layout_alignParentEnd="true"-->
+        <!--                        android:layout_marginEnd="0dp"-->
+        <!--                        android:ellipsize="middle"-->
+        <!--                        android:paddingStart="16dp"-->
+        <!--                        android:scrollbarSize="48dp"-->
+        <!--                        android:thumb="@drawable/switch_le_thumb"-->
+        <!--                        android:track="@drawable/switch_le_truck"-->
+        <!--                        tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />-->
+        <!--                </RelativeLayout>-->
+        <!--            </LinearLayout>-->
+        <!--        </RelativeLayout>-->
         <RelativeLayout
             android:id="@+id/swap_sensors_rl"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -269,6 +280,7 @@
                 android:paddingRight="16dp"
                 android:weightSum="4"
                 tools:ignore="DisableBaselineAlignment">
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -280,24 +292,28 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
                         android:text="@string/swap_sensors"
                         android:textStyle="bold" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5">
+
                     <TextView
                         android:id="@+id/swap_sensors_tv"
+                        style="@style/Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:text="0"
-                        android:layout_centerVertical="true"
                         android:layout_centerHorizontal="true"
-                        style="@style/Text"
+                        android:layout_centerVertical="true"
+                        android:text="0"
+                        android:textStyle="bold"
                         tools:ignore="HardcodedText" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -319,11 +335,13 @@
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
+
         <RelativeLayout
             android:id="@+id/swap_open_close_rl"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -332,35 +350,40 @@
                 android:paddingRight="16dp"
                 android:weightSum="4"
                 tools:ignore="DisableBaselineAlignment">
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2">
+
                     <TextView
                         android:id="@+id/swap_button_open_close_tv"
+                        style="@style/Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:layout_centerVertical="true"
                         android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
                         android:text="@string/swap_button_open_close"
-                        style="@style/Text"/>
+                        android:textStyle="bold" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5">
+
                     <TextView
                         android:id="@+id/swap_open_close_tv"
+                        style="@style/Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:text="0"
-                        android:layout_centerVertical="true"
                         android:layout_centerHorizontal="true"
-                        style="@style/Text"
+                        android:layout_centerVertical="true"
+                        android:text="0"
+                        android:textStyle="bold"
                         tools:ignore="HardcodedText" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -382,11 +405,13 @@
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
+
         <RelativeLayout
             android:id="@+id/single_channel_control_rl"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -395,35 +420,40 @@
                 android:paddingRight="16dp"
                 android:weightSum="4"
                 tools:ignore="DisableBaselineAlignment">
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2">
+
                     <TextView
                         android:id="@+id/single_channel_control_text_tv"
+                        style="@style/Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:layout_centerVertical="true"
                         android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
                         android:text="@string/single_channel_control"
-                        style="@style/Text"/>
+                        android:textStyle="bold" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5">
+
                     <TextView
                         android:id="@+id/single_channel_control_tv"
+                        style="@style/Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:text="0"
-                        android:layout_centerVertical="true"
                         android:layout_centerHorizontal="true"
-                        style="@style/Text"
+                        android:layout_centerVertical="true"
+                        android:text="0"
+                        android:textStyle="bold"
                         tools:ignore="HardcodedText" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -445,22 +475,24 @@
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
+
         <RelativeLayout
             android:id="@+id/reset_to_factory_settings_rl"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
             android:layout_weight="1">
+
             <Button
                 android:id="@+id/reset_to_factory_settings_btn"
+                style="@style/Text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:text="@string/reset_to_factory_settings"
-                style="@style/Text"
-                android:background="@drawable/custom_button_le"/>
+                android:background="@drawable/custom_button_le"
+                android:text="@string/reset_to_factory_settings" />
         </RelativeLayout>
     </LinearLayout>
 </RelativeLayout>

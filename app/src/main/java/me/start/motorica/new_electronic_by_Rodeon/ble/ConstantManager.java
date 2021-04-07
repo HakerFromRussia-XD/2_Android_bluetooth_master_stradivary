@@ -8,7 +8,7 @@ public interface ConstantManager {
     //TODO тут настраивается имя модуля, для подключения нового протокола
     String EXTRAS_DEVICE_TYPE = "FEST-A";
     String EXTRAS_DEVICE_TYPE_2 = "BT05";
-    String EXTRAS_DEVICE_TYPE_3 = "BLE_test_service—•—";
+    String EXTRAS_DEVICE_TYPE_3 = "BLE_tesst_service—•—";
 
     ////////////////////////////////////////////////
 /**                     delays                      **/

@@ -19,7 +19,7 @@ import java.util.HashMap;
  * This class includes a small subset of standard GATT attributes for demonstration purposes.
  */
 public class SampleGattAttributes {
-    private static HashMap<String, String> attributes = new HashMap();
+    private static final HashMap<String, String> attributes = new HashMap<>();
     // Sample Characteristics.
     public static String MIO_MEASUREMENT = "00002a37-0000-1000-8000-00805f9b34fb";
     public static String SET_ADC_CURRENT_TRESHOLD_HDLE = "0000fe41-8e22-4541-9d4c-21edae82ed19";
@@ -32,8 +32,8 @@ public class SampleGattAttributes {
     public static String OPEN_MOTOR_HDLE = "0000fe48-8e22-4541-9d4c-21edae82ed19";
     public static String CLOSE_MOTOR_HDLE = "0000fe49-8e22-4541-9d4c-21edae82ed19";
     public static String SENSITIVITY_HDLE = "0000fe4a-8e22-4541-9d4c-21edae82ed19";
-    public static String BRAKE_MOTOR_TIME_HDLE = "0000fe4b-8e22-4541-9d4c-21edae82ed19";
-    public static String BRAKE_MOTOR_HDLE = "0000fe4c-8e22-4541-9d4c-21edae82ed19";
+//    public static String BRAKE_MOTOR_TIME_HDLE = "0000fe4b-8e22-4541-9d4c-21edae82ed19";
+//    public static String BRAKE_MOTOR_HDLE = "0000fe4c-8e22-4541-9d4c-21edae82ed19";
     public static String SENS_OPTIONS = "0000fe4d-8e22-4541-9d4c-21edae82ed19";
     public static String ADD_GESTURE = "0000fe4e-8e22-4541-9d4c-21edae82ed19";
     public static String SET_GESTURE = "0000fe4f-8e22-4541-9d4c-21edae82ed19";
@@ -41,7 +41,7 @@ public class SampleGattAttributes {
     public static String RESET_TO_FACTORY_SETTINGS = "0000fe51-8e22-4541-9d4c-21edae82ed19";
     public static String SET_ONE_CHANNEL = "0000fe52-8e22-4541-9d4c-21edae82ed19";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
-    public static String MY_TEST_MEASUREMENT = "00002a00-0000-1000-8000-00805f9b34fb";
+//    public static String MY_TEST_MEASUREMENT = "00002a00-0000-1000-8000-00805f9b34fb";
     public static String FESTO_A_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb";
     // Sample Commands.
     public static String READ = "READ";

@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
@@ -49,6 +48,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         selectActiveGesture(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1))
+        main?.offGesturesUIBeforeConnection()
+
         gesture_1_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()

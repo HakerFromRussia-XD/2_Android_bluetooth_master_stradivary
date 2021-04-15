@@ -146,6 +146,17 @@
     <string name="off">нет</string>
     <string name="on">да</string>
     <string name="shutdown_current">ток отсечки</string>
+    <string name="rotation_thumb">ротация</string>
+    <string name="thumb">большой палец</string>
+    <string name="forefinger">указательный палец</string>
+    <string name="middle_finger">средний палец</string>
+    <string name="ring_finger">безымянный палец</string>
+    <string name="little_finger">мизинец</string>
+    <string name="open_state">открытое</string>
+    <string name="close_state">закрытое</string>
+    <string name="cancel_gripper_settings">отмена</string>
+    <string name="save_gripper_settings">сохранить</string>
+    <string name="gesture">Жест</string>
 
 
     <string-array name="numbers">

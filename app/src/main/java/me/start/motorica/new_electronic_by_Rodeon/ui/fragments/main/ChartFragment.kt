@@ -251,6 +251,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private fun initializedUI() {
     thresholds_blocking_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) thresholds_blocking_tv.text = "on"
+    main?.offSensorsUIBeforeConnection()
   }
 
   override fun onResume() {

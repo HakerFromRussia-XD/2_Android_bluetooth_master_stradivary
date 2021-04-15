@@ -146,6 +146,17 @@
     <string name="off">off</string>
     <string name="on">on</string>
     <string name="shutdown_current">shutdown current</string>
+    <string name="rotation_thumb">rotation thumb</string>
+    <string name="thumb">thumb</string>
+    <string name="forefinger">forefinger</string>
+    <string name="middle_finger">middle finger</string>
+    <string name="ring_finger">ring finger</string>
+    <string name="little_finger">little finger</string>
+    <string name="open_state">open</string>
+    <string name="close_state">close</string>
+    <string name="cancel_gripper_settings">Cancel</string>
+    <string name="save_gripper_settings">Save</string>
+    <string name="gesture">Gesture </string>
 
     <string-array name="numbers">
         <item>0</item>

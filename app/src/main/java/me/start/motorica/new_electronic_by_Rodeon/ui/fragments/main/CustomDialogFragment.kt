@@ -8,6 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import kotlinx.android.synthetic.main.layout_chart.*
+import kotlinx.android.synthetic.main.layout_chart.opening_sensor_sensitivity_tv
+import kotlinx.android.synthetic.main.layout_gripper_settings_le.*
 import kotlinx.android.synthetic.main.layout_gripper_settings_le.view.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE
@@ -44,7 +47,20 @@ class CustomDialogFragment: DialogFragment() {
         loadOldState()
 
         //info block
-        rootView?.tv_andex_alert_dialog_layout_title?.text  = rootView?.tv_andex_alert_dialog_layout_title?.text.toString() + main?.getMNumberGesture()+ " configurator"
+        if (main?.locate?.contains("ru")!!) {
+            rootView?.tv_andex_alert_dialog_layout_title?.text  = "Кофигуратор жеста " + main?.getMNumberGesture()
+            tv_andex_alert_dialog_layout_title2.textSize = 10f
+            tv_andex_alert_dialog_layout_title3.textSize = 10f
+            tv_andex_alert_dialog_layout_message.textSize = 14f
+            tv_andex_alert_dialog_layout_message_2.textSize = 14f
+            tv_andex_alert_dialog_layout_message_3.textSize = 14f
+            tv_andex_alert_dialog_layout_message_4.textSize = 14f
+            tv_andex_alert_dialog_layout_message_5.textSize = 14f
+            tv_andex_alert_dialog_layout_message_6.textSize = 14f
+        } else {
+            rootView?.tv_andex_alert_dialog_layout_title?.text  = "Gesture " + main?.getMNumberGesture()+ " configurator"
+        }
+
 
         //control block
         if (!main?.lockWriteBeforeFirstRead!!) {
@@ -108,6 +124,18 @@ class CustomDialogFragment: DialogFragment() {
                 main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
                 main?.incrementCountCommand()
             }
+            rootView?.finger_6_open_sb?.setOnClickListener {
+                openStage = if (rootView?.finger_6_open_sb!!.isChecked) openStage or 0b00100000
+                else openStage and 0b11011111
+                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                main?.incrementCountCommand()
+            }
+            rootView?.finger_6_close_sb?.setOnClickListener {
+                closeStage = if (rootView?.finger_6_close_sb!!.isChecked) closeStage or 0b00100000
+                else closeStage and 0b11011111
+                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                main?.incrementCountCommand()
+            }
 
 
             rootView?.v_andex_alert_dialog_layout_confirm?.setOnClickListener {
@@ -133,10 +161,12 @@ class CustomDialogFragment: DialogFragment() {
         rootView?.finger_3_open_sb?.isChecked = ((oldOpenStage shr 2 and 0b00000001) == 1)
         rootView?.finger_4_open_sb?.isChecked = ((oldOpenStage shr 3 and 0b00000001) == 1)
         rootView?.finger_5_open_sb?.isChecked = ((oldOpenStage shr 4 and 0b00000001) == 1)
+        rootView?.finger_6_open_sb?.isChecked = ((oldOpenStage shr 5 and 0b00000001) == 1)
         rootView?.finger_1_close_sb?.isChecked = ((oldCloseStage shr 0 and 0b00000001) == 1)
         rootView?.finger_2_close_sb?.isChecked = ((oldCloseStage shr 1 and 0b00000001) == 1)
         rootView?.finger_3_close_sb?.isChecked = ((oldCloseStage shr 2 and 0b00000001) == 1)
         rootView?.finger_4_close_sb?.isChecked = ((oldCloseStage shr 3 and 0b00000001) == 1)
         rootView?.finger_5_close_sb?.isChecked = ((oldCloseStage shr 4 and 0b00000001) == 1)
+        rootView?.finger_6_close_sb?.isChecked = ((oldCloseStage shr 5 and 0b00000001) == 1)
     }
 }

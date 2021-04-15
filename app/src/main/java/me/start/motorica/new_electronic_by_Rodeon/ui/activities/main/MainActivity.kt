@@ -454,9 +454,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         swap_open_close_sw.isEnabled = enabled
         single_channel_control_sw.isEnabled = enabled
         reset_to_factory_settings_btn.isEnabled = enabled
+        shutdown_current_sb.isEnabled = enabled
       }
     }
-
     sensorsDataThreadFlag = enabled
     if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
       runReadData()
@@ -739,5 +739,38 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   fun incrementCountCommand() {
     countCommand++
+  }
+  fun offGesturesUIBeforeConnection () {
+    gesture_1_btn.isEnabled = false
+    gesture_2_btn.isEnabled = false
+    gesture_3_btn.isEnabled = false
+    gesture_4_btn.isEnabled = false
+    gesture_5_btn.isEnabled = false
+    gesture_6_btn.isEnabled = false
+    gesture_7_btn.isEnabled = false
+    gesture_8_btn.isEnabled = false
+    gesture_settings_2_btn.isEnabled = false
+    gesture_settings_3_btn.isEnabled = false
+    gesture_settings_4_btn.isEnabled = false
+    gesture_settings_5_btn.isEnabled = false
+    gesture_settings_6_btn.isEnabled = false
+    gesture_settings_7_btn.isEnabled = false
+    gesture_settings_8_btn.isEnabled = false
+  }
+  fun offSensorsUIBeforeConnection () {
+    close_btn.isEnabled = false
+    open_btn.isEnabled = false
+    thresholds_blocking_sw.isEnabled = false
+    correlator_noise_threshold_1_sb.isEnabled = false
+    correlator_noise_threshold_2_sb.isEnabled = false
+  }
+  fun offAdvancedSettingsUIBeforeConnection () {
+    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+      swap_sensors_sw.isEnabled = false
+      swap_open_close_sw.isEnabled = false
+      single_channel_control_sw.isEnabled = false
+      reset_to_factory_settings_btn.isEnabled = false
+      shutdown_current_sb.isEnabled = false
+    }
   }
 }

@@ -125,8 +125,8 @@ class AdvancedSettingsFragment : Fragment() {
         main?.setSwapOpenCloseButton(false)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
 
-        swap_sensors_sw.isChecked = false
-        swap_sensors_tv.text = 0.toString()
+//        swap_sensors_sw.isChecked = false
+//        swap_sensors_tv.text = 0.toString()
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
 
         swap_open_close_sw.isChecked = false

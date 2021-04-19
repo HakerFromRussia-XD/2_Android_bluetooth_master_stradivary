@@ -81,6 +81,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     if (main?.locate?.contains("ru")!!) {
       opening_sensor_sensitivity_tv.textSize = 8f
       closing_sensor_sensitivity_tv.textSize = 8f
+      swap_sensors_text_tv.textSize = 11f
     }
     initializedSensorGraph()
     initializedUI()
@@ -212,7 +213,24 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         }
       }
     })
+    swap_sensors_sw.setOnClickListener {
+      if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
+        if (swap_sensors_sw.isChecked) {
+          swap_sensors_tv.text = 1.toString()
+          main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
+          main?.incrementCountCommand()
+          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
+        } else {
+          swap_sensors_tv.text = 0.toString()
+          main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
+          main?.incrementCountCommand()
+          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+        }
+      }
+    }
     driver_tv.setOnLongClickListener {
+      //TODO даписать сюда код, активирующий кнопки расширенного меню, при открытии его после
+      // осуществления подключения к устройству
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
         Handler().postDelayed({
@@ -230,7 +248,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
     thresholds_blocking_sw.setOnClickListener{
       if (thresholds_blocking_sw.isChecked) {
-//        thresholds_blocking_tv.text = resources.getString(R.string.on)
         thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
       } else {
@@ -238,19 +255,12 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
     }
-
-//    thresholds_blocking_sw.setOnDragListener {
-//      if (thresholds_blocking_sw.isChecked) {
-//        thresholds_blocking_tv.text = resources.getString(R.string.on)
-//        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
-//      }
-//    }
   }
 
   @SuppressLint("SetTextI18n")
   private fun initializedUI() {
     thresholds_blocking_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) thresholds_blocking_tv.text = "on"
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
     main?.offSensorsUIBeforeConnection()
   }
 
@@ -399,6 +409,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         open_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
         close_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
         main?.runOnUiThread {
+          swap_sensors_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+          if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) swap_sensors_tv.text = 1.toString()
           driver_tv.text = resources.getString(R.string.driver) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 1)).toFloat()/100 + "v"
           bms_tv.text = resources.getString(R.string.bms) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.BMS_NUM, 1)).toFloat()/100 + "v"
           sensor_tv.text = resources.getString(R.string.sens) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SENS_NUM, 1)).toFloat()/100 + "v"

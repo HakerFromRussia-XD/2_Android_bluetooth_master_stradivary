@@ -86,6 +86,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var actionState = READ
   var savingSettingsWhenModified = false
   var lockWriteBeforeFirstRead = true //переменная, необходимая для ожидания первого пришедшего ответа от устройства на
+  var enableInterfaceStatus: Boolean = false
   // отправленный запрос чтения. Если не ожидать её, то поток чтения не перезамускается
   internal var locate = ""
 
@@ -428,6 +429,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     enableInterface(true)
   }
   private fun enableInterface(enabled: Boolean) {
+    enableInterfaceStatus = enabled
     close_btn.isEnabled = enabled
     open_btn.isEnabled = enabled
     thresholds_blocking_sw.isEnabled = enabled

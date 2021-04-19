@@ -68,12 +68,13 @@ class AdvancedSettingsFragment : Fragment() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
     if (main?.locate?.contains("ru")!!) {
       shutdown_current_text_tv.textSize = 11f
-      swap_sensors_text_tv.textSize = 11f
       swap_button_open_close_tv.textSize = 11f
       single_channel_control_text_tv.textSize = 11f
       reset_to_factory_settings_btn.textSize = 12f
     }
-    main?.offAdvancedSettingsUIBeforeConnection()
+    if (main?.enableInterfaceStatus == false) {
+      main?.offAdvancedSettingsUIBeforeConnection()
+    }
 
     shutdown_current_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -89,21 +90,6 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
     })
-    swap_sensors_sw.setOnClickListener {
-      if (!main?.lockWriteBeforeFirstRead!!) {
-        if (swap_sensors_sw.isChecked) {
-          swap_sensors_tv.text = 1.toString()
-          main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
-          main?.incrementCountCommand()
-          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
-        } else {
-          swap_sensors_tv.text = 0.toString()
-          main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
-          main?.incrementCountCommand()
-          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
-        }
-      }
-    }
     swap_open_close_sw.setOnClickListener {
       if (swap_open_close_sw.isChecked) {
         swap_open_close_tv.text = 1.toString()
@@ -161,11 +147,8 @@ class AdvancedSettingsFragment : Fragment() {
       shutdown_current_rl.visibility = View.GONE
     }
 
-//    if (preferenceManager.getBoolean(PreferenceKeys.USE_BRAKE_MOTOR, true) == null) preferenceManager.putBoolean(PreferenceKeys.USE_BRAKE_MOTOR, false)
-    swap_sensors_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
     swap_open_close_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
     single_channel_control_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) swap_sensors_tv.text = 1.toString()
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv.text = 1.toString()
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv.text = 1.toString()
 

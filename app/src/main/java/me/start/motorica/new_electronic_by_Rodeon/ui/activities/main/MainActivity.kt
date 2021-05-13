@@ -205,7 +205,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
         lockWriteBeforeFirstRead = false
       } else {
-        countCommand--
+        if(countCommand > 0) { countCommand-- }
         System.err.println("Count command before start read: $countCommand")
         if (countCommand == 0) {
           globalSemaphore = false
@@ -769,14 +769,5 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     thresholds_blocking_sw.isEnabled = false
     correlator_noise_threshold_1_sb.isEnabled = false
     correlator_noise_threshold_2_sb.isEnabled = false
-  }
-  fun offAdvancedSettingsUIBeforeConnection () {
-    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-      swap_sensors_sw.isEnabled = false
-      swap_open_close_sw.isEnabled = false
-      single_channel_control_sw.isEnabled = false
-      reset_to_factory_settings_btn.isEnabled = false
-      shutdown_current_sb.isEnabled = false
-    }
   }
 }

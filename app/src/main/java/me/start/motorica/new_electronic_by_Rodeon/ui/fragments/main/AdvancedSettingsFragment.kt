@@ -72,9 +72,9 @@ class AdvancedSettingsFragment : Fragment() {
       single_channel_control_text_tv.textSize = 11f
       reset_to_factory_settings_btn.textSize = 12f
     }
-    if (main?.enableInterfaceStatus == false) {
-      main?.offAdvancedSettingsUIBeforeConnection()
-    }
+//    if (main?.enableInterfaceStatus == false) {
+//      main?.offAdvancedSettingsUIBeforeConnection()
+//    }
 
     shutdown_current_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {

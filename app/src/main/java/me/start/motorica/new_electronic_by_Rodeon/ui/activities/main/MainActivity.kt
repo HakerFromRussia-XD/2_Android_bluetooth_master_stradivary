@@ -168,7 +168,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //      System.err.println("BluetoothLeService-------------> прошли первый иф ")
       System.err.println("============================================")
       for (bite in data) {
-        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}" )
+        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
       }
       if (castUnsignedCharToInt(data[0]) != 0xAA) {
 //        System.err.println("BluetoothLeService-------------> прошли второй иф")
@@ -255,7 +255,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
 
     locate = Locale.getDefault().toString()
-
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
     val intent = intent
@@ -725,7 +725,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     return cast
   }
 
-  internal fun saveInt (key: String, variable: Int) {
+  internal fun saveInt(key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putInt(key, variable)
     editor.apply()

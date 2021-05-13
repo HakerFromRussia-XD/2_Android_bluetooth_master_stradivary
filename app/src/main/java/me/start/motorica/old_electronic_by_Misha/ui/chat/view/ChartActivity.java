@@ -144,7 +144,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public int receiveLevelCH1Chat = 0;
     public int receiveLevelCH2Chat = 0;
     public byte receiveIndicationStateChat = 0;
-    public int receiveBatteryTensionChat = 0;
     //    for animation limits
     ImageView limit_1;
     ImageView limit_2;
@@ -187,12 +186,12 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     private int intValueFinger2Speed = SPEED;
     private int intValueFinger3Speed = SPEED;
     private int intValueFinger4Speed = SPEED;
-    private int intValueFinger5Speed = SPEED;
+    private final int intValueFinger5Speed = SPEED;
     private int intValueFinger6Speed = SPEED;
     public static byte GESTURE_SETTINGS = 0x15;
     public static byte NUMBER_CELL = 0x00;
     public static long delay = 200;
-    private int delayPauseAfterSending = 200;
+    private final int delayPauseAfterSending = 200;
     public boolean transferThreadFlag = false;
     public boolean mainActivityStarted = false;
     public Thread transferThread;

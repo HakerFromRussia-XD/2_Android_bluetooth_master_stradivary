@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color.*
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.R.drawable.*
@@ -48,6 +50,13 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         selectActiveGesture(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1))
+        if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+            left_right_side_swap_sw.isChecked = true
+            left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))
+        } else {
+            left_right_side_swap_sw.isChecked = false
+            left_right_side_swap_tv.text = resources.getString(R.string.left)
+        }
         main?.offGesturesUIBeforeConnection()
 
         gesture_1_btn.setOnClickListener {
@@ -130,6 +139,15 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             }
         }
         gesture_settings_8_btn.setOnClickListener { main?.openFragment(8) }
+        left_right_side_swap_sw.setOnClickListener{
+            if (left_right_side_swap_sw.isChecked) {
+                left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))
+                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
+            } else {
+                left_right_side_swap_tv.text = resources.getString(R.string.left)
+                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
+            }
+        }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")

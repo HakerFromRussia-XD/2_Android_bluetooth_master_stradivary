@@ -28,6 +28,7 @@ object PreferenceKeys {
   const val DRIVER_NUM = "DRIVER_NUM"
   const val BMS_NUM = "BMS_NUM"
   const val SENS_NUM = "SENS_NUM"
+  const val SWAP_LEFT_RIGHT_SIDE = "SWAP_LEFT_RIGHT_SIDE"
 
   const val SHUTDOWN_CURRENT_NUM = "SHUTDOWN_CURRENT_NUM"
   const val STAR_UP_STEP_NUM = "STAR_UP_STEP_NUM"

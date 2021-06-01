@@ -157,6 +157,9 @@
     <string name="cancel_gripper_settings">Cancel</string>
     <string name="save_gripper_settings">Save</string>
     <string name="gesture">Gesture </string>
+    <string name="hand_side">hand side</string>
+    <string name="left">left</string>
+    <string name="right">right</string>
 
     <string-array name="numbers">
         <item>0</item>

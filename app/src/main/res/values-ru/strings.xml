@@ -157,6 +157,9 @@
     <string name="cancel_gripper_settings">отмена</string>
     <string name="save_gripper_settings">сохранить</string>
     <string name="gesture">Жест</string>
+    <string name="hand_side">сторона руки</string>
+    <string name="left">левая</string>
+    <string name="right">правая</string>
 
 
     <string-array name="numbers">

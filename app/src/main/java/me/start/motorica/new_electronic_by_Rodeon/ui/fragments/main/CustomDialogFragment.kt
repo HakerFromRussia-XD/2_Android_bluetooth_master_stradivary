@@ -8,8 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import kotlinx.android.synthetic.main.layout_chart.*
-import kotlinx.android.synthetic.main.layout_chart.opening_sensor_sensitivity_tv
 import kotlinx.android.synthetic.main.layout_gripper_settings_le.*
 import kotlinx.android.synthetic.main.layout_gripper_settings_le.view.*
 import me.start.motorica.R
@@ -154,6 +152,7 @@ class CustomDialogFragment: DialogFragment() {
     private fun loadOldState() {
         openStage = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_NUM + (main?.getMNumberGesture()!!-1), 0)
         closeStage = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_NUM + (main?.getMNumberGesture()!!-1), 0)
+        System.err.println("SWAP_LEFT_RIGHT_SIDE: "+ mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1))
         oldOpenStage = openStage
         oldCloseStage = closeStage
         rootView?.finger_1_open_sb?.isChecked = ((oldOpenStage shr 0 and 0b00000001) == 1)

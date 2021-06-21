@@ -162,6 +162,7 @@
     <string name="right">правая</string>
     <string name="prosthesis_update_ready_for_installation">Обновление протеза</string>
     <string name="do_you_want_to_start_updating">Доступна новая версия программного обеспечения протеза. Вы хотите установить обновлённую прошивку сейчас?</string>
+    <string name="updating_0">обновление…  </string>
 
 
     <string-array name="numbers">

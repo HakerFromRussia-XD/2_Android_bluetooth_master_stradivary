@@ -162,6 +162,7 @@
     <string name="right">right</string>
     <string name="prosthesis_update_ready_for_installation">Prosthesis update</string>
     <string name="do_you_want_to_start_updating">A new version of the prosthesis software is available. Do you want to install the updated firmware now?</string>
+    <string name="updating_0">updating… </string>
 
     <string-array name="numbers">
         <item>0</item>

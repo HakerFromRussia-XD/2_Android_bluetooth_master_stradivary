@@ -42,6 +42,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapt
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograbWithAdvancedSettings
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterWithAdvancedSettings
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomDialogFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomInfoUpdateDialogFragment
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomUpdateDialogFragment
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
@@ -74,6 +75,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var dataSens2 = 0x00
   private var mSettings: SharedPreferences? = null
   private var askAboutUpdate: Boolean = true
+  private var progressUpdate: Int = 0
 
   private var state = 0
   private var subscribeThread: Thread? = null
@@ -126,41 +128,41 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     override fun onReceive(context: Context, intent: Intent) {
       val action = intent.action
       when {
-          BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
-            //connected state
-            mConnected = true
-            mConnectView!!.visibility = View.VISIBLE
-            mDisconnectView!!.visibility = View.GONE
-            System.err.println("DeviceControlActivity-------> момент индикации коннекта")
-            invalidateOptionsMenu()
-          }
-          BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
-            //disconnected state
-            mConnected = false
-            mConnectView!!.visibility = View.GONE
-            mDisconnectView!!.visibility = View.VISIBLE
-            System.err.println("DeviceControlActivity-------> момент индикации коннекта")
-            invalidateOptionsMenu()
-            clearUI()
-          }
-          BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
-            // Show all the supported services and characteristics on the user interface.
-            displayGattServices(mBluetoothLeService!!.supportedGattServices)
-          }
-          BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-            if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))) { // новая схема обработки данных
-              displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
-              intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
+        BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
+          //connected state
+          mConnected = true
+          mConnectView!!.visibility = View.VISIBLE
+          mDisconnectView!!.visibility = View.GONE
+          System.err.println("DeviceControlActivity-------> момент индикации коннекта")
+          invalidateOptionsMenu()
+        }
+        BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+          //disconnected state
+          mConnected = false
+          mConnectView!!.visibility = View.GONE
+          mDisconnectView!!.visibility = View.VISIBLE
+          System.err.println("DeviceControlActivity-------> момент индикации коннекта")
+          invalidateOptionsMenu()
+          clearUI()
+        }
+        BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
+          // Show all the supported services and characteristics on the user interface.
+          displayGattServices(mBluetoothLeService!!.supportedGattServices)
+        }
+        BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
+          if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))) { // новая схема обработки данных
+            displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
+            intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
 //              System.err.println("попадаем сюда")
-            } else {
-              displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
+          } else {
+            displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
 //              System.err.println("попадаем не сюда")
-            }
-             //вывод на график данных из характеристики показаний пульса
-            displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.OPEN_MOTOR_DATA))
-            displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.CLOSE_MOTOR_DATA))
-            setSensorsDataThreadFlag(intent.getBooleanExtra(BluetoothLeService.SENSORS_DATA_THREAD_FLAG, true))
           }
+           //вывод на график данных из характеристики показаний пульса
+          displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.OPEN_MOTOR_DATA))
+          displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.CLOSE_MOTOR_DATA))
+          setSensorsDataThreadFlag(intent.getBooleanExtra(BluetoothLeService.SENSORS_DATA_THREAD_FLAG, true))
+        }
       }
     }
   }
@@ -187,6 +189,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             }
             System.err.println("mDeviceAddress-------------> вывести сообщение о готовности обновления")
           } else if (castUnsignedCharToInt(data[0]) in 3..102) {
+            progressUpdate = (castUnsignedCharToInt(data[0]) - 2)
             System.err.println("mDeviceAddress-------------> процент обновления  " + (castUnsignedCharToInt(data[0])-2)  + "%")
           }
           dataSens1 = castUnsignedCharToInt(data[1])
@@ -203,6 +206,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             }
             System.err.println("mDeviceAddress-------------> вывести сообщение о готовности обновления")
           } else if (castUnsignedCharToInt(data[0]) in 3..102) {
+            progressUpdate = (castUnsignedCharToInt(data[0]) - 2)
             System.err.println("mDeviceAddress-------------> процент обновления  " + (castUnsignedCharToInt(data[0])-2) + "%")
           }
           dataSens1 = castUnsignedCharToInt(data[1])
@@ -725,9 +729,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mNumberGesture = numberGesture
     dialog.show(supportFragmentManager, "custom dialog")
   }
-  fun openFragmentQuestion() {
+  private fun openFragmentQuestion() {
     val dialog = CustomUpdateDialogFragment()
     dialog.show(supportFragmentManager, "custom update dialog")
+  }
+  fun openFragmentInfoUpdate() {
+    val dialog = CustomInfoUpdateDialogFragment()
+    dialog.show(supportFragmentManager, "custom dialog")
+  }
+  fun getProgressUpdate(): Int {
+    return progressUpdate
   }
   override fun initializeUI() {}
 

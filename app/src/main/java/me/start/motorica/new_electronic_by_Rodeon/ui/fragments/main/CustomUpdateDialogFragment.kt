@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.solver.state.ConstraintReference
 import androidx.fragment.app.DialogFragment
+import kotlinx.android.synthetic.main.layout_gripper_settings_le.*
 import kotlinx.android.synthetic.main.layout_gripper_settings_le.view.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
@@ -53,9 +55,13 @@ class CustomUpdateDialogFragment: DialogFragment() {
 
         rootView?.v_andex_alert_dialog_layout_confirm?.setOnClickListener {
             System.err.println("ok")
-            main?.bleCommandConnector(byteArrayOf(0x00), SampleGattAttributes.ADD_GESTURE, SampleGattAttributes.WRITE, 12)
+            main?.bleCommandConnector(byteArrayOf(0x01), SampleGattAttributes.SET_START_UPDATE, SampleGattAttributes.WRITE, 18)
             main?.incrementCountCommand()
+            main?.openFragmentInfoUpdate()
             dismiss()
+//            tv_andex_alert_dialog_layout_message_2.visibility = View.GONE
+//            tv_andex_alert_dialog_layout_message_3.visibility = View.VISIBLE
+//            view5.layoutParams.resolveLayoutDirection(ConstraintReference.ConstraintReferenceFactory {  })
         }
         rootView?.v_andex_alert_dialog_layout_cancel?.setOnClickListener {
             System.err.println("Ne ok")

@@ -157,6 +157,8 @@
     <string name="cancel_gripper_settings">отмена</string>
     <string name="save_gripper_settings">сохранить</string>
     <string name="gesture">Жест</string>
+    <string name="prosthesis_update_ready_for_installation">Обновление протеза</string>
+    <string name="do_you_want_to_start_updating">Доступна новая версия программного обеспечения протеза. Вы хотите установить обновлённую прошивку сейчас?</string>
 
 
     <string-array name="numbers">

@@ -42,6 +42,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapt
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograbWithAdvancedSettings
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterWithAdvancedSettings
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomDialogFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomUpdateDialogFragment
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
@@ -72,6 +73,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var dataSens1 = 0x00
   private var dataSens2 = 0x00
   private var mSettings: SharedPreferences? = null
+  private var askAboutUpdate: Boolean = true
 
   private var state = 0
   private var subscribeThread: Thread? = null
@@ -175,10 +177,34 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //        System.err.println("data.size: " + data.size)
         if (data.size == 3) {
 //          System.err.println("mDeviceAddress-------------> прошли третий иф. Распарсили нотификацию")
+          if (castUnsignedCharToInt(data[0]) == 1) {
+            System.err.println("mDeviceAddress-------------> штатный режим работы")
+          } else if (castUnsignedCharToInt(data[0]) == 2) {
+            if (askAboutUpdate) {
+              //TODO открывать диолог с вопросом о продолжении прошивки
+              openFragmentQuestion()
+              askAboutUpdate = false
+            }
+            System.err.println("mDeviceAddress-------------> вывести сообщение о готовности обновления")
+          } else if (castUnsignedCharToInt(data[0]) in 3..102) {
+            System.err.println("mDeviceAddress-------------> процент обновления  " + (castUnsignedCharToInt(data[0])-2)  + "%")
+          }
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
           savingSettingsWhenModified = true
         } else if (data.size == 10) {
+          if (castUnsignedCharToInt(data[0]) == 1) {
+            System.err.println("mDeviceAddress-------------> штатный режим работы")
+          } else if (castUnsignedCharToInt(data[0]) == 2) {
+            if (askAboutUpdate) {
+              openFragmentQuestion()
+              //TODO открывать диолог с вопросом о продолжении прошивки
+              askAboutUpdate = false
+            }
+            System.err.println("mDeviceAddress-------------> вывести сообщение о готовности обновления")
+          } else if (castUnsignedCharToInt(data[0]) in 3..102) {
+            System.err.println("mDeviceAddress-------------> процент обновления  " + (castUnsignedCharToInt(data[0])-2) + "%")
+          }
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
           if (castUnsignedCharToInt(data[3]) != mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 0)) {
@@ -556,6 +582,20 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           sendByteMassive[4] = byteArray[0]
           sendByteMassive[5] = crcCalc(sendByteMassive)
         }
+        17 -> { //настройки переключения жестов
+          sendByteMassive[3] = 17.toByte()
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = byteArray[1]
+          sendByteMassive[6] = byteArray[2]
+          sendByteMassive[7] = byteArray[3]
+          sendByteMassive[8] = byteArray[4]
+          sendByteMassive[9] = crcCalc(sendByteMassive)
+        }
+        18 -> { //подтверждение перепрошивки
+          sendByteMassive[3] = 16.toByte()
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive)
+        }
       }
       readDataFlag = false
       globalSemaphore = true
@@ -684,6 +724,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val dialog = CustomDialogFragment()
     mNumberGesture = numberGesture
     dialog.show(supportFragmentManager, "custom dialog")
+  }
+  fun openFragmentQuestion() {
+    val dialog = CustomUpdateDialogFragment()
+    dialog.show(supportFragmentManager, "custom update dialog")
   }
   override fun initializeUI() {}
 

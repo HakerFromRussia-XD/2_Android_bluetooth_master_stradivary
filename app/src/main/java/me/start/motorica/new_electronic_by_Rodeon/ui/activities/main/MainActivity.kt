@@ -735,10 +735,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   fun openFragmentInfoUpdate() {
     val dialog = CustomInfoUpdateDialogFragment()
-    dialog.show(supportFragmentManager, "custom dialog")
+    dialog.show(supportFragmentManager, "update dialog")
+//    dialog.dialog!!.setCanceledOnTouchOutside(false)
   }
   fun getProgressUpdate(): Int {
     return progressUpdate
+  }
+  fun showToast (massage: String) {
+    runOnUiThread {
+      Toast.makeText(this, massage, Toast.LENGTH_SHORT).show()
+    }
   }
   override fun initializeUI() {}
 

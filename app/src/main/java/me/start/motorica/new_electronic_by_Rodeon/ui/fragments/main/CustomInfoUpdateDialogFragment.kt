@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -33,11 +34,14 @@ class CustomInfoUpdateDialogFragment: DialogFragment() {
         return view
     }
 
+
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
+        dialog!!.setCanceledOnTouchOutside(false)
+        pb_update.progressTintList = ColorStateList.valueOf(this.resources.getColor(R.color.darkOrange))
         startUpdatingUIThread()
     }
 
@@ -52,9 +56,15 @@ class CustomInfoUpdateDialogFragment: DialogFragment() {
                 }
                 try {
                     Thread.sleep(100)
-                } catch (ignored: Exception) { }
+                } catch (ignored: Exception) {}
             }
             dismiss()
+            if (main?.locate?.contains("ru")!!) {
+                main?.showToast("Обновление установлено!")
+            } else {
+                main?.showToast("Update installed!")
+            }
+
         }
         updatingUIThread?.start()
     }

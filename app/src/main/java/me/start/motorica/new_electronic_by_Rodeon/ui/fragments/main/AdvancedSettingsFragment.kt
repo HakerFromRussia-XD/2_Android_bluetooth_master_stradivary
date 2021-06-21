@@ -70,6 +70,10 @@ class AdvancedSettingsFragment : Fragment() {
       shutdown_current_text_tv.textSize = 11f
       swap_button_open_close_tv.textSize = 11f
       single_channel_control_text_tv.textSize = 11f
+      on_off_sensor_gesture_switching_text_tv.textSize = 11f
+      mode_text_tv.textSize = 11f
+      peak_time_text_tv.textSize = 11f
+      downtime_text_tv.textSize = 11f
       reset_to_factory_settings_btn.textSize = 12f
     }
 //    if (main?.enableInterfaceStatus == false) {
@@ -116,6 +120,36 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
     }
+    on_off_sensor_gesture_switching_sw.setOnClickListener {
+      if (!main?.lockWriteBeforeFirstRead!!) {
+        if (on_off_sensor_gesture_switching_sw.isChecked) {
+          on_off_sensor_gesture_switching_tv.text = 1.toString()
+          mode_rl.visibility = View.VISIBLE
+          peak_time_rl.visibility = View.VISIBLE
+          downtime_rl.visibility = View.VISIBLE
+          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
+        } else {
+          on_off_sensor_gesture_switching_tv.text = 0.toString()
+          mode_rl.visibility = View.GONE
+          peak_time_rl.visibility = View.GONE
+          downtime_rl.visibility = View.GONE
+          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+        }
+      }
+    }
+    mode_sw.setOnClickListener {
+      if (!main?.lockWriteBeforeFirstRead!!) {
+        if (mode_sw.isChecked) {
+          mode_tv.text = 1.toString()
+
+          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, true)
+        } else {
+          mode_tv.text = 0.toString()
+
+          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
+        }
+      }
+    }
     reset_to_factory_settings_btn.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
@@ -139,6 +173,10 @@ class AdvancedSettingsFragment : Fragment() {
         single_channel_control_sw.isChecked = false
         single_channel_control_tv.text = 0.toString()
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+
+        on_off_sensor_gesture_switching_sw.isChecked = false
+        on_off_sensor_gesture_switching_tv.text = 0.toString()
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
       }
     }
 
@@ -149,8 +187,18 @@ class AdvancedSettingsFragment : Fragment() {
 
     swap_open_close_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
     single_channel_control_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+    on_off_sensor_gesture_switching_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+    mode_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv.text = 1.toString()
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv.text = 1.toString()
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
+      on_off_sensor_gesture_switching_tv.text = 1.toString()
+    } else {
+      mode_rl.visibility = View.GONE
+      peak_time_rl.visibility = View.GONE
+      downtime_rl.visibility = View.GONE
+    }
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)) mode_tv.text = 1.toString()
 
     main?.runOnUiThread {
       ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()

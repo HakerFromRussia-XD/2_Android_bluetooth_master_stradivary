@@ -286,6 +286,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     locate = Locale.getDefault().toString()
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    getWindow().navigationBarColor = resources.getColor(R.color.colorPrimaryDark)
     mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
     val intent = intent
@@ -736,7 +737,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   fun openFragmentInfoUpdate() {
     val dialog = CustomInfoUpdateDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
-//    dialog.dialog!!.setCanceledOnTouchOutside(false)
   }
   fun getProgressUpdate(): Int {
     return progressUpdate

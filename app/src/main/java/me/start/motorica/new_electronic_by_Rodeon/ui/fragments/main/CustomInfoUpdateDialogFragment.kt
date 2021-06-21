@@ -47,12 +47,17 @@ class CustomInfoUpdateDialogFragment: DialogFragment() {
 
     @SuppressLint("SetTextI18n")
     private fun startUpdatingUIThread() {
+        var count = 0
         updatingUIThread = Thread {
             while (updateThreadFlag) {
-                main?.runOnUiThread {
-                    if (main?.getProgressUpdate() == 100) updateThreadFlag = false
-                    ObjectAnimator.ofInt(pb_update, "progress", main?.getProgressUpdate()!!).setDuration(200).start()
-                    tv_update_dialog_layout_title2.text = tv_update_dialog_layout_title2.text.split(" ")[0] + "  " + main?.getProgressUpdate()!! + "%"
+                if (main?.getProgressUpdate() == 100) updateThreadFlag = false
+                tv_update_dialog_layout_title2.text = tv_update_dialog_layout_title2.text.split(" ")[0] + "  " + main?.getProgressUpdate()!! + "%"
+                count++
+                if (count >= 10) {
+                    main?.runOnUiThread {
+                        ObjectAnimator.ofInt(pb_update, "progress", main?.getProgressUpdate()!!).setDuration(1000).start()
+                    }
+                    count = 0
                 }
                 try {
                     Thread.sleep(100)
@@ -66,6 +71,6 @@ class CustomInfoUpdateDialogFragment: DialogFragment() {
             }
 
         }
-        updatingUIThread?.start()
+        updatingUIThread!!.start()
     }
 }

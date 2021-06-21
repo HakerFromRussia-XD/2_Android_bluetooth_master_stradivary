@@ -163,6 +163,10 @@
     <string name="prosthesis_update_ready_for_installation">Обновление протеза</string>
     <string name="do_you_want_to_start_updating">Доступна новая версия программного обеспечения протеза. Вы хотите установить обновлённую прошивку сейчас?</string>
     <string name="updating_0">обновление…  </string>
+    <string name="gesture_switching_by_sensors">переключение жеста сенсорами</string>
+    <string name="switching_mode">режим переключения</string>
+    <string name="time_between_peaks">время между пиками</string>
+    <string name="peak_time">время пиков</string>
 
 
     <string-array name="numbers">

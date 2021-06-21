@@ -25,6 +25,7 @@ class CustomDialogFragment: DialogFragment() {
     private var oldCloseStage = 0b00000000
     private val openState: Byte = 1
     private val closeState: Byte = 0
+    private var side: Int = 1
     private var mSettings: SharedPreferences? = null
 
     override fun onCreateView(
@@ -62,78 +63,154 @@ class CustomDialogFragment: DialogFragment() {
 
         //control block
         if (!main?.lockWriteBeforeFirstRead!!) {
-            rootView?.finger_1_open_sb?.setOnClickListener {
-                openStage = if (rootView?.finger_1_open_sb!!.isChecked) openStage or 0b00000001
-                else openStage and 0b11111110
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
+            if (side == 1) {
+                rootView?.finger_1_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_1_open_sb!!.isChecked) openStage or 0b00000001
+                    else openStage and 0b11111110
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_1_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_1_close_sb!!.isChecked) closeStage or 0b00000001
+                    else closeStage and 0b11111110
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_2_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_2_open_sb!!.isChecked) openStage or 0b00000010
+                    else openStage and 0b11111101
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_2_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_2_close_sb!!.isChecked) closeStage or 0b00000010
+                    else closeStage and 0b11111101
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_3_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_3_open_sb!!.isChecked) openStage or 0b00000100
+                    else openStage and 0b11111011
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_3_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_3_close_sb!!.isChecked) closeStage or 0b00000100
+                    else closeStage and 0b11111011
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_4_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_4_open_sb!!.isChecked) openStage or 0b00001000
+                    else openStage and 0b11110111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_4_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_4_close_sb!!.isChecked) closeStage or 0b00001000
+                    else closeStage and 0b11110111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_5_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_5_open_sb!!.isChecked) openStage or 0b00010000
+                    else openStage and 0b11101111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_5_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_5_close_sb!!.isChecked) closeStage or 0b00010000
+                    else closeStage and 0b11101111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_6_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_6_open_sb!!.isChecked) openStage or 0b00100000
+                    else openStage and 0b11011111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_6_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_6_close_sb!!.isChecked) closeStage or 0b00100000
+                    else closeStage and 0b11011111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+            } else {
+                rootView?.finger_4_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_4_open_sb!!.isChecked) openStage or 0b00000001
+                    else openStage and 0b11111110
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_4_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_4_close_sb!!.isChecked) closeStage or 0b00000001
+                    else closeStage and 0b11111110
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_3_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_3_open_sb!!.isChecked) openStage or 0b00000010
+                    else openStage and 0b11111101
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_3_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_3_close_sb!!.isChecked) closeStage or 0b00000010
+                    else closeStage and 0b11111101
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_2_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_2_open_sb!!.isChecked) openStage or 0b00000100
+                    else openStage and 0b11111011
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_2_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_2_close_sb!!.isChecked) closeStage or 0b00000100
+                    else closeStage and 0b11111011
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_1_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_1_open_sb!!.isChecked) openStage or 0b00001000
+                    else openStage and 0b11110111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_1_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_1_close_sb!!.isChecked) closeStage or 0b00001000
+                    else closeStage and 0b11110111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_5_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_5_open_sb!!.isChecked) openStage or 0b00010000
+                    else openStage and 0b11101111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_5_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_5_close_sb!!.isChecked) closeStage or 0b00010000
+                    else closeStage and 0b11101111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_6_open_sb?.setOnClickListener {
+                    openStage = if (rootView?.finger_6_open_sb!!.isChecked) openStage or 0b00100000
+                    else openStage and 0b11011111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
+                rootView?.finger_6_close_sb?.setOnClickListener {
+                    closeStage = if (rootView?.finger_6_close_sb!!.isChecked) closeStage or 0b00100000
+                    else closeStage and 0b11011111
+                    main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
+                    main?.incrementCountCommand()
+                }
             }
-            rootView?.finger_1_close_sb?.setOnClickListener {
-                closeStage = if (rootView?.finger_1_close_sb!!.isChecked) closeStage or 0b00000001
-                else closeStage and 0b11111110
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
-            rootView?.finger_2_open_sb?.setOnClickListener {
-                openStage = if (rootView?.finger_2_open_sb!!.isChecked) openStage or 0b00000010
-                else openStage and 0b11111101
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
-            rootView?.finger_2_close_sb?.setOnClickListener {
-                closeStage = if (rootView?.finger_2_close_sb!!.isChecked) closeStage or 0b00000010
-                else closeStage and 0b11111101
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
-            rootView?.finger_3_open_sb?.setOnClickListener {
-                openStage = if (rootView?.finger_3_open_sb!!.isChecked) openStage or 0b00000100
-                else openStage and 0b11111011
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
-            rootView?.finger_3_close_sb?.setOnClickListener {
-                closeStage = if (rootView?.finger_3_close_sb!!.isChecked) closeStage or 0b00000100
-                else closeStage and 0b11111011
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
-            rootView?.finger_4_open_sb?.setOnClickListener {
-                openStage = if (rootView?.finger_4_open_sb!!.isChecked) openStage or 0b00001000
-                else openStage and 0b11110111
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
-            rootView?.finger_4_close_sb?.setOnClickListener {
-                closeStage = if (rootView?.finger_4_close_sb!!.isChecked) closeStage or 0b00001000
-                else closeStage and 0b11110111
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
-            rootView?.finger_5_open_sb?.setOnClickListener {
-                openStage = if (rootView?.finger_5_open_sb!!.isChecked) openStage or 0b00010000
-                else openStage and 0b11101111
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
-            rootView?.finger_5_close_sb?.setOnClickListener {
-                closeStage = if (rootView?.finger_5_close_sb!!.isChecked) closeStage or 0b00010000
-                else closeStage and 0b11101111
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
-            rootView?.finger_6_open_sb?.setOnClickListener {
-                openStage = if (rootView?.finger_6_open_sb!!.isChecked) openStage or 0b00100000
-                else openStage and 0b11011111
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
-            rootView?.finger_6_close_sb?.setOnClickListener {
-                closeStage = if (rootView?.finger_6_close_sb!!.isChecked) closeStage or 0b00100000
-                else closeStage and 0b11011111
-                main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-                main?.incrementCountCommand()
-            }
+
 
 
             rootView?.v_andex_alert_dialog_layout_confirm?.setOnClickListener {
@@ -152,19 +229,35 @@ class CustomDialogFragment: DialogFragment() {
     private fun loadOldState() {
         openStage = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_NUM + (main?.getMNumberGesture()!!-1), 0)
         closeStage = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_NUM + (main?.getMNumberGesture()!!-1), 0)
+        side = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
         oldOpenStage = openStage
         oldCloseStage = closeStage
-        rootView?.finger_1_open_sb?.isChecked = ((oldOpenStage shr 0 and 0b00000001) == 1)
-        rootView?.finger_2_open_sb?.isChecked = ((oldOpenStage shr 1 and 0b00000001) == 1)
-        rootView?.finger_3_open_sb?.isChecked = ((oldOpenStage shr 2 and 0b00000001) == 1)
-        rootView?.finger_4_open_sb?.isChecked = ((oldOpenStage shr 3 and 0b00000001) == 1)
-        rootView?.finger_5_open_sb?.isChecked = ((oldOpenStage shr 4 and 0b00000001) == 1)
-        rootView?.finger_6_open_sb?.isChecked = ((oldOpenStage shr 5 and 0b00000001) == 1)
-        rootView?.finger_1_close_sb?.isChecked = ((oldCloseStage shr 0 and 0b00000001) == 1)
-        rootView?.finger_2_close_sb?.isChecked = ((oldCloseStage shr 1 and 0b00000001) == 1)
-        rootView?.finger_3_close_sb?.isChecked = ((oldCloseStage shr 2 and 0b00000001) == 1)
-        rootView?.finger_4_close_sb?.isChecked = ((oldCloseStage shr 3 and 0b00000001) == 1)
-        rootView?.finger_5_close_sb?.isChecked = ((oldCloseStage shr 4 and 0b00000001) == 1)
-        rootView?.finger_6_close_sb?.isChecked = ((oldCloseStage shr 5 and 0b00000001) == 1)
+        if (side == 1) {
+            rootView?.finger_1_open_sb?.isChecked = ((oldOpenStage shr 0 and 0b00000001) == 1)
+            rootView?.finger_2_open_sb?.isChecked = ((oldOpenStage shr 1 and 0b00000001) == 1)
+            rootView?.finger_3_open_sb?.isChecked = ((oldOpenStage shr 2 and 0b00000001) == 1)
+            rootView?.finger_4_open_sb?.isChecked = ((oldOpenStage shr 3 and 0b00000001) == 1)
+            rootView?.finger_5_open_sb?.isChecked = ((oldOpenStage shr 4 and 0b00000001) == 1)
+            rootView?.finger_6_open_sb?.isChecked = ((oldOpenStage shr 5 and 0b00000001) == 1)
+            rootView?.finger_1_close_sb?.isChecked = ((oldCloseStage shr 0 and 0b00000001) == 1)
+            rootView?.finger_2_close_sb?.isChecked = ((oldCloseStage shr 1 and 0b00000001) == 1)
+            rootView?.finger_3_close_sb?.isChecked = ((oldCloseStage shr 2 and 0b00000001) == 1)
+            rootView?.finger_4_close_sb?.isChecked = ((oldCloseStage shr 3 and 0b00000001) == 1)
+            rootView?.finger_5_close_sb?.isChecked = ((oldCloseStage shr 4 and 0b00000001) == 1)
+            rootView?.finger_6_close_sb?.isChecked = ((oldCloseStage shr 5 and 0b00000001) == 1)
+        } else {
+            rootView?.finger_4_open_sb?.isChecked = ((oldOpenStage shr 0 and 0b00000001) == 1)
+            rootView?.finger_3_open_sb?.isChecked = ((oldOpenStage shr 1 and 0b00000001) == 1)
+            rootView?.finger_2_open_sb?.isChecked = ((oldOpenStage shr 2 and 0b00000001) == 1)
+            rootView?.finger_1_open_sb?.isChecked = ((oldOpenStage shr 3 and 0b00000001) == 1)
+            rootView?.finger_5_open_sb?.isChecked = ((oldOpenStage shr 4 and 0b00000001) == 1)
+            rootView?.finger_6_open_sb?.isChecked = ((oldOpenStage shr 5 and 0b00000001) == 1)
+            rootView?.finger_4_close_sb?.isChecked = ((oldCloseStage shr 0 and 0b00000001) == 1)
+            rootView?.finger_3_close_sb?.isChecked = ((oldCloseStage shr 1 and 0b00000001) == 1)
+            rootView?.finger_2_close_sb?.isChecked = ((oldCloseStage shr 2 and 0b00000001) == 1)
+            rootView?.finger_1_close_sb?.isChecked = ((oldCloseStage shr 3 and 0b00000001) == 1)
+            rootView?.finger_5_close_sb?.isChecked = ((oldCloseStage shr 4 and 0b00000001) == 1)
+            rootView?.finger_6_close_sb?.isChecked = ((oldCloseStage shr 5 and 0b00000001) == 1)
+        }
     }
 }

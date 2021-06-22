@@ -40,8 +40,8 @@ public class SampleGattAttributes {
     public static String SET_REVERSE = "0000fe50-8e22-4541-9d4c-21edae82ed19";
     public static String RESET_TO_FACTORY_SETTINGS = "0000fe51-8e22-4541-9d4c-21edae82ed19";
     public static String SET_ONE_CHANNEL = "0000fe52-8e22-4541-9d4c-21edae82ed19";
-    public static String SET_CHANGE_GESTURE = "0000fe53-8e22-4541-9d4c-21edae82ed19";
-    public static String SET_START_UPDATE = "0000fe54-8e22-4541-9d4c-21edae82ed19";
+    public static String SET_START_UPDATE = "0000fe53-8e22-4541-9d4c-21edae82ed19";
+    public static String SET_CHANGE_GESTURE = "0000fe54-8e22-4541-9d4c-21edae82ed19";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
 //    public static String MY_TEST_MEASUREMENT = "00002a00-0000-1000-8000-00805f9b34fb";
     public static String FESTO_A_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb";

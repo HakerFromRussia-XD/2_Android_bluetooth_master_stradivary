@@ -170,9 +170,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun displayData(data: ByteArray?) {
     if (data != null){
 //      System.err.println("BluetoothLeService-------------> прошли первый иф ")
-      System.err.println("============================================")
+//      System.err.println("============================================")
       for (bite in data) {
-        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
+//        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
       }
       if (castUnsignedCharToInt(data[0]) != 0xAA) {
 //        System.err.println("BluetoothLeService-------------> прошли второй иф")
@@ -180,34 +180,32 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         if (data.size == 3) {
 //          System.err.println("mDeviceAddress-------------> прошли третий иф. Распарсили нотификацию")
           if (castUnsignedCharToInt(data[0]) == 1) {
-            System.err.println("mDeviceAddress-------------> штатный режим работы")
+//            System.err.println("mDeviceAddress-------------> штатный режим работы")
           } else if (castUnsignedCharToInt(data[0]) == 2) {
             if (askAboutUpdate) {
-              //TODO открывать диолог с вопросом о продолжении прошивки
               openFragmentQuestion()
               askAboutUpdate = false
             }
-            System.err.println("mDeviceAddress-------------> вывести сообщение о готовности обновления")
+//            System.err.println("mDeviceAddress-------------> вывести сообщение о готовности обновления")
           } else if (castUnsignedCharToInt(data[0]) in 3..102) {
             progressUpdate = (castUnsignedCharToInt(data[0]) - 2)
-            System.err.println("mDeviceAddress-------------> процент обновления  " + (castUnsignedCharToInt(data[0])-2)  + "%")
+//            System.err.println("mDeviceAddress-------------> процент обновления  " + (castUnsignedCharToInt(data[0])-2)  + "%")
           }
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
           savingSettingsWhenModified = true
         } else if (data.size == 10) {
           if (castUnsignedCharToInt(data[0]) == 1) {
-            System.err.println("mDeviceAddress-------------> штатный режим работы")
+//            System.err.println("mDeviceAddress-------------> штатный режим работы")
           } else if (castUnsignedCharToInt(data[0]) == 2) {
             if (askAboutUpdate) {
               openFragmentQuestion()
-              //TODO открывать диолог с вопросом о продолжении прошивки
               askAboutUpdate = false
             }
-            System.err.println("mDeviceAddress-------------> вывести сообщение о готовности обновления")
+//            System.err.println("mDeviceAddress-------------> вывести сообщение о готовности обновления")
           } else if (castUnsignedCharToInt(data[0]) in 3..102) {
             progressUpdate = (castUnsignedCharToInt(data[0]) - 2)
-            System.err.println("mDeviceAddress-------------> процент обновления  " + (castUnsignedCharToInt(data[0])-2) + "%")
+//            System.err.println("mDeviceAddress-------------> процент обновления  " + (castUnsignedCharToInt(data[0])-2) + "%")
           }
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
@@ -597,7 +595,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           sendByteMassive[9] = crcCalc(sendByteMassive)
         }
         18 -> { //подтверждение перепрошивки
-          sendByteMassive[3] = 16.toByte()
+          sendByteMassive[3] = 18.toByte()
           sendByteMassive[4] = byteArray[0]
           sendByteMassive[5] = crcCalc(sendByteMassive)
         }
@@ -674,13 +672,18 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     } catch (ignored: Exception) {}
   }
 
+  var first = true
   private fun runReadData() {
     getReadData().let { queue.put(it) }
   }
   open fun getReadData(): Runnable { return Runnable { readData() } }
   private fun readData() {
     while (readDataFlag) {
-      bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
+      if (first) {
+        bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
+        first = false
+      }
+
       try {
         Thread.sleep(10)
       } catch (ignored: Exception) {}

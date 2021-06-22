@@ -30,7 +30,6 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
-import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import javax.inject.Inject
@@ -47,6 +46,9 @@ class AdvancedSettingsFragment : Fragment() {
   private var main: MainActivity? = null
   private var mSettings: SharedPreferences? = null
   private var scale = 0F
+  private var mode: Byte = 0x00
+  private var sensorGestureSwitching: Byte = 0x00
+//  private var scale = 0F
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     val rootView = inflater.inflate(R.layout.layout_advanced_settings, container, false)
@@ -74,6 +76,7 @@ class AdvancedSettingsFragment : Fragment() {
       mode_text_tv.textSize = 11f
       peak_time_text_tv.textSize = 11f
       downtime_text_tv.textSize = 11f
+      mode_tv.textSize = 11f
       reset_to_factory_settings_btn.textSize = 12f
     }
 //    if (main?.enableInterfaceStatus == false) {
@@ -124,15 +127,23 @@ class AdvancedSettingsFragment : Fragment() {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (on_off_sensor_gesture_switching_sw.isChecked) {
           on_off_sensor_gesture_switching_tv.text = 1.toString()
+          sensorGestureSwitching = 0x01
           mode_rl.visibility = View.VISIBLE
           peak_time_rl.visibility = View.VISIBLE
           downtime_rl.visibility = View.VISIBLE
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+                                    SET_CHANGE_GESTURE, WRITE, 17)
+          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
         } else {
           on_off_sensor_gesture_switching_tv.text = 0.toString()
+          sensorGestureSwitching = 0x00
           mode_rl.visibility = View.GONE
           peak_time_rl.visibility = View.GONE
           downtime_rl.visibility = View.GONE
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+                                    SET_CHANGE_GESTURE, WRITE, 17)
+          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
         }
       }
@@ -140,16 +151,77 @@ class AdvancedSettingsFragment : Fragment() {
     mode_sw.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (mode_sw.isChecked) {
-          mode_tv.text = 1.toString()
-
+          mode_tv.text = "двумя\nдатчиками"
+          mode = 0x01
+          downtime_rl.visibility = View.GONE
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+                                    SET_CHANGE_GESTURE, WRITE, 17)
+          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, true)
         } else {
-          mode_tv.text = 0.toString()
-
+          mode_tv.text = "одним\nдатчиком"
+          mode = 0x00
+          downtime_rl.visibility = View.VISIBLE
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+                                    SET_CHANGE_GESTURE, WRITE, 17)
+          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
         }
       }
     }
+    peak_time_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        val time: String = when {
+          ((seekBar.progress + 5) * 0.05).toString().length == 4 -> {
+            ((seekBar.progress + 5) * 0.05).toString() + "c"
+          }
+          ((seekBar.progress + 5) * 0.05).toString().length > 4 -> {
+            ((seekBar.progress + 5) * 0.05).toString().substring(0,4) + "c"
+          }
+          else -> {
+            ((seekBar.progress + 5) * 0.05).toString() + "0c"
+          }
+        }
+        peak_time_tv.text = time
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+                                    SET_CHANGE_GESTURE, WRITE, 17)
+          main?.incrementCountCommand()
+          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, seekBar.progress)
+        }
+      }
+    })
+    downtime_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        val time: String = when {
+            ((seekBar.progress + 5) * 0.05).toString().length == 4 -> {
+              ((seekBar.progress + 5) * 0.05).toString() + "c"
+            }
+            ((seekBar.progress + 5) * 0.05).toString().length > 4 -> {
+              ((seekBar.progress + 5) * 0.05).toString().substring(0,4) + "c"
+            }
+            else -> {
+              ((seekBar.progress + 5) * 0.05).toString() + "0c"
+            }
+        }
+        downtime_tv.text = time
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+                                    SET_CHANGE_GESTURE, WRITE, 17)
+          main?.incrementCountCommand()
+          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, seekBar.progress)
+        }
+      }
+    })
+
     reset_to_factory_settings_btn.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
@@ -159,8 +231,6 @@ class AdvancedSettingsFragment : Fragment() {
         main?.setSwapOpenCloseButton(false)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
 
-//        swap_sensors_sw.isChecked = false
-//        swap_sensors_tv.text = 0.toString()
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
 
         swap_open_close_sw.isChecked = false
@@ -176,7 +246,16 @@ class AdvancedSettingsFragment : Fragment() {
 
         on_off_sensor_gesture_switching_sw.isChecked = false
         on_off_sensor_gesture_switching_tv.text = 0.toString()
+        sensorGestureSwitching = 0x00
+        mode_rl.visibility = View.GONE
+        peak_time_rl.visibility = View.GONE
+        downtime_rl.visibility = View.GONE
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+
+
+        mode_tv.text = "одним\nдатчиком"
+        mode = 0x00
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
       }
     }
 
@@ -193,15 +272,51 @@ class AdvancedSettingsFragment : Fragment() {
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv.text = 1.toString()
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
       on_off_sensor_gesture_switching_tv.text = 1.toString()
+      sensorGestureSwitching = 0x01
     } else {
+      sensorGestureSwitching = 0x00
       mode_rl.visibility = View.GONE
       peak_time_rl.visibility = View.GONE
       downtime_rl.visibility = View.GONE
     }
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)) mode_tv.text = 1.toString()
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)) {
+      mode_tv.text = "двумя\nдатчиками"
+      mode = 0x01
+      downtime_rl.visibility = View.GONE
+    } else {
+      mode_tv.text = "одним\nдатчиком"
+      mode = 0x00
+    }
 
     main?.runOnUiThread {
       ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(peak_time_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, 15)).setDuration(200).start()
+      ObjectAnimator.ofInt(downtime_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, 15)).setDuration(200).start()
     }
+    shutdown_current_tv.text = shutdown_current_sb.progress.toString()
+    var time: String = when {
+      ((peak_time_sb.progress + 5) * 0.05).toString().length == 4 -> {
+        ((peak_time_sb.progress + 5) * 0.05).toString() + "c"
+      }
+      ((peak_time_sb.progress + 5) * 0.05).toString().length > 4 -> {
+        ((peak_time_sb.progress + 5) * 0.05).toString().substring(0,4) + "c"
+      }
+      else -> {
+        ((peak_time_sb.progress + 5) * 0.05).toString() + "0c"
+      }
+    }
+    peak_time_tv.text = time
+    time = when {
+      ((downtime_sb.progress + 5) * 0.05).toString().length == 4 -> {
+        ((downtime_sb.progress + 5) * 0.05).toString() + "c"
+      }
+      ((downtime_sb.progress + 5) * 0.05).toString().length > 4 -> {
+        ((downtime_sb.progress + 5) * 0.05).toString().substring(0,4) + "c"
+      }
+      else -> {
+        ((downtime_sb.progress + 5) * 0.05).toString() + "0c"
+      }
+    }
+    downtime_tv.text = time
   }
 }

@@ -2,6 +2,7 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color.*
 import android.os.Bundle
@@ -13,7 +14,6 @@ import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.R.drawable.*
@@ -22,6 +22,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_G
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.GripperScreenActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import org.jetbrains.anko.backgroundDrawable
 import org.jetbrains.anko.textColor
@@ -68,7 +69,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 main?.incrementCountCommand()
             }
         }
-        gesture_settings_1_btn.setOnClickListener { main?.openFragment(1) }
+        gesture_settings_1_btn.setOnClickListener {
+            main?.openFragment(1)
+        }
         gesture_2_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()
@@ -78,7 +81,12 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 main?.incrementCountCommand()
             }
         }
-        gesture_settings_2_btn.setOnClickListener { main?.openFragment(2) }
+        gesture_settings_2_btn.setOnClickListener {
+            val intent = Intent(context, GripperScreenActivity::class.java)
+            startActivity(intent)
+//            main?.openFragmentGripper(context, 2)
+//            main?.openFragment(2)
+        }
         gesture_3_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()

@@ -13,6 +13,7 @@
 
 package me.start.motorica.new_electronic_by_Rodeon
 
+import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.*
@@ -24,13 +25,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.AdvancedSett
 interface ApplicationGraph {
   fun inject(target_: StartActivity)
 
-//  fun inject(target_: MakeAlarmPresenter)
-
   fun inject(target_: MainPresenter)
-
-//  fun inject(target_: AlarmFragment)
-
-//  fun inject(target_: AlarmUtils)
 
   fun inject(target_: ChartFragment)
 
@@ -42,7 +37,5 @@ interface ApplicationGraph {
 
   fun inject(target_: GripperFragment)
 
-//  fun inject(target_: DailyFragment)
-
-//  fun inject(target_: SetBubbleColorActivity)
+  fun inject(target_: GripperScreenPresenter)
 }

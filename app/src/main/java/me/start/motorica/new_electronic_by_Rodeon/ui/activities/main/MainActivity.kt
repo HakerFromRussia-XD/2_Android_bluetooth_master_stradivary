@@ -24,6 +24,7 @@ import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import kotlinx.android.synthetic.main.layout_chart.*
@@ -34,9 +35,11 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
+import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.GripperScreenActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapter
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograb
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograbWithAdvancedSettings
@@ -80,11 +83,18 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var state = 0
   private var subscribeThread: Thread? = null
   private var mNumberGesture = 0
+  // 3D
+  enum class SelectStation { UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5 }
+  private var selectStation: SelectStation? = null
+  var firstRead = true
+  private var numberFinger = 0
+  private var angleFinger = 0
+  private var speedFinger = 0
   // Очередь для задачь работы с BLE
   private val queue = me.start.motorica.new_electronic_by_Rodeon.services.receivers.BlockingQueue()
   private var readDataFlag = true
   private var globalSemaphore = true // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
-//  private var showAdvancedSettings = false
+  //  private var showAdvancedSettings = false
   private var swapOpenCloseButton = false
   private var countCommand = 0
   private var actionState = READ
@@ -301,6 +311,32 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
+
+    RxUpdateMainEvent.getInstance().selectedObjectObservable
+            .compose(bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { station ->
+              System.err.println(" MainActivity -----> selector tap.  station = $station")
+              selectStation = station
+            }
+
+    RxUpdateMainEvent.getInstance().fingerAngleObservable
+            .compose(bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { parameters ->
+              System.err.println(" MainActivity -----> change gripper.  numberFinger = ${parameters.numberFinger} "+
+                      "fingerAngel = ${parameters.fingerAngel}")
+              numberFinger = parameters.numberFinger
+              angleFinger = parameters.fingerAngel
+            }
+
+    RxUpdateMainEvent.getInstance().fingerSpeedObservable
+            .compose(bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { speed ->
+              System.err.println(" MainActivity -----> change gripper. fingerSpeed = $speed")
+              speedFinger = speed
+            }
 
     val worker = Thread {
       while (true) {
@@ -732,6 +768,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val dialog = CustomDialogFragment()
     mNumberGesture = numberGesture
     dialog.show(supportFragmentManager, "custom dialog")
+  }
+  fun openFragmentGripper(packageContext: Context?, numberGesture: Int) {
+    val intent = Intent(packageContext, GripperScreenActivity::class.java)
+    startActivity(intent)
   }
   private fun openFragmentQuestion() {
     val dialog = CustomUpdateDialogFragment()

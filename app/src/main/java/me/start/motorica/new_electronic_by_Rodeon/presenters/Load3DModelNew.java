@@ -1,5 +1,6 @@
 package me.start.motorica.new_electronic_by_Rodeon.presenters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import java.io.IOException;
@@ -10,19 +11,18 @@ import me.start.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.MAX_NUMBER_DETAILS;
 
 public class Load3DModelNew {
-
-    public static final int MAX_NUMBER_DETAILSS = MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS;
+    @SuppressLint("StaticFieldLeak")
     private  static Context context;
     private static String[] text;
-    private volatile float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS][];
-    private volatile float[][] texturesArray = new float[MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS][];
-    private volatile float[][] normalsArray = new float[MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS][];
-    public volatile static float[][] verticesArray = new float[MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS][1];
-    public static String[][] model = new String[MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS][];
-    public volatile static int[][] indicesArrayVertices = new int[MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS][1];
+    private final float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS][];
+    private final float[][] texturesArray = new float[MAX_NUMBER_DETAILS][];
+    private final float[][] normalsArray = new float[MAX_NUMBER_DETAILS][];
+    public volatile static float[][] verticesArray = new float[MAX_NUMBER_DETAILS][1];
+    public static String[][] model = new String[MAX_NUMBER_DETAILS][];
+    public volatile static int[][] indicesArrayVertices = new int[MAX_NUMBER_DETAILS][1];
 
     public Load3DModelNew(Context context) {
-        this.context = context;
+        Load3DModelNew.context = context;
     }
 
     //////////////////////////////////////////////////////////////////////////////

@@ -32,7 +32,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	private static final String TAG = "LessonEightRenderer";
 
 	/** References to other main objects. */
-	private Context fragmentGripperSettings;
+	private final Context fragmentGripperSettings;
 	private final ErrorHandler errorHandler;
 
 	/**
@@ -181,7 +181,7 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 	private HeightMap heightMap;
 
 	/** массивы вершин и индексов в которые упаковываются данные из строковых переменных*/
-	private static int MAX_NUMBER_DETAILS = 19;
+	private static final int MAX_NUMBER_DETAILS = 19;
 //	public volatile  float[][] verticesArrey = new float[MAX_NUMBER_DETAILS][1];
 //	public volatile  int[][] indicesArreyVerteces = new int[MAX_NUMBER_DETAILS][1];
 	/** массивы вершин и т.п. из строковых переменных*/
@@ -409,47 +409,49 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		Matrix.multiplyMV(lightPosInWorldSpace, 0, lightModelMatrix, 0, lightPosInModelSpace, 0);
 		Matrix.multiplyMV(lightPosInEyeSpace, 0, viewMatrix, 0, lightPosInWorldSpace, 0);
 
-		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){
-			foreFinger (new int[]{programRubber, program}, 0);
-			middleFinger (new int[]{programRubber, program}, 0);
-			ringFinger (new int[]{programRubber, program}, 0);
-			littleFinger (new int[]{programRubber, program}, 0);
-			bigFinger (new int[]{program, programRubber, programRubber}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
-			foreFinger (new int[]{programRubber, program}, 0);
-			middleFinger (new int[]{programRubber, program}, 0);
-			ringFinger (new int[]{programRubber, program}, 0);
-			littleFinger (new int[]{programRubberWithColor, programWithColor}, 0);
-			bigFinger (new int[]{program, programRubber, programRubber}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){
-			foreFinger (new int[]{programRubber, program}, 0);
-			middleFinger (new int[]{programRubber, program}, 0);
-			ringFinger (new int[]{programRubberWithColor, programWithColor}, 0);
-			littleFinger (new int[]{programRubber, program}, 0);
-			bigFinger (new int[]{program, programRubber, programRubber}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){
-			foreFinger (new int[]{programRubber, program}, 0);
-			middleFinger (new int[]{programRubberWithColor, programWithColor}, 0);
-			ringFinger (new int[]{programRubber, program}, 0);
-			littleFinger (new int[]{programRubber, program}, 0);
-			bigFinger (new int[]{program, programRubber, programRubber}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){
-			foreFinger (new int[]{programRubberWithColor, programWithColor}, 0);
-			middleFinger (new int[]{programRubber, program}, 0);
-			ringFinger (new int[]{programRubber, program}, 0);
-			littleFinger (new int[]{programRubber, program}, 0);
-			bigFinger (new int[]{program, programRubber, programRubber}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
-			foreFinger (new int[]{programRubber, program}, 0);
-			middleFinger (new int[]{programRubber, program}, 0);
-			ringFinger (new int[]{programRubber, program}, 0);
-			littleFinger (new int[]{programRubber, program}, 0);
-			bigFinger (new int[]{programWithColor, programRubberWithColor, programRubber}, 0);
+		switch (String.valueOf(selectStation)) {
+			case "UNSELECTED_OBJECT":
+				foreFinger(new int[]{programRubber, program}, 0);
+				middleFinger(new int[]{programRubber, program}, 0);
+				ringFinger(new int[]{programRubber, program}, 0);
+				littleFinger(new int[]{programRubber, program}, 0);
+				bigFinger(new int[]{program, programRubber, programRubber}, 0);
+				break;
+			case "SELECT_FINGER_1":
+				foreFinger(new int[]{programRubber, program}, 0);
+				middleFinger(new int[]{programRubber, program}, 0);
+				ringFinger(new int[]{programRubber, program}, 0);
+				littleFinger(new int[]{programRubberWithColor, programWithColor}, 0);
+				bigFinger(new int[]{program, programRubber, programRubber}, 0);
+				break;
+			case "SELECT_FINGER_2":
+				foreFinger(new int[]{programRubber, program}, 0);
+				middleFinger(new int[]{programRubber, program}, 0);
+				ringFinger(new int[]{programRubberWithColor, programWithColor}, 0);
+				littleFinger(new int[]{programRubber, program}, 0);
+				bigFinger(new int[]{program, programRubber, programRubber}, 0);
+				break;
+			case "SELECT_FINGER_3":
+				foreFinger(new int[]{programRubber, program}, 0);
+				middleFinger(new int[]{programRubberWithColor, programWithColor}, 0);
+				ringFinger(new int[]{programRubber, program}, 0);
+				littleFinger(new int[]{programRubber, program}, 0);
+				bigFinger(new int[]{program, programRubber, programRubber}, 0);
+				break;
+			case "SELECT_FINGER_4":
+				foreFinger(new int[]{programRubberWithColor, programWithColor}, 0);
+				middleFinger(new int[]{programRubber, program}, 0);
+				ringFinger(new int[]{programRubber, program}, 0);
+				littleFinger(new int[]{programRubber, program}, 0);
+				bigFinger(new int[]{program, programRubber, programRubber}, 0);
+				break;
+			case "SELECT_FINGER_5":
+				foreFinger(new int[]{programRubber, program}, 0);
+				middleFinger(new int[]{programRubber, program}, 0);
+				ringFinger(new int[]{programRubber, program}, 0);
+				littleFinger(new int[]{programRubber, program}, 0);
+				bigFinger(new int[]{programWithColor, programRubberWithColor, programRubber}, 0);
+				break;
 		}
 
 
@@ -483,9 +485,6 @@ public class GripperSettingsRenderer implements GLSurfaceView.Renderer{
 		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		for (int i = 19; i<MAX_NUMBER_DETAILS; i++){
-			heightMap.render(new int[]{i});
-		}
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, green);
 		GLES20.glUniform1i(textureUniformHandle, 0);

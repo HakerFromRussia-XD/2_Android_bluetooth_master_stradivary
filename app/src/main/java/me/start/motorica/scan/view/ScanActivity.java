@@ -38,14 +38,19 @@ import javax.inject.Inject;
 
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
+import me.start.motorica.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
 import me.start.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 import me.start.motorica.R;
+import me.start.motorica.old_electronic_by_Misha.ui.chat.view.Load3DModel;
 import me.start.motorica.scan.data.DaggerScanComponent;
 import me.start.motorica.scan.data.ScanItem;
 import me.start.motorica.scan.data.ScanListAdapter;
 import me.start.motorica.scan.data.ScanModule;
 import me.start.motorica.scan.presenter.ScanPresenter;
+
+import static me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.MAX_NUMBER_DETAILS;
+
 
 public class ScanActivity extends AppCompatActivity implements ScanView, ScanListAdapter.OnScanMyListener {
     /// BT
@@ -55,6 +60,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     LottieAnimationView progress;
     Button scanButton;
     private boolean firstStart = true;
+    // 3D
+    Load3DModel mLoad3DModel = new Load3DModel(this);
+    Load3DModelNew mLoad3DModelNew = new Load3DModelNew(this);
+    public Thread[] threadFunction = new Thread[MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS];
 
     @Inject
     ScanPresenter presenter;
@@ -124,6 +133,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             Toast.makeText(this, "BT не завёлся", Toast.LENGTH_SHORT).show();
             finish();
         }
+
+        init3D();
     }
 
     private void scanLeDevice(final boolean enable) {
@@ -361,6 +372,60 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //        return deviceName.split(":")[0].equals("HRSTM") ||
 //                deviceName.split(":")[0].equals("BLE_test_service—•——");
         return true;
+    }
+
+    //  Инициализация зарузки 3D объектов
+    private void init3D(){
+        Load3DModel.model[0]  = mLoad3DModel.readData(ConstantManager.MODEDEL_0);
+        Load3DModel.model[1]  = mLoad3DModel.readData(ConstantManager.MODEDEL_1);
+        Load3DModel.model[2]  = mLoad3DModel.readData(ConstantManager.MODEDEL_2);
+        Load3DModel.model[3]  = mLoad3DModel.readData(ConstantManager.MODEDEL_3);
+        Load3DModel.model[4]  = mLoad3DModel.readData(ConstantManager.MODEDEL_4);
+        Load3DModel.model[5]  = mLoad3DModel.readData(ConstantManager.MODEDEL_5);
+        Load3DModel.model[6]  = mLoad3DModel.readData(ConstantManager.MODEDEL_6);
+        Load3DModel.model[7]  = mLoad3DModel.readData(ConstantManager.MODEDEL_7);
+        Load3DModel.model[8]  = mLoad3DModel.readData(ConstantManager.MODEDEL_8);
+        Load3DModel.model[9]  = mLoad3DModel.readData(ConstantManager.MODEDEL_9);
+        Load3DModel.model[10] = mLoad3DModel.readData(ConstantManager.MODEDEL_10);
+        Load3DModel.model[11] = mLoad3DModel.readData(ConstantManager.MODEDEL_11);
+        Load3DModel.model[12] = mLoad3DModel.readData(ConstantManager.MODEDEL_12);
+        Load3DModel.model[13] = mLoad3DModel.readData(ConstantManager.MODEDEL_13);
+        Load3DModel.model[14] = mLoad3DModel.readData(ConstantManager.MODEDEL_14);
+        Load3DModel.model[15] = mLoad3DModel.readData(ConstantManager.MODEDEL_15);
+        Load3DModel.model[16] = mLoad3DModel.readData(ConstantManager.MODEDEL_16);
+        Load3DModel.model[17] = mLoad3DModel.readData(ConstantManager.MODEDEL_17);
+        Load3DModel.model[18] = mLoad3DModel.readData(ConstantManager.MODEDEL_18);
+
+        Load3DModelNew.model[0]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_0_NEW);
+        Load3DModelNew.model[1]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_1_NEW);
+        Load3DModelNew.model[2]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_2_NEW);
+        Load3DModelNew.model[3]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_3_NEW);
+        Load3DModelNew.model[4]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_4_NEW);
+        Load3DModelNew.model[5]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_5_NEW);
+        Load3DModelNew.model[6]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_6_NEW);
+        Load3DModelNew.model[7]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_7_NEW);
+        Load3DModelNew.model[8]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_8_NEW);
+        Load3DModelNew.model[9]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_9_NEW);
+        Load3DModelNew.model[10] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_10_NEW);
+        Load3DModelNew.model[11] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_11_NEW);
+        Load3DModelNew.model[12] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_12_NEW);
+        Load3DModelNew.model[13] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_13_NEW);
+        Load3DModelNew.model[14] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_14_NEW);
+        Load3DModelNew.model[15] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_15_NEW);
+        Load3DModelNew.model[16] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_16_NEW);
+        Load3DModelNew.model[17] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_17_NEW);
+        Load3DModelNew.model[18] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_18_NEW);
+
+        for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
+            final int finalJ = j;
+            threadFunction[j] = new Thread(() -> mLoad3DModel.loadSTR2(finalJ));
+            threadFunction[j].start();
+        }
+        for (int j = MAX_NUMBER_DETAILS; j<MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS; j++) {
+            final int finalJ = j;
+            threadFunction[j] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalJ));
+            threadFunction[j].start();
+        }
     }
 
     private void saveData(){

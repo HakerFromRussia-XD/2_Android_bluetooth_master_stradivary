@@ -171,12 +171,8 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .addToBackStack("myStack")
                             .commit();
-                    for (int j = 0; j< Load3DModel.MAX_NUMBER_DETAILS; j++) {
-                        try {
-                            chatActivity.threadFunction[j].join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                    for (int j = 0; j< Load3DModel.MAX_NUMBER_DETAILSS; j++) {
+                        //                            chatActivity.threadFunction[j].join();
                     }
                     chatActivity.transferThreadFlag = true;
                     chatActivity.startTransferThread();
@@ -191,12 +187,8 @@ public class FragmentGestureSettings extends Fragment implements ChartView, Gess
                             .add(R.id.view_pager, chatActivity.fragmentGripperSettings)
                             .addToBackStack("myStack")
                             .commit();
-                    for (int j = 0; j< Load3DModel.MAX_NUMBER_DETAILS; j++) {
-                        try {
-                            chatActivity.threadFunction[j].join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                    for (int j = 0; j< Load3DModel.MAX_NUMBER_DETAILSS; j++) {
+                        //                            chatActivity.threadFunction[j].join();
                     }
                     chatActivity.transferThreadFlag = true;
                     chatActivity.startTransferThread();

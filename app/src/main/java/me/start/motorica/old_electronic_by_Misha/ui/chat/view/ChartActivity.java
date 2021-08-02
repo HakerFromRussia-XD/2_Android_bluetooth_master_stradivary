@@ -99,7 +99,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     ImageView borderGreen;
     ImageView borderRed;
     Massages mMassages = new Massages();
-    Load3DModel mLoad3DModel = new Load3DModel(this);
     public BottomNavigationView navigation;
     public int numberOfChannel = 0;
     public int intValueCH1on = 2500;
@@ -162,9 +161,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public FragmentServiceSettingsMono fragmentServiceSettingsMono;
     public FragmentManager fragmentManager = getSupportFragmentManager();
     public float heightBottomNavigation;
-    //    public int indexCount;
-    public static int MAX_NUMBER_DETAILS = 19;
-    public Thread[] threadFunction = new Thread[MAX_NUMBER_DETAILS];
     //	  for transfer
     private byte numberFinger;
     public int speedFinger = 0;
@@ -690,38 +686,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         layoutSensors.setVisibility(View.VISIBLE);
         layoutGestures.setVisibility(View.GONE);
         fab.hide();
-
-        ////////////////////////////////////////////////
-        //**         3D initialization              **//
-        ////////////////////////////////////////////////
-
-        Load3DModel.model[0]  = mLoad3DModel.readData(ConstantManager.MODEDEL_0);
-        Load3DModel.model[1]  = mLoad3DModel.readData(ConstantManager.MODEDEL_1);
-        Load3DModel.model[2]  = mLoad3DModel.readData(ConstantManager.MODEDEL_2);
-        Load3DModel.model[3]  = mLoad3DModel.readData(ConstantManager.MODEDEL_3);
-        Load3DModel.model[4]  = mLoad3DModel.readData(ConstantManager.MODEDEL_4);
-        Load3DModel.model[5]  = mLoad3DModel.readData(ConstantManager.MODEDEL_5);
-        Load3DModel.model[6]  = mLoad3DModel.readData(ConstantManager.MODEDEL_6);
-        Load3DModel.model[7]  = mLoad3DModel.readData(ConstantManager.MODEDEL_7);
-        Load3DModel.model[8]  = mLoad3DModel.readData(ConstantManager.MODEDEL_8);
-        Load3DModel.model[9]  = mLoad3DModel.readData(ConstantManager.MODEDEL_9);
-        Load3DModel.model[10] = mLoad3DModel.readData(ConstantManager.MODEDEL_10);
-        Load3DModel.model[11] = mLoad3DModel.readData(ConstantManager.MODEDEL_11);
-        Load3DModel.model[12] = mLoad3DModel.readData(ConstantManager.MODEDEL_12);
-        Load3DModel.model[13] = mLoad3DModel.readData(ConstantManager.MODEDEL_13);
-        Load3DModel.model[14] = mLoad3DModel.readData(ConstantManager.MODEDEL_14);
-        Load3DModel.model[15] = mLoad3DModel.readData(ConstantManager.MODEDEL_15);
-        Load3DModel.model[16] = mLoad3DModel.readData(ConstantManager.MODEDEL_16);
-        Load3DModel.model[17] = mLoad3DModel.readData(ConstantManager.MODEDEL_17);
-        Load3DModel.model[18] = mLoad3DModel.readData(ConstantManager.MODEDEL_18);
-
-
-        for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
-            final int finalJ = j;
-            threadFunction[j] = new Thread(() -> mLoad3DModel.loadSTR2(finalJ));
-            threadFunction[j].start();
-        }
-        ////////////////////////////////////////////////
     }
     @Override
     protected void onStart() {

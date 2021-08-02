@@ -5,15 +5,17 @@ import android.content.Context;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.MAX_NUMBER_DETAILS;
+
 public class Load3DModel  {
+    public static final int MAX_NUMBER_DETAILSS = MAX_NUMBER_DETAILS;
     private  static Context context;
     private static String[] text;
     private volatile float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS][];
     private volatile float[][] texturesArray = new float[MAX_NUMBER_DETAILS][];
     private volatile float[][] normalsArray = new float[MAX_NUMBER_DETAILS][];
-    public static int MAX_NUMBER_DETAILS = 19;
     public volatile static float[][] verticesArray = new float[MAX_NUMBER_DETAILS][1];
-    public static String[][] model = new String[19][];
+    public static String[][] model = new String[MAX_NUMBER_DETAILS][];
     public volatile static int[][] indicesArrayVertices = new int[MAX_NUMBER_DETAILS][1];
 
     public Load3DModel(Context context) {
@@ -314,7 +316,6 @@ public class Load3DModel  {
     public static String[] getStringBuffer17() { return model[16]; }
     public static String[] getStringBuffer18() { return model[17]; }
     public static String[] getStringBuffer19() { return model[18]; }
-
 
     //////////////////////////////////////////////////////////////////////////////
     /**                Передача готовых массивов на отрисовку                  **/

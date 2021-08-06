@@ -275,6 +275,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
     @Override
     public void navigateToChart(String extraName, BluetoothDevice extraDevice) {
+        for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
+            final int finalJ = j;
+            threadFunction[j] = new Thread(() -> mLoad3DModel.loadSTR2(finalJ));
+            threadFunction[j].start();
+        }
         presenter.setStartFlags(extraDevice.getName());
         Intent intent = new Intent(ScanActivity.this, ChartActivity.class);
         intent.putExtra(extraName, extraDevice);
@@ -284,12 +289,18 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
     @Override
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) {
+        for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
+            final int finalK = k;
+            System.err.println("Запуск загрузки: " + finalK);
+            threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
+            threadFunction[k].start();
+        }
+
         if (extraDevice == null) return;
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, extraDevice.getName());
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, extraDevice.getName());
-
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
@@ -416,16 +427,18 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         Load3DModelNew.model[17] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_17_NEW);
         Load3DModelNew.model[18] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_18_NEW);
 
-        for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
-            final int finalJ = j;
-            threadFunction[j] = new Thread(() -> mLoad3DModel.loadSTR2(finalJ));
-            threadFunction[j].start();
-        }
-        for (int j = MAX_NUMBER_DETAILS; j<MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS; j++) {
-            final int finalJ = j;
-            threadFunction[j] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalJ));
-            threadFunction[j].start();
-        }
+//        for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
+//            final int finalJ = j;
+//            threadFunction[j] = new Thread(() -> mLoad3DModel.loadSTR2(finalJ));
+//            threadFunction[j].start();
+//        }
+
+//        for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
+//            final int finalK = k;
+//            System.err.println("Запуск загрузки: " + finalK);
+//            threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
+//            threadFunction[k].start();
+//        }
     }
 
     private void saveData(){

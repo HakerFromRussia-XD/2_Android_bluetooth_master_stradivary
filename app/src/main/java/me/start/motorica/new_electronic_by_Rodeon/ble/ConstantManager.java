@@ -34,25 +34,25 @@ public interface ConstantManager {
     String MODEDEL_18="STR2/STR2_mizinec_part2.obj";
 
     //  new model
-    String MODEDEL_0_NEW="STR2/STR2_big_finger_part18_new.obj";
-    String MODEDEL_1_NEW="STR2/STR2_big_finger_part19_new.obj";
-    String MODEDEL_2_NEW="STR2/STR2_big_finger_part1_new.obj";
-    String MODEDEL_3_NEW="STR2/STR2_big_finger_part3_new.obj";
-    String MODEDEL_4_NEW="STR2/STR2_part9_new.obj";
-    String MODEDEL_5_NEW="STR2/STR2_part13_new.obj";
-    String MODEDEL_6_NEW="STR2/STR2_part14_new.obj";
-    String MODEDEL_7_NEW="STR2/STR2_ukazatelnii_part15_new.obj";
-    String MODEDEL_8_NEW="STR2/STR2_ukazatelnii_part4_new.obj";
-    String MODEDEL_9_NEW="STR2/STR2_ukazatelnii_part17_new.obj";
-    String MODEDEL_10_NEW="STR2/STR2_srednii_part8_new.obj";
-    String MODEDEL_11_NEW="STR2/STR2_srednii_part6_new.obj";
-    String MODEDEL_12_NEW="STR2/STR2_srednii_part16_new.obj";
-    String MODEDEL_13_NEW="STR2/STR2_bezimiannii_part10_new.obj";
-    String MODEDEL_14_NEW="STR2/STR2_bezimiannii_part7_new.obj";
-    String MODEDEL_15_NEW="STR2/STR2_bezimiannii_part11_new.obj";
-    String MODEDEL_16_NEW="STR2/STR2_mizinec_part12_new.obj";
-    String MODEDEL_17_NEW="STR2/STR2_mizinec_part5_new.obj";
-    String MODEDEL_18_NEW="STR2/STR2_mizinec_part2_new.obj";
+    String MODEDEL_0_NEW="STR2_NEW/STR2_big_finger_part18_new.obj";
+    String MODEDEL_1_NEW="STR2_NEW/STR2_big_finger_part19_new.obj";
+    String MODEDEL_2_NEW="STR2_NEW/STR2_big_finger_part1_new.obj";
+    String MODEDEL_3_NEW="STR2_NEW/STR2_big_finger_part3_new.obj";
+    String MODEDEL_4_NEW="STR2_NEW/STR2_part9_new.obj";
+    String MODEDEL_5_NEW="STR2_NEW/STR2_part13_new.obj";
+    String MODEDEL_6_NEW="STR2_NEW/STR2_part14_new.obj";
+    String MODEDEL_7_NEW="STR2_NEW/STR2_ukazatelnii_part15_new.obj";
+    String MODEDEL_8_NEW="STR2_NEW/STR2_ukazatelnii_part4_new.obj";
+    String MODEDEL_9_NEW="STR2_NEW/STR2_ukazatelnii_part17_new.obj";
+    String MODEDEL_10_NEW="STR2_NEW/STR2_srednii_part8_new.obj";
+    String MODEDEL_11_NEW="STR2_NEW/STR2_srednii_part6_new.obj";
+    String MODEDEL_12_NEW="STR2_NEW/STR2_srednii_part16_new.obj";
+    String MODEDEL_13_NEW="STR2_NEW/STR2_bezimiannii_part10_new.obj";
+    String MODEDEL_14_NEW="STR2_NEW/STR2_bezimiannii_part7_new.obj";
+    String MODEDEL_15_NEW="STR2_NEW/STR2_bezimiannii_part11_new.obj";
+    String MODEDEL_16_NEW="STR2_NEW/STR2_mizinec_part12_new.obj";
+    String MODEDEL_17_NEW="STR2_NEW/STR2_mizinec_part2_new.obj";
+    String MODEDEL_18_NEW="STR2_NEW/STR2_mizinec_part5_new.obj";
     Integer MAX_NUMBER_DETAILS = 19;
 
     ////////////////////////////////////////////////

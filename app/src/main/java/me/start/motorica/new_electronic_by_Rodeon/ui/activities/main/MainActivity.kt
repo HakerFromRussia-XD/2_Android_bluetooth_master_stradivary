@@ -719,7 +719,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
         first = false
       }
-
       try {
         Thread.sleep(10)
       } catch (ignored: Exception) {}
@@ -768,10 +767,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val dialog = CustomDialogFragment()
     mNumberGesture = numberGesture
     dialog.show(supportFragmentManager, "custom dialog")
-  }
-  fun openFragmentGripper(packageContext: Context?, numberGesture: Int) {
-    val intent = Intent(packageContext, GripperScreenActivity::class.java)
-    startActivity(intent)
   }
   private fun openFragmentQuestion() {
     val dialog = CustomUpdateDialogFragment()

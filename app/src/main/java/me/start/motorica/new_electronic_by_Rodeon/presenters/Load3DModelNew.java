@@ -84,7 +84,7 @@ public class Load3DModelNew {
                     if (currentLine[2].equals("vertices\r\n")) {//\r
                         coordinatesNumber = Integer.parseInt(currentLine[1]);
                         coordinatesArray[number] = new float[coordinatesNumber * 3];
-//                        System.out.println("Количество вершин: " + coordinatesNumber);
+                        System.out.println("Количество вершин: " + coordinatesNumber);
                         coordinatesNumber = 0;
                     }
                 } else if (line.toString().startsWith("v ")){
@@ -128,7 +128,7 @@ public class Load3DModelNew {
                     if(currentLine[2].equals("texture")){
                         texturesNumber = Integer.parseInt(currentLine[1]);
                         texturesArray[number] = new float[texturesNumber*2];
-//                        System.out.println("Количество текстурных координат: " + texturesNumber);
+                        System.out.println("Количество текстурных координат: " + texturesNumber);
                         texturesNumber = 0;
                     }
                 }else if (line.toString().startsWith("vt ")){
@@ -173,7 +173,7 @@ public class Load3DModelNew {
                     if (currentLine[2].equals("vertex")) {
                         normalsNumber = Integer.parseInt(currentLine[1]);
                         normalsArray[number] = new float[normalsNumber * 3];
-//                        System.out.println("Количество координат нормалей: " + normalsNumber);
+                        System.out.println("Количество координат нормалей: " + normalsNumber);
                         normalsNumber = 0;
                     }
                 } else if (line.toString().startsWith("vn ")) {
@@ -214,6 +214,19 @@ public class Load3DModelNew {
         int indicesCoordinateV;
         int indicesNormalsV;
         int indicesTextureV;
+        float[] v1 = new float[3];
+        float[] v2 = new float[3];
+        float[] v3 = new float[3];
+        float[] uv1 = new float[2];
+        float[] uv2 = new float[2];
+        float[] uv3 = new float[2];
+        float[] deltaPos1 = new float[3];
+        float[] deltaPos2 = new float[3];
+        float[] deltaUV1 = new float[2];
+        float[] deltaUV2 = new float[2];
+        float r;
+        float[] tangent = new float[3];
+        float[] bitangent = new float[3];
 
         for (char msg : text.toCharArray()){
             line.append(msg);
@@ -222,77 +235,141 @@ public class Load3DModelNew {
                 if(line.toString().startsWith("# ")){
                     if(currentLine[2].equals("facets\r\n")){//\r
                         indicesVertices = Integer.parseInt(currentLine[1]);
-                        verticesArray[number] = new float[indicesVertices*12*3];
+                        verticesArray[number] = new float[indicesVertices*18*3];
                         indicesArrayVertices[number] = new int [indicesVertices*3];
-//                        System.out.println("Количество треугольников: " + indicesVertices);
+                        System.out.println("Количество треугольников: " + indicesVertices);
                         indicesVertices = 0;
                     }
                 } else if (line.toString().startsWith("f ")){
                     //первая тройка
                     //координаты вершины
                     indicesCoordinateV = (Integer.parseInt(currentLine[1].split("/")[0]) - 1);
-                    verticesArray[number][indicesVertices * 12] = coordinatesArray[number][indicesCoordinateV * 3];
-                    verticesArray[number][indicesVertices * 12 + 1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
-                    verticesArray[number][indicesVertices * 12 + 2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
+                    verticesArray[number][indicesVertices * 18] = coordinatesArray[number][indicesCoordinateV * 3];
+                    verticesArray[number][indicesVertices * 18 + 1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
+                    verticesArray[number][indicesVertices * 18 + 2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
+                    v1[0] = coordinatesArray[number][indicesCoordinateV * 3];
+                    v1[1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
+                    v1[2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
                     //нормали
                     indicesNormalsV = (Integer.parseInt(currentLine[1].split("/")[2]) - 1);
-                    verticesArray[number][indicesVertices * 12 + 3] = normalsArray[number][indicesNormalsV * 3];
-                    verticesArray[number][indicesVertices * 12 + 4] = normalsArray[number][indicesNormalsV * 3 + 1];
-                    verticesArray[number][indicesVertices * 12 + 5] = normalsArray[number][indicesNormalsV * 3 + 2];
+                    verticesArray[number][indicesVertices * 18 + 3] = normalsArray[number][indicesNormalsV * 3];
+                    verticesArray[number][indicesVertices * 18 + 4] = normalsArray[number][indicesNormalsV * 3 + 1];
+                    verticesArray[number][indicesVertices * 18 + 5] = normalsArray[number][indicesNormalsV * 3 + 2];
                     //цвета
-                    verticesArray[number][indicesVertices * 12 + 6] = 1.0f;
-                    verticesArray[number][indicesVertices * 12 + 7] = 1.0f;
-                    verticesArray[number][indicesVertices * 12 + 8] = 0.0f;
-                    verticesArray[number][indicesVertices * 12 + 9] = 0.0f;
+                    verticesArray[number][indicesVertices * 18 + 6] = 1.0f;
+                    verticesArray[number][indicesVertices * 18 + 7] = 1.0f;
+                    verticesArray[number][indicesVertices * 18 + 8] = 0.0f;
+                    verticesArray[number][indicesVertices * 18 + 9] = 0.0f;
                     //текстурные координаты
                     indicesTextureV = (Integer.parseInt(currentLine[1].split("/")[1]) - 1);
-                    verticesArray[number][indicesVertices * 12 + 10] = texturesArray[number][indicesTextureV * 2];
-                    verticesArray[number][indicesVertices * 12 + 11] = texturesArray[number][indicesTextureV * 2 + 1];
+                    verticesArray[number][indicesVertices * 18 + 10] = texturesArray[number][indicesTextureV * 2];
+                    verticesArray[number][indicesVertices * 18 + 11] = texturesArray[number][indicesTextureV * 2 + 1];
+                    uv1[0] = texturesArray[number][indicesTextureV * 2];
+                    uv1[1] = texturesArray[number][indicesTextureV * 2 + 1];
 
                     indicesArrayVertices[number][indicesVertices] = indicesVertices++;
 
                     //вторая тройка
                     //координаты вершины
                     indicesCoordinateV = (Integer.parseInt(currentLine[2].split("/")[0]) - 1);
-                    verticesArray[number][indicesVertices * 12] = coordinatesArray[number][indicesCoordinateV * 3];
-                    verticesArray[number][indicesVertices * 12 + 1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
-                    verticesArray[number][indicesVertices * 12 + 2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
+                    verticesArray[number][indicesVertices * 18] = coordinatesArray[number][indicesCoordinateV * 3];
+                    verticesArray[number][indicesVertices * 18 + 1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
+                    verticesArray[number][indicesVertices * 18 + 2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
+                    v2[0] = coordinatesArray[number][indicesCoordinateV * 3];
+                    v2[1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
+                    v2[2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
                     //нормали
-                    verticesArray[number][indicesVertices * 12 + 3] = normalsArray[number][(Integer.parseInt(currentLine[2].split("/")[2]) - 1) * 3];
-                    verticesArray[number][indicesVertices * 12 + 4] = normalsArray[number][(Integer.parseInt(currentLine[2].split("/")[2]) - 1) * 3 + 1];
-                    verticesArray[number][indicesVertices * 12 + 5] = normalsArray[number][(Integer.parseInt(currentLine[2].split("/")[2]) - 1) * 3 + 2];
+                    verticesArray[number][indicesVertices * 18 + 3] = normalsArray[number][(Integer.parseInt(currentLine[2].split("/")[2]) - 1) * 3];
+                    verticesArray[number][indicesVertices * 18 + 4] = normalsArray[number][(Integer.parseInt(currentLine[2].split("/")[2]) - 1) * 3 + 1];
+                    verticesArray[number][indicesVertices * 18 + 5] = normalsArray[number][(Integer.parseInt(currentLine[2].split("/")[2]) - 1) * 3 + 2];
                     //цвета
-                    verticesArray[number][indicesVertices * 12 + 6] = 1.0f;
-                    verticesArray[number][indicesVertices * 12 + 7] = 1.0f;
-                    verticesArray[number][indicesVertices * 12 + 8] = 0.0f;
-                    verticesArray[number][indicesVertices * 12 + 9] = 0.0f;
+                    verticesArray[number][indicesVertices * 18 + 6] = 1.0f;
+                    verticesArray[number][indicesVertices * 18 + 7] = 1.0f;
+                    verticesArray[number][indicesVertices * 18 + 8] = 0.0f;
+                    verticesArray[number][indicesVertices * 18 + 9] = 0.0f;
                     //текстурные координаты
                     indicesTextureV = (Integer.parseInt(currentLine[2].split("/")[1]) - 1);
-                    verticesArray[number][indicesVertices * 12 + 10] = texturesArray[number][indicesTextureV * 2];
-                    verticesArray[number][indicesVertices * 12 + 11] = texturesArray[number][indicesTextureV * 2 + 1];
+                    verticesArray[number][indicesVertices * 18 + 10] = texturesArray[number][indicesTextureV * 2];
+                    verticesArray[number][indicesVertices * 18 + 11] = texturesArray[number][indicesTextureV * 2 + 1];
+                    uv2[0] = texturesArray[number][indicesTextureV * 2];
+                    uv2[1] = texturesArray[number][indicesTextureV * 2 + 1];
 
                     indicesArrayVertices[number][indicesVertices] = indicesVertices++;
 
                     //третья тройка
                     //координаты вершины
                     indicesCoordinateV = (Integer.parseInt(currentLine[3].split("/")[0]) - 1);
-                    verticesArray[number][indicesVertices * 12] = coordinatesArray[number][indicesCoordinateV * 3];
-                    verticesArray[number][indicesVertices * 12 + 1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
-                    verticesArray[number][indicesVertices * 12 + 2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
+                    verticesArray[number][indicesVertices * 18] = coordinatesArray[number][indicesCoordinateV * 3];
+                    verticesArray[number][indicesVertices * 18 + 1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
+                    verticesArray[number][indicesVertices * 18 + 2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
+                    v3[0] = coordinatesArray[number][indicesCoordinateV * 3];
+                    v3[1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
+                    v3[2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
                     //нормали
                     indicesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\r")[0]) - 1);//.split("\r")[0]
-                    verticesArray[number][indicesVertices * 12 + 3] = normalsArray[number][indicesNormalsV * 3];
-                    verticesArray[number][indicesVertices * 12 + 4] = normalsArray[number][indicesNormalsV * 3 + 1];
-                    verticesArray[number][indicesVertices * 12 + 5] = normalsArray[number][indicesNormalsV * 3 + 2];
+                    verticesArray[number][indicesVertices * 18 + 3] = normalsArray[number][indicesNormalsV * 3];
+                    verticesArray[number][indicesVertices * 18 + 4] = normalsArray[number][indicesNormalsV * 3 + 1];
+                    verticesArray[number][indicesVertices * 18 + 5] = normalsArray[number][indicesNormalsV * 3 + 2];
                     //цвета
-                    verticesArray[number][indicesVertices * 12 + 6] = 1.0f;
-                    verticesArray[number][indicesVertices * 12 + 7] = 1.0f;
-                    verticesArray[number][indicesVertices * 12 + 8] = 0.0f;
-                    verticesArray[number][indicesVertices * 12 + 9] = 0.0f;
+                    verticesArray[number][indicesVertices * 18 + 6] = 1.0f;
+                    verticesArray[number][indicesVertices * 18 + 7] = 1.0f;
+                    verticesArray[number][indicesVertices * 18 + 8] = 0.0f;
+                    verticesArray[number][indicesVertices * 18 + 9] = 0.0f;
                     //текстурные координаты
                     indicesTextureV = (Integer.parseInt(currentLine[3].split("/")[1]) - 1);
-                    verticesArray[number][indicesVertices * 12 + 10] = texturesArray[number][indicesTextureV * 2];
-                    verticesArray[number][indicesVertices * 12 + 11] = texturesArray[number][indicesTextureV * 2 + 1];
+                    verticesArray[number][indicesVertices * 18 + 10] = texturesArray[number][indicesTextureV * 2];
+                    verticesArray[number][indicesVertices * 18 + 11] = texturesArray[number][indicesTextureV * 2 + 1];
+                    uv3[0] = texturesArray[number][indicesTextureV * 2];
+                    uv3[1] = texturesArray[number][indicesTextureV * 2 + 1];
+
+                    //расчёт тангента и битангента
+                    deltaPos1[0] = v2[0]-v1[0];
+                    deltaPos1[1] = v2[1]-v1[1];
+                    deltaPos1[2] = v2[2]-v1[2];
+
+                    deltaPos2[0] = v3[0]-v1[0];
+                    deltaPos2[1] = v3[1]-v1[1];
+                    deltaPos2[2] = v3[2]-v1[2];
+
+                    deltaUV1[0] = uv2[0]-uv1[0];
+                    deltaUV1[1] = uv2[1]-uv1[1];
+
+                    deltaUV2[0] = uv3[0]-uv1[0];
+                    deltaUV2[1] = uv3[1]-uv1[1];
+
+                    r = 1.0f / (deltaUV1[0] * deltaUV2[1] - deltaUV1[1] * deltaUV2[0]);
+                    tangent[0] = (deltaPos1[0] * deltaUV2[1] -deltaPos2[0] * deltaUV1[1]) * r;
+                    tangent[1] = (deltaPos1[1] * deltaUV2[1] -deltaPos2[1] * deltaUV1[1]) * r;
+                    tangent[2] = (deltaPos1[2] * deltaUV2[1] -deltaPos2[2] * deltaUV1[1]) * r;
+                    bitangent[0] = (deltaPos2[0] * deltaUV1[0] -deltaPos1[0] * deltaUV2[0]) * r;
+                    bitangent[1] = (deltaPos2[1] * deltaUV1[0] -deltaPos1[1] * deltaUV2[0]) * r;
+                    bitangent[2] = (deltaPos2[2] * deltaUV1[0] -deltaPos1[2] * deltaUV2[0]) * r;
+
+                    //присваиваем значения тангента и битангента каждой вершино по порядку
+                    //тангент 1
+                    verticesArray[number][(indicesVertices - 2) * 18 + 12] = tangent[0];
+                    verticesArray[number][(indicesVertices - 2) * 18 + 13] = tangent[1];
+                    verticesArray[number][(indicesVertices - 2) * 18 + 14] = tangent[2];
+                    //битангент 1
+                    verticesArray[number][(indicesVertices - 2) * 18 + 15] = bitangent[0];
+                    verticesArray[number][(indicesVertices - 2) * 18 + 16] = bitangent[1];
+                    verticesArray[number][(indicesVertices - 2) * 18 + 17] = bitangent[2];
+                    //тангент 2
+                    verticesArray[number][(indicesVertices - 1) * 18 + 12] = tangent[0];
+                    verticesArray[number][(indicesVertices - 1) * 18 + 13] = tangent[1];
+                    verticesArray[number][(indicesVertices - 1) * 18 + 14] = tangent[2];
+                    //битангент 2
+                    verticesArray[number][(indicesVertices - 1) * 18 + 15] = bitangent[0];
+                    verticesArray[number][(indicesVertices - 1) * 18 + 16] = bitangent[1];
+                    verticesArray[number][(indicesVertices - 1) * 18 + 17] = bitangent[2];
+                    //тангент 3
+                    verticesArray[number][indicesVertices * 18 + 12] = tangent[0];
+                    verticesArray[number][indicesVertices * 18 + 13] = tangent[1];
+                    verticesArray[number][indicesVertices * 18 + 14] = tangent[2];
+                    //битангент 3
+                    verticesArray[number][indicesVertices * 18 + 15] = bitangent[0];
+                    verticesArray[number][indicesVertices * 18 + 16] = bitangent[1];
+                    verticesArray[number][indicesVertices * 18 + 17] = bitangent[2];
 
                     indicesArrayVertices[number][indicesVertices] = indicesVertices++;
                 }

@@ -294,7 +294,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     locate = Locale.getDefault().toString()
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    getWindow().navigationBarColor = resources.getColor(R.color.colorPrimaryDark)
+    getWindow().navigationBarColor = resources.getColor(R.color.colorPrimary)
     mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
     val intent = intent

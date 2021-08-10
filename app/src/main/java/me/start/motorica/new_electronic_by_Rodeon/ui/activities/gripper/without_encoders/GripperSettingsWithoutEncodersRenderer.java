@@ -215,7 +215,8 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 	private int angleBigFingerInt2 = 0;
 	private int lastAngleBigFingerInt2 = 0;
 	private int angleBigFingerTransfer2 = 0;
-	private float angle90 = 90;
+	private float angle60 = 75;
+	private float angle130 = 130;
 
 	enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
 	public SelectStation selectStation;
@@ -239,7 +240,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		// Position the eye in front of the origin.
 		final float eyeX = 0.0f;
 		final float eyeY = 0.0f;
-		final float eyeZ = 150.0f;
+		final float eyeZ = 160.0f;
 
 		// We are looking toward the distance (бесполезная хрень, не на что невлияет)
 		final float lookX = 0.0f;
@@ -508,9 +509,11 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")) {
 			/** поворот всей сборки */
 			Matrix.setIdentityM(currentRotation, 0);
-			Matrix.rotateM(currentRotation, 0, angle90, 0.0f, -1.0f, 0.0f);
-			Matrix.rotateM(currentRotation, 0, angle90, 0.0f, 0.0f, 1.0f);
-			angle90 = 0;
+			// начальный поворот всей сборки
+			Matrix.rotateM(currentRotation, 0, angle130, 0.0f, 1.0f, 0.0f);
+			Matrix.rotateM(currentRotation, 0, angle60, 0.0f, 0.0f, 1.0f);
+			angle60 = 0;
+			angle130 = 0;
 			Matrix.rotateM(currentRotation, 0, deltaY, 1.0f, 0.0f, 0.0f);
 			Matrix.rotateM(currentRotation, 0, deltaX, 0.0f, 1.0f, 0.0f);
 			deltaX = 0.0f;
@@ -518,6 +521,8 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 
 			Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationGeneral, 0);
 			System.arraycopy(temporaryMatrix, 0, accumulatedRotationGeneral, 0, 16);
+//			System.err.println("Rotation: " + accumulatedRotationGeneral[0] + " " + accumulatedRotationGeneral[1] + " " + accumulatedRotationGeneral[2] + " " + accumulatedRotationGeneral[3] + " " + accumulatedRotationGeneral[4] + " " + accumulatedRotationGeneral[5] + " " + accumulatedRotationGeneral[6] + " " + accumulatedRotationGeneral[7] + " " + accumulatedRotationGeneral[8] + " " + accumulatedRotationGeneral[9] + " " + accumulatedRotationGeneral[10] + " " + accumulatedRotationGeneral[11] + " " + accumulatedRotationGeneral[12] + " " + accumulatedRotationGeneral[13] + " " + accumulatedRotationGeneral[14] + " " + accumulatedRotationGeneral[15]);
+//			System.err.println("temporaryMatrix: " + temporaryMatrix[0] + " " + temporaryMatrix[1] + " " + temporaryMatrix[2] + " " + temporaryMatrix[3] + " " + temporaryMatrix[4] + " " + temporaryMatrix[5] + " " + temporaryMatrix[6] + " " + temporaryMatrix[7] + " " + temporaryMatrix[8] + " " + temporaryMatrix[9] + " " + temporaryMatrix[10] + " " + temporaryMatrix[11] + " " + temporaryMatrix[12] + " " + temporaryMatrix[13] + " " + temporaryMatrix[14] + " " + temporaryMatrix[15]);
 		}
 
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
@@ -573,7 +578,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		glUniform1i(isUsingNormalMap, 1);
 		glUniform1f(specularFactorUniform, 2.0f);
 		glUniform1f(lightPowerUniform, 700.0f);
-		glUniform1f(ambientFactorUniform, 0.8f);
+		glUniform1f(ambientFactorUniform, 0.95f);
 		glUniform1i(textureUniform, 8);
 		glUniform1i(normalMapUniform, 9);
 		heightMap.render(new int[]{4});
@@ -581,6 +586,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		glUniform1i(isUsingNormalMap, 0);
 		glUniform1f(specularFactorUniform, 1.0f);
 		glUniform1f(lightPowerUniform, 900.0f);
+		glUniform1f(ambientFactorUniform, 0.8f);
 		glUniform1i(textureUniform, 3);
 
 		heightMap.render(new int[]{5});
@@ -736,7 +742,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		glUniform1i(isUsingNormalMap, 1);
 		glUniform1f(specularFactorUniform, 1.0f);
 		glUniform1f(lightPowerUniform, 700.0f);
-		glUniform1f(ambientFactorUniform, 0.92f);
+		glUniform1f(ambientFactorUniform, 1.0f);
 		glUniform1i(textureUniform, 2);
 		glUniform1i(normalMapUniform, 10);
 		heightMap.render(new int[]{7});
@@ -883,7 +889,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		glUniform1i(isUsingNormalMap, 1);
 		glUniform1f(specularFactorUniform, 1.0f);
 		glUniform1f(lightPowerUniform, 700.0f);
-		glUniform1f(ambientFactorUniform, 0.92f);
+		glUniform1f(ambientFactorUniform, 1.0f);
 		glUniform1i(textureUniform, 1);
 		glUniform1i(normalMapUniform, 11);
 		heightMap.render(new int[]{10});
@@ -1037,7 +1043,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		glUniform1i(isUsingNormalMap, 1);
 		glUniform1f(specularFactorUniform, 1.0f);
 		glUniform1f(lightPowerUniform, 700.0f);
-		glUniform1f(ambientFactorUniform, 0.92f);
+		glUniform1f(ambientFactorUniform, 1.0f);
 		glUniform1i(textureUniform, 5);
 		glUniform1i(normalMapUniform, 14);
 		heightMap.render(new int[]{13});
@@ -1192,7 +1198,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		glUniform1i(isUsingNormalMap, 1);
 		glUniform1f(specularFactorUniform, 1.0f);
 		glUniform1f(lightPowerUniform, 700.0f);
-		glUniform1f(ambientFactorUniform, 0.92f);
+		glUniform1f(ambientFactorUniform, 1.0f);
 		glUniform1i(textureUniform, 6);
 		glUniform1i(normalMapUniform, 15);
 		heightMap.render(new int[]{16});
@@ -1299,7 +1305,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		glUniform1i(isUsingNormalMap, 1);
 		glUniform1f(specularFactorUniform, 1.0f);
 		glUniform1f(lightPowerUniform, 700.0f);
-		glUniform1f(ambientFactorUniform, 0.90f);
+		glUniform1f(ambientFactorUniform, 1.0f);
 		glUniform1i(textureUniform, 7);
 		glUniform1i(normalMapUniform, 16);
 		heightMap.render(new int[]{0});
@@ -1394,9 +1400,9 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")) {
 			/** поворот всей сборки */
 			Matrix.setIdentityM(currentRotation, 0);
-			Matrix.rotateM(currentRotation, 0, angle90, 0.0f, -1.0f, 0.0f);
-			Matrix.rotateM(currentRotation, 0, angle90, 0.0f, 0.0f, 1.0f);
-			angle90 = 0;
+//			Matrix.rotateM(currentRotation, 0, angle90, 0.0f, -1.0f, 0.0f);
+//			Matrix.rotateM(currentRotation, 0, angle90, 0.0f, 0.0f, 1.0f);
+//			angle90 = 0;
 			Matrix.rotateM(currentRotation, 0, deltaY, 1.0f, 0.0f, 0.0f);
 			Matrix.rotateM(currentRotation, 0, deltaX, 0.0f, 1.0f, 0.0f);
 			deltaX = 0.0f;

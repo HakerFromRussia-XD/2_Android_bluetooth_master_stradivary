@@ -28,6 +28,7 @@ class GripperScreenWithoutEncodersActivity
         setContentView(R.layout.layout_gripper_settings_le_without_encoders)
         initBaseView(this)
         window.navigationBarColor = resources.getColor(R.color.colorPrimaryDark)
+        window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
 
         RxView.clicks(findViewById(R.id.gripper_use_le_save))
                 .observeOn(AndroidSchedulers.mainThread())

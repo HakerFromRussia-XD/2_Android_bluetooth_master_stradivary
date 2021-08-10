@@ -15,7 +15,7 @@ varying mat3 v_TBNMatrix;
 
 vec4 resultColor = vec4(0.0, 0.0, 0.0, 0.0);
 vec3 eyePosition = vec3(0.0, 0.0, 150.5);
-float ambientFactor = 1.1;
+float ambientFactor = 0.9;
 
 // The entry point for our fragment shader.
 void main()

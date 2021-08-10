@@ -50,7 +50,8 @@ class GripperScreenWithEncodersActivity
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                RxUpdateMainEvent.getInstance().updateFingerSpeed(seekBarSpeedFingerLE.progress) }
+                RxUpdateMainEvent.getInstance().updateFingerSpeed(seekBarSpeedFingerLE.progress)
+            }
         })
 
     }
@@ -61,12 +62,12 @@ class GripperScreenWithEncodersActivity
         val supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000
 
         if (supportsEs2) {
-            gl_surface_view_le_with_encoders.setEGLContextClientVersion(2)
-
             gl_surface_view_le_with_encoders.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
             gl_surface_view_le_with_encoders.holder.setFormat(PixelFormat.TRANSLUCENT)
             gl_surface_view_le_with_encoders.setBackgroundResource(R.drawable.gradient_background)
             gl_surface_view_le_with_encoders.setZOrderOnTop(true)
+
+            gl_surface_view_le_with_encoders.setEGLContextClientVersion(2)
 
             val displayMetrics = DisplayMetrics()
             this.windowManager.defaultDisplay.getMetrics(displayMetrics)

@@ -23,6 +23,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.common.S
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.common.TextureHelper;
 import timber.log.Timber;
 
+import static android.opengl.GLES20.*;
 import static android.opengl.GLES20.GL_LINEAR;
 import static android.opengl.GLES20.GL_TEXTURE_2D;
 import static android.opengl.GLES20.GL_TEXTURE_MAG_FILTER;
@@ -232,10 +233,8 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		heightMap = new HeightMap();
 		heightMap.loader();
 
-//		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-
-		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-		GLES20.glEnable(GLES20.GL_COLOR_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_COLOR_BUFFER_BIT);
 
 		// Position the eye in front of the origin.
 		final float eyeX = 0.0f;
@@ -271,13 +270,13 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		final String fragmentShaderMetall = RawResourceReader.readTextFileFromRawResource(fragmentGripperSettings, R.raw.metall_f);
 
 
-		final int vertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, vertexShader);
-		final int fragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShader);
-		final int fragmentShaderWithColorHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderWithColor);
-		final int fragmentShaderRubberHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderRubber);
-		final int fragmentShaderRubberWithColorHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderRubberWithColor);
-		final int selectVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, selectVertexShader);
-		final int selectFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, selectFragmentShader);
+		final int vertexShaderHandle = ShaderHelper.compileShader(GL_VERTEX_SHADER, vertexShader);
+		final int fragmentShaderHandle = ShaderHelper.compileShader(GL_FRAGMENT_SHADER, fragmentShader);
+		final int fragmentShaderWithColorHandle = ShaderHelper.compileShader(GL_FRAGMENT_SHADER, fragmentShaderWithColor);
+		final int fragmentShaderRubberHandle = ShaderHelper.compileShader(GL_FRAGMENT_SHADER, fragmentShaderRubber);
+		final int fragmentShaderRubberWithColorHandle = ShaderHelper.compileShader(GL_FRAGMENT_SHADER, fragmentShaderRubberWithColor);
+		final int selectVertexShaderHandle = ShaderHelper.compileShader(GL_VERTEX_SHADER, selectVertexShader);
+		final int selectFragmentShaderHandle = ShaderHelper.compileShader(GL_FRAGMENT_SHADER, selectFragmentShader);
 
 
 
@@ -294,101 +293,101 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 
 
 		//Load the texture
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0);
 		int textureSTR2Part9 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_part9_new);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part9);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part9);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture2
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE1);
 		int textureSTR2Part8 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_srednii_part8_new);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part8);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part8);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture3
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+		glActiveTexture(GL_TEXTURE2);
 		int textureSTR2Part15 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_ukazatelnii_part15_new);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part15);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part15);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture4
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
+		glActiveTexture(GL_TEXTURE3);
 		/** Thise are handle to our texture data.*/
 		int gray = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.gray);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, gray);
+		glBindTexture(GL_TEXTURE_2D, gray);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture5
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
+		glActiveTexture(GL_TEXTURE4);
 		int green = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.green);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, green);
+		glBindTexture(GL_TEXTURE_2D, green);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture6
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE5);
+		glActiveTexture(GL_TEXTURE5);
 		int textureSTR2Part10 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_bezimiannii_part10_new);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part10);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part10);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture7
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE6);
+		glActiveTexture(GL_TEXTURE6);
 		int textureSTR2Part12 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_mizinec_part12_new);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part12);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part12);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture8
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE7);
+		glActiveTexture(GL_TEXTURE7);
 		int textureSTR2Part18 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_big_finger_part18_new);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part18);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part18);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture9
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE8);
+		glActiveTexture(GL_TEXTURE8);
 		int metalTextureTest = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_part9_new);
-		GLES20.glBindTexture(GL_TEXTURE_2D, metalTextureTest);
+		glBindTexture(GL_TEXTURE_2D, metalTextureTest);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture10
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE9);
+		glActiveTexture(GL_TEXTURE9);
 		int metalBumpTextureTest = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_part9_new_material_normal);
-		GLES20.glBindTexture(GL_TEXTURE_2D, metalBumpTextureTest);
+		glBindTexture(GL_TEXTURE_2D, metalBumpTextureTest);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture11
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE10);
+		glActiveTexture(GL_TEXTURE10);
 		int textureSTR2Part15normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_ukazatelnii_part15_new_material_normal);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part15normals);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part15normals);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture12
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE11);
+		glActiveTexture(GL_TEXTURE11);
 		int textureSTR2Part8normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_srednii_part8_new_material_normal);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part8normals);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part8normals);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture13
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE12);
+		glActiveTexture(GL_TEXTURE12);
 		int lool = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.metal_color2);
-		GLES20.glBindTexture(GL_TEXTURE_2D, lool);
+		glBindTexture(GL_TEXTURE_2D, lool);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture14
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE13);
+		glActiveTexture(GL_TEXTURE13);
 		int lol2 = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.metal_normal);
-		GLES20.glBindTexture(GL_TEXTURE_2D, lol2);
+		glBindTexture(GL_TEXTURE_2D, lol2);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture15
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE14);
+		glActiveTexture(GL_TEXTURE14);
 		int textureSTR2Part10normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_bezimiannii_part10_new_material_normal);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part10normals);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part10normals);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture16
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE15);
+		glActiveTexture(GL_TEXTURE15);
 		int textureSTR2Part12normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_mizinec_part12_new_material_normal);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part12normals);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part12normals);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		//Load the texture17
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE16);
+		glActiveTexture(GL_TEXTURE16);
 		int textureSTR2Part18normals = TextureHelper.loadTexture(fragmentGripperSettings, R.drawable.str2_big_finger_part18_new_material_normal);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		GLES20.glBindTexture(GL_TEXTURE_2D, textureSTR2Part18normals);
+		glBindTexture(GL_TEXTURE_2D, textureSTR2Part18normals);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
@@ -411,7 +410,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 	@Override
 	public void onSurfaceChanged(GL10 glUnused, int width, int height) {
 		// Set the OpenGL viewport to the same size as the surface.
-		GLES20.glViewport(0, 0, width, height);
+		glViewport(0, 0, width, height);
 		this.width = width;
 		this.height = height;
 
@@ -430,19 +429,22 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		if (selectFlag){
-			if (selectObject() == 51){ selectStation = SelectStation.UNSELECTED_OBJECT; }
 			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; }
 			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; }
 			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; }
 			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; }
 			if (selectObject() == 5){ selectStation = SelectStation.SELECT_FINGER_5; }
+			if ((selectObject() != 1) && (selectObject() != 2) && (selectObject() != 3) &&(selectObject() != 4) &&(selectObject() != 5))
+			{
+				selectStation = SelectStation.UNSELECTED_OBJECT;
+			}
 		}
 		if(transferFlag){
 			transferCommand();
 		}
 
 
-		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if(firstInit){firstInit (); firstInit=false;}
 
@@ -452,47 +454,49 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.multiplyMV(lightPosInWorldSpace, 0, lightModelMatrix, 0, lightPosInModelSpace, 0);
 		Matrix.multiplyMV(lightPosInEyeSpace, 0, viewMatrix, 0, lightPosInWorldSpace, 0);
 
-		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){
-			foreFinger (new int[]{program}, 0);//programRubber
-			middleFinger (new int[]{program}, 0);//programTest
-			ringFinger (new int[]{program}, 0);//programTest
-			littleFinger (new int[]{program}, 0);//programTest
-			bigFinger (new int[]{program}, 0);//programTest
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{programWithColor}, 0);
-			bigFinger (new int[]{program}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{programWithColor}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{program}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{programWithColor}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{program}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){
-			foreFinger (new int[]{programWithColor}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{program}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{programWithColor}, 0);
+		switch (String.valueOf(selectStation)) {
+			case "UNSELECTED_OBJECT":
+				foreFinger (new int[]{program}, 0);//programRubber
+				middleFinger (new int[]{program}, 0);//programTest
+				ringFinger (new int[]{program}, 0);//programTest
+				littleFinger (new int[]{program}, 0);//programTest
+				bigFinger (new int[]{program}, 0);//programTest
+				break;
+			case "SELECT_FINGER_1":
+				foreFinger (new int[]{program}, 0);
+				middleFinger (new int[]{program}, 0);
+				ringFinger (new int[]{program}, 0);
+				littleFinger (new int[]{programWithColor}, 0);
+				bigFinger (new int[]{program}, 0);
+				break;
+			case "SELECT_FINGER_2":
+				foreFinger (new int[]{program}, 0);
+				middleFinger (new int[]{program}, 0);
+				ringFinger (new int[]{programWithColor}, 0);
+				littleFinger (new int[]{program}, 0);
+				bigFinger (new int[]{program}, 0);
+				break;
+			case "SELECT_FINGER_3":
+				foreFinger (new int[]{program}, 0);
+				middleFinger (new int[]{programWithColor}, 0);
+				ringFinger (new int[]{program}, 0);
+				littleFinger (new int[]{program}, 0);
+				bigFinger (new int[]{program}, 0);
+				break;
+			case "SELECT_FINGER_4":
+				foreFinger (new int[]{programWithColor}, 0);
+				middleFinger (new int[]{program}, 0);
+				ringFinger (new int[]{program}, 0);
+				littleFinger (new int[]{program}, 0);
+				bigFinger (new int[]{program}, 0);
+				break;
+			case "SELECT_FINGER_5":
+				foreFinger (new int[]{program}, 0);
+				middleFinger (new int[]{program}, 0);
+				ringFinger (new int[]{program}, 0);
+				littleFinger (new int[]{program}, 0);
+				bigFinger (new int[]{programWithColor}, 0);
+				break;
 		}
 
 
@@ -500,6 +504,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.setIdentityM(modelMatrix, 0);
 		Matrix.translateM(modelMatrix, 0, 0.0f, 0.0f, 0.0f);
 
+		GLES20.glUniform1f(codeSelectUniform, 51);
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")) {
 			/** поворот всей сборки */
 			Matrix.setIdentityM(currentRotation, 0);
@@ -521,86 +526,86 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 
 		/** составления матриц вида и проекции */
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		for (int i = 19; i<MAX_NUMBER_DETAILS; i++){
 			heightMap.render(new int[]{i});
 		}
 
-		GLES20.glUseProgram(program);
+		glUseProgram(program);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(program, MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(program, MV_MATRIX_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(program, POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(program, NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(program, COLOR_ATTRIBUTE);
-		texturesAttribute = GLES20.glGetAttribLocation(program, TEXTURES_ATTRIBUTE);
-		tangentAttribute = GLES20.glGetAttribLocation(program, TANGENT_ATTRIBUTE);
-		bitangentAttribute = GLES20.glGetAttribLocation(program, BITANGENT_ATTRIBUTE);
-		lightPosUniform = GLES20.glGetUniformLocation(program, LIGHT_POSITION_UNIFORM);
-		textureUniform = GLES20.glGetUniformLocation(program, TEXTURE_UNIFORM);
-		normalMapUniform = GLES20.glGetUniformLocation(program, NORMAL_MAP_UNIFORM);
-		isUsingNormalMap = GLES20.glGetUniformLocation(program, IS_USING_NORMAL_MAP_UNIFORM);
-		specularFactorUniform = GLES20.glGetUniformLocation(program, SPECULAR_FACTOR_UNIFORM);
-		lightPowerUniform = GLES20.glGetUniformLocation(program, LIGHT_POWER_UNIFORM);
-		ambientFactorUniform = GLES20.glGetUniformLocation(program, AMBIENT_FACTOR_UNIFORM);
+		mvpMatrixUniform = glGetUniformLocation(program, MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = glGetUniformLocation(program, MV_MATRIX_UNIFORM);
+		positionAttribute = glGetAttribLocation(program, POSITION_ATTRIBUTE);
+		normalAttribute = glGetAttribLocation(program, NORMAL_ATTRIBUTE);
+		colorAttribute = glGetAttribLocation(program, COLOR_ATTRIBUTE);
+		texturesAttribute = glGetAttribLocation(program, TEXTURES_ATTRIBUTE);
+		tangentAttribute = glGetAttribLocation(program, TANGENT_ATTRIBUTE);
+		bitangentAttribute = glGetAttribLocation(program, BITANGENT_ATTRIBUTE);
+		lightPosUniform = glGetUniformLocation(program, LIGHT_POSITION_UNIFORM);
+		textureUniform = glGetUniformLocation(program, TEXTURE_UNIFORM);
+		normalMapUniform = glGetUniformLocation(program, NORMAL_MAP_UNIFORM);
+		isUsingNormalMap = glGetUniformLocation(program, IS_USING_NORMAL_MAP_UNIFORM);
+		specularFactorUniform = glGetUniformLocation(program, SPECULAR_FACTOR_UNIFORM);
+		lightPowerUniform = glGetUniformLocation(program, LIGHT_POWER_UNIFORM);
+		ambientFactorUniform = glGetUniformLocation(program, AMBIENT_FACTOR_UNIFORM);
 
 
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 40.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		GLES20.glUniform1i(textureUniform, 12);
-		GLES20.glUniform1i(normalMapUniform, 13);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 40.0f);
+		glUniform1f(lightPowerUniform, 3600.0f);
+		glUniform1f(ambientFactorUniform, 1.5f);
+		glUniform1i(textureUniform, 12);
+		glUniform1i(normalMapUniform, 13);
 		heightMap.render(new int[]{6});
 
-		GLES20.glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 2.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.8f);
-		GLES20.glUniform1i(textureUniform, 8);
-		GLES20.glUniform1i(normalMapUniform, 9);
+		glUniform1i(isUsingNormalMap, 1);
+		glUniform1f(specularFactorUniform, 2.0f);
+		glUniform1f(lightPowerUniform, 700.0f);
+		glUniform1f(ambientFactorUniform, 0.8f);
+		glUniform1i(textureUniform, 8);
+		glUniform1i(normalMapUniform, 9);
 		heightMap.render(new int[]{4});
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		GLES20.glUniform1i(textureUniform, 3);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 900.0f);
+		glUniform1i(textureUniform, 3);
 
 		heightMap.render(new int[]{5});
 	}
 
 	private void foreFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** резина */
-		GLES20.glUseProgram(shaderMassiv[0]);
+		glUseProgram(shaderMassiv[0]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
-		texturesAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
-		tangentAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
-		bitangentAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
-		textureUniform = GLES20.glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
-		normalMapUniform = GLES20.glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
-		isUsingNormalMap = GLES20.glGetUniformLocation(shaderMassiv[0], IS_USING_NORMAL_MAP_UNIFORM);
-		specularFactorUniform = GLES20.glGetUniformLocation(shaderMassiv[0], SPECULAR_FACTOR_UNIFORM);
-		lightPowerUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POWER_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
-		ambientFactorUniform = GLES20.glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
+		mvpMatrixUniform = glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
+		positionAttribute = glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
+		normalAttribute = glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
+		colorAttribute = glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
+		texturesAttribute = glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
+		tangentAttribute = glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
+		bitangentAttribute = glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
+		lightPosUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
+		textureUniform = glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
+		normalMapUniform = glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
+		isUsingNormalMap = glGetUniformLocation(shaderMassiv[0], IS_USING_NORMAL_MAP_UNIFORM);
+		specularFactorUniform = glGetUniformLocation(shaderMassiv[0], SPECULAR_FACTOR_UNIFORM);
+		lightPowerUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POWER_UNIFORM);
+		codeSelectUniform = glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
+		ambientFactorUniform = glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
 
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
@@ -646,34 +651,35 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.8f);
-		GLES20.glUniform1i(textureUniform, 3);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 900.0f);
+		glUniform1f(ambientFactorUniform, 0.8f);
+		glUniform1i(textureUniform, 3);
 		heightMap.render(new int[]{8});
 
 		/** металл */
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 60.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		GLES20.glUniform1i(textureUniform, 12);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 60.0f);
+		glUniform1f(lightPowerUniform, 3600.0f);
+		glUniform1f(ambientFactorUniform, 1.5f);
+		glUniform1i(textureUniform, 12);
 		heightMap.render(new int[]{9});
 		/** первая фаланга пластик*/
 		/** перемещение к основной оси вращения */
@@ -719,42 +725,42 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
-//		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.92f);
-		GLES20.glUniform1i(textureUniform, 2);
-		GLES20.glUniform1i(normalMapUniform, 10);
+		glUniform1i(isUsingNormalMap, 1);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 700.0f);
+		glUniform1f(ambientFactorUniform, 0.92f);
+		glUniform1i(textureUniform, 2);
+		glUniform1i(normalMapUniform, 10);
 		heightMap.render(new int[]{7});
 	}
 	private void middleFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
-		GLES20.glUseProgram(shaderMassiv[0]);
+		glUseProgram(shaderMassiv[0]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
-		texturesAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
-		tangentAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
-		bitangentAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
-		textureUniform = GLES20.glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
-		normalMapUniform = GLES20.glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
-		isUsingNormalMap = GLES20.glGetUniformLocation(shaderMassiv[0], IS_USING_NORMAL_MAP_UNIFORM);
-		specularFactorUniform = GLES20.glGetUniformLocation(shaderMassiv[0], SPECULAR_FACTOR_UNIFORM);
-		lightPowerUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POWER_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
-		ambientFactorUniform = GLES20.glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
+		mvpMatrixUniform = glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
+		positionAttribute = glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
+		normalAttribute = glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
+		colorAttribute = glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
+		texturesAttribute = glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
+		tangentAttribute = glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
+		bitangentAttribute = glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
+		lightPosUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
+		textureUniform = glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
+		normalMapUniform = glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
+		isUsingNormalMap = glGetUniformLocation(shaderMassiv[0], IS_USING_NORMAL_MAP_UNIFORM);
+		specularFactorUniform = glGetUniformLocation(shaderMassiv[0], SPECULAR_FACTOR_UNIFORM);
+		lightPowerUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POWER_UNIFORM);
+		codeSelectUniform = glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
+		ambientFactorUniform = glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
 
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
@@ -796,36 +802,36 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.8f);
-		GLES20.glUniform1i(textureUniform, 3);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 900.0f);
+		glUniform1f(ambientFactorUniform, 0.8f);
+		glUniform1i(textureUniform, 3);
 		heightMap.render(new int[]{11});
 
 		/** шейдер без цвета */
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 30.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		GLES20.glUniform1i(textureUniform, 12);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 30.0f);
+		glUniform1f(lightPowerUniform, 3600.0f);
+		glUniform1f(ambientFactorUniform, 1.5f);
+		glUniform1i(textureUniform, 12);
 		heightMap.render(new int[]{12});
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
@@ -866,42 +872,42 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.92f);
-		GLES20.glUniform1i(textureUniform, 1);
-		GLES20.glUniform1i(normalMapUniform, 11);
+		glUniform1i(isUsingNormalMap, 1);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 700.0f);
+		glUniform1f(ambientFactorUniform, 0.92f);
+		glUniform1i(textureUniform, 1);
+		glUniform1i(normalMapUniform, 11);
 		heightMap.render(new int[]{10});
 	}
 	private void ringFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
-		GLES20.glUseProgram(shaderMassiv[0]);
+		glUseProgram(shaderMassiv[0]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
-		texturesAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
-		tangentAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
-		bitangentAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
-		textureUniform = GLES20.glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
-		normalMapUniform = GLES20.glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
-		isUsingNormalMap = GLES20.glGetUniformLocation(shaderMassiv[0], IS_USING_NORMAL_MAP_UNIFORM);
-		specularFactorUniform = GLES20.glGetUniformLocation(shaderMassiv[0], SPECULAR_FACTOR_UNIFORM);
-		lightPowerUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POWER_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
-		ambientFactorUniform = GLES20.glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
+		mvpMatrixUniform = glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
+		positionAttribute = glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
+		normalAttribute = glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
+		colorAttribute = glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
+		texturesAttribute = glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
+		tangentAttribute = glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
+		bitangentAttribute = glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
+		lightPosUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
+		textureUniform = glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
+		normalMapUniform = glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
+		isUsingNormalMap = glGetUniformLocation(shaderMassiv[0], IS_USING_NORMAL_MAP_UNIFORM);
+		specularFactorUniform = glGetUniformLocation(shaderMassiv[0], SPECULAR_FACTOR_UNIFORM);
+		lightPowerUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POWER_UNIFORM);
+		codeSelectUniform = glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
+		ambientFactorUniform = glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -946,36 +952,36 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.8f);
-		GLES20.glUniform1i(textureUniform, 3);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 900.0f);
+		glUniform1f(ambientFactorUniform, 0.8f);
+		glUniform1i(textureUniform, 3);
 		heightMap.render(new int[]{14});
 
 		/** шейдер без цвета */
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 30.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		GLES20.glUniform1i(textureUniform, 12);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 30.0f);
+		glUniform1f(lightPowerUniform, 3600.0f);
+		glUniform1f(ambientFactorUniform, 1.5f);
+		glUniform1i(textureUniform, 12);
 		heightMap.render(new int[]{15});
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
@@ -1020,42 +1026,42 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.92f);
-		GLES20.glUniform1i(textureUniform, 5);
-		GLES20.glUniform1i(normalMapUniform, 14);
+		glUniform1i(isUsingNormalMap, 1);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 700.0f);
+		glUniform1f(ambientFactorUniform, 0.92f);
+		glUniform1i(textureUniform, 5);
+		glUniform1i(normalMapUniform, 14);
 		heightMap.render(new int[]{13});
 	}
 	private void littleFinger (int[] shaderMassiv, int idForSelectObject) {
 		/** шейдер резины */
-		GLES20.glUseProgram(shaderMassiv[0]);
+		glUseProgram(shaderMassiv[0]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
-		texturesAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
-		tangentAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
-		bitangentAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
-		textureUniform = GLES20.glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
-		normalMapUniform = GLES20.glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
-		isUsingNormalMap = GLES20.glGetUniformLocation(shaderMassiv[0], IS_USING_NORMAL_MAP_UNIFORM);
-		specularFactorUniform = GLES20.glGetUniformLocation(shaderMassiv[0], SPECULAR_FACTOR_UNIFORM);
-		lightPowerUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POWER_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
-		ambientFactorUniform = GLES20.glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
+		mvpMatrixUniform = glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
+		positionAttribute = glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
+		normalAttribute = glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
+		colorAttribute = glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
+		texturesAttribute = glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
+		tangentAttribute = glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
+		bitangentAttribute = glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
+		lightPosUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
+		textureUniform = glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
+		normalMapUniform = glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
+		isUsingNormalMap = glGetUniformLocation(shaderMassiv[0], IS_USING_NORMAL_MAP_UNIFORM);
+		specularFactorUniform = glGetUniformLocation(shaderMassiv[0], SPECULAR_FACTOR_UNIFORM);
+		lightPowerUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POWER_UNIFORM);
+		codeSelectUniform = glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
+		ambientFactorUniform = glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
 
 		/** вторая фаланга */
 		/** перемещение к основной оси вращения */
@@ -1101,36 +1107,36 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 30.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		GLES20.glUniform1i(textureUniform, 12);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 30.0f);
+		glUniform1f(lightPowerUniform, 3600.0f);
+		glUniform1f(ambientFactorUniform, 1.5f);
+		glUniform1i(textureUniform, 12);
 		heightMap.render(new int[]{18});
 
 		/** шейдер без цвета */
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.8f);
-		GLES20.glUniform1i(textureUniform, 3);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 900.0f);
+		glUniform1f(ambientFactorUniform, 0.8f);
+		glUniform1i(textureUniform, 3);
 		heightMap.render(new int[]{17});
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
@@ -1175,42 +1181,42 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.92f);
-		GLES20.glUniform1i(textureUniform, 6);
-		GLES20.glUniform1i(normalMapUniform, 15);
+		glUniform1i(isUsingNormalMap, 1);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 700.0f);
+		glUniform1f(ambientFactorUniform, 0.92f);
+		glUniform1i(textureUniform, 6);
+		glUniform1i(normalMapUniform, 15);
 		heightMap.render(new int[]{16});
 	}
 	private void bigFinger (int[] shaderMassiv, int idForSelectObject)  {
 		/** шейдер основной */
-		GLES20.glUseProgram(shaderMassiv[0]);
+		glUseProgram(shaderMassiv[0]);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
-		normalAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
-		colorAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
-		texturesAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
-		tangentAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
-		bitangentAttribute = GLES20.glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
-		lightPosUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
-		textureUniform = GLES20.glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
-		normalMapUniform = GLES20.glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
-		isUsingNormalMap = GLES20.glGetUniformLocation(shaderMassiv[0], IS_USING_NORMAL_MAP_UNIFORM);
-		specularFactorUniform = GLES20.glGetUniformLocation(shaderMassiv[0], SPECULAR_FACTOR_UNIFORM);
-		lightPowerUniform = GLES20.glGetUniformLocation(shaderMassiv[0], LIGHT_POWER_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
-		ambientFactorUniform = GLES20.glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
+		mvpMatrixUniform = glGetUniformLocation(shaderMassiv[0], MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = glGetUniformLocation(shaderMassiv[0], MV_MATRIX_UNIFORM);
+		positionAttribute = glGetAttribLocation(shaderMassiv[0], POSITION_ATTRIBUTE);
+		normalAttribute = glGetAttribLocation(shaderMassiv[0], NORMAL_ATTRIBUTE);
+		colorAttribute = glGetAttribLocation(shaderMassiv[0], COLOR_ATTRIBUTE);
+		texturesAttribute = glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
+		tangentAttribute = glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
+		bitangentAttribute = glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
+		lightPosUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
+		textureUniform = glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
+		normalMapUniform = glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
+		isUsingNormalMap = glGetUniformLocation(shaderMassiv[0], IS_USING_NORMAL_MAP_UNIFORM);
+		specularFactorUniform = glGetUniformLocation(shaderMassiv[0], SPECULAR_FACTOR_UNIFORM);
+		lightPowerUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POWER_UNIFORM);
+		codeSelectUniform = glGetUniformLocation(shaderMassiv[0], CODE_SELECT_UNIFORM);
+		ambientFactorUniform = glGetUniformLocation(shaderMassiv[0], AMBIENT_FACTOR_UNIFORM);
 
 
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1282,36 +1288,36 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
 		/** составления матриц вида и проекции */
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.90f);
-		GLES20.glUniform1i(textureUniform, 7);
-		GLES20.glUniform1i(normalMapUniform, 16);
+		glUniform1i(isUsingNormalMap, 1);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 700.0f);
+		glUniform1f(ambientFactorUniform, 0.90f);
+		glUniform1i(textureUniform, 7);
+		glUniform1i(normalMapUniform, 16);
 		heightMap.render(new int[]{0});
 
 
 		/** составления матриц вида и проекции */
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		GLES20.glUniform1i(textureUniform, 3);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 1.0f);
+		glUniform1f(lightPowerUniform, 900.0f);
+		glUniform1i(textureUniform, 3);
 		heightMap.render(new int[]{1});
 
 
@@ -1331,20 +1337,20 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
-		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
+		glUniform1f(codeSelectUniform, (float) idForSelectObject);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		/** должнабыть текстура металла*/
-		GLES20.glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 30.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		GLES20.glUniform1i(textureUniform, 12);
+		glUniform1i(isUsingNormalMap, 0);
+		glUniform1f(specularFactorUniform, 30.0f);
+		glUniform1f(lightPowerUniform, 3600.0f);
+		glUniform1f(ambientFactorUniform, 1.5f);
+		glUniform1i(textureUniform, 12);
 		heightMap.render(new int[]{2, 3});
 	}
 
@@ -1375,12 +1381,12 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		ringFinger(new int[]{programSelect},2);
 		littleFinger(new int[]{programSelect},1);
 
-		GLES20.glUseProgram(programSelect);
+		glUseProgram(programSelect);
 
-		mvpMatrixUniform = GLES20.glGetUniformLocation(programSelect, MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = GLES20.glGetUniformLocation(programSelect, MV_MATRIX_UNIFORM);
-		codeSelectUniform = GLES20.glGetUniformLocation(programSelect, CODE_SELECT_UNIFORM);
-		positionAttribute = GLES20.glGetAttribLocation(programSelect, POSITION_ATTRIBUTE);
+		mvpMatrixUniform = glGetUniformLocation(programSelect, MVP_MATRIX_UNIFORM);
+		mvMatrixUniform = glGetUniformLocation(programSelect, MV_MATRIX_UNIFORM);
+		codeSelectUniform = glGetUniformLocation(programSelect, CODE_SELECT_UNIFORM);
+		positionAttribute = glGetAttribLocation(programSelect, POSITION_ATTRIBUTE);
 
 		Matrix.setIdentityM(modelMatrix, 0);
 		Matrix.translateM(modelMatrix, 0, 0.0f, 0.0f, 0.0f);
@@ -1404,22 +1410,22 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		System.arraycopy(temporaryMatrix, 0, modelMatrix, 0, 16);
 
 		/** составления матриц вида и проекции */
-		GLES20.glUniform1f(codeSelectUniform, 51);
+		glUniform1f(codeSelectUniform, 51);
 		Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniformMatrix4fv(mvMatrixUniform, 1, false, mvpMatrix, 0);
 		Matrix.multiplyMM(temporaryMatrix, 0, projectionMatrix, 0, mvpMatrix, 0);
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
-		GLES20.glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
-		GLES20.glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
+		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
+		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
 		heightMap.render(new int[]{4});
 
 
 
 		int[] viewport = new int[4];
-		GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, IntBuffer.wrap(viewport));
+		glGetIntegerv(GL_VIEWPORT, IntBuffer.wrap(viewport));
 		ByteBuffer res = ByteBuffer.allocateDirect(4);
-		GLES20.glReadPixels((int) X, (int) (viewport[3]-Y), 1, 1, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, res);
+		glReadPixels((int) X, (int) (viewport[3]-Y), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, res);
 
 		/** сброс флага выделения и дельт*/
 		selectFlag = false;
@@ -1430,6 +1436,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 	}
 
 	private void transferCommand() {
+		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
 			System.err.println("GripperSettingsRender--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);
 			FingerAngle fingerAngleModel = new FingerAngle(1, angleLittleFingerTransfer);
@@ -1473,8 +1480,8 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 
 		void loader() {
 			try {
-				GLES20.glGenBuffers(MAX_NUMBER_DETAILS, vbo, 0);
-				GLES20.glGenBuffers(MAX_NUMBER_DETAILS, ibo, 0);
+				glGenBuffers(MAX_NUMBER_DETAILS, vbo, 0);
+				glGenBuffers(MAX_NUMBER_DETAILS, ibo, 0);
 
 				for (i = 0; i<MAX_NUMBER_DETAILS; i++){
 					indexCount = Load3DModelNew.getVertexArray(i).length;
@@ -1491,17 +1498,17 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 					heightMapIndexDataBuffer.put(Load3DModelNew.getIndicesArray(i)).position(0);
 
 					if (vbo[0] > 0 && ibo[0] > 0) {
-						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[i]);
-						GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, heightMapVertexDataBuffer.capacity() * BYTES_PER_FLOAT,
-								heightMapVertexDataBuffer, GLES20.GL_STATIC_DRAW);
+						glBindBuffer(GL_ARRAY_BUFFER, vbo[i]);
+						glBufferData(GL_ARRAY_BUFFER, heightMapVertexDataBuffer.capacity() * BYTES_PER_FLOAT,
+								heightMapVertexDataBuffer, GL_STATIC_DRAW);
 
 
-						GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, ibo[i]);
-						GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, heightMapIndexDataBuffer.capacity()
-								* BYTES_PER_INT, heightMapIndexDataBuffer, GLES20.GL_STATIC_DRAW);
+						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[i]);
+						glBufferData(GL_ELEMENT_ARRAY_BUFFER, heightMapIndexDataBuffer.capacity()
+								* BYTES_PER_INT, heightMapIndexDataBuffer, GL_STATIC_DRAW);
 
-						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, i);
-						GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, i);
+						glBindBuffer(GL_ARRAY_BUFFER, i);
+						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, i);
 					} else {
 						errorHandler2.handleError(ErrorHandler2.ErrorType.BUFFER_CREATION_ERROR, "glGenBuffers");
 					}
@@ -1515,43 +1522,43 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		void render(int[] indexesOfBuffer) {
 			for (i = 0; i<indexesOfBuffer.length; i++) {
 				if (vbo[0] > 0 && ibo[0] > 0) {
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[indexesOfBuffer[i]]);
+					glBindBuffer(GL_ARRAY_BUFFER, vbo[indexesOfBuffer[i]]);
 
 					// Bind Attributes
-					GLES20.glVertexAttribPointer(positionAttribute, POSITION_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+					glVertexAttribPointer(positionAttribute, POSITION_DATA_SIZE_IN_ELEMENTS, GL_FLOAT, false,
 							STRIDE, 0);
-					GLES20.glEnableVertexAttribArray(positionAttribute);
+					glEnableVertexAttribArray(positionAttribute);
 
-					GLES20.glVertexAttribPointer(normalAttribute, NORMAL_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+					glVertexAttribPointer(normalAttribute, NORMAL_DATA_SIZE_IN_ELEMENTS, GL_FLOAT, false,
 							STRIDE, POSITION_DATA_SIZE_IN_ELEMENTS * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(normalAttribute);
+					glEnableVertexAttribArray(normalAttribute);
 
-					GLES20.glVertexAttribPointer(colorAttribute, COLOR_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+					glVertexAttribPointer(colorAttribute, COLOR_DATA_SIZE_IN_ELEMENTS, GL_FLOAT, false,
 							STRIDE, (POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(colorAttribute);
+					glEnableVertexAttribArray(colorAttribute);
 
-					GLES20.glVertexAttribPointer(texturesAttribute, TEXTURES_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+					glVertexAttribPointer(texturesAttribute, TEXTURES_DATA_SIZE_IN_ELEMENTS, GL_FLOAT, false,
 							STRIDE,
 							(POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(texturesAttribute);
+					glEnableVertexAttribArray(texturesAttribute);
 
-					GLES20.glVertexAttribPointer(tangentAttribute, TANGENT_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+					glVertexAttribPointer(tangentAttribute, TANGENT_DATA_SIZE_IN_ELEMENTS, GL_FLOAT, false,
 							STRIDE,
 							(POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS + TEXTURES_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(tangentAttribute);
+					glEnableVertexAttribArray(tangentAttribute);
 
-					GLES20.glVertexAttribPointer(bitangentAttribute, BITANGENT_DATA_SIZE_IN_ELEMENTS, GLES20.GL_FLOAT, false,
+					glVertexAttribPointer(bitangentAttribute, BITANGENT_DATA_SIZE_IN_ELEMENTS, GL_FLOAT, false,
 							STRIDE,
 							(POSITION_DATA_SIZE_IN_ELEMENTS + NORMAL_DATA_SIZE_IN_ELEMENTS + COLOR_DATA_SIZE_IN_ELEMENTS
 									+ TEXTURES_DATA_SIZE_IN_ELEMENTS + TANGENT_DATA_SIZE_IN_ELEMENTS) * BYTES_PER_FLOAT);
-					GLES20.glEnableVertexAttribArray(bitangentAttribute);
+					glEnableVertexAttribArray(bitangentAttribute);
 
 					// Draw
-					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, ibo[indexesOfBuffer[i]]);
-					GLES20.glDrawElements(GLES20.GL_TRIANGLES, indexCount, GLES20.GL_UNSIGNED_INT, 0);
+					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[indexesOfBuffer[i]]);
+					glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, indexesOfBuffer[i]);
-					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexesOfBuffer[i]);
+					glBindBuffer(GL_ARRAY_BUFFER, indexesOfBuffer[i]);
+					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexesOfBuffer[i]);
 				}
 			}
 		}

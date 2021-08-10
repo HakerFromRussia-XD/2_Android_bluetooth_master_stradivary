@@ -21,6 +21,7 @@ import me.start.motorica.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.common.RawResourceReader;
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.common.ShaderHelper;
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.common.TextureHelper;
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperSettingsWithoutEncodersRenderer;
 
 import static android.opengl.GLES20.GL_LINEAR;
 import static android.opengl.GLES20.GL_TEXTURE_2D;
@@ -233,7 +234,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		heightMap = new HeightMap();
 		heightMap.loader();
 
-//		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+//		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 0.9f);
 
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		GLES20.glEnable(GLES20.GL_COLOR_BUFFER_BIT);
@@ -438,12 +439,15 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		if (selectFlag){
-			if (selectObject() == 51){ selectStation = SelectStation.UNSELECTED_OBJECT; }
 			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; }
 			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; }
 			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; }
 			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; }
 			if (selectObject() == 5){ selectStation = SelectStation.SELECT_FINGER_5; }
+			if ((selectObject() != 1) && (selectObject() != 2) && (selectObject() != 3) &&(selectObject() != 4) &&(selectObject() != 5))
+			{
+				selectStation = SelectStation.UNSELECTED_OBJECT;
+			}
 		}
 		if(transferFlag){
 			transferCommand();

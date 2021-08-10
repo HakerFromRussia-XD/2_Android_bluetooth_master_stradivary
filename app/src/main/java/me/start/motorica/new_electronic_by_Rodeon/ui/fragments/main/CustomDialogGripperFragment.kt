@@ -27,7 +27,7 @@ class CustomDialogGripperFragment: DialogFragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.layout_gripper_settings_le2, container, false)
+        val view = inflater.inflate(R.layout.layout_gripper_settings_le_with_encoders, container, false)
         rootView = view
         if (activity != null) { main = activity as MainActivity? }
         return view

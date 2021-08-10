@@ -52,8 +52,10 @@
             android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity" />
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.GripperScreenActivity" />
-
+            android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity" />
+        <activity
+            android:theme="@style/AppTheme.NoActionBar"
+            android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity" />
 
         <service android:name="me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService" android:enabled="true"/>
 

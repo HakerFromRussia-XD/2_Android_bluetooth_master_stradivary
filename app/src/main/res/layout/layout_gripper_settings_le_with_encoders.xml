@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperSettingsWithEncodersGLSurfaceView
+        android:id="@+id/gl_surface_view_le_with_encoders"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/activity_horizontal_margin"
+            android:layout_gravity="bottom|center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="#FFFFFFFF"
+                android:text="@string/speed_with_space"/>
+            <TextView
+                android:id="@+id/textSpeedFingerLE"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="#FFFFFFFF"
+                android:gravity="center"
+                android:text="99"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="#FFFFFFFF"
+                android:gravity="center"
+                android:text="%"
+                tools:ignore="HardcodedText" />
+            <SeekBar
+                android:id="@+id/seekBarSpeedFingerLE"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:progressDrawable="@drawable/track_le"
+                android:thumb="@drawable/thumb_invisible"
+                android:max="98"
+                android:progress="98"
+                android:isScrollContainer="true">
+            </SeekBar>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/gripper_use_le"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:text="@string/save"
+            android:layout_gravity="center"
+            android:textColor="#FFFFFFFF"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:visibility="visible" />
+    </LinearLayout>
+</FrameLayout>

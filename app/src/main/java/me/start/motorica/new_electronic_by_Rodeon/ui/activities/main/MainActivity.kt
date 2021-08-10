@@ -39,7 +39,6 @@ import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.GripperScreenActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapter
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograb
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograbWithAdvancedSettings

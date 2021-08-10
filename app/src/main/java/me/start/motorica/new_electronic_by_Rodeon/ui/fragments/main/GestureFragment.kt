@@ -22,7 +22,8 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_G
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.GripperScreenActivity
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import org.jetbrains.anko.backgroundDrawable
 import org.jetbrains.anko.textColor
@@ -82,7 +83,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             }
         }
         gesture_settings_2_btn.setOnClickListener {
-            val intent = Intent(context, GripperScreenActivity::class.java)
+            val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
             startActivity(intent)
 //            main?.openFragmentGripper(context, 2)
 //            main?.openFragment(2)
@@ -96,7 +97,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 main?.incrementCountCommand()
             }
         }
-        gesture_settings_3_btn.setOnClickListener { main?.openFragment(3) }
+        gesture_settings_3_btn.setOnClickListener {
+            val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
+            startActivity(intent)
+//            main?.openFragment(3)
+        }
         gesture_4_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()

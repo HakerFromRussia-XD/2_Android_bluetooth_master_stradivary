@@ -56,6 +56,7 @@
         <activity
             android:theme="@style/AppTheme.NoActionBar"
             android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity" />
+        <activity android:name=".new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperSettingsWithoutEncodersRenderer" />
 
         <service android:name="me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService" android:enabled="true"/>
 

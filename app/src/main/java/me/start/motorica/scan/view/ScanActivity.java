@@ -1,6 +1,7 @@
 package me.start.motorica.scan.view;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -8,8 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -134,6 +137,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             finish();
         }
 
+        checkLocationPermission();
         init3D();
     }
 
@@ -440,7 +444,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //            threadFunction[k].start();
 //        }
     }
-
     private void saveData(){
         SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -461,7 +464,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         editor.putString("scan list", json);
         editor.apply();
     }
-
     @Override
     public void loadData() {
         SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);
@@ -469,5 +471,22 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         String json = sharedPreferences.getString("scan list", null);
         Type type = new TypeToken<ArrayList<ScanItem>>() {}.getType();
         scanList = gson.fromJson(json, type);
+    }
+
+    private void checkLocationPermission() {
+        //проверка включена ли геолокация и если выключена, то показ предложения её включить
+        LocationManager lm = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ignored) {}
+        if(!gps_enabled) {
+            // notify user
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.gps_network_not_enabled)
+                    .setPositiveButton(R.string.open_location_settings, (paramDialogInterface, paramInt) -> startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)))
+                    .setCancelable(false)
+                    .show();
+        }
     }
 }

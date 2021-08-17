@@ -1,8 +1,12 @@
 package me.start.motorica.old_electronic_by_Misha.ui;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,11 +21,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import me.start.motorica.R;
 import me.start.motorica.scan.view.ScanActivity;
-
-/**
- * Created by Omar on 20/12/2017.
- */
 
 public class SplashScreen extends AppCompatActivity {
 
@@ -35,8 +36,8 @@ public class SplashScreen extends AppCompatActivity {
         Dexter.withActivity(this).withPermissions(
             Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION)
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION)
             .withListener(new MultiplePermissionsListener() {
                 @Override
                 public void onPermissionsChecked(MultiplePermissionsReport report) {
@@ -46,7 +47,7 @@ public class SplashScreen extends AppCompatActivity {
                         finish();
                     }
                     else{
-                        Toast.makeText(SplashScreen.this, "We need these permissions...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SplashScreen.this, R.string.we_need_these_permissions, Toast.LENGTH_SHORT).show();
                         askPermissions();
                     }
                 }

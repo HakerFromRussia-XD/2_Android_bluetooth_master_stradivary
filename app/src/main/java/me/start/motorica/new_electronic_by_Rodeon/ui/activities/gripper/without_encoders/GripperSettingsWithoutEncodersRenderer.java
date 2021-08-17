@@ -430,7 +430,8 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		if (selectFlag){
-			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; }
+			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; GripperScreenWithoutEncodersActivity.Companion.getGestureState();
+			System.err.println("Принятый gestureState = " + GripperScreenWithoutEncodersActivity.Companion.getGestureState());}
 			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; }
 			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; }
 			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; }

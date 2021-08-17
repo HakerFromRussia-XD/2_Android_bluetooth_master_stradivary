@@ -167,6 +167,13 @@
     <string name="switching_mode">switching mode</string>
     <string name="time_between_peaks">time between peaks</string>
     <string name="peak_time">peak time</string>
+    <string name="state">state</string>
+    <string name="position">position</string>
+    <string name="gesture_state">Gesture state:</string>
+    <string name="finger_position">Finger position:</string>
+    <string name="gps_network_not_enabled">Enabled geolocation is necessary to connect to the prosthesis via bluetooth.</string>
+    <string name="open_location_settings">enable geolocation</string>
+    <string name="we_need_these_permissions">We need these permissions…</string>
 
     <string-array name="numbers">
         <item>0</item>

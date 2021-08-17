@@ -14,6 +14,7 @@ import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
+import kotlin.properties.Delegates
 
 
 @Suppress("DEPRECATION")
@@ -21,6 +22,10 @@ import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivit
 class GripperScreenWithoutEncodersActivity
     : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView{
     private var withoutEncodersRenderer: GripperSettingsWithoutEncodersRenderer? = null
+//    var gestureState = 0
+    companion object {
+        var gestureState by Delegates.notNull<Int>()
+    }
 
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,14 +34,28 @@ class GripperScreenWithoutEncodersActivity
         initBaseView(this)
         window.navigationBarColor = resources.getColor(R.color.colorPrimaryDark)
         window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+        gestureState = 0
+        gripper_state_le.text = "open"
 
         RxView.clicks(findViewById(R.id.gripper_use_le_save))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     finish()
                 }
+        RxView.clicks(findViewById(R.id.gripper_state_le))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (gestureState == 0 ) {
+                        System.err.println("gestureState = 1")
+                        gripper_state_le.text = "open"
+                        gestureState = 1
+                    } else {
+                        System.err.println("gestureState = 0")
+                        gripper_state_le.text = "close"
+                        gestureState = 0
+                    }
+                }
     }
-
     override fun initializeUI() {
         val activityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val configurationInfo = activityManager.deviceConfigurationInfo
@@ -56,4 +75,6 @@ class GripperScreenWithoutEncodersActivity
             gl_surface_view_le_without_encoders.setRenderer(withoutEncodersRenderer, displayMetrics.density)
         }
     }
+
+
 }

@@ -119,7 +119,7 @@ class GripperScreenWithoutEncodersActivity
                         }
                         anim.start()
                         System.err.println("fingerState = 1")
-                        gripper_position_finger_le.text = "open"
+                        gripper_position_finger_le.text = "close"
                         fingerState = 1
                     } else
                     {
@@ -131,7 +131,7 @@ class GripperScreenWithoutEncodersActivity
                         }
                         anim.start()
                         System.err.println("fingerState = 0")
-                        gripper_position_finger_le.text = "close"
+                        gripper_position_finger_le.text = "open"
                         fingerState = 0
                     }
                 }

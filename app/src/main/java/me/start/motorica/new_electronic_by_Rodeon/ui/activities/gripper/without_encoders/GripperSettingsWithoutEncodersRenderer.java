@@ -430,9 +430,16 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		if (selectFlag){
-			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; GripperScreenWithoutEncodersActivity.Companion.getGestureState();
-			System.err.println("Принятый gestureState = " + GripperScreenWithoutEncodersActivity.Companion.getGestureState());}
-			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; }
+			if (selectObject() == 1)
+			{
+				selectStation = SelectStation.SELECT_FINGER_1;
+				GripperScreenWithoutEncodersActivity.Companion.getFingerState();
+				System.err.println("Принятый gestureState = " + GripperScreenWithoutEncodersActivity.Companion.getGestureState());
+			}
+			if (selectObject() == 2)
+			{
+				selectStation = SelectStation.SELECT_FINGER_2;
+			}
 			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; }
 			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; }
 			if (selectObject() == 5){ selectStation = SelectStation.SELECT_FINGER_5; }
@@ -698,18 +705,18 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 			angleForeFingerFloat += deltaY;
 			if((angleForeFingerFloat < 1 || angleForeFingerFloat > 99)) {
 				angleForeFingerFloat -= deltaY;
-				angleForeFingerTransfer = (int) angleForeFingerFloat;
+				angleForeFingerTransfer = GripperScreenWithoutEncodersActivity.Companion.getAngleFinger();//(int) angleForeFingerFloat;
 			}
 			if((angleForeFingerTransfer >= 0 && angleForeFingerTransfer <= 100)){
 				/** поворот вокруг первой оси */
 				Matrix.setIdentityM(currentRotation, 0);
 				Matrix.rotateM(currentRotation, 0, -2, 1.0f, 0.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, 3, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(currentRotation, 0, angleForeFingerInt, 0.0f, 0.0f, 1.0f);
+				Matrix.rotateM(currentRotation, 0, angleForeFingerInt, 0.0f, 0.0f, 1.0f);//GripperScreenWithoutEncodersActivity.Companion.getAngleFinger()
 				Matrix.rotateM(currentRotation, 0, -3, 0.0f, 1.0f, 0.0f);
 				Matrix.rotateM(currentRotation, 0, 2, 1.0f, 0.0f, 0.0f);
 
-				angleForeFingerTransfer = (int) angleForeFingerFloat;
+				angleForeFingerTransfer = GripperScreenWithoutEncodersActivity.Companion.getAngleFinger();//(int) angleForeFingerFloat;
 				Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationForeFinger, 0);
 				System.arraycopy(temporaryMatrix, 0, accumulatedRotationForeFinger, 0, 16);
 			}
@@ -1321,9 +1328,14 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
+//		glUniform1i(isUsingNormalMap, 0);
+//		glUniform1f(specularFactorUniform, 1.0f);
+//		glUniform1f(lightPowerUniform, 900.0f);
+//		glUniform1i(textureUniform, 3);
 		glUniform1i(isUsingNormalMap, 0);
 		glUniform1f(specularFactorUniform, 1.0f);
 		glUniform1f(lightPowerUniform, 900.0f);
+		glUniform1f(ambientFactorUniform, 0.8f);
 		glUniform1i(textureUniform, 3);
 		heightMap.render(new int[]{1});
 

@@ -1,5 +1,6 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
@@ -12,6 +13,7 @@ import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoder
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
+import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
 import kotlin.properties.Delegates
@@ -25,9 +27,18 @@ class GripperScreenWithoutEncodersActivity
 //    var gestureState = 0
     companion object {
         var gestureState by Delegates.notNull<Int>()
+        var fingerState by Delegates.notNull<Int>()
+        var angleFinger by Delegates.notNull<Int>()
     }
+    private var numberFinger = 0
 
-    @SuppressLint("CheckResult")
+    private var openStage = 0b00000000
+    private var closeStage = 0b00000000
+    private var oldOpenStage = 0b00000000
+    private var oldCloseStage = 0b00000000
+    var score = 0
+
+    @SuppressLint("CheckResult", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_gripper_settings_le_without_encoders)
@@ -35,6 +46,8 @@ class GripperScreenWithoutEncodersActivity
         window.navigationBarColor = resources.getColor(R.color.colorPrimaryDark)
         window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
         gestureState = 0
+        fingerState = 0
+        angleFinger = 0
         gripper_state_le.text = "open"
 
         RxView.clicks(findViewById(R.id.gripper_use_le_save))
@@ -48,12 +61,91 @@ class GripperScreenWithoutEncodersActivity
                     if (gestureState == 0 ) {
                         System.err.println("gestureState = 1")
                         gripper_state_le.text = "open"
+                        if (numberFinger == 1) {
+                            openStage and 0b11111110
+                        }
+                        if (numberFinger == 2) {
+
+                        }
+                        if (numberFinger == 3) {
+
+                        }
+                        if (numberFinger == 4) {
+
+                        }
+                        if (numberFinger == 5) {
+
+                        }
+                        if (numberFinger == 6) {
+
+                        }
+
                         gestureState = 1
-                    } else {
+                    } else
+                    {
+                        if (numberFinger == 1) {
+                            openStage or 0b00000001
+                        }
+                        if (numberFinger == 2) {
+
+                        }
+                        if (numberFinger == 3) {
+
+                        }
+                        if (numberFinger == 4) {
+
+                        }
+                        if (numberFinger == 5) {
+
+                        }
+                        if (numberFinger == 6) {
+
+                        }
+
                         System.err.println("gestureState = 0")
                         gripper_state_le.text = "close"
                         gestureState = 0
                     }
+                }
+        RxView.clicks(findViewById(R.id.gripper_position_finger_le))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (fingerState == 0 ) {
+                        val anim = ValueAnimator.ofInt(score, 100)
+                        anim.duration = ((100 - score) * 10).toLong()
+                        anim.addUpdateListener {
+                            angleFinger = anim.animatedValue as Int
+                            score = anim.animatedValue as Int
+                        }
+                        anim.start()
+                        System.err.println("fingerState = 1")
+                        gripper_position_finger_le.text = "open"
+                        fingerState = 1
+                    } else
+                    {
+                        val anim = ValueAnimator.ofInt(score, 0)
+                        anim.duration = (score * 10).toLong()
+                        anim.addUpdateListener {
+                            angleFinger = anim.animatedValue as Int
+                            score = anim.animatedValue as Int
+                        }
+                        anim.start()
+                        System.err.println("fingerState = 0")
+                        gripper_position_finger_le.text = "close"
+                        fingerState = 0
+                    }
+                }
+        RxUpdateMainEvent.getInstance().fingerAngleObservable
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { parameters ->
+                    System.err.println(" GripperScreenWithoutEncodersActivity -----> change gripper.  numberFinger = ${parameters.numberFinger} " +
+                            "fingerAngel = ${parameters.fingerAngel}")
+                    numberFinger = parameters.numberFinger
+                    if (numberFinger == 1) {
+                        openStage or 0b00000001 
+                    }
+                    angleFinger = parameters.fingerAngel
                 }
     }
     override fun initializeUI() {

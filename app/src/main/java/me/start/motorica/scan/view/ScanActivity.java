@@ -473,6 +473,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanList = gson.fromJson(json, type);
     }
 
+
     private void checkLocationPermission() {
         //проверка включена ли геолокация и если выключена, то показ предложения её включить
         LocationManager lm = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);

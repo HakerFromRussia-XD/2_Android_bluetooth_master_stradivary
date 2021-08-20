@@ -845,7 +845,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   fun getSwapOpenCloseButton() : Boolean {
     return swapOpenCloseButton
   }
-  fun incrementCountCommand() {
+  private fun incrementCountCommand() {
     countCommand++
   }
   fun offGesturesUIBeforeConnection () {

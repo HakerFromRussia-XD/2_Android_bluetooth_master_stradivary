@@ -48,7 +48,7 @@ class StartActivity : AppIntro(), BaseView {
     mDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME)
     mDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS)
     mDeviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE)
-    preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, false)//для выключения интро при последующем запуске
+    preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, true)//для выключения интро при последующем запуске
 
     if (!preferenceManager.getBoolean(PreferenceKeys.NEWBE.first, PreferenceKeys.NEWBE.second)) {
       val intent = Intent(this, MainActivity::class.java)
@@ -59,8 +59,8 @@ class StartActivity : AppIntro(), BaseView {
       finish()
       return
     }
-
-    initializeUI()
+    System.err.println("VIPOLNILOS' ODIN RAZ!!" )
+//    initializeUI()
   }
 
   override fun initializeUI() {

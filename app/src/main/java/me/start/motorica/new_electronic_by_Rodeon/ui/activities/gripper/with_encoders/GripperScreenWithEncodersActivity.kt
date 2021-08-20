@@ -1,17 +1,19 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.ActivityManager
 import android.app.Service
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.PixelFormat
 import android.os.Bundle
-import android.text.InputType
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
+import android.widget.TextView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
@@ -19,7 +21,9 @@ import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
+import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
 
 
@@ -29,6 +33,10 @@ class GripperScreenWithEncodersActivity
     : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView{
     private var withEncodersRenderer: GripperSettingsWithEncodersRenderer? = null
     private var editMode: Boolean = false
+    private var main: MainActivity? = null
+    private var mSettings: SharedPreferences? = null
+    private var gestureNumber: Int = 0
+    private var gestureNameList: ArrayList<String>? = null
 
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +45,10 @@ class GripperScreenWithEncodersActivity
         initBaseView(this)
         window.navigationBarColor = resources.getColor(R.color.colorPrimaryDark)
         window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+        mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+
+        gestureNumber = mSettings!!.getInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 0)
+
 
         RxView.clicks(findViewById(R.id.gripper_use_le))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -50,24 +62,21 @@ class GripperScreenWithEncodersActivity
                     if (editMode) {
                         edit_gesture_name_btn.setImageResource(R.drawable.ic_edit_24)
                         gesture_name_tv.visibility = View.VISIBLE
-                        imm.hideSoftInputFromWindow (this.currentFocus?.windowToken, 0)
+                        imm.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
+                        gesture_name_tv.text = gesture_name_et.text
                         gesture_name_et.visibility = View.GONE
                         editMode = false
                     } else {
                         edit_gesture_name_btn.setImageResource(R.drawable.ic_cancel_24)
-                        gesture_name_tv.visibility = View.GONE
                         gesture_name_et.visibility = View.VISIBLE
+                        gesture_name_et.setText(gesture_name_tv.text, TextView.BufferType.EDITABLE)
+                        gesture_name_tv.visibility = View.GONE
                         gesture_name_et.requestFocus()
                         imm.hideSoftInputFromWindow(gesture_name_et.windowToken, 0)
-                        imm.showSoftInput(gesture_name_et, 0);
+                        imm.showSoftInput(gesture_name_et, 0)
                         gesture_name_et.isFocusableInTouchMode = true
                         editMode = true
                     }
-                }
-        RxView.clicks(findViewById(R.id.gesture_name_tv))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    System.err.println("text view click")
                 }
 
 
@@ -107,5 +116,23 @@ class GripperScreenWithEncodersActivity
             withEncodersRenderer = GripperSettingsWithEncodersRenderer(this, gl_surface_view_le_with_encoders)
             gl_surface_view_le_with_encoders.setRenderer(withEncodersRenderer, displayMetrics.density)
         }
+    }
+
+    private fun saveData() {
+        val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+
+        val json = gson.toJson(gestureNameList)
+        editor.putString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, json)
+        editor.apply()
+    }
+
+    fun loadData() {
+        val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
+        val gson = Gson()
+        val json = sharedPreferences.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, null)
+        val type = object : TypeToken<ArrayList<String>>() {}.type
+        gestureNameList = gson.fromJson<ArrayList<String>>(json, type)
     }
 }

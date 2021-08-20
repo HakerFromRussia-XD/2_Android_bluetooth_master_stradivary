@@ -90,8 +90,7 @@
         android:textColor="#FFFFFFFF"
         style="@style/Text"
         android:textSize="14sp"
-        android:visibility="gone"
-        android:text="Gesture №1"/>
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/edit_gesture_name_btn"

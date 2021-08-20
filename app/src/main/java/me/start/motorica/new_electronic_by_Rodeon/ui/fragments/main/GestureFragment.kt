@@ -72,6 +72,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         }
         gesture_settings_1_btn.setOnClickListener {
             main?.openFragment(1)
+            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 1)
         }
         gesture_2_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
@@ -85,6 +86,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         gesture_settings_2_btn.setOnClickListener {
             val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
             startActivity(intent)
+            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
 //            main?.openFragmentGripper(context, 2)
 //            main?.openFragment(2)
         }
@@ -100,6 +102,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         gesture_settings_3_btn.setOnClickListener {
             val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
             startActivity(intent)
+            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 3)
 //            main?.openFragment(3)
         }
         gesture_4_btn.setOnClickListener {
@@ -111,7 +114,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 //                main?.incrementCountCommand()
             }
         }
-        gesture_settings_4_btn.setOnClickListener { main?.openFragment(4) }
+        gesture_settings_4_btn.setOnClickListener {
+            main?.openFragment(4)
+            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
+        }
         gesture_5_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()
@@ -121,7 +127,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 //                main?.incrementCountCommand()
             }
         }
-        gesture_settings_5_btn.setOnClickListener { main?.openFragment(5) }
+        gesture_settings_5_btn.setOnClickListener {
+            main?.openFragment(5)
+            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
+        }
         gesture_6_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()
@@ -131,7 +140,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 //                main?.incrementCountCommand()
             }
         }
-        gesture_settings_6_btn.setOnClickListener { main?.openFragment(6) }
+        gesture_settings_6_btn.setOnClickListener {
+            main?.openFragment(6)
+            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
+        }
         gesture_7_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()
@@ -141,7 +153,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 //                main?.incrementCountCommand()
             }
         }
-        gesture_settings_7_btn.setOnClickListener { main?.openFragment(7) }
+        gesture_settings_7_btn.setOnClickListener {
+            main?.openFragment(7)
+            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
+        }
         gesture_8_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()
@@ -151,7 +166,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 //                main?.incrementCountCommand()
             }
         }
-        gesture_settings_8_btn.setOnClickListener { main?.openFragment(8) }
+        gesture_settings_8_btn.setOnClickListener {
+            main?.openFragment(8)
+            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
+        }
         left_right_side_swap_sw.setOnClickListener{
             if (left_right_side_swap_sw.isChecked) {
                 left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))

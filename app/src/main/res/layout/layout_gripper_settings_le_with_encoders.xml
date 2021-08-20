@@ -83,9 +83,9 @@
     <EditText
         android:id="@+id/gesture_name_et"
         android:layout_width="120dp"
-        android:layout_height="24dp"
+        android:layout_height="42dp"
         android:gravity="center"
-        android:layout_marginTop="42dp"
+        android:layout_marginTop="24dp"
         android:layout_gravity="center_horizontal"
         android:textColor="#FFFFFFFF"
         style="@style/Text"

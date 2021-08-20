@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.View
 import android.widget.SeekBar
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,6 +24,7 @@ import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivit
 class GripperScreenWithEncodersActivity
     : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView{
     private var withEncodersRenderer: GripperSettingsWithEncodersRenderer? = null
+    private var editMode: Boolean = false
 
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +38,25 @@ class GripperScreenWithEncodersActivity
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     finish()
+                }
+        RxView.clicks(findViewById(R.id.edit_gesture_name_btn))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (editMode) {
+                        edit_gesture_name_btn.setImageResource(R.drawable.ic_edit_24)
+                        gesture_name_tv.visibility = View.GONE
+                        gesture_name_et.visibility = View.VISIBLE
+                        editMode = false
+                    } else {
+                        edit_gesture_name_btn.setImageResource(R.drawable.ic_cancel_24)
+                        gesture_name_tv.visibility = View.GONE
+                        editMode = true
+                    }
+                }
+        RxView.clicks(findViewById(R.id.gesture_name_tv))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    System.err.println("text view click")
                 }
 
 

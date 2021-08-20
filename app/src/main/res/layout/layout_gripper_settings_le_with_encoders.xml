@@ -2,7 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperSettingsWithEncodersGLSurfaceView
         android:id="@+id/gl_surface_view_le_with_encoders"
@@ -66,4 +67,41 @@
             style="@style/Widget.AppCompat.Button.Borderless"
             android:visibility="visible" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/gesture_name_tv"
+        android:layout_width="120dp"
+        android:layout_height="42dp"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#FFFFFFFF"
+        style="@style/Text"
+        android:visibility="visible"
+        android:text="Gesture №1" />
+
+    <EditText
+        android:id="@+id/gesture_name_et"
+        android:layout_width="120dp"
+        android:layout_height="24dp"
+        android:gravity="center"
+        android:layout_marginTop="42dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#FFFFFFFF"
+        style="@style/Text"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:text="Gesture №1"/>
+
+    <ImageButton
+        android:id="@+id/edit_gesture_name_btn"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="81dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/track_invisible"
+        android:src="@drawable/ic_edit_24"
+        app:layout_constraintTop_toBottomOf="@+id/gesture_name_tv"
+        />
 </FrameLayout>

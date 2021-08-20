@@ -56,7 +56,7 @@ class CustomUpdateDialogFragment: DialogFragment() {
         rootView?.v_andex_alert_dialog_layout_confirm?.setOnClickListener {
             System.err.println("ok")
             main?.bleCommandConnector(byteArrayOf(0x01), SampleGattAttributes.SET_START_UPDATE, SampleGattAttributes.WRITE, 18)
-            main?.incrementCountCommand()
+//            main?.incrementCountCommand()
             main?.openFragmentInfoUpdate()
             dismiss()
 //            tv_andex_alert_dialog_layout_message_2.visibility = View.GONE

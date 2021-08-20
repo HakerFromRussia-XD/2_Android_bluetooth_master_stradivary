@@ -431,6 +431,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     //BLE
     registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
     if (mBluetoothLeService != null) {
+      System.err.println("MainActivity    mBluetoothLeService!!.connect(mDeviceAddress)")
       mBluetoothLeService!!.connect(mDeviceAddress)
     }
   }
@@ -699,27 +700,30 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   open fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
   private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
     try {
-      Thread.sleep(200)
+      Thread.sleep(200) // меньше нельзя ставить для работоспособности xiaomi 6 | samsung работает на значении 200
     } catch (ignored: Exception) {}
+    System.err.println("write counter: $countCommand")
+//    if (countCommand == 1) countCommand = 0
     bleCommand(byteArray, Command, typeCommand)
+    incrementCountCommand()
     try {
       Thread.sleep(100)
     } catch (ignored: Exception) {}
   }
 
-  var first = true
+//  var first = true
   private fun runReadData() {
     getReadData().let { queue.put(it) }
   }
   open fun getReadData(): Runnable { return Runnable { readData() } }
   private fun readData() {
     while (readDataFlag) {
-      if (first) {
+//      if (first) {
         bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
-        first = false
-      }
+//        first = false
+//      }
       try {
-        Thread.sleep(10)
+        Thread.sleep(100)
       } catch (ignored: Exception) {}
     }
   }

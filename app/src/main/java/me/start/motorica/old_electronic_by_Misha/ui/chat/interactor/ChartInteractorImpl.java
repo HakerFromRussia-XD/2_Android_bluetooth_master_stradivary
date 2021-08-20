@@ -10,7 +10,7 @@ import me.start.bluetooth.ParserCallback;
 
 
 public class ChartInteractorImpl implements ChatInteractor {
-    private Bluetooth bluetooth;
+    private final Bluetooth bluetooth;
 
     public ChartInteractorImpl(Bluetooth bluetooth) {
         this.bluetooth = bluetooth;

@@ -100,21 +100,20 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (!main?.getSwapOpenCloseButton()!!) {
           if (event.action == MotionEvent.ACTION_DOWN) {
             main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-            main?.incrementCountCommand()
+//            main?.incrementCountCommand()
           }
           if (event.action == MotionEvent.ACTION_UP) {
             main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-            main?.incrementCountCommand()
+//            main?.incrementCountCommand()
           }
         } else {
           if (event.action == MotionEvent.ACTION_DOWN) {
             main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-            main?.incrementCountCommand()
-
+//            main?.incrementCountCommand()
           }
           if (event.action == MotionEvent.ACTION_UP) {
             main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-            main?.incrementCountCommand()
+//            main?.incrementCountCommand()
           }
         }
       }
@@ -124,21 +123,21 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
           if (event.action == MotionEvent.ACTION_DOWN) {
-            main?.incrementCountCommand()
+//            main?.incrementCountCommand()
             main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
           }
           if (event.action == MotionEvent.ACTION_UP) {
-            main?.incrementCountCommand()
+//            main?.incrementCountCommand()
             main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
           }
         } else {
           if (event.action == MotionEvent.ACTION_DOWN) {
             main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-            main?.incrementCountCommand()
+//            main?.incrementCountCommand()
           }
           if (event.action == MotionEvent.ACTION_UP) {
             main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-            main?.incrementCountCommand()
+//            main?.incrementCountCommand()
           }
         }
       }
@@ -157,7 +156,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
           }
@@ -176,7 +175,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
           }
@@ -191,7 +190,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
           }
@@ -206,7 +205,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS, WRITE,11)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
           }
@@ -218,12 +217,12 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (swap_sensors_sw.isChecked) {
           swap_sensors_tv.text = 1.toString()
           main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
         } else {
           swap_sensors_tv.text = 0.toString()
           main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
         }
       }

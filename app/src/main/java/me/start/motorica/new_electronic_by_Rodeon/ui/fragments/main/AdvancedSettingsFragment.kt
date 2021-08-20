@@ -92,7 +92,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
         }
       }
@@ -113,12 +113,12 @@ class AdvancedSettingsFragment : Fragment() {
         if (single_channel_control_sw.isChecked) {
           single_channel_control_tv.text = 1.toString()
           main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
           single_channel_control_tv.text = 0.toString()
           main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
         }
       }
@@ -133,7 +133,7 @@ class AdvancedSettingsFragment : Fragment() {
           downtime_rl.visibility = View.VISIBLE
           main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
                                     SET_CHANGE_GESTURE, WRITE, 17)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
         } else {
           on_off_sensor_gesture_switching_tv.text = 0.toString()
@@ -143,7 +143,7 @@ class AdvancedSettingsFragment : Fragment() {
           downtime_rl.visibility = View.GONE
           main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
                                     SET_CHANGE_GESTURE, WRITE, 17)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
         }
       }
@@ -156,7 +156,7 @@ class AdvancedSettingsFragment : Fragment() {
           downtime_rl.visibility = View.GONE
           main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
                                     SET_CHANGE_GESTURE, WRITE, 17)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, true)
         } else {
           mode_tv.text = "одним\nдатчиком"
@@ -164,7 +164,7 @@ class AdvancedSettingsFragment : Fragment() {
           downtime_rl.visibility = View.VISIBLE
           main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
                                     SET_CHANGE_GESTURE, WRITE, 17)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
         }
       }
@@ -190,7 +190,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
                                     SET_CHANGE_GESTURE, WRITE, 17)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, seekBar.progress)
         }
       }
@@ -216,7 +216,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
                                     SET_CHANGE_GESTURE, WRITE, 17)
-          main?.incrementCountCommand()
+//          main?.incrementCountCommand()
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, seekBar.progress)
         }
       }
@@ -225,7 +225,7 @@ class AdvancedSettingsFragment : Fragment() {
     reset_to_factory_settings_btn.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
-        main?.incrementCountCommand()
+//        main?.incrementCountCommand()
 
         swap_open_close_tv.text = 0.toString()
         main?.setSwapOpenCloseButton(false)

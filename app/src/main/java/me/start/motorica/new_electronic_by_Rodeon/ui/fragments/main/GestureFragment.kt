@@ -14,12 +14,15 @@ import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.R.drawable.*
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE
+import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
@@ -37,6 +40,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
     private var rootView: View? = null
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
+    private var gestureNameList: ArrayList<String>? = ArrayList()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.layout_gestures, container, false)
@@ -60,6 +64,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             left_right_side_swap_tv.text = resources.getString(R.string.left)
         }
         main?.offGesturesUIBeforeConnection()
+
+
 
         gesture_1_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
@@ -181,6 +187,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadNameGestures()
+    }
+
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
     fun resetStateButtons() {
         gesture_1_btn.backgroundDrawable = resources.getDrawable(custom_button_le)
@@ -207,6 +218,19 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         gesture_settings_6_btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         gesture_settings_7_btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         gesture_settings_8_btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+    }
+
+    private fun loadNameGestures() {
+        loadData()
+        gesture_1_btn.text = gestureNameList!![0]
+        gesture_2_btn.text = gestureNameList!![1]
+        gesture_3_btn.text = gestureNameList!![2]
+        gesture_4_btn.text = gestureNameList!![3]
+        gesture_5_btn.text = gestureNameList!![4]
+        gesture_6_btn.text = gestureNameList!![5]
+        gesture_7_btn.text = gestureNameList!![6]
+        gesture_8_btn.text = gestureNameList!![7]
+
     }
 
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
@@ -241,5 +265,13 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {}
     override fun onNothingSelected() {}
+
+    private fun loadData() {
+        val sharedPreferences = context?.getSharedPreferences("shared preferences", BaseActivity.MODE_PRIVATE)
+        val gson = Gson()
+        val json = sharedPreferences?.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, null)
+        val type = object : TypeToken<ArrayList<String>>() {}.type
+        gestureNameList = gson.fromJson<ArrayList<String>>(json, type)
+    }
 }
 

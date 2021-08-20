@@ -23,7 +23,6 @@ import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePres
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
 
 
@@ -33,10 +32,9 @@ class GripperScreenWithEncodersActivity
     : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView{
     private var withEncodersRenderer: GripperSettingsWithEncodersRenderer? = null
     private var editMode: Boolean = false
-    private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
     private var gestureNumber: Int = 0
-    private var gestureNameList: ArrayList<String>? = null
+    private var gestureNameList: ArrayList<String>? = ArrayList()
 
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +46,8 @@ class GripperScreenWithEncodersActivity
         mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
         gestureNumber = mSettings!!.getInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 0)
+        loadData()
+        gesture_name_tv.text = gestureNameList!![gestureNumber - 1]
 
 
         RxView.clicks(findViewById(R.id.gripper_use_le))
@@ -65,6 +65,8 @@ class GripperScreenWithEncodersActivity
                         imm.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
                         gesture_name_tv.text = gesture_name_et.text
                         gesture_name_et.visibility = View.GONE
+                        gestureNameList?.set((gestureNumber - 1), gesture_name_tv.text.toString())
+                        saveData()
                         editMode = false
                     } else {
                         edit_gesture_name_btn.setImageResource(R.drawable.ic_cancel_24)
@@ -95,7 +97,6 @@ class GripperScreenWithEncodersActivity
                 RxUpdateMainEvent.getInstance().updateFingerSpeed(seekBarSpeedFingerLE.progress)
             }
         })
-
     }
 
     override fun initializeUI() {
@@ -122,13 +123,12 @@ class GripperScreenWithEncodersActivity
         val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         val gson = Gson()
-
         val json = gson.toJson(gestureNameList)
         editor.putString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, json)
         editor.apply()
     }
 
-    fun loadData() {
+    private fun loadData() {
         val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
         val gson = Gson()
         val json = sharedPreferences.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, null)

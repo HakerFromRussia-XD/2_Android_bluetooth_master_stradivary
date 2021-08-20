@@ -103,6 +103,11 @@
     <string name="gesture_1">Gesture №1</string>
     <string name="gesture_2">Gesture №2</string>
     <string name="gesture_3">Gesture №3</string>
+    <string name="gesture_4">Gesture №4</string>
+    <string name="gesture_5">Gesture №5</string>
+    <string name="gesture_6">Gesture №6</string>
+    <string name="gesture_7">Gesture №7</string>
+    <string name="gesture_8">Gesture №8</string>
     <string name="click_to_edit_start_and_end_states">Click to edit start and end states</string>
     <string name="control_of_an_open_state">Control of an open state</string>
     <string name="control_of_the_closed_state">Control of the closed state</string>

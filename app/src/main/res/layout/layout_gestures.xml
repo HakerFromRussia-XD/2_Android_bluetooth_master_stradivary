@@ -33,6 +33,9 @@
                     style="@style/Text"
                     android:layout_width="match_parent"
                     android:layout_height="42dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="0dp"
+                    android:textSize="12sp"
                     android:background="@drawable/custom_button_le"
                     android:text="@string/gesture_1_btn"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
@@ -69,6 +72,7 @@
                     android:gravity="center_vertical|left"
                     android:paddingStart="16dp"
                     android:text="@string/gesture_2_btn"
+                    android:textSize="12sp"
                     android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -117,6 +121,7 @@
                     android:background="@drawable/custom_button_le"
                     android:gravity="center_vertical|left"
                     android:includeFontPadding="true"
+                    android:textSize="12sp"
                     android:paddingStart="16dp"
                     android:text="@string/gesture_3_btn"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
@@ -152,6 +157,7 @@
                     android:paddingStart="16dp"
                     android:text="@string/gesture_4_btn"
                     android:visibility="visible"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -201,6 +207,7 @@
                     android:includeFontPadding="true"
                     android:paddingStart="16dp"
                     android:text="@string/gesture_5_btn"
+                    android:textSize="12sp"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
                 <Button
@@ -234,6 +241,7 @@
                     android:paddingStart="16dp"
                     android:text="@string/gesture_6_btn"
                     android:visibility="visible"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -283,6 +291,7 @@
                     android:includeFontPadding="true"
                     android:paddingStart="16dp"
                     android:text="@string/gesture_7_btn"
+                    android:textSize="12sp"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
                 <Button
@@ -316,6 +325,7 @@
                     android:paddingStart="16dp"
                     android:text="@string/gesture_8_btn"
                     android:visibility="visible"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"

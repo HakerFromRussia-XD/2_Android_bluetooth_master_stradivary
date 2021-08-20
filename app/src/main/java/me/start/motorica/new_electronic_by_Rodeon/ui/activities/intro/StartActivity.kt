@@ -17,6 +17,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.github.paolorotolo.appintro.AppIntro
+import com.google.gson.Gson
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
@@ -35,6 +36,8 @@ class StartActivity : AppIntro(), BaseView {
   private var mDeviceName: String? = null
   private var mDeviceAddress: String? = null
   private var mDeviceType: String? = null
+  private var gestureNameList: ArrayList<String> = ArrayList()
+
   @Inject
   lateinit var preferenceManager: PreferenceManager
   @Inject
@@ -48,7 +51,7 @@ class StartActivity : AppIntro(), BaseView {
     mDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME)
     mDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS)
     mDeviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE)
-    preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, true)//для выключения интро при последующем запуске
+//    preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, true)//для выключения интро при последующем запуске
 
     if (!preferenceManager.getBoolean(PreferenceKeys.NEWBE.first, PreferenceKeys.NEWBE.second)) {
       val intent = Intent(this, MainActivity::class.java)
@@ -58,9 +61,18 @@ class StartActivity : AppIntro(), BaseView {
       startActivity(intent)
       finish()
       return
+    } else {
+      val intent = Intent(this, MainActivity::class.java)
+      intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, mDeviceName)
+      intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
+      intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, mDeviceType)
+      startActivity(intent)
+      finish()
+      preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, false)
+      firstSetGesturesName()
+      return
+//      initializeUI()
     }
-    System.err.println("VIPOLNILOS' ODIN RAZ!!" )
-//    initializeUI()
   }
 
   override fun initializeUI() {
@@ -90,5 +102,25 @@ class StartActivity : AppIntro(), BaseView {
     startActivity(intent)
     preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, false)//для выключения интро при последующем запуске
     finish()
+  }
+
+  private fun firstSetGesturesName () {
+    gestureNameList.add(getString(R.string.gesture_1))
+    gestureNameList.add(getString(R.string.gesture_2))
+    gestureNameList.add(getString(R.string.gesture_3))
+    gestureNameList.add(getString(R.string.gesture_4))
+    gestureNameList.add(getString(R.string.gesture_5))
+    gestureNameList.add(getString(R.string.gesture_6))
+    gestureNameList.add(getString(R.string.gesture_7))
+    gestureNameList.add(getString(R.string.gesture_8))
+    saveData()
+  }
+  private fun saveData() {
+    val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+    val gson = Gson()
+    val json = gson.toJson(gestureNameList)
+    editor.putString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, json)
+    editor.apply()
   }
 }

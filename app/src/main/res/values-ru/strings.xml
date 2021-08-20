@@ -103,6 +103,11 @@
     <string name="gesture_1">Жест №1</string>
     <string name="gesture_2">Жест №2</string>
     <string name="gesture_3">Жест №3</string>
+    <string name="gesture_4">Жест №4</string>
+    <string name="gesture_5">Жест №5</string>
+    <string name="gesture_6">Жест №6</string>
+    <string name="gesture_7">Жест №7</string>
+    <string name="gesture_8">Жест №8</string>
     <string name="click_to_edit_start_and_end_states">Нажмите для редактирования начального и конечного состояний</string>
     <string name="control_of_an_open_state">Настройка открытого сотояния</string>
     <string name="control_of_the_closed_state">Настройка закрытого соcтояния</string>

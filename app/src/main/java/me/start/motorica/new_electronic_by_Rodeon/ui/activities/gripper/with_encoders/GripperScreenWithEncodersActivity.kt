@@ -46,8 +46,9 @@ class GripperScreenWithEncodersActivity
         mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
         gestureNumber = mSettings!!.getInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 0)
+
         loadData()
-        gesture_name_tv.text = gestureNameList!![gestureNumber - 1]
+//        gesture_name_tv.text = gestureNameList!![gestureNumber - 1]
 
 
         RxView.clicks(findViewById(R.id.gripper_use_le))
@@ -134,5 +135,6 @@ class GripperScreenWithEncodersActivity
         val json = sharedPreferences.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, null)
         val type = object : TypeToken<ArrayList<String>>() {}.type
         gestureNameList = gson.fromJson<ArrayList<String>>(json, type)
+
     }
 }

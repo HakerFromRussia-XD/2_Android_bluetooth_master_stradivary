@@ -222,14 +222,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 
     private fun loadNameGestures() {
         loadData()
-        gesture_1_btn.text = gestureNameList!![0]
-        gesture_2_btn.text = gestureNameList!![1]
-        gesture_3_btn.text = gestureNameList!![2]
-        gesture_4_btn.text = gestureNameList!![3]
-        gesture_5_btn.text = gestureNameList!![4]
-        gesture_6_btn.text = gestureNameList!![5]
-        gesture_7_btn.text = gestureNameList!![6]
-        gesture_8_btn.text = gestureNameList!![7]
+        gesture_1_btn.text = gestureNameList?.get(0) ?: "load not work"
+        gesture_2_btn.text = gestureNameList?.get(1) ?: getString(R.string.gesture_2)
+        gesture_3_btn.text = gestureNameList?.get(2) ?: getString(R.string.gesture_3)
+        gesture_4_btn.text = gestureNameList?.get(3) ?: getString(R.string.gesture_4)
+        gesture_5_btn.text = gestureNameList?.get(4) ?: getString(R.string.gesture_5)
+        gesture_6_btn.text = gestureNameList?.get(5) ?: getString(R.string.gesture_6)
+        gesture_7_btn.text = gestureNameList?.get(6) ?: getString(R.string.gesture_7)
+        gesture_8_btn.text = gestureNameList?.get(7) ?: getString(R.string.gesture_8)
 
     }
 
@@ -270,7 +270,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         val sharedPreferences = context?.getSharedPreferences("shared preferences", BaseActivity.MODE_PRIVATE)
         val gson = Gson()
         val json = sharedPreferences?.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, null)
-        val type = object : TypeToken<ArrayList<String>>() {}.type
+        val type = object : TypeToken<ArrayList<String>>(){}.type
         gestureNameList = gson.fromJson<ArrayList<String>>(json, type)
     }
 }

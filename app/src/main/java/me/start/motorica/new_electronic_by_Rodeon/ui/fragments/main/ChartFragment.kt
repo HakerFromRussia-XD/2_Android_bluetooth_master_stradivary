@@ -408,7 +408,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         open_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
         close_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
         main?.runOnUiThread {
-          swap_sensors_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+          swap_sensors_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
           if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) {
             swap_sensors_tv.text = 1.toString()
           } else {

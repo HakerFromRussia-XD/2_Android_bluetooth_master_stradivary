@@ -18,6 +18,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.github.paolorotolo.appintro.AppIntro
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
@@ -36,7 +37,7 @@ class StartActivity : AppIntro(), BaseView {
   private var mDeviceName: String? = null
   private var mDeviceAddress: String? = null
   private var mDeviceType: String? = null
-  private var gestureNameList: ArrayList<String> = ArrayList()
+  private var gestureNameList: ArrayList<String>? = ArrayList()
 
   @Inject
   lateinit var preferenceManager: PreferenceManager
@@ -59,6 +60,12 @@ class StartActivity : AppIntro(), BaseView {
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, mDeviceType)
       startActivity(intent)
+      loadData()
+      System.err.println("SAVE before if")
+      if (gestureNameList?.get(0) ?: "lol" == "lol") {
+        System.err.println("SAVE in if")
+        firstSetGesturesName ()
+      }
       finish()
       return
     } else {
@@ -105,14 +112,14 @@ class StartActivity : AppIntro(), BaseView {
   }
 
   private fun firstSetGesturesName () {
-    gestureNameList.add(getString(R.string.gesture_1))
-    gestureNameList.add(getString(R.string.gesture_2))
-    gestureNameList.add(getString(R.string.gesture_3))
-    gestureNameList.add(getString(R.string.gesture_4))
-    gestureNameList.add(getString(R.string.gesture_5))
-    gestureNameList.add(getString(R.string.gesture_6))
-    gestureNameList.add(getString(R.string.gesture_7))
-    gestureNameList.add(getString(R.string.gesture_8))
+    gestureNameList?.add(getString(R.string.gesture_1))
+    gestureNameList?.add(getString(R.string.gesture_2))
+    gestureNameList?.add(getString(R.string.gesture_3))
+    gestureNameList?.add(getString(R.string.gesture_4))
+    gestureNameList?.add(getString(R.string.gesture_5))
+    gestureNameList?.add(getString(R.string.gesture_6))
+    gestureNameList?.add(getString(R.string.gesture_7))
+    gestureNameList?.add(getString(R.string.gesture_8))
     saveData()
   }
   private fun saveData() {
@@ -122,5 +129,14 @@ class StartActivity : AppIntro(), BaseView {
     val json = gson.toJson(gestureNameList)
     editor.putString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, json)
     editor.apply()
+    System.err.println("SAVE gestureNameList")
+  }
+
+  private fun loadData() {
+    val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
+    val gson = Gson()
+    val json = sharedPreferences.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, null)
+    val type = object : TypeToken<ArrayList<String>>() {}.type
+    gestureNameList = gson.fromJson<ArrayList<String>>(json, type)
   }
 }

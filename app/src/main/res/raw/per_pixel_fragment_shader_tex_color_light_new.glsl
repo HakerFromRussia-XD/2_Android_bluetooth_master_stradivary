@@ -13,9 +13,9 @@ varying vec4 v_Color;
 varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
 varying mat3 v_TBNMatrix;
 
-vec4 resultColor = vec4(0.0, 0.0, 0.0, 0.0);
+vec4 resultColor = vec4(0.2, 0.2, 0.0, 1.0);
 vec3 eyePosition = vec3(0.0, 0.0, 150.5);
-float ambientFactor = 0.9;
+float ambientFactor = 0.7;
 
 // The entry point for our fragment shader.
 void main()

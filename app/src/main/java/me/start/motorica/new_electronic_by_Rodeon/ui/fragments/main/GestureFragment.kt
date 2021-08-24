@@ -40,7 +40,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
     private var rootView: View? = null
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
-    private var gestureNameList: ArrayList<String>? = ArrayList()
+    private var gestureNameList =  ArrayList<String>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.layout_gestures, container, false)
@@ -189,6 +189,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 
     override fun onResume() {
         super.onResume()
+        gestureNameList.clear()
         loadNameGestures()
     }
 
@@ -221,20 +222,20 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
     }
 
     private fun loadNameGestures() {
-        loadData()
-        gesture_1_btn.text = gestureNameList?.get(0) ?: "load not work"
-        gesture_2_btn.text = gestureNameList?.get(1) ?: getString(R.string.gesture_2)
-        gesture_3_btn.text = gestureNameList?.get(2) ?: getString(R.string.gesture_3)
-        gesture_4_btn.text = gestureNameList?.get(3) ?: getString(R.string.gesture_4)
-        gesture_5_btn.text = gestureNameList?.get(4) ?: getString(R.string.gesture_5)
-        gesture_6_btn.text = gestureNameList?.get(5) ?: getString(R.string.gesture_6)
-        gesture_7_btn.text = gestureNameList?.get(6) ?: getString(R.string.gesture_7)
-        gesture_8_btn.text = gestureNameList?.get(7) ?: getString(R.string.gesture_8)
-
+        myLoadGesturesList()
+        gesture_1_btn.text = gestureNameList[0]
+        gesture_2_btn.text = gestureNameList[1]
+        gesture_3_btn.text = gestureNameList[2]
+        gesture_4_btn.text = gestureNameList[3]
+        gesture_5_btn.text = gestureNameList[4]
+        gesture_6_btn.text = gestureNameList[5]
+        gesture_7_btn.text = gestureNameList[6]
+        gesture_8_btn.text = gestureNameList[7]
     }
 
+
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
-    fun selectActiveGesture(active: Int) {
+    private fun selectActiveGesture(active: Int) {
         when (active) {
             1 -> { gesture_1_btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
                    gesture_1_btn.textColor = resources.getColor(R.color.orange)
@@ -266,12 +267,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
     override fun onValueSelected(e: Entry?, h: Highlight?) {}
     override fun onNothingSelected() {}
 
-    private fun loadData() {
-        val sharedPreferences = context?.getSharedPreferences("shared preferences", BaseActivity.MODE_PRIVATE)
-        val gson = Gson()
-        val json = sharedPreferences?.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, null)
-        val type = object : TypeToken<ArrayList<String>>(){}.type
-        gestureNameList = gson.fromJson<ArrayList<String>>(json, type)
+    private fun myLoadGesturesList() {
+        val text = "load not work"
+        for (i in 0 until PreferenceKeys.NUM_GESTURES) {
+            gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, text).toString())
+        }
     }
 }
 

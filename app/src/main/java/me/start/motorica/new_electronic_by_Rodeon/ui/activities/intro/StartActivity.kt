@@ -14,7 +14,9 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.paolorotolo.appintro.AppIntro
 import com.google.gson.Gson
@@ -37,7 +39,8 @@ class StartActivity : AppIntro(), BaseView {
   private var mDeviceName: String? = null
   private var mDeviceAddress: String? = null
   private var mDeviceType: String? = null
-  private var gestureNameList: ArrayList<String>? = ArrayList()
+  private var gestureNameList =  ArrayList<String>()
+  private var mSettings: SharedPreferences? = null
 
   @Inject
   lateinit var preferenceManager: PreferenceManager
@@ -47,6 +50,8 @@ class StartActivity : AppIntro(), BaseView {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     WDApplication.component.inject(this)
+    mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, MODE_PRIVATE)
+
 
     val intent = intent
     mDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME)
@@ -60,12 +65,8 @@ class StartActivity : AppIntro(), BaseView {
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, mDeviceType)
       startActivity(intent)
-      loadData()
-      System.err.println("SAVE before if")
-      if (gestureNameList?.get(0) ?: "lol" == "lol") {
-        System.err.println("SAVE in if")
-        firstSetGesturesName ()
-      }
+      myLoadGesturesList()
+      if (gestureNameList[0] == "lol") { firstSetGesturesName () }
       finish()
       return
     } else {
@@ -112,31 +113,31 @@ class StartActivity : AppIntro(), BaseView {
   }
 
   private fun firstSetGesturesName () {
-    gestureNameList?.add(getString(R.string.gesture_1))
-    gestureNameList?.add(getString(R.string.gesture_2))
-    gestureNameList?.add(getString(R.string.gesture_3))
-    gestureNameList?.add(getString(R.string.gesture_4))
-    gestureNameList?.add(getString(R.string.gesture_5))
-    gestureNameList?.add(getString(R.string.gesture_6))
-    gestureNameList?.add(getString(R.string.gesture_7))
-    gestureNameList?.add(getString(R.string.gesture_8))
-    saveData()
-  }
-  private fun saveData() {
-    val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
-    val editor = sharedPreferences.edit()
-    val gson = Gson()
-    val json = gson.toJson(gestureNameList)
-    editor.putString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, json)
-    editor.apply()
-    System.err.println("SAVE gestureNameList")
+    if (gestureNameList[0] == "lol") {
+      gestureNameList[0] = getString(R.string.gesture_1)
+      gestureNameList[1] = getString(R.string.gesture_2)
+      gestureNameList[2] = getString(R.string.gesture_3)
+      gestureNameList[3] = getString(R.string.gesture_4)
+      gestureNameList[4] = getString(R.string.gesture_5)
+      gestureNameList[5] = getString(R.string.gesture_6)
+      gestureNameList[6] = getString(R.string.gesture_7)
+      gestureNameList[7] = getString(R.string.gesture_8)
+    }
+    for (i in 0 until gestureNameList.size) {
+      mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
+    }
   }
 
-  private fun loadData() {
-    val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
-    val gson = Gson()
-    val json = sharedPreferences.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, null)
-    val type = object : TypeToken<ArrayList<String>>() {}.type
-    gestureNameList = gson.fromJson<ArrayList<String>>(json, type)
+  private fun mySaveText(key: String, text: String) {
+    val editor: SharedPreferences.Editor = mSettings!!.edit()
+    editor.putString(key, text)
+    editor.apply()
+  }
+
+  private fun myLoadGesturesList() {
+    val text = "lol"
+    for (i in 0 until PreferenceKeys.NUM_GESTURES) {
+      gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, text).toString())
+    }
   }
 }

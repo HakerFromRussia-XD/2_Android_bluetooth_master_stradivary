@@ -18,6 +18,7 @@ import android.util.Pair
 
 object PreferenceKeys {
   val NEWBE = Pair("NEWBE", true)
+  const val NUM_GESTURES = 8
   const val APP_PREFERENCES = "APP_PREFERENCES"
   const val THRESHOLDS_BLOCKING = "THRESHOLDS_BLOCKING"
   const val ADVANCED_SETTINGS = "ADVANCED_SETTINGS"

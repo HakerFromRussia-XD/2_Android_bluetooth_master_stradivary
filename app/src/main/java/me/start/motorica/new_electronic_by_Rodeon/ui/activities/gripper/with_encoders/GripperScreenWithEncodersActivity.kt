@@ -34,7 +34,7 @@ class GripperScreenWithEncodersActivity
     private var editMode: Boolean = false
     private var mSettings: SharedPreferences? = null
     private var gestureNumber: Int = 0
-    private var gestureNameList: ArrayList<String>? = ArrayList()
+    private var gestureNameList =  ArrayList<String>()
 
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,8 +47,8 @@ class GripperScreenWithEncodersActivity
 
         gestureNumber = mSettings!!.getInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 0)
 
-        loadData()
-//        gesture_name_tv.text = gestureNameList!![gestureNumber - 1]
+        myLoadGesturesList()
+        gesture_name_tv.text = gestureNameList[gestureNumber - 1]
 
 
         RxView.clicks(findViewById(R.id.gripper_use_le))
@@ -66,8 +66,10 @@ class GripperScreenWithEncodersActivity
                         imm.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
                         gesture_name_tv.text = gesture_name_et.text
                         gesture_name_et.visibility = View.GONE
-                        gestureNameList?.set((gestureNumber - 1), gesture_name_tv.text.toString())
-                        saveData()
+                        gestureNameList[(gestureNumber - 1)] = gesture_name_tv.text.toString()
+                        for (i in 0 until gestureNameList.size) {
+                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
+                        }
                         editMode = false
                     } else {
                         edit_gesture_name_btn.setImageResource(R.drawable.ic_cancel_24)
@@ -120,21 +122,16 @@ class GripperScreenWithEncodersActivity
         }
     }
 
-    private fun saveData() {
-        val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        val gson = Gson()
-        val json = gson.toJson(gestureNameList)
-        editor.putString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, json)
+    private fun mySaveText(key: String, text: String) {
+        val editor: SharedPreferences.Editor = mSettings!!.edit()
+        editor.putString(key, text)
         editor.apply()
     }
 
-    private fun loadData() {
-        val sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE)
-        val gson = Gson()
-        val json = sharedPreferences.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, null)
-        val type = object : TypeToken<ArrayList<String>>() {}.type
-        gestureNameList = gson.fromJson<ArrayList<String>>(json, type)
-
+    private fun myLoadGesturesList() {
+        val text = "load not work"
+        for (i in 0 until PreferenceKeys.NUM_GESTURES) {
+            gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, text).toString())
+        }
     }
 }

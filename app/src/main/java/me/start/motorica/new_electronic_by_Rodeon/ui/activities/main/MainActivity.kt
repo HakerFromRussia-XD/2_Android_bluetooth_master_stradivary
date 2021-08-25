@@ -83,8 +83,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var subscribeThread: Thread? = null
   private var mNumberGesture = 0
   // 3D
-  enum class SelectStation { UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5 }
-  private var selectStation: SelectStation? = null
   var firstRead = true
   private var numberFinger = 0
   private var angleFinger = 0
@@ -310,14 +308,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-
-    RxUpdateMainEvent.getInstance().selectedObjectObservable
-            .compose(bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { station ->
-              System.err.println(" MainActivity -----> selector tap.  station = $station")
-              selectStation = station
-            }
 
     RxUpdateMainEvent.getInstance().fingerAngleObservable
             .compose(bindToLifecycle())

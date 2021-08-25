@@ -112,21 +112,25 @@ class StartActivity : AppIntro(), BaseView {
     finish()
   }
 
-  private fun firstSetGesturesName () {
-    if (gestureNameList[0] == "lol") {
-      gestureNameList[0] = getString(R.string.gesture_1)
-      gestureNameList[1] = getString(R.string.gesture_2)
-      gestureNameList[2] = getString(R.string.gesture_3)
-      gestureNameList[3] = getString(R.string.gesture_4)
-      gestureNameList[4] = getString(R.string.gesture_5)
-      gestureNameList[5] = getString(R.string.gesture_6)
-      gestureNameList[6] = getString(R.string.gesture_7)
-      gestureNameList[7] = getString(R.string.gesture_8)
-    }
+  private fun firstSetGesturesName () { //функция работает при установке новой версии приложения поверх старой
+    gestureNameList.clear()
+    gestureNameList.add(getString(R.string.gesture_1))
+    gestureNameList.add(getString(R.string.gesture_2))
+    gestureNameList.add(getString(R.string.gesture_3))
+    gestureNameList.add(getString(R.string.gesture_4))
+    gestureNameList.add(getString(R.string.gesture_5))
+    gestureNameList.add(getString(R.string.gesture_6))
+    gestureNameList.add(getString(R.string.gesture_7))
+    gestureNameList.add(getString(R.string.gesture_8))
+
     for (i in 0 until gestureNameList.size) {
       mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
     }
   }
+
+//  private fun firstInitGesturesName () {
+//
+//  }
 
   private fun mySaveText(key: String, text: String) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()

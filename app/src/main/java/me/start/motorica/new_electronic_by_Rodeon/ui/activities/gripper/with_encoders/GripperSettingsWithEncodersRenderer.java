@@ -21,8 +21,6 @@ import me.start.motorica.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.common.RawResourceReader;
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.common.ShaderHelper;
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.common.TextureHelper;
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperSettingsWithoutEncodersRenderer;
-
 import static android.opengl.GLES20.GL_LINEAR;
 import static android.opengl.GLES20.GL_TEXTURE_2D;
 import static android.opengl.GLES20.GL_TEXTURE_MAG_FILTER;

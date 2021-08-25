@@ -8,7 +8,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivit
 public class RxUpdateMainEvent {
 
   private static RxUpdateMainEvent instance;
-  private final PublishSubject<MainActivity.SelectStation> selectedFinger;
+  private final PublishSubject<Integer> selectedFinger;
   private final PublishSubject<FingerAngle> fingerAngle;
   private final PublishSubject<Integer> fingerSpeed;
 
@@ -24,13 +24,13 @@ public class RxUpdateMainEvent {
     return instance;
   }
 
-  public void updateSelectedObject(MainActivity.SelectStation info) { selectedFinger.onNext(info); }
+  public void updateSelectedObject(Integer info) { selectedFinger.onNext(info); }
   public void updateFingerAngle(FingerAngle parameters) { fingerAngle.onNext(parameters); }
   public void updateFingerSpeed(Integer speed) { fingerSpeed.onNext(speed); }
 
 
 
-  public Observable<MainActivity.SelectStation> getSelectedObjectObservable() { return selectedFinger; }
+  public Observable<Integer> getSelectedObjectObservable() { return selectedFinger; }
   public Observable<FingerAngle> getFingerAngleObservable() { return fingerAngle; }
   public Observable<Integer> getFingerSpeedObservable() { return fingerSpeed; }
 }

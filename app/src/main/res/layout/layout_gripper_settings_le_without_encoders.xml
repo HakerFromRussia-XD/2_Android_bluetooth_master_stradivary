@@ -21,7 +21,6 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="0dp"
             android:text="@string/save"
-            android:textStyle="bold"
             android:layout_gravity="center"
             android:textColor="#FFFFFFFF"
             style="@style/Widget.AppCompat.Button.Borderless"
@@ -40,10 +39,10 @@
         android:weightSum="2"
         tools:ignore="DisableBaselineAlignment">
         <RelativeLayout
+            android:id="@+id/gesture_state_rl"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1">
+            android:layout_weight="2">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -75,7 +74,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="0dp"
-                        android:text="@string/state"
+                        android:text="@string/gesture_state_open"
                         android:layout_gravity="center"
                         android:textColor="#FFFFFFFF"
                         style="@style/Text"
@@ -84,9 +83,10 @@
             </LinearLayout>
         </RelativeLayout>
         <RelativeLayout
+            android:id="@+id/rotation_state_rl"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_weight="1">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -121,7 +121,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="0dp"
-                        android:text="@string/position"
+                        android:text="@string/rotation_state_close"
                         android:layout_gravity="center"
                         android:textColor="#FFFFFFFF"
                         style="@style/Text"

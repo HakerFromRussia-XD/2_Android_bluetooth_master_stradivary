@@ -75,10 +75,7 @@ class GripperScreenWithEncodersActivity
                     } else {
                         edit_gesture_name_btn.setImageResource(R.drawable.ic_cancel_24)
                         gesture_name_et.visibility = View.VISIBLE
-                        gesture_name_et.background.setColorFilter(resources.getColor(R.color.darkOrange), PorterDuff.Mode.SRC_ATOP)
-//                        gesture_name_et.color(resources.getColor(R.color.orange), PorterDuff.Mode.SRC_ATOP)
-//                        gesture_name_et.select( resources.getColor(R.color.darkOrange))
-
+//                        gesture_name_et.background.setColorFilter(resources.getColor(R.color.darkOrange), PorterDuff.Mode.SRC_ATOP)
                         gesture_name_et.setText(gesture_name_tv.text, TextView.BufferType.EDITABLE)
                         gesture_name_tv.visibility = View.GONE
                         gesture_name_et.requestFocus()

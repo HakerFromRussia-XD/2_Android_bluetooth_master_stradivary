@@ -7,6 +7,8 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.widget.LinearLayout
+import android.widget.LinearLayout.LayoutParams
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoders.*
@@ -66,7 +68,6 @@ class GripperScreenWithoutEncodersActivity
         angleFinger4 = 0
         angleFinger5 = -11
         angleFinger6 = 0
-        gripper_state_le.text = "open"
 
         RxView.clicks(findViewById(R.id.gripper_use_le_save))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -78,7 +79,7 @@ class GripperScreenWithoutEncodersActivity
                 .subscribe {
                     if (gestureState == 0 ) {
                         System.err.println("gestureState = 1")
-                        gripper_state_le.text = "open"
+                        gripper_state_le.text = getString(R.string.gesture_state_open)
                         if (numberFinger == 1) {
                             openStage and 0b11111110
                         }
@@ -120,7 +121,7 @@ class GripperScreenWithoutEncodersActivity
                             openStage or 0b00100000
                         }
                         System.err.println("gestureState = 0")
-                        gripper_state_le.text = "close"
+                        gripper_state_le.text = getString(R.string.gesture_state_close)
                         gestureState = 0
                     }
 
@@ -138,25 +139,32 @@ class GripperScreenWithoutEncodersActivity
                     numberFinger = station
                     if (numberFinger == 1) {
                         openStage or 0b00000001
+                        closeRotation()
                         animateFinger1 ()
                     }
                     if (numberFinger == 2) {
                         openStage or 0b00000010
+                        closeRotation()
                         animateFinger2 ()
                     }
                     if (numberFinger == 3) {
                         openStage or 0b00000100
+                        closeRotation()
                         animateFinger3 ()
                     }
                     if (numberFinger == 4) {
                         openStage or 0b00001000
+                        closeRotation()
                         animateFinger4 ()
+                    }
+                    if (numberFinger == 55) {
+                        closeRotation()
                     }
                     if (numberFinger == 5) {
                         openStage or 0b00010000
+                        openRotation()
                         animateFinger5 ()
                     }
-
                 }
     }
     override fun initializeUI() {
@@ -189,7 +197,6 @@ class GripperScreenWithoutEncodersActivity
                     score1 = anim1.animatedValue as Int
                 }
                 anim1.start()
-                gripper_position_finger_le.text = "close"
                 fingerState1 = 1
             }
         } else
@@ -202,7 +209,6 @@ class GripperScreenWithoutEncodersActivity
                     score1 = anim1.animatedValue as Int
                 }
                 anim1.start()
-                gripper_position_finger_le.text = "open"
                 fingerState1 = 0
             }
         }
@@ -218,7 +224,6 @@ class GripperScreenWithoutEncodersActivity
                     score2 = anim1.animatedValue as Int
                 }
                 anim1.start()
-                gripper_position_finger_le.text = "close"
                 fingerState2 = 1
             }
         } else
@@ -231,7 +236,6 @@ class GripperScreenWithoutEncodersActivity
                     score2 = anim1.animatedValue as Int
                 }
                 anim1.start()
-                gripper_position_finger_le.text = "open"
                 fingerState2 = 0
             }
         }
@@ -246,7 +250,6 @@ class GripperScreenWithoutEncodersActivity
                     score3 = anim3.animatedValue as Int
                 }
                 anim3.start()
-                gripper_position_finger_le.text = "close"
                 fingerState3 = 1
             }
         } else
@@ -259,7 +262,6 @@ class GripperScreenWithoutEncodersActivity
                     score3 = anim3.animatedValue as Int
                 }
                 anim3.start()
-                gripper_position_finger_le.text = "open"
                 fingerState3 = 0
             }
         }
@@ -274,7 +276,6 @@ class GripperScreenWithoutEncodersActivity
                     score4 = anim4.animatedValue as Int
                 }
                 anim4.start()
-                gripper_position_finger_le.text = "close"
                 fingerState4 = 1
             }
         } else
@@ -287,7 +288,6 @@ class GripperScreenWithoutEncodersActivity
                     score4 = anim4.animatedValue as Int
                 }
                 anim4.start()
-                gripper_position_finger_le.text = "open"
                 fingerState4 = 0
             }
         }
@@ -302,7 +302,6 @@ class GripperScreenWithoutEncodersActivity
                     score5 = anim5.animatedValue as Int
                 }
                 anim5.start()
-                gripper_position_finger_le.text = "close"
                 fingerState5 = 1
             }
         } else
@@ -315,7 +314,6 @@ class GripperScreenWithoutEncodersActivity
                     score5 = anim5.animatedValue as Int
                 }
                 anim5.start()
-                gripper_position_finger_le.text = "open"
                 fingerState5 = 0
             }
         }
@@ -330,7 +328,7 @@ class GripperScreenWithoutEncodersActivity
                     score6 = anim6.animatedValue as Int
                 }
                 anim6.start()
-                gripper_position_finger_le.text = "close"
+                gripper_position_finger_le.text = getString(R.string.rotation_state_open)
                 fingerState6 = 1
             }
         } else
@@ -343,9 +341,35 @@ class GripperScreenWithoutEncodersActivity
                     score6 = anim6.animatedValue as Int
                 }
                 anim6.start()
-                gripper_position_finger_le.text = "open"
+                gripper_position_finger_le.text = getString(R.string.rotation_state_close)
                 fingerState6 = 0
             }
         }
+    }
+    private fun openRotation() {
+        System.err.println("gesture_state_rl.layoutParams " + (gesture_state_rl.layoutParams as LayoutParams).weight)
+        if ((gesture_state_rl.layoutParams as LayoutParams).weight == 2.0f) {
+            val lParams = gesture_state_rl.layoutParams as LayoutParams
+            val anim7 = ValueAnimator.ofFloat(2.0f, 1.0f)
+            anim7.duration = (250).toLong()
+            anim7.addUpdateListener {
+                lParams.weight = anim7.animatedValue as Float
+                gesture_state_rl.layoutParams = lParams
+            }
+            anim7.start()
+        }
+    }
+    private fun closeRotation() {
+        if ((gesture_state_rl.layoutParams as LayoutParams).weight == 1.0f) {
+            val lParams = gesture_state_rl.layoutParams as LayoutParams
+            val anim8 = ValueAnimator.ofFloat(1.0f, 2.0f)
+            anim8.duration = (250).toLong()
+            anim8.addUpdateListener {
+                lParams.weight = anim8.animatedValue as Float
+                gesture_state_rl.layoutParams = lParams
+            }
+            anim8.start()
+        }
+
     }
 }

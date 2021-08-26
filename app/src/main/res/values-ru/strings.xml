@@ -172,13 +172,15 @@
     <string name="switching_mode">режим переключения</string>
     <string name="time_between_peaks">время между пиками</string>
     <string name="peak_time">время пиков</string>
-    <string name="state">состояние</string>
-    <string name="position">положение</string>
     <string name="gesture_state">Состояние жеста:</string>
-    <string name="finger_position">Положение пальца:</string>
+    <string name="finger_position">Ротация:</string>
     <string name="gps_network_not_enabled">Включённая геолокация необходима чтобы найти ваш протез в эфире.</string>
     <string name="open_location_settings">включить геолокацию</string>
     <string name="we_need_these_permissions">Для корректной работы необходимо разрешение на использование блютуз и геолокации…</string>
+    <string name="rotation_state_open">наружу</string>
+    <string name="rotation_state_close">внутрь</string>
+    <string name="gesture_state_open">открытое</string>
+    <string name="gesture_state_close">закрытое</string>
 
 
     <string-array name="numbers">

@@ -5,15 +5,16 @@ import android.app.ActivityManager
 import android.app.Service
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.PixelFormat
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
 import android.widget.TextView
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
@@ -36,7 +37,7 @@ class GripperScreenWithEncodersActivity
     private var gestureNumber: Int = 0
     private var gestureNameList =  ArrayList<String>()
 
-    @SuppressLint("CheckResult")
+    @SuppressLint("CheckResult", "ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_gripper_settings_le_with_encoders)
@@ -74,6 +75,10 @@ class GripperScreenWithEncodersActivity
                     } else {
                         edit_gesture_name_btn.setImageResource(R.drawable.ic_cancel_24)
                         gesture_name_et.visibility = View.VISIBLE
+                        gesture_name_et.background.setColorFilter(resources.getColor(R.color.darkOrange), PorterDuff.Mode.SRC_ATOP)
+//                        gesture_name_et.color(resources.getColor(R.color.orange), PorterDuff.Mode.SRC_ATOP)
+//                        gesture_name_et.select( resources.getColor(R.color.darkOrange))
+
                         gesture_name_et.setText(gesture_name_tv.text, TextView.BufferType.EDITABLE)
                         gesture_name_tv.visibility = View.GONE
                         gesture_name_et.requestFocus()

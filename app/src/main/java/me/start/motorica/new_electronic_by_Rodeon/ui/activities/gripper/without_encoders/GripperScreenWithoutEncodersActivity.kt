@@ -64,6 +64,8 @@ class GripperScreenWithoutEncodersActivity
         angleFinger2 = 0
         angleFinger3 = 0
         angleFinger4 = 0
+        angleFinger5 = -11
+        angleFinger6 = 0
         gripper_state_le.text = "open"
 
         RxView.clicks(findViewById(R.id.gripper_use_le_save))
@@ -126,30 +128,7 @@ class GripperScreenWithoutEncodersActivity
         RxView.clicks(findViewById(R.id.gripper_position_finger_le))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-//                    if (fingerState == 0 ) {
-//                        val anim = ValueAnimator.ofInt(score, 100)
-//                        anim.duration = ((100 - score) * 10).toLong()
-//                        anim.addUpdateListener {
-//                            angleFinger = anim.animatedValue as Int
-//                            score = anim.animatedValue as Int
-//                        }
-//                        anim.start()
-//                        System.err.println("fingerState = 1")
-//                        gripper_position_finger_le.text = "close"
-//                        fingerState = 1
-//                    } else
-//                    {
-//                        val anim = ValueAnimator.ofInt(score, 0)
-//                        anim.duration = (score * 10).toLong()
-//                        anim.addUpdateListener {
-//                            angleFinger = anim.animatedValue as Int
-//                            score = anim.animatedValue as Int
-//                        }
-//                        anim.start()
-//                        System.err.println("fingerState = 0")
-//                        gripper_position_finger_le.text = "open"
-//                        fingerState = 0
-//                    }
+                    animateFinger6 ()
                 }
         RxUpdateMainEvent.getInstance().selectedObjectObservable
                 .compose(bindToLifecycle())
@@ -173,6 +152,11 @@ class GripperScreenWithoutEncodersActivity
                         openStage or 0b00001000
                         animateFinger4 ()
                     }
+                    if (numberFinger == 5) {
+                        openStage or 0b00010000
+                        animateFinger5 ()
+                    }
+
                 }
     }
     override fun initializeUI() {
@@ -305,6 +289,62 @@ class GripperScreenWithoutEncodersActivity
                 anim4.start()
                 gripper_position_finger_le.text = "open"
                 fingerState4 = 0
+            }
+        }
+    }
+    private fun animateFinger5 () {
+        if (fingerState5 == 0 ) {
+            if (angleFinger5 < -10) {
+                val anim5 = ValueAnimator.ofInt(score5, 30)
+                anim5.duration = (1000).toLong()
+                anim5.addUpdateListener {
+                    angleFinger5 = anim5.animatedValue as Int
+                    score5 = anim5.animatedValue as Int
+                }
+                anim5.start()
+                gripper_position_finger_le.text = "close"
+                fingerState5 = 1
+            }
+        } else
+        {
+            if (angleFinger5 > -10) {
+                val anim5 = ValueAnimator.ofInt(score5, -60)
+                anim5.duration = (1000).toLong()
+                anim5.addUpdateListener {
+                    angleFinger5 = anim5.animatedValue as Int
+                    score5 = anim5.animatedValue as Int
+                }
+                anim5.start()
+                gripper_position_finger_le.text = "open"
+                fingerState5 = 0
+            }
+        }
+    }
+    private fun animateFinger6 () {
+        if (fingerState6 == 0 ) {
+            if (angleFinger6 < 50) {
+                val anim6 = ValueAnimator.ofInt(score6, 100)
+                anim6.duration = ((100 - score6) * 10).toLong()
+                anim6.addUpdateListener {
+                    angleFinger6 = anim6.animatedValue as Int
+                    score6 = anim6.animatedValue as Int
+                }
+                anim6.start()
+                gripper_position_finger_le.text = "close"
+                fingerState6 = 1
+            }
+        } else
+        {
+            if (angleFinger6 > 50) {
+                val anim6 = ValueAnimator.ofInt(score6, 0)
+                anim6.duration = (score6 * 10).toLong()
+                anim6.addUpdateListener {
+                    angleFinger6 = anim6.animatedValue as Int
+                    score6 = anim6.animatedValue as Int
+                }
+                anim6.start()
+                gripper_position_finger_le.text = "open"
+                fingerState6 = 0
             }
         }
     }

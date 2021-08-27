@@ -297,6 +297,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val intent = intent
     mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
     mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS)
+    saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
     mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE)
     System.err.println("mDeviceType: $mDeviceType")
 
@@ -820,6 +821,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   internal fun saveInt(key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putInt(key, variable)
+    editor.apply()
+  }
+  private fun saveText(key: String, text: String) {
+    val editor: SharedPreferences.Editor = mSettings!!.edit()
+    editor.putString(key, text)
     editor.apply()
   }
 

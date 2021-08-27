@@ -4,17 +4,20 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.PixelFormat
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.widget.LinearLayout.LayoutParams
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.layout_gripper_settings_le.view.*
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoders.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
+import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
 import kotlin.properties.Delegates
@@ -43,8 +46,8 @@ class GripperScreenWithoutEncodersActivity
     private var fingerState6 = 0
     private var gestureState = 1
 
-    private var openStage = 0b00000000
-    private var closeStage = 0b00000000
+    private var openStage = 0b00100000
+    private var closeStage = 0b00100000
     private var oldOpenStage = 0b00000000
     private var oldCloseStage = 0b00000000
     private var score1 = 0
@@ -53,6 +56,9 @@ class GripperScreenWithoutEncodersActivity
     private var score4 = 0
     private var score5 = 0
     private var score6 = 0
+
+    private var mSettings: SharedPreferences? = null
+    private var gestureNumber: Int = 0
 
     @SuppressLint("CheckResult", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,10 +73,18 @@ class GripperScreenWithoutEncodersActivity
         angleFinger4 = 0
         angleFinger5 = 0
         angleFinger6 = 0
+        mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+        gestureNumber = mSettings!!.getInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 0)
+        loadOldState()
 
         RxView.clicks(findViewById(R.id.gripper_use_le_save))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    System.err.println("SAVE STATE DEVICE_ADDRESS: " + (mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString()))
+                    saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_NUM + gestureNumber, openStage)
+                    System.err.println("SAVE STATE openStage: $openStage")
+                    saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_NUM + gestureNumber, closeStage)
+                    System.err.println("SAVE STATE closeStage: $closeStage")
                     finish()
                 }
         RxView.clicks(findViewById(R.id.gripper_state_le))
@@ -79,58 +93,22 @@ class GripperScreenWithoutEncodersActivity
                     if (gestureState == 0 ) {
                         gestureState = 1
                         gripper_state_le.text = getString(R.string.gesture_state_open)
-                        System.err.println("STATE 1: " + (openStage shr 0 and 0b00000001)+ "  2: " + fingerState1)
-                        if (openStage shr 0 and 0b00000001 != fingerState1) {
-                            animateFinger1 ()
-                        }
-                        System.err.println("STATE 1: " + (openStage shr 1 and 0b00000001)+ "  2: " + fingerState2)
-                        if (openStage shr 1 and 0b00000001 != fingerState2) {
-                            animateFinger2 ()
-                        }
-                        System.err.println("STATE 1: " + (openStage shr 2 and 0b00000001)+ "  2: " + fingerState3)
-                        if (openStage shr 2 and 0b00000001 != fingerState3) {
-                            animateFinger3 ()
-                        }
-                        System.err.println("STATE 1: " + (openStage shr 3 and 0b00000001)+ "  2: " + fingerState4)
-                        if (openStage shr 3 and 0b00000001 != fingerState4) {
-                            animateFinger4 ()
-                        }
-                        System.err.println("STATE 1: " + (openStage shr 4 and 0b00000001)+ "  2: " + fingerState5)
-                        if (openStage shr 4 and 0b00000001 != fingerState5) {
-                            animateFinger5 ()
-                        }
-                        System.err.println("STATE 1: " + (openStage shr 5 and 0b00000001)+ "  2: " + fingerState6)
-                        if (openStage shr 5 and 0b00000001 != fingerState6) {
-                            animateFinger6 ()
-                        }
+                        if (openStage shr 0 and 0b00000001 != fingerState1) { animateFinger1 () }
+                        if (openStage shr 1 and 0b00000001 != fingerState2) { animateFinger2 () }
+                        if (openStage shr 2 and 0b00000001 != fingerState3) { animateFinger3 () }
+                        if (openStage shr 3 and 0b00000001 != fingerState4) { animateFinger4 () }
+                        if (openStage shr 4 and 0b00000001 != fingerState5) { animateFinger5 () }
+                        if (openStage shr 5 and 0b00000001 == fingerState6) { animateFinger6 () }
                     } else
                     {
                         gestureState = 0
                         gripper_state_le.text = getString(R.string.gesture_state_close)
-                        System.err.println("STATE 1: " + (closeStage shr 0 and 0b00000001)+ "  2: " + fingerState1)
-                        if (closeStage shr 0 and 0b00000001 != fingerState1) {
-                            animateFinger1 ()
-                        }
-                        System.err.println("STATE 1: " + (closeStage shr 1 and 0b00000001)+ "  2: " + fingerState2)
-                        if (closeStage shr 1 and 0b00000001 != fingerState2) {
-                            animateFinger2 ()
-                        }
-                        System.err.println("STATE 1: " + (closeStage shr 2 and 0b00000001)+ "  2: " + fingerState3)
-                        if (closeStage shr 2 and 0b00000001 != fingerState3) {
-                            animateFinger3 ()
-                        }
-                        System.err.println("STATE 1: " + (closeStage shr 3 and 0b00000001)+ "  2: " + fingerState4)
-                        if (closeStage shr 3 and 0b00000001 != fingerState4) {
-                            animateFinger4 ()
-                        }
-                        System.err.println("STATE 1: " + (closeStage shr 4 and 0b00000001)+ "  2: " + fingerState5)
-                        if (closeStage shr 4 and 0b00000001 != fingerState5) {
-                            animateFinger5 ()
-                        }
-                        System.err.println("STATE 1: " + (closeStage shr 5 and 0b00000001)+ "  2: " + fingerState6)
-                        if (closeStage shr 5 and 0b00000001 != fingerState6) {
-                            animateFinger6 ()
-                        }
+                        if (closeStage shr 0 and 0b00000001 != fingerState1) { animateFinger1 () }
+                        if (closeStage shr 1 and 0b00000001 != fingerState2) { animateFinger2 () }
+                        if (closeStage shr 2 and 0b00000001 != fingerState3) { animateFinger3 () }
+                        if (closeStage shr 3 and 0b00000001 != fingerState4) { animateFinger4 () }
+                        if (closeStage shr 4 and 0b00000001 != fingerState5) { animateFinger5 () }
+                        if (closeStage shr 5 and 0b00000001 == fingerState6) { animateFinger6 () }
                     }
 
                 }
@@ -143,7 +121,6 @@ class GripperScreenWithoutEncodersActivity
                 .compose(bindToLifecycle())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { station ->
-                    System.err.println(" GripperScreenWithoutEncodersActivity -----> SELECT_FINGER  station = $station")
                     numberFinger = station
                     if (numberFinger == 1) {
                         closeRotation()
@@ -161,9 +138,7 @@ class GripperScreenWithoutEncodersActivity
                         closeRotation()
                         animateFinger4 ()
                     }
-                    if (numberFinger == 55) {
-                        closeRotation()
-                    }
+                    if (numberFinger == 55) { closeRotation() }
                     if (numberFinger == 5) {
                         openRotation()
                         animateFinger5 ()
@@ -392,6 +367,7 @@ class GripperScreenWithoutEncodersActivity
         }
     }
     private fun animateFinger6 () {
+        System.err.println("STATE fingerState6: $fingerState6   angleFinger6: $angleFinger6")
         if (fingerState6 == 0 ) {
             if (angleFinger6 < 50) {
                 val anim6 = ValueAnimator.ofInt(score6, 100)
@@ -404,10 +380,10 @@ class GripperScreenWithoutEncodersActivity
                 gripper_position_finger_le.text = getString(R.string.rotation_state_open)
                 fingerState6 = 1
                 if (gestureState == 1) {
-                    openStage = openStage or 0b00100000
+                    openStage = openStage and 0b11011111
                     System.err.println("OPEN STATE CHANGE $openStage")
                 } else {
-                    closeStage = closeStage or 0b00100000
+                    closeStage = closeStage and 0b11011111
                     System.err.println("CLOSE STATE CHANGE $closeStage")
                 }
             }
@@ -424,10 +400,10 @@ class GripperScreenWithoutEncodersActivity
                 gripper_position_finger_le.text = getString(R.string.rotation_state_close)
                 fingerState6 = 0
                 if (gestureState == 1) {
-                    openStage = openStage and 0b11011111
+                    openStage = openStage or 0b00100000
                     System.err.println("OPEN STATE CHANGE $openStage")
                 } else {
-                    closeStage = closeStage and 0b11011111
+                    closeStage = closeStage or 0b00100000
                     System.err.println("CLOSE STATE CHANGE $closeStage")
                 }
             }
@@ -457,5 +433,40 @@ class GripperScreenWithoutEncodersActivity
             anim8.start()
         }
 
+    }
+
+    private fun saveInt(key: String, variable: Int) {
+        val editor: SharedPreferences.Editor = mSettings!!.edit()
+        editor.putInt(key, variable)
+        editor.apply()
+    }
+    private fun loadOldState() {
+        val text = "load not work"
+        openStage = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_NUM + gestureNumber, 0)
+        closeStage = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_NUM + gestureNumber, 0)
+        oldOpenStage = openStage
+        System.err.println("LOAD STATE openStage: $openStage")
+        oldCloseStage = closeStage
+        System.err.println("LOAD STATE closeStage: $closeStage")
+
+//        fingerState1 = oldOpenStage shr 0 and 0b00000001
+//        fingerState2 = oldOpenStage shr 1 and 0b00000001
+//        fingerState3 = oldOpenStage shr 2 and 0b00000001
+//        fingerState4 = oldOpenStage shr 3 and 0b00000001
+//        fingerState5 = oldOpenStage shr 4 and 0b00000001
+//        fingerState6 = oldOpenStage shr 5 and 0b00000001
+
+        if (openStage shr 0 and 0b00000001 != fingerState1) { animateFinger1 () }
+        if (openStage shr 1 and 0b00000001 != fingerState2) { animateFinger2 () }
+        if (openStage shr 2 and 0b00000001 != fingerState3) { animateFinger3 () }
+        if (openStage shr 3 and 0b00000001 != fingerState4) { animateFinger4 () }
+        if (openStage shr 4 and 0b00000001 != fingerState5) { animateFinger5 () }
+        if (openStage shr 5 and 0b00000001 == fingerState6) { animateFinger6 () }
+        System.err.println("STATE fingerState1: $fingerState1   angleFinger1: $angleFinger1")
+        System.err.println("STATE fingerState2: $fingerState2   angleFinger2: $angleFinger2")
+        System.err.println("STATE fingerState3: $fingerState6   angleFinger3: $angleFinger3")
+        System.err.println("STATE fingerState4: $fingerState4   angleFinger4: $angleFinger4")
+        System.err.println("STATE fingerState5: $fingerState5   angleFinger5: $angleFinger5")
+        System.err.println("STATE fingerState6: $fingerState6   angleFinger6: $angleFinger6")
     }
 }

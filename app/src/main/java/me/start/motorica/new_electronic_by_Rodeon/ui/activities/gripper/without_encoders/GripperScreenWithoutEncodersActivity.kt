@@ -7,7 +7,6 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.widget.LinearLayout
 import android.widget.LinearLayout.LayoutParams
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -42,7 +41,7 @@ class GripperScreenWithoutEncodersActivity
     private var fingerState4 = 0
     private var fingerState5 = 0
     private var fingerState6 = 0
-    private var gestureState = 0
+    private var gestureState = 1
 
     private var openStage = 0b00000000
     private var closeStage = 0b00000000
@@ -66,7 +65,7 @@ class GripperScreenWithoutEncodersActivity
         angleFinger2 = 0
         angleFinger3 = 0
         angleFinger4 = 0
-        angleFinger5 = -11
+        angleFinger5 = 0
         angleFinger6 = 0
 
         RxView.clicks(findViewById(R.id.gripper_use_le_save))
@@ -78,51 +77,60 @@ class GripperScreenWithoutEncodersActivity
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     if (gestureState == 0 ) {
-                        System.err.println("gestureState = 1")
-                        gripper_state_le.text = getString(R.string.gesture_state_open)
-                        if (numberFinger == 1) {
-                            openStage and 0b11111110
-                        }
-                        if (numberFinger == 2) {
-                            openStage and 0b11111101
-                        }
-                        if (numberFinger == 3) {
-                            openStage and 0b11111011
-                        }
-                        if (numberFinger == 4) {
-                            openStage and 0b11110111
-                        }
-                        if (numberFinger == 5) {
-                            openStage and 0b11101111
-                        }
-                        if (numberFinger == 6) {
-                            openStage and 0b11011111
-                        }
-
                         gestureState = 1
+                        gripper_state_le.text = getString(R.string.gesture_state_open)
+                        System.err.println("STATE 1: " + (openStage shr 0 and 0b00000001)+ "  2: " + fingerState1)
+                        if (openStage shr 0 and 0b00000001 != fingerState1) {
+                            animateFinger1 ()
+                        }
+                        System.err.println("STATE 1: " + (openStage shr 1 and 0b00000001)+ "  2: " + fingerState2)
+                        if (openStage shr 1 and 0b00000001 != fingerState2) {
+                            animateFinger2 ()
+                        }
+                        System.err.println("STATE 1: " + (openStage shr 2 and 0b00000001)+ "  2: " + fingerState3)
+                        if (openStage shr 2 and 0b00000001 != fingerState3) {
+                            animateFinger3 ()
+                        }
+                        System.err.println("STATE 1: " + (openStage shr 3 and 0b00000001)+ "  2: " + fingerState4)
+                        if (openStage shr 3 and 0b00000001 != fingerState4) {
+                            animateFinger4 ()
+                        }
+                        System.err.println("STATE 1: " + (openStage shr 4 and 0b00000001)+ "  2: " + fingerState5)
+                        if (openStage shr 4 and 0b00000001 != fingerState5) {
+                            animateFinger5 ()
+                        }
+                        System.err.println("STATE 1: " + (openStage shr 5 and 0b00000001)+ "  2: " + fingerState6)
+                        if (openStage shr 5 and 0b00000001 != fingerState6) {
+                            animateFinger6 ()
+                        }
                     } else
                     {
-                        if (numberFinger == 1) {
-                            openStage or 0b00000001
-                        }
-                        if (numberFinger == 2) {
-                            openStage or 0b00000010
-                        }
-                        if (numberFinger == 3) {
-                            openStage or 0b00000100
-                        }
-                        if (numberFinger == 4) {
-                            openStage or 0b00001000
-                        }
-                        if (numberFinger == 5) {
-                            openStage or 0b00010000
-                        }
-                        if (numberFinger == 6) {
-                            openStage or 0b00100000
-                        }
-                        System.err.println("gestureState = 0")
-                        gripper_state_le.text = getString(R.string.gesture_state_close)
                         gestureState = 0
+                        gripper_state_le.text = getString(R.string.gesture_state_close)
+                        System.err.println("STATE 1: " + (closeStage shr 0 and 0b00000001)+ "  2: " + fingerState1)
+                        if (closeStage shr 0 and 0b00000001 != fingerState1) {
+                            animateFinger1 ()
+                        }
+                        System.err.println("STATE 1: " + (closeStage shr 1 and 0b00000001)+ "  2: " + fingerState2)
+                        if (closeStage shr 1 and 0b00000001 != fingerState2) {
+                            animateFinger2 ()
+                        }
+                        System.err.println("STATE 1: " + (closeStage shr 2 and 0b00000001)+ "  2: " + fingerState3)
+                        if (closeStage shr 2 and 0b00000001 != fingerState3) {
+                            animateFinger3 ()
+                        }
+                        System.err.println("STATE 1: " + (closeStage shr 3 and 0b00000001)+ "  2: " + fingerState4)
+                        if (closeStage shr 3 and 0b00000001 != fingerState4) {
+                            animateFinger4 ()
+                        }
+                        System.err.println("STATE 1: " + (closeStage shr 4 and 0b00000001)+ "  2: " + fingerState5)
+                        if (closeStage shr 4 and 0b00000001 != fingerState5) {
+                            animateFinger5 ()
+                        }
+                        System.err.println("STATE 1: " + (closeStage shr 5 and 0b00000001)+ "  2: " + fingerState6)
+                        if (closeStage shr 5 and 0b00000001 != fingerState6) {
+                            animateFinger6 ()
+                        }
                     }
 
                 }
@@ -138,22 +146,18 @@ class GripperScreenWithoutEncodersActivity
                     System.err.println(" GripperScreenWithoutEncodersActivity -----> SELECT_FINGER  station = $station")
                     numberFinger = station
                     if (numberFinger == 1) {
-                        openStage or 0b00000001
                         closeRotation()
                         animateFinger1 ()
                     }
                     if (numberFinger == 2) {
-                        openStage or 0b00000010
                         closeRotation()
                         animateFinger2 ()
                     }
                     if (numberFinger == 3) {
-                        openStage or 0b00000100
                         closeRotation()
                         animateFinger3 ()
                     }
                     if (numberFinger == 4) {
-                        openStage or 0b00001000
                         closeRotation()
                         animateFinger4 ()
                     }
@@ -161,7 +165,6 @@ class GripperScreenWithoutEncodersActivity
                         closeRotation()
                     }
                     if (numberFinger == 5) {
-                        openStage or 0b00010000
                         openRotation()
                         animateFinger5 ()
                     }
@@ -198,6 +201,13 @@ class GripperScreenWithoutEncodersActivity
                 }
                 anim1.start()
                 fingerState1 = 1
+                if (gestureState == 1) {
+                    openStage = openStage or 0b00000001
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage or 0b00000001
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         } else
         {
@@ -210,9 +220,15 @@ class GripperScreenWithoutEncodersActivity
                 }
                 anim1.start()
                 fingerState1 = 0
+                if (gestureState == 1) {
+                    openStage = openStage and 0b11111110
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage and 0b11111110
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         }
-
     }
     private fun animateFinger2 () {
         if (fingerState2 == 0 ) {
@@ -225,6 +241,13 @@ class GripperScreenWithoutEncodersActivity
                 }
                 anim1.start()
                 fingerState2 = 1
+                if (gestureState == 1) {
+                    openStage = openStage or 0b00000010
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage or 0b00000010
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         } else
         {
@@ -237,6 +260,13 @@ class GripperScreenWithoutEncodersActivity
                 }
                 anim1.start()
                 fingerState2 = 0
+                if (gestureState == 1) {
+                    openStage = openStage and 0b11111101
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage and 0b11111101
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         }
     }
@@ -251,6 +281,13 @@ class GripperScreenWithoutEncodersActivity
                 }
                 anim3.start()
                 fingerState3 = 1
+                if (gestureState == 1) {
+                    openStage = openStage or 0b00000100
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage or 0b00000100
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         } else
         {
@@ -263,6 +300,13 @@ class GripperScreenWithoutEncodersActivity
                 }
                 anim3.start()
                 fingerState3 = 0
+                if (gestureState == 1) {
+                    openStage = openStage and 0b11111011
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage and 0b11111011
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         }
     }
@@ -277,6 +321,13 @@ class GripperScreenWithoutEncodersActivity
                 }
                 anim4.start()
                 fingerState4 = 1
+                if (gestureState == 1) {
+                    openStage = openStage or 0b00001000
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage or 0b00001000
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         } else
         {
@@ -289,23 +340,19 @@ class GripperScreenWithoutEncodersActivity
                 }
                 anim4.start()
                 fingerState4 = 0
+                if (gestureState == 1) {
+                    openStage = openStage and 0b11110111
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage and 0b11110111
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         }
     }
     private fun animateFinger5 () {
+        System.err.println("STATE angleFinger5 $angleFinger5")
         if (fingerState5 == 0 ) {
-            if (angleFinger5 < -10) {
-                val anim5 = ValueAnimator.ofInt(score5, 30)
-                anim5.duration = (1000).toLong()
-                anim5.addUpdateListener {
-                    angleFinger5 = anim5.animatedValue as Int
-                    score5 = anim5.animatedValue as Int
-                }
-                anim5.start()
-                fingerState5 = 1
-            }
-        } else
-        {
             if (angleFinger5 > -10) {
                 val anim5 = ValueAnimator.ofInt(score5, -60)
                 anim5.duration = (1000).toLong()
@@ -314,7 +361,33 @@ class GripperScreenWithoutEncodersActivity
                     score5 = anim5.animatedValue as Int
                 }
                 anim5.start()
+                fingerState5 = 1
+                if (gestureState == 1) {
+                    openStage = openStage or 0b00010000
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage or 0b00010000
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
+            }
+        } else
+        {
+            if (angleFinger5 < -10) {
+                val anim5 = ValueAnimator.ofInt(score5, 30)
+                anim5.duration = (1000).toLong()
+                anim5.addUpdateListener {
+                    angleFinger5 = anim5.animatedValue as Int
+                    score5 = anim5.animatedValue as Int
+                }
+                anim5.start()
                 fingerState5 = 0
+                if (gestureState == 1) {
+                    openStage = openStage and 0b11101111
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage and 0b11101111
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         }
     }
@@ -330,6 +403,13 @@ class GripperScreenWithoutEncodersActivity
                 anim6.start()
                 gripper_position_finger_le.text = getString(R.string.rotation_state_open)
                 fingerState6 = 1
+                if (gestureState == 1) {
+                    openStage = openStage or 0b00100000
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage or 0b00100000
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         } else
         {
@@ -343,11 +423,17 @@ class GripperScreenWithoutEncodersActivity
                 anim6.start()
                 gripper_position_finger_le.text = getString(R.string.rotation_state_close)
                 fingerState6 = 0
+                if (gestureState == 1) {
+                    openStage = openStage and 0b11011111
+                    System.err.println("OPEN STATE CHANGE $openStage")
+                } else {
+                    closeStage = closeStage and 0b11011111
+                    System.err.println("CLOSE STATE CHANGE $closeStage")
+                }
             }
         }
     }
     private fun openRotation() {
-        System.err.println("gesture_state_rl.layoutParams " + (gesture_state_rl.layoutParams as LayoutParams).weight)
         if ((gesture_state_rl.layoutParams as LayoutParams).weight == 2.0f) {
             val lParams = gesture_state_rl.layoutParams as LayoutParams
             val anim7 = ValueAnimator.ofFloat(2.0f, 1.0f)

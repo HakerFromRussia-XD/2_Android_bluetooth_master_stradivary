@@ -50,6 +50,7 @@ import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.experimental.xor
@@ -93,7 +94,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var globalSemaphore = true // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
   //  private var showAdvancedSettings = false
   private var swapOpenCloseButton = false
-  private var countCommand = 0
+
+  private  var countCommand: AtomicInteger = AtomicInteger()
   private var actionState = READ
   var savingSettingsWhenModified = false
   var lockWriteBeforeFirstRead = true //переменная, необходимая для ожидания первого пришедшего ответа от устройства на
@@ -240,9 +242,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
         lockWriteBeforeFirstRead = false
       } else {
-        if(countCommand > 0) { countCommand-- }
-        System.err.println("Count command before start read: $countCommand")
-        if (countCommand == 0) {
+        if(countCommand.get() > 0) {
+          countCommand.get().dec()
+          System.err.println("Decrement counter: ${countCommand.get()}")
+        }
+        if (countCommand.get() == 0) {
           globalSemaphore = false
           readDataFlag = true
           runReadData()
@@ -318,6 +322,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                       "fingerAngel = ${parameters.fingerAngel}")
               numberFinger = parameters.numberFinger
               angleFinger = parameters.fingerAngel
+            }
+
+    RxUpdateMainEvent.getInstance().gestureStateObservable
+            .compose(bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { parameters ->
+              System.err.println("Prisedshie parametri: ${parameters.gestureNumber} ${parameters.openStage}  ${parameters.closeStage} ${parameters.state}")
+              bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE, WRITE, 12)
             }
 
     RxUpdateMainEvent.getInstance().fingerSpeedObservable
@@ -405,7 +417,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
 
-
   override fun onResume() {
     super.onResume()
     val filter = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
@@ -440,7 +451,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     super.onNewIntent(intent)
     setIntent(intent)
   }
-
 
   // Demonstrates how to iterate through the supported GATT Services/Characteristics.
   // In this sample, we populate the data structure that is bound to the ExpandableListView
@@ -693,10 +703,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     try {
       Thread.sleep(200) // меньше нельзя ставить для работоспособности xiaomi 6 | samsung работает на значении 200
     } catch (ignored: Exception) {}
-    System.err.println("write counter: $countCommand")
 //    if (countCommand == 1) countCommand = 0
     bleCommand(byteArray, Command, typeCommand)
     incrementCountCommand()
+    System.err.println("write counter: ${countCommand.get()}")
     try {
       Thread.sleep(100)
     } catch (ignored: Exception) {}
@@ -709,6 +719,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   open fun getReadData(): Runnable { return Runnable { readData() } }
   private fun readData() {
     while (readDataFlag) {
+      System.err.println("read counter: ${countCommand.get()}")
 //      if (first) {
         bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
 //        first = false
@@ -718,7 +729,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       } catch (ignored: Exception) {}
     }
   }
-
 
   private fun makeGattUpdateIntentFilter(): IntentFilter {
     val intentFilter = IntentFilter()
@@ -842,30 +852,35 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     return swapOpenCloseButton
   }
   private fun incrementCountCommand() {
-    countCommand++
+    countCommand.get().inc() //++
+    System.err.println("countCommand.get().inc() counter: ${countCommand.get()}")
   }
   fun offGesturesUIBeforeConnection () {
-    gesture_1_btn.isEnabled = false
-    gesture_2_btn.isEnabled = false
-    gesture_3_btn.isEnabled = false
-    gesture_4_btn.isEnabled = false
-    gesture_5_btn.isEnabled = false
-    gesture_6_btn.isEnabled = false
-    gesture_7_btn.isEnabled = false
-    gesture_8_btn.isEnabled = false
-    gesture_settings_2_btn.isEnabled = false
-    gesture_settings_3_btn.isEnabled = false
-    gesture_settings_4_btn.isEnabled = false
-    gesture_settings_5_btn.isEnabled = false
-    gesture_settings_6_btn.isEnabled = false
-    gesture_settings_7_btn.isEnabled = false
-    gesture_settings_8_btn.isEnabled = false
+    gesture_1_btn?.isEnabled = false
+    gesture_2_btn?.isEnabled = false
+    gesture_3_btn?.isEnabled = false
+    gesture_4_btn?.isEnabled = false
+    gesture_5_btn?.isEnabled = false
+    gesture_6_btn?.isEnabled = false
+    gesture_7_btn?.isEnabled = false
+    gesture_8_btn?.isEnabled = false
+    gesture_settings_2_btn?.isEnabled = false
+    gesture_settings_3_btn?.isEnabled = false
+    gesture_settings_4_btn?.isEnabled = false
+    gesture_settings_5_btn?.isEnabled = false
+    gesture_settings_6_btn?.isEnabled = false
+    gesture_settings_7_btn?.isEnabled = false
+    gesture_settings_8_btn?.isEnabled = false
   }
   fun offSensorsUIBeforeConnection () {
-    close_btn.isEnabled = false
-    open_btn.isEnabled = false
-    thresholds_blocking_sw.isEnabled = false
-    correlator_noise_threshold_1_sb.isEnabled = false
-    correlator_noise_threshold_2_sb.isEnabled = false
+    close_btn?.isEnabled = false
+    open_btn?.isEnabled = false
+    thresholds_blocking_sw?.isEnabled = false
+    correlator_noise_threshold_1_sb?.isEnabled = false
+    correlator_noise_threshold_2_sb?.isEnabled = false
   }
 }
+
+//private operator fun AtomicInteger.compareTo(i: Int): Int {
+//  TODO("Not yet implemented")
+//}

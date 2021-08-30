@@ -20,6 +20,8 @@ import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
+import me.start.motorica.new_electronic_by_Rodeon.models.FingerAngle
+import me.start.motorica.new_electronic_by_Rodeon.models.GestureState
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
@@ -119,23 +121,28 @@ class GripperScreenWithoutEncodersActivity
                     if (numberFinger == 1) {
                         closeRotation()
                         animateFinger1 ()
+                        compileBLEMassage ()
                     }
                     if (numberFinger == 2) {
                         closeRotation()
                         animateFinger2 ()
+                        compileBLEMassage ()
                     }
                     if (numberFinger == 3) {
                         closeRotation()
                         animateFinger3 ()
+                        compileBLEMassage ()
                     }
                     if (numberFinger == 4) {
                         closeRotation()
                         animateFinger4 ()
+                        compileBLEMassage ()
                     }
                     if (numberFinger == 55) { closeRotation() }
                     if (numberFinger == 5) {
                         openRotation()
                         animateFinger5 ()
+                        compileBLEMassage ()
                     }
                 }
         RxView.clicks(findViewById(R.id.gripper_state_le))
@@ -161,12 +168,13 @@ class GripperScreenWithoutEncodersActivity
                         if (closeStage shr 4 and 0b00000001 != fingerState5) { animateFinger5 () }
                         if (closeStage shr 5 and 0b00000001 == fingerState6) { animateFinger6 () }
                     }
-
+                    compileBLEMassage ()
                 }
         RxView.clicks(findViewById(R.id.gripper_position_finger_le))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     animateFinger6 ()
+                    compileBLEMassage ()
                 }
         RxView.clicks(findViewById(R.id.gripper_use_le_save))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -468,6 +476,15 @@ class GripperScreenWithoutEncodersActivity
         }
 
     }
+    private fun compileBLEMassage () {
+        if (gestureState == 1) {
+            val gestureStateModel = GestureState(gestureNumber - 1, openStage, closeStage,gestureState)
+            RxUpdateMainEvent.getInstance().updateGestureState(gestureStateModel)
+        } else {
+            val gestureStateModel = GestureState(gestureNumber - 1, openStage, closeStage,gestureState)
+            RxUpdateMainEvent.getInstance().updateGestureState(gestureStateModel)
+        }
+    }
 
     private fun saveInt(key: String, variable: Int) {
         val editor: SharedPreferences.Editor = mSettings!!.edit()
@@ -500,6 +517,7 @@ class GripperScreenWithoutEncodersActivity
         System.err.println("STATE fingerState4: $fingerState4   angleFinger4: $angleFinger4")
         System.err.println("STATE fingerState5: $fingerState5   angleFinger5: $angleFinger5")
         System.err.println("STATE fingerState6: $fingerState6   angleFinger6: $angleFinger6")
+        compileBLEMassage ()
     }
     private fun myLoadGesturesList() {
         val text = "load not work"

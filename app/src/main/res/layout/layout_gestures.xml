@@ -356,6 +356,7 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:weightSum="4"
+            android:visibility="gone"
             tools:ignore="DisableBaselineAlignment, UselessParent">
 
             <RelativeLayout
@@ -375,7 +376,6 @@
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </RelativeLayout>
-
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -394,7 +394,6 @@
                     android:textStyle="bold"
                     tools:ignore="SmallSp" />
             </RelativeLayout>
-
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

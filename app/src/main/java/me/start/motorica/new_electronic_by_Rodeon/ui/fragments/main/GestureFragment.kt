@@ -73,7 +73,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 selectActiveGesture(1)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
                 main?.bleCommandConnector(byteArrayOf(0), SET_GESTURE, WRITE,13)
-//                main?.incrementCountCommand()
             }
         }
         gesture_settings_1_btn.setOnClickListener {
@@ -86,15 +85,12 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 selectActiveGesture(2)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 2)
                 main?.bleCommandConnector(byteArrayOf(1), SET_GESTURE, WRITE, 13)
-//                main?.incrementCountCommand()
             }
         }
         gesture_settings_2_btn.setOnClickListener {
-            val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
+            val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
             startActivity(intent)
             main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
-//            main?.openFragmentGripper(context, 2)
-//            main?.openFragment(2)
         }
         gesture_3_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
@@ -102,14 +98,12 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 selectActiveGesture(3)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 3)
                 main?.bleCommandConnector(byteArrayOf(2), SET_GESTURE, WRITE, 13)
-//                main?.incrementCountCommand()
             }
         }
         gesture_settings_3_btn.setOnClickListener {
             val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
             startActivity(intent)
             main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 3)
-//            main?.openFragment(3)
         }
         gesture_4_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
@@ -117,11 +111,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 selectActiveGesture(4)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 4)
                 main?.bleCommandConnector(byteArrayOf(3), SET_GESTURE, WRITE, 13)
-//                main?.incrementCountCommand()
             }
         }
         gesture_settings_4_btn.setOnClickListener {
-            main?.openFragment(4)
+            val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
+            startActivity(intent)
             main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
         }
         gesture_5_btn.setOnClickListener {
@@ -130,11 +124,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 selectActiveGesture(5)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 5)
                 main?.bleCommandConnector(byteArrayOf(4), SET_GESTURE, WRITE, 13)
-//                main?.incrementCountCommand()
             }
         }
         gesture_settings_5_btn.setOnClickListener {
-            main?.openFragment(5)
+            val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
+            startActivity(intent)
             main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
         }
         gesture_6_btn.setOnClickListener {
@@ -143,11 +137,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 selectActiveGesture(6)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 6)
                 main?.bleCommandConnector(byteArrayOf(5), SET_GESTURE, WRITE, 13)
-//                main?.incrementCountCommand()
             }
         }
         gesture_settings_6_btn.setOnClickListener {
-            main?.openFragment(6)
+            val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
+            startActivity(intent)
             main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
         }
         gesture_7_btn.setOnClickListener {
@@ -156,11 +150,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 selectActiveGesture(7)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 7)
                 main?.bleCommandConnector(byteArrayOf(6), SET_GESTURE, WRITE, 13)
-//                main?.incrementCountCommand()
             }
         }
         gesture_settings_7_btn.setOnClickListener {
-            main?.openFragment(7)
+            val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
+            startActivity(intent)
             main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
         }
         gesture_8_btn.setOnClickListener {
@@ -169,11 +163,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 selectActiveGesture(8)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 8)
                 main?.bleCommandConnector(byteArrayOf(7), SET_GESTURE, WRITE, 13)
-//                main?.incrementCountCommand()
             }
         }
         gesture_settings_8_btn.setOnClickListener {
-            main?.openFragment(8)
+            val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
+            startActivity(intent)
             main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
         }
         left_right_side_swap_sw.setOnClickListener{

@@ -418,10 +418,14 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           driver_tv?.text = resources.getString(R.string.driver) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 1)).toFloat()/100 + "v"
           bms_tv?.text = resources.getString(R.string.bms) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.BMS_NUM, 1)).toFloat()/100 + "v"
           sensor_tv?.text = resources.getString(R.string.sens) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SENS_NUM, 1)).toFloat()/100 + "v"
-          ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - (open_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - (close_CH_sb.progress * scale * 1.04f)).setDuration(200).start()
+          ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
+                  ?: 22.0f) * 1.04f)).setDuration(200).start()
+          ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
+                  ?: 22.0f) * 1.04f)).setDuration(200).start()
+          ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
+                  ?: 22.0f) * 1.04f)).setDuration(200).start()
+          ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
+                  ?: 22.0f) * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 22))).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 22))).setDuration(200).start()
         }

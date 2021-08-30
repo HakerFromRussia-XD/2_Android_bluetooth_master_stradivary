@@ -117,8 +117,6 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
                                 MY_PERMISSIONS_REQUEST_LOCATION))
                         .create()
                         .show();
-
-
             } else {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},

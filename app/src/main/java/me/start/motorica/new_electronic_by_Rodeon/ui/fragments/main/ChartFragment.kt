@@ -217,12 +217,10 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (swap_sensors_sw.isChecked) {
           swap_sensors_tv.text = 1.toString()
           main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
-//          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
         } else {
           swap_sensors_tv.text = 0.toString()
           main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
-//          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
         }
       }

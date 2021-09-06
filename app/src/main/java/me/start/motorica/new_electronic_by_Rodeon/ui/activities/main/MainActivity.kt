@@ -162,10 +162,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))) { // новая схема обработки данных
             displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
-//              System.err.println("попадаем сюда")
+              System.err.println("попадаем сюда")
           } else {
             displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
-//              System.err.println("попадаем не сюда")
+//            displayData(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_HDLE))
+            System.err.println("попадаем не сюда")
           }
            //вывод на график данных из характеристики показаний пульса
           displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.OPEN_MOTOR_DATA))
@@ -181,7 +182,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //      System.err.println("BluetoothLeService-------------> прошли первый иф ")
 //      System.err.println("============================================")
       for (bite in data) {
-//        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
+        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
       }
       if (castUnsignedCharToInt(data[0]) != 0xAA) {
 //        System.err.println("BluetoothLeService-------------> прошли второй иф")
@@ -256,6 +257,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataWriteOpen(data: ByteArray?) {
     if (data != null) {
+//      for (bite in data) {
+//        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
+//      }
       if (data[0].toInt() == 1){ state = 1 }
       if (data[0].toInt() == 0){ state = 2 }
     }
@@ -644,7 +648,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       bleCommand(byteArray, Command, typeCommand)
     }
   }
-  private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
+  fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
     for (i in mGattCharacteristics.indices) {
       for (j in mGattCharacteristics[i].indices) {
         if (mGattCharacteristics[i][j].uuid.toString() == Command) {
@@ -679,14 +683,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
       }
     }
-//    System.err.println("bleCommand")
+    System.err.println("bleCommand")
   }
 
   private fun startSubscribeSensorsDataThread() {
     subscribeThread = Thread {
       while (sensorsDataThreadFlag) {
         runOnUiThread {
+//          bleCommand(byteArrayOf(0x01), SHUTDOWN_CURRENT_HDLE, WRITE)
           bleCommand(null, MIO_MEASUREMENT, NOTIFY)
+//          bleCommand(null, SHUTDOWN_CURRENT_HDLE, NOTIFY)
           System.err.println("startSubscribeSensorsDataThread попытка подписки")
         }
         try {
@@ -721,7 +727,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     while (readDataFlag) {
       System.err.println("read counter: ${countCommand.get()}")
 //      if (first) {
-        bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
+      bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
 //        first = false
 //      }
       try {
@@ -881,6 +887,3 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 }
 
-//private operator fun AtomicInteger.compareTo(i: Int): Int {
-//  TODO("Not yet implemented")
-//}

@@ -40,6 +40,7 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.NOTIFY;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_MOTOR_HDLE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.READ;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SHUTDOWN_CURRENT_HDLE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE;
 
 
@@ -65,6 +66,7 @@ public class BluetoothLeService extends Service {
     public final static String FESTO_A_DATA = "com.example.bluetooth.le.FESTO_A_DATA";
     public final static String OPEN_MOTOR_DATA = "com.example.bluetooth.le.OPEN_MOTOR_DATA";
     public final static String CLOSE_MOTOR_DATA = "com.example.bluetooth.le.CLOSE_MOTOR_DATA";
+    public final static String SHUTDOWN_CURRENT_HDLE = "com.example.bluetooth.le.SHUTDOWN_CURRENT_HDLE";
     public final static String SENSORS_DATA_THREAD_FLAG = "com.example.bluetooth.le.SENSORS_DATA_THREAD_FLAG";
 
 
@@ -159,6 +161,11 @@ public class BluetoothLeService extends Service {
             }
             if (String.valueOf(characteristic.getUuid()).equals(CLOSE_MOTOR_HDLE)){
                 intent.putExtra(CLOSE_MOTOR_DATA, data);
+            }
+
+            //TEST
+            if (String.valueOf(characteristic.getUuid()).equals(SampleGattAttributes.SHUTDOWN_CURRENT_HDLE)){
+                intent.putExtra(SHUTDOWN_CURRENT_HDLE, data);
             }
         }
         sendBroadcast(intent);

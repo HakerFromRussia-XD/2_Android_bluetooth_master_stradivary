@@ -22,6 +22,7 @@
 
     <style name="Text">
         <item name="colorControlHighlight">@color/darkOrange</item>
+        <item name="fontFamily">@font/font_open_sans</item>
     </style>
 
     <style name="TextInputLayout">

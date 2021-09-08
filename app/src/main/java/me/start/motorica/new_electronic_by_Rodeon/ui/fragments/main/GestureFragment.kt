@@ -56,13 +56,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         selectActiveGesture(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1))
-        if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-            left_right_side_swap_sw.isChecked = true
-            left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))
-        } else {
-            left_right_side_swap_sw.isChecked = false
-            left_right_side_swap_tv.text = resources.getString(R.string.left)
-        }
         main?.offGesturesUIBeforeConnection()
 
 
@@ -169,15 +162,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
             startActivity(intent)
             main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
-        }
-        left_right_side_swap_sw.setOnClickListener{
-            if (left_right_side_swap_sw.isChecked) {
-                left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
-            } else {
-                left_right_side_swap_tv.text = resources.getString(R.string.left)
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
-            }
         }
     }
 

@@ -18,6 +18,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -78,6 +79,13 @@ class AdvancedSettingsFragment : Fragment() {
       downtime_text_tv.textSize = 11f
       mode_tv.textSize = 11f
       reset_to_factory_settings_btn.textSize = 12f
+    }
+    if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+      left_right_side_swap_sw.isChecked = true
+      left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))
+    } else {
+      left_right_side_swap_sw.isChecked = false
+      left_right_side_swap_tv.text = resources.getString(R.string.left)
     }
 //    if (main?.enableInterfaceStatus == false) {
 //      main?.offAdvancedSettingsUIBeforeConnection()
@@ -318,5 +326,15 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
     downtime_tv.text = time
+
+    left_right_side_swap_sw.setOnClickListener{
+      if (left_right_side_swap_sw.isChecked) {
+        left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))
+        main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
+      } else {
+        left_right_side_swap_tv.text = resources.getString(R.string.left)
+        main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
+      }
+    }
   }
 }

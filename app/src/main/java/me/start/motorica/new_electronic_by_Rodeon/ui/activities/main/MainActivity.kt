@@ -181,9 +181,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if (data != null){
 //      System.err.println("BluetoothLeService-------------> прошли первый иф ")
 //      System.err.println("============================================")
-      for (bite in data) {
-        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
-      }
+//      for (bite in data) {
+//        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
+//      }
       if (castUnsignedCharToInt(data[0]) != 0xAA) {
 //        System.err.println("BluetoothLeService-------------> прошли второй иф")
 //        System.err.println("data.size: " + data.size)

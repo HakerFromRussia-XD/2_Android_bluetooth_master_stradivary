@@ -1,6 +1,7 @@
 package me.start.motorica.scan.view;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -132,8 +134,14 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
+        //getBluetoothLeAdvertiser()
+//        mBluetoothAdapter = bluetoothManager.getAdapter().getBluetoothLeAdvertiser().startAdvertising();
+
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "BT не завёлся", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "bluetooth нет на телефоне", Toast.LENGTH_SHORT).show();
+            if(!mBluetoothAdapter.isMultipleAdvertisementSupported()){
+                Toast.makeText(this, "bluetooth low energy нет на телефоне", Toast.LENGTH_SHORT).show();
+            }
             finish();
         }
 
@@ -153,6 +161,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             }, SCAN_PERIOD);
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
+//            mBluetoothAdapter.getBluetoothLeAdvertiser().startAdvertising(settingsBuilder.build(), dataBuilder.build(), mLeAdvertisingCallback);
             scanButton.setEnabled(false);
             scanButton.setText(R.string.bluetooth_scanning);
         } else {
@@ -166,13 +175,26 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
 
     // Device scan callback.
+    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.M)
     private final BluetoothAdapter.LeScanCallback mLeScanCallback =
             (device, rssi, scanRecord) -> runOnUiThread(() -> {
                 if(device.getName() != null){
-                    System.err.println("DeviceScanActivity ---------> device name: "+device.getName()+ "   Uuids: "+device.getUuids());
-                    System.err.println("DeviceScanActivity ---------> device rssi: "+rssi);
+                    System.err.println("===========================================");
+//                    System.err.println("DeviceScanActivity ---------> device name: "+device.getName()+ "   Uuids: "+device.getUuids());
+//                    System.err.println("DeviceScanActivity ---------> device rssi: "+rssi);
+                    System.err.println("DeviceScanActivity ---------> device: "+device.toString()+" | "+device.getAddress()+" | "+device.getUuids()+" | "+device.getName()
+                            +" | "+device.getType()+" | "+device.getClass().getCanonicalName()+" | "+device.getName()+" | "+device.getClass().getSimpleName()+" | "
+                            +device.getClass().getTypeName()+" | "+device.getClass().getAnnotations().length);
+                    System.err.println("DeviceScanActivity ---------> device: "+scanRecord+" | "+rssi);
+                    System.err.println("===========================================");
                     addLEDeviceToScanList(device.getName()+":l:", device);
                 }
+            });
+
+    private final BluetoothAdapter.LeScanCallback mLeAdvertisingCallback =
+            (device, rssi, scanRecord) -> runOnUiThread(() -> {
+
             });
 
     @Override

@@ -167,9 +167,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
               System.err.println("попадаем сюда")
           } else {
-            displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
-//            displayData(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_HDLE))
-            System.err.println("попадаем не сюда")
+            if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
+              //TODO прописать новую функцию обработки пришедших данных
+              displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
+              System.err.println("попадаем в новую ветку")
+            } else {
+              displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
+              System.err.println("попадаем не сюда")
+            }
           }
            //вывод на график данных из характеристики показаний пульса
           displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.OPEN_MOTOR_DATA))
@@ -255,6 +260,15 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           readDataFlag = true
           runReadData()
         }
+      }
+    }
+  }
+  private fun displayDataNew(data: ByteArray?) {
+    if (data != null) {
+      if (data.size == 2) {
+        dataSens1 = castUnsignedCharToInt(data[0])
+        dataSens2 = castUnsignedCharToInt(data[1])
+        savingSettingsWhenModified = true
       }
     }
   }
@@ -398,7 +412,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mainactivity_viewpager.isSaveFromParentEnabled = false
     if (showAdvancedSettings) {
       if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
-             ) {
+              || mDeviceType!!.contains(DEVICE_TYPE_4)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
@@ -408,7 +422,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
       }
     } else {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
+              || mDeviceType!!.contains(DEVICE_TYPE_4)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -541,7 +556,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
       runReadData()
     } else {
-      startSubscribeSensorsDataThread()
+      if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
+        startSubscribeSensorsNewDataThread()
+      } else {
+        startSubscribeSensorsDataThread()
+      }
     }
   }
 
@@ -698,6 +717,23 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           bleCommand(null, MIO_MEASUREMENT, NOTIFY)
 //          bleCommand(null, SHUTDOWN_CURRENT_HDLE, NOTIFY)
           System.err.println("startSubscribeSensorsDataThread попытка подписки")
+        }
+        try {
+          Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
+        } catch (ignored: Exception) { }
+      }
+    }
+    subscribeThread?.start()
+  }
+  private fun startSubscribeSensorsNewDataThread() {
+    subscribeThread = Thread {
+//      runOnUiThread {
+//        bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
+//      }
+      while (sensorsDataThreadFlag) {
+        runOnUiThread {
+          bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
+          System.err.println("startSubscribeSensorsNewDataThread попытка подписки")
         }
         try {
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())

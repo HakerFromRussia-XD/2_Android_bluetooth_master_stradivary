@@ -45,6 +45,25 @@ public class SampleGattAttributes {
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
 //    public static String MY_TEST_MEASUREMENT = "00002a00-0000-1000-8000-00805f9b34fb";
     public static String FESTO_A_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb";
+
+//      характеристики переработанного стека
+    public static String OPEN_THRESHOLD_NEW = "43686172-4d74-726b-0000-526f64696f6e";
+    public static String CLOSE_THRESHOLD_NEW = "43686172-4d74-726b-0001-526f64696f6e";
+    public static String OPEN_MOTOR_NEW = "43686172-4d74-726b-0002-526f64696f6e";
+    public static String CLOSE_MOTOR_NEW = "43686172-4d74-726b-0003-526f64696f6e";
+    public static String ADD_GESTURE_NEW = "43686172-4d74-726b-0004-526f64696f6e";
+    public static String SET_GESTURE_NEW = "43686172-4d74-726b-0005-526f64696f6e";
+    public static String SET_REVERSE_NEW = "43686172-4d74-726b-0006-526f64696f6e";
+    public static String SET_ONE_CHANNEL_NEW = "43686172-4d74-726b-0007-526f64696f6e";
+
+    public static String RESET_TO_FACTORY_SETTINGS_NEW = "43686172-4d74-726b-0100-526f64696f6e";
+
+    public static String SENS_OPTIONS_NEW = "43686172-4d74-726b-0200-526f64696f6e";
+    public static String MIO_MEASUREMENT_NEW = "43686172-4d74-726b-0201-526f64696f6e";
+    public static String SENS_VERSION_NEW = "43686172-4d74-726b-0202-526f64696f6e";
+
+
+
     // Sample Commands.
     public static String READ = "READ";
     public static String WRITE = "WRITE";

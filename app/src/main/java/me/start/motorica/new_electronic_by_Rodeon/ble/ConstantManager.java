@@ -9,6 +9,7 @@ public interface ConstantManager {
     String EXTRAS_DEVICE_TYPE = "FEST-A";
     String EXTRAS_DEVICE_TYPE_2 = "BT05";
     String EXTRAS_DEVICE_TYPE_3 = "BLE_test_services—•";
+    String DEVICE_TYPE_4 = "FEST-H";
 
     ////////////////////////////////////////////////
 /**                      3D                         **/

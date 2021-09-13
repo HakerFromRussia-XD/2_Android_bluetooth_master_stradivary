@@ -11,6 +11,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.annotation.SuppressLint
@@ -99,7 +101,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var actionState = READ
   var savingSettingsWhenModified = false
   var lockWriteBeforeFirstRead = true //переменная, необходимая для ожидания первого пришедшего ответа от устройства на
-  var enableInterfaceStatus: Boolean = false
+  private var enableInterfaceStatus: Boolean = false
   // отправленный запрос чтения. Если не ожидать её, то поток чтения не перезамускается
   internal var locate = ""
 
@@ -116,7 +118,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
-      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))
+      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
+              || mDeviceType!!.contains(DEVICE_TYPE_4))
       {} else {
         mainactivity_navi.visibility = View.GONE
       }
@@ -394,7 +397,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     mainactivity_viewpager.isSaveFromParentEnabled = false
     if (showAdvancedSettings) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
+             ) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
@@ -648,7 +652,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       bleCommand(byteArray, Command, typeCommand)
     }
   }
-  fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
+  private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
     for (i in mGattCharacteristics.indices) {
       for (j in mGattCharacteristics[i].indices) {
         if (mGattCharacteristics[i][j].uuid.toString() == Command) {

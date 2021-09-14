@@ -117,16 +117,28 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
     single_channel_control_sw.setOnClickListener {
+      System.err.println("tuk single_channel_control_sw do")
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (single_channel_control_sw.isChecked) {
           single_channel_control_tv.text = 1.toString()
-          main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
-//          main?.incrementCountCommand()
+          System.err.println("tuk single_channel_control_sw")
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+            System.err.println("tuk single_channel_control_sw 1")
+            main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE, 16)
+          } else {
+            System.err.println("tuk single_channel_control_sw 2")
+            main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
+          }
+
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
           single_channel_control_tv.text = 0.toString()
-          main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
-//          main?.incrementCountCommand()
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+            main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE, 16)
+          } else {
+            main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
+          }
+
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
         }
       }
@@ -224,7 +236,6 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
                                     SET_CHANGE_GESTURE, WRITE, 17)
-//          main?.incrementCountCommand()
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, seekBar.progress)
         }
       }
@@ -232,8 +243,13 @@ class AdvancedSettingsFragment : Fragment() {
 
     reset_to_factory_settings_btn.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
-        main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
-//        main?.incrementCountCommand()
+        System.err.println("tuk reset_to_factory_settings_btn")
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE, 15)
+        } else {
+          main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
+        }
+
 
         swap_open_close_tv.text = 0.toString()
         main?.setSwapOpenCloseButton(false)

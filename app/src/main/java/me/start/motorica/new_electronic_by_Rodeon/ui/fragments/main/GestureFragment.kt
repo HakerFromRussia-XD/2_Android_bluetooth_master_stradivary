@@ -20,8 +20,9 @@ import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.R.drawable.*
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
-import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE
-import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE
+import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
+import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
+import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
@@ -65,7 +66,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 resetStateButtons()
                 selectActiveGesture(1)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
-                main?.bleCommandConnector(byteArrayOf(0), SET_GESTURE, WRITE,13)
+//                main?.bleCommandConnector(byteArrayOf(0), SET_GESTURE, WRITE,13)
+                compileBLEMassage (0)
             }
         }
         gesture_settings_1_btn.setOnClickListener {
@@ -77,7 +79,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 resetStateButtons()
                 selectActiveGesture(2)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 2)
-                main?.bleCommandConnector(byteArrayOf(1), SET_GESTURE, WRITE, 13)
+//                main?.bleCommandConnector(byteArrayOf(1), SET_GESTURE, WRITE, 13)
+                compileBLEMassage (1)
             }
         }
         gesture_settings_2_btn.setOnClickListener {
@@ -90,7 +93,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 resetStateButtons()
                 selectActiveGesture(3)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 3)
-                main?.bleCommandConnector(byteArrayOf(2), SET_GESTURE, WRITE, 13)
+//                main?.bleCommandConnector(byteArrayOf(2), SET_GESTURE, WRITE, 13)
+                compileBLEMassage (2)
             }
         }
         gesture_settings_3_btn.setOnClickListener {
@@ -103,7 +107,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 resetStateButtons()
                 selectActiveGesture(4)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 4)
-                main?.bleCommandConnector(byteArrayOf(3), SET_GESTURE, WRITE, 13)
+                compileBLEMassage (3)
+//                main?.bleCommandConnector(byteArrayOf(3), SET_GESTURE, WRITE, 13)
             }
         }
         gesture_settings_4_btn.setOnClickListener {
@@ -116,7 +121,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 resetStateButtons()
                 selectActiveGesture(5)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 5)
-                main?.bleCommandConnector(byteArrayOf(4), SET_GESTURE, WRITE, 13)
+                compileBLEMassage (4)
+//                main?.bleCommandConnector(byteArrayOf(4), SET_GESTURE, WRITE, 13)
             }
         }
         gesture_settings_5_btn.setOnClickListener {
@@ -129,7 +135,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 resetStateButtons()
                 selectActiveGesture(6)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 6)
-                main?.bleCommandConnector(byteArrayOf(5), SET_GESTURE, WRITE, 13)
+                compileBLEMassage (5)
+//                main?.bleCommandConnector(byteArrayOf(5), SET_GESTURE, WRITE, 13)
             }
         }
         gesture_settings_6_btn.setOnClickListener {
@@ -142,7 +149,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 resetStateButtons()
                 selectActiveGesture(7)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 7)
-                main?.bleCommandConnector(byteArrayOf(6), SET_GESTURE, WRITE, 13)
+                compileBLEMassage (6)
+//                main?.bleCommandConnector(byteArrayOf(6), SET_GESTURE, WRITE, 13)
             }
         }
         gesture_settings_7_btn.setOnClickListener {
@@ -155,13 +163,22 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 resetStateButtons()
                 selectActiveGesture(8)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 8)
-                main?.bleCommandConnector(byteArrayOf(7), SET_GESTURE, WRITE, 13)
+                compileBLEMassage (7)
+//                main?.bleCommandConnector(byteArrayOf(7), SET_GESTURE, WRITE, 13)
             }
         }
         gesture_settings_8_btn.setOnClickListener {
             val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
             startActivity(intent)
             main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
+        }
+    }
+
+    private fun compileBLEMassage (useGesture: Int) {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+            main?.bleCommandConnector(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW, WRITE, 13)
+        } else {
+            main?.bleCommandConnector(byteArrayOf(useGesture.toByte()), SET_GESTURE, WRITE, 13)
         }
     }
 

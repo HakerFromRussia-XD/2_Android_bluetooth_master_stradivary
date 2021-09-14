@@ -68,146 +68,123 @@ class CustomDialogFragment: DialogFragment() {
                     openStage = if (rootView?.finger_1_open_sb!!.isChecked) openStage or 0b00000001
                     else openStage and 0b11111110
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_1_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_1_close_sb!!.isChecked) closeStage or 0b00000001
                     else closeStage and 0b11111110
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_2_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_2_open_sb!!.isChecked) openStage or 0b00000010
                     else openStage and 0b11111101
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_2_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_2_close_sb!!.isChecked) closeStage or 0b00000010
                     else closeStage and 0b11111101
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_3_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_3_open_sb!!.isChecked) openStage or 0b00000100
                     else openStage and 0b11111011
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
+
                 }
                 rootView?.finger_3_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_3_close_sb!!.isChecked) closeStage or 0b00000100
                     else closeStage and 0b11111011
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_4_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_4_open_sb!!.isChecked) openStage or 0b00001000
                     else openStage and 0b11110111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_4_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_4_close_sb!!.isChecked) closeStage or 0b00001000
                     else closeStage and 0b11110111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_5_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_5_open_sb!!.isChecked) openStage or 0b00010000
                     else openStage and 0b11101111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_5_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_5_close_sb!!.isChecked) closeStage or 0b00010000
                     else closeStage and 0b11101111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_6_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_6_open_sb!!.isChecked) openStage or 0b00100000
                     else openStage and 0b11011111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_6_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_6_close_sb!!.isChecked) closeStage or 0b00100000
                     else closeStage and 0b11011111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
             } else {
                 rootView?.finger_4_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_4_open_sb!!.isChecked) openStage or 0b00000001
                     else openStage and 0b11111110
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_4_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_4_close_sb!!.isChecked) closeStage or 0b00000001
                     else closeStage and 0b11111110
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_3_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_3_open_sb!!.isChecked) openStage or 0b00000010
                     else openStage and 0b11111101
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_3_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_3_close_sb!!.isChecked) closeStage or 0b00000010
                     else closeStage and 0b11111101
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_2_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_2_open_sb!!.isChecked) openStage or 0b00000100
                     else openStage and 0b11111011
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_2_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_2_close_sb!!.isChecked) closeStage or 0b00000100
                     else closeStage and 0b11111011
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_1_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_1_open_sb!!.isChecked) openStage or 0b00001000
                     else openStage and 0b11110111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_1_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_1_close_sb!!.isChecked) closeStage or 0b00001000
                     else closeStage and 0b11110111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_5_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_5_open_sb!!.isChecked) openStage or 0b00010000
                     else openStage and 0b11101111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_5_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_5_close_sb!!.isChecked) closeStage or 0b00010000
                     else closeStage and 0b11101111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_6_open_sb?.setOnClickListener {
                     openStage = if (rootView?.finger_6_open_sb!!.isChecked) openStage or 0b00100000
                     else openStage and 0b11011111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
                 rootView?.finger_6_close_sb?.setOnClickListener {
                     closeStage = if (rootView?.finger_6_close_sb!!.isChecked) closeStage or 0b00100000
                     else closeStage and 0b11011111
                     main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), openStage.toByte(), closeStage.toByte(), closeState), ADD_GESTURE, WRITE, 12)
-//                    main?.incrementCountCommand()
                 }
             }
 

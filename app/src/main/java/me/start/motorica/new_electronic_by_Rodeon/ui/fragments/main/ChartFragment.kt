@@ -96,11 +96,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     scale = resources.displayMetrics.density
 
     close_btn.setOnTouchListener { _, event ->
-//      if (!main?.lockWriteBeforeFirstRead!!) {
+      if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_NEW, WRITE, 7)
+              main?.bleCommandConnector(byteArrayOf(0x01), CLOSE_MOTOR_NEW, WRITE, 7)
               System.err.println("НАЖАТИЕ НА КНОПКУ ЗАКРЫТЬ НОВЫЙ ПРОТОКОЛ")
             } else {
               main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
@@ -109,7 +109,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_NEW, WRITE, 7)
+              main?.bleCommandConnector(byteArrayOf(0x00), CLOSE_MOTOR_NEW, WRITE, 7)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
 
@@ -118,21 +118,21 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         } else {
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_NEW, WRITE, 6)
+              main?.bleCommandConnector(byteArrayOf(0x01), OPEN_MOTOR_NEW, WRITE, 6)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
             }
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_NEW, WRITE, 6)
+              main?.bleCommandConnector(byteArrayOf(0x00), OPEN_MOTOR_NEW, WRITE, 6)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
             }
 
           }
         }
-//      }
+      }
       false
     }
     open_btn.setOnTouchListener { _, event ->
@@ -140,14 +140,14 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (!main?.getSwapOpenCloseButton()!!) {
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_NEW, WRITE, 6)
+              main?.bleCommandConnector(byteArrayOf(0x01), OPEN_MOTOR_NEW, WRITE, 6)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
             }
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_NEW, WRITE, 6)
+              main?.bleCommandConnector(byteArrayOf(0x00), OPEN_MOTOR_NEW, WRITE, 6)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
             }
@@ -155,14 +155,14 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         } else {
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_NEW, WRITE, 7)
+              main?.bleCommandConnector(byteArrayOf(0x01), CLOSE_MOTOR_NEW, WRITE, 7)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
             }
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_NEW, WRITE, 7)
+              main?.bleCommandConnector(byteArrayOf(0x00), CLOSE_MOTOR_NEW, WRITE, 7)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
             }
@@ -224,6 +224,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+//            { 16, 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 }
+//            { 16, 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 }
             main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS_NEW, WRITE,11)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
@@ -472,8 +474,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
                   ?: 22.0f) * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
                   ?: 22.0f) * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 22))).setDuration(200).start()
-          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 22))).setDuration(200).start()
+          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 16))).setDuration(200).start()
+          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 16))).setDuration(200).start()
         }
         try {
           Thread.sleep(1000)

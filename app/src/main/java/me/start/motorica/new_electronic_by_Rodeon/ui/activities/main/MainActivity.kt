@@ -33,6 +33,7 @@ import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
+import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
@@ -270,6 +271,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         dataSens2 = castUnsignedCharToInt(data[1])
         savingSettingsWhenModified = true
       }
+      lockWriteBeforeFirstRead = false
     }
   }
   private fun displayDataWriteOpen(data: ByteArray?) {
@@ -350,7 +352,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { parameters ->
               System.err.println("Prisedshie parametri: ${parameters.gestureNumber} ${parameters.openStage}  ${parameters.closeStage} ${parameters.state}")
-              bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE, WRITE, 12)
+              if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
+                bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE_NEW, WRITE, 12)
+              } else {
+                bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE, WRITE, 12)
+              }
             }
 
     RxUpdateMainEvent.getInstance().fingerSpeedObservable
@@ -374,7 +380,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private fun initUI() {
     if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
+              || mDeviceType!!.contains(DEVICE_TYPE_4)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
@@ -385,7 +392,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       NavigationUtils.showAdvancedSettings = true
     } else {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
+              || mDeviceType!!.contains(DEVICE_TYPE_4)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -529,7 +537,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     thresholds_blocking_sw.isEnabled = enabled
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3) || mDeviceType!!.contains(DEVICE_TYPE_4)) {
       gesture_1_btn.isEnabled = enabled
       gesture_2_btn.isEnabled = enabled
       gesture_3_btn.isEnabled = enabled
@@ -692,12 +700,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0) {
               mCharacteristic?.value = byteArray
               mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+              System.err.println("bleCommand Write Characteristic")
             }
           }
 
           if (typeCommand == READ){
             if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
               mBluetoothLeService?.readCharacteristic(mCharacteristic)
+              System.err.println("bleCommand Read Characteristic")
             }
           }
 
@@ -706,12 +716,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               mNotifyCharacteristic = mCharacteristic
               mBluetoothLeService!!.setCharacteristicNotification(
                       mCharacteristic, true)
+              System.err.println("bleCommand Notify Characteristic")
             }
           }
         }
       }
     }
-    System.err.println("bleCommand")
+
   }
 
   private fun startSubscribeSensorsDataThread() {
@@ -730,15 +741,15 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun startSubscribeSensorsNewDataThread() {
     subscribeThread = Thread {
-//      while (sensorsDataThreadFlag) {
+      while (sensorsDataThreadFlag) {
         runOnUiThread {
           bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
           System.err.println("startSubscribeSensorsNewDataThread попытка подписки")
         }
-//        try {
-//          Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
-//        } catch (ignored: Exception) { }
-//      }
+        try {
+          Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
+        } catch (ignored: Exception) { }
+      }
     }
     subscribeThread?.start()
   }

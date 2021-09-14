@@ -166,15 +166,17 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))) { // новая схема обработки данных
             displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
-              System.err.println("попадаем сюда")
+//              System.err.println("попадаем сюда")
           } else {
             if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
               //TODO прописать новую функцию обработки пришедших данных
-              displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
-              System.err.println("попадаем в новую ветку")
+              if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
+              if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
+//              System.err.println("попадаем в новую ветку")
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
-              System.err.println("попадаем не сюда")
+//              System.err.println("попадаем не сюда")
             }
           }
            //вывод на график данных из характеристики показаний пульса
@@ -266,12 +268,25 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataNew(data: ByteArray?) {
     if (data != null) {
-      if (data.size == 2) {
-        dataSens1 = castUnsignedCharToInt(data[0])
-        dataSens2 = castUnsignedCharToInt(data[1])
-        savingSettingsWhenModified = true
-      }
+        if (data.size == 2) {
+          dataSens1 = castUnsignedCharToInt(data[0])
+          dataSens2 = castUnsignedCharToInt(data[1])
+          savingSettingsWhenModified = true
+        }
       lockWriteBeforeFirstRead = false
+//      globalSemaphore = true
+    }
+  }
+  private fun displayDataSensVersionNew(data: ByteArray?) {
+    if (data != null) {
+      System.err.println("SENS_VERSION_NEW_DATA приняты")
+      globalSemaphore = true
+    }
+  }
+  private fun displayDataOpenThresholdNew(data: ByteArray?) {
+    if (data != null) {
+      System.err.println("OPEN_THRESHOLD_NEW_DATA приняты")
+      globalSemaphore = true
     }
   }
   private fun displayDataWriteOpen(data: ByteArray?) {
@@ -677,11 +692,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       globalSemaphore = true
       runWriteData(sendByteMassive, FESTO_A_CHARACTERISTIC, WRITE_WR)
     } else {
-//      if (mDeviceType!!.contains(DEVICE_TYPE_4))  {
-//
-//      } else {
         bleCommand(byteArray, Command, typeCommand)
-//      }
     }
   }
   private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
@@ -750,143 +761,67 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) { }
       }
+      if (!sensorsDataThreadFlag) {
+        runStart()
+      }
     }
     subscribeThread?.start()
   }
 
   /**
-   * Отправка команды на проверку, остановлена ли сейчас помпа
+   * Запуск задачи чтения параметров экрана графиков
    */
-//  private fun runStart() { getCheckStartStop()?.let { queue.put(it) } }
-//  open fun getCheckStartStop(): Runnable? { return Runnable { checkStartStop() } }
-//  private fun checkStartStop() {
-//    val info = "checkStartStopState"
-//    var count = 0
-//    var state = 0 // переключается здесь в потоке
-//    var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
-//    globalSemaphore = true // меняется по приходу ответа от подключаемого уст-ва
-//
-//    while (!endFlag) {
-//      if (globalSemaphore) {
-//        when (state) {
-//          0 -> {
-//            System.err.println("$info = 0")
-//            readRegister(0, state, TEMPORARY_STOP_INIT_REGISTER)
-//            globalSemaphore = false
-//            state = 1
-//            showToast("проверка состояния остановки")
-//          }
-//          1 -> {
-//            System.err.println("$info = 1")
-//            readRegister(1, state, TEMPORARY_STOP_INIT_REGISTER)
-//            globalSemaphore = false
-//            state = 2
-//          }
-//          2 -> {
-//            System.err.println("$info = 2")
-//            state = readRegister(2, state, TEMPORARY_STOP_INIT_REGISTER)
-//          }
-//          3 -> {
-//            System.err.println("$info = 3")
-//            readRegister(3, state, TEMPORARY_STOP_INIT_REGISTER)
-//            globalSemaphore = false
-//            state = 4
-//          }
-//          4 -> {
-//            System.err.println("$info = 4")
-//            if (temporaryStopInit) {
-//              endFlag = true
-//              state = 0
-//              globalSemaphore = false
-//              play_stop_fab?.setImageResource(play2)
-//              stopPump = true
-//              showToast("временная остановка активна")
-//            } else {
-//              state = 5
-//            }
-//          }
-//          5 -> {
-//            System.err.println("$info = 5")
-//            readRegister(0, state, PERMANENT_STOP_INIT_REGISTER)
-//            globalSemaphore = false
-//            state = 6
-//          }
-//          6 -> {
-//            System.err.println("$info = 6")
-//            readRegister(1, state, PERMANENT_STOP_INIT_REGISTER)
-//            globalSemaphore = false
-//            state = 7
-//          }
-//          7 -> {
-//            System.err.println("$info = 7")
-//            state = readRegister(2, state, PERMANENT_STOP_INIT_REGISTER)
-//          }
-//          8 -> {
-//            System.err.println("$info = 8")
-//            readRegister(3, state, PERMANENT_STOP_INIT_REGISTER)
-//            globalSemaphore = false
-//            state = 9
-//          }
-//          9 -> {
-//            System.err.println("$info = 9")
-//            if (permanentStopInit) {
-//              endFlag = true
-//              state = 0
-//              globalSemaphore = false
-//              play_stop_fab?.setImageResource(play2)
-//              stopPump = true
-//              showToast("постоянная остановка активна")
-//            } else {
-//              state = 10
-//            }
-//          }
-//          10 -> {
-//            System.err.println("$info = 10")
-//            endFlag = true
-//            state = 0
-//            globalSemaphore = false
-//            play_stop_fab?.setImageResource(stop2)
-//            stopPump = false
-//            showToast("помпа не остановлена")
-//          }
-//        }
-//        count = 0
-//      } else {
-//        count++
-//        System.err.println("Количество запросов без ответа = $count")
-//        if (count == 100) {
-//          endFlag = true
-//          state = 0
-//          count = 0
-//        }
-//      }
-//      try {
-//        Thread.sleep(10)
-//      } catch (ignored: Exception) {
-//      }
-//    }
-//  }
-//
-//  private fun readRegister(state: Int, stateMachineState: Int, registerPointer: ByteArray):Int {
-//    var mStateMachineState = stateMachineState
-//    when (state) {
-//      0 -> { bleCommand(READ_REGISTER, REGISTER_POINTER, READ) }
-//      1 -> {  }
-//      2 -> {
-//        moveDataSortSemaphore()
-//
-//        return if (contentEquals(readRegisterPointer!!, registerPointer)) {
-//          mStateMachineState++
-//          mStateMachineState
-//        } else {
-//          mStateMachineState -= 2
-//          mStateMachineState
-//        }
-//      }
-//      3 -> { bleCommand(FAKE_DATA_REGISTER, REGISTER_DATA, READ) }
-//    }
-//    return 555
-//  }
+  private fun runStart() { getReadThresholdsAndVersions()?.let { queue.put(it) } }
+  open fun getReadThresholdsAndVersions(): Runnable? { return Runnable { readThresholdsAndVersions() } }
+  private fun readThresholdsAndVersions() {
+    val info = "Чтение порогов и версий"
+    var count = 0
+    var state = 0 // переключается здесь в потоке
+    var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
+    globalSemaphore = true // меняется по приходу ответа от подключаемого уст-ва
+
+    while (!endFlag) {
+      if (globalSemaphore) {
+        when (state) {
+          0 -> {
+            System.err.println("$info = 0")
+            bleCommand(READ_REGISTER, SENS_VERSION_NEW, READ)
+            globalSemaphore = false
+            state = 1
+            showToast("SENS_VERSION_NEW считан")
+          }
+          1 -> {
+            System.err.println("$info = 1")
+            bleCommand(READ_REGISTER, OPEN_THRESHOLD_NEW, READ)
+            globalSemaphore = false
+            state = 2
+            showToast("OPEN_THRESHOLD_NEW считан")
+          }
+          2 -> {
+            System.err.println("$info = 2")
+            bleCommand(READ_REGISTER, CLOSE_THRESHOLD_NEW, READ)
+            globalSemaphore = false
+            state = 0
+            endFlag = true
+            showToast("CLOSE_THRESHOLD_NEW считан")
+          }
+        }
+        count = 0
+      } else {
+        count++
+        System.err.println("Количество запросов без ответа = $count")
+        if (count == 1000) {
+          endFlag = true
+          state = 0
+          count = 0
+        }
+      }
+      try {
+        Thread.sleep(10)
+      } catch (ignored: Exception) {
+      }
+    }
+  }
 
   private fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
   open fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }

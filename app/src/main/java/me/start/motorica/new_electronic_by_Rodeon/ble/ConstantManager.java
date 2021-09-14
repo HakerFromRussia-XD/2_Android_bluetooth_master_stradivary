@@ -11,6 +11,8 @@ public interface ConstantManager {
     String EXTRAS_DEVICE_TYPE_3 = "BLE_test_services—•";
     String DEVICE_TYPE_4 = "FEST-H";
 
+    byte[] READ_REGISTER = {0x00}; // просто заглушка для того чтобы функция отправки команды при чтении смотрелась красиво
+
     ////////////////////////////////////////////////
 /**                      3D                         **/
     ////////////////////////////////////////////////

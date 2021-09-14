@@ -40,7 +40,9 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.NOTIFY;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_MOTOR_HDLE;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.READ;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE;
 
 
@@ -63,17 +65,61 @@ public class BluetoothLeService extends Service {
     public final static String ACTION_GATT_SERVICES_DISCOVERED = "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE = "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String MIO_DATA = "com.example.bluetooth.le.MIO_DATA";
-    public final static String MIO_DATA_NEW = "com.example.bluetooth.le.MIO_DATA_NEW";
     public final static String FESTO_A_DATA = "com.example.bluetooth.le.FESTO_A_DATA";
     public final static String OPEN_MOTOR_DATA = "com.example.bluetooth.le.OPEN_MOTOR_DATA";
     public final static String CLOSE_MOTOR_DATA = "com.example.bluetooth.le.CLOSE_MOTOR_DATA";
     public final static String SHUTDOWN_CURRENT_HDLE = "com.example.bluetooth.le.SHUTDOWN_CURRENT_HDLE";
     public final static String SENSORS_DATA_THREAD_FLAG = "com.example.bluetooth.le.SENSORS_DATA_THREAD_FLAG";
 
+    public final static String MIO_DATA_NEW = "com.example.bluetooth.le.MIO_DATA_NEW";
+    public final static String SENS_VERSION_NEW_DATA = "com.example.bluetooth.le.SENS_VERSION_NEW_DATA";
+    public final static String OPEN_THRESHOLD_NEW_DATA = "com.example.bluetooth.le.OPEN_THRESHOLD_NEW_DATA";
 
 
     public final static UUID UUID_HEART_RATE_MEASUREMENT = UUID.fromString(MIO_MEASUREMENT);
+    private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
+        final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
 
+        final byte[] data = characteristic.getValue();
+
+        if (data != null && data.length > 0) {
+            for(byte byteChar : data){
+                if(SHOW_EVERYONE_RECEIVE_BYTE) System.err.println("BluetoothLeService-------------> append massage: " + String.format("%02X ", byteChar));
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
+                intent.putExtra(MIO_DATA, data);
+                intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(FESTO_A_CHARACTERISTIC)) {
+                if (state.equals(READ)) { intent.putExtra(FESTO_A_DATA, data); intent.putExtra(ACTION_STATE, READ);}
+                if (state.equals(WRITE)) { intent.putExtra(FESTO_A_DATA, data); intent.putExtra(ACTION_STATE, WRITE);}
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(OPEN_MOTOR_HDLE)){
+                intent.putExtra(OPEN_MOTOR_DATA, data);
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(CLOSE_MOTOR_HDLE)){
+                intent.putExtra(CLOSE_MOTOR_DATA, data);
+            }
+
+            if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT_NEW)) {
+                intent.putExtra(MIO_DATA_NEW, data);
+                intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(SENS_VERSION_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(SENS_VERSION_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(OPEN_THRESHOLD_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(OPEN_THRESHOLD_NEW_DATA, data); }
+            }
+
+
+            //TEST
+            if (String.valueOf(characteristic.getUuid()).equals(SampleGattAttributes.SHUTDOWN_CURRENT_HDLE)){
+                intent.putExtra(SHUTDOWN_CURRENT_HDLE, data);
+            }
+        }
+        sendBroadcast(intent);
+    }
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -134,46 +180,6 @@ public class BluetoothLeService extends Service {
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
-        sendBroadcast(intent);
-    }
-
-    private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
-        final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
-
-        final byte[] data = characteristic.getValue();
-
-        if (data != null && data.length > 0) {
-            for(byte byteChar : data){
-                if(SHOW_EVERYONE_RECEIVE_BYTE) System.err.println("BluetoothLeService-------------> append massage: " + String.format("%02X ", byteChar));
-
-            }
-            if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
-                intent.putExtra(MIO_DATA, data);
-                intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
-//                System.err.println("BluetoothLeService-------------> данные на график c нотификации");
-            }
-            System.err.println("BluetoothLeService-------------> данные "+ characteristic.getUuid());
-            if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT_NEW)) {
-                intent.putExtra(MIO_DATA_NEW, data);
-                intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
-            }
-            if (String.valueOf(characteristic.getUuid()).equals(FESTO_A_CHARACTERISTIC)) {
-                if (state.equals(READ)) { intent.putExtra(FESTO_A_DATA, data); intent.putExtra(ACTION_STATE, READ);}
-                if (state.equals(WRITE)) { intent.putExtra(FESTO_A_DATA, data); intent.putExtra(ACTION_STATE, WRITE);}
-//                System.err.println("BluetoothLeService-------------> данные на график с чтения");
-            }
-            if (String.valueOf(characteristic.getUuid()).equals(OPEN_MOTOR_HDLE)){
-                intent.putExtra(OPEN_MOTOR_DATA, data);
-            }
-            if (String.valueOf(characteristic.getUuid()).equals(CLOSE_MOTOR_HDLE)){
-                intent.putExtra(CLOSE_MOTOR_DATA, data);
-            }
-
-            //TEST
-            if (String.valueOf(characteristic.getUuid()).equals(SampleGattAttributes.SHUTDOWN_CURRENT_HDLE)){
-                intent.putExtra(SHUTDOWN_CURRENT_HDLE, data);
-            }
-        }
         sendBroadcast(intent);
     }
 

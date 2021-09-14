@@ -64,7 +64,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   @Inject
   lateinit var preferenceManager: PreferenceManager
 
-  private var sensorsDataThreadFlag: Boolean = false
+  private var sensorsDataThreadFlag: Boolean = true
   private var mDeviceName: String? = null
   var mDeviceAddress: String? = null
   var mDeviceType: String? = null
@@ -508,6 +508,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         currentCharaData[listName] = lookup(uuid, unknownCharaString)
         currentCharaData[listUUID] = uuid
         gattCharacteristicGroupData.add(currentCharaData)
+        System.err.println("ХАРАКТЕРИСТИКА: " + uuid)
       }
       mGattCharacteristics.add(charas)
       gattCharacteristicData.add(gattCharacteristicGroupData)
@@ -729,15 +730,15 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun startSubscribeSensorsNewDataThread() {
     subscribeThread = Thread {
-      while (sensorsDataThreadFlag) {
+//      while (sensorsDataThreadFlag) {
         runOnUiThread {
           bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
           System.err.println("startSubscribeSensorsNewDataThread попытка подписки")
         }
-        try {
-          Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
-        } catch (ignored: Exception) { }
-      }
+//        try {
+//          Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
+//        } catch (ignored: Exception) { }
+//      }
     }
     subscribeThread?.start()
   }

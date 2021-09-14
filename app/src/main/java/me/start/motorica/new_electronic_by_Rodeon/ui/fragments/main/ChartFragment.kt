@@ -96,13 +96,15 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     scale = resources.displayMetrics.density
 
     close_btn.setOnTouchListener { _, event ->
-      if (!main?.lockWriteBeforeFirstRead!!) {
+//      if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
               main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_NEW, WRITE, 7)
+              System.err.println("НАЖАТИЕ НА КНОПКУ ЗАКРЫТЬ НОВЫЙ ПРОТОКОЛ")
             } else {
               main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+              System.err.println("НАЖАТИЕ НА КНОПКУ ЗАКРЫТЬ СТАРЫЙ ПРОТОКОЛ")
             }
           }
           if (event.action == MotionEvent.ACTION_UP) {
@@ -130,7 +132,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
           }
         }
-      }
+//      }
       false
     }
     open_btn.setOnTouchListener { _, event ->

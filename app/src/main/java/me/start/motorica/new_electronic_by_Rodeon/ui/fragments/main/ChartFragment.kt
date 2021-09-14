@@ -99,21 +99,35 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
           if (event.action == MotionEvent.ACTION_DOWN) {
-            main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-//            main?.incrementCountCommand()
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_NEW, WRITE, 7)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+            }
           }
           if (event.action == MotionEvent.ACTION_UP) {
-            main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-//            main?.incrementCountCommand()
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_NEW, WRITE, 7)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+
+            }
           }
         } else {
           if (event.action == MotionEvent.ACTION_DOWN) {
-            main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-//            main?.incrementCountCommand()
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_NEW, WRITE, 6)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
+            }
           }
           if (event.action == MotionEvent.ACTION_UP) {
-            main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-//            main?.incrementCountCommand()
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_NEW, WRITE, 6)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
+            }
+
           }
         }
       }
@@ -123,21 +137,33 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
           if (event.action == MotionEvent.ACTION_DOWN) {
-//            main?.incrementCountCommand()
-            main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_NEW, WRITE, 6)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
+            }
           }
           if (event.action == MotionEvent.ACTION_UP) {
-//            main?.incrementCountCommand()
-            main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_NEW, WRITE, 6)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
+            }
           }
         } else {
           if (event.action == MotionEvent.ACTION_DOWN) {
-            main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-//            main?.incrementCountCommand()
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_NEW, WRITE, 7)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+            }
           }
           if (event.action == MotionEvent.ACTION_UP) {
-            main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-//            main?.incrementCountCommand()
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_NEW, WRITE, 7)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
+            }
           }
         }
       }
@@ -155,8 +181,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
-//          main?.incrementCountCommand()
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+            main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW, WRITE, 4)
+          } else {
+            main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
+          }
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
           }
@@ -174,8 +203,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
-//          main?.incrementCountCommand()
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+            main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW, WRITE, 5)
+          } else {
+            main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
+          }
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
           }
@@ -189,8 +221,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
-//          main?.incrementCountCommand()
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+            main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS_NEW, WRITE,11)
+          } else {
+            main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
+          }
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
           }
@@ -204,8 +239,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS, WRITE,11)
-//          main?.incrementCountCommand()
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+            main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS_NEW, WRITE,11)
+          } else {
+            main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS, WRITE,11)
+          }
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
           }
@@ -216,11 +254,19 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
         if (swap_sensors_sw.isChecked) {
           swap_sensors_tv.text = 1.toString()
-          main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+            main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE_NEW, WRITE, 14)
+          } else {
+            main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
+          }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
         } else {
           swap_sensors_tv.text = 0.toString()
-          main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
+            main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE_NEW, WRITE, 14)
+          } else {
+            main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
+          }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
         }
       }

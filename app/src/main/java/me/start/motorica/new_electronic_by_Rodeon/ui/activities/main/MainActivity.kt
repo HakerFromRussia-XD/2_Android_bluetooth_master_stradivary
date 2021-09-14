@@ -668,7 +668,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       globalSemaphore = true
       runWriteData(sendByteMassive, FESTO_A_CHARACTERISTIC, WRITE_WR)
     } else {
-      bleCommand(byteArray, Command, typeCommand)
+//      if (mDeviceType!!.contains(DEVICE_TYPE_4))  {
+//
+//      } else {
+        bleCommand(byteArray, Command, typeCommand)
+//      }
     }
   }
   private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
@@ -713,9 +717,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     subscribeThread = Thread {
       while (sensorsDataThreadFlag) {
         runOnUiThread {
-//          bleCommand(byteArrayOf(0x01), SHUTDOWN_CURRENT_HDLE, WRITE)
           bleCommand(null, MIO_MEASUREMENT, NOTIFY)
-//          bleCommand(null, SHUTDOWN_CURRENT_HDLE, NOTIFY)
           System.err.println("startSubscribeSensorsDataThread попытка подписки")
         }
         try {
@@ -727,9 +729,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun startSubscribeSensorsNewDataThread() {
     subscribeThread = Thread {
-//      runOnUiThread {
-//        bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
-//      }
       while (sensorsDataThreadFlag) {
         runOnUiThread {
           bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
@@ -742,6 +741,140 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
     subscribeThread?.start()
   }
+
+  /**
+   * Отправка команды на проверку, остановлена ли сейчас помпа
+   */
+//  private fun runStart() { getCheckStartStop()?.let { queue.put(it) } }
+//  open fun getCheckStartStop(): Runnable? { return Runnable { checkStartStop() } }
+//  private fun checkStartStop() {
+//    val info = "checkStartStopState"
+//    var count = 0
+//    var state = 0 // переключается здесь в потоке
+//    var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
+//    globalSemaphore = true // меняется по приходу ответа от подключаемого уст-ва
+//
+//    while (!endFlag) {
+//      if (globalSemaphore) {
+//        when (state) {
+//          0 -> {
+//            System.err.println("$info = 0")
+//            readRegister(0, state, TEMPORARY_STOP_INIT_REGISTER)
+//            globalSemaphore = false
+//            state = 1
+//            showToast("проверка состояния остановки")
+//          }
+//          1 -> {
+//            System.err.println("$info = 1")
+//            readRegister(1, state, TEMPORARY_STOP_INIT_REGISTER)
+//            globalSemaphore = false
+//            state = 2
+//          }
+//          2 -> {
+//            System.err.println("$info = 2")
+//            state = readRegister(2, state, TEMPORARY_STOP_INIT_REGISTER)
+//          }
+//          3 -> {
+//            System.err.println("$info = 3")
+//            readRegister(3, state, TEMPORARY_STOP_INIT_REGISTER)
+//            globalSemaphore = false
+//            state = 4
+//          }
+//          4 -> {
+//            System.err.println("$info = 4")
+//            if (temporaryStopInit) {
+//              endFlag = true
+//              state = 0
+//              globalSemaphore = false
+//              play_stop_fab?.setImageResource(play2)
+//              stopPump = true
+//              showToast("временная остановка активна")
+//            } else {
+//              state = 5
+//            }
+//          }
+//          5 -> {
+//            System.err.println("$info = 5")
+//            readRegister(0, state, PERMANENT_STOP_INIT_REGISTER)
+//            globalSemaphore = false
+//            state = 6
+//          }
+//          6 -> {
+//            System.err.println("$info = 6")
+//            readRegister(1, state, PERMANENT_STOP_INIT_REGISTER)
+//            globalSemaphore = false
+//            state = 7
+//          }
+//          7 -> {
+//            System.err.println("$info = 7")
+//            state = readRegister(2, state, PERMANENT_STOP_INIT_REGISTER)
+//          }
+//          8 -> {
+//            System.err.println("$info = 8")
+//            readRegister(3, state, PERMANENT_STOP_INIT_REGISTER)
+//            globalSemaphore = false
+//            state = 9
+//          }
+//          9 -> {
+//            System.err.println("$info = 9")
+//            if (permanentStopInit) {
+//              endFlag = true
+//              state = 0
+//              globalSemaphore = false
+//              play_stop_fab?.setImageResource(play2)
+//              stopPump = true
+//              showToast("постоянная остановка активна")
+//            } else {
+//              state = 10
+//            }
+//          }
+//          10 -> {
+//            System.err.println("$info = 10")
+//            endFlag = true
+//            state = 0
+//            globalSemaphore = false
+//            play_stop_fab?.setImageResource(stop2)
+//            stopPump = false
+//            showToast("помпа не остановлена")
+//          }
+//        }
+//        count = 0
+//      } else {
+//        count++
+//        System.err.println("Количество запросов без ответа = $count")
+//        if (count == 100) {
+//          endFlag = true
+//          state = 0
+//          count = 0
+//        }
+//      }
+//      try {
+//        Thread.sleep(10)
+//      } catch (ignored: Exception) {
+//      }
+//    }
+//  }
+//
+//  private fun readRegister(state: Int, stateMachineState: Int, registerPointer: ByteArray):Int {
+//    var mStateMachineState = stateMachineState
+//    when (state) {
+//      0 -> { bleCommand(READ_REGISTER, REGISTER_POINTER, READ) }
+//      1 -> {  }
+//      2 -> {
+//        moveDataSortSemaphore()
+//
+//        return if (contentEquals(readRegisterPointer!!, registerPointer)) {
+//          mStateMachineState++
+//          mStateMachineState
+//        } else {
+//          mStateMachineState -= 2
+//          mStateMachineState
+//        }
+//      }
+//      3 -> { bleCommand(FAKE_DATA_REGISTER, REGISTER_DATA, READ) }
+//    }
+//    return 555
+//  }
 
   private fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
   open fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }

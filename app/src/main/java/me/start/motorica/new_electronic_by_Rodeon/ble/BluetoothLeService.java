@@ -35,6 +35,7 @@ import timber.log.Timber;
 
 import static me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.SHOW_EVERYONE_RECEIVE_BYTE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_MOTOR_HDLE;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.FESTO_A_CHARACTERISTIC;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW;
@@ -74,6 +75,7 @@ public class BluetoothLeService extends Service {
     public final static String MIO_DATA_NEW = "com.example.bluetooth.le.MIO_DATA_NEW";
     public final static String SENS_VERSION_NEW_DATA = "com.example.bluetooth.le.SENS_VERSION_NEW_DATA";
     public final static String OPEN_THRESHOLD_NEW_DATA = "com.example.bluetooth.le.OPEN_THRESHOLD_NEW_DATA";
+    public final static String CLOSE_THRESHOLD_NEW_DATA = "com.example.bluetooth.le.CLOSE_THRESHOLD_NEW_DATA";
 
 
     public final static UUID UUID_HEART_RATE_MEASUREMENT = UUID.fromString(MIO_MEASUREMENT);
@@ -110,6 +112,9 @@ public class BluetoothLeService extends Service {
             }
             if (String.valueOf(characteristic.getUuid()).equals(OPEN_THRESHOLD_NEW)) {
                 if (state.equals(READ)) { intent.putExtra(OPEN_THRESHOLD_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(CLOSE_THRESHOLD_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(CLOSE_THRESHOLD_NEW_DATA, data); }
             }
 
 

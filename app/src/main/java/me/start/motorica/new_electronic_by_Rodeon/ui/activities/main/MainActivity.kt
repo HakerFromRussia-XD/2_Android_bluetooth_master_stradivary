@@ -94,7 +94,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   // Очередь для задачь работы с BLE
   private val queue = me.start.motorica.new_electronic_by_Rodeon.services.receivers.BlockingQueue()
   private var readDataFlag = true
-  private var globalSemaphore = true // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
+  private var globalSemaphore = false // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
   //  private var showAdvancedSettings = false
   private var swapOpenCloseButton = false
 
@@ -173,6 +173,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) displayDataCloseThresholdNew(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA))
 //              System.err.println("попадаем в новую ветку")
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
@@ -279,13 +280,19 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataSensVersionNew(data: ByteArray?) {
     if (data != null) {
-      System.err.println("SENS_VERSION_NEW_DATA приняты")
+      System.err.println("SENS_VERSION_NEW_DATA приняты  Чтение")
       globalSemaphore = true
     }
   }
   private fun displayDataOpenThresholdNew(data: ByteArray?) {
     if (data != null) {
-      System.err.println("OPEN_THRESHOLD_NEW_DATA приняты")
+      System.err.println("OPEN_THRESHOLD_NEW_DATA приняты  Чтение")
+      globalSemaphore = true
+    }
+  }
+  private fun displayDataCloseThresholdNew(data: ByteArray?) {
+    if (data != null) {
+      System.err.println("CLOSE_THRESHOLD_NEW_DATA приняты  Чтение")
       globalSemaphore = true
     }
   }
@@ -689,7 +696,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
       }
       readDataFlag = false
-      globalSemaphore = true
+//      globalSemaphore = true
       runWriteData(sendByteMassive, FESTO_A_CHARACTERISTIC, WRITE_WR)
     } else {
         bleCommand(byteArray, Command, typeCommand)
@@ -810,10 +817,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       } else {
         count++
         System.err.println("Количество запросов без ответа = $count")
-        if (count == 1000) {
+        if (count == 100) {
           endFlag = true
+//          globalSemaphore = true
+//          state -= 1
           state = 0
           count = 0
+          runStart()
         }
       }
       try {

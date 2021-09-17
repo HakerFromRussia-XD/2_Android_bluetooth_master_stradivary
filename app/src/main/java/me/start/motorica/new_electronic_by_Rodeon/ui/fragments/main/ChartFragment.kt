@@ -226,7 +226,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
 //            { 16, 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 }
 //            { 16, 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 }
-            main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS_NEW, WRITE,11)
+            main?.bleCommandConnector(byteArrayOf((255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 ), SENS_OPTIONS_NEW, WRITE,11)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
           }
@@ -244,7 +244,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-            main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS_NEW, WRITE,11)
+            main?.bleCommandConnector(byteArrayOf((255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64), SENS_OPTIONS_NEW, WRITE,11)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS, WRITE,11)
           }

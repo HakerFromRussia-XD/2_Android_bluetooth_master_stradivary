@@ -1,11 +1,13 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color.*
 import android.os.Bundle
+import android.os.Handler
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
@@ -16,9 +18,12 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.R.drawable.*
+import me.start.motorica.R.drawable.close_border
+import me.start.motorica.R.drawable.open_border
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
@@ -42,6 +47,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
     private var gestureNameList =  ArrayList<String>()
+    private var testThreadFlag = true
+    private var updatingUIThread: Thread? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.layout_gestures, container, false)
@@ -56,9 +63,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         super.onActivityCreated(savedInstanceState)
 
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-        selectActiveGesture(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1))
         main?.offGesturesUIBeforeConnection()
-
+        Handler().postDelayed({
+            startUpdatingUIThread()
+        }, 500)
 
 
         gesture_1_btn.setOnClickListener {
@@ -186,7 +194,13 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         super.onResume()
         gestureNameList.clear()
         loadNameGestures()
+        testThreadFlag = true
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        testThreadFlag = false
+    }
+
 
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
     fun resetStateButtons() {
@@ -267,6 +281,22 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         for (i in 0 until PreferenceKeys.NUM_GESTURES) {
             gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, text).toString())
         }
+    }
+
+    private fun startUpdatingUIThread() {
+        updatingUIThread =  Thread {
+            while (testThreadFlag) {
+                System.err.println("tik")
+                main?.runOnUiThread {
+                    resetStateButtons()
+                    selectActiveGesture(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1))
+                }
+                try {
+                    Thread.sleep(1000)
+                } catch (ignored: Exception) { }
+            }
+        }
+        updatingUIThread?.start()
     }
 }
 

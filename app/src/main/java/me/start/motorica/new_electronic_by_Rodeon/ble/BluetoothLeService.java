@@ -102,7 +102,6 @@ public class BluetoothLeService extends Service {
             if (String.valueOf(characteristic.getUuid()).equals(CLOSE_MOTOR_HDLE)){
                 intent.putExtra(CLOSE_MOTOR_DATA, data);
             }
-
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT_NEW)) {
                 intent.putExtra(MIO_DATA_NEW, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);

@@ -829,7 +829,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           3 -> {
             System.err.println("$info = 3")
-            bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
+            bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)//SENS_OPTIONS_NEW
             globalSemaphore = false
             state = 0
             endFlag = true

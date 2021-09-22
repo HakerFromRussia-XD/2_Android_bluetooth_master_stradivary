@@ -43,8 +43,8 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_MOTOR_HDLE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.READ;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.TEST_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE;
 
 
@@ -77,10 +77,8 @@ public class BluetoothLeService extends Service {
     public final static String SENS_VERSION_NEW_DATA = "com.example.bluetooth.le.SENS_VERSION_NEW_DATA";
     public final static String OPEN_THRESHOLD_NEW_DATA = "com.example.bluetooth.le.OPEN_THRESHOLD_NEW_DATA";
     public final static String CLOSE_THRESHOLD_NEW_DATA = "com.example.bluetooth.le.CLOSE_THRESHOLD_NEW_DATA";
-    public final static String TEST_NEW_DATA = "com.example.bluetooth.le.TEST_NEW_DATA";
+    public final static String SENS_OPTIONS_NEW_DATA = "com.example.bluetooth.le.SENS_OPTIONS_NEW_DATA";
 
-
-    public final static UUID UUID_HEART_RATE_MEASUREMENT = UUID.fromString(MIO_MEASUREMENT);
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
         final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
 
@@ -118,8 +116,10 @@ public class BluetoothLeService extends Service {
             if (String.valueOf(characteristic.getUuid()).equals(CLOSE_THRESHOLD_NEW)) {
                 if (state.equals(READ)) { intent.putExtra(CLOSE_THRESHOLD_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(TEST_NEW)) {
-                if (state.equals(READ)) { intent.putExtra(TEST_NEW_DATA, data); }
+            if (String.valueOf(characteristic.getUuid()).equals(SENS_OPTIONS_NEW)) {
+//                if (state.equals(READ)) {
+                    intent.putExtra(SENS_OPTIONS_NEW_DATA, data);
+//                }
             }
 
 

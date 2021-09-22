@@ -174,7 +174,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) displayDataCloseThresholdNew(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.TEST_NEW_DATA) != null) displayTestDataNew(intent.getByteArrayExtra(BluetoothLeService.TEST_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA) != null) displayDataSensOptionsNew(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA))
 //              System.err.println("попадаем в новую ветку")
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
@@ -281,25 +281,33 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataSensVersionNew(data: ByteArray?) {
     if (data != null) {
-      System.err.println("SENS_VERSION_NEW_DATA приняты  Чтение")
+      saveInt(mDeviceAddress + PreferenceKeys.SENS_NUM, castUnsignedCharToInt(data[0]))
       globalSemaphore = true
     }
   }
   private fun displayDataOpenThresholdNew(data: ByteArray?) {
     if (data != null) {
-      System.err.println("OPEN_THRESHOLD_NEW_DATA приняты  Чтение")
+      saveInt(mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[0]))
       globalSemaphore = true
     }
   }
   private fun displayDataCloseThresholdNew(data: ByteArray?) {
     if (data != null) {
-      System.err.println("TEST_NEW_DATA приняты  Чтение")
+      saveInt(mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[0]))
+      globalSemaphore = true
+    }
+  }
+  private fun displayDataSensOptionsNew(data: ByteArray?) {
+    System.err.println("получили какойто ответ от SENS_OPTIONS_NEW")
+    if (data != null) {
+      System.err.println("CORRELATOR_NOISE_THRESHOLD_1_NUM & CORRELATOR_NOISE_THRESHOLD_2_NUM")
+      saveInt(mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, castUnsignedCharToInt(data[0]))
+      saveInt(mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, castUnsignedCharToInt(data[13]))
       globalSemaphore = true
     }
   }
   private fun displayTestDataNew(data: ByteArray?) {
     if (data != null) {
-      System.err.println("TEST_NEW_DATA приняты  Чтение")
       for (bite in data) {
         System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
       }
@@ -713,7 +721,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         System.err.println("Отправили команду! Чтение")
     }
   }
-  private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
+  fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
     for (i in mGattCharacteristics.indices) {
       for (j in mGattCharacteristics[i].indices) {
         if (mGattCharacteristics[i][j].uuid.toString() == Command) {
@@ -806,22 +814,25 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SENS_VERSION_NEW, READ)
             globalSemaphore = false
             state = 1
-            showToast("SENS_VERSION_NEW считан")
           }
           1 -> {
             System.err.println("$info = 1")
             bleCommand(READ_REGISTER, OPEN_THRESHOLD_NEW, READ)
             globalSemaphore = false
             state = 2
-            showToast("OPEN_THRESHOLD_NEW считан")
           }
           2 -> {
             System.err.println("$info = 2")
             bleCommand(READ_REGISTER, CLOSE_THRESHOLD_NEW, READ)
             globalSemaphore = false
+            state = 3
+          }
+          3 -> {
+            System.err.println("$info = 3")
+            bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
+            globalSemaphore = false
             state = 0
             endFlag = true
-            showToast("CLOSE_THRESHOLD_NEW считан")
           }
         }
         count = 0
@@ -860,7 +871,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
 //  var first = true
-  private fun runReadData() {
+fun runReadData() {
     getReadData().let { queue.put(it) }
   }
   open fun getReadData(): Runnable { return Runnable { readData() } }

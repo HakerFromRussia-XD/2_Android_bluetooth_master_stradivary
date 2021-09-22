@@ -55,7 +55,6 @@ public class SampleGattAttributes {
     public static String SET_GESTURE_NEW = "43686172-4d74-726b-0005-526f64696f6e";
     public static String SET_REVERSE_NEW = "43686172-4d74-726b-0006-526f64696f6e";
     public static String SET_ONE_CHANNEL_NEW = "43686172-4d74-726b-0007-526f64696f6e";
-    public static String TEST_NEW = "43686172-4d74-726b-0008-526f64696f6e";
 
     public static String RESET_TO_FACTORY_SETTINGS_NEW = "43686172-4d74-726b-0100-526f64696f6e";
 

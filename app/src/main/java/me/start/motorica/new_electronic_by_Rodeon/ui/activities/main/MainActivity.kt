@@ -175,6 +175,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) displayDataCloseThresholdNew(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA) != null) displayDataSensOptionsNew(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA) != null) displayDataSetGestureNew(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA))
 //              System.err.println("попадаем в новую ветку")
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
@@ -298,11 +299,15 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
   }
   private fun displayDataSensOptionsNew(data: ByteArray?) {
-    System.err.println("получили какойто ответ от SENS_OPTIONS_NEW")
     if (data != null) {
-      System.err.println("CORRELATOR_NOISE_THRESHOLD_1_NUM & CORRELATOR_NOISE_THRESHOLD_2_NUM")
       saveInt(mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, castUnsignedCharToInt(data[0]))
       saveInt(mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, castUnsignedCharToInt(data[13]))
+      globalSemaphore = true
+    }
+  }
+  private fun displayDataSetGestureNew(data: ByteArray?) {
+    if (data != null) {
+      saveInt(mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, castUnsignedCharToInt(data[0])+1)
       globalSemaphore = true
     }
   }
@@ -829,7 +834,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           3 -> {
             System.err.println("$info = 3")
-            bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)//SENS_OPTIONS_NEW
+            bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
+            globalSemaphore = false
+            state = 4
+          }
+          4 -> {
+            System.err.println("$info = 4")
+            bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
             globalSemaphore = false
             state = 0
             endFlag = true

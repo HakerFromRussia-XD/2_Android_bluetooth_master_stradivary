@@ -55,6 +55,10 @@ public class SampleGattAttributes {
     public static String SET_GESTURE_NEW = "43686172-4d74-726b-0005-526f64696f6e";
     public static String SET_REVERSE_NEW = "43686172-4d74-726b-0006-526f64696f6e";
     public static String SET_ONE_CHANNEL_NEW = "43686172-4d74-726b-0007-526f64696f6e";
+    public static String CALIBRATION_NEW = "43686172-4d74-726b-0008-526f64696f6e";// Чтение 0 - не калиброван, 1 - идет калибровка, 2 - откалиброван  Запись !0 начинает калибровку
+    public static String MOVE_ALL_FINGERS_NEW = "43686172-4d74-726b-0009-526f64696f6e";// 6 байт по положению на каждый палец
+    public static String CHANGE_GESTURE_NEW = "43686172-4d74-726b-000a-526f64696f6e";// 13 байт по положению на каждый палец на каждое положение + 1 байт номера жеста
+
 
     public static String RESET_TO_FACTORY_SETTINGS_NEW = "43686172-4d74-726b-0100-526f64696f6e";
 

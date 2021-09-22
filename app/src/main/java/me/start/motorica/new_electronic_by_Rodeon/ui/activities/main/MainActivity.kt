@@ -174,6 +174,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) displayDataCloseThresholdNew(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.TEST_NEW_DATA) != null) displayTestDataNew(intent.getByteArrayExtra(BluetoothLeService.TEST_NEW_DATA))
 //              System.err.println("попадаем в новую ветку")
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
@@ -292,7 +293,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataCloseThresholdNew(data: ByteArray?) {
     if (data != null) {
-      System.err.println("CLOSE_THRESHOLD_NEW_DATA приняты  Чтение")
+      System.err.println("TEST_NEW_DATA приняты  Чтение")
+      globalSemaphore = true
+    }
+  }
+  private fun displayTestDataNew(data: ByteArray?) {
+    if (data != null) {
+      System.err.println("TEST_NEW_DATA приняты  Чтение")
+      for (bite in data) {
+        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
+      }
       globalSemaphore = true
     }
   }
@@ -375,7 +385,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             .subscribe { parameters ->
               System.err.println("Prisedshie parametri: ${parameters.gestureNumber} ${parameters.openStage}  ${parameters.closeStage} ${parameters.state}")
               if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
-                bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE_NEW, WRITE, 12)
+                runWriteData(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE_NEW, WRITE)
               } else {
                 bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE, WRITE, 12)
               }
@@ -700,6 +710,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       runWriteData(sendByteMassive, FESTO_A_CHARACTERISTIC, WRITE_WR)
     } else {
         bleCommand(byteArray, Command, typeCommand)
+        System.err.println("Отправили команду! Чтение")
     }
   }
   private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
@@ -833,7 +844,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
   }
 
-  private fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
+  fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
   open fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
   private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
     try {

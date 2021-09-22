@@ -79,6 +79,8 @@ class AdvancedSettingsFragment : Fragment() {
       downtime_text_tv.textSize = 11f
       mode_tv.textSize = 11f
       reset_to_factory_settings_btn.textSize = 12f
+      side_text_tv.textSize = 11f
+      left_right_side_swap_tv.textSize = 11f
     }
     if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
       left_right_side_swap_sw.isChecked = true
@@ -124,7 +126,7 @@ class AdvancedSettingsFragment : Fragment() {
           System.err.println("tuk single_channel_control_sw")
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
             System.err.println("tuk single_channel_control_sw 1")
-            main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE, 16)
+            main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE)
           } else {
             System.err.println("tuk single_channel_control_sw 2")
             main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
@@ -134,7 +136,7 @@ class AdvancedSettingsFragment : Fragment() {
         } else {
           single_channel_control_tv.text = 0.toString()
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
-            main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE, 16)
+            main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
           }
@@ -245,7 +247,7 @@ class AdvancedSettingsFragment : Fragment() {
       if (!main?.lockWriteBeforeFirstRead!!) {
         System.err.println("tuk reset_to_factory_settings_btn")
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
-          main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE, 15)
+          main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
         } else {
           main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
         }
@@ -284,7 +286,7 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
-    if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_3)) {
+    if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_3) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
       shutdown_current_rl.visibility = View.GONE
     }
 

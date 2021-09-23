@@ -33,7 +33,6 @@ import kotlin.properties.Delegates
 class GripperScreenWithoutEncodersActivity
     : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView{
     private var withoutEncodersRenderer: GripperSettingsWithoutEncodersRenderer? = null
-//    var gestureState = 0
     companion object {
         var angleFinger1 by Delegates.notNull<Int>()
         var angleFinger2 by Delegates.notNull<Int>()
@@ -75,14 +74,15 @@ class GripperScreenWithoutEncodersActivity
         initBaseView(this)
         window.navigationBarColor = resources.getColor(R.color.colorPrimaryDark)
         window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+        mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+        gestureNumber = mSettings!!.getInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 0)
         angleFinger1 = 0
         angleFinger2 = 0
         angleFinger3 = 0
         angleFinger4 = 0
         angleFinger5 = 0
         angleFinger6 = 0
-        mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-        gestureNumber = mSettings!!.getInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 0)
+
         loadOldState()
         myLoadGesturesList()
         gesture_name_w_tv.text = gestureNameList[gestureNumber - 1]
@@ -139,12 +139,12 @@ class GripperScreenWithoutEncodersActivity
                         animateFinger4 ()
                         compileBLEMassage ()
                     }
-                    if (numberFinger == 55) { closeRotation() }
                     if (numberFinger == 5) {
                         openRotation()
                         animateFinger5 ()
                         compileBLEMassage ()
                     }
+                    if (numberFinger == 55) { closeRotation() }
                 }
         RxView.clicks(findViewById(R.id.gripper_state_le))
                 .observeOn(AndroidSchedulers.mainThread())

@@ -18,6 +18,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
@@ -35,6 +36,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import javax.inject.Inject
 
+@Suppress("DEPRECATION")
 class AdvancedSettingsFragment : Fragment() {
 
   @Inject
@@ -49,7 +51,8 @@ class AdvancedSettingsFragment : Fragment() {
   private var scale = 0F
   private var mode: Byte = 0x00
   private var sensorGestureSwitching: Byte = 0x00
-//  private var scale = 0F
+  private var threadFlag = true
+  private var updatingUIThread: Thread? = null
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     val rootView = inflater.inflate(R.layout.layout_advanced_settings, container, false)
@@ -64,6 +67,9 @@ class AdvancedSettingsFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     initializeUI()
+    Handler().postDelayed({
+      startUpdatingUIThread()
+    }, 500)
   }
 
   @SuppressLint("SetTextI18n", "CheckResult")
@@ -89,9 +95,7 @@ class AdvancedSettingsFragment : Fragment() {
       left_right_side_swap_sw.isChecked = false
       left_right_side_swap_tv.text = resources.getString(R.string.left)
     }
-//    if (main?.enableInterfaceStatus == false) {
-//      main?.offAdvancedSettingsUIBeforeConnection()
-//    }
+
 
     shutdown_current_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -119,16 +123,13 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
     single_channel_control_sw.setOnClickListener {
-      System.err.println("tuk single_channel_control_sw do")
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (single_channel_control_sw.isChecked) {
           single_channel_control_tv.text = 1.toString()
-          System.err.println("tuk single_channel_control_sw")
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
-            System.err.println("tuk single_channel_control_sw 1")
             main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE)
+            main?.setOneChannelNum = 1
           } else {
-            System.err.println("tuk single_channel_control_sw 2")
             main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
           }
 
@@ -137,10 +138,10 @@ class AdvancedSettingsFragment : Fragment() {
           single_channel_control_tv.text = 0.toString()
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
             main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE)
+            main?.setOneChannelNum = 0
           } else {
             main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
           }
-
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
         }
       }
@@ -354,5 +355,24 @@ class AdvancedSettingsFragment : Fragment() {
         main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
       }
     }
+  }
+
+  private fun startUpdatingUIThread() {
+    updatingUIThread =  Thread {
+      while (threadFlag) {
+        main?.runOnUiThread {
+          if (main?.setOneChannelNum == 1) {
+            preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
+          } else {
+            preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+          }
+          initializeUI()
+        }
+        try {
+          Thread.sleep(1000)
+        } catch (ignored: Exception) {  }
+      }
+    }
+    updatingUIThread?.start()
   }
 }

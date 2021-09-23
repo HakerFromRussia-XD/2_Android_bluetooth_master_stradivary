@@ -1,6 +1,5 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -8,7 +7,6 @@ import android.content.SharedPreferences
 import android.graphics.Color.*
 import android.os.Bundle
 import android.os.Handler
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,19 +14,12 @@ import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.R.drawable.*
-import me.start.motorica.R.drawable.close_border
-import me.start.motorica.R.drawable.open_border
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
-import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
-import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
@@ -92,8 +83,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             }
         }
         gesture_settings_2_btn.setOnClickListener {
-            val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
-            startActivity(intent)
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+                val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
+                startActivity(intent)
+            } else {
+                val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
+                startActivity(intent)
+            }
+
             main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
         }
         gesture_3_btn.setOnClickListener {
@@ -286,10 +283,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
     private fun startUpdatingUIThread() {
         updatingUIThread =  Thread {
             while (testThreadFlag) {
-                System.err.println("tik")
                 main?.runOnUiThread {
                     resetStateButtons()
                     selectActiveGesture(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1))
+//                    testThreadFlag = false //выключаем поток повторного запроса информации после её получения и обновления на экране
                 }
                 try {
                     Thread.sleep(1000)

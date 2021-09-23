@@ -33,7 +33,6 @@ import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
-import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
@@ -97,6 +96,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var globalSemaphore = false // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
   //  private var showAdvancedSettings = false
   private var swapOpenCloseButton = false
+  var setReverseNum = 0
+  var setOneChannelNum = 0
 
   private  var countCommand: AtomicInteger = AtomicInteger()
   private var actionState = READ
@@ -171,15 +172,15 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
               //TODO прописать новую функцию обработки пришедших данных
               if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
-              if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensAndBMSVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) displayDataCloseThresholdNew(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA) != null) displayDataSensOptionsNew(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA) != null) displayDataSetGestureNew(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA))
-//              System.err.println("попадаем в новую ветку")
+              if(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA) != null) displayDataSetReverseNew(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) displayDataSetOneChannelNew(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA))
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
-//              System.err.println("попадаем не сюда")
             }
           }
            //вывод на график данных из характеристики показаний пульса
@@ -280,9 +281,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //      globalSemaphore = true
     }
   }
-  private fun displayDataSensVersionNew(data: ByteArray?) {
+  private fun displayDataSensAndBMSVersionNew(data: ByteArray?) {
     if (data != null) {
       saveInt(mDeviceAddress + PreferenceKeys.SENS_NUM, castUnsignedCharToInt(data[0]))
+      saveInt(mDeviceAddress + PreferenceKeys.BMS_NUM, 100)
       globalSemaphore = true
     }
   }
@@ -311,11 +313,15 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       globalSemaphore = true
     }
   }
-  private fun displayTestDataNew(data: ByteArray?) {
+  private fun displayDataSetReverseNew(data: ByteArray?) {
     if (data != null) {
-      for (bite in data) {
-        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
-      }
+      setReverseNum = castUnsignedCharToInt(data[0])
+      globalSemaphore = true
+    }
+  }
+  private fun displayDataSetOneChannelNew(data: ByteArray?) {
+    if (data != null) {
+      setOneChannelNum = castUnsignedCharToInt(data[0])
       globalSemaphore = true
     }
   }
@@ -561,7 +567,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         currentCharaData[listName] = lookup(uuid, unknownCharaString)
         currentCharaData[listUUID] = uuid
         gattCharacteristicGroupData.add(currentCharaData)
-        System.err.println("ХАРАКТЕРИСТИКА: " + uuid)
+        System.err.println("ХАРАКТЕ РИСТИКА: $uuid")
       }
       mGattCharacteristics.add(charas)
       gattCharacteristicData.add(gattCharacteristicGroupData)
@@ -840,6 +846,18 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           4 -> {
             System.err.println("$info = 4")
+            bleCommand(READ_REGISTER, SET_REVERSE_NEW, READ)
+            globalSemaphore = false
+            state = 5
+          }
+          5 -> {
+            System.err.println("$info = 5")
+            bleCommand(READ_REGISTER, SET_ONE_CHANNEL_NEW, READ)
+            globalSemaphore = false
+            state = 6
+          }
+          6 -> {
+            System.err.println("$info = 6")
             bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
             globalSemaphore = false
             state = 0
@@ -882,7 +900,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
 //  var first = true
-fun runReadData() {
+private fun runReadData() {
     getReadData().let { queue.put(it) }
   }
   open fun getReadData(): Runnable { return Runnable { readData() } }

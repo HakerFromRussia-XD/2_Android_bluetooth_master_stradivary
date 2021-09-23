@@ -63,7 +63,6 @@ public class SampleGattAttributes {
     public static String RESET_TO_FACTORY_SETTINGS_NEW = "43686172-4d74-726b-0100-526f64696f6e";
 
     public static String SENS_OPTIONS_NEW = "43686172-4d74-726b-0200-526f64696f6e";//"43686172-4d74-726b-0002-526f64696f6e";
-    public static String SENS_OPTIONS_NEW_REAL = "43686172-4d74-726b-0200-526f64696f6e";
     public static String MIO_MEASUREMENT_NEW = "43686172-4d74-726b-0201-526f64696f6e";
     public static String SENS_VERSION_NEW = "43686172-4d74-726b-0202-526f64696f6e";
 

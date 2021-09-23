@@ -46,6 +46,8 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_ONE_CHANNEL_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_REVERSE_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE;
 
 
@@ -80,6 +82,8 @@ public class BluetoothLeService extends Service {
     public final static String CLOSE_THRESHOLD_NEW_DATA = "com.example.bluetooth.le.CLOSE_THRESHOLD_NEW_DATA";
     public final static String SENS_OPTIONS_NEW_DATA = "com.example.bluetooth.le.SENS_OPTIONS_NEW_DATA";
     public final static String SET_GESTURE_NEW_DATA = "com.example.bluetooth.le.SET_GESTURE_NEW_DATA";
+    public final static String SET_REVERSE_NEW_DATA = "com.example.bluetooth.le.SET_REVERSE_NEW_DATA";
+    public final static String SET_ONE_CHANNEL_NEW_DATA = "com.example.bluetooth.le.SET_ONE_CHANNEL_NEW_DATA";
 
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
         final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
@@ -122,6 +126,12 @@ public class BluetoothLeService extends Service {
             }
             if (String.valueOf(characteristic.getUuid()).equals(SET_GESTURE_NEW)) {
                 if (state.equals(READ)) { intent.putExtra(SET_GESTURE_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(SET_REVERSE_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(SET_REVERSE_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(SET_ONE_CHANNEL_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(SET_ONE_CHANNEL_NEW_DATA, data); }
             }
 
 

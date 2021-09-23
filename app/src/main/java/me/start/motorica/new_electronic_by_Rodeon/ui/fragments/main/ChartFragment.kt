@@ -264,6 +264,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
             main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
+          main?.setReverseNum = 1
         } else {
           swap_sensors_tv.text = 0.toString()
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
@@ -272,6 +273,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
             main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+          main?.setReverseNum = 0
         }
       }
     }
@@ -454,8 +456,13 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       while (testThreadFlag) {
         open_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
         close_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
+
+        if (main?.setReverseNum == 1) { preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
+        } else { preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false) }
+
         main?.runOnUiThread {
           swap_sensors_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+
           if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) {
             swap_sensors_tv?.text = 1.toString()
           } else {

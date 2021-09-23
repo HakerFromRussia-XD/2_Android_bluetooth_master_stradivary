@@ -12,6 +12,64 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="63dp"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_marginBottom="64dp"
+        android:layout_gravity="bottom"
+        android:weightSum="2"
+        tools:ignore="DisableBaselineAlignment">
+
+        <RelativeLayout
+            android:id="@+id/gesture_state_rl"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:weightSum="2"
+                tools:ignore="UselessParent">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.8">
+                    <TextView
+                        style="@style/Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="@string/gesture_state" />
+
+
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1.2">
+
+                    <Button
+                        android:id="@+id/gripper_state_le"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="0dp"
+                        android:text="@string/gesture_state_open"
+                        android:layout_gravity="center"
+                        android:textColor="#FFFFFFFF"
+                        style="@style/Text"
+                        android:background="@drawable/custom_button_le_border" />
+                </RelativeLayout>
+            </LinearLayout>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:orientation="vertical">

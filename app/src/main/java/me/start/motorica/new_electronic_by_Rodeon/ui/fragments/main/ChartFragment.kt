@@ -79,10 +79,10 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     if (main?.locate?.contains("ru")!!) {
-      opening_sensor_sensitivity_tv.textSize = 8f
-      closing_sensor_sensitivity_tv.textSize = 8f
-      swap_sensors_text_tv.textSize = 11f
-      settings_blocking_tv.textSize = 11f
+      opening_sensor_sensitivity_tv?.textSize = 8f
+      closing_sensor_sensitivity_tv?.textSize = 8f
+      swap_sensors_text_tv?.textSize = 11f
+      settings_blocking_tv?.textSize = 11f
     }
     initializedSensorGraph()
     initializedUI()

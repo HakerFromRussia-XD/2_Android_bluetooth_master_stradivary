@@ -76,28 +76,28 @@ class AdvancedSettingsFragment : Fragment() {
   private fun initializeUI() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
     if (main?.locate?.contains("ru")!!) {
-      shutdown_current_text_tv.textSize = 11f
-      swap_button_open_close_tv.textSize = 11f
-      single_channel_control_text_tv.textSize = 11f
-      on_off_sensor_gesture_switching_text_tv.textSize = 11f
-      mode_text_tv.textSize = 11f
-      peak_time_text_tv.textSize = 11f
-      downtime_text_tv.textSize = 11f
-      mode_tv.textSize = 11f
-      reset_to_factory_settings_btn.textSize = 12f
-      side_text_tv.textSize = 11f
-      left_right_side_swap_tv.textSize = 11f
+      shutdown_current_text_tv?.textSize = 11f
+      swap_button_open_close_tv?.textSize = 11f
+      single_channel_control_text_tv?.textSize = 11f
+      on_off_sensor_gesture_switching_text_tv?.textSize = 11f
+      mode_text_tv?.textSize = 11f
+      peak_time_text_tv?.textSize = 11f
+      downtime_text_tv?.textSize = 11f
+      mode_tv?.textSize = 11f
+      reset_to_factory_settings_btn?.textSize = 12f
+      side_text_tv?.textSize = 11f
+      left_right_side_swap_tv?.textSize = 11f
     }
-    if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-      left_right_side_swap_sw.isChecked = true
-      left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))
+    if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+      left_right_side_swap_sw?.isChecked = true
+      left_right_side_swap_tv?.text = Html.fromHtml(getString(R.string.right))
     } else {
-      left_right_side_swap_sw.isChecked = false
-      left_right_side_swap_tv.text = resources.getString(R.string.left)
+      left_right_side_swap_sw?.isChecked = false
+      left_right_side_swap_tv?.text = resources.getString(R.string.left)
     }
 
 
-    shutdown_current_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+    shutdown_current_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         shutdown_current_tv.text = seekBar.progress.toString()
       }
@@ -111,7 +111,7 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
     })
-    swap_open_close_sw.setOnClickListener {
+    swap_open_close_sw?.setOnClickListener {
       if (swap_open_close_sw.isChecked) {
         swap_open_close_tv.text = 1.toString()
         main?.setSwapOpenCloseButton(true)
@@ -122,7 +122,7 @@ class AdvancedSettingsFragment : Fragment() {
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
       }
     }
-    single_channel_control_sw.setOnClickListener {
+    single_channel_control_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (single_channel_control_sw.isChecked) {
           single_channel_control_tv.text = 1.toString()
@@ -146,7 +146,7 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
     }
-    on_off_sensor_gesture_switching_sw.setOnClickListener {
+    on_off_sensor_gesture_switching_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (on_off_sensor_gesture_switching_sw.isChecked) {
           on_off_sensor_gesture_switching_tv.text = 1.toString()
@@ -171,7 +171,7 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
     }
-    mode_sw.setOnClickListener {
+    mode_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (mode_sw.isChecked) {
           mode_tv.text = "двумя\nдатчиками"
@@ -192,7 +192,7 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
     }
-    peak_time_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+    peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         val time: String = when {
           ((seekBar.progress + 5) * 0.05).toString().length == 4 -> {
@@ -218,7 +218,7 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
     })
-    downtime_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+    downtime_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         val time: String = when {
             ((seekBar.progress + 5) * 0.05).toString().length == 4 -> {
@@ -244,7 +244,7 @@ class AdvancedSettingsFragment : Fragment() {
       }
     })
 
-    reset_to_factory_settings_btn.setOnClickListener {
+    reset_to_factory_settings_btn?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         System.err.println("tuk reset_to_factory_settings_btn")
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
@@ -288,30 +288,30 @@ class AdvancedSettingsFragment : Fragment() {
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
     if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_3) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
-      shutdown_current_rl.visibility = View.GONE
+      shutdown_current_rl?.visibility = View.GONE
     }
 
-    swap_open_close_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
-    single_channel_control_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
-    on_off_sensor_gesture_switching_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
-    mode_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
+    swap_open_close_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
+    single_channel_control_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+    on_off_sensor_gesture_switching_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+    mode_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv.text = 1.toString()
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv.text = 1.toString()
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
-      on_off_sensor_gesture_switching_tv.text = 1.toString()
+      on_off_sensor_gesture_switching_tv?.text = 1.toString()
       sensorGestureSwitching = 0x01
     } else {
       sensorGestureSwitching = 0x00
-      mode_rl.visibility = View.GONE
-      peak_time_rl.visibility = View.GONE
-      downtime_rl.visibility = View.GONE
+      mode_rl?.visibility = View.GONE
+      peak_time_rl?.visibility = View.GONE
+      downtime_rl?.visibility = View.GONE
     }
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)) {
-      mode_tv.text = "двумя\nдатчиками"
+      mode_tv?.text = "двумя\nдатчиками"
       mode = 0x01
-      downtime_rl.visibility = View.GONE
+      downtime_rl?.visibility = View.GONE
     } else {
-      mode_tv.text = "одним\nдатчиком"
+      mode_tv?.text = "одним\nдатчиком"
       mode = 0x00
     }
 
@@ -320,33 +320,33 @@ class AdvancedSettingsFragment : Fragment() {
       ObjectAnimator.ofInt(peak_time_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, 15)).setDuration(200).start()
       ObjectAnimator.ofInt(downtime_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, 15)).setDuration(200).start()
     }
-    shutdown_current_tv.text = shutdown_current_sb.progress.toString()
+    shutdown_current_tv?.text = shutdown_current_sb?.progress.toString()
     var time: String = when {
-      ((peak_time_sb.progress + 5) * 0.05).toString().length == 4 -> {
-        ((peak_time_sb.progress + 5) * 0.05).toString() + "c"
+      ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
+        ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString() + "c"
       }
-      ((peak_time_sb.progress + 5) * 0.05).toString().length > 4 -> {
-        ((peak_time_sb.progress + 5) * 0.05).toString().substring(0,4) + "c"
+      ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().length > 4 -> {
+        ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().substring(0,4) + "c"
       }
       else -> {
-        ((peak_time_sb.progress + 5) * 0.05).toString() + "0c"
+        ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
       }
     }
-    peak_time_tv.text = time
+    peak_time_tv?.text = time
     time = when {
-      ((downtime_sb.progress + 5) * 0.05).toString().length == 4 -> {
-        ((downtime_sb.progress + 5) * 0.05).toString() + "c"
+      ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
+        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "c"
       }
-      ((downtime_sb.progress + 5) * 0.05).toString().length > 4 -> {
-        ((downtime_sb.progress + 5) * 0.05).toString().substring(0,4) + "c"
+      ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length > 4 -> {
+        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().substring(0,4) + "c"
       }
       else -> {
-        ((downtime_sb.progress + 5) * 0.05).toString() + "0c"
+        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
       }
     }
-    downtime_tv.text = time
+    downtime_tv?.text = time
 
-    left_right_side_swap_sw.setOnClickListener{
+    left_right_side_swap_sw?.setOnClickListener{
       if (left_right_side_swap_sw.isChecked) {
         left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))
         main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)

@@ -137,31 +137,38 @@ class GripperScreenWithEncodersActivity
                     if (numberFinger == 1) {
 //                        closeRotation()
 //                        animateFinger1 ()
+                        changeStateFinger1 (angleFinger)
+                        //TODO меняем переменную угла соответствующего пальца, сохраняем её
                         compileBLEMassage ()
                     }
                     if (numberFinger == 2) {
 //                        closeRotation()
 //                        animateFinger2 ()
+                        changeStateFinger2 (angleFinger)
                         compileBLEMassage ()
                     }
                     if (numberFinger == 3) {
 //                        closeRotation()
 //                        animateFinger3 ()
+                        changeStateFinger3 (angleFinger)
                         compileBLEMassage ()
                     }
                     if (numberFinger == 4) {
 //                        closeRotation()
 //                        animateFinger4 ()
+                        changeStateFinger4 (angleFinger)
                         compileBLEMassage ()
                     }
                     if (numberFinger == 5) {
 //                        openRotation()
 //                        animateFinger5 ()
+                        changeStateFinger5 (angleFinger)
                         compileBLEMassage ()
                     }
                     if (numberFinger == 6) {
 //                        openRotation()
 //                        animateFinger5 ()
+                        changeStateFinger6 (angleFinger)
                         compileBLEMassage ()
                     }
                     if (numberFinger == 55) {
@@ -222,6 +229,55 @@ class GripperScreenWithEncodersActivity
             this.windowManager.defaultDisplay.getMetrics(displayMetrics)
             withEncodersRenderer = GripperSettingsWithEncodersRenderer(this, gl_surface_view_le_with_encoders)
             gl_surface_view_le_with_encoders.setRenderer(withEncodersRenderer, displayMetrics.density)
+        }
+    }
+
+    private fun changeStateFinger1 (angleFinger: Int) {
+        System.err.println("Изменили палец 1 $angleFinger")
+        if (gestureState == 1) {
+            fingerOpenState1 = angleFinger
+        } else {
+            fingerCloseState1 = angleFinger
+        }
+    }
+    private fun changeStateFinger2 (angleFinger: Int) {
+        System.err.println("Изменили палец 2 $angleFinger")
+        if (gestureState == 1) {
+            fingerOpenState2 = angleFinger
+        } else {
+            fingerCloseState2 = angleFinger
+        }
+    }
+    private fun changeStateFinger3 (angleFinger: Int) {
+        System.err.println("Изменили палец 3 $angleFinger")
+        if (gestureState == 1) {
+            fingerOpenState3 = angleFinger
+        } else {
+            fingerCloseState3 = angleFinger
+        }
+    }
+    private fun changeStateFinger4 (angleFinger: Int) {
+        System.err.println("Изменили палец41 $angleFinger")
+        if (gestureState == 1) {
+            fingerOpenState4 = angleFinger
+        } else {
+            fingerCloseState4 = angleFinger
+        }
+    }
+    private fun changeStateFinger5 (angleFinger: Int) {
+        System.err.println("Изменили палец 5 $angleFinger")
+        if (gestureState == 1) {
+            fingerOpenState5 = angleFinger
+        } else {
+            fingerCloseState5 = angleFinger
+        }
+    }
+    private fun changeStateFinger6 (angleFinger: Int) {
+        System.err.println("Изменили палец 6 $angleFinger")
+        if (gestureState == 1) {
+            fingerOpenState6 = angleFinger
+        } else {
+            fingerCloseState6 = angleFinger
         }
     }
 

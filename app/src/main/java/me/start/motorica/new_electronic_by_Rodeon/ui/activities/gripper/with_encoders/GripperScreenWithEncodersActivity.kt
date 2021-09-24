@@ -172,6 +172,11 @@ class GripperScreenWithEncodersActivity
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     animateFinger1 ()
+                    animateFinger2 ()
+                    animateFinger3 ()
+                    animateFinger4 ()
+                    animateFinger5 ()
+                    animateFinger6 ()
                     if (gestureState == 0 ) {
                         gestureState = 1
                         gripper_state_le.text = getString(R.string.gesture_state_open)
@@ -295,35 +300,27 @@ class GripperScreenWithEncodersActivity
 
     private fun animateFinger1 () {
         if (gestureState == 1) {
-            System.err.println("Анимация палец 1 $fingerCloseState1 - $score1 = " + (fingerCloseState1-score1))
             val anim1 = ValueAnimator.ofInt(score1, fingerCloseState1)
             anim1.duration = (kotlin.math.abs(fingerCloseState1 - score1) * 10).toLong()
             animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
             anim1.addUpdateListener {
                 angleFinger1 = anim1.animatedValue as Int
                 score1 = anim1.animatedValue as Int
-                System.err.println("Closing score = $score1")
                 if (score1 == fingerCloseState1) {
                     animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
                 }
             }
             anim1.start()
         } else
         {
-            System.err.println("Анимация палец 1 $fingerOpenState1 - $score1 = " + (fingerOpenState1-score1))
             val anim1 = ValueAnimator.ofInt(score1, fingerOpenState1)
             anim1.duration = (kotlin.math.abs(fingerOpenState1 - score1) * 10).toLong()
             animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
             anim1.addUpdateListener {
                 angleFinger1 = anim1.animatedValue as Int
                 score1 = anim1.animatedValue as Int
-                System.err.println("Opening score = $score1")
                 if (score1 == fingerOpenState1) {
                     animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
                 }
             }
             anim1.start()
@@ -331,182 +328,142 @@ class GripperScreenWithEncodersActivity
     }
     private fun animateFinger2 () {
         if (gestureState == 1) {
-            System.err.println("Анимация палец 1 $fingerCloseState1 - $score1 = " + (fingerCloseState1-score1))
-            val anim1 = ValueAnimator.ofInt(score1, fingerCloseState1)
-            anim1.duration = (kotlin.math.abs(fingerCloseState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                System.err.println("Closing score = $score1")
-                if (score1 == fingerCloseState1) {
-                    animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
+            val anim2 = ValueAnimator.ofInt(score2, fingerCloseState2)
+            anim2.duration = (kotlin.math.abs(fingerCloseState2 - score2) * 10).toLong()
+            animationInProgress2 = true
+            anim2.addUpdateListener {
+                angleFinger2 = anim2.animatedValue as Int
+                score2 = anim2.animatedValue as Int
+                if (score2 == fingerCloseState2) {
+                    animationInProgress2 = false
                 }
             }
-            anim1.start()
+            anim2.start()
         } else
         {
-            System.err.println("Анимация палец 1 $fingerOpenState1 - $score1 = " + (fingerOpenState1-score1))
-            val anim1 = ValueAnimator.ofInt(score1, fingerOpenState1)
-            anim1.duration = (kotlin.math.abs(fingerOpenState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                System.err.println("Opening score = $score1")
-                if (score1 == fingerOpenState1) {
-                    animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
+            val anim2 = ValueAnimator.ofInt(score2, fingerOpenState2)
+            anim2.duration = (kotlin.math.abs(fingerOpenState2 - score2) * 10).toLong()
+            animationInProgress2 = true
+            anim2.addUpdateListener {
+                angleFinger2 = anim2.animatedValue as Int
+                score2 = anim2.animatedValue as Int
+                if (score2 == fingerOpenState2) {
+                    animationInProgress2 = false
                 }
             }
-            anim1.start()
+            anim2.start()
         }
     }
     private fun animateFinger3 () {
         if (gestureState == 1) {
-            System.err.println("Анимация палец 1 $fingerCloseState1 - $score1 = " + (fingerCloseState1-score1))
-            val anim1 = ValueAnimator.ofInt(score1, fingerCloseState1)
-            anim1.duration = (kotlin.math.abs(fingerCloseState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                System.err.println("Closing score = $score1")
-                if (score1 == fingerCloseState1) {
-                    animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
+            val anim3 = ValueAnimator.ofInt(score3, fingerCloseState3)
+            anim3.duration = (kotlin.math.abs(fingerCloseState3 - score3) * 10).toLong()
+            animationInProgress3 = true
+            anim3.addUpdateListener {
+                angleFinger3 = anim3.animatedValue as Int
+                score3 = anim3.animatedValue as Int
+                if (score3 == fingerCloseState3) {
+                    animationInProgress3 = false
                 }
             }
-            anim1.start()
+            anim3.start()
         } else
         {
-            System.err.println("Анимация палец 1 $fingerOpenState1 - $score1 = " + (fingerOpenState1-score1))
-            val anim1 = ValueAnimator.ofInt(score1, fingerOpenState1)
-            anim1.duration = (kotlin.math.abs(fingerOpenState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                System.err.println("Opening score = $score1")
-                if (score1 == fingerOpenState1) {
-                    animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
+            val anim3 = ValueAnimator.ofInt(score3, fingerOpenState3)
+            anim3.duration = (kotlin.math.abs(fingerOpenState3 - score3) * 10).toLong()
+            animationInProgress3 = true
+            anim3.addUpdateListener {
+                angleFinger3 = anim3.animatedValue as Int
+                score3 = anim3.animatedValue as Int
+                if (score3 == fingerOpenState3) {
+                    animationInProgress3 = false
                 }
             }
-            anim1.start()
+            anim3.start()
         }
     }
     private fun animateFinger4 () {
         if (gestureState == 1) {
-            System.err.println("Анимация палец 1 $fingerCloseState1 - $score1 = " + (fingerCloseState1-score1))
-            val anim1 = ValueAnimator.ofInt(score1, fingerCloseState1)
-            anim1.duration = (kotlin.math.abs(fingerCloseState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                System.err.println("Closing score = $score1")
-                if (score1 == fingerCloseState1) {
-                    animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
+            val anim4 = ValueAnimator.ofInt(score4, fingerCloseState4)
+            anim4.duration = (kotlin.math.abs(fingerCloseState4 - score4) * 10).toLong()
+            animationInProgress4 = true
+            anim4.addUpdateListener {
+                angleFinger4 = anim4.animatedValue as Int
+                score4 = anim4.animatedValue as Int
+                if (score4 == fingerCloseState4) {
+                    animationInProgress4 = false
                 }
             }
-            anim1.start()
+            anim4.start()
         } else
         {
-            System.err.println("Анимация палец 1 $fingerOpenState1 - $score1 = " + (fingerOpenState1-score1))
-            val anim1 = ValueAnimator.ofInt(score1, fingerOpenState1)
-            anim1.duration = (kotlin.math.abs(fingerOpenState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                System.err.println("Opening score = $score1")
-                if (score1 == fingerOpenState1) {
-                    animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
+            val anim4 = ValueAnimator.ofInt(score4, fingerOpenState4)
+            anim4.duration = (kotlin.math.abs(fingerOpenState4 - score4) * 10).toLong()
+            animationInProgress4 = true
+            anim4.addUpdateListener {
+                angleFinger4 = anim4.animatedValue as Int
+                score4 = anim4.animatedValue as Int
+                if (score4 == fingerOpenState4) {
+                    animationInProgress4 = false
                 }
             }
-            anim1.start()
+            anim4.start()
         }
     }
     private fun animateFinger5 () {
         if (gestureState == 1) {
-            System.err.println("Анимация палец 1 $fingerCloseState1 - $score1 = " + (fingerCloseState1-score1))
-            val anim1 = ValueAnimator.ofInt(score1, fingerCloseState1)
-            anim1.duration = (kotlin.math.abs(fingerCloseState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                System.err.println("Closing score = $score1")
-                if (score1 == fingerCloseState1) {
-                    animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
+            val anim5 = ValueAnimator.ofInt(score5, fingerCloseState5)
+            anim5.duration = (kotlin.math.abs(fingerCloseState5 - score5) * 10).toLong()
+            animationInProgress5 = true
+            anim5.addUpdateListener {
+                angleFinger5 = anim5.animatedValue as Int
+                score5 = anim5.animatedValue as Int
+                if (score5 == fingerCloseState5) {
+                    animationInProgress5 = false
                 }
             }
-            anim1.start()
+            anim5.start()
         } else
         {
-            System.err.println("Анимация палец 1 $fingerOpenState1 - $score1 = " + (fingerOpenState1-score1))
-            val anim1 = ValueAnimator.ofInt(score1, fingerOpenState1)
-            anim1.duration = (kotlin.math.abs(fingerOpenState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                System.err.println("Opening score = $score1")
-                if (score1 == fingerOpenState1) {
-                    animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
+            val anim5 = ValueAnimator.ofInt(score5, fingerOpenState5)
+            anim5.duration = (kotlin.math.abs(fingerOpenState5 - score5) * 10).toLong()
+            animationInProgress5 = true
+            anim5.addUpdateListener {
+                angleFinger5 = anim5.animatedValue as Int
+                score5 = anim5.animatedValue as Int
+                if (score5 == fingerOpenState5) {
+                    animationInProgress5 = false
                 }
             }
-            anim1.start()
+            anim5.start()
         }
     }
     private fun animateFinger6 () {
         if (gestureState == 1) {
-            System.err.println("Анимация палец 1 $fingerCloseState1 - $score1 = " + (fingerCloseState1-score1))
-            val anim1 = ValueAnimator.ofInt(score1, fingerCloseState1)
-            anim1.duration = (kotlin.math.abs(fingerCloseState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                System.err.println("Closing score = $score1")
-                if (score1 == fingerCloseState1) {
-                    animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
+            val anim6 = ValueAnimator.ofInt(score6, fingerCloseState6)
+            anim6.duration = (kotlin.math.abs(fingerCloseState6 - score6) * 10).toLong()
+            animationInProgress6 = true
+            anim6.addUpdateListener {
+                angleFinger6 = anim6.animatedValue as Int
+                score6 = anim6.animatedValue as Int
+                if (score6 == fingerCloseState6) {
+                    animationInProgress6 = false
                 }
             }
-            anim1.start()
+            anim6.start()
         } else
         {
-            System.err.println("Анимация палец 1 $fingerOpenState1 - $score1 = " + (fingerOpenState1-score1))
-            val anim1 = ValueAnimator.ofInt(score1, fingerOpenState1)
-            anim1.duration = (kotlin.math.abs(fingerOpenState1 - score1) * 10).toLong()
-            animationInProgress1 = true
-            System.err.println("Анимация animationInProgress = $animationInProgress1" )
-            anim1.addUpdateListener {
-                angleFinger1 = anim1.animatedValue as Int
-                score1 = anim1.animatedValue as Int
-                System.err.println("Opening score = $score1")
-                if (score1 == fingerOpenState1) {
-                    animationInProgress1 = false
-                    System.err.println("Анимация animationInProgress = $animationInProgress1" )
+            val anim6 = ValueAnimator.ofInt(score6, fingerOpenState6)
+            anim6.duration = (kotlin.math.abs(fingerOpenState6 - score6) * 10).toLong()
+            animationInProgress6 = true
+            anim6.addUpdateListener {
+                angleFinger6 = anim6.animatedValue as Int
+                score6 = anim6.animatedValue as Int
+                if (score6 == fingerOpenState6) {
+                    animationInProgress6 = false
                 }
             }
-            anim1.start()
+            anim6.start()
         }
     }
 
@@ -555,18 +512,16 @@ class GripperScreenWithEncodersActivity
 
         Handler().postDelayed({
             animateFinger1 ()
+            animateFinger2 ()
+            animateFinger3 ()
+            animateFinger4 ()
+            animateFinger5 ()
+            animateFinger6 ()
             gestureState = 1
         }, 200)
-//        animateFinger2 ()
-//        animateFinger3 ()
-//        animateFinger4 ()
-//        animateFinger5 ()
-//        animateFinger6 ()
 
-
-
-        System.err.println("STATE fingerState1: $fingerOpenState1")
-        System.err.println("STATE fingerState2: $fingerCloseState1")
+//        System.err.println("STATE fingerState1: $fingerOpenState1")
+//        System.err.println("STATE fingerState2: $fingerCloseState1")
 //        System.err.println("STATE fingerState3: $fingerState6   angleFinger3: $angleFinger3")
 //        System.err.println("STATE fingerState4: $fingerState4   angleFinger4: $angleFinger4")
 //        System.err.println("STATE fingerState5: $fingerState5   angleFinger5: $angleFinger5")

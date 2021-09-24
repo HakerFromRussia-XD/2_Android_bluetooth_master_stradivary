@@ -191,31 +191,31 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 
 	/** массивы вершин и индексов в которые упаковываются данные из строковых переменных*/
 	private static final int MAX_NUMBER_DETAILS = 19;
-	private float angleForeFingerFloat = 0;
+	private final float angleForeFingerFloat = 0;
 	private int angleForeFingerInt = 0;
 	private int lastAngleForeFingerInt = 0;
 	private int angleForeFingerTransfer = 0;
-	private float angleMiddleFingerFloat = 0;
+	private final float angleMiddleFingerFloat = 0;
 	private int angleMiddleFingerInt = 0;
 	private int lastAngleMiddleFingerInt = 0;
 	private int angleMiddleFingerTransfer = 0;
-	private float angleRingFingerFloat = 0;
+	private final float angleRingFingerFloat = 0;
 	private int angleRingFingerInt = 0;
 	private int lastAngleRingFingerInt = 0;
 	private int angleRingFingerTransfer = 0;
-	private float angleLittleFingerFloat = 0;
+	private final float angleLittleFingerFloat = 0;
 	private int angleLittleFingerInt = 0;
 	private int lastAngleLittleFingerInt = 0;
 	private int angleLittleFingerTransfer = 0;
-	private float angleBigFingerFloat1 = 0;//30
+	private final float angleBigFingerFloat1 = 0;//30
 	private int angleBigFingerInt1 = 0;
 	private int lastAngleBigFingerInt1 = 0;
 	private int angleBigFingerTransfer1 = 0;
-	private float angleBigFingerFloat2 = 0;//90
+	private final float angleBigFingerFloat2 = 0;//90
 	private int angleBigFingerInt2 = 0;
 	private int lastAngleBigFingerInt2 = 0;
 	private int angleBigFingerTransfer2 = 0;
-	private float angle60 = 75;
+	private float angle75 = 75;
 	private float angle130 = 130;
 
 	enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
@@ -436,7 +436,6 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 				System.err.println("SELECT_FINGER_1 TUP ");
 				RxUpdateMainEvent.getInstance().updateSelectedObject(1);
 			}
-
 			if (selectObject() == 2)
 			{
 				selectStation = SelectStation.SELECT_FINGER_2;
@@ -536,8 +535,8 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 			Matrix.setIdentityM(currentRotation, 0);
 			// начальный поворот всей сборки
 			Matrix.rotateM(currentRotation, 0, angle130, 0.0f, 1.0f, 0.0f);
-			Matrix.rotateM(currentRotation, 0, angle60, 0.0f, 0.0f, 1.0f);
-			angle60 = 0;
+			Matrix.rotateM(currentRotation, 0, angle75, 0.0f, 0.0f, 1.0f);
+			angle75 = 0;
 			angle130 = 0;
 			Matrix.rotateM(currentRotation, 0, deltaY, 1.0f, 0.0f, 0.0f);
 			Matrix.rotateM(currentRotation, 0, deltaX, 0.0f, 1.0f, 0.0f);
@@ -546,8 +545,6 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 
 			Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotationGeneral, 0);
 			System.arraycopy(temporaryMatrix, 0, accumulatedRotationGeneral, 0, 16);
-//			System.err.println("Rotation: " + accumulatedRotationGeneral[0] + " " + accumulatedRotationGeneral[1] + " " + accumulatedRotationGeneral[2] + " " + accumulatedRotationGeneral[3] + " " + accumulatedRotationGeneral[4] + " " + accumulatedRotationGeneral[5] + " " + accumulatedRotationGeneral[6] + " " + accumulatedRotationGeneral[7] + " " + accumulatedRotationGeneral[8] + " " + accumulatedRotationGeneral[9] + " " + accumulatedRotationGeneral[10] + " " + accumulatedRotationGeneral[11] + " " + accumulatedRotationGeneral[12] + " " + accumulatedRotationGeneral[13] + " " + accumulatedRotationGeneral[14] + " " + accumulatedRotationGeneral[15]);
-//			System.err.println("temporaryMatrix: " + temporaryMatrix[0] + " " + temporaryMatrix[1] + " " + temporaryMatrix[2] + " " + temporaryMatrix[3] + " " + temporaryMatrix[4] + " " + temporaryMatrix[5] + " " + temporaryMatrix[6] + " " + temporaryMatrix[7] + " " + temporaryMatrix[8] + " " + temporaryMatrix[9] + " " + temporaryMatrix[10] + " " + temporaryMatrix[11] + " " + temporaryMatrix[12] + " " + temporaryMatrix[13] + " " + temporaryMatrix[14] + " " + temporaryMatrix[15]);
 		}
 
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotationGeneral, 0, modelMatrix, 0);
@@ -561,10 +558,6 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		System.arraycopy(temporaryMatrix, 0, mvpMatrix, 0, 16);
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
-
-		for (int i = 19; i<MAX_NUMBER_DETAILS; i++){
-			heightMap.render(new int[]{i});
-		}
 
 		glUseProgram(program);
 
@@ -613,7 +606,6 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		glUniform1f(lightPowerUniform, 900.0f);
 		glUniform1f(ambientFactorUniform, 0.8f);
 		glUniform1i(textureUniform, 3);
-
 		heightMap.render(new int[]{5});
 	}
 

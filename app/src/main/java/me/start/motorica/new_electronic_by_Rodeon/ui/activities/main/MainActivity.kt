@@ -388,28 +388,44 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
 
-    RxUpdateMainEvent.getInstance().fingerAngleObservable
-            .compose(bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { parameters ->
-              System.err.println(" MainActivity -----> change gripper.  numberFinger = ${parameters.numberFinger} "+
-                      "fingerAngel = ${parameters.fingerAngel}")
-              numberFinger = parameters.numberFinger
-              angleFinger = parameters.fingerAngel
-            }
+//    RxUpdateMainEvent.getInstance().fingerAngleObservable
+//            .compose(bindToLifecycle())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe { parameters ->
+//              System.err.println(" MainActivity -----> change gripper.  numberFinger = ${parameters.numberFinger} "+
+//                      "fingerAngel = ${parameters.fingerAngel}")
+//              numberFinger = parameters.numberFinger
+//              angleFinger = parameters.fingerAngel
+//            }
 
     RxUpdateMainEvent.getInstance().gestureStateObservable
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { parameters ->
               System.err.println("Prisedshie parametri: ${parameters.gestureNumber} ${parameters.openStage}  ${parameters.closeStage} ${parameters.state}")
-              if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
-                runWriteData(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE_NEW, WRITE)
+              bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE, WRITE, 12)
+            }
+    RxUpdateMainEvent.getInstance().gestureStateWithEncodersObservable
+            .compose(bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { parameters ->
+              System.err.println("Prishedshie parametri: ${parameters.openStage1.toByte()}")
+              if (parameters.withChangeGesture) {
+                System.err.println("Prishedshie s izmeneniem gesta v pamiati")
+                runWriteData(byteArrayOf((parameters.gestureNumber).toByte(),
+                        parameters.openStage1.toByte(), parameters.openStage2.toByte(), parameters.openStage3.toByte(),
+                        parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte(),
+                        parameters.closeStage1.toByte(), parameters.closeStage2.toByte(), parameters.closeStage3.toByte(),
+                        parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), CHANGE_GESTURE_NEW, WRITE)
+              }
+              if (parameters.state == 1) {
+                runWriteData(byteArrayOf(parameters.openStage1.toByte(), parameters.openStage2.toByte(), parameters.openStage3.toByte(),
+                        parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte()), MOVE_ALL_FINGERS_NEW, WRITE)
               } else {
-                bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE, WRITE, 12)
+                runWriteData(byteArrayOf(parameters.closeStage1.toByte(), parameters.closeStage2.toByte(), parameters.closeStage3.toByte(),
+                        parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), MOVE_ALL_FINGERS_NEW, WRITE)
               }
             }
-
     RxUpdateMainEvent.getInstance().fingerSpeedObservable
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
@@ -528,6 +544,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     unbindService(mServiceConnection)
     mBluetoothLeService = null
     readDataFlag = false
+    sensorsDataThreadFlag = false
   }
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)

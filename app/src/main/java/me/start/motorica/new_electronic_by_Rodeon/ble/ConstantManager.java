@@ -62,4 +62,5 @@ public interface ConstantManager {
 /**                     delays                      **/
     ////////////////////////////////////////////////
     int GRAPH_UPDATE_DELAY  = 50;
+    int NOTIFY_UPDATE_DELAY  = 250;
 }

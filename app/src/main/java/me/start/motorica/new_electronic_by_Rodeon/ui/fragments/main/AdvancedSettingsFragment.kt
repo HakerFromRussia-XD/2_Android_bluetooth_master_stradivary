@@ -125,7 +125,7 @@ class AdvancedSettingsFragment : Fragment() {
     single_channel_control_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (single_channel_control_sw.isChecked) {
-          single_channel_control_tv.text = 1.toString()
+          single_channel_control_tv?.text = 1.toString()
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
             main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE)
             main?.setOneChannelNum = 1
@@ -135,7 +135,7 @@ class AdvancedSettingsFragment : Fragment() {
 
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
-          single_channel_control_tv.text = 0.toString()
+          single_channel_control_tv?.text = 0.toString()
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
             main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE)
             main?.setOneChannelNum = 0
@@ -295,8 +295,8 @@ class AdvancedSettingsFragment : Fragment() {
     single_channel_control_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
     on_off_sensor_gesture_switching_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
     mode_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv.text = 1.toString()
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv.text = 1.toString()
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv?.text = 1.toString()
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv?.text = 1.toString()
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
       on_off_sensor_gesture_switching_tv?.text = 1.toString()
       sensorGestureSwitching = 0x01

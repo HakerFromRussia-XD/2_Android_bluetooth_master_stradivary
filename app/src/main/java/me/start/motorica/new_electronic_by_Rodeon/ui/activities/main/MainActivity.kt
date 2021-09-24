@@ -873,6 +873,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             globalSemaphore = false
             state = 6
           }
+//          6 -> {
+//            System.err.println("$info = 6")
+//            bleCommand(READ_REGISTER, CALIBRATION_NEW, WRITE)
+//            state = 7
+//          }
           6 -> {
             System.err.println("$info = 6")
             bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)

@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.PixelFormat
 import android.os.Bundle
+import android.os.Handler
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -552,13 +553,16 @@ class GripperScreenWithEncodersActivity
 
         side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
 
-        animateFinger1 ()
+        Handler().postDelayed({
+            animateFinger1 ()
+            gestureState = 1
+        }, 200)
 //        animateFinger2 ()
 //        animateFinger3 ()
 //        animateFinger4 ()
 //        animateFinger5 ()
 //        animateFinger6 ()
-        gestureState = 1
+
 
 
         System.err.println("STATE fingerState1: $fingerOpenState1")

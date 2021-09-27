@@ -327,35 +327,35 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun displayDataAddGestureNew(data: ByteArray?) {
     if (data != null) {
       System.err.println("Приняли данные о жестах.  " + data.size + " байт")
-      for (d in 0 until 86) {
-        dataTest[d] = d.toByte()
-      }
-      System.err.println("Сгенеренные данные о жестах.  " + dataTest.size + " байт")
+//      for (d in 0 until 86) {
+//        dataTest[d] = d.toByte()
+//      }
+//      System.err.println("Сгенеренные данные о жестах.  " + dataTest.size + " байт")
 
-      if (dataTest.size == 86) {
+      if (data.size == 86) {
         for (i in 0 until 7) {
           for (j in 0 until 2) {
             for (k in 0 until 6) {
-              gestureTable[i][j][k] = castUnsignedCharToInt(dataTest[i*12 + j*6 + k])
+              gestureTable[i][j][k] = castUnsignedCharToInt(data[i*12 + j*6 + k])
             }
           }
         }
-        byteEnabledGesture = castUnsignedCharToInt(dataTest[84]).toByte()
-        byteActiveGesture = castUnsignedCharToInt(dataTest[85]).toByte()
+        byteEnabledGesture = castUnsignedCharToInt(data[84]).toByte()
+        byteActiveGesture = castUnsignedCharToInt(data[85]).toByte()
       }
       saveGestureState()
 
-      for (i in 0 until 7) {
-        System.err.println("Данные жеста №$i")
-        for (j in 0 until 2) {
-          System.err.println("Данные схвата №$j")
-          for (k in 0 until 6) {
-            System.err.println("Данные пальца №$k   Данные:" + gestureTable[i][j][k])
-          }
-        }
-      }
-      System.err.println("Данные byteEnabledGesture   Данные:$byteEnabledGesture")
-      System.err.println("Данные byteActiveGesture   Данные:$byteActiveGesture")
+//      for (i in 0 until 7) {
+//        System.err.println("Данные жеста №$i")
+//        for (j in 0 until 2) {
+//          System.err.println("Данные схвата №$j")
+//          for (k in 0 until 6) {
+//            System.err.println("Данные пальца №$k   Данные:" + gestureTable[i][j][k])
+//          }
+//        }
+//      }
+//      System.err.println("Данные byteEnabledGesture   Данные:$byteEnabledGesture")
+//      System.err.println("Данные byteActiveGesture   Данные:$byteActiveGesture")
       globalSemaphore = true
     }
   }
@@ -428,21 +428,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
 
-//    RxUpdateMainEvent.getInstance().fingerAngleObservable
-//            .compose(bindToLifecycle())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { parameters ->
-//              System.err.println(" MainActivity -----> change gripper.  numberFinger = ${parameters.numberFinger} "+
-//                      "fingerAngel = ${parameters.fingerAngel}")
-//              numberFinger = parameters.numberFinger
-//              angleFinger = parameters.fingerAngel
-//            }
-
     RxUpdateMainEvent.getInstance().gestureStateObservable
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { parameters ->
-              System.err.println("Prisedshie parametri: ${parameters.gestureNumber} ${parameters.openStage}  ${parameters.closeStage} ${parameters.state}")
               bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE, WRITE, 12)
             }
     RxUpdateMainEvent.getInstance().gestureStateWithEncodersObservable
@@ -914,11 +903,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             globalSemaphore = false
             state = 6
           }
-//          6 -> {
-//            System.err.println("$info = 6")
-//            bleCommand(READ_REGISTER, CALIBRATION_NEW, WRITE)
-//            state = 7
-//          }
           6 -> {
             System.err.println("$info = 6")
             bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
@@ -938,8 +922,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         System.err.println("Количество запросов без ответа = $count")
         if (count == 100) {
           endFlag = true
-//          globalSemaphore = true
-//          state -= 1
           state = 0
           count = 0
           runStart()
@@ -1085,21 +1067,20 @@ private fun runReadData() {
 
   private fun saveGestureState() {
     for (i in 0 until 7) {
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 0]))
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 1]))
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 2]))
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 3]))
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 4]))
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 5]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i+2), gestureTable[i][0][0])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i+2), gestureTable[i][0][1])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i+2), gestureTable[i][0][2])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i+2), gestureTable[i][0][3])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i+2), gestureTable[i][0][4])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i+2), gestureTable[i][0][5])
 
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 0]))
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 1]))
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 2]))
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 3]))
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 4]))
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 5]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i+2), gestureTable[i][1][0])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i+2), gestureTable[i][1][1])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i+2), gestureTable[i][1][2])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i+2), gestureTable[i][1][3])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i+2), gestureTable[i][1][4])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i+2), gestureTable[i][1][5])
     }
-    System.err.println("Загружаем сюда: " + mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + 2)
   }
   internal fun saveInt(key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()

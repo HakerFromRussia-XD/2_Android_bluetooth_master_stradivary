@@ -507,6 +507,7 @@ class GripperScreenWithEncodersActivity
         fingerCloseState4 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + gestureNumber, 0)
         fingerCloseState5 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, 0)
         fingerCloseState6 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, 0)
+        System.err.println("Загружаем от сюда: " + mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + gestureNumber)
 
         side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
 
@@ -520,12 +521,6 @@ class GripperScreenWithEncodersActivity
             gestureState = 1
         }, 200)
 
-//        System.err.println("STATE fingerState1: $fingerOpenState1")
-//        System.err.println("STATE fingerState2: $fingerCloseState1")
-//        System.err.println("STATE fingerState3: $fingerState6   angleFinger3: $angleFinger3")
-//        System.err.println("STATE fingerState4: $fingerState4   angleFinger4: $angleFinger4")
-//        System.err.println("STATE fingerState5: $fingerState5   angleFinger5: $angleFinger5")
-//        System.err.println("STATE fingerState6: $fingerState6   angleFinger6: $angleFinger6")
         compileBLEMassage (false)
     }
     private fun myLoadGesturesList() {

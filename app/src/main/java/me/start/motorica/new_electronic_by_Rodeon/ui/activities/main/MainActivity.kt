@@ -101,7 +101,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private  var countCommand: AtomicInteger = AtomicInteger()
   private var actionState = READ
-  var savingSettingsWhenModified = false
+  var savingSettingsWhenModified = true//false
   var lockWriteBeforeFirstRead = true //переменная, необходимая для ожидания первого пришедшего ответа от устройства на
   private var enableInterfaceStatus: Boolean = false
   // отправленный запрос чтения. Если не ожидать её, то поток чтения не перезамускается
@@ -131,6 +131,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       mBluetoothLeService = null
     }
   }
+
+  var gestureTable: Array<Array<Array<Int>>> = Array(7) { Array(2) { Array(6) { 0 } } }
+  var dataTest = ByteArray(86)
+  var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
+  var byteActiveGesture: Byte = 0 // номер активного в данный момент жеста 0-7
 
   // Handles various events fired by the Service.
   // ACTION_GATT_CONNECTED: connected to a GATT server.
@@ -178,6 +183,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA) != null) displayDataSensOptionsNew(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA) != null) displayDataSetGestureNew(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA) != null) displayDataSetReverseNew(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA) != null) displayDataAddGestureNew(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) displayDataSetOneChannelNew(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA))
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
@@ -278,7 +284,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           savingSettingsWhenModified = true
         }
       lockWriteBeforeFirstRead = false
-//      globalSemaphore = true
     }
   }
   private fun displayDataSensAndBMSVersionNew(data: ByteArray?) {
@@ -309,13 +314,48 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataSetGestureNew(data: ByteArray?) {
     if (data != null) {
-      saveInt(mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, castUnsignedCharToInt(data[0])+1)
+      saveInt(mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, castUnsignedCharToInt(data[0]) + 1)
       globalSemaphore = true
     }
   }
   private fun displayDataSetReverseNew(data: ByteArray?) {
     if (data != null) {
       setReverseNum = castUnsignedCharToInt(data[0])
+      globalSemaphore = true
+    }
+  }
+  private fun displayDataAddGestureNew(data: ByteArray?) {
+    if (data != null) {
+      System.err.println("Приняли данные о жестах.  " + data.size + " байт")
+      for (d in 0 until 86) {
+        dataTest[d] = d.toByte()
+      }
+      System.err.println("Сгенеренные данные о жестах.  " + dataTest.size + " байт")
+
+      if (dataTest.size == 86) {
+        for (i in 0 until 7) {
+          for (j in 0 until 2) {
+            for (k in 0 until 6) {
+              gestureTable[i][j][k] = castUnsignedCharToInt(dataTest[i*12 + j*6 + k])
+            }
+          }
+        }
+        byteEnabledGesture = castUnsignedCharToInt(dataTest[84]).toByte()
+        byteActiveGesture = castUnsignedCharToInt(dataTest[85]).toByte()
+      }
+      saveGestureState()
+
+      for (i in 0 until 7) {
+        System.err.println("Данные жеста №$i")
+        for (j in 0 until 2) {
+          System.err.println("Данные схвата №$j")
+          for (k in 0 until 6) {
+            System.err.println("Данные пальца №$k   Данные:" + gestureTable[i][j][k])
+          }
+        }
+      }
+      System.err.println("Данные byteEnabledGesture   Данные:$byteEnabledGesture")
+      System.err.println("Данные byteActiveGesture   Данные:$byteActiveGesture")
       globalSemaphore = true
     }
   }
@@ -377,7 +417,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS)
     saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
     mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE)
-    System.err.println("mDeviceType: $mDeviceType")
+    System.err.println("mDeviceAddress: $mDeviceAddress")
 
 
     // Sets up UI references.
@@ -634,7 +674,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       runReadData()
     } else {
       if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
-        startSubscribeSensorsNewDataThread()
+//        startSubscribeSensorsNewDataThread()
+        runStart()
       } else {
         startSubscribeSensorsDataThread()
       }
@@ -880,6 +921,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //          }
           6 -> {
             System.err.println("$info = 6")
+            bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
+            state = 7
+          }
+          7 -> {
+            System.err.println("$info = 7")
             bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
             globalSemaphore = false
             state = 0
@@ -992,7 +1038,7 @@ private fun runReadData() {
   fun getProgressUpdate(): Int {
     return progressUpdate
   }
-  fun showToast (massage: String) {
+  fun showToast(massage: String) {
     runOnUiThread {
       Toast.makeText(this, massage, Toast.LENGTH_SHORT).show()
     }
@@ -1037,6 +1083,24 @@ private fun runReadData() {
     return cast
   }
 
+  private fun saveGestureState() {
+    for (i in 0 until 7) {
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 0]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 1]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 2]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 3]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 4]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 0*6 + 5]))
+
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 0]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 1]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 2]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 3]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 4]))
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i+2), castUnsignedCharToInt(dataTest[i*12 + 1*6 + 5]))
+    }
+    System.err.println("Загружаем сюда: " + mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + 2)
+  }
   internal fun saveInt(key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putInt(key, variable)

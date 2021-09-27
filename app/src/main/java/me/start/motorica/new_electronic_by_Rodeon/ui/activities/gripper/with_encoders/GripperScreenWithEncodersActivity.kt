@@ -163,7 +163,7 @@ class GripperScreenWithEncodersActivity
                         compileBLEMassage (true)
                     }
                     if (numberFinger == 6) {
-                        changeStateFinger6 (angleFinger)
+                        changeStateFinger6 (98-angleFinger)
                         compileBLEMassage (true)
                     }
                     if (numberFinger == 55) { }
@@ -287,15 +287,16 @@ class GripperScreenWithEncodersActivity
         score5 = angleFinger
     }
     private fun changeStateFinger6 (angleFinger: Int) {
-        System.err.println("Изменили палец 6 $angleFinger")
+        System.err.println("Изменили палец 6 ${(angleFinger.toFloat()/100*90).toInt()}")
+        System.err.println("Изменили отправляемые значения палец 6 ${((angleFinger.toFloat()/100*90).toInt().toFloat()/85*100).toInt()}")
         if (gestureState == 1) {
-            fingerOpenState6 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, angleFinger)
+            fingerOpenState6 = (angleFinger.toFloat()/100*90).toInt()
+            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, (angleFinger.toFloat()/100*90).toInt() )
         } else {
-            fingerCloseState6 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, angleFinger)
+            fingerCloseState6 = (angleFinger.toFloat()/100*90).toInt()
+            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, (angleFinger.toFloat()/100*90).toInt() )
         }
-        score6 = angleFinger
+        score6 = (angleFinger.toFloat()/100*90).toInt()
     }
 
     private fun animateFinger1 () {

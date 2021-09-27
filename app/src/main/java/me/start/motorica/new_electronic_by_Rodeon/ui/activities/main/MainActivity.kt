@@ -132,10 +132,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
   }
 
-  var gestureTable: Array<Array<Array<Int>>> = Array(7) { Array(2) { Array(6) { 0 } } }
-  var dataTest = ByteArray(86)
-  var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
-  var byteActiveGesture: Byte = 0 // номер активного в данный момент жеста 0-7
+  private var gestureTable: Array<Array<Array<Int>>> = Array(7) { Array(2) { Array(6) { 0 } } }
+  private var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
+  private var byteActiveGesture: Byte = 0 // номер активного в данный момент жеста 0-7
 
   // Handles various events fired by the Service.
   // ACTION_GATT_CONNECTED: connected to a GATT server.
@@ -327,23 +326,24 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun displayDataAddGestureNew(data: ByteArray?) {
     if (data != null) {
       System.err.println("Приняли данные о жестах.  " + data.size + " байт")
-//      for (d in 0 until 86) {
-//        dataTest[d] = d.toByte()
-//      }
+      val dataTest = ByteArray(86)
+      for (d in 0 until 86) {
+        dataTest[d] = d.toByte()
+      }
 //      System.err.println("Сгенеренные данные о жестах.  " + dataTest.size + " байт")
 
-      if (data.size == 86) {
+      if (dataTest.size == 86) {
         for (i in 0 until 7) {
           for (j in 0 until 2) {
             for (k in 0 until 6) {
-              gestureTable[i][j][k] = castUnsignedCharToInt(data[i*12 + j*6 + k])
+              gestureTable[i][j][k] = castUnsignedCharToInt(dataTest[i*12 + j*6 + k])
             }
           }
         }
-        byteEnabledGesture = castUnsignedCharToInt(data[84]).toByte()
-        byteActiveGesture = castUnsignedCharToInt(data[85]).toByte()
+        byteEnabledGesture = castUnsignedCharToInt(dataTest[84]).toByte()
+        byteActiveGesture = castUnsignedCharToInt(dataTest[85]).toByte()
+        saveGestureState()
       }
-      saveGestureState()
 
 //      for (i in 0 until 7) {
 //        System.err.println("Данные жеста №$i")

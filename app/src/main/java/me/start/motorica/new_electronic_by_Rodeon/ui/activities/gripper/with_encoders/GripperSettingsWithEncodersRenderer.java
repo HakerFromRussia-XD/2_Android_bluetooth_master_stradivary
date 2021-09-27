@@ -1387,19 +1387,18 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 
 
 		/** поворот вокруг второй оси */
-//		if (GripperScreenWithEncodersActivity.Companion.getAnimationInProgress6()) {
-//			angleBigFingerTransfer2 = GripperScreenWithEncodersActivity.Companion.getAngleFinger6();
-//
-//			Matrix.setIdentityM(currentRotation, 0);
-//			Matrix.rotateM(currentRotation, 0, -angleBigFingerInt2, 1.0f, 0.0f, 0.0f);//angle2
-//
-//			Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotation2, 0);
-//			System.arraycopy(temporaryMatrix, 0, accumulatedRotation2, 0, 16);
-//
-//			angleBigFingerInt2 = lastAngleBigFingerInt2 - angleBigFingerTransfer2;
-//			lastAngleBigFingerInt2 = angleBigFingerTransfer2;
-//			angleBigFingerFloat2 = angleBigFingerTransfer2;
-//		} else {
+		if (GripperScreenWithEncodersActivity.Companion.getAnimationInProgress6()) {
+			angleBigFingerTransfer2 = GripperScreenWithEncodersActivity.Companion.getAngleFinger6();
+
+			Matrix.setIdentityM(currentRotation, 0);
+			Matrix.rotateM(currentRotation, 0, -angleBigFingerInt2, 1.0f, 0.0f, 0.0f);//angle2
+			Matrix.multiplyMM(temporaryMatrix, 0, currentRotation, 0, accumulatedRotation2, 0);
+			System.arraycopy(temporaryMatrix, 0, accumulatedRotation2, 0, 16);
+
+			angleBigFingerInt2 = lastAngleBigFingerInt2 - angleBigFingerTransfer2;
+			lastAngleBigFingerInt2 = angleBigFingerTransfer2;
+			angleBigFingerFloat2 = angleBigFingerTransfer2;
+		} else {
 			Matrix.setIdentityM(currentRotation, 0);
 			if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
 				angleBigFingerFloat2 += deltaX;
@@ -1418,7 +1417,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 				lastAngleBigFingerInt2 = angleBigFingerTransfer2;
 				deltaX = 0;
 			}
-//		}
+		}
 
 
 		Matrix.multiplyMM(temporaryMatrix, 0, accumulatedRotation2, 0, modelMatrix, 0);

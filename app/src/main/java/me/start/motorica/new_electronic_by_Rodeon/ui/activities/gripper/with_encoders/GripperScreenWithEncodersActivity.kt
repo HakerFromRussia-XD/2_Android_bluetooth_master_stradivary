@@ -26,6 +26,7 @@ import me.start.motorica.new_electronic_by_Rodeon.models.GestureStateWithEncoder
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
+import kotlin.math.abs
 import kotlin.properties.Delegates
 
 
@@ -159,11 +160,11 @@ class GripperScreenWithEncodersActivity
                         compileBLEMassage (true)
                     }
                     if (numberFinger == 5) {
-                        changeStateFinger5 (angleFinger)
+                        changeStateFinger5 (88 - angleFinger)
                         compileBLEMassage (true)
                     }
                     if (numberFinger == 6) {
-                        changeStateFinger6 (98-angleFinger)
+                        changeStateFinger6 (98 - angleFinger)
                         compileBLEMassage (true)
                     }
                     if (numberFinger == 55) { }
@@ -276,19 +277,20 @@ class GripperScreenWithEncodersActivity
         score4 = angleFinger
     }
     private fun changeStateFinger5 (angleFinger: Int) {
-        System.err.println("Изменили палец 5 $angleFinger")
+//        System.err.println("Изменили палец 5 ${(angleFinger.toFloat()/100*91).toInt()-49}") //-16
+//        System.err.println("Изменили отправляемые значения палец 5 ${(100-(((angleFinger.toFloat()/100*91).toInt()+9).toFloat()/86*100).toInt())}")
         if (gestureState == 1) {
-            fingerOpenState5 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber, angleFinger)
+            fingerOpenState5 = (angleFinger.toFloat()/100*91).toInt()-49
+            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber, (angleFinger.toFloat()/100*91).toInt()-49)
         } else {
-            fingerCloseState5 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, angleFinger)
+            fingerCloseState5 = (angleFinger.toFloat()/100*91).toInt()-49
+            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, (angleFinger.toFloat()/100*91).toInt()-49)
         }
-        score5 = angleFinger
+        score5 = (angleFinger.toFloat()/100*91).toInt()-49
     }
     private fun changeStateFinger6 (angleFinger: Int) {
         System.err.println("Изменили палец 6 ${(angleFinger.toFloat()/100*90).toInt()}")
-        System.err.println("Изменили отправляемые значения палец 6 ${((angleFinger.toFloat()/100*90).toInt().toFloat()/85*100).toInt()}")
+        System.err.println("Изменили отправляемые значения палец 6 ${abs(((angleFinger.toFloat()/100*90).toInt().toFloat()/85*100).toInt())}")
         if (gestureState == 1) {
             fingerOpenState6 = (angleFinger.toFloat()/100*90).toInt()
             saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, (angleFinger.toFloat()/100*90).toInt() )

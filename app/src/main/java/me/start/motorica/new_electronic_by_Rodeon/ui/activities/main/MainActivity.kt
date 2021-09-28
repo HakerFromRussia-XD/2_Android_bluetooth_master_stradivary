@@ -325,23 +325,23 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataAddGestureNew(data: ByteArray?) {
     if (data != null) {
-      System.err.println("Приняли данные о жестах.  " + data.size + " байт")
-      val dataTest = ByteArray(86)
-      for (d in 0 until 86) {
-        dataTest[d] = d.toByte()
-      }
+//      System.err.println("Приняли данные о жестах.  " + data.size + " байт")
+//      val dataTest = ByteArray(86)
+//      for (d in 0 until 86) {
+//        dataTest[d] = d.toByte()
+//      }
 //      System.err.println("Сгенеренные данные о жестах.  " + dataTest.size + " байт")
 
-      if (dataTest.size == 86) {
+      if (data.size == 86) {
         for (i in 0 until 7) {
           for (j in 0 until 2) {
             for (k in 0 until 6) {
-              gestureTable[i][j][k] = castUnsignedCharToInt(dataTest[i*12 + j*6 + k])
+              gestureTable[i][j][k] = castUnsignedCharToInt(data[i*12 + j*6 + k])
             }
           }
         }
-        byteEnabledGesture = castUnsignedCharToInt(dataTest[84]).toByte()
-        byteActiveGesture = castUnsignedCharToInt(dataTest[85]).toByte()
+        byteEnabledGesture = castUnsignedCharToInt(data[84]).toByte()
+        byteActiveGesture = castUnsignedCharToInt(data[85]).toByte()
         saveGestureState()
       }
 

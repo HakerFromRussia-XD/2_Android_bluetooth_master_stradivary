@@ -87,8 +87,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var mNumberGesture = 0
   // 3D
   var firstRead = true
-  private var numberFinger = 0
-  private var angleFinger = 0
   private var speedFinger = 0
   // Очередь для задачь работы с BLE
   private val queue = me.start.motorica.new_electronic_by_Rodeon.services.receivers.BlockingQueue()

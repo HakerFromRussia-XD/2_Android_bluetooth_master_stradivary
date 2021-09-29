@@ -35,6 +35,7 @@ import timber.log.Timber;
 
 import static me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.SHOW_EVERYONE_RECEIVE_BYTE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_MOTOR_HDLE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.FESTO_A_CHARACTERISTIC;
@@ -85,6 +86,7 @@ public class BluetoothLeService extends Service {
     public final static String SET_GESTURE_NEW_DATA = "com.example.bluetooth.le.SET_GESTURE_NEW_DATA";
     public final static String SET_REVERSE_NEW_DATA = "com.example.bluetooth.le.SET_REVERSE_NEW_DATA";
     public final static String ADD_GESTURE_NEW_DATA = "com.example.bluetooth.le.ADD_GESTURE_NEW_DATA";
+    public final static String CALIBRATION_NEW_DATA = "com.example.bluetooth.le.CALIBRATION_NEW_DATA";
     public final static String SET_ONE_CHANNEL_NEW_DATA = "com.example.bluetooth.le.SET_ONE_CHANNEL_NEW_DATA";
 
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
@@ -137,6 +139,10 @@ public class BluetoothLeService extends Service {
             }
             if (String.valueOf(characteristic.getUuid()).equals(ADD_GESTURE_NEW)) {
                 if (state.equals(READ)) { intent.putExtra(ADD_GESTURE_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(CALIBRATION_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(CALIBRATION_NEW_DATA, data); intent.putExtra(ACTION_STATE, READ);}
+                if (state.equals(WRITE)){ intent.putExtra(CALIBRATION_NEW_DATA, data); intent.putExtra(ACTION_STATE, WRITE);}
             }
 
 

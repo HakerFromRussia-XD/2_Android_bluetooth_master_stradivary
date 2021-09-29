@@ -181,6 +181,8 @@
     <string name="rotation_state_close">inside</string>
     <string name="gesture_state_open">open state</string>
     <string name="gesture_state_close">off-state</string>
+    <string name="prosthesis_calibrating">Prosthesis calibrating</string>
+    <string name="waiting">waiting...</string>
 
     <string-array name="numbers">
         <item>0</item>

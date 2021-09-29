@@ -46,6 +46,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapt
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograbWithAdvancedSettings
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterWithAdvancedSettings
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomDialogFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomInfoCalibrationDialogFragment
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomInfoUpdateDialogFragment
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomUpdateDialogFragment
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
@@ -133,6 +134,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var gestureTable: Array<Array<Array<Int>>> = Array(7) { Array(2) { Array(6) { 0 } } }
   private var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
   private var byteActiveGesture: Byte = 0 // номер активного в данный момент жеста 0-7
+  var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
+  private var firstShowPreloaderCalibration: Boolean = true // нужна для одиночного показа уведомления о начале калибровки
+  private var firstHidePreloaderCalibration: Boolean = true // нужна для скрытия уведомления о начале калибровки
 
   // Handles various events fired by the Service.
   // ACTION_GATT_CONNECTED: connected to a GATT server.
@@ -181,6 +185,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA) != null) displayDataSetGestureNew(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA) != null) displayDataSetReverseNew(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA) != null) displayDataAddGestureNew(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA) != null) {
+                displayDataCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA))
+                intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
+              }
               if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) displayDataSetOneChannelNew(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA))
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
@@ -354,6 +362,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //      }
 //      System.err.println("Данные byteEnabledGesture   Данные:$byteEnabledGesture")
 //      System.err.println("Данные byteActiveGesture   Данные:$byteActiveGesture")
+      globalSemaphore = true
+    }
+  }
+  private fun displayDataCalibrationNew(data: ByteArray?) {
+    if (data != null) {
+      if (actionState.equals(READ)) { calibrationStage = castUnsignedCharToInt(data[0]) }
       globalSemaphore = true
     }
   }
@@ -853,9 +867,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   /**
    * Запуск задачи чтения параметров экрана графиков
    */
-  private fun runStart() { getReadThresholdsAndVersions()?.let { queue.put(it) } }
-  open fun getReadThresholdsAndVersions(): Runnable? { return Runnable { readThresholdsAndVersions() } }
-  private fun readThresholdsAndVersions() {
+  private fun runStart() { getStart()?.let { queue.put(it) } }
+  open fun getStart(): Runnable? { return Runnable { readStart() } }
+  private fun readStart() {
     val info = "Чтение порогов и версий"
     var count = 0
     var state = 0 // переключается здесь в потоке
@@ -904,10 +918,51 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           6 -> {
             System.err.println("$info = 6")
             bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
+            globalSemaphore = false
             state = 7
           }
+          //TODO добавляем сюда свой алгоритм
           7 -> {
             System.err.println("$info = 7")
+            bleCommand(READ_REGISTER, CALIBRATION_NEW, READ)
+            globalSemaphore = false
+            state = 8
+          }
+          8 -> {
+            System.err.println("$info = 8")
+            if (calibrationStage == 0) { state = 9 } else {
+              if (calibrationStage == 2) { state = 11 } else {
+                if (calibrationStage == 1) { state = 10 } else {
+                  if (calibrationStage == 3) { state = 7 }
+                }
+              }
+            }
+          }
+          9 -> {
+            System.err.println("$info = 9")
+            //start calibration
+            bleCommand(byteArrayOf(0x03), CALIBRATION_NEW, WRITE)
+            globalSemaphore = false
+            state = 7
+          }
+          10 -> {
+            System.err.println("$info = 10")
+            //show preloader
+            if (firstShowPreloaderCalibration) {
+              openFragmentInfoCalibration()
+              firstShowPreloaderCalibration = false
+            }
+            state = 7
+          }
+          //TODO
+          11 -> {
+            System.err.println("$info = 11")
+//            //hide preloader
+//            if (firstHidePreloaderCalibration) {
+//              showToast("hide preloader")
+//              firstHidePreloaderCalibration = false
+//            }
+            //read active gesture
             bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
             globalSemaphore = false
             state = 0
@@ -1013,6 +1068,10 @@ private fun runReadData() {
   }
   fun openFragmentInfoUpdate() {
     val dialog = CustomInfoUpdateDialogFragment()
+    dialog.show(supportFragmentManager, "update dialog")
+  }
+  private fun openFragmentInfoCalibration() {
+    val dialog = CustomInfoCalibrationDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
   }
   fun getProgressUpdate(): Int {

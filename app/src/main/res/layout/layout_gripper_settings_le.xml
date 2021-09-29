@@ -32,7 +32,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <ImageView
-            android:id="@+id/iv_andex_alert_dialog_layout_image"
+            android:id="@+id/anim_preloader_lav"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:scaleType="fitCenter"
@@ -64,7 +64,7 @@
             android:layout_height="0dp"
             android:scaleType="fitCenter"
             android:src="@drawable/close_hand_64p"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_andex_alert_dialog_layout_image"
+            app:layout_constraintBottom_toBottomOf="@+id/anim_preloader_lav"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
@@ -97,7 +97,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
-            app:layout_constraintTop_toBottomOf="@+id/iv_andex_alert_dialog_layout_image" />
+            app:layout_constraintTop_toBottomOf="@+id/anim_preloader_lav" />
 
         <TextView
             android:id="@+id/tv_andex_alert_dialog_layout_title3"

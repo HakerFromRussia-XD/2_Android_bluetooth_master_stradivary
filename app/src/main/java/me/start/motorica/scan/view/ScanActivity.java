@@ -183,9 +183,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                     System.err.println("===========================================");
 //                    System.err.println("DeviceScanActivity ---------> device name: "+device.getName()+ "   Uuids: "+device.getUuids());
 //                    System.err.println("DeviceScanActivity ---------> device rssi: "+rssi);
-                    System.err.println("DeviceScanActivity ---------> device: "+device.toString()+" | "+device.getAddress()+" | "+device.getUuids()+" | "+device.getName()
-                            +" | "+device.getType()+" | "+device.getClass().getCanonicalName()+" | "+device.getName()+" | "+device.getClass().getSimpleName()+" | "
-                            +device.getClass().getTypeName()+" | "+device.getClass().getAnnotations().length);
+//                    System.err.println("DeviceScanActivity ---------> device: "+device.toString()+" | "+device.getAddress()+" | "+device.getUuids()+" | "+device.getName()
+//                            +" | "+device.getType()+" | "+device.getClass().getCanonicalName()+" | "+device.getName()+" | "+device.getClass().getSimpleName()+" | "
+//                            +device.getClass().getTypeName()+" | "+device.getClass().getAnnotations().length);
                     System.err.println("DeviceScanActivity ---------> device: "+scanRecord+" | "+rssi);
                     System.err.println("===========================================");
                     addLEDeviceToScanList(device.getName()+":l:", device);

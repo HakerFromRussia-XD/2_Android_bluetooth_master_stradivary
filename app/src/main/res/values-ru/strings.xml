@@ -181,6 +181,8 @@
     <string name="rotation_state_close">внутрь</string>
     <string name="gesture_state_open">открытое</string>
     <string name="gesture_state_close">закрытое</string>
+    <string name="prosthesis_calibrating">Калибровка протеза</string>
+    <string name="waiting">ожидайте…</string>
 
 
     <string-array name="numbers">

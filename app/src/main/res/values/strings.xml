@@ -183,6 +183,8 @@
     <string name="gesture_state_close">off-state</string>
     <string name="prosthesis_calibrating">Prosthesis calibrating</string>
     <string name="waiting">waiting...</string>
+    <string name="get">get</string>
+    <string name="telemetry_serial">telemetry serial</string>
 
     <string-array name="numbers">
         <item>0</item>

@@ -76,7 +76,7 @@
     <string name="input_address">Введите адрес</string>
     <string name="input_temp">Введите значение</string>
     <string name="current_control_data">Данные контроля тока</string>
-    <string name="set">установить</string>
+    <string name="set">записать</string>
     <string name="open">открыть</string>
     <string name="stop">стоп</string>
     <string name="close">закрыть</string>
@@ -183,6 +183,8 @@
     <string name="gesture_state_close">закрытое</string>
     <string name="prosthesis_calibrating">Калибровка протеза</string>
     <string name="waiting">ожидайте…</string>
+    <string name="get">считать</string>
+    <string name="telemetry_serial">серийник для телеметрии</string>
 
 
     <string-array name="numbers">

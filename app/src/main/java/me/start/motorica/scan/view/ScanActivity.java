@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -91,7 +92,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private ArrayList<BluetoothDevice> mLeDevices;
 
 
-    @SuppressLint({"NewApi", "ClickableViewAccessibility"})
+    @SuppressLint({"NewApi", "ClickableViewAccessibility", "ObsoleteSdkInt"})
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -186,17 +187,13 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //                    System.err.println("DeviceScanActivity ---------> device: "+device.toString()+" | "+device.getAddress()+" | "+device.getUuids()+" | "+device.getName()
 //                            +" | "+device.getType()+" | "+device.getClass().getCanonicalName()+" | "+device.getName()+" | "+device.getClass().getSimpleName()+" | "
 //                            +device.getClass().getTypeName()+" | "+device.getClass().getAnnotations().length);
-                    System.err.println("DeviceScanActivity ---------> device: "+scanRecord+" | "+rssi);
+                    System.err.println("DeviceScanActivity ---------> device: "+ Arrays.toString(scanRecord) +" | "+rssi);
                     System.err.println("===========================================");
                     addLEDeviceToScanList(device.getName()+":l:", device);
                 }
             });
-
     private final BluetoothAdapter.LeScanCallback mLeAdvertisingCallback =
-            (device, rssi, scanRecord) -> runOnUiThread(() -> {
-
-            });
-
+            (device, rssi, scanRecord) -> runOnUiThread(() -> { });
     @Override
     public void showPairedList(List<String> items) {
         if(firstStart){

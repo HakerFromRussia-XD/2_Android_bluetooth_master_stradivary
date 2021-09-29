@@ -667,6 +667,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         swap_open_close_sw.isEnabled = enabled
         single_channel_control_sw.isEnabled = enabled
         reset_to_factory_settings_btn.isEnabled = enabled
+        get_setup_btn.isEnabled = enabled
+        set_setup_btn.isEnabled = enabled
         shutdown_current_sb.isEnabled = enabled
       }
     }

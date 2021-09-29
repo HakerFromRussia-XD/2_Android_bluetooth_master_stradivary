@@ -59,12 +59,15 @@ public class SampleGattAttributes {
     public static String MOVE_ALL_FINGERS_NEW = "43686172-4d74-726b-0009-526f64696f6e";// 6 байт по положению на каждый палец
     public static String CHANGE_GESTURE_NEW = "43686172-4d74-726b-000a-526f64696f6e";// 13 байт по положению на каждый палец на каждое положение + 1 байт номера жеста
 
-
     public static String RESET_TO_FACTORY_SETTINGS_NEW = "43686172-4d74-726b-0100-526f64696f6e";
 
     public static String SENS_OPTIONS_NEW = "43686172-4d74-726b-0200-526f64696f6e";//"43686172-4d74-726b-0002-526f64696f6e";
     public static String MIO_MEASUREMENT_NEW = "43686172-4d74-726b-0201-526f64696f6e";
     public static String SENS_VERSION_NEW = "43686172-4d74-726b-0202-526f64696f6e";
+    public static String SENS_ENABLED_NEW = "43686172-4d74-726b-0203-526f64696f6e"; // 0-управление от датчиков отключео 1-управление от датчиков включено
+
+    public static String TELEMETRY_NUMBER_NEW = "43686172-4d74-726b-0300-526f64696f6e"; // 16 байт инфа о номере для телеметрии\
+
 
 
 
@@ -73,7 +76,6 @@ public class SampleGattAttributes {
     public static String WRITE = "WRITE";
     public static String WRITE_WR = "WRITE_WR";
     public static String NOTIFY = "NOTIFY";
-
 
     static {
         // Sample Services.

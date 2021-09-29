@@ -290,6 +290,11 @@ class AdvancedSettingsFragment : Fragment() {
     if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_3) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
       shutdown_current_rl?.visibility = View.GONE
     }
+    //Скрывает настройки, которые не актуальны для бионик кроме FEST-H
+    if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4) ) { telemetry_rl?.visibility = View.VISIBLE }
+    else { telemetry_rl?.visibility = View.GONE }
+
+
 
     swap_open_close_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
     single_channel_control_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)

@@ -343,6 +343,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           for (j in 0 until 2) {
             for (k in 0 until 6) {
               gestureTable[i][j][k] = castUnsignedCharToInt(data[i*12 + j*6 + k])
+              if(k == 4) { gestureTable[i][j][k] = ((88 - castUnsignedCharToInt(data[i*12 + j*6 + k])).toFloat()/100*91).toInt()-49 }
+              if(k == 5) { gestureTable[i][j][k] = (( castUnsignedCharToInt(data[i*12 + j*6 + k])).toFloat()/100*90).toInt() }
             }
           }
         }
@@ -351,17 +353,17 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         saveGestureState()
       }
 
-//      for (i in 0 until 7) {
-//        System.err.println("Данные жеста №$i")
-//        for (j in 0 until 2) {
-//          System.err.println("Данные схвата №$j")
-//          for (k in 0 until 6) {
-//            System.err.println("Данные пальца №$k   Данные:" + gestureTable[i][j][k])
-//          }
-//        }
-//      }
-//      System.err.println("Данные byteEnabledGesture   Данные:$byteEnabledGesture")
-//      System.err.println("Данные byteActiveGesture   Данные:$byteActiveGesture")
+      for (i in 0 until 7) {
+        System.err.println("Данные жеста №$i")
+        for (j in 0 until 2) {
+          System.err.println("Данные схвата №$j")
+          for (k in 0 until 6) {
+            System.err.println("Данные пальца №$k   Данные:" + gestureTable[i][j][k])
+          }
+        }
+      }
+      System.err.println("Данные byteEnabledGesture   Данные:$byteEnabledGesture")
+      System.err.println("Данные byteActiveGesture   Данные:$byteActiveGesture")
       globalSemaphore = true
     }
   }
@@ -452,7 +454,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             .subscribe { parameters ->
               System.err.println("Prishedshie parametri: ${parameters.openStage1.toByte()}")
               if (parameters.withChangeGesture) {
-                System.err.println("Prishedshie s izmeneniem gesta v pamiati")
+                System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage5: ${parameters.openStage5}    closeStage5: ${parameters.closeStage5}")
                 runWriteData(byteArrayOf((parameters.gestureNumber).toByte(),
                         parameters.openStage1.toByte(), parameters.openStage2.toByte(), parameters.openStage3.toByte(),
                         parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte(),

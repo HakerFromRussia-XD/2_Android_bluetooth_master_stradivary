@@ -278,7 +278,7 @@ class GripperScreenWithEncodersActivity
     }
     private fun changeStateFinger5 (angleFinger: Int) {
 //        System.err.println("Изменили палец 5 ${(angleFinger.toFloat()/100*91).toInt()-49}") //-16
-//        System.err.println("Изменили отправляемые значения палец 5 ${(100-(((angleFinger.toFloat()/100*91).toInt()+9).toFloat()/86*100).toInt())}")
+//        System.err.println("Изменили отправляемые значения палец 5 ${(100-((() +58).toFloat()/86*100).toInt())}")
         if (gestureState == 1) {
             fingerOpenState5 = (angleFinger.toFloat()/100*91).toInt()-49
             saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber, (angleFinger.toFloat()/100*91).toInt()-49)
@@ -289,8 +289,8 @@ class GripperScreenWithEncodersActivity
         score5 = (angleFinger.toFloat()/100*91).toInt()-49
     }
     private fun changeStateFinger6 (angleFinger: Int) {
-        System.err.println("Изменили палец 6 ${(angleFinger.toFloat()/100*90).toInt()}")
-        System.err.println("Изменили отправляемые значения палец 6 ${abs(((angleFinger.toFloat()/100*90).toInt().toFloat()/85*100).toInt())}")
+//        System.err.println("Изменили палец 6 ${(angleFinger.toFloat()/100*90).toInt()}")
+//        System.err.println("Изменили отправляемые значения палец 6 ${abs((().toFloat()/85*100).toInt())}")
         if (gestureState == 1) {
             fingerOpenState6 = (angleFinger.toFloat()/100*90).toInt()
             saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, (angleFinger.toFloat()/100*90).toInt() )
@@ -304,7 +304,7 @@ class GripperScreenWithEncodersActivity
     private fun animateFinger1 () {
         if (gestureState == 1) {
             val anim1 = ValueAnimator.ofInt(score1, fingerCloseState1)
-            anim1.duration = (kotlin.math.abs(fingerCloseState1 - score1) * 10).toLong()
+            anim1.duration = (abs(fingerCloseState1 - score1) * 10).toLong()
             animationInProgress1 = true
             anim1.addUpdateListener {
                 angleFinger1 = anim1.animatedValue as Int
@@ -317,7 +317,7 @@ class GripperScreenWithEncodersActivity
         } else
         {
             val anim1 = ValueAnimator.ofInt(score1, fingerOpenState1)
-            anim1.duration = (kotlin.math.abs(fingerOpenState1 - score1) * 10).toLong()
+            anim1.duration = (abs(fingerOpenState1 - score1) * 10).toLong()
             animationInProgress1 = true
             anim1.addUpdateListener {
                 angleFinger1 = anim1.animatedValue as Int
@@ -332,7 +332,7 @@ class GripperScreenWithEncodersActivity
     private fun animateFinger2 () {
         if (gestureState == 1) {
             val anim2 = ValueAnimator.ofInt(score2, fingerCloseState2)
-            anim2.duration = (kotlin.math.abs(fingerCloseState2 - score2) * 10).toLong()
+            anim2.duration = (abs(fingerCloseState2 - score2) * 10).toLong()
             animationInProgress2 = true
             anim2.addUpdateListener {
                 angleFinger2 = anim2.animatedValue as Int
@@ -345,7 +345,7 @@ class GripperScreenWithEncodersActivity
         } else
         {
             val anim2 = ValueAnimator.ofInt(score2, fingerOpenState2)
-            anim2.duration = (kotlin.math.abs(fingerOpenState2 - score2) * 10).toLong()
+            anim2.duration = (abs(fingerOpenState2 - score2) * 10).toLong()
             animationInProgress2 = true
             anim2.addUpdateListener {
                 angleFinger2 = anim2.animatedValue as Int
@@ -360,7 +360,7 @@ class GripperScreenWithEncodersActivity
     private fun animateFinger3 () {
         if (gestureState == 1) {
             val anim3 = ValueAnimator.ofInt(score3, fingerCloseState3)
-            anim3.duration = (kotlin.math.abs(fingerCloseState3 - score3) * 10).toLong()
+            anim3.duration = (abs(fingerCloseState3 - score3) * 10).toLong()
             animationInProgress3 = true
             anim3.addUpdateListener {
                 angleFinger3 = anim3.animatedValue as Int
@@ -373,7 +373,7 @@ class GripperScreenWithEncodersActivity
         } else
         {
             val anim3 = ValueAnimator.ofInt(score3, fingerOpenState3)
-            anim3.duration = (kotlin.math.abs(fingerOpenState3 - score3) * 10).toLong()
+            anim3.duration = (abs(fingerOpenState3 - score3) * 10).toLong()
             animationInProgress3 = true
             anim3.addUpdateListener {
                 angleFinger3 = anim3.animatedValue as Int
@@ -388,7 +388,7 @@ class GripperScreenWithEncodersActivity
     private fun animateFinger4 () {
         if (gestureState == 1) {
             val anim4 = ValueAnimator.ofInt(score4, fingerCloseState4)
-            anim4.duration = (kotlin.math.abs(fingerCloseState4 - score4) * 10).toLong()
+            anim4.duration = (abs(fingerCloseState4 - score4) * 10).toLong()
             animationInProgress4 = true
             anim4.addUpdateListener {
                 angleFinger4 = anim4.animatedValue as Int
@@ -401,7 +401,7 @@ class GripperScreenWithEncodersActivity
         } else
         {
             val anim4 = ValueAnimator.ofInt(score4, fingerOpenState4)
-            anim4.duration = (kotlin.math.abs(fingerOpenState4 - score4) * 10).toLong()
+            anim4.duration = (abs(fingerOpenState4 - score4) * 10).toLong()
             animationInProgress4 = true
             anim4.addUpdateListener {
                 angleFinger4 = anim4.animatedValue as Int
@@ -416,7 +416,7 @@ class GripperScreenWithEncodersActivity
     private fun animateFinger5 () {
         if (gestureState == 1) {
             val anim5 = ValueAnimator.ofInt(score5, fingerCloseState5)
-            anim5.duration = (kotlin.math.abs(fingerCloseState5 - score5) * 10).toLong()
+            anim5.duration = (abs(fingerCloseState5 - score5) * 10).toLong()
             animationInProgress5 = true
             anim5.addUpdateListener {
                 angleFinger5 = anim5.animatedValue as Int
@@ -429,7 +429,7 @@ class GripperScreenWithEncodersActivity
         } else
         {
             val anim5 = ValueAnimator.ofInt(score5, fingerOpenState5)
-            anim5.duration = (kotlin.math.abs(fingerOpenState5 - score5) * 10).toLong()
+            anim5.duration = (abs(fingerOpenState5 - score5) * 10).toLong()
             animationInProgress5 = true
             anim5.addUpdateListener {
                 angleFinger5 = anim5.animatedValue as Int
@@ -444,7 +444,7 @@ class GripperScreenWithEncodersActivity
     private fun animateFinger6 () {
         if (gestureState == 1) {
             val anim6 = ValueAnimator.ofInt(score6, fingerCloseState6)
-            anim6.duration = (kotlin.math.abs(fingerCloseState6 - score6) * 10).toLong()
+            anim6.duration = (abs(fingerCloseState6 - score6) * 10).toLong()
             animationInProgress6 = true
             anim6.addUpdateListener {
                 angleFinger6 = anim6.animatedValue as Int
@@ -457,7 +457,7 @@ class GripperScreenWithEncodersActivity
         } else
         {
             val anim6 = ValueAnimator.ofInt(score6, fingerOpenState6)
-            anim6.duration = (kotlin.math.abs(fingerOpenState6 - score6) * 10).toLong()
+            anim6.duration = (abs(fingerOpenState6 - score6) * 10).toLong()
             animationInProgress6 = true
             anim6.addUpdateListener {
                 angleFinger6 = anim6.animatedValue as Int
@@ -473,14 +473,18 @@ class GripperScreenWithEncodersActivity
     private fun compileBLEMassage (withChangeGesture: Boolean) {
         if (gestureState == 1) {
             val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
-                    fingerOpenState1, fingerOpenState2, fingerOpenState3, fingerOpenState4, fingerOpenState5, fingerOpenState6,
-                    fingerCloseState1, fingerCloseState2, fingerCloseState3, fingerCloseState4, fingerCloseState5, fingerCloseState6,
+                    fingerOpenState1, fingerOpenState2, fingerOpenState3,
+                    fingerOpenState4, (100-(((fingerOpenState5) +58).toFloat()/86*100).toInt()), abs(((fingerOpenState6).toFloat()/85*100).toInt()),
+                    fingerCloseState1, fingerCloseState2, fingerCloseState3,
+                    fingerCloseState4, (100-(((fingerCloseState5) +58).toFloat()/86*100).toInt()),abs(((fingerCloseState6).toFloat()/85*100).toInt()) ,
                     gestureState, withChangeGesture)
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         } else {
             val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
-                    fingerOpenState1, fingerOpenState2, fingerOpenState3, fingerOpenState4, fingerOpenState5, fingerOpenState6,
-                    fingerCloseState1, fingerCloseState2, fingerCloseState3, fingerCloseState4, fingerCloseState5, fingerCloseState6,
+                    fingerOpenState1, fingerOpenState2, fingerOpenState3,
+                    fingerOpenState4, (100-(((fingerOpenState5) +58).toFloat()/86*100).toInt()), abs(((fingerOpenState6).toFloat()/85*100).toInt()),
+                    fingerCloseState1, fingerCloseState2, fingerCloseState3,
+                    fingerCloseState4, (100-(((fingerCloseState5) +58).toFloat()/86*100).toInt()), abs(((fingerCloseState6).toFloat()/85*100).toInt()),
                     gestureState, withChangeGesture)
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         }

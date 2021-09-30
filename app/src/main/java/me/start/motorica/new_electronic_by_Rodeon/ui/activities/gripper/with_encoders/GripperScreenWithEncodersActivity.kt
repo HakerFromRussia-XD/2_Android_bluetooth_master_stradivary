@@ -497,6 +497,8 @@ class GripperScreenWithEncodersActivity
         editor.apply()
     }
     private fun loadOldState() {
+        compileBLEMassage (false)
+
         val text = "load not work"
         fingerOpenState1 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + gestureNumber, 0)
         fingerOpenState2 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + gestureNumber, 0)
@@ -523,7 +525,7 @@ class GripperScreenWithEncodersActivity
             gestureState = 1
         }, 200)
 
-        compileBLEMassage (false)
+
     }
     private fun myLoadGesturesList() {
         val text = "load not work"

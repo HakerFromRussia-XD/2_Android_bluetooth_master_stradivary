@@ -34,6 +34,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivit
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import java.nio.charset.Charset
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
@@ -191,6 +192,11 @@ class AdvancedSettingsFragment : Fragment() {
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
         }
       }
+    }
+    set_setup_btn?.setOnClickListener {
+      var lol: ByteArray
+      lol = telemetry_number_et.text.toString().toByteArray(Charsets.UTF_8)
+      main?.bleCommandConnector(lol, TELEMETRY_NUMBER_NEW, WRITE, 17)
     }
     peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {

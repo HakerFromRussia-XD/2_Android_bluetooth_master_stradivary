@@ -191,7 +191,6 @@ class GripperScreenWithEncodersActivity
         RxView.clicks(findViewById(R.id.gripper_use_le))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    //TODO дописать логику сохранения и принятия в работу данных пред закрытием активити
                     finish()
                 }
 

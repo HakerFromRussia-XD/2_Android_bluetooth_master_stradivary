@@ -438,7 +438,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 intValueCH1on = (int) (seekBarCH1on.getProgress()* multiplierSeekBar);
                 indicatorTypeMessage = 0x01;
                 if (invertChannel){numberChannel = 0x02;} else {numberChannel = 0x01;}
-                //TODO дописать инвертирование для хдлцешных посылок
                 if(flagUseHDLCProtocol){
                     TextByteHDLC6[0] = ConstantManager.ADDR_MIO1;
                     TextByteHDLC6[1] = ConstantManager.WRITE;
@@ -1407,7 +1406,6 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 Thread.sleep(BluetoothConstantManager.TIME_RETURN_START_COMAND_HDLC_MS);
             }catch (Exception ignored){}
             if(!flagReceptionExpectation){
-                //TODO вынесли запрос блокировки до лучших времён
                 requestStartRoughnessThread();
                 System.out.println("ChartActivity--------------> запуск запроса следующей функции Block");
             }

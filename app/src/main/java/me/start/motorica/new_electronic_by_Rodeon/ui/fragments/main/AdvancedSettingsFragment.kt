@@ -193,10 +193,11 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
     }
+    get_setup_btn?.setOnClickListener {
+      main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
+    }
     set_setup_btn?.setOnClickListener {
-      var lol: ByteArray
-      lol = telemetry_number_et.text.toString().toByteArray(Charsets.UTF_8)
-      main?.bleCommandConnector(lol, TELEMETRY_NUMBER_NEW, WRITE, 17)
+      main?.bleCommandConnector(telemetry_number_et.text.toString().toByteArray(Charsets.UTF_8), TELEMETRY_NUMBER_NEW, WRITE, 17)
     }
     peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -377,6 +378,7 @@ class AdvancedSettingsFragment : Fragment() {
           } else {
             preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
           }
+          telemetry_number_et.setText(main?.telemetryNumber)
           initializeUI()
         }
         try {

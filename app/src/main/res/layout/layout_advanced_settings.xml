@@ -549,7 +549,7 @@
                                 android:textColor="#ffffff"
                                 android:textColorHint="#ffffff"
                                 android:textSize="14sp"
-                                tools:ignore="Autofill" />
+                                tools:ignore="Autofill,TextFields" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                     </RelativeLayout>

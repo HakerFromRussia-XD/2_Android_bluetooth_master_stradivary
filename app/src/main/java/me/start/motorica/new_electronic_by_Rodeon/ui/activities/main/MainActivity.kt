@@ -135,6 +135,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
   private var byteActiveGesture: Byte = 0 // номер активного в данный момент жеста 0-7
   var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
+  var telemetryNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   private var firstShowPreloaderCalibration: Boolean = true // нужна для одиночного показа уведомления о начале калибровки
   private var firstHidePreloaderCalibration: Boolean = true // нужна для скрытия уведомления о начале калибровки
 
@@ -185,6 +186,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA) != null) displayDataSetGestureNew(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA) != null) displayDataSetReverseNew(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA) != null) displayDataAddGestureNew(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.TELEMETRY_NUMBER_NEW_DATA) != null) displayDataTelemetryNumberNew(intent.getByteArrayExtra(BluetoothLeService.TELEMETRY_NUMBER_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA) != null) {
                 displayDataCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA))
                 intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
@@ -367,6 +369,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       globalSemaphore = true
     }
   }
+  private fun displayDataTelemetryNumberNew(data: ByteArray?) {
+    if (data != null) {
+      telemetryNumber = ""
+      for (i in data.indices) {
+        telemetryNumber += data[i].toChar()
+      }
+      System.err.println("Принятые данные телеметрии: $telemetryNumber")
+      globalSemaphore = true
+    }
+  }
   private fun displayDataCalibrationNew(data: ByteArray?) {
     if (data != null) {
       if (actionState.equals(READ)) { calibrationStage = castUnsignedCharToInt(data[0]) }
@@ -432,7 +444,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
     mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE)
     System.err.println("mDeviceAddress: $mDeviceAddress")
-
 
     // Sets up UI references.
     mGattServicesList = findViewById(R.id.gatt_services_list)

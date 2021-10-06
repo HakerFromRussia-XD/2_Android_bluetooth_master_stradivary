@@ -185,6 +185,12 @@
     <string name="waiting">ожидайте…</string>
     <string name="get">считать</string>
     <string name="telemetry_serial">серийник для телеметрии</string>
+    <string name="shutdown_current_1">ток отсечки 1</string>
+    <string name="shutdown_current_2">ток отсечки 2</string>
+    <string name="shutdown_current_3">ток отсечки 3</string>
+    <string name="shutdown_current_4">ток отсечки 4</string>
+    <string name="shutdown_current_5">ток отсечки 5</string>
+    <string name="shutdown_current_6">ток отсечки 6</string>
 
 
     <string-array name="numbers">

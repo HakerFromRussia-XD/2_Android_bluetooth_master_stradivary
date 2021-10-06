@@ -100,8 +100,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private  var countCommand: AtomicInteger = AtomicInteger()
   private var actionState = READ
-  var savingSettingsWhenModified = true//false
-  var lockWriteBeforeFirstRead = true //переменная, необходимая для ожидания первого пришедшего ответа от устройства на
+  var savingSettingsWhenModified = true//продакшн false
+  var lockWriteBeforeFirstRead = false //продакшн true    переменная, необходимая для ожидания первого пришедшего ответа от устройства на
   private var enableInterfaceStatus: Boolean = false
   // отправленный запрос чтения. Если не ожидать её, то поток чтения не перезамускается
   internal var locate = ""

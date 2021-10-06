@@ -88,6 +88,12 @@ class AdvancedSettingsFragment : Fragment() {
       reset_to_factory_settings_btn?.textSize = 12f
       side_text_tv?.textSize = 11f
       left_right_side_swap_tv?.textSize = 11f
+      shutdown_current_1_text_tv?.textSize = 11f
+      shutdown_current_2_text_tv?.textSize = 11f
+      shutdown_current_3_text_tv?.textSize = 11f
+      shutdown_current_4_text_tv?.textSize = 11f
+      shutdown_current_5_text_tv?.textSize = 11f
+      shutdown_current_6_text_tv?.textSize = 11f
     }
     if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
       left_right_side_swap_sw?.isChecked = true
@@ -107,11 +113,102 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-//          main?.incrementCountCommand()
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
         }
       }
     })
+
+    shutdown_current_1_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        shutdown_current_1_tv.text = seekBar.progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
+                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, seekBar.progress)
+        }
+      }
+    })
+    shutdown_current_2_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        shutdown_current_2_tv.text = seekBar.progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
+                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, seekBar.progress)
+        }
+      }
+    })
+    shutdown_current_3_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        shutdown_current_3_tv.text = seekBar.progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
+                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, seekBar.progress)
+        }
+      }
+    })
+    shutdown_current_4_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        shutdown_current_4_tv.text = seekBar.progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
+                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, seekBar.progress)
+        }
+      }
+    })
+    shutdown_current_5_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        shutdown_current_5_tv.text = seekBar.progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
+                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, seekBar.progress)
+        }
+      }
+    })
+    shutdown_current_6_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        shutdown_current_6_tv.text = seekBar.progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
+                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, seekBar.progress)
+        }
+      }
+    })
+
     swap_open_close_sw?.setOnClickListener {
       if (swap_open_close_sw.isChecked) {
         swap_open_close_tv.text = 1.toString()
@@ -198,6 +295,7 @@ class AdvancedSettingsFragment : Fragment() {
     }
     set_setup_btn?.setOnClickListener {
       main?.bleCommandConnector(telemetry_number_et.text.toString().toByteArray(Charsets.UTF_8), TELEMETRY_NUMBER_NEW, WRITE, 17)
+      main?.telemetryNumber = telemetry_number_et.text.toString()
     }
     peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -299,7 +397,15 @@ class AdvancedSettingsFragment : Fragment() {
     }
     //Скрывает настройки, которые не актуальны для бионик кроме FEST-H
     if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4) ) { telemetry_rl?.visibility = View.VISIBLE }
-    else { telemetry_rl?.visibility = View.GONE }
+    else {
+      telemetry_rl?.visibility = View.GONE
+      shutdown_current_1_rl?.visibility = View.GONE
+      shutdown_current_2_rl?.visibility = View.GONE
+      shutdown_current_3_rl?.visibility = View.GONE
+      shutdown_current_4_rl?.visibility = View.GONE
+      shutdown_current_5_rl?.visibility = View.GONE
+      shutdown_current_6_rl?.visibility = View.GONE
+    }
 
 
 
@@ -329,6 +435,12 @@ class AdvancedSettingsFragment : Fragment() {
 
     main?.runOnUiThread {
       ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_1_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_2_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_3_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_4_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_5_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_6_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(peak_time_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, 15)).setDuration(200).start()
       ObjectAnimator.ofInt(downtime_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, 15)).setDuration(200).start()
     }

@@ -185,6 +185,12 @@
     <string name="waiting">waiting...</string>
     <string name="get">get</string>
     <string name="telemetry_serial">telemetry serial</string>
+    <string name="shutdown_current_1">shutdown current 1</string>
+    <string name="shutdown_current_2">shutdown current 2</string>
+    <string name="shutdown_current_3">shutdown current 3</string>
+    <string name="shutdown_current_4">shutdown current 4</string>
+    <string name="shutdown_current_5">shutdown current 5</string>
+    <string name="shutdown_current_6">shutdown current 6</string>
 
     <string-array name="numbers">
         <item>0</item>

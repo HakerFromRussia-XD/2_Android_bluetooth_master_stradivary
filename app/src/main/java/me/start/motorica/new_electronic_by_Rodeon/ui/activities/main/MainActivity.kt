@@ -102,6 +102,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var actionState = READ
   var savingSettingsWhenModified = true//продакшн false
   var lockWriteBeforeFirstRead = false //продакшн true    переменная, необходимая для ожидания первого пришедшего ответа от устройства на
+  var lockChangeTelemetryNumber = true //продакшн true    переменная, для разового изменения серийника телеметрии
   private var enableInterfaceStatus: Boolean = false
   // отправленный запрос чтения. Если не ожидать её, то поток чтения не перезамускается
   internal var locate = ""
@@ -936,7 +937,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             globalSemaphore = false
             state = 7
           }
-          //TODO добавляем сюда свой алгоритм
+
           7 -> {
             System.err.println("$info = 7")
             bleCommand(READ_REGISTER, CALIBRATION_NEW, READ)
@@ -945,7 +946,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           8 -> {
             System.err.println("$info = 8")
-            if (calibrationStage == 0) { state = 9 } else {
+            if (calibrationStage == 0) { state = 11 //9   //TODO вернуть калибровку
+            } else {
               if (calibrationStage == 2) { state = 11 } else {
                 if (calibrationStage == 1) { state = 10 } else {
                   if (calibrationStage == 3) { state = 7 }
@@ -969,15 +971,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             }
             state = 7
           }
-          //TODO
           11 -> {
             System.err.println("$info = 11")
-//            //hide preloader
-//            if (firstHidePreloaderCalibration) {
-//              showToast("hide preloader")
-//              firstHidePreloaderCalibration = false
-//            }
-            //read active gesture
             bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
             globalSemaphore = false
             state = 0

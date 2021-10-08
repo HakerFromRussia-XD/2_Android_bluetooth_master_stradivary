@@ -34,6 +34,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivit
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import org.jetbrains.anko.sdk25.coroutines.textChangedListener
 import java.nio.charset.Charset
 import javax.inject.Inject
 
@@ -252,7 +253,7 @@ class AdvancedSettingsFragment : Fragment() {
           mode_rl.visibility = View.VISIBLE
           peak_time_rl.visibility = View.VISIBLE
           downtime_rl.visibility = View.VISIBLE
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
 //          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
@@ -262,7 +263,7 @@ class AdvancedSettingsFragment : Fragment() {
           mode_rl.visibility = View.GONE
           peak_time_rl.visibility = View.GONE
           downtime_rl.visibility = View.GONE
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
 //          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
@@ -275,7 +276,7 @@ class AdvancedSettingsFragment : Fragment() {
           mode_tv.text = "двумя\nдатчиками"
           mode = 0x01
           downtime_rl.visibility = View.GONE
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
 //          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, true)
@@ -283,7 +284,7 @@ class AdvancedSettingsFragment : Fragment() {
           mode_tv.text = "одним\nдатчиком"
           mode = 0x00
           downtime_rl.visibility = View.VISIBLE
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
 //          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
@@ -292,11 +293,12 @@ class AdvancedSettingsFragment : Fragment() {
     }
     get_setup_btn?.setOnClickListener {
       main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
+      main?.lockChangeTelemetryNumber = true
     }
     set_setup_btn?.setOnClickListener {
-      main?.bleCommandConnector(telemetry_number_et.text.toString().toByteArray(Charsets.UTF_8), TELEMETRY_NUMBER_NEW, WRITE, 17)
-      main?.telemetryNumber = telemetry_number_et.text.toString()
+      main?.bleCommandConnector(telemetry_number_et?.text.toString().toByteArray(Charsets.UTF_8), TELEMETRY_NUMBER_NEW, WRITE, 17)
     }
+    main?.telemetryNumber = telemetry_number_et?.text.toString()
     peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         val time: String = when {
@@ -316,7 +318,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
 //          main?.incrementCountCommand()
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, seekBar.progress)
@@ -342,7 +344,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb.progress+5).toByte()),
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, seekBar.progress)
         }
@@ -490,7 +492,10 @@ class AdvancedSettingsFragment : Fragment() {
           } else {
             preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
           }
-          telemetry_number_et.setText(main?.telemetryNumber)
+          if (main?.lockChangeTelemetryNumber == true) {
+            telemetry_number_et?.setText(main?.telemetryNumber)
+            main?.lockChangeTelemetryNumber = false
+          }
           initializeUI()
         }
         try {

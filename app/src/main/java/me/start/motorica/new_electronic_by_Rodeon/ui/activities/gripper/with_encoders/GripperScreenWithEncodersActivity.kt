@@ -17,8 +17,8 @@ import android.widget.TextView
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gripper_state_le
 import me.start.motorica.R
+import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
@@ -48,6 +48,12 @@ class GripperScreenWithEncodersActivity
         var animationInProgress4 by Delegates.notNull<Boolean>()
         var animationInProgress5 by Delegates.notNull<Boolean>()
         var animationInProgress6 by Delegates.notNull<Boolean>()
+        var sensFinger1 by Delegates.notNull<Int>()
+        var sensFinger2 by Delegates.notNull<Int>()
+        var sensFinger3 by Delegates.notNull<Int>()
+        var sensFinger4 by Delegates.notNull<Int>()
+        var sensFinger5 by Delegates.notNull<Int>()
+        var sensFinger6 by Delegates.notNull<Int>()
     }
 
     private var numberFinger = 0
@@ -97,6 +103,12 @@ class GripperScreenWithEncodersActivity
         angleFinger4 = 0
         angleFinger5 = 0
         angleFinger6 = 0
+        sensFinger1 = 0
+        sensFinger2 = 0
+        sensFinger3 = 0
+        sensFinger4 = 0
+        sensFinger5 = 0
+        sensFinger6 = 0
         animationInProgress1 = false
         animationInProgress2 = false
         animationInProgress3 = false
@@ -106,9 +118,18 @@ class GripperScreenWithEncodersActivity
 
         loadOldState()
         myLoadGesturesList()
-        fun onBackPressed() {}
 
-
+        RxUpdateMainEvent.getInstance().sensorsStatesObjectObservable
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { parameters ->
+                    sensFinger1 = parameters.sensStage1
+                    sensFinger2 = parameters.sensStage2
+                    sensFinger3 = parameters.sensStage3
+                    sensFinger4 = parameters.sensStage4
+                    sensFinger5 = parameters.sensStage5
+                    sensFinger6 = parameters.sensStage6
+                }
         RxView.clicks(findViewById(R.id.edit_gesture_name_btn))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -144,28 +165,28 @@ class GripperScreenWithEncodersActivity
                     numberFinger = parameters.numberFinger
                     angleFinger = parameters.fingerAngel
                     if (numberFinger == 1) {
-                        changeStateFinger1 (angleFinger)
-                        compileBLEMassage (true)
+                        changeStateFinger1(angleFinger)
+                        compileBLEMassage(true)
                     }
                     if (numberFinger == 2) {
-                        changeStateFinger2 (angleFinger)
-                        compileBLEMassage (true)
+                        changeStateFinger2(angleFinger)
+                        compileBLEMassage(true)
                     }
                     if (numberFinger == 3) {
-                        changeStateFinger3 (angleFinger)
-                        compileBLEMassage (true)
+                        changeStateFinger3(angleFinger)
+                        compileBLEMassage(true)
                     }
                     if (numberFinger == 4) {
-                        changeStateFinger4 (angleFinger)
-                        compileBLEMassage (true)
+                        changeStateFinger4(angleFinger)
+                        compileBLEMassage(true)
                     }
                     if (numberFinger == 5) {
-                        changeStateFinger5 (88 - angleFinger)
-                        compileBLEMassage (true)
+                        changeStateFinger5(88 - angleFinger)
+                        compileBLEMassage(true)
                     }
                     if (numberFinger == 6) {
-                        changeStateFinger6 (98 - angleFinger)
-                        compileBLEMassage (true)
+                        changeStateFinger6(98 - angleFinger)
+                        compileBLEMassage(true)
                     }
                     if (numberFinger == 55) { }
                 }
@@ -186,7 +207,7 @@ class GripperScreenWithEncodersActivity
                         gestureState = 0
                         gripper_state_le.text = getString(R.string.gesture_state_close)
                     }
-                    compileBLEMassage (false)
+                    compileBLEMassage(false)
                 }
         RxView.clicks(findViewById(R.id.gripper_use_le))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -211,6 +232,13 @@ class GripperScreenWithEncodersActivity
         })
     }
 
+    override fun onBackPressed() {
+         super.onBackPressed()
+             System.err.println("onBackPressed() loool")
+        return
+    }
+
+
     override fun initializeUI() {
         val activityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val configurationInfo = activityManager.deviceConfigurationInfo
@@ -231,7 +259,7 @@ class GripperScreenWithEncodersActivity
         }
     }
 
-    private fun changeStateFinger1 (angleFinger: Int) {
+    private fun changeStateFinger1(angleFinger: Int) {
         System.err.println("Изменили палец 1 $angleFinger")
         if (gestureState == 1) {
             fingerOpenState1 = angleFinger
@@ -242,7 +270,7 @@ class GripperScreenWithEncodersActivity
         }
         score1 = angleFinger
     }
-    private fun changeStateFinger2 (angleFinger: Int) {
+    private fun changeStateFinger2(angleFinger: Int) {
         System.err.println("Изменили палец 2 $angleFinger")
         if (gestureState == 1) {
             fingerOpenState2 = angleFinger
@@ -253,7 +281,7 @@ class GripperScreenWithEncodersActivity
         }
         score2 = angleFinger
     }
-    private fun changeStateFinger3 (angleFinger: Int) {
+    private fun changeStateFinger3(angleFinger: Int) {
         System.err.println("Изменили палец 3 $angleFinger")
         if (gestureState == 1) {
             fingerOpenState3 = angleFinger
@@ -264,7 +292,7 @@ class GripperScreenWithEncodersActivity
         }
         score3 = angleFinger
     }
-    private fun changeStateFinger4 (angleFinger: Int) {
+    private fun changeStateFinger4(angleFinger: Int) {
         System.err.println("Изменили палец41 $angleFinger")
         if (gestureState == 1) {
             fingerOpenState4 = angleFinger
@@ -275,27 +303,27 @@ class GripperScreenWithEncodersActivity
         }
         score4 = angleFinger
     }
-    private fun changeStateFinger5 (angleFinger: Int) {
+    private fun changeStateFinger5(angleFinger: Int) {
 //        System.err.println("Изменили палец 5 ${(angleFinger.toFloat()/100*91).toInt()-49}") //-16
 //        System.err.println("Изменили отправляемые значения палец 5 ${(100-((() +58).toFloat()/86*100).toInt())}")
         if (gestureState == 1) {
             fingerOpenState5 = (angleFinger.toFloat()/100*91).toInt()-49
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber, (angleFinger.toFloat()/100*91).toInt()-49)
+            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber, (angleFinger.toFloat() / 100 * 91).toInt() - 49)
         } else {
             fingerCloseState5 = (angleFinger.toFloat()/100*91).toInt()-49
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, (angleFinger.toFloat()/100*91).toInt()-49)
+            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, (angleFinger.toFloat() / 100 * 91).toInt() - 49)
         }
         score5 = (angleFinger.toFloat()/100*91).toInt()-49
     }
-    private fun changeStateFinger6 (angleFinger: Int) {
+    private fun changeStateFinger6(angleFinger: Int) {
 //        System.err.println("Изменили палец 6 ${(angleFinger.toFloat()/100*90).toInt()}")
 //        System.err.println("Изменили отправляемые значения палец 6 ${abs((().toFloat()/85*100).toInt())}")
         if (gestureState == 1) {
             fingerOpenState6 = (angleFinger.toFloat()/100*90).toInt()
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, (angleFinger.toFloat()/100*90).toInt() )
+            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, (angleFinger.toFloat() / 100 * 90).toInt())
         } else {
             fingerCloseState6 = (angleFinger.toFloat()/100*90).toInt()
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, (angleFinger.toFloat()/100*90).toInt() )
+            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, (angleFinger.toFloat() / 100 * 90).toInt())
         }
         score6 = (angleFinger.toFloat()/100*90).toInt()
     }
@@ -469,21 +497,21 @@ class GripperScreenWithEncodersActivity
         }
     }
 
-    private fun compileBLEMassage (withChangeGesture: Boolean) {
+    private fun compileBLEMassage(withChangeGesture: Boolean) {
         if (gestureState == 1) {
             val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
                     fingerOpenState1, fingerOpenState2, fingerOpenState3,
-                    fingerOpenState4, (100-(((fingerOpenState5) +58).toFloat()/86*100).toInt()), abs(((fingerOpenState6).toFloat()/85*100).toInt()),
+                    fingerOpenState4, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
                     fingerCloseState1, fingerCloseState2, fingerCloseState3,
-                    fingerCloseState4, (100-(((fingerCloseState5) +58).toFloat()/86*100).toInt()),abs(((fingerCloseState6).toFloat()/85*100).toInt()) ,
+                    fingerCloseState4, (100 - (((fingerCloseState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerCloseState6).toFloat() / 85 * 100).toInt()),
                     gestureState, withChangeGesture)
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         } else {
             val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
                     fingerOpenState1, fingerOpenState2, fingerOpenState3,
-                    fingerOpenState4, (100-(((fingerOpenState5) +58).toFloat()/86*100).toInt()), abs(((fingerOpenState6).toFloat()/85*100).toInt()),
+                    fingerOpenState4, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
                     fingerCloseState1, fingerCloseState2, fingerCloseState3,
-                    fingerCloseState4, (100-(((fingerCloseState5) +58).toFloat()/86*100).toInt()), abs(((fingerCloseState6).toFloat()/85*100).toInt()),
+                    fingerCloseState4, (100 - (((fingerCloseState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerCloseState6).toFloat() / 85 * 100).toInt()),
                     gestureState, withChangeGesture)
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         }
@@ -517,14 +545,14 @@ class GripperScreenWithEncodersActivity
         side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
 
         Handler().postDelayed({
-            animateFinger1 ()
-            animateFinger2 ()
-            animateFinger3 ()
-            animateFinger4 ()
-            animateFinger5 ()
-            animateFinger6 ()
+            animateFinger1()
+            animateFinger2()
+            animateFinger3()
+            animateFinger4()
+            animateFinger5()
+            animateFinger6()
             gestureState = 1
-            compileBLEMassage (false)
+            compileBLEMassage(false)
         }, 200)
     }
     private fun myLoadGesturesList() {

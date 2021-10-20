@@ -38,6 +38,8 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
+import me.start.motorica.new_electronic_by_Rodeon.models.GestureStateWithEncoders
+import me.start.motorica.new_electronic_by_Rodeon.models.SensorsStates
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
@@ -57,6 +59,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.experimental.xor
+import kotlin.math.abs
 
 
 @RequirePresenter(MainPresenter::class)
@@ -296,8 +299,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           dataSens4 = castUnsignedCharToInt(data[3])
           dataSens5 = castUnsignedCharToInt(data[4])
           dataSens6 = castUnsignedCharToInt(data[5])
+          val sensorsStatesModel = SensorsStates(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6)
+          RxUpdateMainEvent.getInstance().updateSensorsStatesObject(sensorsStatesModel)
           savingSettingsWhenModified = true
-          System.err.println("displayDataNew")
         }
       lockWriteBeforeFirstRead = false
     }
@@ -600,7 +604,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   override fun onPause() {
     super.onPause()
-    unregisterReceiver(mGattUpdateReceiver)
+//    unregisterReceiver(mGattUpdateReceiver)
   }
   override fun onDestroy() {
     super.onDestroy()
@@ -700,6 +704,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     } else {
       if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
         startSubscribeSensorsNewDataThread()
+//        System.err.println()
       } else {
         startSubscribeSensorsDataThread()
       }

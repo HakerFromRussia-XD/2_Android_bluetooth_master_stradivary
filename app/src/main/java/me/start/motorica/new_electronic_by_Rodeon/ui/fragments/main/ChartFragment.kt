@@ -66,6 +66,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var mSettings: SharedPreferences? = null
   private var updatingUIThread: Thread? = null
   private var scale = 0F
+  private var secondOpenActivity = false
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -101,216 +102,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
       startActivity(intent)
     }
-
-    fun onBackPressed() {}
-
-//    close_btn.setOnTouchListener { _, event ->
-//      if (!main?.lockWriteBeforeFirstRead!!) {
-//        if (!main?.getSwapOpenCloseButton()!!) {
-//          if (event.action == MotionEvent.ACTION_DOWN) {
-//            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//              main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW, WRITE)
-//              System.err.println("НАЖАТИЕ НА КНОПКУ ЗАКРЫТЬ НОВЫЙ ПРОТОКОЛ")
-//            } else {
-//              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-//              System.err.println("НАЖАТИЕ НА КНОПКУ ЗАКРЫТЬ СТАРЫЙ ПРОТОКОЛ")
-//            }
-//          }
-//          if (event.action == MotionEvent.ACTION_UP) {
-//            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//              main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW, WRITE)
-//            } else {
-//              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-//
-//            }
-//          }
-//        } else {
-//          if (event.action == MotionEvent.ACTION_DOWN) {
-//            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//              main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW, WRITE)
-//            } else {
-//              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-//            }
-//          }
-//          if (event.action == MotionEvent.ACTION_UP) {
-//            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//              main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW, WRITE)
-//            } else {
-//              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-//            }
-//          }
-//        }
-//      }
-//      false
-//    }
-//    open_btn.setOnTouchListener { _, event ->
-//      if (!main?.lockWriteBeforeFirstRead!!) {
-//        if (!main?.getSwapOpenCloseButton()!!) {
-//          if (event.action == MotionEvent.ACTION_DOWN) {
-//            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//              main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW, WRITE)
-//            } else {
-//              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-//            }
-//          }
-//          if (event.action == MotionEvent.ACTION_UP) {
-//            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//              main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW, WRITE)
-//            } else {
-//              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
-//            }
-//          }
-//        } else {
-//          if (event.action == MotionEvent.ACTION_DOWN) {
-//            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//              main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW, WRITE)
-//            } else {
-//              main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-//            }
-//          }
-//          if (event.action == MotionEvent.ACTION_UP) {
-//            if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//              main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW, WRITE)
-//            } else {
-//              main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
-//            }
-//          }
-//        }
-//      }
-//      false
-//    }
-//    open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-//        System.err.println("CH1 = $progress")
-//        ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
-//        ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
-//
-//        open_threshold_tv.text = progress.toString()
-//      }
-//
-//      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-//      override fun onStopTrackingTouch(seekBar: SeekBar) {
-//        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-//          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//            main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW, WRITE)
-//          } else {
-//            main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
-//          }
-//          if (main?.savingSettingsWhenModified == true) {
-//            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
-//          }
-//        }
-//      }
-//    })
-//    close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-//        System.err.println("CH2 = $progress")
-//        ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()
-//        ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
-//        close_threshold_tv.text = progress.toString()
-//      }
-//
-//      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-//      override fun onStopTrackingTouch(seekBar: SeekBar) {
-//        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-//          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//            main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW, WRITE)
-//          } else {
-//            main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
-//          }
-//          if (main?.savingSettingsWhenModified == true) {
-//            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
-//          }
-//        }
-//      }
-//    })
-//    correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-//        correlator_noise_threshold_1_tv.text = progress.toString()
-//      }
-//      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-//      override fun onStopTrackingTouch(seekBar: SeekBar) {
-//        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-//          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-////            { 16, 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 }
-////            { 16, 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 }
-//            main?.runWriteData(byteArrayOf((255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 ), SENS_OPTIONS_NEW, WRITE)
-//          } else {
-//            main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
-//          }
-//          if (main?.savingSettingsWhenModified == true) {
-//            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
-//          }
-//        }
-//      }
-//    })
-//    correlator_noise_threshold_2_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-//        correlator_noise_threshold_2_tv.text = seekBar.progress.toString()
-//      }
-//      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-//      override fun onStopTrackingTouch(seekBar: SeekBar) {
-//        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-//          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//            main?.runWriteData(byteArrayOf((255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64), SENS_OPTIONS_NEW, WRITE)
-//          } else {
-//            main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS, WRITE,11)
-//          }
-//          if (main?.savingSettingsWhenModified == true) {
-//            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
-//          }
-//        }
-//      }
-//    })
-//    swap_sensors_sw.setOnClickListener {
-//      if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
-//        if (swap_sensors_sw.isChecked) {
-//          swap_sensors_tv.text = 1.toString()
-//          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//            main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW, WRITE)
-//          } else {
-//            main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
-//          }
-//          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
-//          main?.setReverseNum = 1
-//        } else {
-//          swap_sensors_tv.text = 0.toString()
-//          if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//            main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW, WRITE)
-//          } else {
-//            main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
-//          }
-//          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
-//          main?.setReverseNum = 0
-//        }
-//      }
-//    }
-//    driver_tv.setOnLongClickListener {
-//      showAdvancedSettings = if (showAdvancedSettings) {
-//        graphThreadFlag = false
-//        Handler().postDelayed({
-//          main?.showAdvancedSettings(showAdvancedSettings)
-//        }, 100)
-//        false
-//      } else {
-//        graphThreadFlag = false
-//        Handler().postDelayed({
-//          main?.showAdvancedSettings(showAdvancedSettings)
-//        }, 100)
-//        true
-//      }
-//      false
-//    }
-//    thresholds_blocking_sw.setOnClickListener{
-//      main?.bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
-//      if (thresholds_blocking_sw.isChecked) {
-//        thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
-//        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
-//      } else {
-//        thresholds_blocking_tv.text = resources.getString(R.string.off)
-//        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
-//      }
-//    }
   }
 
   @SuppressLint("SetTextI18n")
@@ -326,14 +117,21 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     graphThreadFlag = true
     testThreadFlag = true
     startGraphEnteringDataThread()
+    if (secondOpenActivity)
+    {
+      main?.finish()
+    } else {
+      secondOpenActivity = true
+    }
   }
   override fun onPause() {
     super.onPause()
-    graphThreadFlag = false
+//    graphThreadFlag = false
     System.err.println("ChartFragment onPause")
   }
   override fun onDestroy() {
     super.onDestroy()
+    android.os.Process.killProcess(android.os.Process.myPid())
     testThreadFlag = false
   }
 

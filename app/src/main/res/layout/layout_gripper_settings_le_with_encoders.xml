@@ -25,6 +25,7 @@
             android:id="@+id/gesture_state_rl"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:visibility="gone"
             android:layout_weight="2">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -125,7 +126,7 @@
             android:layout_gravity="center"
             android:textColor="#FFFFFFFF"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:visibility="visible" />
+            android:visibility="gone" />
     </LinearLayout>
 
     <TextView
@@ -137,7 +138,7 @@
         android:layout_gravity="center_horizontal"
         android:textColor="#FFFFFFFF"
         style="@style/Text"
-        android:visibility="visible"
+        android:visibility="gone"
         android:text="Gesture №1"
         tools:ignore="HardcodedText" />
 
@@ -166,5 +167,6 @@
         android:background="@drawable/track_invisible"
         android:src="@drawable/ic_edit_24"
         app:layout_constraintTop_toBottomOf="@+id/gesture_name_tv"
+        android:visibility="gone"
         tools:ignore="ContentDescription" />
 </FrameLayout>

@@ -106,7 +106,7 @@ class GripperScreenWithEncodersActivity
 
         loadOldState()
         myLoadGesturesList()
-//        gesture_name_tv.text = gestureNameList[gestureNumber - 1]
+        fun onBackPressed() {}
 
 
         RxView.clicks(findViewById(R.id.edit_gesture_name_btn))
@@ -501,18 +501,18 @@ class GripperScreenWithEncodersActivity
     }
     private fun loadOldState() {
         val text = "load not work"
-        fingerOpenState1 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + gestureNumber, 0)
-        fingerOpenState2 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + gestureNumber, 0)
-        fingerOpenState3 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + gestureNumber, 0)
-        fingerOpenState4 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + gestureNumber, 0)
-        fingerOpenState5 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber, 0)
-        fingerOpenState6 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, 0)
-        fingerCloseState1 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + gestureNumber, 0)
-        fingerCloseState2 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + gestureNumber, 0)
-        fingerCloseState3 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + gestureNumber, 0)
-        fingerCloseState4 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + gestureNumber, 0)
-        fingerCloseState5 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, 0)
-        fingerCloseState6 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, 0)
+        fingerOpenState1 = 0
+        fingerOpenState2 = 0
+        fingerOpenState3 = 0
+        fingerOpenState4 = 0
+        fingerOpenState5 = -45
+        fingerOpenState6 = 90
+        fingerCloseState1 = 0
+        fingerCloseState2 = 0
+        fingerCloseState3 = 0
+        fingerCloseState4 = 0
+        fingerCloseState5 = 60
+        fingerCloseState6 = 90
 
         side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
 

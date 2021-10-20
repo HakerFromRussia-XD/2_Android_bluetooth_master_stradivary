@@ -222,8 +222,8 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 	private int angleBigFingerInt2 = 0;
 	private int lastAngleBigFingerInt2 = 0;
 	private int angleBigFingerTransfer2 = 0;
-	private float angle75 = 75;
-	private float angle130 = 130;
+	private float angle75 = 70;
+	private float angle130 = 290;
 
 	enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
 	public SelectStation selectStation;
@@ -249,7 +249,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		// Position the eye in front of the origin.
 		final float eyeX = 0.0f;
 		final float eyeY = 0.0f;
-		final float eyeZ = 160.0f;
+		final float eyeZ = 120.0f;
 
 		// We are looking toward the distance (бесполезная хрень, не на что невлияет)
 		final float lookX = 0.0f;
@@ -446,11 +446,11 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		if (selectFlag){
-			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; }
-			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; }
-			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; }
-			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; }
-			if (selectObject() == 5){ selectStation = SelectStation.SELECT_FINGER_5; }
+//			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; }
+//			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; }
+//			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; }
+//			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; }
+//			if (selectObject() == 5){ selectStation = SelectStation.SELECT_FINGER_5; }
 			if ((selectObject() != 1) && (selectObject() != 2) && (selectObject() != 3) &&(selectObject() != 4) &&(selectObject() != 5))
 			{
 				selectStation = SelectStation.UNSELECTED_OBJECT;

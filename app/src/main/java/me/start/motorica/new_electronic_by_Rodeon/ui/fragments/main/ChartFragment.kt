@@ -23,10 +23,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.Html
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -99,10 +97,12 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     main?.setSwapOpenCloseButton(preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))
     scale = resources.displayMetrics.density
 
-    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+    if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
       val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
       startActivity(intent)
     }
+
+    fun onBackPressed() {}
 
 //    close_btn.setOnTouchListener { _, event ->
 //      if (!main?.lockWriteBeforeFirstRead!!) {

@@ -79,6 +79,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var mCharacteristic: BluetoothGattCharacteristic? = null
   private var dataSens1 = 0x00
   private var dataSens2 = 0x00
+  private var dataSens3 = 0x00
+  private var dataSens4 = 0x00
+  private var dataSens5 = 0x00
+  private var dataSens6 = 0x00
   private var mSettings: SharedPreferences? = null
   private var askAboutUpdate: Boolean = true
   private var progressUpdate: Int = 0
@@ -285,10 +289,15 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataNew(data: ByteArray?) {
     if (data != null) {
-        if (data.size == 2) {
+        if (data.size == 6) {
           dataSens1 = castUnsignedCharToInt(data[0])
           dataSens2 = castUnsignedCharToInt(data[1])
+          dataSens3 = castUnsignedCharToInt(data[2])
+          dataSens4 = castUnsignedCharToInt(data[3])
+          dataSens5 = castUnsignedCharToInt(data[4])
+          dataSens6 = castUnsignedCharToInt(data[5])
           savingSettingsWhenModified = true
+          System.err.println("displayDataNew")
         }
       lockWriteBeforeFirstRead = false
     }
@@ -871,9 +880,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) { }
       }
-//      if (!sensorsDataThreadFlag) {
-//        runStart()
-//      }
     }
     subscribeThread?.start()
   }

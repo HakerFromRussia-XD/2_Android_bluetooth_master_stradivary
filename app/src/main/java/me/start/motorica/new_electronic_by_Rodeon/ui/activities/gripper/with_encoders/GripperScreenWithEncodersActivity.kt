@@ -106,7 +106,7 @@ class GripperScreenWithEncodersActivity
 
         loadOldState()
         myLoadGesturesList()
-        gesture_name_tv.text = gestureNameList[gestureNumber - 1]
+//        gesture_name_tv.text = gestureNameList[gestureNumber - 1]
 
 
         RxView.clicks(findViewById(R.id.edit_gesture_name_btn))

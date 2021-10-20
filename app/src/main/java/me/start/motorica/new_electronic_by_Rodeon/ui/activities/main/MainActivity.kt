@@ -138,7 +138,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   var telemetryNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   private var firstShowPreloaderCalibration: Boolean = true // нужна для одиночного показа уведомления о начале калибровки
-  private var firstHidePreloaderCalibration: Boolean = true // нужна для скрытия уведомления о начале калибровки
 
   // Handles various events fired by the Service.
   // ACTION_GATT_CONNECTED: connected to a GATT server.
@@ -691,8 +690,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       runReadData()
     } else {
       if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//        startSubscribeSensorsNewDataThread()
-        runStart()
+        startSubscribeSensorsNewDataThread()
       } else {
         startSubscribeSensorsDataThread()
       }
@@ -873,128 +871,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) { }
       }
-      if (!sensorsDataThreadFlag) {
-        runStart()
-      }
+//      if (!sensorsDataThreadFlag) {
+//        runStart()
+//      }
     }
     subscribeThread?.start()
-  }
-
-  /**
-   * Запуск задачи чтения параметров экрана графиков
-   */
-  private fun runStart() { getStart()?.let { queue.put(it) } }
-  open fun getStart(): Runnable? { return Runnable { readStart() } }
-  private fun readStart() {
-    val info = "Чтение порогов и версий"
-    var count = 0
-    var state = 0 // переключается здесь в потоке
-    var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
-    globalSemaphore = true // меняется по приходу ответа от подключаемого уст-ва
-
-    while (!endFlag) {
-      if (globalSemaphore) {
-        when (state) {
-          0 -> {
-            System.err.println("$info = 0")
-            bleCommand(READ_REGISTER, SENS_VERSION_NEW, READ)
-            globalSemaphore = false
-            state = 1
-          }
-          1 -> {
-            System.err.println("$info = 1")
-            bleCommand(READ_REGISTER, OPEN_THRESHOLD_NEW, READ)
-            globalSemaphore = false
-            state = 2
-          }
-          2 -> {
-            System.err.println("$info = 2")
-            bleCommand(READ_REGISTER, CLOSE_THRESHOLD_NEW, READ)
-            globalSemaphore = false
-            state = 3
-          }
-          3 -> {
-            System.err.println("$info = 3")
-            bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
-            globalSemaphore = false
-            state = 4
-          }
-          4 -> {
-            System.err.println("$info = 4")
-            bleCommand(READ_REGISTER, SET_REVERSE_NEW, READ)
-            globalSemaphore = false
-            state = 5
-          }
-          5 -> {
-            System.err.println("$info = 5")
-            bleCommand(READ_REGISTER, SET_ONE_CHANNEL_NEW, READ)
-            globalSemaphore = false
-            state = 6
-          }
-          6 -> {
-            System.err.println("$info = 6")
-            bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
-            globalSemaphore = false
-            state = 7
-          }
-
-          7 -> {
-            System.err.println("$info = 7")
-            bleCommand(READ_REGISTER, CALIBRATION_NEW, READ)
-            globalSemaphore = false
-            state = 8
-          }
-          8 -> {
-            System.err.println("$info = 8")
-            if (calibrationStage == 0) { state = 11 //9   //TODO вернуть калибровку
-            } else {
-              if (calibrationStage == 2) { state = 11 } else {
-                if (calibrationStage == 1) { state = 10 } else {
-                  if (calibrationStage == 3) { state = 7 }
-                }
-              }
-            }
-          }
-          9 -> {
-            System.err.println("$info = 9")
-            //start calibration
-            bleCommand(byteArrayOf(0x03), CALIBRATION_NEW, WRITE)
-            globalSemaphore = false
-            state = 7
-          }
-          10 -> {
-            System.err.println("$info = 10")
-            //show preloader
-            if (firstShowPreloaderCalibration) {
-              openFragmentInfoCalibration()
-              firstShowPreloaderCalibration = false
-            }
-            state = 7
-          }
-          11 -> {
-            System.err.println("$info = 11")
-            bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
-            globalSemaphore = false
-            state = 0
-            endFlag = true
-          }
-        }
-        count = 0
-      } else {
-        count++
-        System.err.println("Количество запросов без ответа = $count")
-        if (count == 100) {
-          endFlag = true
-          state = 0
-          count = 0
-          runStart()
-        }
-      }
-      try {
-        Thread.sleep(10)
-      } catch (ignored: Exception) {
-      }
-    }
   }
 
   fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }

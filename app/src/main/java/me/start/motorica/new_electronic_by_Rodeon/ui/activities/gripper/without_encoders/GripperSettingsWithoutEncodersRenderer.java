@@ -1393,22 +1393,22 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 
 	private void transferCommand() {
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){}
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
+		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")) {
 			System.err.println("GripperSettingsRender--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);
 			FingerAngle fingerAngleModel = new FingerAngle(1, angleLittleFingerTransfer);
 //			RxUpdateMainEvent.getInstance().updateFingerAngle(fingerAngleModel);
 		}
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){
+		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")) {
 			System.err.println("GripperSettingsRender--------> angleRingFingerTransfer: "+ angleRingFingerTransfer);
 			FingerAngle fingerAngleModel = new FingerAngle(2, angleRingFingerTransfer);
 //			RxUpdateMainEvent.getInstance().updateFingerAngle(fingerAngleModel);
 		}
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){
+		if(String.valueOf(selectStation).equals("SELECT_FINGER_3")) {
 			System.err.println("GripperSettingsRender--------> angleMiddleFingerTransfer: "+ angleMiddleFingerTransfer);
 			FingerAngle fingerAngleModel = new FingerAngle(3, angleMiddleFingerTransfer);
 //			RxUpdateMainEvent.getInstance().updateFingerAngle(fingerAngleModel);
 		}
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){
+		if(String.valueOf(selectStation).equals("SELECT_FINGER_4")) {
 			System.err.println("GripperSettingsRender--------> angleForeFingerTransfer: "+ angleForeFingerTransfer);
 			FingerAngle fingerAngleModel = new FingerAngle(4, angleForeFingerTransfer);
 //			RxUpdateMainEvent.getInstance().updateFingerAngle(fingerAngleModel);

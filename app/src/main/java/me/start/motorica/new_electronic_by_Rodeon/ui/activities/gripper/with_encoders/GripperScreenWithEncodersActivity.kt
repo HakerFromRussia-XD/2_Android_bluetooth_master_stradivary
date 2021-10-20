@@ -18,7 +18,6 @@ import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
 import me.start.motorica.R
-import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
@@ -53,7 +52,6 @@ class GripperScreenWithEncodersActivity
         var sensFinger3 by Delegates.notNull<Int>()
         var sensFinger4 by Delegates.notNull<Int>()
         var sensFinger5 by Delegates.notNull<Int>()
-        var sensFinger6 by Delegates.notNull<Int>()
     }
 
     private var numberFinger = 0
@@ -108,7 +106,6 @@ class GripperScreenWithEncodersActivity
         sensFinger3 = 0
         sensFinger4 = 0
         sensFinger5 = 0
-        sensFinger6 = 0
         animationInProgress1 = false
         animationInProgress2 = false
         animationInProgress3 = false
@@ -128,7 +125,6 @@ class GripperScreenWithEncodersActivity
                     sensFinger3 = parameters.sensStage3
                     sensFinger4 = parameters.sensStage4
                     sensFinger5 = parameters.sensStage5
-                    sensFinger6 = parameters.sensStage6
                 }
         RxView.clicks(findViewById(R.id.edit_gesture_name_btn))
                 .observeOn(AndroidSchedulers.mainThread())

@@ -257,7 +257,7 @@ public class Load3DModelNew {
                     verticesArray[number][indicesVertices * 18 + 5] = normalsArray[number][indicesNormalsV * 3 + 2];
                     //цвета
                     verticesArray[number][indicesVertices * 18 + 6] = 1.0f;
-                    verticesArray[number][indicesVertices * 18 + 7] = 1.0f;
+                    verticesArray[number][indicesVertices * 18 + 7] = 0.0f;
                     verticesArray[number][indicesVertices * 18 + 8] = 0.0f;
                     verticesArray[number][indicesVertices * 18 + 9] = 0.0f;
                     //текстурные координаты
@@ -284,7 +284,7 @@ public class Load3DModelNew {
                     verticesArray[number][indicesVertices * 18 + 5] = normalsArray[number][(Integer.parseInt(currentLine[2].split("/")[2]) - 1) * 3 + 2];
                     //цвета
                     verticesArray[number][indicesVertices * 18 + 6] = 1.0f;
-                    verticesArray[number][indicesVertices * 18 + 7] = 1.0f;
+                    verticesArray[number][indicesVertices * 18 + 7] = 0.0f;
                     verticesArray[number][indicesVertices * 18 + 8] = 0.0f;
                     verticesArray[number][indicesVertices * 18 + 9] = 0.0f;
                     //текстурные координаты
@@ -312,7 +312,7 @@ public class Load3DModelNew {
                     verticesArray[number][indicesVertices * 18 + 5] = normalsArray[number][indicesNormalsV * 3 + 2];
                     //цвета
                     verticesArray[number][indicesVertices * 18 + 6] = 1.0f;
-                    verticesArray[number][indicesVertices * 18 + 7] = 1.0f;
+                    verticesArray[number][indicesVertices * 18 + 7] = 0.0f;
                     verticesArray[number][indicesVertices * 18 + 8] = 0.0f;
                     verticesArray[number][indicesVertices * 18 + 9] = 0.0f;
                     //текстурные координаты

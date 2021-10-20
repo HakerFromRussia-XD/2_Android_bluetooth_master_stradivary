@@ -102,6 +102,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 	private int specularFactorUniform;
 	private int lightPowerUniform;
 	private int ambientFactorUniform;
+	private int colorUniform;
 
 
 
@@ -126,6 +127,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 	private static final String LIGHT_POWER_UNIFORM = "u_lightPower";
 	private static final String AMBIENT_FACTOR_UNIFORM = "u_ambientFactor";
 	private static final String CODE_SELECT_UNIFORM = "u_Code";
+	private static final String COLOR_UNIFORM = "u_Color";
 
 	private static final String POSITION_ATTRIBUTE = "a_Position";
 	private static final String NORMAL_ATTRIBUTE = "a_Normal";
@@ -471,49 +473,16 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		Matrix.multiplyMV(lightPosInWorldSpace, 0, lightModelMatrix, 0, lightPosInModelSpace, 0);
 		Matrix.multiplyMV(lightPosInEyeSpace, 0, viewMatrix, 0, lightPosInWorldSpace, 0);
 
-		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")){
-			foreFinger (new int[]{program}, 0);//programRubber
-			middleFinger (new int[]{program}, 0);//programTest
-			ringFinger (new int[]{program}, 0);//programTest
-			littleFinger (new int[]{program}, 0);//programTest
-			bigFinger (new int[]{program}, 0);//programTest
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{programWithColor}, 0);
-			bigFinger (new int[]{program}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{programWithColor}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{program}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{programWithColor}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{program}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){
-			foreFinger (new int[]{programWithColor}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{program}, 0);
-		} else
-		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
-			foreFinger (new int[]{program}, 0);
-			middleFinger (new int[]{program}, 0);
-			ringFinger (new int[]{program}, 0);
-			littleFinger (new int[]{program}, 0);
-			bigFinger (new int[]{programWithColor}, 0);
-		}
-
+		foreFinger (new int[]{program}, 0, false);
+		foreFinger (new int[]{programWithColor}, 0, true);
+		middleFinger (new int[]{program}, 0, false);
+		middleFinger (new int[]{programWithColor}, 0, true);
+		ringFinger (new int[]{program}, 0, false);
+		ringFinger (new int[]{programWithColor}, 0, true);
+		littleFinger (new int[]{program}, 0, false);
+		littleFinger (new int[]{programWithColor}, 0, true);
+		bigFinger (new int[]{program}, 0, false);
+		bigFinger (new int[]{programWithColor}, 0, true);
 
 		/** код загрузки всех деталей руки в начальные координаты для возвращения большого пальца в начальное положение в конструкции*/
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -597,7 +566,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		heightMap.render(new int[]{5});
 	}
 
-	private void foreFinger (int[] shaderMassiv, int idForSelectObject) {
+	private void foreFinger (int[] shaderMassiv, int idForSelectObject, boolean painted_part) {
 		/** резина */
 		glUseProgram(shaderMassiv[0]);
 
@@ -609,6 +578,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		texturesAttribute = glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
 		tangentAttribute = glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
 		bitangentAttribute = glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
+		colorUniform = glGetUniformLocation(shaderMassiv[0], COLOR_UNIFORM);
 		lightPosUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
 		textureUniform = glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
 		normalMapUniform = glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
@@ -682,12 +652,17 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		glUniform1f(specularFactorUniform, 1.0f);
-		glUniform1f(lightPowerUniform, 900.0f);
-		glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(new int[]{8});
+		if (painted_part) {
+			float temp = GripperScreenWithEncodersActivity.Companion.getSensFinger4();
+			float color = (temp / 255);
+			GLES20.glUniform1f(colorUniform, color);
+			glUniform1i(isUsingNormalMap, 0);
+			glUniform1f(specularFactorUniform, 1.0f);
+			glUniform1f(lightPowerUniform, 900.0f);
+			glUniform1f(ambientFactorUniform, 0.8f);
+			glUniform1i(textureUniform, 3);
+			heightMap.render(new int[]{8});
+		}
 
 		/** металл */
 		glUniform1f(codeSelectUniform, (float) idForSelectObject);
@@ -698,12 +673,14 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		glUniform1f(specularFactorUniform, 60.0f);
-		glUniform1f(lightPowerUniform, 3600.0f);
-		glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-		heightMap.render(new int[]{9});
+		if (!painted_part) {
+			glUniform1i(isUsingNormalMap, 0);
+			glUniform1f(specularFactorUniform, 60.0f);
+			glUniform1f(lightPowerUniform, 3600.0f);
+			glUniform1f(ambientFactorUniform, 1.5f);
+			glUniform1i(textureUniform, 12);
+			heightMap.render(new int[]{9});
+		}
 		/** первая фаланга пластик*/
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -772,15 +749,17 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
-		glUniform1i(textureUniform, 2);
-		glUniform1i(normalMapUniform, 10);
-		heightMap.render(new int[]{7});
+		if (!painted_part) {
+			glUniform1i(isUsingNormalMap, 1);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 700.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+			glUniform1i(textureUniform, 2);
+			glUniform1i(normalMapUniform, 10);
+			heightMap.render(new int[]{7});
+		}
 	}
-	private void middleFinger (int[] shaderMassiv, int idForSelectObject) {
+	private void middleFinger (int[] shaderMassiv, int idForSelectObject, boolean painted_part) {
 		/** шейдер резины */
 		glUseProgram(shaderMassiv[0]);
 
@@ -792,6 +771,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		texturesAttribute = glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
 		tangentAttribute = glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
 		bitangentAttribute = glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
+		colorUniform = glGetUniformLocation(shaderMassiv[0], COLOR_UNIFORM);
 		lightPosUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
 		textureUniform = glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
 		normalMapUniform = glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
@@ -857,12 +837,17 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		glUniform1f(specularFactorUniform, 1.0f);
-		glUniform1f(lightPowerUniform, 900.0f);
-		glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(new int[]{11});
+		if (painted_part) {
+			float temp = GripperScreenWithEncodersActivity.Companion.getSensFinger3();
+			float color = (temp / 255);
+			GLES20.glUniform1f(colorUniform, color);
+			glUniform1i(isUsingNormalMap, 0);
+			glUniform1f(specularFactorUniform, 1.0f);
+			glUniform1f(lightPowerUniform, 900.0f);
+			glUniform1f(ambientFactorUniform, 0.8f);
+			glUniform1i(textureUniform, 3);
+			heightMap.render(new int[]{11});
+		}
 
 		/** шейдер без цвета */
 
@@ -874,12 +859,14 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		glUniform1f(specularFactorUniform, 30.0f);
-		glUniform1f(lightPowerUniform, 3600.0f);
-		glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-		heightMap.render(new int[]{12});
+		if (!painted_part) {
+			glUniform1i(isUsingNormalMap, 0);
+			glUniform1f(specularFactorUniform, 30.0f);
+			glUniform1f(lightPowerUniform, 3600.0f);
+			glUniform1f(ambientFactorUniform, 1.5f);
+			glUniform1i(textureUniform, 12);
+			heightMap.render(new int[]{12});
+		}
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -940,15 +927,17 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
-		glUniform1i(textureUniform, 1);
-		glUniform1i(normalMapUniform, 11);
-		heightMap.render(new int[]{10});
+		if (!painted_part) {
+			glUniform1i(isUsingNormalMap, 1);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 700.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+			glUniform1i(textureUniform, 1);
+			glUniform1i(normalMapUniform, 11);
+			heightMap.render(new int[]{10});
+		}
 	}
-	private void ringFinger (int[] shaderMassiv, int idForSelectObject) {
+	private void ringFinger (int[] shaderMassiv, int idForSelectObject, boolean painted_part) {
 		/** шейдер резины */
 		glUseProgram(shaderMassiv[0]);
 
@@ -960,6 +949,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		texturesAttribute = glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
 		tangentAttribute = glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
 		bitangentAttribute = glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
+		colorUniform = glGetUniformLocation(shaderMassiv[0], COLOR_UNIFORM);
 		lightPosUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
 		textureUniform = glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
 		normalMapUniform = glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
@@ -1033,12 +1023,17 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(new int[]{14});
+		if (painted_part) {
+			float temp = GripperScreenWithEncodersActivity.Companion.getSensFinger2();
+			float color = (temp / 255);
+			GLES20.glUniform1f(colorUniform, color);
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 900.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 0.8f);
+			glUniform1i(textureUniform, 3);
+			heightMap.render(new int[]{14});
+		}
 
 		/** шейдер без цвета */
 
@@ -1050,12 +1045,14 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 30.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-		heightMap.render(new int[]{15});
+		if (!painted_part) {
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 30.0f);
+			GLES20.glUniform1f(lightPowerUniform, 3600.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 1.5f);
+			glUniform1i(textureUniform, 12);
+			heightMap.render(new int[]{15});
+		}
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1126,15 +1123,17 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
-		glUniform1i(textureUniform, 5);
-		glUniform1i(normalMapUniform, 14);
-		heightMap.render(new int[]{13});
+		if (!painted_part) {
+			glUniform1i(isUsingNormalMap, 1);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 700.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+			glUniform1i(textureUniform, 5);
+			glUniform1i(normalMapUniform, 14);
+			heightMap.render(new int[]{13});
+		}
 	}
-	private void littleFinger (int[] shaderMassiv, int idForSelectObject) {
+	private void littleFinger (int[] shaderMassiv, int idForSelectObject, boolean painted_part) {
 		/** шейдер резины */
 		glUseProgram(shaderMassiv[0]);
 
@@ -1146,6 +1145,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		texturesAttribute = glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
 		tangentAttribute = glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
 		bitangentAttribute = glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
+		colorUniform = glGetUniformLocation(shaderMassiv[0], COLOR_UNIFORM);
 		lightPosUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
 		textureUniform = glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
 		normalMapUniform = glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
@@ -1218,12 +1218,14 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 30.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-		heightMap.render(new int[]{18});
+		if (!painted_part) {
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 30.0f);
+			GLES20.glUniform1f(lightPowerUniform, 3600.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 1.5f);
+			glUniform1i(textureUniform, 12);
+			heightMap.render(new int[]{18});
+		}
 
 		/** шейдер без цвета */
 
@@ -1235,12 +1237,17 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(new int[]{17});
+		if (painted_part) {
+			float temp = GripperScreenWithEncodersActivity.Companion.getSensFinger1();
+			float color = (temp / 255);
+			GLES20.glUniform1f(colorUniform, color);
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 900.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 0.8f);
+			glUniform1i(textureUniform, 3);
+			heightMap.render(new int[]{17});
+		}
 		/** первая фаланга */
 		/** перемещение к основной оси вращения */
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -1309,15 +1316,17 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
-		glUniform1i(textureUniform, 6);
-		glUniform1i(normalMapUniform, 15);
-		heightMap.render(new int[]{16});
+		if (!painted_part) {
+			glUniform1i(isUsingNormalMap, 1);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 700.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+			glUniform1i(textureUniform, 6);
+			glUniform1i(normalMapUniform, 15);
+			heightMap.render(new int[]{16});
+		}
 	}
-	private void bigFinger (int[] shaderMassiv, int idForSelectObject)  {
+	private void bigFinger (int[] shaderMassiv, int idForSelectObject, boolean painted_part)  {
 		/** шейдер основной */
 		glUseProgram(shaderMassiv[0]);
 
@@ -1329,6 +1338,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		texturesAttribute = glGetAttribLocation(shaderMassiv[0], TEXTURES_ATTRIBUTE);
 		tangentAttribute = glGetAttribLocation(shaderMassiv[0], TANGENT_ATTRIBUTE);
 		bitangentAttribute = glGetAttribLocation(shaderMassiv[0], BITANGENT_ATTRIBUTE);
+		colorUniform = glGetUniformLocation(shaderMassiv[0], COLOR_UNIFORM);
 		lightPosUniform = glGetUniformLocation(shaderMassiv[0], LIGHT_POSITION_UNIFORM);
 		textureUniform = glGetUniformLocation(shaderMassiv[0], TEXTURE_UNIFORM);
 		normalMapUniform = glGetUniformLocation(shaderMassiv[0], NORMAL_MAP_UNIFORM);
@@ -1443,14 +1453,15 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 1);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 700.0f);
-		GLES20.glUniform1f(ambientFactorUniform, 1.0f);
-		glUniform1i(textureUniform, 7);
-		glUniform1i(normalMapUniform, 16);
-		heightMap.render(new int[]{0});
-
+		if (!painted_part) {
+			glUniform1i(isUsingNormalMap, 1);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 700.0f);
+			GLES20.glUniform1f(ambientFactorUniform, 1.0f);
+			glUniform1i(textureUniform, 7);
+			glUniform1i(normalMapUniform, 16);
+			heightMap.render(new int[]{0});
+		}
 
 		/** составления матриц вида и проекции */
 		GLES20.glUniform1f(codeSelectUniform, (float) idForSelectObject);
@@ -1461,12 +1472,18 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 1.0f);
-		GLES20.glUniform1f(lightPowerUniform, 900.0f);
-		glUniform1f(ambientFactorUniform, 0.8f);
-		glUniform1i(textureUniform, 3);
-		heightMap.render(new int[]{1});
+		if (painted_part) {
+			float temp = GripperScreenWithEncodersActivity.Companion.getSensFinger5();
+			float color = (temp / 255);
+			GLES20.glUniform1f(colorUniform, color);
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 1.0f);
+			GLES20.glUniform1f(lightPowerUniform, 900.0f);
+			glUniform1f(ambientFactorUniform, 0.8f);
+			glUniform1i(textureUniform, 3);
+			heightMap.render(new int[]{1});
+		}
+
 
 
 		/** манипуляции с венцом */
@@ -1493,41 +1510,43 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		glUniformMatrix4fv(mvpMatrixUniform, 1, false, mvpMatrix, 0);
 		glUniform3f(lightPosUniform, lightPosInEyeSpace[0], lightPosInEyeSpace[1], lightPosInEyeSpace[2]);
 
-		/** должнабыть текстура металла*/
-		glUniform1i(isUsingNormalMap, 0);
-		GLES20.glUniform1f(specularFactorUniform, 30.0f);
-		GLES20.glUniform1f(lightPowerUniform, 3600.0f);
-		glUniform1f(ambientFactorUniform, 1.5f);
-		glUniform1i(textureUniform, 12);
-		heightMap.render(new int[]{2, 3});
+		if (!painted_part) {
+			/** должнабыть текстура металла*/
+			glUniform1i(isUsingNormalMap, 0);
+			GLES20.glUniform1f(specularFactorUniform, 30.0f);
+			GLES20.glUniform1f(lightPowerUniform, 3600.0f);
+			glUniform1f(ambientFactorUniform, 1.5f);
+			glUniform1i(textureUniform, 12);
+			heightMap.render(new int[]{2, 3});
+		}
 	}
 
 	private void firstInit () {
 		selectStation = SelectStation.SELECT_FINGER_1;
-		littleFinger (new int[]{program}, 0);
-		littleFinger (new int[]{program}, 0);
+		littleFinger (new int[]{program}, 0, false);
+		littleFinger (new int[]{program}, 0, false);
 		selectStation = SelectStation.SELECT_FINGER_2;
-		ringFinger (new int[]{program}, 0);
-		ringFinger (new int[]{program}, 0);
+		ringFinger (new int[]{program}, 0, false);
+		ringFinger (new int[]{program}, 0, false);
 		selectStation = SelectStation.SELECT_FINGER_3;
-		middleFinger (new int[]{program}, 0);
-		middleFinger (new int[]{program}, 0);
+		middleFinger (new int[]{program}, 0, false);
+		middleFinger (new int[]{program}, 0, false);
 		selectStation = SelectStation.SELECT_FINGER_4;
-		foreFinger (new int[]{program}, 0);
-		foreFinger (new int[]{program}, 0);
+		foreFinger (new int[]{program}, 0, false);
+		foreFinger (new int[]{program}, 0, false);
 		selectStation = SelectStation.SELECT_FINGER_5;
-		bigFinger (new int[]{program}, 0);
-		bigFinger (new int[]{program}, 0);
+		bigFinger (new int[]{program}, 0, false);
+		bigFinger (new int[]{program}, 0, false);
 		selectStation = SelectStation.UNSELECTED_OBJECT;
 	}
 
 	private int selectObject () {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-		bigFinger(new int[]{programSelect},5);
-		foreFinger(new int[]{programSelect},4);
-		middleFinger(new int[]{programSelect},3);
-		ringFinger(new int[]{programSelect},2);
-		littleFinger(new int[]{programSelect},1);
+		bigFinger(new int[]{programSelect},5, false);
+		foreFinger(new int[]{programSelect},4, false);
+		middleFinger(new int[]{programSelect},3, false);
+		ringFinger(new int[]{programSelect},2, false);
+		littleFinger(new int[]{programSelect},1, false);
 
 		glUseProgram(programSelect);
 
@@ -1610,12 +1629,6 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		}
 		transferFlag = false;
 	}
-
-//	public float dotProduct (float[] Vector1, float[] Vector2){
-//		float result;
-//		result = Vector1[0]*Vector2[0]+Vector1[1]*Vector2[1]+ Vector1[2]*Vector2[2];
-//		return result;
-//	}
 
 	class HeightMap {
 		final int[] vbo = new int[MAX_NUMBER_DETAILS];

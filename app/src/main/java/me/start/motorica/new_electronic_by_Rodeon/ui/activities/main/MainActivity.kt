@@ -292,14 +292,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataNew(data: ByteArray?) {
     if (data != null) {
-        if (data.size == 6) {
+        if (data.size == 5) {
           dataSens1 = castUnsignedCharToInt(data[0])
           dataSens2 = castUnsignedCharToInt(data[1])
           dataSens3 = castUnsignedCharToInt(data[2])
           dataSens4 = castUnsignedCharToInt(data[3])
           dataSens5 = castUnsignedCharToInt(data[4])
-          dataSens6 = castUnsignedCharToInt(data[5])
-          val sensorsStatesModel = SensorsStates(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6)
+          val sensorsStatesModel = SensorsStates(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5)
           RxUpdateMainEvent.getInstance().updateSensorsStatesObject(sensorsStatesModel)
           savingSettingsWhenModified = true
         }

@@ -15,6 +15,7 @@ varying vec4 v_Color;
 varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
 varying mat3 v_TBNMatrix;
 
+
 vec4 resultColor = vec4(0.0, 0.0, 0.0, 0.0);
 vec3 eyePosition = vec3(0.0, 0.0, 150.5);
 float ambientFactor = 0.8;

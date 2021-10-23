@@ -191,6 +191,7 @@
     <string name="shutdown_current_4">shutdown current 4</string>
     <string name="shutdown_current_5">shutdown current 5</string>
     <string name="shutdown_current_6">shutdown current 6</string>
+    <string name="start_calibration">start calibration</string>
 
     <string-array name="numbers">
         <item>0</item>

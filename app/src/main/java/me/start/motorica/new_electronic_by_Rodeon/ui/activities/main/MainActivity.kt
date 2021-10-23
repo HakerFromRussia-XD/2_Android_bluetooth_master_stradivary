@@ -681,6 +681,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         swap_open_close_sw.isEnabled = enabled
         single_channel_control_sw.isEnabled = enabled
         reset_to_factory_settings_btn.isEnabled = enabled
+        calibration_btn.isEnabled = enabled
         get_setup_btn.isEnabled = enabled
         set_setup_btn.isEnabled = enabled
         shutdown_current_sb.isEnabled = enabled
@@ -691,8 +692,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       runReadData()
     } else {
       if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//        startSubscribeSensorsNewDataThread()
-        runStart()
+        startSubscribeSensorsNewDataThread()
       } else {
         startSubscribeSensorsDataThread()
       }
@@ -865,9 +865,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun startSubscribeSensorsNewDataThread() {
     subscribeThread = Thread {
       while (sensorsDataThreadFlag) {
+        try {
+          Thread.sleep(500)
+        } catch (ignored: Exception) {}
         runOnUiThread {
           bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
-          System.err.println("startSubscribeSensorsNewDataThread попытка подписки")
+          System.err.println("---> startSubscribeSensorsNewDataThread попытка подписки")
         }
         try {
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
@@ -886,7 +889,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun runStart() { getStart()?.let { queue.put(it) } }
   open fun getStart(): Runnable? { return Runnable { readStart() } }
   private fun readStart() {
-    val info = "Чтение порогов и версий"
+    val info = "---> Чтение порогов и версий"
     var count = 0
     var state = 0 // переключается здесь в потоке
     var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
@@ -935,7 +938,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             System.err.println("$info = 6")
             bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
             globalSemaphore = false
-            state = 7
+            state = 11  //11 пропустить калибровку //7 - выполнить
           }
 
           7 -> {
@@ -946,7 +949,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           8 -> {
             System.err.println("$info = 8")
-            if (calibrationStage == 0) { state = 11 //9   //TODO вернуть калибровку
+            if (calibrationStage == 0) { state = 9 //9   //TODO вернуть калибровку
             } else {
               if (calibrationStage == 2) { state = 11 } else {
                 if (calibrationStage == 1) { state = 10 } else {

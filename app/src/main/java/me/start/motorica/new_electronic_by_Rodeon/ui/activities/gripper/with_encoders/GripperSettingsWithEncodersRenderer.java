@@ -446,12 +446,13 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		if (selectFlag){
-			if (selectObject() == 1){ selectStation = SelectStation.SELECT_FINGER_1; }
-			if (selectObject() == 2){ selectStation = SelectStation.SELECT_FINGER_2; }
-			if (selectObject() == 3){ selectStation = SelectStation.SELECT_FINGER_3; }
-			if (selectObject() == 4){ selectStation = SelectStation.SELECT_FINGER_4; }
-			if (selectObject() == 5){ selectStation = SelectStation.SELECT_FINGER_5; }
-			if ((selectObject() != 1) && (selectObject() != 2) && (selectObject() != 3) &&(selectObject() != 4) &&(selectObject() != 5))
+			int selectTemp = selectObject();
+			if (selectTemp == 1){ selectStation = SelectStation.SELECT_FINGER_1; }
+			if (selectTemp == 2){ selectStation = SelectStation.SELECT_FINGER_2; }
+			if (selectTemp == 3){ selectStation = SelectStation.SELECT_FINGER_3; }
+			if (selectTemp == 4){ selectStation = SelectStation.SELECT_FINGER_4; }
+			if (selectTemp == 5){ selectStation = SelectStation.SELECT_FINGER_5; }
+			if ((selectTemp != 1) && (selectTemp != 2) && (selectTemp != 3) &&(selectTemp != 4) &&(selectTemp != 5))
 			{
 				selectStation = SelectStation.UNSELECTED_OBJECT;
 			}
@@ -1610,12 +1611,6 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		}
 		transferFlag = false;
 	}
-
-//	public float dotProduct (float[] Vector1, float[] Vector2){
-//		float result;
-//		result = Vector1[0]*Vector2[0]+Vector1[1]*Vector2[1]+ Vector1[2]*Vector2[2];
-//		return result;
-//	}
 
 	class HeightMap {
 		final int[] vbo = new int[MAX_NUMBER_DETAILS];

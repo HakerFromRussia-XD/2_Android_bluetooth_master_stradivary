@@ -87,6 +87,7 @@ class AdvancedSettingsFragment : Fragment() {
       downtime_text_tv?.textSize = 11f
       mode_tv?.textSize = 11f
       reset_to_factory_settings_btn?.textSize = 12f
+      calibration_btn?.textSize = 12f
       side_text_tv?.textSize = 11f
       left_right_side_swap_tv?.textSize = 11f
       shutdown_current_1_text_tv?.textSize = 11f
@@ -299,6 +300,7 @@ class AdvancedSettingsFragment : Fragment() {
       main?.bleCommandConnector(telemetry_number_et?.text.toString().toByteArray(Charsets.UTF_8), TELEMETRY_NUMBER_NEW, WRITE, 17)
     }
     main?.telemetryNumber = telemetry_number_et?.text.toString()
+    System.err.println("telemetry_number_et изменили данные переменной в мэин активити")
     peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         val time: String = when {
@@ -393,6 +395,10 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
 
+    calibration_btn?.setOnClickListener {
+      main?.runWriteData(byteArrayOf(0x03), CALIBRATION_NEW, WRITE)
+    }
+
     //Скрывает настройки, которые не актуальны для многосхватной бионики
     if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_3) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
       shutdown_current_rl?.visibility = View.GONE
@@ -401,6 +407,7 @@ class AdvancedSettingsFragment : Fragment() {
     if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4) ) { telemetry_rl?.visibility = View.VISIBLE }
     else {
       telemetry_rl?.visibility = View.GONE
+      calibration_rl?.visibility = View.GONE
       shutdown_current_1_rl?.visibility = View.GONE
       shutdown_current_2_rl?.visibility = View.GONE
       shutdown_current_3_rl?.visibility = View.GONE
@@ -408,8 +415,6 @@ class AdvancedSettingsFragment : Fragment() {
       shutdown_current_5_rl?.visibility = View.GONE
       shutdown_current_6_rl?.visibility = View.GONE
     }
-
-
 
     swap_open_close_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
     single_channel_control_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
@@ -495,6 +500,7 @@ class AdvancedSettingsFragment : Fragment() {
           if (main?.lockChangeTelemetryNumber == true) {
             telemetry_number_et?.setText(main?.telemetryNumber)
             main?.lockChangeTelemetryNumber = false
+            System.err.println("telemetry_number_et записали принятые данные")
           }
           initializeUI()
         }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_sensamount"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -76,7 +75,7 @@
                             android:id="@+id/shutdown_current_sb"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:max="169"
+                            android:max="100"
                             android:paddingStart="16dp"
                             android:paddingEnd="0dp"
                             android:progress="0"
@@ -147,7 +146,7 @@
                         android:id="@+id/shutdown_current_1_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:max="169"
+                        android:max="100"
                         android:paddingStart="16dp"
                         android:paddingEnd="0dp"
                         android:progress="0"
@@ -217,7 +216,7 @@
                         android:id="@+id/shutdown_current_2_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:max="169"
+                        android:max="100"
                         android:paddingStart="16dp"
                         android:paddingEnd="0dp"
                         android:progress="0"
@@ -287,7 +286,7 @@
                         android:id="@+id/shutdown_current_3_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:max="169"
+                        android:max="100"
                         android:paddingStart="16dp"
                         android:paddingEnd="0dp"
                         android:progress="0"
@@ -357,7 +356,7 @@
                         android:id="@+id/shutdown_current_4_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:max="169"
+                        android:max="100"
                         android:paddingStart="16dp"
                         android:paddingEnd="0dp"
                         android:progress="0"
@@ -427,7 +426,7 @@
                         android:id="@+id/shutdown_current_5_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:max="169"
+                        android:max="100"
                         android:paddingStart="16dp"
                         android:paddingEnd="0dp"
                         android:progress="0"
@@ -497,7 +496,7 @@
                         android:id="@+id/shutdown_current_6_sb"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:max="169"
+                        android:max="100"
                         android:paddingStart="16dp"
                         android:paddingEnd="0dp"
                         android:progress="0"
@@ -692,7 +691,7 @@
                             android:layout_centerVertical="true"
                             android:text="0"
                             android:textStyle="bold"
-                            tools:ignore="HardcodedText"/>
+                            tools:ignore="HardcodedText,TooManyViews"/>
                     </RelativeLayout>
 
                     <RelativeLayout

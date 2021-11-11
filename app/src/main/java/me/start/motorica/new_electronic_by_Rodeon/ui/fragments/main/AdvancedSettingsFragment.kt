@@ -34,8 +34,6 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivit
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
-import org.jetbrains.anko.sdk25.coroutines.textChangedListener
-import java.nio.charset.Charset
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
@@ -64,6 +62,11 @@ class AdvancedSettingsFragment : Fragment() {
     this.mContext = context
     scale = resources.displayMetrics.density
     return rootView
+  }
+
+  override fun onPause() {
+    super.onPause()
+    threadFlag = false
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -293,14 +296,15 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
     get_setup_btn?.setOnClickListener {
-      main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
+//      main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
+//      main?.bleCommandConnector(byteArrayOf(0x00), STATUS_CALIBRATION_NEW, READ, 17)
+      main?.bleCommandConnector(byteArrayOf(0x00), SET_GESTURE_NEW, READ, 17)
       main?.lockChangeTelemetryNumber = true
     }
     set_setup_btn?.setOnClickListener {
       main?.bleCommandConnector(telemetry_number_et?.text.toString().toByteArray(Charsets.UTF_8), TELEMETRY_NUMBER_NEW, WRITE, 17)
     }
     main?.telemetryNumber = telemetry_number_et?.text.toString()
-    System.err.println("telemetry_number_et изменили данные переменной в мэин активити")
     peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         val time: String = when {
@@ -396,7 +400,12 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     calibration_btn?.setOnClickListener {
-      main?.runWriteData(byteArrayOf(0x03), CALIBRATION_NEW, WRITE)
+      if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+        main?.runWriteData(byteArrayOf(0x01), CALIBRATION_NEW, WRITE)
+      } else {
+        main?.runWriteData(byteArrayOf(0x00), CALIBRATION_NEW, WRITE)
+      }
+//      main?.openFragmentInfoCalibration()
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
@@ -488,6 +497,8 @@ class AdvancedSettingsFragment : Fragment() {
     }
   }
 
+
+
   private fun startUpdatingUIThread() {
     updatingUIThread =  Thread {
       while (threadFlag) {
@@ -502,6 +513,10 @@ class AdvancedSettingsFragment : Fragment() {
             main?.lockChangeTelemetryNumber = false
             System.err.println("telemetry_number_et записали принятые данные")
           }
+          System.err.println("---> запрошены данные о состоянии калибровки")
+//          main?.bleCommandConnector(byteArrayOf(0x00), STATUS_CALIBRATION_NEW, READ, 17)
+          main?.bleCommandConnector(byteArrayOf(0x00), CALIBRATION_NEW, READ, 17)
+
           initializeUI()
         }
         try {

@@ -50,6 +50,7 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_ONE_CHANNEL_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_REVERSE_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.STATUS_CALIBRATION_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.TELEMETRY_NUMBER_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE;
 
@@ -89,6 +90,7 @@ public class BluetoothLeService extends Service {
     public final static String ADD_GESTURE_NEW_DATA = "com.example.bluetooth.le.ADD_GESTURE_NEW_DATA";
     public final static String CALIBRATION_NEW_DATA = "com.example.bluetooth.le.CALIBRATION_NEW_DATA";
     public final static String SET_ONE_CHANNEL_NEW_DATA = "com.example.bluetooth.le.SET_ONE_CHANNEL_NEW_DATA";
+    public final static String STATUS_CALIBRATION_NEW_DATA = "com.example.bluetooth.le.STATUS_CALIBRATION_NEW_DATA";
     public final static String TELEMETRY_NUMBER_NEW_DATA = "com.example.bluetooth.le.TELEMETRY_NUMBER_NEW_DATA";
 
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
@@ -138,6 +140,9 @@ public class BluetoothLeService extends Service {
             }
             if (String.valueOf(characteristic.getUuid()).equals(SET_ONE_CHANNEL_NEW)) {
                 if (state.equals(READ)) { intent.putExtra(SET_ONE_CHANNEL_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(STATUS_CALIBRATION_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(STATUS_CALIBRATION_NEW_DATA, data); }
             }
             if (String.valueOf(characteristic.getUuid()).equals(ADD_GESTURE_NEW)) {
                 if (state.equals(READ)) { intent.putExtra(ADD_GESTURE_NEW_DATA, data); }

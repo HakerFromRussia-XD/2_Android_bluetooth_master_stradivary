@@ -192,6 +192,8 @@
     <string name="shutdown_current_5">shutdown current 5</string>
     <string name="shutdown_current_6">shutdown current 6</string>
     <string name="start_calibration">start calibration</string>
+    <string name="not_calibrated_message">To calibrate it, go to the advanced settings.</string>
+    <string name="not_calibrated">The prosthesis is not calibrated</string>
 
     <string-array name="numbers">
         <item>0</item>

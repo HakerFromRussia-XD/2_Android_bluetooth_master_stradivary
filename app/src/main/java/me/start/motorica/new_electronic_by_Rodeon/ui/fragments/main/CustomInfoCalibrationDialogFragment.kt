@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_updating_le.*
@@ -48,7 +49,14 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
     private fun startUpdatingUIThread() {
         updatingUIThread = Thread {
             while (updateThreadFlag) {
-                if (main?.calibrationStage == 2) updateThreadFlag = false
+                System.err.println("---> калибровка идёт calibrationStage: " + main?.calibrationStage)
+                if (main?.calibrationStage == 8) updateThreadFlag = false //если все пальцы успешно откалиброванны
+                if (main?.calibrationStage == 7) updateThreadFlag = false //если хоть один палец слишком сильно затянут
+                if (main?.calibrationStage == 6) updateThreadFlag = false //если хоть один палец прокручивается
+                if (main?.calibrationStage == 5) updateThreadFlag = false //если хоть на одном пальце отключен энкодер
+                if (main?.calibrationStage == 4) updateThreadFlag = false //если хоть на одном пальце отключен мотор
+                if (main?.calibrationStage == 2) updateThreadFlag = false //если протез не откалиброван
+
                 try {
                     Thread.sleep(100)
                 } catch (ignored: Exception) {}

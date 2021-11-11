@@ -63,4 +63,5 @@ public interface ConstantManager {
     ////////////////////////////////////////////////
     int GRAPH_UPDATE_DELAY  = 50;
     int NOTIFY_UPDATE_DELAY  = 250;
+    int RECONNECT_BLE_PERIOD = 1000;
 }

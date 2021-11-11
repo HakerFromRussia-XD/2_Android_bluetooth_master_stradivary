@@ -16,6 +16,7 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
 import android.content.*
@@ -45,10 +46,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapt
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograb
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograbWithAdvancedSettings
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterWithAdvancedSettings
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomDialogFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomInfoCalibrationDialogFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomInfoUpdateDialogFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.CustomUpdateDialogFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.*
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
@@ -66,6 +64,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   lateinit var preferenceManager: PreferenceManager
 
   private var sensorsDataThreadFlag: Boolean = true
+  var reconnectThreadFlag: Boolean = false
+  private var reconnectThread: Thread? = null
+  private var mScanning = false
+  private var mBluetoothAdapter: BluetoothAdapter? = null
+
   private var mDeviceName: String? = null
   var mDeviceAddress: String? = null
   var mDeviceType: String? = null
@@ -93,10 +96,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private val queue = me.start.motorica.new_electronic_by_Rodeon.services.receivers.BlockingQueue()
   private var readDataFlag = true
   private var globalSemaphore = false // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
+  private var endFlag = false
   //  private var showAdvancedSettings = false
   private var swapOpenCloseButton = false
   var setReverseNum = 0
   var setOneChannelNum = 0
+  var firstReadCalibrationStatus: Boolean = true
 
   private  var countCommand: AtomicInteger = AtomicInteger()
   private var actionState = READ
@@ -156,6 +161,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           mConnectView!!.visibility = View.VISIBLE
           mDisconnectView!!.visibility = View.GONE
           System.err.println("DeviceControlActivity-------> момент индикации коннекта")
+          reconnectThreadFlag = false
           invalidateOptionsMenu()
         }
         BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
@@ -163,9 +169,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           mConnected = false
           mConnectView!!.visibility = View.GONE
           mDisconnectView!!.visibility = View.VISIBLE
-          System.err.println("DeviceControlActivity-------> момент индикации коннекта")
+          System.err.println("DeviceControlActivity-------> момент индикации дисконнекта")
           invalidateOptionsMenu()
           clearUI()
+
+          if(!reconnectThreadFlag && !mScanning){
+            reconnectThreadFlag = true
+            reconnectThread()
+          }
         }
         BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
           // Show all the supported services and characteristics on the user interface.
@@ -193,6 +204,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                 intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
               }
               if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) displayDataSetOneChannelNew(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA) != null) displayDataStatusCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA))
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
             }
@@ -305,6 +317,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if (data != null) {
       saveInt(mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[0]))
       globalSemaphore = true
+      System.err.println("---> Принятые данные порога: " + data[0])
     }
   }
   private fun displayDataCloseThresholdNew(data: ByteArray?) {
@@ -323,6 +336,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun displayDataSetGestureNew(data: ByteArray?) {
     if (data != null) {
       saveInt(mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, castUnsignedCharToInt(data[0]) + 1)
+      System.err.println("---> Принятые данные активного жеста: " + (data[0]+1) )
       globalSemaphore = true
     }
   }
@@ -334,13 +348,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataAddGestureNew(data: ByteArray?) {
     if (data != null) {
-//      System.err.println("Приняли данные о жестах.  " + data.size + " байт")
-//      val dataTest = ByteArray(86)
-//      for (d in 0 until 86) {
-//        dataTest[d] = d.toByte()
-//      }
-//      System.err.println("Сгенеренные данные о жестах.  " + dataTest.size + " байт")
-
       if (data.size == 86) {
         for (i in 0 until 7) {
           for (j in 0 until 2) {
@@ -382,13 +389,40 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataCalibrationNew(data: ByteArray?) {
     if (data != null) {
-      if (actionState.equals(READ)) { calibrationStage = castUnsignedCharToInt(data[0]) }
+      if (actionState.equals(READ)) {
+        calibrationStage = castUnsignedCharToInt(data[0])
+      }
+      if (calibrationStage == 3) {
+        if (firstReadCalibrationStatus) {
+          openFragmentInfoCalibration()
+          firstReadCalibrationStatus = false
+        }//если калибровка начинается, то показывается лоадер с анимацией
+      }
+      if (!firstReadCalibrationStatus && calibrationStage != 3 ) {
+        bleCommandConnector(byteArrayOf(0x00), STATUS_CALIBRATION_NEW, READ, 17)
+        firstReadCalibrationStatus = true
+      }
+      System.err.println("---> калибровки: $calibrationStage")
       globalSemaphore = true
     }
   }
   private fun displayDataSetOneChannelNew(data: ByteArray?) {
     if (data != null) {
       setOneChannelNum = castUnsignedCharToInt(data[0])
+      globalSemaphore = true
+    }
+  }
+  private fun displayDataStatusCalibrationNew(data: ByteArray?) {
+    if (data != null) {
+      var statusCalibration = ""
+      for (i in data.indices) {
+        statusCalibration += "  "+data[i]
+        if (data[i].toInt() == 7) Toast.makeText(this, "Палец №$i слишком сильно затянут", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
+        if (data[i].toInt() == 6) Toast.makeText(this, "Палец №$i прокручивается", Toast.LENGTH_LONG).show() //если палец прокручивается
+        if (data[i].toInt() == 5) Toast.makeText(this, "На пальце №$i отключен энкодер", Toast.LENGTH_LONG).show() //если на пальце отключен энкодер
+        if (data[i].toInt() == 4) Toast.makeText(this, "На пальце №$i отключен мотор", Toast.LENGTH_LONG).show() //если на пальце отключен мотор
+      }
+      System.err.println("Принятые данные состояния калибровки: $statusCalibration")
       globalSemaphore = true
     }
   }
@@ -589,10 +623,18 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       System.err.println("MainActivity    mBluetoothLeService!!.connect(mDeviceAddress)")
       mBluetoothLeService!!.connect(mDeviceAddress)
     }
+    if (mBluetoothLeService == null) {
+//      mDeviceName = presenter.preferenceManager.getString(PreferenceKeys.DEVICE_NAME, DEVICE_NAME)
+//      mDeviceAddress = presenter.preferenceManager.getString(PreferenceKeys.DEVICE_ADDR, "7F:D6:3D:68:62:28")
+      reconnectThreadFlag = true
+      reconnectThread()
+    }
+
   }
   override fun onPause() {
     super.onPause()
     unregisterReceiver(mGattUpdateReceiver)
+    endFlag = true
   }
   override fun onDestroy() {
     super.onDestroy()
@@ -600,6 +642,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mBluetoothLeService = null
     readDataFlag = false
     sensorsDataThreadFlag = false
+    endFlag = true
+    reconnectThreadFlag = false
   }
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
@@ -692,7 +736,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       runReadData()
     } else {
       if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
-        startSubscribeSensorsNewDataThread()
+//        startSubscribeSensorsNewDataThread()
+        runStart()
       } else {
         startSubscribeSensorsDataThread()
       }
@@ -830,7 +875,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           if (typeCommand == READ){
             if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
               mBluetoothLeService?.readCharacteristic(mCharacteristic)
-              System.err.println("bleCommand Read Characteristic")
+              System.err.println("bleCommand Read Characteristic:  $Command")
             }
           }
 
@@ -845,7 +890,25 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
       }
     }
-
+  }
+  private fun reconnectThread() {
+    System.err.println("reconnectThread started")
+    var j = 1
+    reconnectThread = Thread {
+      while (reconnectThreadFlag) {
+        runOnUiThread {
+          reconnect()
+          if(j % 10 == 0) {
+            Toast.makeText(this, "Переподключение №$j", Toast.LENGTH_SHORT).show()
+          }
+          j++
+        }
+        try {
+          Thread.sleep(RECONNECT_BLE_PERIOD.toLong())
+        } catch (ignored: Exception) { }
+      }
+    }
+    reconnectThread?.start()
   }
 
   private fun startSubscribeSensorsDataThread() {
@@ -876,9 +939,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) { }
       }
-      if (!sensorsDataThreadFlag) {
-        runStart()
-      }
+//      if (!sensorsDataThreadFlag) {
+//        runStart()
+//      }
     }
     subscribeThread?.start()
   }
@@ -891,13 +954,37 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun readStart() {
     val info = "---> Чтение порогов и версий"
     var count = 0
+    var countRequestCurrentStatus = 0
+    val countRequestTarget = 1000
     var state = 0 // переключается здесь в потоке
-    var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
+    endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
     globalSemaphore = true // меняется по приходу ответа от подключаемого уст-ва
+
+//    try {
+//      Thread.sleep(500)
+//    } catch (ignored: Exception) {
+//    }
 
     while (!endFlag) {
       if (globalSemaphore) {
         when (state) {
+//          0 -> {
+//            System.err.println("$info = 0  countRequestCurrentStatus: $countRequestCurrentStatus")
+//            bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
+//            globalSemaphore = false
+//            countRequestCurrentStatus ++
+//            if (countRequestCurrentStatus == countRequestTarget) {
+//              state = 1
+//            }
+//
+//          }
+//          1 -> {
+//            System.err.println("$info = 1")
+//            state = 0
+//            endFlag = true
+//          }
+
+          // ПРАВИЛЬНАЯ ЦЕПЬ ЗАПРОСОВ
           0 -> {
             System.err.println("$info = 0")
             bleCommand(READ_REGISTER, SENS_VERSION_NEW, READ)
@@ -938,7 +1025,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             System.err.println("$info = 6")
             bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
             globalSemaphore = false
-            state = 11  //11 пропустить калибровку //7 - выполнить
+            state = 7  //11 пропустить калибровку //7 - выполнить
           }
 
           7 -> {
@@ -949,30 +1036,23 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           8 -> {
             System.err.println("$info = 8")
-            if (calibrationStage == 0) { state = 9 //9   //TODO вернуть калибровку
+            if (calibrationStage == 2) { state = 9 //9   //TODO вернуть калибровку
             } else {
-              if (calibrationStage == 2) { state = 11 } else {
-                if (calibrationStage == 1) { state = 10 } else {
-                  if (calibrationStage == 3) { state = 7 }
-                }
+              if (calibrationStage == 8) { state = 11 } else {
+                if (calibrationStage == 4) { state = 10}
               }
             }
           }
+
           9 -> {
             System.err.println("$info = 9")
-            //start calibration
-            bleCommand(byteArrayOf(0x03), CALIBRATION_NEW, WRITE)
-            globalSemaphore = false
-            state = 7
+            openFragmentInfoNotCalibration()
+            state = 11
           }
           10 -> {
             System.err.println("$info = 10")
-            //show preloader
-            if (firstShowPreloaderCalibration) {
-              openFragmentInfoCalibration()
-              firstShowPreloaderCalibration = false
-            }
-            state = 7
+            showToast("В протезе отключён двигатель одной из степеней свободы!")
+            state = 11
           }
           11 -> {
             System.err.println("$info = 11")
@@ -980,6 +1060,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             globalSemaphore = false
             state = 0
             endFlag = true
+            startSubscribeSensorsNewDataThread()
           }
         }
         count = 0
@@ -987,7 +1068,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         count++
         System.err.println("Количество запросов без ответа = $count")
         if (count == 100) {
-          endFlag = true
+          endFlag = mConnected
           state = 0
           count = 0
           runStart()
@@ -1083,8 +1164,12 @@ private fun runReadData() {
     val dialog = CustomInfoUpdateDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
   }
-  private fun openFragmentInfoCalibration() {
+  fun openFragmentInfoCalibration() {
     val dialog = CustomInfoCalibrationDialogFragment()
+    dialog.show(supportFragmentManager, "update dialog")
+  }
+  private fun openFragmentInfoNotCalibration() {
+    val dialog = CustomInfoNotCalibratedDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
   }
   fun getProgressUpdate(): Int {
@@ -1202,6 +1287,53 @@ private fun runReadData() {
     thresholds_blocking_sw?.isEnabled = false
     correlator_noise_threshold_1_sb?.isEnabled = false
     correlator_noise_threshold_2_sb?.isEnabled = false
+  }
+
+
+  private fun reconnect () {
+    //полное завершение сеанса связи и создание нового в onResume
+    if (mBluetoothLeService != null) {
+      unbindService(mServiceConnection)
+      mBluetoothLeService = null
+    }
+
+    val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
+    bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
+
+    //BLE
+    registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+    if (mBluetoothLeService != null) {
+      mBluetoothLeService!!.connect(mDeviceAddress)
+    }
+  }
+  /**
+   * Запуск/остановка сканирования эфира на наличие BLE устройств
+   * @param enable - true запуск | false остановка
+   */
+  private fun scanLeDevice(enable: Boolean) {
+    if (enable) {
+      mScanning = true
+      mBluetoothAdapter!!.startLeScan(mLeScanCallback)
+    } else {
+      mScanning = false
+      mBluetoothAdapter!!.stopLeScan(mLeScanCallback)
+    }
+  }
+  // Device scan callback.
+  private val mLeScanCallback = BluetoothAdapter.LeScanCallback { device, _, _ ->
+    runOnUiThread {
+      if (device.name != null) {
+        System.err.println("===============найден девайс: " + device.name + "==============")
+        System.err.println("preferenceManager подключаемся к DEVICE_NAME = $mDeviceName")
+        if (device.name == mDeviceName) {
+          System.err.println("==========это нужный нам девайс $device==============")
+          mDeviceAddress = device.toString()
+          scanLeDevice(false)
+          reconnectThreadFlag = true
+          reconnectThread()
+        }
+      }
+    }
   }
 }
 

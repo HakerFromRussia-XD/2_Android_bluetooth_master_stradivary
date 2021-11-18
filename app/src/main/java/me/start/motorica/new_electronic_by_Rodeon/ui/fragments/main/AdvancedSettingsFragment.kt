@@ -451,12 +451,12 @@ class AdvancedSettingsFragment : Fragment() {
 
     main?.runOnUiThread {
       ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
-      ObjectAnimator.ofInt(shutdown_current_1_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)).setDuration(200).start()
-      ObjectAnimator.ofInt(shutdown_current_2_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)).setDuration(200).start()
-      ObjectAnimator.ofInt(shutdown_current_3_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80)).setDuration(200).start()
-      ObjectAnimator.ofInt(shutdown_current_4_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, 80)).setDuration(200).start()
-      ObjectAnimator.ofInt(shutdown_current_5_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80)).setDuration(200).start()
-      ObjectAnimator.ofInt(shutdown_current_6_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_1_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_2_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_3_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_4_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_5_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_6_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(peak_time_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, 15)).setDuration(200).start()
       ObjectAnimator.ofInt(downtime_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, 15)).setDuration(200).start()
     }
@@ -513,10 +513,13 @@ class AdvancedSettingsFragment : Fragment() {
             main?.lockChangeTelemetryNumber = false
             System.err.println("telemetry_number_et записали принятые данные")
           }
-          System.err.println("---> запрошены данные о состоянии калибровки")
+          //////// блок кода применим только если у нас протез с новым протоколом
 //          main?.bleCommandConnector(byteArrayOf(0x00), STATUS_CALIBRATION_NEW, READ, 17)
-          main?.bleCommandConnector(byteArrayOf(0x00), CALIBRATION_NEW, READ, 17)
+//          main?.bleCommandConnector(byteArrayOf(0x00), CALIBRATION_NEW, READ, 17)
 
+//          System.err.println("------->   запрошены данные о состоянии калибровки")
+//          main?.runReadDataAllCharacteristics(CALIBRATION_NEW)
+          //////
           initializeUI()
         }
         try {

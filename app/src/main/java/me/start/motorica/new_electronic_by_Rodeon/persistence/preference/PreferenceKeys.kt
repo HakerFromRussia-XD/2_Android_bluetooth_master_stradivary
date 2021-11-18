@@ -18,6 +18,8 @@ import android.util.Pair
 
 object PreferenceKeys {
   val NEWBE = Pair("NEWBE", true)
+  const val DEVICE_NAME = "DEVICE_NAME"
+  const val DEVICE_ADDR = "DEVICE_ADDR"
   const val NUM_GESTURES = 8
   const val APP_PREFERENCES = "APP_PREFERENCES"
   const val DEVICE_ADDRESS_CONNECTED = "DEVICE_ADDRESS_CONNECTED"

@@ -177,7 +177,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
         BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
           System.err.println("DeviceControlActivity------->   ACTION_GATT_SERVICES_DISCOVERED")
-          displayGattServices(mBluetoothLeService!!.supportedGattServices)
+//          displayGattServices(mBluetoothLeService!!.supportedGattServices)
           mConnected = true
           mConnectView!!.visibility = View.VISIBLE
           mDisconnectView!!.visibility = View.GONE
@@ -419,10 +419,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       var statusCalibration = ""
       for (i in data.indices) {
         statusCalibration += "  "+data[i]
-        if (data[i].toInt() == 7) Toast.makeText(this, "Палец №$i слишком сильно затянут", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
-        if (data[i].toInt() == 6) Toast.makeText(this, "Палец №$i прокручивается", Toast.LENGTH_LONG).show() //если палец прокручивается
-        if (data[i].toInt() == 5) Toast.makeText(this, "На пальце №$i отключен энкодер", Toast.LENGTH_LONG).show() //если на пальце отключен энкодер
-        if (data[i].toInt() == 4) Toast.makeText(this, "На пальце №$i отключен мотор", Toast.LENGTH_LONG).show() //если на пальце отключен мотор
+        if (data[i].toInt() == 5) Toast.makeText(this, "Палец №$i слишком сильно затянут", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
+        if (data[i].toInt() == 4) Toast.makeText(this, "Палец №$i прокручивается", Toast.LENGTH_LONG).show() //если палец прокручивается
+        if (data[i].toInt() == 3) Toast.makeText(this, "На пальце №$i отключен энкодер", Toast.LENGTH_LONG).show() //если на пальце отключен энкодер
+        if (data[i].toInt() == 2) Toast.makeText(this, "На пальце №$i отключен мотор", Toast.LENGTH_LONG).show() //если на пальце отключен мотор
       }
       System.err.println("Принятые данные состояния калибровки: $statusCalibration")
       globalSemaphore = true
@@ -517,6 +517,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { parameters ->
               System.err.println("Prishedshie parametri: ${parameters.openStage1.toByte()}")
+              if (parameters.state == 1) {
+                runWriteData(byteArrayOf(parameters.openStage1.toByte(), parameters.openStage2.toByte(), parameters.openStage3.toByte(),
+                        parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte()), MOVE_ALL_FINGERS_NEW, WRITE)
+              } else {
+                runWriteData(byteArrayOf(parameters.closeStage1.toByte(), parameters.closeStage2.toByte(), parameters.closeStage3.toByte(),
+                        parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), MOVE_ALL_FINGERS_NEW, WRITE)
+              }
               if (parameters.withChangeGesture) {
                 System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage1: ${parameters.openStage1}    closeStage1: ${parameters.closeStage1}")
                 System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage2: ${parameters.openStage2}    closeStage2: ${parameters.closeStage2}")
@@ -530,13 +537,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                         parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte(),
                         parameters.closeStage1.toByte(), parameters.closeStage2.toByte(), parameters.closeStage3.toByte(),
                         parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), CHANGE_GESTURE_NEW, WRITE)
-              }
-              if (parameters.state == 1) {
-                runWriteData(byteArrayOf(parameters.openStage1.toByte(), parameters.openStage2.toByte(), parameters.openStage3.toByte(),
-                        parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte()), MOVE_ALL_FINGERS_NEW, WRITE)
-              } else {
-                runWriteData(byteArrayOf(parameters.closeStage1.toByte(), parameters.closeStage2.toByte(), parameters.closeStage3.toByte(),
-                        parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), MOVE_ALL_FINGERS_NEW, WRITE)
               }
             }
     RxUpdateMainEvent.getInstance().fingerSpeedObservable
@@ -1045,10 +1045,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           8 -> {
             System.err.println("$info = 8")
-            if (calibrationStage == 2) { state = 9 //9   //TODO вернуть калибровку
+            if (calibrationStage == 0) { state = 9 //9   //TODO вернуть калибровку
             } else {
-              if (calibrationStage == 8) { state = 11 } else {
-                if (calibrationStage == 4) { state = 10}
+              if (calibrationStage == 6) { state = 14 } else {
+                if (calibrationStage == 2) { state = 10} else {
+                  if (calibrationStage == 3) { state = 11} else {
+                    if (calibrationStage == 4) { state = 12} else {
+                      if (calibrationStage == 5) { state = 13}
+                    }
+                  }
+                }
               }
             }
           }
@@ -1056,21 +1062,36 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           9 -> {
             System.err.println("$info = 9")
             openFragmentInfoNotCalibration()
-            state = 11
+            state = 14
           }
           10 -> {
             System.err.println("$info = 10")
-            showToast("В протезе отключён двигатель одной из степеней свободы!")
-            state = 11
+            showToast("В протезе отключён двигатель одной или нескольких степеней свободы!")
+            state = 14
           }
           11 -> {
             System.err.println("$info = 11")
-            bleCommand(READ_REGISTER, SHUTDOWN_CURRENT_NEW, READ)
-            globalSemaphore = false
-            state = 12
+            showToast("В протезе отключён энкодер одной или нескольких степеней свободы!")
+            state = 14
           }
           12 -> {
             System.err.println("$info = 12")
+            showToast("В протезе нет энкодеров одного или нескольких степеней свободы!")
+            state = 14
+          }
+          13 -> {
+            System.err.println("$info = 13")
+            showToast("В протезе сильно заьянута одна или несколько степеней свободы!")
+            state = 14
+          }
+          14 -> {
+            System.err.println("$info = 14")
+            bleCommand(READ_REGISTER, SHUTDOWN_CURRENT_NEW, READ)
+            globalSemaphore = false
+            state = 15
+          }
+          15 -> {
+            System.err.println("$info = 15")
             bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
             globalSemaphore = false
             state = 0

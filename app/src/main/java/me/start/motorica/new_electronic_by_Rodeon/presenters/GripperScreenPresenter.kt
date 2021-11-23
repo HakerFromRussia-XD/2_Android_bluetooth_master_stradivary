@@ -21,6 +21,4 @@ class GripperScreenPresenter : BasePresenter<GripperScreenActivityView>()  {
         WDApplication.component.inject(this)
     }
 
-//    fun stopTemporaryBasal( ) { RxUpdateMainEvent.getInstance().stopTemporaryBasal() }
-
 }

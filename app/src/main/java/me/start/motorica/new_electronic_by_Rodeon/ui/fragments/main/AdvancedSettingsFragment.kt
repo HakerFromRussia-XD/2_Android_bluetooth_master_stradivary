@@ -118,7 +118,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
         }
       }
     })
@@ -134,7 +134,7 @@ class AdvancedSettingsFragment : Fragment() {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
                                                 shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
-          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, seekBar.progress)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, seekBar.progress)
         }
       }
     })
@@ -149,7 +149,7 @@ class AdvancedSettingsFragment : Fragment() {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
                                                 shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
-          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, seekBar.progress)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, seekBar.progress)
         }
       }
     })
@@ -164,7 +164,7 @@ class AdvancedSettingsFragment : Fragment() {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
                                                 shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
-          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, seekBar.progress)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, seekBar.progress)
         }
       }
     })
@@ -179,7 +179,7 @@ class AdvancedSettingsFragment : Fragment() {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
                                                 shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
-          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, seekBar.progress)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, seekBar.progress)
         }
       }
     })
@@ -194,7 +194,7 @@ class AdvancedSettingsFragment : Fragment() {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
                                                 shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
-          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, seekBar.progress)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, seekBar.progress)
         }
       }
     })
@@ -209,7 +209,7 @@ class AdvancedSettingsFragment : Fragment() {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
                                                 shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
-          preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, seekBar.progress)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, seekBar.progress)
         }
       }
     })
@@ -326,7 +326,6 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
-//          main?.incrementCountCommand()
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, seekBar.progress)
         }
       }
@@ -450,16 +449,24 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     main?.runOnUiThread {
-      ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+      System.err.println("Принятые данные состояния токов shutdown_current_1_sb: " + mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80))
+      ObjectAnimator.ofInt(shutdown_current_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(shutdown_current_1_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(shutdown_current_2_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(shutdown_current_3_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(shutdown_current_4_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(shutdown_current_5_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(shutdown_current_6_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)).setDuration(200).start()
+
       ObjectAnimator.ofInt(peak_time_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, 15)).setDuration(200).start()
       ObjectAnimator.ofInt(downtime_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, 15)).setDuration(200).start()
     }
+    shutdown_current_1_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80).toString()
+    shutdown_current_2_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80).toString()
+    shutdown_current_3_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80).toString()
+    shutdown_current_4_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, 80).toString()
+    shutdown_current_5_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80).toString()
+    shutdown_current_6_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80).toString()
     shutdown_current_tv?.text = shutdown_current_sb?.progress.toString()
     var time: String = when {
       ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
@@ -528,5 +535,11 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
     updatingUIThread?.start()
+  }
+
+  internal fun saveInt(key: String, variable: Int) {
+    val editor: SharedPreferences.Editor = mSettings!!.edit()
+    editor.putInt(key, variable)
+    editor.apply()
   }
 }

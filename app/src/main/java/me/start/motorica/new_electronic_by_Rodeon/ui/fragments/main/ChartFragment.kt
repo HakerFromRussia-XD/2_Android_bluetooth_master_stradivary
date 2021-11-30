@@ -294,14 +294,15 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       false
     }
     thresholds_blocking_sw.setOnClickListener{
-      main?.bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
-      if (thresholds_blocking_sw.isChecked) {
-        thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
-      } else {
-        thresholds_blocking_tv.text = resources.getString(R.string.off)
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
-      }
+//      main?.bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
+      main?.bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
+//      if (thresholds_blocking_sw.isChecked) {
+//        thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
+//        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
+//      } else {
+//        thresholds_blocking_tv.text = resources.getString(R.string.off)
+//        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
+//      }
     }
   }
 

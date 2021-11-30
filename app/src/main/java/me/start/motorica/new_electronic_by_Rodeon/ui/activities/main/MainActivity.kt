@@ -137,6 +137,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var gestureTable: Array<Array<Array<Int>>> = Array(7) { Array(2) { Array(6) { 0 } } }
   private var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
   private var byteActiveGesture: Byte = 0 // номер активного в данный момент жеста 0-7
+  private var byteSideHand: Byte = 0 //  0-left 1-right
   var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   var telemetryNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   private var firstShowPreloaderCalibration: Boolean = true // нужна для одиночного показа уведомления о начале калибровки
@@ -154,10 +155,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       when {
         BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
           //connected state
-          mConnected = true
-          mConnectView!!.visibility = View.VISIBLE
-          mDisconnectView!!.visibility = View.GONE
+//          mConnected = true
+//          mConnectView!!.visibility = View.VISIBLE
+//          mDisconnectView!!.visibility = View.GONE
           System.err.println("DeviceControlActivity------->   момент индикации коннекта")
+          Toast.makeText(context, "подключение установлено к $mDeviceAddress", Toast.LENGTH_SHORT).show()
           reconnectThreadFlag = false
           invalidateOptionsMenu()
         }
@@ -177,12 +179,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
         BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
           System.err.println("DeviceControlActivity------->   ACTION_GATT_SERVICES_DISCOVERED")
-//          displayGattServices(mBluetoothLeService!!.supportedGattServices)
           mConnected = true
           mConnectView!!.visibility = View.VISIBLE
           mDisconnectView!!.visibility = View.GONE
-          displayGattServices(mBluetoothLeService!!.supportedGattServices)
+          if (mBluetoothLeService != null) {
+            displayGattServices(mBluetoothLeService!!.supportedGattServices)
+          }
         }
+
         BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
           if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))) { // новая схема обработки данных
             displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
@@ -350,7 +354,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataAddGestureNew(data: ByteArray?) {
     if (data != null) {
-      if (data.size == 86) {
+      System.err.println("Данные data.size = " + data.size)
+      if (data.size == 87) {
         for (i in 0 until 7) {
           for (j in 0 until 2) {
             for (k in 0 until 6) {
@@ -362,6 +367,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
         byteEnabledGesture = castUnsignedCharToInt(data[84]).toByte()
         byteActiveGesture = castUnsignedCharToInt(data[85]).toByte()
+
         saveGestureState()
       }
 
@@ -394,13 +400,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       if (actionState.equals(READ)) {
         calibrationStage = castUnsignedCharToInt(data[0])
       }
-      if (calibrationStage == 3) {
+      if (calibrationStage == 1) {
         if (firstReadCalibrationStatus) {
           openFragmentInfoCalibration()
           firstReadCalibrationStatus = false
         }//если калибровка начинается, то показывается лоадер с анимацией
       }
-      if (!firstReadCalibrationStatus && calibrationStage != 3 ) {
+      if (!firstReadCalibrationStatus && (calibrationStage != 1) ) {
         bleCommandConnector(byteArrayOf(0x00), STATUS_CALIBRATION_NEW, READ, 17)
         firstReadCalibrationStatus = true
       }
@@ -419,6 +425,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       var statusCalibration = ""
       for (i in data.indices) {
         statusCalibration += "  "+data[i]
+        if (data[i].toInt() == 6) Toast.makeText(this, "Протез откалиброван!", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
         if (data[i].toInt() == 5) Toast.makeText(this, "Палец №$i слишком сильно затянут", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
         if (data[i].toInt() == 4) Toast.makeText(this, "Палец №$i прокручивается", Toast.LENGTH_LONG).show() //если палец прокручивается
         if (data[i].toInt() == 3) Toast.makeText(this, "На пальце №$i отключен энкодер", Toast.LENGTH_LONG).show() //если на пальце отключен энкодер
@@ -483,6 +490,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     // BluetoothAdapter through BluetoothManager.
     val bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
     mBluetoothAdapter = bluetoothManager.adapter
+    val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
+    bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
+    registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+
 
     locate = Locale.getDefault().toString()
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -502,9 +513,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mGattServicesList = findViewById(R.id.gatt_services_list)
     mConnectView = findViewById(R.id.connect_view)
     mDisconnectView = findViewById(R.id.disconnect_view)
-
-    val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
-    bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
 
     RxUpdateMainEvent.getInstance().gestureStateObservable
             .compose(bindToLifecycle())
@@ -649,7 +657,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     readDataFlag = true
     //BLE
-    registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
     if (mBluetoothLeService != null) {
       mDeviceName = presenter.preferenceManager.getString(PreferenceKeys.DEVICE_NAME, DEVICE_NAME)
       mDeviceAddress = presenter.preferenceManager.getString(PreferenceKeys.DEVICE_ADDR, "7F:D6:3D:68:62:28")
@@ -659,17 +666,19 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   override fun onPause() {
     super.onPause()
-//    unregisterReceiver(mGattUpdateReceiver)
     endFlag = true
+
   }
   override fun onDestroy() {
     super.onDestroy()
-    unbindService(mServiceConnection)
-    mBluetoothLeService = null
+    if (mBluetoothLeService != null) {
+      unbindService(mServiceConnection)
+      mBluetoothLeService = null
+    }
     readDataFlag = false
-    sensorsDataThreadFlag = false
+//    sensorsDataThreadFlag = false
     endFlag = true
-    reconnectThreadFlag = false
+    if (mScanning) { mBluetoothAdapter!!.stopLeScan(mLeScanCallback) }
   }
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
@@ -731,30 +740,30 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3) || mDeviceType!!.contains(DEVICE_TYPE_4)) {
-      gesture_1_btn.isEnabled = enabled
-      gesture_2_btn.isEnabled = enabled
-      gesture_3_btn.isEnabled = enabled
-      gesture_4_btn.isEnabled = enabled
-      gesture_5_btn.isEnabled = enabled
-      gesture_6_btn.isEnabled = enabled
-      gesture_7_btn.isEnabled = enabled
-      gesture_8_btn.isEnabled = enabled
-      gesture_settings_2_btn.isEnabled = enabled
-      gesture_settings_3_btn.isEnabled = enabled
-      gesture_settings_4_btn.isEnabled = enabled
-      gesture_settings_5_btn.isEnabled = enabled
-      gesture_settings_6_btn.isEnabled = enabled
-      gesture_settings_7_btn.isEnabled = enabled
-      gesture_settings_8_btn.isEnabled = enabled
+      gesture_1_btn?.isEnabled = enabled
+      gesture_2_btn?.isEnabled = enabled
+      gesture_3_btn?.isEnabled = enabled
+      gesture_4_btn?.isEnabled = enabled
+      gesture_5_btn?.isEnabled = enabled
+      gesture_6_btn?.isEnabled = enabled
+      gesture_7_btn?.isEnabled = enabled
+      gesture_8_btn?.isEnabled = enabled
+      gesture_settings_2_btn?.isEnabled = enabled
+      gesture_settings_3_btn?.isEnabled = enabled
+      gesture_settings_4_btn?.isEnabled = enabled
+      gesture_settings_5_btn?.isEnabled = enabled
+      gesture_settings_6_btn?.isEnabled = enabled
+      gesture_settings_7_btn?.isEnabled = enabled
+      gesture_settings_8_btn?.isEnabled = enabled
       if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-        swap_sensors_sw.isEnabled = enabled
-        swap_open_close_sw.isEnabled = enabled
-        single_channel_control_sw.isEnabled = enabled
-        reset_to_factory_settings_btn.isEnabled = enabled
-        calibration_btn.isEnabled = enabled
-        get_setup_btn.isEnabled = enabled
-        set_setup_btn.isEnabled = enabled
-        shutdown_current_sb.isEnabled = enabled
+        swap_sensors_sw?.isEnabled = enabled
+        swap_open_close_sw?.isEnabled = enabled
+        single_channel_control_sw?.isEnabled = enabled
+        reset_to_factory_settings_btn?.isEnabled = enabled
+        calibration_btn?.isEnabled = enabled
+        get_setup_btn?.isEnabled = enabled
+        set_setup_btn?.isEnabled = enabled
+        shutdown_current_sb?.isEnabled = enabled
       }
     }
     sensorsDataThreadFlag = enabled
@@ -879,43 +888,46 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
   }
   fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
-    for (i in mGattCharacteristics.indices) {
-      for (j in mGattCharacteristics[i].indices) {
-        if (mGattCharacteristics[i][j].uuid.toString() == Command) {
-          mCharacteristic = mGattCharacteristics[i][j]
-          if (typeCommand == WRITE){
-            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-              mCharacteristic?.value = byteArray
-              mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+    if (mBluetoothLeService != null) {
+      for (i in mGattCharacteristics.indices) {
+        for (j in mGattCharacteristics[i].indices) {
+          if (mGattCharacteristics[i][j].uuid.toString() == Command) {
+            mCharacteristic = mGattCharacteristics[i][j]
+            if (typeCommand == WRITE){
+              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+                mCharacteristic?.value = byteArray
+                mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+              }
             }
-          }
 
-          if (typeCommand == WRITE_WR){
-            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0) {
-              mCharacteristic?.value = byteArray
-              mBluetoothLeService?.writeCharacteristic(mCharacteristic)
-              System.err.println("bleCommand Write Characteristic")
+            if (typeCommand == WRITE_WR){
+              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0) {
+                mCharacteristic?.value = byteArray
+                mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+                System.err.println("bleCommand Write Characteristic")
+              }
             }
-          }
 
-          if (typeCommand == READ){
-            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
-              mBluetoothLeService?.readCharacteristic(mCharacteristic)
-              System.err.println("------->   bleCommand Read Characteristic:  $Command")
+            if (typeCommand == READ){
+              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
+                mBluetoothLeService?.readCharacteristic(mCharacteristic)
+                System.err.println("------->   bleCommand Read Characteristic:  $Command")
+              }
             }
-          }
 
-          if (typeCommand == NOTIFY){
-            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
-              mNotifyCharacteristic = mCharacteristic
-              mBluetoothLeService!!.setCharacteristicNotification(
-                      mCharacteristic, true)
-              System.err.println("bleCommand Notify Characteristic")
+            if (typeCommand == NOTIFY){
+              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
+                mNotifyCharacteristic = mCharacteristic
+                mBluetoothLeService!!.setCharacteristicNotification(
+                        mCharacteristic, true)
+                System.err.println("bleCommand Notify Characteristic")
+              }
             }
           }
         }
       }
     }
+
   }
   private fun reconnectThread() {
     System.err.println("reconnectThread started")
@@ -984,8 +996,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun readStart() {
     val info = "------->   Чтение порогов и версий"
     var count = 0
-    var countRequestCurrentStatus = 0
-    val countRequestTarget = 1000
     var state = 0 // переключается здесь в потоке
     endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
     globalSemaphore = true // меняется по приходу ответа от подключаемого уст-ва
@@ -1096,7 +1106,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             globalSemaphore = false
             state = 0
             endFlag = true
-//            startSubscribeSensorsNewDataThread()
+            startSubscribeSensorsNewDataThread()
           }
         }
         count = 0
@@ -1208,13 +1218,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val dialog = CustomInfoUpdateDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
   }
-  fun openFragmentInfoCalibration() {
+  private fun openFragmentInfoCalibration() {
     val dialog = CustomInfoCalibrationDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
   }
   private fun openFragmentInfoNotCalibration() {
-    val dialog = CustomInfoNotCalibratedDialogFragment()
-    dialog.show(supportFragmentManager, "update dialog")
+//    val dialog = CustomInfoNotCalibratedDialogFragment()
+//    dialog.show(supportFragmentManager, "update dialog")
+    showToast("Протез не откалиброван!")
   }
   fun getProgressUpdate(): Int {
     return progressUpdate

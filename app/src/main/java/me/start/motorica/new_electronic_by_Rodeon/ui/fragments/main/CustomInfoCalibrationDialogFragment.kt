@@ -51,6 +51,7 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
                 if (main?.calibrationStage == 4) updateThreadFlag = false //если хоть один палец прокручивается
                 if (main?.calibrationStage == 3) updateThreadFlag = false //если хоть на одном пальце отключен энкодер
                 if (main?.calibrationStage == 2) updateThreadFlag = false //если хоть на одном пальце отключен мотор
+                if (main?.calibrationStage == 1) updateThreadFlag = false //если протез калибруется //TODO удалить когда мы поймём, почему у нас
                 if (main?.calibrationStage == 0) updateThreadFlag = false //если протез не откалиброван
 
                 try {

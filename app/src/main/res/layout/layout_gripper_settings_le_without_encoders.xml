@@ -72,14 +72,13 @@
 
                     <Button
                         android:id="@+id/gripper_state_le"
+                        style="@style/Text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="0dp"
-                        android:text="@string/gesture_state_open"
                         android:layout_gravity="center"
-                        android:textColor="#FFFFFFFF"
-                        style="@style/Text"
-                        android:background="@drawable/custom_button_le_border" />
+                        android:background="@drawable/custom_button_le_border"
+                        android:text="@string/gesture_state_open"
+                        android:textColor="#FFFFFFFF" />
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>

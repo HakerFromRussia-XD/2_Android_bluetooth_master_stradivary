@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.PixelFormat
 import android.os.Bundle
+import android.os.Handler
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -15,7 +16,10 @@ import android.widget.LinearLayout.LayoutParams
 import android.widget.TextView
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoders.*
+import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoders.gesture_state_rl
+import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoders.gripper_state_le
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
@@ -185,6 +189,12 @@ class GripperScreenWithoutEncodersActivity
                     System.err.println("SAVE STATE openStage: $openStage")
                     saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_NUM + gestureNumber, closeStage)
                     System.err.println("SAVE STATE closeStage: $closeStage")
+                    if (editMode) {
+                        gestureNameList[(gestureNumber - 1)] = gesture_name_et.text.toString()
+                        for (i in 0 until gestureNameList.size) {
+                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
+                        }
+                    }
                     finish()
                 }
     }

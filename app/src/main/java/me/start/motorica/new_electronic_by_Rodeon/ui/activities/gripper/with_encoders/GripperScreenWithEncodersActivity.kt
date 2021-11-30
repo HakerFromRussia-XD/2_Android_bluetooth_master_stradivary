@@ -18,6 +18,7 @@ import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gripper_state_le
+import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoders.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
@@ -191,6 +192,12 @@ class GripperScreenWithEncodersActivity
         RxView.clicks(findViewById(R.id.gripper_use_le))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    if (editMode) {
+                        gestureNameList[(gestureNumber - 1)] = gesture_name_et.text.toString()
+                        for (i in 0 until gestureNameList.size) {
+                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
+                        }
+                    }
                     finish()
                 }
 

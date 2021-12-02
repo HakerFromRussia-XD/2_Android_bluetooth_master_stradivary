@@ -449,7 +449,7 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     main?.runOnUiThread {
-      System.err.println("Принятые данные состояния токов shutdown_current_1_sb: " + mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80))
+//      System.err.println("Принятые данные состояния токов shutdown_current_1_sb: " + mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80))
       ObjectAnimator.ofInt(shutdown_current_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(shutdown_current_1_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(shutdown_current_2_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)).setDuration(200).start()

@@ -175,6 +175,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           if(!reconnectThreadFlag && !mScanning){
             reconnectThreadFlag = true
             reconnectThread()
+            System.err.println("scanLeDevice------->  запуск сканирования из ACTION_GATT_DISCONNECTED")
           }
         }
         BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
@@ -660,8 +661,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if (mBluetoothLeService != null) {
       mDeviceName = presenter.preferenceManager.getString(PreferenceKeys.DEVICE_NAME, DEVICE_NAME)
       mDeviceAddress = presenter.preferenceManager.getString(PreferenceKeys.DEVICE_ADDR, "7F:D6:3D:68:62:28")
-      reconnectThreadFlag = true
-      reconnectThread()
+//      reconnectThreadFlag = true
+//      reconnectThread()
     }
   }
   override fun onPause() {
@@ -730,6 +731,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             gattCharacteristicData,
             android.R.layout.simple_expandable_list_item_2, arrayOf(listName, listUUID), intArrayOf(android.R.id.text1, android.R.id.text2))
     mGattServicesList!!.setAdapter(gattServiceAdapter)
+    if (mScanning) { scanLeDevice(false) }
     enableInterface(true)
   }
   private fun enableInterface(enabled: Boolean) {
@@ -739,42 +741,43 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     thresholds_blocking_sw.isEnabled = enabled
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3) || mDeviceType!!.contains(DEVICE_TYPE_4)) {
-      gesture_1_btn?.isEnabled = enabled
-      gesture_2_btn?.isEnabled = enabled
-      gesture_3_btn?.isEnabled = enabled
-      gesture_4_btn?.isEnabled = enabled
-      gesture_5_btn?.isEnabled = enabled
-      gesture_6_btn?.isEnabled = enabled
-      gesture_7_btn?.isEnabled = enabled
-      gesture_8_btn?.isEnabled = enabled
-      gesture_settings_2_btn?.isEnabled = enabled
-      gesture_settings_3_btn?.isEnabled = enabled
-      gesture_settings_4_btn?.isEnabled = enabled
-      gesture_settings_5_btn?.isEnabled = enabled
-      gesture_settings_6_btn?.isEnabled = enabled
-      gesture_settings_7_btn?.isEnabled = enabled
-      gesture_settings_8_btn?.isEnabled = enabled
-      if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-        swap_sensors_sw?.isEnabled = enabled
-        swap_open_close_sw?.isEnabled = enabled
-        single_channel_control_sw?.isEnabled = enabled
-        reset_to_factory_settings_btn?.isEnabled = enabled
-        calibration_btn?.isEnabled = enabled
-        get_setup_btn?.isEnabled = enabled
-        set_setup_btn?.isEnabled = enabled
-        shutdown_current_sb?.isEnabled = enabled
+    if(enabled) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3) || mDeviceType!!.contains(DEVICE_TYPE_4)) {
+        gesture_1_btn?.isEnabled = enabled
+        gesture_2_btn?.isEnabled = enabled
+        gesture_3_btn?.isEnabled = enabled
+        gesture_4_btn?.isEnabled = enabled
+        gesture_5_btn?.isEnabled = enabled
+        gesture_6_btn?.isEnabled = enabled
+        gesture_7_btn?.isEnabled = enabled
+        gesture_8_btn?.isEnabled = enabled
+        gesture_settings_2_btn?.isEnabled = enabled
+        gesture_settings_3_btn?.isEnabled = enabled
+        gesture_settings_4_btn?.isEnabled = enabled
+        gesture_settings_5_btn?.isEnabled = enabled
+        gesture_settings_6_btn?.isEnabled = enabled
+        gesture_settings_7_btn?.isEnabled = enabled
+        gesture_settings_8_btn?.isEnabled = enabled
+        if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+          swap_sensors_sw?.isEnabled = enabled
+          swap_open_close_sw?.isEnabled = enabled
+          single_channel_control_sw?.isEnabled = enabled
+          reset_to_factory_settings_btn?.isEnabled = enabled
+          calibration_btn?.isEnabled = enabled
+          get_setup_btn?.isEnabled = enabled
+          set_setup_btn?.isEnabled = enabled
+          shutdown_current_sb?.isEnabled = enabled
+        }
       }
-    }
-    sensorsDataThreadFlag = enabled
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
-      runReadData()
-    } else {
-      if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//        startSubscribeSensorsNewDataThread()
-        runStart()
+      sensorsDataThreadFlag = enabled
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+        runReadData()
       } else {
-        startSubscribeSensorsDataThread()
+        if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
+          runStart()
+        } else {
+          startSubscribeSensorsDataThread()
+        }
       }
     }
   }
@@ -981,9 +984,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) { }
       }
-//      if (!sensorsDataThreadFlag) {
-//        runStart()
-//      }
     }
     subscribeThread?.start()
   }
@@ -1005,6 +1005,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         when (state) {
           // ПРАВИЛЬНАЯ ЦЕПЬ ЗАПРОСОВ
           0 -> {
+            showToast("Старт потока запросов начальных параметров")
             System.err.println("$info = 0")
             bleCommand(READ_REGISTER, SENS_VERSION_NEW, READ)
             globalSemaphore = false
@@ -1112,12 +1113,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         count = 0
       } else {
         count++
-//        System.err.println("Количество запросов без ответа = $count")
-        if (count == 100) {
+        if (count == 1000) {
           endFlag = mConnected
           state = 0
           count = 0
-          runStart()
         }
       }
       try {
@@ -1386,8 +1385,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           System.err.println("------->   ==========это нужный нам девайс $device==============")
           mDeviceAddress = device.toString()
           scanLeDevice(false)
-          reconnectThreadFlag = true
-          reconnectThread()
+          reconnect()
+//          reconnectThreadFlag = true
+//          reconnectThread()
         }
       }
     }

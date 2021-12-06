@@ -416,9 +416,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       if (actionState.equals(WRITE)) {
         calibrationStage = castUnsignedCharToInt(data[0])
         if (calibrationStage == 9 || calibrationStage == 10) {// 9 и 10 - это числа отправляемые для калибровки правой и левой руки соответственно
-//          Handler().postDelayed({
-//            openFragmentInfoCalibration()
-//          }, 100)
+//          openFragmentInfoCalibration()
           RxUpdateMainEvent.getInstance().updateCalibrationStatus(true)
         }
         System.err.println("---> запись глобальной калибровки: $calibrationStage")

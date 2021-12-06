@@ -17,9 +17,9 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothAdapter.LeScanCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
-import android.bluetooth.BluetoothAdapter.LeScanCallback
 import android.bluetooth.BluetoothManager
 import android.content.*
 import android.nfc.NfcAdapter
@@ -29,6 +29,7 @@ import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
+import androidx.fragment.app.DialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
@@ -98,7 +99,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var swapOpenCloseButton = false
   var setReverseNum = 0
   var setOneChannelNum = 0
-  private var firstReadCalibrationStatus: Boolean = true
+  var firstReadCalibrationStatus: Boolean = true
 
   private  var countCommand: AtomicInteger = AtomicInteger()
   private var actionState = READ
@@ -142,6 +143,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   var telemetryNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   private var firstShowPreloaderCalibration: Boolean = true // нужна для одиночного показа уведомления о начале калибровки
   private var firstHidePreloaderCalibration: Boolean = true // нужна для скрытия уведомления о начале калибровки
+  private lateinit var dialog: DialogFragment
 
   // Handles various events fired by the Service.
   // ACTION_GATT_CONNECTED: connected to a GATT server.
@@ -206,8 +208,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA) != null) displayDataAddGestureNew(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.TELEMETRY_NUMBER_NEW_DATA) != null) displayDataTelemetryNumberNew(intent.getByteArrayExtra(BluetoothLeService.TELEMETRY_NUMBER_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA) != null) {
-                displayDataCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA))
                 intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
+                displayDataCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA))
               }
               if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) displayDataSetOneChannelNew(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA) != null) displayDataStatusCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA))
@@ -343,7 +345,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun displayDataSetGestureNew(data: ByteArray?) {
     if (data != null) {
       saveInt(mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, castUnsignedCharToInt(data[0]) + 1)
-      System.err.println("---> Принятые данные активного жеста: " + (data[0]+1) )
+      System.err.println("---> Принятые данные активного жеста: " + (data[0] + 1))
       globalSemaphore = true
     }
   }
@@ -360,9 +362,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         for (i in 0 until 7) {
           for (j in 0 until 2) {
             for (k in 0 until 6) {
-              gestureTable[i][j][k] = castUnsignedCharToInt(data[i*12 + j*6 + k])
-              if(k == 4) { gestureTable[i][j][k] = ((88 - castUnsignedCharToInt(data[i*12 + j*6 + k])).toFloat()/100*91).toInt()-52 }
-              if(k == 5) { gestureTable[i][j][k] = (( castUnsignedCharToInt(data[i*12 + j*6 + k])).toFloat()/100*90).toInt() }
+              gestureTable[i][j][k] = castUnsignedCharToInt(data[i * 12 + j * 6 + k])
+              if(k == 4) { gestureTable[i][j][k] = ((88 - castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*91).toInt()-52 }
+              if(k == 5) { gestureTable[i][j][k] = (( castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*90).toInt() }
             }
           }
         }
@@ -396,28 +398,31 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       globalSemaphore = true
     }
   }
-  private fun displayDataCalibrationNew(data: ByteArray?) {
-    if (data != null) {
-      if (actionState.equals(READ)) {
-        calibrationStage = castUnsignedCharToInt(data[0])
-      }
-      if (calibrationStage == 1) {
-        if (firstReadCalibrationStatus) {
-          openFragmentInfoCalibration()
-          firstReadCalibrationStatus = false
-        }//если калибровка начинается, то показывается лоадер с анимацией
-      }
-      if (!firstReadCalibrationStatus && (calibrationStage != 1) ) {
-        bleCommandConnector(byteArrayOf(0x00), STATUS_CALIBRATION_NEW, READ, 17)
-        firstReadCalibrationStatus = true
-      }
-      System.err.println("---> калибровки: $calibrationStage")
-      globalSemaphore = true
-    }
-  }
   private fun displayDataSetOneChannelNew(data: ByteArray?) {
     if (data != null) {
       setOneChannelNum = castUnsignedCharToInt(data[0])
+      globalSemaphore = true
+    }
+  }
+  private fun displayDataCalibrationNew(data: ByteArray?) {
+    if (data != null) {
+      if (actionState.equals(READ)) {
+        if (firstReadCalibrationStatus) {
+          calibrationStage = castUnsignedCharToInt(data[0])
+          System.err.println("---> чтение глобальной калибровки: $calibrationStage")
+          firstReadCalibrationStatus = false
+        }
+      }
+      if (actionState.equals(WRITE)) {
+        calibrationStage = castUnsignedCharToInt(data[0])
+        if (calibrationStage == 9 || calibrationStage == 10) {// 9 и 10 - это числа отправляемые для калибровки правой и левой руки соответственно
+//          Handler().postDelayed({
+//            openFragmentInfoCalibration()
+//          }, 100)
+          RxUpdateMainEvent.getInstance().updateCalibrationStatus(true)
+        }
+        System.err.println("---> запись глобальной калибровки: $calibrationStage")
+      }
       globalSemaphore = true
     }
   }
@@ -426,21 +431,23 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       var statusCalibration = ""
       for (i in data.indices) {
         statusCalibration += "  "+data[i]
-        if (data[i].toInt() == 6) Toast.makeText(this, "Протез откалиброван!", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
-        if (data[i].toInt() == 5) Toast.makeText(this, "Палец №$i слишком сильно затянут", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
-        if (data[i].toInt() == 4) Toast.makeText(this, "Палец №$i прокручивается", Toast.LENGTH_LONG).show() //если палец прокручивается
-        if (data[i].toInt() == 3) Toast.makeText(this, "На пальце №$i отключен энкодер", Toast.LENGTH_LONG).show() //если на пальце отключен энкодер
-        if (data[i].toInt() == 2) Toast.makeText(this, "На пальце №$i отключен мотор", Toast.LENGTH_LONG).show() //если на пальце отключен мотор
+
+//        if (data[i].toInt() == 6) Toast.makeText(this, "Протез откалиброван!", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
+//        if (data[i].toInt() == 5) Toast.makeText(this, "Палец №$i слишком сильно затянут", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
+//        if (data[i].toInt() == 4) Toast.makeText(this, "Палец №$i прокручивается", Toast.LENGTH_LONG).show() //если палец прокручивается
+//        if (data[i].toInt() == 3) Toast.makeText(this, "На пальце №$i отключен энкодер", Toast.LENGTH_LONG).show() //если на пальце отключен энкодер
+//        if (data[i].toInt() == 2) Toast.makeText(this, "На пальце №$i отключен мотор", Toast.LENGTH_LONG).show() //если на пальце отключен мотор
       }
-      System.err.println("Принятые данные состояния калибровки: $statusCalibration")
+      Toast.makeText(this, "Статус калибровки: $statusCalibration", Toast.LENGTH_LONG).show()
+      saveInt(mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 0)
       globalSemaphore = true
     }
   }
   private fun displayDataShutdownCurrentNew(data: ByteArray?) {
     if (data != null) {
       for (i in data.indices) {
-        System.err.println("Принятые данные состояния токов: " + data[i] + "  "+mDeviceAddress + "SHUTDOWN_CURRENT_NUM_$i")
-        saveInt(mDeviceAddress + "SHUTDOWN_CURRENT_NUM_"+(i+1), castUnsignedCharToInt(data[i]))
+        System.err.println("Принятые данные состояния токов: " + data[i] + "  " + mDeviceAddress + "SHUTDOWN_CURRENT_NUM_$i")
+        saveInt(mDeviceAddress + "SHUTDOWN_CURRENT_NUM_" + (i + 1), castUnsignedCharToInt(data[i]))
       }
       globalSemaphore = true
     }
@@ -554,6 +561,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             .subscribe { speed ->
               System.err.println(" MainActivity -----> change gripper. fingerSpeed = $speed")
               speedFinger = speed
+            }
+    RxUpdateMainEvent.getInstance().calibratingStatusObservable
+            .compose(bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { _ ->
+              openFragmentInfoCalibration()
             }
 
     val worker = Thread {
@@ -1050,19 +1063,30 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
           7 -> {
             System.err.println("$info = 7")
-            bleCommand(READ_REGISTER, CALIBRATION_NEW, READ)
+            bleCommand(READ_REGISTER, CALIBRATION_NEW, READ) //TODO тут
             globalSemaphore = false
             state = 8
           }
           8 -> {
             System.err.println("$info = 8")
-            if (calibrationStage == 0) { state = 9 //9   //TODO вернуть калибровку
+            if (calibrationStage == 0) {
+              state = 9 //9   //TODO вернуть калибровку
             } else {
-              if (calibrationStage == 6) { state = 14 } else {
-                if (calibrationStage == 2) { state = 10} else {
-                  if (calibrationStage == 3) { state = 11} else {
-                    if (calibrationStage == 4) { state = 12} else {
-                      if (calibrationStage == 5) { state = 13}
+              if (calibrationStage == 6) {
+                state = 14
+              } else {
+                if (calibrationStage == 2) {
+                  state = 10
+                } else {
+                  if (calibrationStage == 3) {
+                    state = 11
+                  } else {
+                    if (calibrationStage == 4) {
+                      state = 12
+                    } else {
+                      if (calibrationStage == 5) {
+                        state = 13
+                      }
                     }
                   }
                 }
@@ -1205,26 +1229,26 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   fun openFragment(numberGesture: Int) {
-    val dialog = CustomDialogFragment()
+    dialog = CustomDialogFragment()
     mNumberGesture = numberGesture
     dialog.show(supportFragmentManager, "custom dialog")
   }
   private fun openFragmentQuestion() {
-    val dialog = CustomUpdateDialogFragment()
+    dialog = CustomUpdateDialogFragment()
     dialog.show(supportFragmentManager, "custom update dialog")
   }
   fun openFragmentInfoUpdate() {
-    val dialog = CustomInfoUpdateDialogFragment()
+    dialog = CustomInfoUpdateDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
   }
-  private fun openFragmentInfoCalibration() {
-    val dialog = CustomInfoCalibrationDialogFragment()
-    dialog.show(supportFragmentManager, "update dialog")
+  fun openFragmentInfoCalibration() {
+    dialog = CustomInfoCalibrationDialogFragment()
+    dialog.show(supportFragmentManager, "calibration dialog")
   }
   private fun openFragmentInfoNotCalibration() {
-//    val dialog = CustomInfoNotCalibratedDialogFragment()
-//    dialog.show(supportFragmentManager, "update dialog")
-    showToast("Протез не откалиброван!")
+    val dialog = CustomInfoNotCalibratedDialogFragment()
+    dialog.show(supportFragmentManager, "update dialog")
+//    showToast("Протез не откалиброван!")
   }
   fun getProgressUpdate(): Int {
     return progressUpdate
@@ -1276,19 +1300,19 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private fun saveGestureState() {
     for (i in 0 until 7) {
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i+2), gestureTable[i][0][0])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i+2), gestureTable[i][0][1])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i+2), gestureTable[i][0][2])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i+2), gestureTable[i][0][3])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i+2), gestureTable[i][0][4])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i+2), gestureTable[i][0][5])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 2), gestureTable[i][0][0])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 2), gestureTable[i][0][1])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 2), gestureTable[i][0][2])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2), gestureTable[i][0][3])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 2), gestureTable[i][0][4])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 2), gestureTable[i][0][5])
 
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i+2), gestureTable[i][1][0])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i+2), gestureTable[i][1][1])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i+2), gestureTable[i][1][2])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i+2), gestureTable[i][1][3])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i+2), gestureTable[i][1][4])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i+2), gestureTable[i][1][5])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 2), gestureTable[i][1][0])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 2), gestureTable[i][1][1])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 2), gestureTable[i][1][2])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 2), gestureTable[i][1][3])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 2), gestureTable[i][1][4])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 2), gestureTable[i][1][5])
     }
   }
   internal fun saveInt(key: String, variable: Int) {

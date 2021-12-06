@@ -15,6 +15,8 @@ public class RxUpdateMainEvent {
   private final PublishSubject<GestureState> gestureState;
   private final PublishSubject<GestureStateWithEncoders> gestureStateWithEncoders;
   private final PublishSubject<Integer> fingerSpeed;
+  private final PublishSubject<Boolean> calibrating;
+
 
   private RxUpdateMainEvent() {
     selectedFinger = PublishSubject.create();
@@ -22,6 +24,7 @@ public class RxUpdateMainEvent {
     gestureState = PublishSubject.create();
     gestureStateWithEncoders = PublishSubject.create();
     fingerSpeed = PublishSubject.create();
+    calibrating = PublishSubject.create();
   }
   public static RxUpdateMainEvent getInstance() {
     if (instance == null) {
@@ -35,6 +38,7 @@ public class RxUpdateMainEvent {
   public void updateGestureState(GestureState parameters) { gestureState.onNext(parameters); }
   public void updateGestureWithEncodersState(GestureStateWithEncoders parameters) { gestureStateWithEncoders.onNext(parameters); }
   public void updateFingerSpeed(Integer speed) { fingerSpeed.onNext(speed); }
+  public void updateCalibrationStatus(Boolean status) { calibrating.onNext(status); }
 
 
 
@@ -43,4 +47,5 @@ public class RxUpdateMainEvent {
   public Observable<GestureState> getGestureStateObservable() { return gestureState; }
   public Observable<GestureStateWithEncoders> getGestureStateWithEncodersObservable() { return gestureStateWithEncoders; }
   public Observable<Integer> getFingerSpeedObservable() { return fingerSpeed; }
+  public Observable<Boolean> getCalibratingStatusObservable() { return calibrating; }
 }

@@ -25,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import io.reactivex.android.schedulers.AndroidSchedulers
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
@@ -33,6 +34,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManag
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
+import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import javax.inject.Inject
 
@@ -53,6 +55,7 @@ class AdvancedSettingsFragment : Fragment() {
   private var sensorGestureSwitching: Byte = 0x00
   private var threadFlag = true
   private var updatingUIThread: Thread? = null
+  private var showCalibratingStatus: Boolean = false
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     val rootView = inflater.inflate(R.layout.layout_advanced_settings, container, false)
@@ -61,6 +64,9 @@ class AdvancedSettingsFragment : Fragment() {
     this.rootView = rootView
     this.mContext = context
     scale = resources.displayMetrics.density
+
+
+
     return rootView
   }
 
@@ -74,7 +80,13 @@ class AdvancedSettingsFragment : Fragment() {
     initializeUI()
     Handler().postDelayed({
       startUpdatingUIThread()
-    }, 500)
+    }, 2000)
+
+//    RxUpdateMainEvent.getInstance().gestureStateObservable
+//            .compose(bindToLifecycle())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe { parameters ->
+//            }
   }
 
   @SuppressLint("SetTextI18n", "CheckResult")
@@ -91,6 +103,7 @@ class AdvancedSettingsFragment : Fragment() {
       mode_tv?.textSize = 11f
       reset_to_factory_settings_btn?.textSize = 12f
       calibration_btn?.textSize = 12f
+      calibration_status_btn?.textSize = 12f
       side_text_tv?.textSize = 11f
       left_right_side_swap_tv?.textSize = 11f
       shutdown_current_1_text_tv?.textSize = 11f
@@ -305,6 +318,15 @@ class AdvancedSettingsFragment : Fragment() {
       main?.bleCommandConnector(telemetry_number_et?.text.toString().toByteArray(Charsets.UTF_8), TELEMETRY_NUMBER_NEW, WRITE, 17)
     }
     main?.telemetryNumber = telemetry_number_et?.text.toString()
+    left_right_side_swap_sw?.setOnClickListener{
+      if (left_right_side_swap_sw.isChecked) {
+        left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))
+        saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
+      } else {
+        left_right_side_swap_tv.text = resources.getString(R.string.left)
+        saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
+      }
+    }
     peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         val time: String = when {
@@ -398,13 +420,25 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
 
+
+
     calibration_btn?.setOnClickListener {
-      if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-        main?.runWriteData(byteArrayOf(0x01), CALIBRATION_NEW, WRITE)
+      System.err.println("запись глобальной калибровки тык")
+      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE) //TODO тут
       } else {
-        main?.runWriteData(byteArrayOf(0x00), CALIBRATION_NEW, WRITE)
+        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE) // TODO тут
       }
-//      main?.openFragmentInfoCalibration()
+      saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
+    }
+
+
+
+
+
+    calibration_status_btn?. setOnClickListener {
+      saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
+      main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW)//bleCommand(ConstantManager.READ_REGISTER, CALIBRATION_NEW, READ)
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
@@ -492,16 +526,6 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
     downtime_tv?.text = time
-
-    left_right_side_swap_sw?.setOnClickListener{
-      if (left_right_side_swap_sw.isChecked) {
-        left_right_side_swap_tv.text = Html.fromHtml(getString(R.string.right))
-        main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
-      } else {
-        left_right_side_swap_tv.text = resources.getString(R.string.left)
-        main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
-      }
-    }
   }
 
 
@@ -521,11 +545,19 @@ class AdvancedSettingsFragment : Fragment() {
             System.err.println("telemetry_number_et записали принятые данные")
           }
           //////// блок кода применим только если у нас протез с новым протоколом
-//          main?.bleCommandConnector(byteArrayOf(0x00), STATUS_CALIBRATION_NEW, READ, 17)
-//          main?.bleCommandConnector(byteArrayOf(0x00), CALIBRATION_NEW, READ, 17)
 
-//          System.err.println("------->   запрошены данные о состоянии калибровки")
-//          main?.runReadDataAllCharacteristics(CALIBRATION_NEW)
+//          if (main?.calibrationStarted == true) {
+//            main?.openFragmentInfoCalibration()
+//          }
+
+          if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1) == 1) {
+              main?.firstReadCalibrationStatus = true
+          }
+          if (main?.firstReadCalibrationStatus == true) {
+            System.err.println("CALIBRATION_NEW запрос данных калибровки")
+            main?.bleCommandConnector(byteArrayOf(0x00), CALIBRATION_NEW, READ, 17)
+          }
+
           //////
           initializeUI()
         }

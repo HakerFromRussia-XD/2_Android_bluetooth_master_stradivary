@@ -194,6 +194,7 @@
     <string name="start_calibration">start calibration</string>
     <string name="not_calibrated_message">To calibrate it, go to the advanced settings.</string>
     <string name="not_calibrated">The prosthesis is not calibrated</string>
+    <string name="calibration_status">calibration status</string>
 
     <string-array name="numbers">
         <item>0</item>

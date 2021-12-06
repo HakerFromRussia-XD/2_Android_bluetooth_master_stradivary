@@ -19,6 +19,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivit
 class CustomDialogFragment: DialogFragment() {
     private var rootView: View? = null
     private var main: MainActivity? = null
+    private var mSettings: SharedPreferences? = null
     private var openStage = 0b00000000
     private var closeStage = 0b00000000
     private var oldOpenStage = 0b00000000
@@ -26,7 +27,7 @@ class CustomDialogFragment: DialogFragment() {
     private val openState: Byte = 1
     private val closeState: Byte = 0
     private var side: Int = 1
-    private var mSettings: SharedPreferences? = null
+
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -59,7 +60,6 @@ class CustomDialogFragment: DialogFragment() {
         } else {
             rootView?.tv_andex_alert_dialog_layout_title?.text  = "Gesture " + main?.getMNumberGesture()+ " configurator"
         }
-
 
         //control block
         if (!main?.lockWriteBeforeFirstRead!!) {

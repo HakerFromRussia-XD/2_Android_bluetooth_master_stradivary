@@ -1241,7 +1241,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     dialog = CustomInfoUpdateDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
   }
-  fun openFragmentInfoCalibration() {
+  private fun openFragmentInfoCalibration() {
     dialog = CustomInfoCalibrationDialogFragment()
     dialog.show(supportFragmentManager, "calibration dialog")
   }

@@ -377,7 +377,6 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
     })
-
     reset_to_factory_settings_btn?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         System.err.println("tuk reset_to_factory_settings_btn")
@@ -419,23 +418,15 @@ class AdvancedSettingsFragment : Fragment() {
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
       }
     }
-
-
-
     calibration_btn?.setOnClickListener {
       System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE) //TODO тут
+        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
       } else {
-        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE) // TODO тут
+        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
       }
       saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
     }
-
-
-
-
-
     calibration_status_btn?. setOnClickListener {
       saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
       main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW)//bleCommand(ConstantManager.READ_REGISTER, CALIBRATION_NEW, READ)
@@ -545,11 +536,6 @@ class AdvancedSettingsFragment : Fragment() {
             System.err.println("telemetry_number_et записали принятые данные")
           }
           //////// блок кода применим только если у нас протез с новым протоколом
-
-//          if (main?.calibrationStarted == true) {
-//            main?.openFragmentInfoCalibration()
-//          }
-
           if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1) == 1) {
               main?.firstReadCalibrationStatus = true
           }

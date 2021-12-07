@@ -73,7 +73,6 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
                 } catch (ignored: Exception) {}
             }
             saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 0)
-//            main?.calibrationStarted = false
             dismiss()
             if (main?.locate?.contains("ru")!!) {
                 main?.showToast("Калибровка завершена!")

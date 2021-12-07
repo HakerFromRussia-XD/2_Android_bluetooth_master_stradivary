@@ -894,7 +894,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
       }
       readDataFlag = false
-//      globalSemaphore = true
       runWriteData(sendByteMassive, FESTO_A_CHARACTERISTIC, WRITE_WR)
     } else {
         bleCommand(byteArray, Command, typeCommand)
@@ -1246,7 +1245,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun openFragmentInfoNotCalibration() {
     val dialog = CustomInfoNotCalibratedDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
-//    showToast("Протез не откалиброван!")
   }
   fun getProgressUpdate(): Int {
     return progressUpdate

@@ -451,13 +451,18 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       globalSemaphore = true
     }
   }
+  @SuppressLint("SetTextI18n")
   private fun displayDataDriverVersionNew(data: ByteArray?) {
     if (data != null) {
       var driverVersion = ""
       for (i in data.indices) {
-        driverVersion += data[i].toChar()
+        if (i > 0) {
+          driverVersion += data[i].toChar()
+        }
       }
-      System.err.println("Принятые данные версии прошивки: $driverVersion")
+      //TODO
+      driver_tv?.text = resources.getString(R.string.driver) +driverVersion + "v"
+      System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
     }
   }

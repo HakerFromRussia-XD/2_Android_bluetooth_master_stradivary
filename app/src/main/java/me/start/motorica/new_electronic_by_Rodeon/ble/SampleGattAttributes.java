@@ -47,7 +47,7 @@ public class SampleGattAttributes {
     public static String FESTO_A_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb";
 
 //      характеристики переработанного стека
-    public static String DRIVER_VERSION_NEW = "00002a37-0000-1000-8000-00805f9b34fb";
+    public static String DRIVER_VERSION_NEW = "00002a26-0000-1000-8000-00805f9b34fb";
 
     public static String OPEN_THRESHOLD_NEW = "43686172-4d74-726b-0000-526f64696f6e"; //(без блокировки у Родиона)
     public static String CLOSE_THRESHOLD_NEW = "43686172-4d74-726b-0001-526f64696f6e";

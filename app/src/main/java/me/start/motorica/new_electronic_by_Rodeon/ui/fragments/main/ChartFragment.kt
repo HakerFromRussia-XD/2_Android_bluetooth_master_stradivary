@@ -470,7 +470,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
             swap_sensors_tv?.text = 0.toString()
           }
 
-          driver_tv?.text = resources.getString(R.string.driver) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 1)).toFloat()/100 + "v"
+//          driver_tv?.text = resources.getString(R.string.driver) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 1)).toFloat()/100 + "v"
           bms_tv?.text = resources.getString(R.string.bms) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.BMS_NUM, 1)).toFloat()/100 + "v"
           sensor_tv?.text = resources.getString(R.string.sens) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SENS_NUM, 1)).toFloat()/100 + "v"
           ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)

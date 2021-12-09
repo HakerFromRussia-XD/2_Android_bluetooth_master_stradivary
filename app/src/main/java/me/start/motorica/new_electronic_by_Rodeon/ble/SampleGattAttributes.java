@@ -47,28 +47,28 @@ public class SampleGattAttributes {
     public static String FESTO_A_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb";
 
 //      характеристики переработанного стека
-    public static String OPEN_THRESHOLD_NEW = "43680000-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0000-526f64696f6e"; //(без блокировки у Родиона)
-    public static String CLOSE_THRESHOLD_NEW = "43680001-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0001-526f64696f6e";
-    public static String OPEN_MOTOR_NEW = "43680002-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0002-526f64696f6e";
-    public static String CLOSE_MOTOR_NEW = "43680003-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0003-526f64696f6e";
-    public static String ADD_GESTURE_NEW = "43680004-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0004-526f64696f6e";
-    public static String SET_GESTURE_NEW = "43680005-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0005-526f64696f6e"; // (с блокировкой у Родиона)
-    public static String SET_REVERSE_NEW = "43680006-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0006-526f64696f6e";
-    public static String SET_ONE_CHANNEL_NEW = "43680007-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0007-526f64696f6e";
-    public static String CALIBRATION_NEW = "43680008-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0008-526f64696f6e";// Чтение 0 - не калиброван, 1 - идет калибровка, 2 - одного из моторов нет, 3 - одного из энкодеров нет , 4 - один из моторов прокручивается, 5 - перетянуты винты, 6 - откалиброван  Запись 0 начинает калибровку левой кисти, 1 правой
-    public static String STATUS_CALIBRATION_NEW = "43680009-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0009-526f64696f6e";// 6 байт по состоянию на каждый палец ( 0 - не калиброван, 1 - идет калибровка, 2 - мотора нет, 3 - энкодера нет , 4 - мотор прокручивается, 5 - перетянут винт, 6 - откалиброван )
-    public static String MOVE_ALL_FINGERS_NEW = "4368000a-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-000a-526f64696f6e";// 6 байт по положению на каждый палец
-    public static String CHANGE_GESTURE_NEW = "4368000b-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-000b-526f64696f6e";// 13 байт по положению на каждый палец на каждое положение + 1 байт номера жеста
-    public static String SHUTDOWN_CURRENT_NEW = "4368000c-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-000c-526f64696f6e";// 6 байт по отсечке на каждый палец
+    public static String OPEN_THRESHOLD_NEW = "43680000-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0000-526f64696f6e"; //(без блокировки у Родиона)
+    public static String CLOSE_THRESHOLD_NEW = "43680001-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0001-526f64696f6e";
+    public static String OPEN_MOTOR_NEW = "43680002-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0002-526f64696f6e";
+    public static String CLOSE_MOTOR_NEW = "43680003-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0003-526f64696f6e";
+    public static String ADD_GESTURE_NEW = "43680004-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0004-526f64696f6e";
+    public static String SET_GESTURE_NEW = "43680005-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0005-526f64696f6e"; // (с блокировкой у Родиона)
+    public static String SET_REVERSE_NEW = "43680006-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0006-526f64696f6e";
+    public static String SET_ONE_CHANNEL_NEW = "43680007-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0007-526f64696f6e";
+    public static String CALIBRATION_NEW = "43680008-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0008-526f64696f6e";// Чтение 0 - не калиброван, 1 - идет калибровка, 2 - одного из моторов нет, 3 - одного из энкодеров нет , 4 - один из моторов прокручивается, 5 - перетянуты винты, 6 - откалиброван  Запись 0 начинает калибровку левой кисти, 1 правой
+    public static String STATUS_CALIBRATION_NEW = "43680009-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0009-526f64696f6e";// 6 байт по состоянию на каждый палец ( 0 - не калиброван, 1 - идет калибровка, 2 - мотора нет, 3 - энкодера нет , 4 - мотор прокручивается, 5 - перетянут винт, 6 - откалиброван )
+    public static String MOVE_ALL_FINGERS_NEW = "4368000a-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-000a-526f64696f6e";// 6 байт по положению на каждый палец
+    public static String CHANGE_GESTURE_NEW = "4368000b-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-000b-526f64696f6e";// 13 байт по положению на каждый палец на каждое положение + 1 байт номера жеста
+    public static String SHUTDOWN_CURRENT_NEW = "4368000c-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-000c-526f64696f6e";// 6 байт по отсечке на каждый палец
 
-    public static String RESET_TO_FACTORY_SETTINGS_NEW = "43680100-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0100-526f64696f6e";
+    public static String RESET_TO_FACTORY_SETTINGS_NEW = "43680100-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0100-526f64696f6e";
 
-    public static String SENS_OPTIONS_NEW = "43680200-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0200-526f64696f6e";
+    public static String SENS_OPTIONS_NEW = "43680200-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0200-526f64696f6e";
     public static String MIO_MEASUREMENT_NEW = "43680201-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0201-526f64696f6e";
-    public static String SENS_VERSION_NEW = "43680202-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0202-526f64696f6e";
-    public static String SENS_ENABLED_NEW = "43680203-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0203-526f64696f6e"; // 0-управление от датчиков отключео 1-управление от датчиков включено
+    public static String SENS_VERSION_NEW = "43680202-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0202-526f64696f6e";
+    public static String SENS_ENABLED_NEW = "43680203-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0203-526f64696f6e"; // 0-управление от датчиков отключео 1-управление от датчиков включено
 
-    public static String TELEMETRY_NUMBER_NEW = "43680300-4d74-726b-726b-526f64696f6e";//"43686172-4d74-726b-0300-526f64696f6e"; // 16 байт инфа о номере для телеметрии\
+    public static String TELEMETRY_NUMBER_NEW = "43680300-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0300-526f64696f6e"; // 16 байт инфа о номере для телеметрии\
 
 
 

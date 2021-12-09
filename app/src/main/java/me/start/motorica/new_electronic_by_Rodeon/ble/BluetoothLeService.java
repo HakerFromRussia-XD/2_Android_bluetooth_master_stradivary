@@ -38,6 +38,7 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_MOTOR_HDLE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.DRIVER_VERSION_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.FESTO_A_CHARACTERISTIC;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW;
@@ -94,6 +95,7 @@ public class BluetoothLeService extends Service {
     public final static String STATUS_CALIBRATION_NEW_DATA = "com.example.bluetooth.le.STATUS_CALIBRATION_NEW_DATA";
     public final static String TELEMETRY_NUMBER_NEW_DATA = "com.example.bluetooth.le.TELEMETRY_NUMBER_NEW_DATA";
     public final static String SHUTDOWN_CURRENT_NEW_DATA = "com.example.bluetooth.le.SHUTDOWN_CURRENT_NEW_DATA";
+    public final static String DRIVER_VERSION_NEW_DATA = "com.example.bluetooth.le.DRIVER_VERSION_NEW_DATA";
 
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
         final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
@@ -158,6 +160,9 @@ public class BluetoothLeService extends Service {
             }
             if (String.valueOf(characteristic.getUuid()).equals(SHUTDOWN_CURRENT_NEW)) {
                 if (state.equals(READ)) { intent.putExtra(SHUTDOWN_CURRENT_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(DRIVER_VERSION_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(DRIVER_VERSION_NEW_DATA, data); }
             }
 
 

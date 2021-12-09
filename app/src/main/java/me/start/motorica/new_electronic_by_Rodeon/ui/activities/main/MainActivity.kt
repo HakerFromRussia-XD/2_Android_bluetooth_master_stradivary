@@ -214,6 +214,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) displayDataSetOneChannelNew(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA) != null) displayDataStatusCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA) != null) displayDataShutdownCurrentNew(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA) != null) displayDataDriverVersionNew(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA))
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
             }
@@ -450,6 +451,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       globalSemaphore = true
     }
   }
+  private fun displayDataDriverVersionNew(data: ByteArray?) {
+    if (data != null) {
+      var driverVersion = ""
+      for (i in data.indices) {
+        driverVersion += data[i].toChar()
+      }
+      System.err.println("Принятые данные версии прошивки: $driverVersion")
+      globalSemaphore = true
+    }
+  }
   private fun displayDataWriteOpen(data: ByteArray?) {
     if (data != null) {
 //      for (bite in data) {
@@ -459,6 +470,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       if (data[0].toInt() == 0){ state = 2 }
     }
   }
+
   fun setActionState(value: String) {
     actionState = value
   }
@@ -1126,10 +1138,17 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             System.err.println("$info = 15")
             bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
             globalSemaphore = false
+            state = 16
+          }
+          16 -> {
+            System.err.println("$info = 16")
+            bleCommand(READ_REGISTER, DRIVER_VERSION_NEW, READ)
+            globalSemaphore = false
             state = 0
             endFlag = true
             startSubscribeSensorsNewDataThread()
           }
+
         }
         count = 0
       } else {

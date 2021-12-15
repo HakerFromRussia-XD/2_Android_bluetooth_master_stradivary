@@ -62,6 +62,7 @@ public class SampleGattAttributes {
     public static String MOVE_ALL_FINGERS_NEW = "43686172-4d74-726b-000a-526f64696f6e";// 6 байт по положению на каждый палец
     public static String CHANGE_GESTURE_NEW = "43686172-4d74-726b-000b-526f64696f6e";// 13 байт по положению на каждый палец на каждое положение + 1 байт номера жеста
     public static String SHUTDOWN_CURRENT_NEW = "43686172-4d74-726b-000c-526f64696f6e";// 6 байт по отсечке на каждый палец
+    public static String ROTATION_GESTURE_NEW = "43686172-4d74-726b-000d-526f64696f6e";// 4 байта, превый 0/1 - вкл/выкл, второй - тип 0 - Одиночное сжетие обеих мышц, 1 - дабл тап, третий - продожительность пика, четвёртый - продолжительность паузы (единица 1/20 секунды (такт датчика))
 
     public static String RESET_TO_FACTORY_SETTINGS_NEW = "43686172-4d74-726b-0100-526f64696f6e";
 

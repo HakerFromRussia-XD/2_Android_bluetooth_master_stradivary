@@ -270,8 +270,13 @@ class AdvancedSettingsFragment : Fragment() {
           mode_rl.visibility = View.VISIBLE
           peak_time_rl.visibility = View.VISIBLE
           downtime_rl.visibility = View.VISIBLE
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
-                                    SET_CHANGE_GESTURE, WRITE, 17)
+          //TODO дописать разделение на уровне команд ble if
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+            main?.runWriteData(byteArrayOf(0x01), ROTATION_GESTURE_NEW, WRITE)
+          } else {
+            main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
+                    SET_CHANGE_GESTURE, WRITE, 17)
+          }
 //          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
         } else {
@@ -280,7 +285,7 @@ class AdvancedSettingsFragment : Fragment() {
           mode_rl.visibility = View.GONE
           peak_time_rl.visibility = View.GONE
           downtime_rl.visibility = View.GONE
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
 //          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
@@ -293,7 +298,7 @@ class AdvancedSettingsFragment : Fragment() {
           mode_tv.text = "двумя\nдатчиками"
           mode = 0x01
           downtime_rl.visibility = View.GONE
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
 //          main?.incrementCountCommand()
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, true)
@@ -346,7 +351,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, seekBar.progress)
         }
@@ -371,7 +376,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb.progress+5).toByte(), (downtime_sb?.progress?.plus(5))?.toByte()!!),
+          main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
                                     SET_CHANGE_GESTURE, WRITE, 17)
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, seekBar.progress)
         }

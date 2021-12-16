@@ -7,9 +7,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.solver.state.ConstraintReference
+//import androidx.constraintlayout.solver.state.ConstraintReference
 import androidx.fragment.app.DialogFragment
-import kotlinx.android.synthetic.main.layout_gripper_settings_le.*
+//import kotlinx.android.synthetic.main.layout_gripper_settings_le.*
 import kotlinx.android.synthetic.main.layout_gripper_settings_le.view.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes

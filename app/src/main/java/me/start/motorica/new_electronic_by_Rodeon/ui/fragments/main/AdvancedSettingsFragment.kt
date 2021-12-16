@@ -25,7 +25,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
-import io.reactivex.android.schedulers.AndroidSchedulers
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
@@ -34,7 +33,6 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManag
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
-import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import javax.inject.Inject
 

@@ -65,6 +65,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var mSettings: SharedPreferences? = null
   private var updatingUIThread: Thread? = null
   private var scale = 0F
+  private var oldStateSync = 0
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -254,6 +255,18 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         }
       }
     })
+    sync_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        if (main?.locate?.contains("ru")!!) {
+          sync_tv.text = "снхро "+seekBar.progress.toString()+"%"
+        } else {
+          sync_tv.text = "sync "+seekBar.progress.toString()+"%"
+        }
+
+      }
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {}
+    })
     swap_sensors_sw.setOnClickListener {
       if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
         if (swap_sensors_sw.isChecked) {
@@ -374,8 +387,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     data.addEntry(Entry(set2!!.entryCount.toFloat(), sens2.toFloat()), 1)
     data.notifyDataChanged()
     chart_mainchart.notifyDataSetChanged()
-    chart_mainchart.setVisibleXRangeMaximum(50f)
-    chart_mainchart.moveViewToX(set.entryCount - 50.toFloat()) //data.getEntryCount()
+    chart_mainchart.setVisibleXRangeMaximum(100f)
+    chart_mainchart.moveViewToX(set.entryCount - 100.toFloat()) //data.getEntryCount()
   }
   private fun initializedSensorGraph() {
     chart_mainchart.contentDescription
@@ -393,7 +406,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     chart_mainchart.data = data2
     chart_mainchart.legend.isEnabled = false
     chart_mainchart.description.textColor = Color.TRANSPARENT
-    chart_mainchart.animateY(700)
+    chart_mainchart.animateY(2000)
 
     val x: XAxis = chart_mainchart.xAxis
     x.textColor = Color.TRANSPARENT
@@ -483,6 +496,10 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
                   ?: 22.0f) * 1.04f)).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 16))).setDuration(200).start()
           ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 16))).setDuration(200).start()
+          if (oldStateSync != main?.percentSynchronize!!) {
+            ObjectAnimator.ofInt(sync_sb, "progress", oldStateSync, main?.percentSynchronize!!).setDuration(1000).start()
+            oldStateSync = main?.percentSynchronize!!
+          }
         }
         try {
           Thread.sleep(1000)

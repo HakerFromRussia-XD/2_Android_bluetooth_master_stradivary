@@ -85,6 +85,31 @@
                 android:textSize="10sp"
                 tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
 
+            <TextView
+                android:id="@+id/sync_tv"
+                style="@style/Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="5dp"
+                android:text="@string/sync_0"
+                android:textSize="10sp"
+                tools:ignore="RtlHardcoded,SmallSp" />
+
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/sync_sb"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="0dp"
+                android:layout_marginStart="0dp"
+                android:max="100"
+                android:progress="50"
+                android:progressDrawable="@drawable/track_le"
+                android:thumb="@drawable/thumb_le" />
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

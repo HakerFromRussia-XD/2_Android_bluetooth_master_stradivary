@@ -195,6 +195,7 @@
     <string name="not_calibrated_message">Для того чтобы его откалибровать перейдите в расширенные настройки.</string>
     <string name="not_calibrated">Протез не откалиброван</string>
     <string name="calibration_status">статус калибровки</string>
+    <string name="sync_0">синхро 0%</string>
 
 
     <string-array name="numbers">

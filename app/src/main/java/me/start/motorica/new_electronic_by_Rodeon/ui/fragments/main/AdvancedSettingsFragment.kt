@@ -617,15 +617,6 @@ class AdvancedSettingsFragment : Fragment() {
             System.err.println("telemetry_number_et записали принятые данные")
           }
           //////// блок кода применим только если у нас протез с новым протоколом
-//          if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4) ) {
-//            if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1) == 1) {
-//              main?.firstReadCalibrationStatus = true
-//            }
-//            if (main?.firstReadCalibrationStatus == true) {
-//              System.err.println("CALIBRATION_NEW запрос данных калибровки")
-//              main?.bleCommandConnector(byteArrayOf(0x00), CALIBRATION_NEW, READ, 17)
-//            }
-//          }
 
           //////
           initializeUI()

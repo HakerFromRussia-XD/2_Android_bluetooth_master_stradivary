@@ -68,6 +68,9 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
                 if (main?.calibrationStage == 1) updateThreadFlag = false //если протез калибруется //TODO удалить когда мы поймём, почему у нас выдаётся это значение
                 if (main?.calibrationStage == 0) updateThreadFlag = false //если протез не откалиброван
 
+                if (!main?.calibrationDialogOpen!!) {
+                    updateThreadFlag = false
+                }
                 try {
                     Thread.sleep(100)
                 } catch (ignored: Exception) {}

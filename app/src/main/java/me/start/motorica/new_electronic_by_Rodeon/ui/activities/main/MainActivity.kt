@@ -99,7 +99,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var swapOpenCloseButton = false
   var setReverseNum = 0
   var setOneChannelNum = 0
-  var firstReadCalibrationStatus: Boolean = true
+  var calibrationDialogOpen: Boolean = false
   var percentSynchronize = 0
 
   private  var countCommand: AtomicInteger = AtomicInteger()
@@ -169,6 +169,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
           //disconnected state
           mConnected = false
+          endFlag = true
           mConnectView!!.visibility = View.GONE
           mDisconnectView!!.visibility = View.VISIBLE
           System.err.println("DeviceControlActivity------->   момент индикации дисконнекта")
@@ -313,6 +314,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         if (data.size == 2) {
           dataSens1 = castUnsignedCharToInt(data[0])
           dataSens2 = castUnsignedCharToInt(data[1])
+          calibrationDialogOpen = false
           savingSettingsWhenModified = true
         }
       lockWriteBeforeFirstRead = false
@@ -410,11 +412,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun displayDataCalibrationNew(data: ByteArray?) {
     if (data != null) {
       if (actionState.equals(READ)) {
-        if (firstReadCalibrationStatus) {
           calibrationStage = castUnsignedCharToInt(data[0])
           System.err.println("---> чтение глобальной калибровки: $calibrationStage")
-          firstReadCalibrationStatus = false
-        }
       }
       if (actionState.equals(WRITE)) {
         calibrationStage = castUnsignedCharToInt(data[0])
@@ -989,6 +988,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           bleCommand(null, MIO_MEASUREMENT, NOTIFY)
           System.err.println("startSubscribeSensorsDataThread попытка подписки")
         }
+        percentSynchronize = 100
         try {
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) { }
@@ -1216,6 +1216,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     while (readDataFlag) {
       System.err.println("read counter: ${countCommand.get()}")
       bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
+      percentSynchronize = 100
       try {
         Thread.sleep(100)
       } catch (ignored: Exception) {}
@@ -1274,6 +1275,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun openFragmentInfoCalibration() {
     dialog = CustomInfoCalibrationDialogFragment()
+    calibrationDialogOpen = true
     dialog.show(supportFragmentManager, "calibration dialog")
   }
   private fun openFragmentInfoNotCalibration() {

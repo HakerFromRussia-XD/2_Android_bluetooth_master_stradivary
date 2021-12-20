@@ -174,6 +174,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           System.err.println("DeviceControlActivity------->   момент индикации дисконнекта")
           invalidateOptionsMenu()
           clearUI()
+          percentSynchronize = 0
 
           if(!reconnectThreadFlag && !mScanning){
             reconnectThreadFlag = true
@@ -469,9 +470,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataWriteOpen(data: ByteArray?) {
     if (data != null) {
-//      for (bite in data) {
-//        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
-//      }
       if (data[0].toInt() == 1){ state = 1 }
       if (data[0].toInt() == 0){ state = 2 }
     }
@@ -1170,7 +1168,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         count = 0
       } else {
         count++
-        if (count == 1000) {
+        if (count == 100000) {
           endFlag = mConnected
           state = 0
           count = 0
@@ -1435,9 +1433,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private val mLeScanCallback = LeScanCallback { device, _, _ ->
     runOnUiThread {
       if (device.name != null) {
-        System.err.println("------->   ===============найден девайс: " + device.name + "==============")
-        System.err.println("------->   preferenceManager подключаемся к DEVICE_NAME = $mDeviceName")
-        if (device.name == mDeviceName) {
+        System.err.println("------->   ===============найден девайс: " + device.address + "==============")
+        System.err.println("------->   preferenceManager подключаемся к DEVICE_NAME = $mDeviceAddress")
+        if (device.address == mDeviceAddress) {
           System.err.println("------->   ==========это нужный нам девайс $device==============")
           mDeviceAddress = device.toString()
           scanLeDevice(false)

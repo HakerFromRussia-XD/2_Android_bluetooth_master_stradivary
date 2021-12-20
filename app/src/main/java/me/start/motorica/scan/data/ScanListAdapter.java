@@ -84,10 +84,10 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     @Override
     public void showPairedList(List<String> items) { }
     @Override
-    public void addDeviceToScanList(String item, BluetoothDevice device) { }
+    public void addDeviceToScanList(String item, String address, BluetoothDevice device) { }
 
     @Override
-    public void addLEDeviceToScanList(String item, BluetoothDevice device) { }
+    public void addLEDeviceToScanList(String item, BluetoothDevice device, int rssi) { }
 
     @Override
     public void clearScanList() { }

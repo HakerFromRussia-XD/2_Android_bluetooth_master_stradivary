@@ -1,19 +1,17 @@
 {
-  "version": 1,
+  "version": 2,
   "artifactType": {
     "type": "APK",
     "kind": "Directory"
   },
   "applicationId": "com.Romans.motorica",
-  "variantName": "release",
+  "variantName": "processReleaseResources",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
-      "properties": [],
-      "versionCode": 28,
-      "versionName": "2.3.450",
-      "enabled": true,
+      "versionCode": 29,
+      "versionName": "2.3.452",
       "outputFile": "app-release.apk"
     }
   ]

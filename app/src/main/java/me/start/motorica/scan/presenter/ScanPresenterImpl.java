@@ -240,7 +240,7 @@ public class ScanPresenterImpl implements ScanPresenter{
                             }
                         }
                         if(canAdd){
-                            view.addDeviceToScanList(device.getName()+":s:"+scanListPosition, device);
+                            view.addDeviceToScanList(device.getName()+":s:"+scanListPosition, device.getAddress(), device);
                         } else {
                             canAdd = true;
                         }

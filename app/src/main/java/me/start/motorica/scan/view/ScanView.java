@@ -9,8 +9,8 @@ import me.start.motorica.scan.data.ScanItem;
 
 public interface ScanView{
     void showPairedList(List<String> items);
-    void addDeviceToScanList(String item, BluetoothDevice device);
-    void addLEDeviceToScanList(String item, BluetoothDevice device);
+    void addDeviceToScanList(String item, String address, BluetoothDevice device);
+    void addLEDeviceToScanList(String item, BluetoothDevice device, int rssi);
     void clearScanList();
     void clearPairedList();
     void setScanStatus(String status, boolean enabled);

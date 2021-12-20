@@ -36,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -187,9 +186,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //                    System.err.println("DeviceScanActivity ---------> device: "+device.toString()+" | "+device.getAddress()+" | "+device.getUuids()+" | "+device.getName()
 //                            +" | "+device.getType()+" | "+device.getClass().getCanonicalName()+" | "+device.getName()+" | "+device.getClass().getSimpleName()+" | "
 //                            +device.getClass().getTypeName()+" | "+device.getClass().getAnnotations().length);
-                    System.err.println("DeviceScanActivity ---------> device: "+ Arrays.toString(scanRecord) +" | "+rssi);
+                    System.err.println("DeviceScanActivity ---------> device: "+ device.getName() + " | " + device.getAddress() +" | "+rssi);
                     System.err.println("===========================================");
-                    addLEDeviceToScanList(device.getName()+":l:", device);
+                    addLEDeviceToScanList(device.getName()+":l:", device, rssi);
                 }
             });
     private final BluetoothAdapter.LeScanCallback mLeAdvertisingCallback =
@@ -203,6 +202,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                         new ScanItem(
                                 R.drawable.circle_16_gray,
                                 items.get(i),
+                                "00",
                                 true));
             }
             pairedDeviceList.setAdapter(mScanListAdapter);
@@ -216,20 +216,26 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
 
     @Override
-    public void addLEDeviceToScanList(String item, BluetoothDevice device) {
+    public void addLEDeviceToScanList(String item, BluetoothDevice device, int rssi) {
         boolean canAdd = true;
         for (int i = 0; i<scanList.size(); i++) {
-            if(scanList.get(i).getTitle().split(":")[0].equals(item.split(":")[0])){
+//            if(scanList.get(i).getTitle().split(":")[0].equals(item.split(":")[0])){
+//                canAdd = false;
+//            }
+            if(scanList.get(i).getAddress().equals(device.getAddress())){
                 canAdd = false;
             }
         }
+        System.err.println("DeviceScanActivity addLEDeviceToScanList ---------> device address: " + device.getAddress());
+        //TODO здесь мы принимаем решение добавлять ли новое устройство в список отсканированных
         if (canAdd) {
             if(checkOurLEName(item)){
                 mLeDevices.add(device);
                 scanList.add(
                         new ScanItem(
                                 R.drawable.circle_16_blue,
-                                item+scanListBLEPosition,
+                                item+scanListBLEPosition+":   "+rssi,
+                                device.getAddress(),
                                 false));
                 pairedDeviceList.setAdapter(mScanListAdapter);
                 scanListBLEPosition++;
@@ -238,11 +244,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
 
     @Override
-    public void addDeviceToScanList(String item, BluetoothDevice device) {
+    public void addDeviceToScanList(String item, String address, BluetoothDevice device) {
         scanList.add(
                 new ScanItem(
                         R.drawable.circle_16_blue,
                         item,
+                        address,
                         false));
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
@@ -382,6 +389,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         ScanItem cell = new ScanItem(
                 setImage,
                 setText,
+                "0",
                 false);
         scanList.set(numberCell,cell);
         pairedDeviceList.setAdapter(mScanListAdapter);

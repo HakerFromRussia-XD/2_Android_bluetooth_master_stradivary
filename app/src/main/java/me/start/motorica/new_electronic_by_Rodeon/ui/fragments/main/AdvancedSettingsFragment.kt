@@ -101,7 +101,7 @@ class AdvancedSettingsFragment : Fragment() {
       downtime_text_tv?.textSize = 11f
       mode_tv?.textSize = 11f
       reset_to_factory_settings_btn?.textSize = 12f
-      calibration_btn?.textSize = 12f
+//      calibration_btn?.textSize = 12f
       calibration_status_btn?.textSize = 12f
       side_text_tv?.textSize = 11f
       left_right_side_swap_tv?.textSize = 11f
@@ -491,15 +491,15 @@ class AdvancedSettingsFragment : Fragment() {
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
       }
     }
-    calibration_btn?.setOnClickListener {
-      System.err.println("запись глобальной калибровки тык")
-      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
-      } else {
-        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
-      }
-      saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
-    }
+//    calibration_btn?.setOnClickListener {
+//      System.err.println("запись глобальной калибровки тык")
+//      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+//        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
+//      } else {
+//        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
+//      }
+//      saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
+//    }
     calibration_status_btn?. setOnClickListener {
       saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
       main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW)//bleCommand(ConstantManager.READ_REGISTER, CALIBRATION_NEW, READ)

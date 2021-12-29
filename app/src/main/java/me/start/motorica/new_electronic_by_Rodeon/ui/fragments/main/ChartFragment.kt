@@ -35,6 +35,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
+import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
@@ -84,6 +85,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       closing_sensor_sensitivity_tv?.textSize = 8f
       swap_sensors_text_tv?.textSize = 11f
       settings_blocking_tv?.textSize = 11f
+      calibration_btn?.textSize = 12f
     }
     initializedSensorGraph()
     initializedUI()
@@ -307,15 +309,22 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       false
     }
     thresholds_blocking_sw.setOnClickListener{
-//      main?.bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
-      main?.bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
-//      if (thresholds_blocking_sw.isChecked) {
-//        thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
-//        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
-//      } else {
-//        thresholds_blocking_tv.text = resources.getString(R.string.off)
-//        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
-//      }
+      if (thresholds_blocking_sw.isChecked) {
+        thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
+      } else {
+        thresholds_blocking_tv.text = resources.getString(R.string.off)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
+      }
+    }
+    calibration_btn?.setOnClickListener {
+      System.err.println("запись глобальной калибровки тык")
+      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
+      } else {
+        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
+      }
+      main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
     }
   }
 

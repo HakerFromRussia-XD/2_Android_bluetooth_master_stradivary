@@ -689,8 +689,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if (mBluetoothLeService != null) {
       mDeviceName = presenter.preferenceManager.getString(PreferenceKeys.DEVICE_NAME, DEVICE_NAME)
       mDeviceAddress = presenter.preferenceManager.getString(PreferenceKeys.DEVICE_ADDR, "7F:D6:3D:68:62:28")
-//      reconnectThreadFlag = true
-//      reconnectThread()
     }
   }
   override fun onPause() {
@@ -1444,8 +1442,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           mDeviceAddress = device.toString()
           scanLeDevice(false)
           reconnect()
-//          reconnectThreadFlag = true
-//          reconnectThread()
         }
       }
     }

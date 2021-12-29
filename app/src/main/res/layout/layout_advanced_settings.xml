@@ -1130,37 +1130,36 @@
                     android:weightSum="2"
                     tools:ignore="DisableBaselineAlignment">
 
-                    <RelativeLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
+<!--                    <RelativeLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:layout_weight="1">-->
 
-                        <Button
-                            android:id="@+id/calibration_btn"
-                            style="@style/Text"
-                            android:layout_width="match_parent"
-                            android:layout_height="42dp"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginTop="0dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="3dp"
-                            android:background="@drawable/custom_button_le"
-                            android:text="@string/start_calibration" />
-                    </RelativeLayout>
+<!--                        <Button-->
+<!--                            android:id="@+id/calibration_btn"-->
+<!--                            style="@style/Text"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="42dp"-->
+<!--                            android:layout_marginStart="16dp"-->
+<!--                            android:layout_marginTop="0dp"-->
+<!--                            android:layout_marginEnd="8dp"-->
+<!--                            android:layout_marginBottom="3dp"-->
+<!--                            android:background="@drawable/custom_button_le"-->
+<!--                            android:text="@string/start_calibration" />-->
+<!--                    </RelativeLayout>-->
                     <RelativeLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1">
+                        android:layout_weight="2">
 
                         <Button
                             android:id="@+id/calibration_status_btn"
                             style="@style/Text"
                             android:layout_width="match_parent"
                             android:layout_height="42dp"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="16dp"
                             android:layout_marginTop="0dp"
                             android:layout_marginEnd="16dp"
-                            android:layout_marginBottom="3dp"
                             android:background="@drawable/custom_button_le"
                             android:text="@string/calibration_status" />
                     </RelativeLayout>

@@ -11,8 +11,8 @@ android {
         applicationId "com.Romans.motorica"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 29
-        versionName "2.3.452"
+        versionCode 30
+        versionName "2.3.458"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

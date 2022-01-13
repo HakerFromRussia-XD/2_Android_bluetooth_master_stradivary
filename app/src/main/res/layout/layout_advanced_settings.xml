@@ -721,6 +721,7 @@
                 android:id="@+id/mode_rl"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:visibility="gone"
                 android:layout_weight="1">
 
                 <LinearLayout
@@ -789,6 +790,7 @@
 
         <RelativeLayout
             android:id="@+id/mode_new_rl"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
@@ -805,7 +807,6 @@
                 android:layout_marginBottom="4dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-
                 android:padding="8dp"
                 android:textStyle="bold"
                 app:selectedColor="@color/orange"
@@ -813,7 +814,7 @@
                 app:strokeRadius="5dp"
                 app:strokeWidth="2dp"
                 app:switchTabs="@array/switch_tabs"
-                app:textSize="14sp" />
+                app:textSize="11sp" />
         </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/peak_time_rl"

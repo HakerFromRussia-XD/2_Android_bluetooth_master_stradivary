@@ -282,12 +282,14 @@ class AdvancedSettingsFragment : Fragment() {
         if (on_off_sensor_gesture_switching_sw?.isChecked!!) {
           on_off_sensor_gesture_switching_tv?.text = 1.toString()
           sensorGestureSwitching = 0x01
-          mode_rl.visibility = View.VISIBLE
-          peak_time_rl.visibility = View.VISIBLE
-          downtime_rl.visibility = View.VISIBLE
+          peak_time_rl?.visibility = View.VISIBLE
+          if (mode.toInt() == 0) downtime_rl?.visibility = View.VISIBLE
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+            //TODO показывать меню пройного выбора, а обычный свич (переключение двумя/одним датчиком) скрывать
+            mode_new_rl?.visibility = View.VISIBLE
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
+            mode_rl?.visibility = View.VISIBLE
             main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
                     SET_CHANGE_GESTURE, WRITE, 17)
           }
@@ -295,12 +297,14 @@ class AdvancedSettingsFragment : Fragment() {
         } else {
           on_off_sensor_gesture_switching_tv?.text = 0.toString()
           sensorGestureSwitching = 0x00
-          mode_rl.visibility = View.GONE
-          peak_time_rl.visibility = View.GONE
-          downtime_rl.visibility = View.GONE
+          peak_time_rl?.visibility = View.GONE
+          downtime_rl?.visibility = View.GONE
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+            //TODO скрывать меню пройного выбора
+            mode_new_rl?.visibility = View.GONE
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
+            mode_rl?.visibility = View.GONE
             main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
                     SET_CHANGE_GESTURE, WRITE, 17)
           }
@@ -340,14 +344,23 @@ class AdvancedSettingsFragment : Fragment() {
       if (position == 0) {
         Toast.makeText(main?.baseContext,  "0", Toast.LENGTH_SHORT).show()
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
+        mode = 0
+        if (sensorGestureSwitching.toInt() == 1) downtime_rl?.visibility = View.VISIBLE
+        main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
       }
       if (position == 1) {
         Toast.makeText(main?.baseContext, "1", Toast.LENGTH_SHORT).show()
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 1)
+        mode = 1
+        downtime_rl?.visibility = View.GONE
+        main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
       }
       if (position == 2) {
         Toast.makeText(main?.baseContext, "2", Toast.LENGTH_SHORT).show()
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 2)
+        mode = 2
+        downtime_rl?.visibility = View.GONE
+        main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
       }
     }
 
@@ -543,6 +556,7 @@ class AdvancedSettingsFragment : Fragment() {
     swap_open_close_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
     single_channel_control_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
     on_off_sensor_gesture_switching_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) mode_new_rl?.visibility = View.VISIBLE
     mode_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv?.text = 1.toString()
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv?.text = 1.toString()

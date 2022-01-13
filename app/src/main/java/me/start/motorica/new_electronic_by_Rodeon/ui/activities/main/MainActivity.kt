@@ -764,6 +764,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     enableInterfaceStatus = enabled
     close_btn.isEnabled = enabled
     open_btn.isEnabled = enabled
+    calibration_btn.isEnabled = enabled
     thresholds_blocking_sw.isEnabled = enabled
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
@@ -789,7 +790,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           swap_open_close_sw?.isEnabled = enabled
           single_channel_control_sw?.isEnabled = enabled
           reset_to_factory_settings_btn?.isEnabled = enabled
-          calibration_btn?.isEnabled = enabled
+//          calibration_btn?.isEnabled = enabled
           get_setup_btn?.isEnabled = enabled
           set_setup_btn?.isEnabled = enabled
           shutdown_current_sb?.isEnabled = enabled

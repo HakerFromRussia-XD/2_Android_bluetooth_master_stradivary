@@ -363,6 +363,7 @@ class AdvancedSettingsFragment : Fragment() {
         main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
       }
     }
+    mode_new_sw?.selectedTab = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
 
     get_setup_btn?.setOnClickListener {
 //      main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
@@ -631,7 +632,7 @@ class AdvancedSettingsFragment : Fragment() {
         time = (downtime_sb?.progress?.times(0.04)).toString() + "c"
       }
       downtime_tv?.text = time
-      mode_new_sw?.selectedTab = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
+
     }
   }
 

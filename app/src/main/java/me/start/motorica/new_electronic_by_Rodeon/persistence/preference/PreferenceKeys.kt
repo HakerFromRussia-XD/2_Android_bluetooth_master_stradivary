@@ -53,6 +53,7 @@ object PreferenceKeys {
   const val SET_MODE_NUM = "SET_MODE_NUM"
   const val SET_PEAK_TIME_NUM = "SET_PEAK_TIME_NUM"
   const val SET_DOWNTIME_NUM = "SET_DOWNTIME_NUM"
+  const val SET_MODE_NEW_NUM = "SET_MODE_NEW_NUM"
 
 
   const val GESTURE_OPEN_STATE_NUM = "GESTURE_OPEN_STATE_NUM"

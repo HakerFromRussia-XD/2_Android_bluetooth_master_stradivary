@@ -24,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
@@ -77,6 +78,7 @@ class AdvancedSettingsFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     initializeUI()
+    updateAllParameters()
     Handler().postDelayed({
       startUpdatingUIThread()
     }, 2000)
@@ -311,7 +313,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (mode_sw?.isChecked!!) {
           mode_tv?.text = "двумя\nдатчиками"
           mode = 0x01
-          downtime_rl.visibility = View.GONE
+          downtime_rl?.visibility = View.GONE
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
@@ -322,7 +324,7 @@ class AdvancedSettingsFragment : Fragment() {
         } else {
           mode_tv?.text = "одним\nдатчиком"
           mode = 0x00
-          downtime_rl.visibility = View.VISIBLE
+          downtime_rl?.visibility = View.VISIBLE
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
@@ -331,6 +333,21 @@ class AdvancedSettingsFragment : Fragment() {
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
         }
+      }
+    }
+
+    mode_new_sw?.setOnSwitchListener { position, _ ->
+      if (position == 0) {
+        Toast.makeText(main?.baseContext,  "0", Toast.LENGTH_SHORT).show()
+        preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
+      }
+      if (position == 1) {
+        Toast.makeText(main?.baseContext, "1", Toast.LENGTH_SHORT).show()
+        preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 1)
+      }
+      if (position == 2) {
+        Toast.makeText(main?.baseContext, "2", Toast.LENGTH_SHORT).show()
+        preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 2)
       }
     }
     get_setup_btn?.setOnClickListener {
@@ -545,7 +562,9 @@ class AdvancedSettingsFragment : Fragment() {
       mode_tv?.text = "одним\nдатчиком"
       mode = 0x00
     }
+  }
 
+  private fun updateAllParameters() {
     if(!changeParameter) {
       main?.runOnUiThread {
 //      System.err.println("Принятые данные состояния токов shutdown_current_1_sb: " + mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80))
@@ -597,10 +616,9 @@ class AdvancedSettingsFragment : Fragment() {
         time = (downtime_sb?.progress?.times(0.04)).toString() + "c"
       }
       downtime_tv?.text = time
+      mode_new_sw?.selectedTab = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
     }
   }
-
-
 
   private fun startUpdatingUIThread() {
     updatingUIThread =  Thread {
@@ -619,7 +637,8 @@ class AdvancedSettingsFragment : Fragment() {
           //////// блок кода применим только если у нас протез с новым протоколом
 
           //////
-          initializeUI()
+//          initializeUI()
+          updateAllParameters()
         }
         try {
           Thread.sleep(1000)

@@ -71,6 +71,8 @@ dependencies {
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
     implementation "com.github.skydoves:elasticviews:2.0.3"
     implementation "com.github.skydoves:colorpickerview:2.1.3"
+    // new
+    implementation 'lib.kingja.switchbutton:switchbutton:1.1.8'
 
     // butter knife
     implementation 'com.jakewharton:butterknife:10.2.3'

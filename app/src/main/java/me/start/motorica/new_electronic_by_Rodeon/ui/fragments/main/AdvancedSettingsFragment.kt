@@ -339,17 +339,18 @@ class AdvancedSettingsFragment : Fragment() {
     mode_new_sw?.setOnSwitchListener { position, _ ->
       if (position == 0) {
         Toast.makeText(main?.baseContext,  "0", Toast.LENGTH_SHORT).show()
-        preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
+        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
       }
       if (position == 1) {
         Toast.makeText(main?.baseContext, "1", Toast.LENGTH_SHORT).show()
-        preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 1)
+        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 1)
       }
       if (position == 2) {
         Toast.makeText(main?.baseContext, "2", Toast.LENGTH_SHORT).show()
-        preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 2)
+        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 2)
       }
     }
+
     get_setup_btn?.setOnClickListener {
 //      main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
 //      main?.bleCommandConnector(byteArrayOf(0x00), STATUS_CALIBRATION_NEW, READ, 17)

@@ -1395,6 +1395,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   fun offSensorsUIBeforeConnection () {
     close_btn?.isEnabled = false
     open_btn?.isEnabled = false
+    calibration_btn.isEnabled = false
     thresholds_blocking_sw?.isEnabled = false
     correlator_noise_threshold_1_sb?.isEnabled = false
     correlator_noise_threshold_2_sb?.isEnabled = false

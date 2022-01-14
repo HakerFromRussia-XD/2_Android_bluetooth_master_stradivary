@@ -100,6 +100,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   var setReverseNum = 0
   var setOneChannelNum = 0
   var firstReadCalibrationStatus: Boolean = true
+  var percentSynchronize = 0
 
   private  var countCommand: AtomicInteger = AtomicInteger()
   private var actionState = READ
@@ -174,7 +175,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           System.err.println("DeviceControlActivity------->   момент индикации дисконнекта")
           invalidateOptionsMenu()
           clearUI()
-//          percentSynchronize = 0
+          percentSynchronize = 0
 
           if(!reconnectThreadFlag && !mScanning){
             reconnectThreadFlag = true
@@ -975,6 +976,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           bleCommand(null, MIO_MEASUREMENT, NOTIFY)
           System.err.println("startSubscribeSensorsDataThread попытка подписки")
         }
+        percentSynchronize = 100
         try {
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) { }
@@ -1021,42 +1023,49 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             System.err.println("$info = 0")
             bleCommand(READ_REGISTER, SENS_VERSION_NEW, READ)
             globalSemaphore = false
+            percentSynchronize = 5
             state = 1
           }
           1 -> {
             System.err.println("$info = 1")
             bleCommand(READ_REGISTER, OPEN_THRESHOLD_NEW, READ)
             globalSemaphore = false
+            percentSynchronize = 15
             state = 2
           }
           2 -> {
             System.err.println("$info = 2")
             bleCommand(READ_REGISTER, CLOSE_THRESHOLD_NEW, READ)
             globalSemaphore = false
+            percentSynchronize = 25
             state = 3
           }
           3 -> {
             System.err.println("$info = 3")
             bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
             globalSemaphore = false
+            percentSynchronize = 35
             state = 4
           }
           4 -> {
             System.err.println("$info = 4")
             bleCommand(READ_REGISTER, SET_REVERSE_NEW, READ)
             globalSemaphore = false
+            percentSynchronize = 45
             state = 5
           }
           5 -> {
             System.err.println("$info = 5")
             bleCommand(READ_REGISTER, SET_ONE_CHANNEL_NEW, READ)
             globalSemaphore = false
+            percentSynchronize = 55
             state = 6
           }
           6 -> {
             System.err.println("$info = 6")
             bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
             globalSemaphore = false
+            percentSynchronize = 65
             state = 7  //11 пропустить калибровку //7 - выполнить
           }
 
@@ -1064,6 +1073,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             System.err.println("$info = 7")
             bleCommand(READ_REGISTER, CALIBRATION_NEW, READ) //TODO тут
             globalSemaphore = false
+            percentSynchronize = 75
             state = 8
           }
           8 -> {
@@ -1122,12 +1132,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             System.err.println("$info = 14")
             bleCommand(READ_REGISTER, SHUTDOWN_CURRENT_NEW, READ)
             globalSemaphore = false
+            percentSynchronize = 85
             state = 15
           }
           15 -> {
             System.err.println("$info = 15")
             bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
             globalSemaphore = false
+            percentSynchronize = 100
             state = 0
             endFlag = true
             startSubscribeSensorsNewDataThread()
@@ -1184,6 +1196,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     while (readDataFlag) {
       System.err.println("read counter: ${countCommand.get()}")
       bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
+      percentSynchronize = 100
       try {
         Thread.sleep(100)
       } catch (ignored: Exception) {}
@@ -1401,15 +1414,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private val mLeScanCallback = LeScanCallback { device, _, _ ->
     runOnUiThread {
       if (device.name != null) {
-        System.err.println("------->   ===============найден девайс: " + device.name + "==============")
-        System.err.println("------->   preferenceManager подключаемся к DEVICE_NAME = $mDeviceName")
-        if (device.name == mDeviceName) {
+        System.err.println("------->   ===============найден девайс: " + device.address + "==============")
+        System.err.println("------->   preferenceManager подключаемся к DEVICE_ADDR = $mDeviceAddress")
+        if (device.address == mDeviceAddress) {
           System.err.println("------->   ==========это нужный нам девайс $device==============")
-          mDeviceAddress = device.toString()
           scanLeDevice(false)
           reconnect()
-//          reconnectThreadFlag = true
-//          reconnectThread()
         }
       }
     }

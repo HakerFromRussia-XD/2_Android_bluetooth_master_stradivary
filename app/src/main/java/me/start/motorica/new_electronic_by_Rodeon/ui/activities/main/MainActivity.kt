@@ -168,11 +168,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
           //disconnected state
           mConnected = false
+          endFlag = true
           mConnectView!!.visibility = View.GONE
           mDisconnectView!!.visibility = View.VISIBLE
           System.err.println("DeviceControlActivity------->   момент индикации дисконнекта")
           invalidateOptionsMenu()
           clearUI()
+//          percentSynchronize = 0
 
           if(!reconnectThreadFlag && !mScanning){
             reconnectThreadFlag = true
@@ -363,8 +365,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           for (j in 0 until 2) {
             for (k in 0 until 6) {
               gestureTable[i][j][k] = castUnsignedCharToInt(data[i * 12 + j * 6 + k])
-              if(k == 4) { gestureTable[i][j][k] = ((88 - castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*91).toInt()-52 }
-              if(k == 5) { gestureTable[i][j][k] = (( castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*90).toInt() }
+              if(k == 4) { gestureTable[i][j][k] = ((88 - castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*87).toInt()-48}
+              if(k == 5) { gestureTable[i][j][k] = (( castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*85).toInt() }
             }
           }
         }
@@ -1296,19 +1298,19 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private fun saveGestureState() {
     for (i in 0 until 7) {
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 2), gestureTable[i][0][0])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 2), gestureTable[i][0][1])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 2), gestureTable[i][0][2])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2), gestureTable[i][0][3])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 2), gestureTable[i][0][4])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 2), gestureTable[i][0][5])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 1), gestureTable[i][0][0])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 1), gestureTable[i][0][1])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 1), gestureTable[i][0][2])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 1), gestureTable[i][0][3])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 1), gestureTable[i][0][4])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 1), gestureTable[i][0][5])
 
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 2), gestureTable[i][1][0])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 2), gestureTable[i][1][1])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 2), gestureTable[i][1][2])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 2), gestureTable[i][1][3])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 2), gestureTable[i][1][4])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 2), gestureTable[i][1][5])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 1), gestureTable[i][1][0])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 1), gestureTable[i][1][1])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 1), gestureTable[i][1][2])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 1), gestureTable[i][1][3])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 1), gestureTable[i][1][4])
+      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 1), gestureTable[i][1][5])
     }
   }
   internal fun saveInt(key: String, variable: Int) {

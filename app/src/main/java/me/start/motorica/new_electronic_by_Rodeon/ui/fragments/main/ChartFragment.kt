@@ -260,9 +260,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     sync_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         if (main?.locate?.contains("ru")!!) {
-          sync_tv.text = "снхро "+seekBar.progress.toString()+"%"
+          sync_tv?.text = "снхро "+seekBar.progress.toString()+"%"
         } else {
-          sync_tv.text = "sync "+seekBar.progress.toString()+"%"
+          sync_tv?.text = "sync "+seekBar.progress.toString()+"%"
         }
 
       }

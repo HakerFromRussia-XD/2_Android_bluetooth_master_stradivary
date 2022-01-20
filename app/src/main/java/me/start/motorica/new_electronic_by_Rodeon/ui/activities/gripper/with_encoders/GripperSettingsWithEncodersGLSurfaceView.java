@@ -1,5 +1,6 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
@@ -19,38 +20,34 @@ public class GripperSettingsWithEncodersGLSurfaceView extends GLSurfaceView impl
     
     private float density;
 
-    private boolean selectFlag = false;
+    private final boolean selectFlag = false;
 
 
-	
+
 	public GripperSettingsWithEncodersGLSurfaceView(Context context, AttributeSet attrs) { super(context, attrs); }
 	
 	@Override
 	public void handleError(final ErrorType errorType, final String cause) {
 		// Queue on UI thread.
-		post(new Runnable() {
-			@Override
-			public void run() {
-				final String text;
+		post(() -> {
+			final String text;
 
-				switch (errorType) {
-				case BUFFER_CREATION_ERROR:
-					text = String
-							.format(getContext().getResources().getString(
-									R.string.lesson_eight_error_could_not_create_vbo), cause);
-					break;
-				default:
-					text = String.format(
-							getContext().getResources().getString(
-									R.string.lesson_eight_error_unknown), cause);
-				}
-
-				Toast.makeText(getContext(), text, Toast.LENGTH_LONG).show();
-
+			if (errorType == ErrorType.BUFFER_CREATION_ERROR) {
+				text = String
+						.format(getContext().getResources().getString(
+								R.string.lesson_eight_error_could_not_create_vbo), cause);
+			} else {
+				text = String.format(
+						getContext().getResources().getString(
+								R.string.lesson_eight_error_unknown), cause);
 			}
+
+			Toast.makeText(getContext(), text, Toast.LENGTH_LONG).show();
+
 		});
 	}
 
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
@@ -95,6 +92,7 @@ public class GripperSettingsWithEncodersGLSurfaceView extends GLSurfaceView impl
 					renderer.transferFlag = true;
 				}
 			}
+			assert renderer != null;
 			renderer.X = x;
 			renderer.Y = y;
 			previousX = x;
@@ -103,7 +101,7 @@ public class GripperSettingsWithEncodersGLSurfaceView extends GLSurfaceView impl
 		}
 		else
 		{
-			return super.onTouchEvent(event);
+			return super.onTouchEvent(null);
 		}
 	}
 

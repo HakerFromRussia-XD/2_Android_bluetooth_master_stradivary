@@ -1530,12 +1530,11 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		ringFinger(new int[]{programSelect},2);
 		littleFinger(new int[]{programSelect},1);
 
-		glUseProgram(programSelect);
+//		glUseProgram(programSelect);
 
-		mvpMatrixUniform = glGetUniformLocation(programSelect, MVP_MATRIX_UNIFORM);
-		mvMatrixUniform = glGetUniformLocation(programSelect, MV_MATRIX_UNIFORM);
-		codeSelectUniform = glGetUniformLocation(programSelect, CODE_SELECT_UNIFORM);
-		positionAttribute = glGetAttribLocation(programSelect, POSITION_ATTRIBUTE);
+//		mvpMatrixUniform = glGetUniformLocation(programSelect, MVP_MATRIX_UNIFORM);
+//		codeSelectUniform = glGetUniformLocation(programSelect, CODE_SELECT_UNIFORM);
+//		positionAttribute = glGetAttribLocation(programSelect, POSITION_ATTRIBUTE);
 
 		Matrix.setIdentityM(modelMatrix, 0);
 		Matrix.translateM(modelMatrix, 0, 0.0f, 0.0f, 0.0f);

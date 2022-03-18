@@ -4,7 +4,13 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/2_Android_bluetooth_master_stradivary.iml" filepath="$PROJECT_DIR$/.idea/modules/2_Android_bluetooth_master_stradivary.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/2_Android_bluetooth_master_stradivary.app.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.iml" filepath="$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.main.iml" filepath="$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/bluetooth/2_Android_bluetooth_master_stradivary.bluetooth.unitTest.iml" />
     </modules>
   </component>
 </project>

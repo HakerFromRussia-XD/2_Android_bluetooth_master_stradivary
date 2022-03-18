@@ -30,8 +30,11 @@ android {
         sourceCompatibility "1.8"
         targetCompatibility "1.8"
     }
+    lint {
+        checkReleaseBuilds false
+    }
+    namespace 'me.start.motorica'
 
-    lintOptions{ checkReleaseBuilds false }
 }
 
 repositories { maven { url 'https://jitpack.io' } }

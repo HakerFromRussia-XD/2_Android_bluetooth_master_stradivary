@@ -16,11 +16,8 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
+import android.bluetooth.*
 import android.bluetooth.BluetoothAdapter.LeScanCallback
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattService
-import android.bluetooth.BluetoothManager
 import android.content.*
 import android.nfc.NfcAdapter
 import android.os.*
@@ -310,7 +307,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataNew(data: ByteArray?) {
     if (data != null) {
-        if (data.size == 2) {
+        if (data.size == 2 || data.size == 3) {
           dataSens1 = castUnsignedCharToInt(data[0])
           dataSens2 = castUnsignedCharToInt(data[1])
           savingSettingsWhenModified = true
@@ -499,6 +496,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     // BluetoothAdapter through BluetoothManager.
     val bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
     mBluetoothAdapter = bluetoothManager.adapter
+    Intent(this, BluetoothLeService::class.java)
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
     registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
@@ -675,8 +673,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if (mBluetoothLeService != null) {
       mDeviceName = presenter.preferenceManager.getString(PreferenceKeys.DEVICE_NAME, DEVICE_NAME)
       mDeviceAddress = presenter.preferenceManager.getString(PreferenceKeys.DEVICE_ADDR, "7F:D6:3D:68:62:28")
-//      reconnectThreadFlag = true
-//      reconnectThread()
     }
   }
   override fun onPause() {
@@ -783,16 +779,18 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           shutdown_current_sb?.isEnabled = enabled
         }
       }
+//      startSubscribeSensorsNewDataThread()
+      bleCommand(null, MIO_MEASUREMENT_NEW_TEST, NOTIFY)
       sensorsDataThreadFlag = enabled
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
-        runReadData()
-      } else {
-        if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
-          runStart()
-        } else {
-          startSubscribeSensorsDataThread()
-        }
-      }
+//      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+//        runReadData()
+//      } else {
+//        if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
+//          runStart()
+//        } else {
+//          startSubscribeSensorsDataThread()
+//        }
+//      }
     }
   }
 
@@ -905,9 +903,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
     if (mBluetoothLeService != null) {
+      System.err.println("mBluetoothLeService != null")
       for (i in mGattCharacteristics.indices) {
         for (j in mGattCharacteristics[i].indices) {
           if (mGattCharacteristics[i][j].uuid.toString() == Command) {
+            System.err.println("mGattCharacteristics[i][j].uuid.toString() == Command")
             mCharacteristic = mGattCharacteristics[i][j]
             if (typeCommand == WRITE){
               if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
@@ -932,6 +932,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             }
 
             if (typeCommand == NOTIFY){
+              System.err.println("typeCommand == NOTIFY")
               if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
                 mNotifyCharacteristic = mCharacteristic
                 mBluetoothLeService!!.setCharacteristicNotification(
@@ -991,8 +992,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           Thread.sleep(500)
         } catch (ignored: Exception) {}
         runOnUiThread {
-          bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
-//          System.err.println("---> startSubscribeSensorsNewDataThread попытка подписки")
+          bleCommand(null, MIO_MEASUREMENT_NEW_TEST, NOTIFY)
+          System.err.println("---> startSubscribeSensorsNewDataThread попытка подписки")
         }
         try {
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())

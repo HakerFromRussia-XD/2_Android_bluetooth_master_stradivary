@@ -81,7 +81,7 @@ public class Load3DModelNew {
             if (msg == 10) {
                 String[] currentLine = line.toString().split(" ");
                 if (line.toString().startsWith("# ")) {
-                    if (currentLine[2].equals("vertices\r\n")) {//\r
+                    if (currentLine[2].contains("vertices")) {//\r
                         coordinatesNumber = Integer.parseInt(currentLine[1]);
                         coordinatesArray[number] = new float[coordinatesNumber * 3];
                         System.out.println("Количество вершин: " + coordinatesNumber);
@@ -125,7 +125,7 @@ public class Load3DModelNew {
             if (msg == 10){
                 String[] currentLine = line.toString().split(" ");
                 if(line.toString().startsWith("# ")){
-                    if(currentLine[2].equals("texture")){
+                    if(currentLine[2].contains("texture")){
                         texturesNumber = Integer.parseInt(currentLine[1]);
                         texturesArray[number] = new float[texturesNumber*2];
                         System.out.println("Количество текстурных координат: " + texturesNumber);
@@ -170,7 +170,7 @@ public class Load3DModelNew {
             if (msg == 10) {
                 String[] currentLine = line.toString().split(" ");
                 if (line.toString().startsWith("# ")) {
-                    if (currentLine[2].equals("vertex")) {
+                    if (currentLine[2].contains("vertex")) {
                         normalsNumber = Integer.parseInt(currentLine[1]);
                         normalsArray[number] = new float[normalsNumber * 3];
                         System.out.println("Количество координат нормалей: " + normalsNumber);
@@ -233,7 +233,7 @@ public class Load3DModelNew {
             if (msg == 10){
                 String[] currentLine = line.toString().split(" ");
                 if(line.toString().startsWith("# ")){
-                    if(currentLine[2].equals("facets\r\n")){//\r
+                    if(currentLine[2].contains("facets")){//\r
                         indicesVertices = Integer.parseInt(currentLine[1]);
                         verticesArray[number] = new float[indicesVertices*18*3];
                         indicesArrayVertices[number] = new int [indicesVertices*3];

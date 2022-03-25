@@ -2,7 +2,7 @@ package me.start.motorica.new_electronic_by_Rodeon.ble;
 
 public interface ConstantManager {
 
-    boolean SHOW_EVERYONE_RECEIVE_BYTE = false;
+    boolean SHOW_EVERYONE_RECEIVE_BYTE = true;
     String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     //TODO тут настраивается имя модуля, для подключения нового протокола

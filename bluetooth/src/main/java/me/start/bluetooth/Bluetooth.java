@@ -9,7 +9,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.TextView;
@@ -46,7 +45,7 @@ public class Bluetooth {
     private BluetoothCallback bluetoothCallback;
     private boolean connected;
     private boolean logic_disconnect;
-    private boolean DEBUG = false;
+    private final boolean DEBUG = false;
     public Thread dumpingIVariableThread;
     public boolean dumpingIVariableThreadFlag = false;
     private volatile int i = 1;
@@ -77,14 +76,9 @@ public class Bluetooth {
 
     public void onStart(){
         if (DEBUG) {System.out.println("BLUETOOTH--------------> onStart connected:" + connected);}
-        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2){
-            bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-            if(bluetoothManager!=null) {
-                bluetoothAdapter = bluetoothManager.getAdapter();
-            }
-        }
-        else{
-            bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if(bluetoothManager!=null) {
+            bluetoothAdapter = bluetoothManager.getAdapter();
         }
 
         context.registerReceiver(bluetoothReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
@@ -236,8 +230,6 @@ public class Bluetooth {
         if (DEBUG) {System.out.println("BLUETOOTH--------------> send" + msg[0] + "connected:" + connected);}
         try {
             if(!TextUtils.isEmpty(charset)) {
-//                out.write(msg.getByte(charset));//Eg: "US-ASCII" as default
-//                out.write(msg.getByte());//Sending as UTF-8
             }else {
                 out.write(msg);//Eg: "US-ASCII" as default
             }
@@ -370,15 +362,15 @@ public class Bluetooth {
         private byte msgRoughnessOfSensors = 0;
         private int lowByte = 0;                //для записи младшего байта при перемене младших и старших байт
         private int addressHDLCMassage = 0;     //для сохранения адреса с которого пришла HDLC посылка
-        private int directionHDLCMassage = 0;   //для сохранения направления с которого пришла HDLC посылка
+        private final int directionHDLCMassage = 0;   //для сохранения направления с которого пришла HDLC посылка
         private int typeHDLCMassage = 0;        //для сохранения типа принятой посылки HDLC
         private boolean request = true;                //true-ответ false-запрос
         public boolean no_error = true;                //true-нет ошибок false-есть ошибки
         private boolean msgCorrectAcceptance = true;   //true-безошиобочная CRC false-шибочная CRC
         private int branchOfParsing = 1;               //1-певый набор команд, 2-общая полыка с данными, 3-состояние параметров руки на момент включения
-        private StringBuffer msgStr = new StringBuffer();
-        private byte[] txtByteOut = {0x01, 0x02} ;
-        private byte[] byteMassCRC = new byte[10];
+        private final StringBuffer msgStr = new StringBuffer();
+        private final byte[] txtByteOut = {0x01, 0x02} ;
+        private final byte[] byteMassCRC = new byte[10];
 
         public void run(){
             if (DEBUG) {System.out.println("BLUETOOTH--------------> ReceiveThread connected:" + connected);}
@@ -919,13 +911,13 @@ public class Bluetooth {
     }
 
     private class CheckReceiveThread extends Thread implements Runnable {
-        private volatile boolean mFinish = false;
-        private int msg = 65;
 
         public void run() {
             try {
-                while ((msg = input.read()) != -1)
+                int msg = 65;
+                while (input.read() != -1)
                 {
+                    boolean mFinish = false;
                     if (mFinish) {deviceCallback.onDeviceDisconnected(device, "CheckReceiveThread->return");return;}
                 }
             } catch (final IOException e) {

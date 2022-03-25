@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="app/src/main/res/drawable/switch_le_thumb.xml" value="0.111" />
+        <entry key="app/src/main/res/drawable/switch_le_truck.xml" value="0.111" />
+        <entry key="app/src/main/res/drawable/thumb_le.xml" value="0.157" />
+        <entry key="app/src/main/res/drawable/track_le.xml" value="0.157" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.18872884114583333" />
+        <entry key="app/src/main/res/layout/activity_scan.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/fragment_gesture_settings.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/fragment_service_settings.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/fragment_service_settings_mono.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/gestures_lest_layout.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/intro2.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/item_scanlist.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/layout_advanced_settings.xml" value="0.14311043566362716" />
+        <entry key="app/src/main/res/layout/layout_calibrating_le.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/layout_chart.xml" value="0.14311043566362716" />
+        <entry key="app/src/main/res/layout/layout_dialog.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/layout_gestures.xml" value="0.14311043566362716" />
+        <entry key="app/src/main/res/layout/layout_gripper_settings_le.xml" value="0.14311043566362716" />
+        <entry key="app/src/main/res/layout/layout_gripper_settings_le_with_encoders.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/layout_gripper_settings_le_without_encoders.xml" value="0.2942708333333333" />
+        <entry key="app/src/main/res/layout/layout_not_calibrating_le.xml" value="0.2942708333333333" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

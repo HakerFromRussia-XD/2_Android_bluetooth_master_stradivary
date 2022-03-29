@@ -10,6 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.OnLifecycleEvent
 import kotlinx.android.synthetic.main.layout_updating_le.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -32,7 +34,6 @@ class CustomDialogGripperFragment: DialogFragment() {
         if (activity != null) { main = activity as MainActivity? }
         return view
     }
-
 
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onActivityCreated(savedInstanceState: Bundle?) {

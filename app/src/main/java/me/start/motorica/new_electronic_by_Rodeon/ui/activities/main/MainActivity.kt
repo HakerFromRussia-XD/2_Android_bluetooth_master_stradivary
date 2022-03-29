@@ -780,17 +780,17 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
       }
 //      startSubscribeSensorsNewDataThread()
-      bleCommand(null, MIO_MEASUREMENT_NEW_TEST, NOTIFY)
+//      bleCommand(null, MIO_MEASUREMENT_NEW_TEST, NOTIFY)
       sensorsDataThreadFlag = enabled
-//      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
-//        runReadData()
-//      } else {
-//        if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
-//          runStart()
-//        } else {
-//          startSubscribeSensorsDataThread()
-//        }
-//      }
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+        runReadData()
+      } else {
+        if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
+          runStart()
+        } else {
+          startSubscribeSensorsDataThread()
+        }
+      }
     }
   }
 

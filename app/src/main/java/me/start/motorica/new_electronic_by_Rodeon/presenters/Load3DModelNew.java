@@ -43,7 +43,6 @@ public class Load3DModelNew {
         return text;
     }
     public void loadSTR2(final int i) {
-        System.out.println("Количество запуск парса ");
         parserDataVertices(i);
         parserDataTextures(i);
         parserDataNormals(i);
@@ -56,7 +55,6 @@ public class Load3DModelNew {
     //////////////////////////////////////////////////////////////////////////////
     public void parserDataVertices(int number){
         String text = "";
-        System.out.println("Количество  %   parserDataVertices получение буферов строк   %" + getStringBuffer1()[1]);
         if      (number ==  0) {text = "#" + getStringBuffer1() [1];}
         else if (number ==  1) {text = "#" + getStringBuffer2() [1];}
         else if (number ==  2) {text = "#" + getStringBuffer3() [1];}
@@ -100,7 +98,6 @@ public class Load3DModelNew {
     }
     public void parserDataTextures(int number){
         String text = "";
-        System.out.println("Количество  %   parserDataTextures получение буферов строк   % ");
         if      (number ==  0) {text = "#" + getStringBuffer1() [2];}
         else if (number ==  1) {text = "#" + getStringBuffer2() [2];}
         else if (number ==  2) {text = "#" + getStringBuffer3() [2];}
@@ -145,7 +142,6 @@ public class Load3DModelNew {
     }
     public void parserDataNormals(int number){
         String text = "";
-        System.out.println("Количество  %   parserDataNormals получение буферов строк   % ");
         if      (number ==  0) {text = "#" + getStringBuffer1() [3];}
         else if (number ==  1) {text = "#" + getStringBuffer2() [3];}
         else if (number ==  2) {text = "#" + getStringBuffer3() [3];}
@@ -193,7 +189,6 @@ public class Load3DModelNew {
 
     public void parserDataFacets (int number){
         String text = "";
-        System.out.println("Количество  %   parserDataFacets получение буферов строк   % ");
         if      (number ==  0) {text = "#" + getStringBuffer1() [4];}
         else if (number ==  1) {text = "#" + getStringBuffer2() [4];}
         else if (number ==  2) {text = "#" + getStringBuffer3() [4];}
@@ -312,11 +307,9 @@ public class Load3DModelNew {
                     v3[2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
                     //нормали
                     if (currentLine[3].split("/")[2].contains("\r")) {
-                        System.out.println("Количество % строка содержит \\r %");
                         indicesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\r")[0]) - 1);
                     } else {
                         if (currentLine[3].split("/")[2].contains("\n")) {
-                            System.out.println("Количество % строка содержит \\n %");
                             indicesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\n")[0]) - 1);
                         }
                     }

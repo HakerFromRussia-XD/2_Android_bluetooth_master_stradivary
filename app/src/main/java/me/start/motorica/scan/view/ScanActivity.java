@@ -298,11 +298,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
     @Override
     public void navigateToChart(String extraName, BluetoothDevice extraDevice) {
-//        for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
-//            final int finalJ = j;
-//            threadFunction[j] = new Thread(() -> mLoad3DModel.loadSTR2(finalJ));
-//            threadFunction[j].start();
-//        }
+        for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
+            final int finalJ = j;
+            threadFunction[j] = new Thread(() -> mLoad3DModel.loadSTR2(finalJ));
+            threadFunction[j].start();
+        }
         presenter.setStartFlags(extraDevice.getName());
         Intent intent = new Intent(ScanActivity.this, ChartActivity.class);
         intent.putExtra(extraName, extraDevice);
@@ -431,32 +431,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         Load3DModel.model[18] = mLoad3DModel.readData(ConstantManager.MODEDEL_18);
 
         Load3DModelNew.model[0]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_0_NEW);
-//        System.out.println("Количество  %   считанная модель   %" + Arrays.toString(Load3DModelNew.model[0]));
-//        System.out.println("Количество  %   parserDataVertices получение буферов строк   %" + "#" +Load3DModelNew.model[0][1]);
-//        String text = "";
-//        text = "#" + Load3DModelNew.model[0][1];
-//        StringBuilder line = new StringBuilder();
-//        int coordinatesNumber = 0;
-//        for (char msg : text.toCharArray()) {
-//            line.append(msg);
-//            if (msg == 10) {
-//                String[] currentLine = line.toString().split(" ");
-//                if (line.toString().startsWith("# ")) {
-//                    if (currentLine[2].contains("vertices")) {//\r
-//                        coordinatesNumber = Integer.parseInt(currentLine[1]);
-////                        coordinatesArray[number] = new float[coordinatesNumber * 3];
-//                        System.out.println("Количество вершин: " + coordinatesNumber);
-//                        coordinatesNumber = 0;
-//                    }
-//                } else if (line.toString().startsWith("v ")){
-////                    coordinatesArray[number][coordinatesNumber++] = Float.parseFloat(currentLine[1]);
-////                    coordinatesArray[number][coordinatesNumber++] = Float.parseFloat(currentLine[2]);
-////                    coordinatesArray[number][coordinatesNumber++] = Float.parseFloat(currentLine[3]);
-//                }
-//                line = new StringBuilder();
-//            }
-//        }
-
         Load3DModelNew.model[1]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_1_NEW);
         Load3DModelNew.model[2]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_2_NEW);
         Load3DModelNew.model[3]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_3_NEW);

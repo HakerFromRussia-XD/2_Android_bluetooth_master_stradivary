@@ -67,9 +67,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     Button scanButton;
     private boolean firstStart = true;
     // 3D
-//    Load3DModel mLoad3DModel = new Load3DModel(this);
-//    Load3DModelNew mLoad3DModelNew = new Load3DModelNew(this);
-//    public Thread[] threadFunction = new Thread[MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS];
+    Load3DModel mLoad3DModel = new Load3DModel(this);
+    Load3DModelNew mLoad3DModelNew = new Load3DModelNew(this);
+    public Thread[] threadFunction = new Thread[MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS];
 
     @Inject
     ScanPresenter presenter;
@@ -312,12 +312,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
     @Override
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) {
-//        for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
-//            final int finalK = k;
-//            System.err.println("Запуск загрузки: " + finalK);
-//            threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
-//            threadFunction[k].start();
-//        }
+        for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
+            final int finalK = k;
+            System.err.println("Запуск загрузки: " + finalK);
+            threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
+            threadFunction[k].start();
+        }
 
         if (extraDevice == null) return;
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
@@ -410,45 +410,71 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
     //  Инициализация зарузки 3D объектов
     private void init3D(){
-//        Load3DModel.model[0]  = mLoad3DModel.readData(ConstantManager.MODEDEL_0);
-//        Load3DModel.model[1]  = mLoad3DModel.readData(ConstantManager.MODEDEL_1);
-//        Load3DModel.model[2]  = mLoad3DModel.readData(ConstantManager.MODEDEL_2);
-//        Load3DModel.model[3]  = mLoad3DModel.readData(ConstantManager.MODEDEL_3);
-//        Load3DModel.model[4]  = mLoad3DModel.readData(ConstantManager.MODEDEL_4);
-//        Load3DModel.model[5]  = mLoad3DModel.readData(ConstantManager.MODEDEL_5);
-//        Load3DModel.model[6]  = mLoad3DModel.readData(ConstantManager.MODEDEL_6);
-//        Load3DModel.model[7]  = mLoad3DModel.readData(ConstantManager.MODEDEL_7);
-//        Load3DModel.model[8]  = mLoad3DModel.readData(ConstantManager.MODEDEL_8);
-//        Load3DModel.model[9]  = mLoad3DModel.readData(ConstantManager.MODEDEL_9);
-//        Load3DModel.model[10] = mLoad3DModel.readData(ConstantManager.MODEDEL_10);
-//        Load3DModel.model[11] = mLoad3DModel.readData(ConstantManager.MODEDEL_11);
-//        Load3DModel.model[12] = mLoad3DModel.readData(ConstantManager.MODEDEL_12);
-//        Load3DModel.model[13] = mLoad3DModel.readData(ConstantManager.MODEDEL_13);
-//        Load3DModel.model[14] = mLoad3DModel.readData(ConstantManager.MODEDEL_14);
-//        Load3DModel.model[15] = mLoad3DModel.readData(ConstantManager.MODEDEL_15);
-//        Load3DModel.model[16] = mLoad3DModel.readData(ConstantManager.MODEDEL_16);
-//        Load3DModel.model[17] = mLoad3DModel.readData(ConstantManager.MODEDEL_17);
-//        Load3DModel.model[18] = mLoad3DModel.readData(ConstantManager.MODEDEL_18);
-//
-//        Load3DModelNew.model[0]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_0_NEW);
-//        Load3DModelNew.model[1]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_1_NEW);
-//        Load3DModelNew.model[2]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_2_NEW);
-//        Load3DModelNew.model[3]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_3_NEW);
-//        Load3DModelNew.model[4]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_4_NEW);
-//        Load3DModelNew.model[5]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_5_NEW);
-//        Load3DModelNew.model[6]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_6_NEW);
-//        Load3DModelNew.model[7]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_7_NEW);
-//        Load3DModelNew.model[8]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_8_NEW);
-//        Load3DModelNew.model[9]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_9_NEW);
-//        Load3DModelNew.model[10] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_10_NEW);
-//        Load3DModelNew.model[11] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_11_NEW);
-//        Load3DModelNew.model[12] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_12_NEW);
-//        Load3DModelNew.model[13] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_13_NEW);
-//        Load3DModelNew.model[14] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_14_NEW);
-//        Load3DModelNew.model[15] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_15_NEW);
-//        Load3DModelNew.model[16] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_16_NEW);
-//        Load3DModelNew.model[17] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_17_NEW);
-//        Load3DModelNew.model[18] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_18_NEW);
+        Load3DModel.model[0]  = mLoad3DModel.readData(ConstantManager.MODEDEL_0);
+        Load3DModel.model[1]  = mLoad3DModel.readData(ConstantManager.MODEDEL_1);
+        Load3DModel.model[2]  = mLoad3DModel.readData(ConstantManager.MODEDEL_2);
+        Load3DModel.model[3]  = mLoad3DModel.readData(ConstantManager.MODEDEL_3);
+        Load3DModel.model[4]  = mLoad3DModel.readData(ConstantManager.MODEDEL_4);
+        Load3DModel.model[5]  = mLoad3DModel.readData(ConstantManager.MODEDEL_5);
+        Load3DModel.model[6]  = mLoad3DModel.readData(ConstantManager.MODEDEL_6);
+        Load3DModel.model[7]  = mLoad3DModel.readData(ConstantManager.MODEDEL_7);
+        Load3DModel.model[8]  = mLoad3DModel.readData(ConstantManager.MODEDEL_8);
+        Load3DModel.model[9]  = mLoad3DModel.readData(ConstantManager.MODEDEL_9);
+        Load3DModel.model[10] = mLoad3DModel.readData(ConstantManager.MODEDEL_10);
+        Load3DModel.model[11] = mLoad3DModel.readData(ConstantManager.MODEDEL_11);
+        Load3DModel.model[12] = mLoad3DModel.readData(ConstantManager.MODEDEL_12);
+        Load3DModel.model[13] = mLoad3DModel.readData(ConstantManager.MODEDEL_13);
+        Load3DModel.model[14] = mLoad3DModel.readData(ConstantManager.MODEDEL_14);
+        Load3DModel.model[15] = mLoad3DModel.readData(ConstantManager.MODEDEL_15);
+        Load3DModel.model[16] = mLoad3DModel.readData(ConstantManager.MODEDEL_16);
+        Load3DModel.model[17] = mLoad3DModel.readData(ConstantManager.MODEDEL_17);
+        Load3DModel.model[18] = mLoad3DModel.readData(ConstantManager.MODEDEL_18);
+
+        Load3DModelNew.model[0]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_0_NEW);
+//        System.out.println("Количество  %   считанная модель   %" + Arrays.toString(Load3DModelNew.model[0]));
+//        System.out.println("Количество  %   parserDataVertices получение буферов строк   %" + "#" +Load3DModelNew.model[0][1]);
+//        String text = "";
+//        text = "#" + Load3DModelNew.model[0][1];
+//        StringBuilder line = new StringBuilder();
+//        int coordinatesNumber = 0;
+//        for (char msg : text.toCharArray()) {
+//            line.append(msg);
+//            if (msg == 10) {
+//                String[] currentLine = line.toString().split(" ");
+//                if (line.toString().startsWith("# ")) {
+//                    if (currentLine[2].contains("vertices")) {//\r
+//                        coordinatesNumber = Integer.parseInt(currentLine[1]);
+////                        coordinatesArray[number] = new float[coordinatesNumber * 3];
+//                        System.out.println("Количество вершин: " + coordinatesNumber);
+//                        coordinatesNumber = 0;
+//                    }
+//                } else if (line.toString().startsWith("v ")){
+////                    coordinatesArray[number][coordinatesNumber++] = Float.parseFloat(currentLine[1]);
+////                    coordinatesArray[number][coordinatesNumber++] = Float.parseFloat(currentLine[2]);
+////                    coordinatesArray[number][coordinatesNumber++] = Float.parseFloat(currentLine[3]);
+//                }
+//                line = new StringBuilder();
+//            }
+//        }
+
+        Load3DModelNew.model[1]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_1_NEW);
+        Load3DModelNew.model[2]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_2_NEW);
+        Load3DModelNew.model[3]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_3_NEW);
+        Load3DModelNew.model[4]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_4_NEW);
+        Load3DModelNew.model[5]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_5_NEW);
+        Load3DModelNew.model[6]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_6_NEW);
+        Load3DModelNew.model[7]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_7_NEW);
+        Load3DModelNew.model[8]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_8_NEW);
+        Load3DModelNew.model[9]  = mLoad3DModelNew.readData(ConstantManager.MODEDEL_9_NEW);
+        Load3DModelNew.model[10] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_10_NEW);
+        Load3DModelNew.model[11] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_11_NEW);
+        Load3DModelNew.model[12] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_12_NEW);
+        Load3DModelNew.model[13] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_13_NEW);
+        Load3DModelNew.model[14] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_14_NEW);
+        Load3DModelNew.model[15] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_15_NEW);
+        Load3DModelNew.model[16] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_16_NEW);
+        Load3DModelNew.model[17] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_17_NEW);
+        Load3DModelNew.model[18] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_18_NEW);
     }
     private void saveData(){
         SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);

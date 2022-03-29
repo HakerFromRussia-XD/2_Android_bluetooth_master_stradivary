@@ -18,7 +18,6 @@ import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gripper_state_le
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoders.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
@@ -69,7 +68,7 @@ class GripperScreenWithEncodersActivity
     private var fingerCloseState6 = 0
 
     private var gestureState = 0
-    private var side: Int = 1
+//    private var side: Int = 1
 
     private var score1 = 0
     private var score2 = 0
@@ -522,7 +521,7 @@ class GripperScreenWithEncodersActivity
         fingerCloseState5 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, 0)
         fingerCloseState6 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, 0)
 
-        side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
+//        side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
 
         Handler().postDelayed({
             animateFinger1()

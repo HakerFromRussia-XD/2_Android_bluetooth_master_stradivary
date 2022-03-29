@@ -1084,10 +1084,10 @@
                             android:layout_alignParentStart="true"
                             android:layout_alignParentEnd="true"
                             android:layout_marginEnd="0dp"
+                            android:checked="true"
                             android:ellipsize="middle"
                             android:paddingStart="16dp"
                             android:scrollbarSize="48dp"
-                            android:checked="true"
                             android:thumb="@drawable/switch_le_thumb"
                             android:track="@drawable/switch_le_truck"
                             tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />

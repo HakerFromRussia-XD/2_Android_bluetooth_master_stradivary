@@ -1,0 +1,96 @@
+Index: .idea/inspectionProfiles/Project_Default.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><component name=\"InspectionProjectProfileManager\">\n  <profile version=\"1.0\">\n    <option name=\"myName\" value=\"Project Default\" />\n    <inspection_tool class=\"AndroidElementNotAllowed\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\" />\n    <inspection_tool class=\"ConstantConditions\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\">\n      <option name=\"SUGGEST_NULLABLE_ANNOTATIONS\" value=\"false\" />\n      <option name=\"DONT_REPORT_TRUE_ASSERT_STATEMENTS\" value=\"false\" />\n    </inspection_tool>\n    <inspection_tool class=\"ControlFlowWithEmptyBody\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\" />\n    <inspection_tool class=\"DanglingJavadoc\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\" />\n    <inspection_tool class=\"Deprecation\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\" />\n    <inspection_tool class=\"DifferentKotlinGradleVersion\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\" />\n    <inspection_tool class=\"DifferentStdlibGradleVersion\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\" />\n    <inspection_tool class=\"EmptyStatementBody\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\">\n      <option name=\"m_reportEmptyBlocks\" value=\"true\" />\n    </inspection_tool>\n    <inspection_tool class=\"IfCanBeSwitch\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\">\n      <option name=\"minimumBranches\" value=\"3\" />\n      <option name=\"suggestIntSwitches\" value=\"false\" />\n      <option name=\"suggestEnumSwitches\" value=\"false\" />\n    </inspection_tool>\n    <inspection_tool class=\"IgnoreResultOfCall\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\">\n      <option name=\"m_reportAllNonLibraryCalls\" value=\"false\" />\n      <option name=\"callCheckString\" value=\"java.io.File,.*,java.io.InputStream,read|skip|available|markSupported,java.io.Reader,read|skip|ready|markSupported,java.lang.Boolean,.*,java.lang.Byte,.*,java.lang.Character,.*,java.lang.Double,.*,java.lang.Float,.*,java.lang.Integer,.*,java.lang.Long,.*,java.lang.Math,.*,java.lang.Object,equals|hashCode|toString,java.lang.Short,.*,java.lang.StrictMath,.*,java.lang.String,.*,java.lang.Thread,interrupted,java.math.BigInteger,.*,java.math.BigDecimal,.*,java.net.InetAddress,.*,java.net.URI,.*,java.util.Arrays,.*,java.util.List,of,java.util.Set,of,java.util.Map,of|ofEntries|entry,java.util.Collections,(?!addAll).*,java.util.UUID,.*,java.util.regex.Matcher,pattern|toMatchResult|start|end|group|groupCount|matches|find|lookingAt|quoteReplacement|replaceAll|replaceFirst|regionStart|regionEnd|hasTransparentBounds|hasAnchoringBounds|hitEnd|requireEnd,java.util.regex.Pattern,.*,java.util.stream.BaseStream,.*\" />\n    </inspection_tool>\n    <inspection_tool class=\"LiftReturnOrAssignment\" enabled=\"false\" level=\"INFO\" enabled_by_default=\"false\" />\n    <inspection_tool class=\"NonAtomicOperationOnVolatileField\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\" />\n    <inspection_tool class=\"SameParameterValue\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\" />\n    <inspection_tool class=\"unused\" enabled=\"false\" level=\"WARNING\" enabled_by_default=\"false\">\n      <option name=\"LOCAL_VARIABLE\" value=\"true\" />\n      <option name=\"FIELD\" value=\"true\" />\n      <option name=\"METHOD\" value=\"true\" />\n      <option name=\"CLASS\" value=\"true\" />\n      <option name=\"PARAMETER\" value=\"true\" />\n      <option name=\"REPORT_PARAMETER_FOR_PUBLIC_METHODS\" value=\"true\" />\n      <option name=\"ADD_MAINS_TO_ENTRIES\" value=\"true\" />\n      <option name=\"ADD_APPLET_TO_ENTRIES\" value=\"true\" />\n      <option name=\"ADD_SERVLET_TO_ENTRIES\" value=\"true\" />\n      <option name=\"ADD_NONJAVA_TO_ENTRIES\" value=\"true\" />\n    </inspection_tool>\n  </profile>\n</component>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
+--- a/.idea/inspectionProfiles/Project_Default.xml	(revision 6fd9e9192caa1a5dbb3ecf1a5e37ed892615e15a)
++++ b/.idea/inspectionProfiles/Project_Default.xml	(date 1648552629661)
+@@ -2,9 +2,33 @@
+   <profile version="1.0">
+     <option name="myName" value="Project Default" />
+     <inspection_tool class="AndroidElementNotAllowed" enabled="false" level="WARNING" enabled_by_default="false" />
++    <inspection_tool class="AnonymousClassComplexity" enabled="true" level="WARNING" enabled_by_default="true">
++      <option name="m_limit" value="3" />
++    </inspection_tool>
++    <inspection_tool class="AnonymousClassMethodCount" enabled="true" level="WARNING" enabled_by_default="true">
++      <option name="m_limit" value="1" />
++    </inspection_tool>
++    <inspection_tool class="ClassComplexity" enabled="true" level="WARNING" enabled_by_default="true">
++      <option name="m_limit" value="80" />
++    </inspection_tool>
++    <inspection_tool class="ClassCoupling" enabled="true" level="WARNING" enabled_by_default="true">
++      <option name="m_includeJavaClasses" value="false" />
++      <option name="m_includeLibraryClasses" value="false" />
++      <option name="m_limit" value="15" />
++    </inspection_tool>
++    <inspection_tool class="ClassInheritanceDepth" enabled="true" level="WARNING" enabled_by_default="true">
++      <option name="m_limit" value="2" />
++    </inspection_tool>
++    <inspection_tool class="ClassNestingDepth" enabled="true" level="WARNING" enabled_by_default="true">
++      <option name="m_limit" value="1" />
++    </inspection_tool>
+     <inspection_tool class="ConstantConditions" enabled="false" level="WARNING" enabled_by_default="false">
+       <option name="SUGGEST_NULLABLE_ANNOTATIONS" value="false" />
+       <option name="DONT_REPORT_TRUE_ASSERT_STATEMENTS" value="false" />
++    </inspection_tool>
++    <inspection_tool class="ConstructorCount" enabled="true" level="WARNING" enabled_by_default="true">
++      <option name="ignoreDeprecatedConstructors" value="false" />
++      <option name="m_limit" value="5" />
+     </inspection_tool>
+     <inspection_tool class="ControlFlowWithEmptyBody" enabled="false" level="WARNING" enabled_by_default="false" />
+     <inspection_tool class="DanglingJavadoc" enabled="false" level="WARNING" enabled_by_default="false" />
+@@ -13,6 +37,13 @@
+     <inspection_tool class="DifferentStdlibGradleVersion" enabled="false" level="WARNING" enabled_by_default="false" />
+     <inspection_tool class="EmptyStatementBody" enabled="false" level="WARNING" enabled_by_default="false">
+       <option name="m_reportEmptyBlocks" value="true" />
++    </inspection_tool>
++    <inspection_tool class="FieldAccessNotGuarded" enabled="true" level="WARNING" enabled_by_default="true" />
++    <inspection_tool class="FieldCount" enabled="true" level="WARNING" enabled_by_default="true">
++      <option name="m_countConstantFields" value="false" />
++      <option name="m_considerStaticFinalFieldsConstant" value="false" />
++      <option name="myCountEnumConstants" value="false" />
++      <option name="m_limit" value="10" />
+     </inspection_tool>
+     <inspection_tool class="IfCanBeSwitch" enabled="false" level="WARNING" enabled_by_default="false">
+       <option name="minimumBranches" value="3" />
+@@ -23,9 +54,19 @@
+       <option name="m_reportAllNonLibraryCalls" value="false" />
+       <option name="callCheckString" value="java.io.File,.*,java.io.InputStream,read|skip|available|markSupported,java.io.Reader,read|skip|ready|markSupported,java.lang.Boolean,.*,java.lang.Byte,.*,java.lang.Character,.*,java.lang.Double,.*,java.lang.Float,.*,java.lang.Integer,.*,java.lang.Long,.*,java.lang.Math,.*,java.lang.Object,equals|hashCode|toString,java.lang.Short,.*,java.lang.StrictMath,.*,java.lang.String,.*,java.lang.Thread,interrupted,java.math.BigInteger,.*,java.math.BigDecimal,.*,java.net.InetAddress,.*,java.net.URI,.*,java.util.Arrays,.*,java.util.List,of,java.util.Set,of,java.util.Map,of|ofEntries|entry,java.util.Collections,(?!addAll).*,java.util.UUID,.*,java.util.regex.Matcher,pattern|toMatchResult|start|end|group|groupCount|matches|find|lookingAt|quoteReplacement|replaceAll|replaceFirst|regionStart|regionEnd|hasTransparentBounds|hasAnchoringBounds|hitEnd|requireEnd,java.util.regex.Pattern,.*,java.util.stream.BaseStream,.*" />
+     </inspection_tool>
++    <inspection_tool class="InstanceGuardedByStatic" enabled="true" level="WARNING" enabled_by_default="true" />
+     <inspection_tool class="LiftReturnOrAssignment" enabled="false" level="INFO" enabled_by_default="false" />
++    <inspection_tool class="MethodCount" enabled="true" level="WARNING" enabled_by_default="true">
++      <option name="m_limit" value="20" />
++      <option name="ignoreGettersAndSetters" value="false" />
++      <option name="ignoreOverridingMethods" value="false" />
++    </inspection_tool>
+     <inspection_tool class="NonAtomicOperationOnVolatileField" enabled="false" level="WARNING" enabled_by_default="false" />
++    <inspection_tool class="NonFinalFieldInImmutable" enabled="true" level="WARNING" enabled_by_default="true" />
++    <inspection_tool class="NonFinalGuard" enabled="true" level="WARNING" enabled_by_default="true" />
+     <inspection_tool class="SameParameterValue" enabled="false" level="WARNING" enabled_by_default="false" />
++    <inspection_tool class="StaticGuardedByInstance" enabled="true" level="WARNING" enabled_by_default="true" />
++    <inspection_tool class="UnknownGuard" enabled="true" level="WARNING" enabled_by_default="true" />
+     <inspection_tool class="unused" enabled="false" level="WARNING" enabled_by_default="false">
+       <option name="LOCAL_VARIABLE" value="true" />
+       <option name="FIELD" value="true" />
+Index: .idea/gradle.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"GradleMigrationSettings\" migrationVersion=\"1\" />\n  <component name=\"GradleSettings\">\n    <option name=\"linkedExternalProjectsSettings\">\n      <GradleProjectSettings>\n        <option name=\"testRunner\" value=\"GRADLE\" />\n        <option name=\"distributionType\" value=\"DEFAULT_WRAPPED\" />\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\n        <option name=\"modules\">\n          <set>\n            <option value=\"$PROJECT_DIR$\" />\n            <option value=\"$PROJECT_DIR$/app\" />\n            <option value=\"$PROJECT_DIR$/bluetooth\" />\n          </set>\n        </option>\n        <option name=\"resolveModulePerSourceSet\" value=\"false\" />\n      </GradleProjectSettings>\n    </option>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/gradle.xml b/.idea/gradle.xml
+--- a/.idea/gradle.xml	(revision 6fd9e9192caa1a5dbb3ecf1a5e37ed892615e15a)
++++ b/.idea/gradle.xml	(date 1648553658182)
+@@ -7,6 +7,7 @@
+         <option name="testRunner" value="GRADLE" />
+         <option name="distributionType" value="DEFAULT_WRAPPED" />
+         <option name="externalProjectPath" value="$PROJECT_DIR$" />
++        <option name="gradleJvm" value="1.8" />
+         <option name="modules">
+           <set>
+             <option value="$PROJECT_DIR$" />

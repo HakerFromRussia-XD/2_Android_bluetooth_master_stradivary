@@ -122,7 +122,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
       if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
-              || mDeviceType!!.contains(DEVICE_TYPE_4))
+              || mDeviceType!!.contains(DEVICE_TYPE_4) || mDeviceType!!.contains(DEVICE_TYPE_5))
       {} else {
         mainactivity_navi.visibility = View.GONE
       }
@@ -534,10 +534,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               System.err.println("Prishedshie parametri: ${parameters.openStage1.toByte()}")
               if (parameters.state == 1) {
                 runWriteData(byteArrayOf(parameters.openStage1.toByte(), parameters.openStage2.toByte(), parameters.openStage3.toByte(),
-                        parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte()), MOVE_ALL_FINGERS_NEW, WRITE)
+                        parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte()), MOVE_ALL_FINGERS_NEW_VM, WRITE)
               } else {
                 runWriteData(byteArrayOf(parameters.closeStage1.toByte(), parameters.closeStage2.toByte(), parameters.closeStage3.toByte(),
-                        parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), MOVE_ALL_FINGERS_NEW, WRITE)
+                        parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), MOVE_ALL_FINGERS_NEW_VM, WRITE)
               }
               if (parameters.withChangeGesture) {
                 System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage1: ${parameters.openStage1}    closeStage1: ${parameters.closeStage1}")
@@ -551,7 +551,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                         parameters.openStage1.toByte(), parameters.openStage2.toByte(), parameters.openStage3.toByte(),
                         parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte(),
                         parameters.closeStage1.toByte(), parameters.closeStage2.toByte(), parameters.closeStage3.toByte(),
-                        parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), CHANGE_GESTURE_NEW, WRITE)
+                        parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), CHANGE_GESTURE_NEW_VM, WRITE)
               }
             }
     RxUpdateMainEvent.getInstance().fingerSpeedObservable
@@ -992,7 +992,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           Thread.sleep(500)
         } catch (ignored: Exception) {}
         runOnUiThread {
-          bleCommand(null, MIO_MEASUREMENT_NEW_TEST, NOTIFY)
+//          bleCommand(null, MIO_MEASUREMENT_NEW_TEST, NOTIFY)
           System.err.println("---> startSubscribeSensorsNewDataThread попытка подписки")
         }
         try {
@@ -1022,49 +1022,49 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           0 -> {
             showToast("Старт потока запросов начальных параметров")
             System.err.println("$info = 0")
-            bleCommand(READ_REGISTER, SENS_VERSION_NEW, READ)
+            bleCommand(READ_REGISTER, SENS_VERSION_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 5
             state = 1
           }
           1 -> {
             System.err.println("$info = 1")
-            bleCommand(READ_REGISTER, OPEN_THRESHOLD_NEW, READ)
+            bleCommand(READ_REGISTER, OPEN_THRESHOLD_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 15
             state = 2
           }
           2 -> {
             System.err.println("$info = 2")
-            bleCommand(READ_REGISTER, CLOSE_THRESHOLD_NEW, READ)
+            bleCommand(READ_REGISTER, CLOSE_THRESHOLD_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 25
             state = 3
           }
           3 -> {
             System.err.println("$info = 3")
-            bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
+            bleCommand(READ_REGISTER, SENS_OPTIONS_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 35
             state = 4
           }
           4 -> {
             System.err.println("$info = 4")
-            bleCommand(READ_REGISTER, SET_REVERSE_NEW, READ)
+            bleCommand(READ_REGISTER, SET_REVERSE_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 45
             state = 5
           }
           5 -> {
             System.err.println("$info = 5")
-            bleCommand(READ_REGISTER, SET_ONE_CHANNEL_NEW, READ)
+            bleCommand(READ_REGISTER, SET_ONE_CHANNEL_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 55
             state = 6
           }
           6 -> {
             System.err.println("$info = 6")
-            bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
+            bleCommand(READ_REGISTER, ADD_GESTURE_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 65
             state = 7  //11 пропустить калибровку //7 - выполнить
@@ -1072,7 +1072,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
           7 -> {
             System.err.println("$info = 7")
-            bleCommand(READ_REGISTER, CALIBRATION_NEW, READ) //TODO тут
+            bleCommand(READ_REGISTER, CALIBRATION_NEW_VM, READ) //TODO тут
             globalSemaphore = false
             percentSynchronize = 75
             state = 8
@@ -1126,19 +1126,19 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           13 -> {
             System.err.println("$info = 13")
-            showToast("В протезе сильно заьянута одна или несколько степеней свободы!")
+            showToast("В протезе сильно затянута одна или несколько степеней свободы!")
             state = 14
           }
           14 -> {
             System.err.println("$info = 14")
-            bleCommand(READ_REGISTER, SHUTDOWN_CURRENT_NEW, READ)
+            bleCommand(READ_REGISTER, SHUTDOWN_CURRENT_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 85
             state = 15
           }
           15 -> {
             System.err.println("$info = 15")
-            bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
+            bleCommand(READ_REGISTER, SET_GESTURE_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 100
             state = 0

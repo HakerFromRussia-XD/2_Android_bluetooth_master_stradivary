@@ -25,7 +25,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
-import io.reactivex.android.schedulers.AndroidSchedulers
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
@@ -34,7 +33,6 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManag
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
-import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import javax.inject.Inject
 
@@ -146,7 +144,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, seekBar.progress)
         }
       }
@@ -161,7 +159,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, seekBar.progress)
         }
       }
@@ -176,7 +174,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, seekBar.progress)
         }
       }
@@ -191,7 +189,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, seekBar.progress)
         }
       }
@@ -206,7 +204,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, seekBar.progress)
         }
       }
@@ -221,7 +219,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
                                                 shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, seekBar.progress)
         }
       }
@@ -243,7 +241,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (single_channel_control_sw.isChecked) {
           single_channel_control_tv?.text = 1.toString()
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
-            main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE)
+            main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW_VM, WRITE)
             main?.setOneChannelNum = 1
           } else {
             main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
@@ -253,7 +251,7 @@ class AdvancedSettingsFragment : Fragment() {
         } else {
           single_channel_control_tv?.text = 0.toString()
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
-            main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE)
+            main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW_VM, WRITE)
             main?.setOneChannelNum = 0
           } else {
             main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
@@ -311,11 +309,11 @@ class AdvancedSettingsFragment : Fragment() {
     get_setup_btn?.setOnClickListener {
 //      main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
 //      main?.bleCommandConnector(byteArrayOf(0x00), STATUS_CALIBRATION_NEW, READ, 17)
-      main?.bleCommandConnector(byteArrayOf(0x00), SET_GESTURE_NEW, READ, 17)
+      main?.bleCommandConnector(byteArrayOf(0x00), SET_GESTURE_NEW_VM, READ, 17)
       main?.lockChangeTelemetryNumber = true
     }
     set_setup_btn?.setOnClickListener {
-      main?.bleCommandConnector(telemetry_number_et?.text.toString().toByteArray(Charsets.UTF_8), TELEMETRY_NUMBER_NEW, WRITE, 17)
+      main?.bleCommandConnector(telemetry_number_et?.text.toString().toByteArray(Charsets.UTF_8), TELEMETRY_NUMBER_NEW_VM, WRITE, 17)
     }
     main?.telemetryNumber = telemetry_number_et?.text.toString()
     left_right_side_swap_sw?.setOnClickListener{
@@ -381,7 +379,7 @@ class AdvancedSettingsFragment : Fragment() {
       if (!main?.lockWriteBeforeFirstRead!!) {
         System.err.println("tuk reset_to_factory_settings_btn")
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
-          main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
+          main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, WRITE)
         } else {
           main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
         }
@@ -421,16 +419,16 @@ class AdvancedSettingsFragment : Fragment() {
     calibration_btn?.setOnClickListener {
       System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
+        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW_VM, WRITE)
       } else {
-        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
+        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW_VM, WRITE)
       }
       saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
     }
 
     calibration_status_btn?. setOnClickListener {
       saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
-      main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW)//bleCommand(ConstantManager.READ_REGISTER, CALIBRATION_NEW, READ)
+      main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW_VM)//bleCommand(ConstantManager.READ_REGISTER, CALIBRATION_NEW, READ)
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
@@ -543,7 +541,7 @@ class AdvancedSettingsFragment : Fragment() {
             }
             if (main?.firstReadCalibrationStatus == true) {
               System.err.println("CALIBRATION_NEW запрос данных калибровки")
-              main?.bleCommandConnector(byteArrayOf(0x00), CALIBRATION_NEW, READ, 17)
+              main?.bleCommandConnector(byteArrayOf(0x00), CALIBRATION_NEW_VM, READ, 17)
             }
           }
 

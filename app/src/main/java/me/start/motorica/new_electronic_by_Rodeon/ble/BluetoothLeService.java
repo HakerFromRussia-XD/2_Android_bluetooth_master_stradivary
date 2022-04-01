@@ -34,25 +34,25 @@ import java.util.UUID;
 import timber.log.Timber;
 
 import static me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.SHOW_EVERYONE_RECEIVE_BYTE;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW_VM;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_MOTOR_HDLE;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.FESTO_A_CHARACTERISTIC;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.NOTIFY;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_MOTOR_HDLE;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.READ;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_ONE_CHANNEL_NEW;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_REVERSE_NEW;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SHUTDOWN_CURRENT_NEW;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.STATUS_CALIBRATION_NEW;
-import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.TELEMETRY_NUMBER_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW_VM;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW_VM;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW_VM;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_ONE_CHANNEL_NEW_VM;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_REVERSE_NEW_VM;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SHUTDOWN_CURRENT_NEW_VM;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.STATUS_CALIBRATION_NEW_VM;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.TELEMETRY_NUMBER_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE;
 
 
@@ -118,45 +118,45 @@ public class BluetoothLeService extends Service {
             if (String.valueOf(characteristic.getUuid()).equals(CLOSE_MOTOR_HDLE)){
                 intent.putExtra(CLOSE_MOTOR_DATA, data);
             }
-            if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT_NEW_VM)) {
                 intent.putExtra(MIO_DATA_NEW, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
             }
-            if (String.valueOf(characteristic.getUuid()).equals(SENS_VERSION_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(SENS_VERSION_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(SENS_VERSION_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(OPEN_THRESHOLD_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(OPEN_THRESHOLD_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(OPEN_THRESHOLD_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(CLOSE_THRESHOLD_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(CLOSE_THRESHOLD_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(CLOSE_THRESHOLD_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(SENS_OPTIONS_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(SENS_OPTIONS_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(SENS_OPTIONS_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(SET_GESTURE_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(SET_GESTURE_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(SET_GESTURE_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(SET_REVERSE_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(SET_REVERSE_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(SET_REVERSE_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(SET_ONE_CHANNEL_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(SET_ONE_CHANNEL_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(SET_ONE_CHANNEL_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(STATUS_CALIBRATION_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(STATUS_CALIBRATION_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(STATUS_CALIBRATION_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(ADD_GESTURE_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(ADD_GESTURE_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(ADD_GESTURE_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(CALIBRATION_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(CALIBRATION_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(CALIBRATION_NEW_DATA, data); intent.putExtra(ACTION_STATE, READ);}
                 if (state.equals(WRITE)){ intent.putExtra(CALIBRATION_NEW_DATA, data); intent.putExtra(ACTION_STATE, WRITE);}
             }
-            if (String.valueOf(characteristic.getUuid()).equals(TELEMETRY_NUMBER_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(TELEMETRY_NUMBER_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(TELEMETRY_NUMBER_NEW_DATA, data); }
             }
-            if (String.valueOf(characteristic.getUuid()).equals(SHUTDOWN_CURRENT_NEW)) {
+            if (String.valueOf(characteristic.getUuid()).equals(SHUTDOWN_CURRENT_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(SHUTDOWN_CURRENT_NEW_DATA, data); }
             }
 

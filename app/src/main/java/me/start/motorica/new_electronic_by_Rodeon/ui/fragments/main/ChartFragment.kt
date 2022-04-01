@@ -101,7 +101,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (!main?.getSwapOpenCloseButton()!!) {
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW, WRITE)
+              main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, WRITE)
               System.err.println("НАЖАТИЕ НА КНОПКУ ЗАКРЫТЬ НОВЫЙ ПРОТОКОЛ")
             } else {
               main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
@@ -110,7 +110,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW, WRITE)
+              main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, WRITE)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
 
@@ -119,14 +119,14 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         } else {
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW, WRITE)
+              main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, WRITE)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
             }
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW, WRITE)
+              main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, WRITE)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
             }
@@ -140,14 +140,14 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (!main?.getSwapOpenCloseButton()!!) {
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW, WRITE)
+              main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, WRITE)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
             }
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW, WRITE)
+              main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, WRITE)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE, 6)
             }
@@ -155,14 +155,14 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         } else {
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW, WRITE)
+              main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, WRITE)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
             }
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-              main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW, WRITE)
+              main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, WRITE)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE, 7)
             }
@@ -184,7 +184,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-            main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW, WRITE)
+            main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4)
           }
@@ -206,7 +206,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-            main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW, WRITE)
+            main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW_VM, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
           }
@@ -226,7 +226,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
 //            { 16, 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 }
 //            { 16, 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 }
-            main?.runWriteData(byteArrayOf((255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 ), SENS_OPTIONS_NEW, WRITE)
+            main?.runWriteData(byteArrayOf((255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64 ), SENS_OPTIONS_NEW_VM, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01), SENS_OPTIONS, WRITE,11)
           }
@@ -244,7 +244,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-            main?.runWriteData(byteArrayOf((255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64), SENS_OPTIONS_NEW, WRITE)
+            main?.runWriteData(byteArrayOf((255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5, 64), SENS_OPTIONS_NEW_VM, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02), SENS_OPTIONS, WRITE,11)
           }
@@ -259,7 +259,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (swap_sensors_sw.isChecked) {
           swap_sensors_tv.text = 1.toString()
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-            main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW, WRITE)
+            main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW_VM, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
           }
@@ -268,7 +268,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         } else {
           swap_sensors_tv.text = 0.toString()
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_4)) {
-            main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW, WRITE)
+            main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW_VM, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
           }
@@ -295,7 +295,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
     thresholds_blocking_sw.setOnClickListener{
 //      main?.bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
-      main?.bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
+      main?.bleCommand(READ_REGISTER, ADD_GESTURE_NEW_VM, READ)
 //      if (thresholds_blocking_sw.isChecked) {
 //        thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
 //        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)

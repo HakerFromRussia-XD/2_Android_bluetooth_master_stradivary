@@ -301,10 +301,6 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 				POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE});
 		programSelect = ShaderHelper.createAndLinkProgram(selectVertexShaderHandle, selectFragmentShaderHandle,
 				new String[] {POSITION_ATTRIBUTE});
-//		programTestMetal = ShaderHelper.createAndLinkProgram(testVertexShaderHandle, testFragmentShaderHandle,
-//				new String[] {POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, TEXTURES_ATTRIBUTE});
-//		programMetal = ShaderHelper.createAndLinkProgram(vertexShaderMetalHandle, fragmentShaderMetalHandle,
-//				new String[] {POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, TEXTURES_ATTRIBUTE, TANGENT_ATTRIBUTE});
 		int programMetall = ShaderHelper.createAndLinkProgram(vertexShaderMetallHandle, fragmentShaderMetallHandle,
 				new String[]{POSITION_ATTRIBUTE, NORMAL_ATTRIBUTE, COLOR_ATTRIBUTE, TEXTURES_ATTRIBUTE,
 						TANGENT_ATTRIBUTE, BITANGENT_ATTRIBUTE});

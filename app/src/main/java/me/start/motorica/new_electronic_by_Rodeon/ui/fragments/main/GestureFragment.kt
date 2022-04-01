@@ -203,7 +203,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
 
     private fun compileBLEMassage (useGesture: Int) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
-            main?.runWriteData(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW, WRITE)
+            main?.runWriteData(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW_VM, WRITE)
         } else {
             main?.bleCommandConnector(byteArrayOf(useGesture.toByte()), SET_GESTURE, WRITE, 13)
         }

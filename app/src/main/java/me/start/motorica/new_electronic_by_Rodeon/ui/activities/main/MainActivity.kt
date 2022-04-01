@@ -779,8 +779,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           shutdown_current_sb?.isEnabled = enabled
         }
       }
-//      startSubscribeSensorsNewDataThread()
-//      bleCommand(null, MIO_MEASUREMENT_NEW_TEST, NOTIFY)
       sensorsDataThreadFlag = enabled
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
         runReadData()
@@ -992,7 +990,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           Thread.sleep(500)
         } catch (ignored: Exception) {}
         runOnUiThread {
-//          bleCommand(null, MIO_MEASUREMENT_NEW_TEST, NOTIFY)
+          bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
           System.err.println("---> startSubscribeSensorsNewDataThread попытка подписки")
         }
         try {

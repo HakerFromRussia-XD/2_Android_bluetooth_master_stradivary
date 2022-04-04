@@ -1178,7 +1178,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         when (state) {
           // ПРАВИЛЬНАЯ ЦЕПЬ ЗАПРОСОВ
           0 -> {
-            showToast("Старт потока запросов начальных параметров")
+            showToast("Старт потока запросов начальных параметров для FEST-X")
             System.err.println("$info = 0")
             bleCommand(READ_REGISTER, SENS_VERSION_NEW_VM, READ)
             globalSemaphore = false

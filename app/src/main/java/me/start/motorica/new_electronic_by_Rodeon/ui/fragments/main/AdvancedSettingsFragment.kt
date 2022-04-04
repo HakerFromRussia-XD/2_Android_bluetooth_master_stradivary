@@ -240,7 +240,7 @@ class AdvancedSettingsFragment : Fragment() {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (single_channel_control_sw.isChecked) {
           single_channel_control_tv?.text = 1.toString()
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW_VM, WRITE)
             main?.setOneChannelNum = 1
           } else {
@@ -250,7 +250,7 @@ class AdvancedSettingsFragment : Fragment() {
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
           single_channel_control_tv?.text = 0.toString()
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW_VM, WRITE)
             main?.setOneChannelNum = 0
           } else {
@@ -378,7 +378,7 @@ class AdvancedSettingsFragment : Fragment() {
     reset_to_factory_settings_btn?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         System.err.println("tuk reset_to_factory_settings_btn")
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
           main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, WRITE)
         } else {
           main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
@@ -432,11 +432,11 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
-    if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_3) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+    if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_BT05) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_MY_IPHONE) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
       shutdown_current_rl?.visibility = View.GONE
     }
     //Скрывает настройки, которые не актуальны для бионик кроме FEST-H
-    if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4) ) { telemetry_rl?.visibility = View.VISIBLE }
+    if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ) { telemetry_rl?.visibility = View.VISIBLE }
     else {
       telemetry_rl?.visibility = View.GONE
       calibration_rl?.visibility = View.GONE
@@ -535,7 +535,7 @@ class AdvancedSettingsFragment : Fragment() {
             System.err.println("telemetry_number_et записали принятые данные")
           }
           //////// блок кода применим только если у нас протез с новым протоколом
-          if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4) ) {
+          if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ) {
             if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1) == 1) {
               main?.firstReadCalibrationStatus = true
             }

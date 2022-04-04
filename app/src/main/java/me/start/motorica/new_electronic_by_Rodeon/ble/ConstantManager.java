@@ -5,13 +5,12 @@ public interface ConstantManager {
     boolean SHOW_EVERYONE_RECEIVE_BYTE = true;
     String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
-    //TODO тут настраивается имя модуля, для подключения нового протокола
-    String EXTRAS_DEVICE_TYPE = "FEST-A";
     String DEVICE_NAME = "";
-    String EXTRAS_DEVICE_TYPE_2 = "BT05";
-    String EXTRAS_DEVICE_TYPE_3 = "BLE_test_services—•";
-    String DEVICE_TYPE_4 = "FEST-H";
-    String DEVICE_TYPE_5 = "FEST-X";
+    String EXTRAS_DEVICE_TYPE_FEST_A = "FEST-A";
+    String EXTRAS_DEVICE_TYPE_BT05 = "BT05";
+    String EXTRAS_DEVICE_TYPE_MY_IPHONE = "BLE_test_services—•";
+    String DEVICE_TYPE_FEST_H = "FEST-H";
+    String DEVICE_TYPE_FEST_X = "FEST-X";
     int REQUEST_ENABLE_BT = 1;
 
     byte[] READ_REGISTER = {0x00}; // просто заглушка для того чтобы функция отправки команды при чтении смотрелась красиво

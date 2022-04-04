@@ -43,6 +43,7 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.NOTIFY;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_MOTOR_HDLE;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.READ;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW_VM;
@@ -124,6 +125,9 @@ public class BluetoothLeService extends Service {
             }
             if (String.valueOf(characteristic.getUuid()).equals(SENS_VERSION_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(SENS_VERSION_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(OPEN_THRESHOLD_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(OPEN_THRESHOLD_NEW_DATA, data); }
             }
             if (String.valueOf(characteristic.getUuid()).equals(OPEN_THRESHOLD_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(OPEN_THRESHOLD_NEW_DATA, data); }

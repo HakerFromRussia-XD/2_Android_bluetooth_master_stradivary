@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../../layout/custom_preview.xml" value="0.33645833333333336" />
         <entry key="app/src/main/res/drawable/switch_le_thumb.xml" value="0.111" />
         <entry key="app/src/main/res/drawable/switch_le_truck.xml" value="0.111" />
         <entry key="app/src/main/res/drawable/thumb_le.xml" value="0.157" />
@@ -15,7 +16,7 @@
         <entry key="app/src/main/res/layout/gestures_lest_layout.xml" value="0.2942708333333333" />
         <entry key="app/src/main/res/layout/intro2.xml" value="0.2942708333333333" />
         <entry key="app/src/main/res/layout/item_scanlist.xml" value="0.2942708333333333" />
-        <entry key="app/src/main/res/layout/layout_advanced_settings.xml" value="0.14311043566362716" />
+        <entry key="app/src/main/res/layout/layout_advanced_settings.xml" value="0.26104526321506294" />
         <entry key="app/src/main/res/layout/layout_calibrating_le.xml" value="0.2942708333333333" />
         <entry key="app/src/main/res/layout/layout_chart.xml" value="0.14311043566362716" />
         <entry key="app/src/main/res/layout/layout_dialog.xml" value="0.2942708333333333" />

@@ -61,6 +61,9 @@ class StartActivity : AppIntro(), BaseView {
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, mDeviceName)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, mDeviceType)
+      if (mDeviceType != null) {
+        mySaveText(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceType!!)
+      }
       startActivity(intent)
       myLoadGesturesList()
       if (gestureNameList[0] == "lol") { firstSetGesturesName () }
@@ -71,6 +74,9 @@ class StartActivity : AppIntro(), BaseView {
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, mDeviceName)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, mDeviceType)
+      if (mDeviceType != null) {
+        mySaveText(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceType!!)
+      }
       startActivity(intent)
       finish()
       preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, false)
@@ -104,6 +110,9 @@ class StartActivity : AppIntro(), BaseView {
     intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, mDeviceName)
     intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
     intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, mDeviceType)
+    if (mDeviceType != null) {
+      mySaveText(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceType!!)
+    }
     startActivity(intent)
     preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, false)//для выключения интро при последующем запуске
     finish()
@@ -124,10 +133,6 @@ class StartActivity : AppIntro(), BaseView {
       mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
     }
   }
-
-//  private fun firstInitGesturesName () {
-//
-//  }
 
   private fun mySaveText(key: String, text: String) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()

@@ -81,7 +81,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             }
         }
         gesture_settings_2_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
+                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
                 startActivity(intent)
             } else {
@@ -100,7 +101,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             }
         }
         gesture_settings_3_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
+                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
                 startActivity(intent)
             } else {
@@ -118,7 +120,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             }
         }
         gesture_settings_4_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
+                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
                 startActivity(intent)
             } else {
@@ -136,7 +139,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             }
         }
         gesture_settings_5_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
+                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
                 startActivity(intent)
             } else {
@@ -154,7 +158,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             }
         }
         gesture_settings_6_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
+                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
                 startActivity(intent)
             } else {
@@ -172,7 +177,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             }
         }
         gesture_settings_7_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
+                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
                 startActivity(intent)
             } else {
@@ -190,7 +196,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
             }
         }
         gesture_settings_8_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
+                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)   ) {
                 val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
                 startActivity(intent)
             } else {
@@ -202,10 +209,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
     }
 
     private fun compileBLEMassage (useGesture: Int) {
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.runWriteData(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW_VM, WRITE)
         } else {
-            main?.bleCommandConnector(byteArrayOf(useGesture.toByte()), SET_GESTURE, WRITE, 13)
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                main?.runWriteData(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW, WRITE)
+            } else {
+                main?.bleCommandConnector(byteArrayOf(useGesture.toByte()), SET_GESTURE, WRITE, 13)
+            }
         }
     }
 

@@ -34,6 +34,7 @@ import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
+import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
@@ -196,7 +197,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
 //              System.err.println("попадаем сюда")
           } else {
-            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               //TODO прописать новую функцию обработки пришедших данных
               if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensAndBMSVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
@@ -307,6 +308,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataNew(data: ByteArray?) {
     if (data != null) {
+      println("displayDataNew data:"+ data+ "  data.size: "+data.size)
         if (data.size == 2 || data.size == 3) {
           dataSens1 = castUnsignedCharToInt(data[0])
           dataSens2 = castUnsignedCharToInt(data[1])
@@ -514,6 +516,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     presenter.preferenceManager.putString(PreferenceKeys.DEVICE_ADDR, mDeviceAddress.toString())
     saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
     mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE_FEST_A)
+
     System.err.println("mDeviceAddress: $mDeviceAddress")
 
     // Sets up UI references.
@@ -582,7 +585,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun initUI() {
     if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
@@ -594,7 +597,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       NavigationUtils.showAdvancedSettings = true
     } else {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -632,7 +635,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
     } else {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)|| mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -752,7 +755,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     if(enabled) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE) || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         gesture_1_btn?.isEnabled = enabled
         gesture_2_btn?.isEnabled = enabled
         gesture_3_btn?.isEnabled = enabled
@@ -786,14 +793,20 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
           runStart()
         } else {
-          startSubscribeSensorsDataThread()
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            runStartVM()
+          } else {
+            startSubscribeSensorsDataThread()
+          }
         }
       }
     }
   }
 
   fun bleCommandConnector(byteArray: ByteArray?, Command: String, typeCommand: String, register: Int) {
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)  || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))  {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+      || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+      || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))  {
       val length = byteArray!!.size + 2
       val sendByteMassive = ByteArray(length + 3)
       sendByteMassive[0] = 0xAA.toByte()
@@ -899,7 +912,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         System.err.println("Отправили команду! Чтение")
     }
   }
-  fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
+  private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
     if (mBluetoothLeService != null) {
       System.err.println("mBluetoothLeService != null")
       for (i in mGattCharacteristics.indices) {
@@ -991,7 +1004,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         } catch (ignored: Exception) {}
         runOnUiThread {
 
-          bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            bleCommand(null, MIO_MEASUREMENT_NEW_VM, NOTIFY)
+          }
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+            bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
+          }
           System.err.println("---> startSubscribeSensorsNewDataThread попытка подписки")
         }
         try {
@@ -1167,7 +1185,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun runStartVM() { getStartVM()?.let { queue.put(it) } }
   open fun getStartVM(): Runnable? { return Runnable { readStartVM() } }
   private fun readStartVM() {
-    val info = "------->   Чтение порогов и версий"
+    val info = "-------> displayDataNew  Чтение порогов и версий"
     var count = 0
     var state = 0 // переключается здесь в потоке
     endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
@@ -1469,20 +1487,111 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   private fun saveGestureState() {
-    for (i in 0 until 7) {
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 1), gestureTable[i][0][0])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 1), gestureTable[i][0][1])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 1), gestureTable[i][0][2])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 1), gestureTable[i][0][3])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 1), gestureTable[i][0][4])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 1), gestureTable[i][0][5])
+    if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+      for (i in 0 until 7) {
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2),
+          gestureTable[i][0][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 2),
+          gestureTable[i][0][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 2),
+          gestureTable[i][0][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 2),
+          gestureTable[i][0][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 2),
+          gestureTable[i][0][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 2),
+          gestureTable[i][0][5]
+        )
 
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 1), gestureTable[i][1][0])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 1), gestureTable[i][1][1])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 1), gestureTable[i][1][2])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 1), gestureTable[i][1][3])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 1), gestureTable[i][1][4])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 1), gestureTable[i][1][5])
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 1),
+          gestureTable[i][1][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 1),
+          gestureTable[i][1][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 1),
+          gestureTable[i][1][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 1),
+          gestureTable[i][1][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 1),
+          gestureTable[i][1][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 1),
+          gestureTable[i][1][5]
+        )
+      }
+    }
+    if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+      for (i in 0 until 7) {
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 1),
+          gestureTable[i][0][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 1),
+          gestureTable[i][0][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 1),
+          gestureTable[i][0][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 1),
+          gestureTable[i][0][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 1),
+          gestureTable[i][0][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 1),
+          gestureTable[i][0][5]
+        )
+
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 1),
+          gestureTable[i][1][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 1),
+          gestureTable[i][1][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 1),
+          gestureTable[i][1][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 1),
+          gestureTable[i][1][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 1),
+          gestureTable[i][1][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 1),
+          gestureTable[i][1][5]
+        )
+      }
     }
   }
   internal fun saveInt(key: String, variable: Int) {

@@ -19,6 +19,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gripper_state_le
 import me.start.motorica.R
+import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
@@ -81,6 +82,7 @@ class GripperScreenWithEncodersActivity
     private var gestureNumber: Int = 0
     private var gestureNameList =  ArrayList<String>()
     private var editMode: Boolean = false
+    private var mDeviceType: String? = null
 
     @SuppressLint("CheckResult", "ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -241,10 +243,36 @@ class GripperScreenWithEncodersActivity
         System.err.println("Изменили палец 1 $angleFinger")
         if (gestureState == 1) {
             fingerOpenState1 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + gestureNumber, angleFinger)
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber),
+                    angleFinger
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + gestureNumber,
+                    angleFinger
+                )
+            }
         } else {
             fingerCloseState1 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + gestureNumber, angleFinger)
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber),
+                    angleFinger
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + gestureNumber,
+                    angleFinger
+                )
+            }
         }
         score1 = angleFinger
     }
@@ -252,10 +280,36 @@ class GripperScreenWithEncodersActivity
         System.err.println("Изменили палец 2 $angleFinger")
         if (gestureState == 1) {
             fingerOpenState2 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + gestureNumber, angleFinger)
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber),
+                    angleFinger
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + gestureNumber,
+                    angleFinger
+                )
+            }
         } else {
             fingerCloseState2 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + gestureNumber, angleFinger)
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber),
+                    angleFinger
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + gestureNumber,
+                    angleFinger
+                )
+            }
         }
         score2 = angleFinger
     }
@@ -263,10 +317,36 @@ class GripperScreenWithEncodersActivity
         System.err.println("Изменили палец 3 $angleFinger")
         if (gestureState == 1) {
             fingerOpenState3 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + gestureNumber, angleFinger)
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber),
+                    angleFinger
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + gestureNumber,
+                    angleFinger
+                )
+            }
         } else {
             fingerCloseState3 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + gestureNumber, angleFinger)
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber),
+                    angleFinger
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + gestureNumber,
+                    angleFinger
+                )
+            }
         }
         score3 = angleFinger
     }
@@ -274,10 +354,36 @@ class GripperScreenWithEncodersActivity
         System.err.println("Изменили палец41 $angleFinger")
         if (gestureState == 1) {
             fingerOpenState4 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + gestureNumber, angleFinger)
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber),
+                    angleFinger
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + gestureNumber,
+                    angleFinger
+                )
+            }
         } else {
             fingerCloseState4 = angleFinger
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + gestureNumber, angleFinger)
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber),
+                    angleFinger
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + gestureNumber,
+                    angleFinger
+                )
+            }
         }
         score4 = angleFinger
     }
@@ -286,10 +392,36 @@ class GripperScreenWithEncodersActivity
 //        System.err.println("Изменили отправляемые значения палец 5 ${(100-((() +58).toFloat()/86*100).toInt())}")
         if (gestureState == 1) {
             fingerOpenState5 = (angleFinger.toFloat()/100*91).toInt()-49
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber, (angleFinger.toFloat() / 100 * 91).toInt() - 49)
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (gestureNumber),
+                    (angleFinger.toFloat() / 100 * 91).toInt() - 49
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber,
+                    (angleFinger.toFloat() / 100 * 91).toInt() - 49
+                )
+            }
         } else {
-            fingerCloseState5 = (angleFinger.toFloat()/100*91).toInt()-49
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, (angleFinger.toFloat() / 100 * 91).toInt() - 49)
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (gestureNumber),
+                    (angleFinger.toFloat() / 100 * 91).toInt() - 49
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                fingerCloseState5 = (angleFinger.toFloat() / 100 * 91).toInt() - 49
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber,
+                    (angleFinger.toFloat() / 100 * 91).toInt() - 49
+                )
+            }
         }
         score5 = (angleFinger.toFloat()/100*91).toInt()-49
     }
@@ -297,12 +429,39 @@ class GripperScreenWithEncodersActivity
 //        System.err.println("Изменили палец 6 ${(angleFinger.toFloat()/100*90).toInt()}")
 //        System.err.println("Изменили отправляемые значения палец 6 ${abs((().toFloat()/85*100).toInt())}")
         if (gestureState == 1) {
-            fingerOpenState6 = (angleFinger.toFloat()/100*90).toInt()
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, (angleFinger.toFloat() / 100 * 90).toInt())
+            fingerOpenState6 = (angleFinger.toFloat() / 100 * 90).toInt()
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (gestureNumber + 1),
+                    (angleFinger.toFloat() / 100 * 90).toInt()
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber,
+                    (angleFinger.toFloat() / 100 * 90).toInt()
+                )
+            }
         } else {
-            fingerCloseState6 = (angleFinger.toFloat()/100*90).toInt()
-            saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, (angleFinger.toFloat() / 100 * 90).toInt())
+            fingerCloseState6 = (angleFinger.toFloat() / 100 * 90).toInt()
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (gestureNumber + 1),
+                    (angleFinger.toFloat() / 100 * 90).toInt()
+                )
+            }
+            if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                saveInt(
+                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber,
+                    (angleFinger.toFloat() / 100 * 90).toInt()
+                )
+            }
         }
+
         score6 = (angleFinger.toFloat()/100*90).toInt()
     }
 
@@ -476,7 +635,7 @@ class GripperScreenWithEncodersActivity
     }
 
     private fun compileBLEMassage(withChangeGesture: Boolean) {
-        if (gestureState == 1) {
+        if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
                     fingerOpenState1, fingerOpenState2, fingerOpenState3,
                     fingerOpenState4, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
@@ -484,15 +643,15 @@ class GripperScreenWithEncodersActivity
                     fingerCloseState4, (100 - (((fingerCloseState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerCloseState6).toFloat() / 85 * 100).toInt()),
                     gestureState, withChangeGesture)
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
-        } else {
-            val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
-                    fingerOpenState1, fingerOpenState2, fingerOpenState3,
-                    fingerOpenState4, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
-                    fingerCloseState1, fingerCloseState2, fingerCloseState3,
-                    fingerCloseState4, (100 - (((fingerCloseState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerCloseState6).toFloat() / 85 * 100).toInt()),
+        }
+        if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            val gestureStateModel = GestureStateWithEncoders(gestureNumber,
+                    fingerOpenState4, fingerOpenState3, fingerOpenState2,
+                    fingerOpenState1, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
+                    fingerCloseState4, fingerCloseState3, fingerCloseState2,
+                    fingerCloseState1, (100 - (((fingerCloseState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerCloseState6).toFloat() / 85 * 100).toInt()),
                     gestureState, withChangeGesture)
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
-            System.err.println("closeStage5: " + fingerCloseState5 + "closeStage6: " + fingerCloseState6)
         }
     }
 
@@ -508,19 +667,155 @@ class GripperScreenWithEncodersActivity
     }
     private fun loadOldState() {
         val text = "load not work"
-        fingerOpenState1 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + gestureNumber, 0)
-        fingerOpenState2 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + gestureNumber, 0)
-        fingerOpenState3 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + gestureNumber, 0)
-        fingerOpenState4 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + gestureNumber, 0)
-        fingerOpenState5 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber, 0)
-        fingerOpenState6 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, 0)
-        fingerCloseState1 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + gestureNumber, 0)
-        fingerCloseState2 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + gestureNumber, 0)
-        fingerCloseState3 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + gestureNumber, 0)
-        fingerCloseState4 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + gestureNumber, 0)
-        fingerCloseState5 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, 0)
-        fingerCloseState6 = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, 0)
-
+        mDeviceType = mSettings!!.getString((ConstantManager.EXTRAS_DEVICE_ADDRESS),text).toString()
+        if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            fingerOpenState1 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + gestureNumber, 0
+            )
+            fingerOpenState2 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + gestureNumber, 0
+            )
+            fingerOpenState3 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + gestureNumber, 0
+            )
+            fingerOpenState4 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + gestureNumber, 0
+            )
+            fingerOpenState5 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber, 0
+            )
+            fingerOpenState6 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, 0
+            )
+            fingerCloseState1 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + gestureNumber, 0
+            )
+            fingerCloseState2 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + gestureNumber, 0
+            )
+            fingerCloseState3 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + gestureNumber, 0
+            )
+            fingerCloseState4 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + gestureNumber, 0
+            )
+            fingerCloseState5 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, 0
+            )
+            fingerCloseState6 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, 0
+            )
+        }
+        if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            fingerOpenState4 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber + 1), 0
+            )
+            fingerOpenState3 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber + 1), 0
+            )
+            fingerOpenState2 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber + 1), 0
+            )
+            fingerOpenState1 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1), 0
+            )
+            fingerOpenState5 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (gestureNumber + 1), 0
+            )
+            fingerOpenState6 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState4 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState3 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState2 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState1 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState5 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState6 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (gestureNumber + 1), 0
+            )
+        }
 //        side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, text).toString() + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
 
         Handler().postDelayed({

@@ -16,11 +16,8 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
+import android.bluetooth.*
 import android.bluetooth.BluetoothAdapter.LeScanCallback
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattService
-import android.bluetooth.BluetoothManager
 import android.content.*
 import android.nfc.NfcAdapter
 import android.os.*
@@ -124,8 +121,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
-      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H))
+      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X))
       {} else {
         mainactivity_navi.visibility = View.GONE
       }
@@ -139,11 +139,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var gestureTable: Array<Array<Array<Int>>> = Array(7) { Array(2) { Array(6) { 0 } } }
   private var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
   private var byteActiveGesture: Byte = 0 // номер активного в данный момент жеста 0-7
-  private var byteSideHand: Byte = 0 //  0-left 1-right
+//  private var byteSideHand: Byte = 0 //  0-left 1-right
   var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   var telemetryNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
-  private var firstShowPreloaderCalibration: Boolean = true // нужна для одиночного показа уведомления о начале калибровки
-  private var firstHidePreloaderCalibration: Boolean = true // нужна для скрытия уведомления о начале калибровки
+//  private var firstShowPreloaderCalibration: Boolean = true // нужна для одиночного показа уведомления о начале калибровки
+//  private var firstHidePreloaderCalibration: Boolean = true // нужна для скрытия уведомления о начале калибровки
   private lateinit var dialog: DialogFragment
 
   // Handles various events fired by the Service.
@@ -194,12 +194,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
 
         BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-          if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))) { // новая схема обработки данных
+          if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A))
+            || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05))
+            || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))) { // новая схема обработки данных
             displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
 //              System.err.println("попадаем сюда")
           } else {
-            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               //TODO прописать новую функцию обработки пришедших данных
               if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensAndBMSVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
@@ -463,7 +465,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           driverVersion += data[i].toChar()
         }
       }
-      //TODO
       driver_tv?.text = resources.getString(R.string.driver) +driverVersion + "v"
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
@@ -580,7 +581,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     RxUpdateMainEvent.getInstance().calibratingStatusObservable
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { _ ->
+            .subscribe {
               openFragmentInfoCalibration()
             }
 
@@ -597,8 +598,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private fun initUI() {
     if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
@@ -609,8 +613,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       NavigationUtils.showAdvancedSettings = true
     } else {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -636,8 +643,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     mainactivity_viewpager.isSaveFromParentEnabled = false
     if (showAdvancedSettings) {
-      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
@@ -647,8 +657,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
       }
     } else {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -665,6 +678,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
 
+  @SuppressLint("MissingPermission")
   override fun onResume() {
     super.onResume()
     // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
@@ -696,6 +710,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     endFlag = true
 
   }
+  @SuppressLint("MissingPermission")
   override fun onDestroy() {
     super.onDestroy()
     if (mBluetoothLeService != null) {
@@ -769,7 +784,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     if(enabled) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE) || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         gesture_1_btn?.isEnabled = enabled
         gesture_2_btn?.isEnabled = enabled
         gesture_3_btn?.isEnabled = enabled
@@ -797,20 +816,28 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
       }
       sensorsDataThreadFlag = enabled
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)) {
         runReadData()
       } else {
         if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
           runStart()
         } else {
-          startSubscribeSensorsDataThread()
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            runStartVM()
+          } else {
+            startSubscribeSensorsDataThread()
+          }
         }
       }
     }
   }
 
   fun bleCommandConnector(byteArray: ByteArray?, Command: String, typeCommand: String, register: Int) {
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)  || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))  {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+      || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+      || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))  {
       val length = byteArray!!.size + 2
       val sendByteMassive = ByteArray(length + 3)
       sendByteMassive[0] = 0xAA.toByte()
@@ -916,7 +943,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         System.err.println("Отправили команду! Чтение")
     }
   }
-  fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
+  private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
     if (mBluetoothLeService != null) {
       for (i in mGattCharacteristics.indices) {
         for (j in mGattCharacteristics[i].indices) {
@@ -1004,7 +1031,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           Thread.sleep(500)
         } catch (ignored: Exception) {}
         runOnUiThread {
-          bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            bleCommand(null, MIO_MEASUREMENT_NEW_VM, NOTIFY)
+          }
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+            bleCommand(null, MIO_MEASUREMENT_NEW, NOTIFY)
+          }
 //          System.err.println("---> startSubscribeSensorsNewDataThread попытка подписки")
         }
         try {
@@ -1084,7 +1116,174 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
           7 -> {
             System.err.println("$info = 7")
-            bleCommand(READ_REGISTER, CALIBRATION_NEW, READ) //TODO тут
+            bleCommand(READ_REGISTER, CALIBRATION_NEW, READ)
+            globalSemaphore = false
+            percentSynchronize = 75
+            state = 8
+          }
+          8 -> {
+            System.err.println("$info = 8")
+            if (calibrationStage == 0) {
+              state = 9 //9
+            } else {
+              if (calibrationStage == 6) {
+                state = 14
+              } else {
+                if (calibrationStage == 2) {
+                  state = 10
+                } else {
+                  if (calibrationStage == 3) {
+                    state = 11
+                  } else {
+                    if (calibrationStage == 4) {
+                      state = 12
+                    } else {
+                      if (calibrationStage == 5) {
+                        state = 13
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          9 -> {
+            System.err.println("$info = 9")
+            openFragmentInfoNotCalibration()
+            state = 14
+          }
+          10 -> {
+            System.err.println("$info = 10")
+            showToast("В протезе отключён двигатель одной или нескольких степеней свободы!")
+            state = 14
+          }
+          11 -> {
+            System.err.println("$info = 11")
+            showToast("В протезе отключён энкодер одной или нескольких степеней свободы!")
+            state = 14
+          }
+          12 -> {
+            System.err.println("$info = 12")
+            showToast("В протезе нет энкодеров одного или нескольких степеней свободы!")
+            state = 14
+          }
+          13 -> {
+            System.err.println("$info = 13")
+            showToast("В протезе сильно затянута одна или несколько степеней свободы!")
+            state = 14
+          }
+          14 -> {
+            System.err.println("$info = 14")
+            bleCommand(READ_REGISTER, SHUTDOWN_CURRENT_NEW, READ)
+            globalSemaphore = false
+            percentSynchronize = 85
+            state = 15
+          }
+          15 -> {
+            System.err.println("$info = 15")
+            bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
+            globalSemaphore = false
+            percentSynchronize = 95
+            state = 16
+          }
+          16 -> {
+            System.err.println("$info = 16")
+            bleCommand(READ_REGISTER, DRIVER_VERSION_NEW, READ)
+            globalSemaphore = false
+            percentSynchronize = 100
+            state = 0
+            endFlag = true
+            startSubscribeSensorsNewDataThread()
+          }
+
+        }
+        count = 0
+      } else {
+        count++
+        if (count == 100000) {
+          endFlag = mConnected
+          state = 0
+          count = 0
+        }
+      }
+      try {
+        Thread.sleep(10)
+      } catch (ignored: Exception) {
+      }
+    }
+  }
+
+  /**
+   * Запуск задачи чтения параметров экрана графиков
+   */
+  private fun runStartVM() { getStartVM()?.let { queue.put(it) } }
+  open fun getStartVM(): Runnable? { return Runnable { readStartVM() } }
+  private fun readStartVM() {
+    val info = "-------> displayDataNew  Чтение порогов и версий"
+    var count = 0
+    var state = 0 // переключается здесь в потоке
+    endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
+    globalSemaphore = true // меняется по приходу ответа от подключаемого уст-ва
+
+    while (!endFlag) {
+      if (globalSemaphore) {
+        when (state) {
+          // ПРАВИЛЬНАЯ ЦЕПЬ ЗАПРОСОВ
+          0 -> {
+            showToast("Старт потока запросов начальных параметров для FEST-X")
+            System.err.println("$info = 0")
+            bleCommand(READ_REGISTER, SENS_VERSION_NEW_VM, READ)
+            globalSemaphore = false
+            percentSynchronize = 5
+            state = 1
+          }
+          1 -> {
+            System.err.println("$info = 1")
+            bleCommand(READ_REGISTER, OPEN_THRESHOLD_NEW_VM, READ)
+            globalSemaphore = false
+            percentSynchronize = 15
+            state = 2
+          }
+          2 -> {
+            System.err.println("$info = 2")
+            bleCommand(READ_REGISTER, CLOSE_THRESHOLD_NEW_VM, READ)
+            globalSemaphore = false
+            percentSynchronize = 25
+            state = 3
+          }
+          3 -> {
+            System.err.println("$info = 3")
+            bleCommand(READ_REGISTER, SENS_OPTIONS_NEW_VM, READ)
+            globalSemaphore = false
+            percentSynchronize = 35
+            state = 4
+          }
+          4 -> {
+            System.err.println("$info = 4")
+            bleCommand(READ_REGISTER, SET_REVERSE_NEW_VM, READ)
+            globalSemaphore = false
+            percentSynchronize = 45
+            state = 5
+          }
+          5 -> {
+            System.err.println("$info = 5")
+            bleCommand(READ_REGISTER, SET_ONE_CHANNEL_NEW_VM, READ)
+            globalSemaphore = false
+            percentSynchronize = 55
+            state = 6
+          }
+          6 -> {
+            System.err.println("$info = 6")
+            bleCommand(READ_REGISTER, ADD_GESTURE_NEW_VM, READ)
+            globalSemaphore = false
+            percentSynchronize = 65
+            state = 7  //11 пропустить калибровку //7 - выполнить
+          }
+
+          7 -> {
+            System.err.println("$info = 7")
+            bleCommand(READ_REGISTER, CALIBRATION_NEW_VM, READ) //TODO тут
             globalSemaphore = false
             percentSynchronize = 75
             state = 8
@@ -1138,38 +1337,30 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           13 -> {
             System.err.println("$info = 13")
-            showToast("В протезе сильно заьянута одна или несколько степеней свободы!")
+            showToast("В протезе сильно затянута одна или несколько степеней свободы!")
             state = 14
           }
           14 -> {
             System.err.println("$info = 14")
-            bleCommand(READ_REGISTER, SHUTDOWN_CURRENT_NEW, READ)
+            bleCommand(READ_REGISTER, SHUTDOWN_CURRENT_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 85
             state = 15
           }
           15 -> {
             System.err.println("$info = 15")
-            bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
-            globalSemaphore = false
-            percentSynchronize = 95
-            state = 16
-          }
-          16 -> {
-            System.err.println("$info = 16")
-            bleCommand(READ_REGISTER, DRIVER_VERSION_NEW, READ)
+            bleCommand(READ_REGISTER, SET_GESTURE_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 100
             state = 0
             endFlag = true
             startSubscribeSensorsNewDataThread()
           }
-
         }
         count = 0
       } else {
         count++
-        if (count == 100000) {
+        if (count == 1000) {
           endFlag = mConnected
           state = 0
           count = 0
@@ -1332,20 +1523,111 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   private fun saveGestureState() {
-    for (i in 0 until 7) {
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 2), gestureTable[i][0][0])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 2), gestureTable[i][0][1])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 2), gestureTable[i][0][2])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2), gestureTable[i][0][3])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 2), gestureTable[i][0][4])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 2), gestureTable[i][0][5])
+    if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+      for (i in 0 until 7) {
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2),
+          gestureTable[i][0][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 2),
+          gestureTable[i][0][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 2),
+          gestureTable[i][0][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 2),
+          gestureTable[i][0][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 2),
+          gestureTable[i][0][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 2),
+          gestureTable[i][0][5]
+        )
 
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 2), gestureTable[i][1][0])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 2), gestureTable[i][1][1])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 2), gestureTable[i][1][2])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 2), gestureTable[i][1][3])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 2), gestureTable[i][1][4])
-      saveInt(mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 2), gestureTable[i][1][5])
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 1),
+          gestureTable[i][1][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 1),
+          gestureTable[i][1][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 1),
+          gestureTable[i][1][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 1),
+          gestureTable[i][1][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 1),
+          gestureTable[i][1][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 1),
+          gestureTable[i][1][5]
+        )
+      }
+    }
+    if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+      for (i in 0 until 7) {
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 1),
+          gestureTable[i][0][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 1),
+          gestureTable[i][0][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 1),
+          gestureTable[i][0][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 1),
+          gestureTable[i][0][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 1),
+          gestureTable[i][0][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 1),
+          gestureTable[i][0][5]
+        )
+
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 1),
+          gestureTable[i][1][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 1),
+          gestureTable[i][1][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 1),
+          gestureTable[i][1][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 1),
+          gestureTable[i][1][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 1),
+          gestureTable[i][1][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 1),
+          gestureTable[i][1][5]
+        )
+      }
     }
   }
   internal fun saveInt(key: String, variable: Int) {
@@ -1422,6 +1704,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
    * Запуск/остановка сканирования эфира на наличие BLE устройств
    * @param enable - true запуск | false остановка
    */
+  @SuppressLint("MissingPermission")
   private fun scanLeDevice(enable: Boolean) {
     if (enable) {
       mScanning = true
@@ -1433,7 +1716,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       System.err.println("DeviceControlActivity------->   stopLeScan")
     }
   }
+
   // Device scan callback.
+  @SuppressLint("MissingPermission")
   private val mLeScanCallback = LeScanCallback { device, _, _ ->
     runOnUiThread {
       if (device.name != null) {

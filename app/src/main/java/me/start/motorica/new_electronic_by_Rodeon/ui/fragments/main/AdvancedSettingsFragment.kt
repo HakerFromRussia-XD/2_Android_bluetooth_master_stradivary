@@ -55,7 +55,7 @@ class AdvancedSettingsFragment : Fragment() {
   private var threadFlag = true
   private var changeParameter = false
   private var updatingUIThread: Thread? = null
-  private var showCalibratingStatus: Boolean = false
+//  private var showCalibratingStatus: Boolean = false
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     val rootView = inflater.inflate(R.layout.layout_advanced_settings, container, false)
@@ -90,7 +90,7 @@ class AdvancedSettingsFragment : Fragment() {
 //            }
   }
 
-  @SuppressLint("SetTextI18n", "CheckResult")
+  @SuppressLint("SetTextI18n", "CheckResult", "Recycle")
   private fun initializeUI() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
     if (main?.locate?.contains("ru")!!) {
@@ -149,9 +149,16 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
-                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
+              shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
+              shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0)
+          }
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
+              shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
+              shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, seekBar.progress)
         }
       }
@@ -166,9 +173,30 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
-                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.bleCommandConnector(
+              byteArrayOf(
+                shutdown_current_1_sb?.progress?.toByte()!!,
+                shutdown_current_2_sb?.progress?.toByte()!!,
+                shutdown_current_3_sb?.progress?.toByte()!!,
+                shutdown_current_4_sb?.progress?.toByte()!!,
+                shutdown_current_5_sb?.progress?.toByte()!!,
+                shutdown_current_6_sb?.progress?.toByte()!!
+              ), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0
+            )
+          }
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.bleCommandConnector(
+              byteArrayOf(
+                shutdown_current_1_sb?.progress?.toByte()!!,
+                shutdown_current_2_sb?.progress?.toByte()!!,
+                shutdown_current_3_sb?.progress?.toByte()!!,
+                shutdown_current_4_sb?.progress?.toByte()!!,
+                shutdown_current_5_sb?.progress?.toByte()!!,
+                shutdown_current_6_sb?.progress?.toByte()!!
+              ), SHUTDOWN_CURRENT_NEW, WRITE, 0
+            )
+          }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, seekBar.progress)
         }
       }
@@ -183,9 +211,30 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
-                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.bleCommandConnector(
+              byteArrayOf(
+                shutdown_current_1_sb?.progress?.toByte()!!,
+                shutdown_current_2_sb?.progress?.toByte()!!,
+                shutdown_current_3_sb?.progress?.toByte()!!,
+                shutdown_current_4_sb?.progress?.toByte()!!,
+                shutdown_current_5_sb?.progress?.toByte()!!,
+                shutdown_current_6_sb?.progress?.toByte()!!
+              ), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0
+            )
+          }
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.bleCommandConnector(
+              byteArrayOf(
+                shutdown_current_1_sb?.progress?.toByte()!!,
+                shutdown_current_2_sb?.progress?.toByte()!!,
+                shutdown_current_3_sb?.progress?.toByte()!!,
+                shutdown_current_4_sb?.progress?.toByte()!!,
+                shutdown_current_5_sb?.progress?.toByte()!!,
+                shutdown_current_6_sb?.progress?.toByte()!!
+              ), SHUTDOWN_CURRENT_NEW, WRITE, 0
+            )
+          }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, seekBar.progress)
         }
       }
@@ -200,9 +249,30 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
-                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.bleCommandConnector(
+              byteArrayOf(
+                shutdown_current_1_sb?.progress?.toByte()!!,
+                shutdown_current_2_sb?.progress?.toByte()!!,
+                shutdown_current_3_sb?.progress?.toByte()!!,
+                shutdown_current_4_sb?.progress?.toByte()!!,
+                shutdown_current_5_sb?.progress?.toByte()!!,
+                shutdown_current_6_sb?.progress?.toByte()!!
+              ), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0
+            )
+          }
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.bleCommandConnector(
+              byteArrayOf(
+                shutdown_current_1_sb?.progress?.toByte()!!,
+                shutdown_current_2_sb?.progress?.toByte()!!,
+                shutdown_current_3_sb?.progress?.toByte()!!,
+                shutdown_current_4_sb?.progress?.toByte()!!,
+                shutdown_current_5_sb?.progress?.toByte()!!,
+                shutdown_current_6_sb?.progress?.toByte()!!
+              ), SHUTDOWN_CURRENT_NEW, WRITE, 0
+            )
+          }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, seekBar.progress)
         }
       }
@@ -217,9 +287,30 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
-                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.bleCommandConnector(
+              byteArrayOf(
+                shutdown_current_1_sb?.progress?.toByte()!!,
+                shutdown_current_2_sb?.progress?.toByte()!!,
+                shutdown_current_3_sb?.progress?.toByte()!!,
+                shutdown_current_4_sb?.progress?.toByte()!!,
+                shutdown_current_5_sb?.progress?.toByte()!!,
+                shutdown_current_6_sb?.progress?.toByte()!!
+              ), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0
+            )
+          }
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.bleCommandConnector(
+              byteArrayOf(
+                shutdown_current_1_sb?.progress?.toByte()!!,
+                shutdown_current_2_sb?.progress?.toByte()!!,
+                shutdown_current_3_sb?.progress?.toByte()!!,
+                shutdown_current_4_sb?.progress?.toByte()!!,
+                shutdown_current_5_sb?.progress?.toByte()!!,
+                shutdown_current_6_sb?.progress?.toByte()!!
+              ), SHUTDOWN_CURRENT_NEW, WRITE, 0
+            )
+          }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, seekBar.progress)
         }
       }
@@ -234,9 +325,30 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
-                                                shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-                                                shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.bleCommandConnector(
+              byteArrayOf(
+                shutdown_current_1_sb?.progress?.toByte()!!,
+                shutdown_current_2_sb?.progress?.toByte()!!,
+                shutdown_current_3_sb?.progress?.toByte()!!,
+                shutdown_current_4_sb?.progress?.toByte()!!,
+                shutdown_current_5_sb?.progress?.toByte()!!,
+                shutdown_current_6_sb?.progress?.toByte()!!
+              ), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0
+            )
+          }
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.bleCommandConnector(
+              byteArrayOf(
+                shutdown_current_1_sb?.progress?.toByte()!!,
+                shutdown_current_2_sb?.progress?.toByte()!!,
+                shutdown_current_3_sb?.progress?.toByte()!!,
+                shutdown_current_4_sb?.progress?.toByte()!!,
+                shutdown_current_5_sb?.progress?.toByte()!!,
+                shutdown_current_6_sb?.progress?.toByte()!!
+              ), SHUTDOWN_CURRENT_NEW, WRITE, 0
+            )
+          }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, seekBar.progress)
         }
       }
@@ -255,24 +367,31 @@ class AdvancedSettingsFragment : Fragment() {
     }
     single_channel_control_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
-        if (single_channel_control_sw?.isChecked!!) {
+        if (single_channel_control_sw.isChecked) {
           single_channel_control_tv?.text = 1.toString()
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-            main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE)
-            main?.setOneChannelNum = 1
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW_VM, WRITE)
           } else {
-            main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+              main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
+            }
           }
-
+          main?.setOneChannelNum = 1
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
           single_channel_control_tv?.text = 0.toString()
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-            main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE)
-            main?.setOneChannelNum = 0
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW_VM, WRITE)
           } else {
-            main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+              main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
+            }
           }
+          main?.setOneChannelNum = 0
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
         }
       }
@@ -290,8 +409,8 @@ class AdvancedSettingsFragment : Fragment() {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
             mode_rl?.visibility = View.VISIBLE
-            main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
-                    SET_CHANGE_GESTURE, WRITE, 17)
+            main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
+              ROTATION_GESTURE_NEW, WRITE, 17)
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
         } else {
@@ -305,8 +424,8 @@ class AdvancedSettingsFragment : Fragment() {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
             mode_rl?.visibility = View.GONE
-            main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
-                    SET_CHANGE_GESTURE, WRITE, 17)
+            main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
+              ROTATION_GESTURE_NEW, WRITE, 17)
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
         }
@@ -318,22 +437,22 @@ class AdvancedSettingsFragment : Fragment() {
           mode_tv?.text = "двумя\nдатчиками"
           mode = 0x01
           downtime_rl?.visibility = View.GONE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
-            main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
-                    SET_CHANGE_GESTURE, WRITE, 17)
+            main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
+              ROTATION_GESTURE_NEW, WRITE, 17)
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, true)
         } else {
           mode_tv?.text = "одним\nдатчиком"
           mode = 0x00
           downtime_rl?.visibility = View.VISIBLE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
-            main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
-                    SET_CHANGE_GESTURE, WRITE, 17)
+            main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
+              ROTATION_GESTURE_NEW, WRITE, 17)
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
         }
@@ -366,13 +485,31 @@ class AdvancedSettingsFragment : Fragment() {
     mode_new_sw?.selectedTab = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
 
     get_setup_btn?.setOnClickListener {
-//      main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
-//      main?.bleCommandConnector(byteArrayOf(0x00), STATUS_CALIBRATION_NEW, READ, 17)
-      main?.bleCommandConnector(byteArrayOf(0x00), SET_GESTURE_NEW, READ, 17)
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+        main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
+      }
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+        main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW_VM, READ, 17)
+      }
       main?.lockChangeTelemetryNumber = true
     }
     set_setup_btn?.setOnClickListener {
-      main?.bleCommandConnector(telemetry_number_et?.text.toString().toByteArray(Charsets.UTF_8), TELEMETRY_NUMBER_NEW, WRITE, 17)
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+        main?.bleCommandConnector(
+          telemetry_number_et?.text.toString().toByteArray(Charsets.UTF_8),
+          TELEMETRY_NUMBER_NEW,
+          WRITE,
+          17
+        )
+      }
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+        main?.bleCommandConnector(
+          telemetry_number_et?.text.toString().toByteArray(Charsets.UTF_8),
+          TELEMETRY_NUMBER_NEW_VM,
+          WRITE,
+          17
+        )
+      }
     }
     main?.telemetryNumber = telemetry_number_et?.text.toString()
     left_right_side_swap_sw?.setOnClickListener{
@@ -427,7 +564,7 @@ class AdvancedSettingsFragment : Fragment() {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
-                    SET_CHANGE_GESTURE, WRITE, 17)
+              ROTATION_GESTURE_NEW, WRITE, 17)
           }
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, seekBar.progress)
         }
@@ -476,7 +613,7 @@ class AdvancedSettingsFragment : Fragment() {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
-                    SET_CHANGE_GESTURE, WRITE, 17)
+              ROTATION_GESTURE_NEW, WRITE, 17)
           }
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, seekBar.progress)
         }
@@ -485,10 +622,14 @@ class AdvancedSettingsFragment : Fragment() {
     reset_to_factory_settings_btn?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         System.err.println("tuk reset_to_factory_settings_btn")
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-          main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, WRITE)
         } else {
-          main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
+          } else {
+            main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
+          }
         }
 
 
@@ -533,17 +674,28 @@ class AdvancedSettingsFragment : Fragment() {
 //      saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
 //    }
     calibration_status_btn?. setOnClickListener {
-      saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
-      main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW)//bleCommand(ConstantManager.READ_REGISTER, CALIBRATION_NEW, READ)
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+        main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW_VM)
+      } else {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW)
+        }
+      }
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
-    if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_BT05) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_MY_IPHONE) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+    if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A)
+      || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_BT05)
+      || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_MY_IPHONE)
+      || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)
+      || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
       shutdown_current_rl?.visibility = View.GONE
     }
     //Скрывает настройки, которые не актуальны для бионик кроме FEST-H
-    if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ) { telemetry_rl?.visibility = View.VISIBLE }
-    else {
+    if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)
+      || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+        telemetry_rl?.visibility = View.VISIBLE
+    } else {
       telemetry_rl?.visibility = View.GONE
       calibration_rl?.visibility = View.GONE
       shutdown_current_1_rl?.visibility = View.GONE
@@ -580,6 +732,7 @@ class AdvancedSettingsFragment : Fragment() {
     }
   }
 
+  @SuppressLint("Recycle")
   private fun updateAllParameters() {
     if(!changeParameter) {
       main?.runOnUiThread {

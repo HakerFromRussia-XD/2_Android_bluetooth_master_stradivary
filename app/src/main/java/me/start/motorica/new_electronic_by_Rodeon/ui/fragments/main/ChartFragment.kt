@@ -38,6 +38,7 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
+import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -319,9 +320,21 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     calibration_btn?.setOnClickListener {
       System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW_VM, WRITE)
+        } else {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
+          }
+        }
       } else {
-        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW_VM, WRITE)
+        } else {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
+          }
+        }
       }
       main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
     }

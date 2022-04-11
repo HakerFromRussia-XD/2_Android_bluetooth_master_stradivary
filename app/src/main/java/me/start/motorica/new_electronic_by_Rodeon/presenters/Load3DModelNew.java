@@ -81,7 +81,7 @@ public class Load3DModelNew {
             if (msg == 10) {
                 String[] currentLine = line.toString().split(" ");
                 if (line.toString().startsWith("# ")) {
-                    if (currentLine[2].equals("vertices\r\n")) {//\r
+                    if (currentLine[2].contains("vertices")) {//\r
                         coordinatesNumber = Integer.parseInt(currentLine[1]);
                         coordinatesArray[number] = new float[coordinatesNumber * 3];
                         System.out.println("Количество вершин: " + coordinatesNumber);
@@ -125,7 +125,7 @@ public class Load3DModelNew {
             if (msg == 10){
                 String[] currentLine = line.toString().split(" ");
                 if(line.toString().startsWith("# ")){
-                    if(currentLine[2].equals("texture")){
+                    if(currentLine[2].contains("texture")){
                         texturesNumber = Integer.parseInt(currentLine[1]);
                         texturesArray[number] = new float[texturesNumber*2];
                         System.out.println("Количество текстурных координат: " + texturesNumber);
@@ -170,7 +170,7 @@ public class Load3DModelNew {
             if (msg == 10) {
                 String[] currentLine = line.toString().split(" ");
                 if (line.toString().startsWith("# ")) {
-                    if (currentLine[2].equals("vertex")) {
+                    if (currentLine[2].contains("vertex")) {
                         normalsNumber = Integer.parseInt(currentLine[1]);
                         normalsArray[number] = new float[normalsNumber * 3];
                         System.out.println("Количество координат нормалей: " + normalsNumber);
@@ -233,7 +233,7 @@ public class Load3DModelNew {
             if (msg == 10){
                 String[] currentLine = line.toString().split(" ");
                 if(line.toString().startsWith("# ")){
-                    if(currentLine[2].equals("facets\r\n")){//\r
+                    if(currentLine[2].contains("facets")){//\r
                         indicesVertices = Integer.parseInt(currentLine[1]);
                         verticesArray[number] = new float[indicesVertices*18*3];
                         indicesArrayVertices[number] = new int [indicesVertices*3];
@@ -306,7 +306,13 @@ public class Load3DModelNew {
                     v3[1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
                     v3[2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
                     //нормали
-                    indicesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\r")[0]) - 1);//.split("\r")[0]
+                    if (currentLine[3].split("/")[2].contains("\r")) {
+                        indicesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\r")[0]) - 1);
+                    } else {
+                        if (currentLine[3].split("/")[2].contains("\n")) {
+                            indicesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\n")[0]) - 1);
+                        }
+                    }
                     verticesArray[number][indicesVertices * 18 + 3] = normalsArray[number][indicesNormalsV * 3];
                     verticesArray[number][indicesVertices * 18 + 4] = normalsArray[number][indicesNormalsV * 3 + 1];
                     verticesArray[number][indicesVertices * 18 + 5] = normalsArray[number][indicesNormalsV * 3 + 2];

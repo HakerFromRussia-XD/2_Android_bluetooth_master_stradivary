@@ -461,7 +461,6 @@ class GripperScreenWithEncodersActivity
                 )
             }
         }
-
         score6 = (angleFinger.toFloat()/100*90).toInt()
     }
 

@@ -16,11 +16,8 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.paolorotolo.appintro.AppIntro
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
@@ -56,14 +53,14 @@ class StartActivity : AppIntro(), BaseView {
     val intent = intent
     mDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME)
     mDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS)
-    mDeviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE)
+    mDeviceType = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A)
 //    preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, true)//для выключения интро при последующем запуске
 
     if (!preferenceManager.getBoolean(PreferenceKeys.NEWBE.first, PreferenceKeys.NEWBE.second)) {
       val intent = Intent(this, MainActivity::class.java)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, mDeviceName)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
-      intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, mDeviceType)
+      intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, mDeviceType)
       startActivity(intent)
       myLoadGesturesList()
       if (gestureNameList[0] == "lol") { firstSetGesturesName () }
@@ -73,7 +70,7 @@ class StartActivity : AppIntro(), BaseView {
       val intent = Intent(this, MainActivity::class.java)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, mDeviceName)
       intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
-      intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, mDeviceType)
+      intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, mDeviceType)
       startActivity(intent)
       finish()
       preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, false)
@@ -106,7 +103,7 @@ class StartActivity : AppIntro(), BaseView {
     val intent = Intent(this, MainActivity::class.java)
     intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, mDeviceName)
     intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, mDeviceAddress)
-    intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, mDeviceType)
+    intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, mDeviceType)
     startActivity(intent)
     preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, false)//для выключения интро при последующем запуске
     finish()

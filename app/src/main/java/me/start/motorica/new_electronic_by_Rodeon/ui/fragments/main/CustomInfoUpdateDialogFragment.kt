@@ -10,12 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_updating_le.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 
+@Suppress("DEPRECATION")
 class CustomInfoUpdateDialogFragment: DialogFragment() {
     private var rootView: View? = null
     private var main: MainActivity? = null
@@ -35,7 +35,7 @@ class CustomInfoUpdateDialogFragment: DialogFragment() {
     }
 
 
-    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n", "MissingSuperCall")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
@@ -45,7 +45,7 @@ class CustomInfoUpdateDialogFragment: DialogFragment() {
         startUpdatingUIThread()
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "Recycle")
     private fun startUpdatingUIThread() {
         var count = 0
         updatingUIThread = Thread {

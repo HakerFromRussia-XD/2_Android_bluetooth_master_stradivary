@@ -330,7 +330,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, extraDevice.getName());
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, extraDevice.getName());
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, extraDevice.getName());
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;

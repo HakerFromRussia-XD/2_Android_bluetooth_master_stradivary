@@ -124,8 +124,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
-      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
-              || mDeviceType!!.contains(DEVICE_TYPE_4))
+      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H))
       {} else {
         mainactivity_navi.visibility = View.GONE
       }
@@ -194,12 +194,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
 
         BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-          if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))) { // новая схема обработки данных
+          if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)) || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))) { // новая схема обработки данных
             displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
 //              System.err.println("попадаем сюда")
           } else {
-            if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
+            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               //TODO прописать новую функцию обработки пришедших данных
               if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensAndBMSVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
@@ -529,7 +529,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     presenter.preferenceManager.putString(PreferenceKeys.DEVICE_NAME, mDeviceName.toString())
     presenter.preferenceManager.putString(PreferenceKeys.DEVICE_ADDR, mDeviceAddress.toString())
     saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
-    mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE)
+    mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE_FEST_A)
     System.err.println("mDeviceAddress: $mDeviceAddress")
 
     // Sets up UI references.
@@ -597,8 +597,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private fun initUI() {
     if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
-              || mDeviceType!!.contains(DEVICE_TYPE_4)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
@@ -609,8 +609,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       NavigationUtils.showAdvancedSettings = true
     } else {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
-              || mDeviceType!!.contains(DEVICE_TYPE_4)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -636,8 +636,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     mainactivity_viewpager.isSaveFromParentEnabled = false
     if (showAdvancedSettings) {
-      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
-              || mDeviceType!!.contains(DEVICE_TYPE_4)) {
+      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
@@ -647,8 +647,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
       }
     } else {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)
-              || mDeviceType!!.contains(DEVICE_TYPE_4)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+              || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
@@ -769,7 +769,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     if(enabled) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3) || mDeviceType!!.contains(DEVICE_TYPE_4)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE) || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         gesture_1_btn?.isEnabled = enabled
         gesture_2_btn?.isEnabled = enabled
         gesture_3_btn?.isEnabled = enabled
@@ -797,10 +797,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
       }
       sensorsDataThreadFlag = enabled
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3)) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)) {
         runReadData()
       } else {
-        if (mDeviceType!!.contains(DEVICE_TYPE_4)) {
+        if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
           runStart()
         } else {
           startSubscribeSensorsDataThread()
@@ -810,7 +810,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
   fun bleCommandConnector(byteArray: ByteArray?, Command: String, typeCommand: String, register: Int) {
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_2)  || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_3))  {
+    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A) || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)  || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))  {
       val length = byteArray!!.size + 2
       val sendByteMassive = ByteArray(length + 3)
       sendByteMassive[0] = 0xAA.toByte()

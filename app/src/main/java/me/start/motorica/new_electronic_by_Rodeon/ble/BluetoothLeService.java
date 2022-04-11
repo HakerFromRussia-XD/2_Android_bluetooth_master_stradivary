@@ -13,6 +13,7 @@
 
 package me.start.motorica.new_electronic_by_Rodeon.ble;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -35,25 +36,38 @@ import timber.log.Timber;
 
 import static me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.SHOW_EVERYONE_RECEIVE_BYTE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_MOTOR_HDLE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.DRIVER_VERSION_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.FESTO_A_CHARACTERISTIC;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.NOTIFY;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_MOTOR_HDLE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.READ;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_ONE_CHANNEL_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_ONE_CHANNEL_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_REVERSE_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_REVERSE_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SHUTDOWN_CURRENT_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SHUTDOWN_CURRENT_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.STATUS_CALIBRATION_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.STATUS_CALIBRATION_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.TELEMETRY_NUMBER_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.TELEMETRY_NUMBER_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE;
 
 
@@ -96,6 +110,8 @@ public class BluetoothLeService extends Service {
     public final static String TELEMETRY_NUMBER_NEW_DATA = "com.example.bluetooth.le.TELEMETRY_NUMBER_NEW_DATA";
     public final static String SHUTDOWN_CURRENT_NEW_DATA = "com.example.bluetooth.le.SHUTDOWN_CURRENT_NEW_DATA";
     public final static String DRIVER_VERSION_NEW_DATA = "com.example.bluetooth.le.DRIVER_VERSION_NEW_DATA";
+
+    public static final int PERMISSION_ASK = 1001;
 
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
         final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
@@ -166,6 +182,48 @@ public class BluetoothLeService extends Service {
             }
 
 
+            if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT_NEW_VM)) {
+                intent.putExtra(MIO_DATA_NEW, data);
+                intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(SENS_VERSION_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(SENS_VERSION_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(OPEN_THRESHOLD_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(OPEN_THRESHOLD_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(CLOSE_THRESHOLD_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(CLOSE_THRESHOLD_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(SENS_OPTIONS_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(SENS_OPTIONS_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(SET_GESTURE_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(SET_GESTURE_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(SET_REVERSE_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(SET_REVERSE_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(SET_ONE_CHANNEL_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(SET_ONE_CHANNEL_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(STATUS_CALIBRATION_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(STATUS_CALIBRATION_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(ADD_GESTURE_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(ADD_GESTURE_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(CALIBRATION_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(CALIBRATION_NEW_DATA, data); intent.putExtra(ACTION_STATE, READ);}
+                if (state.equals(WRITE)){ intent.putExtra(CALIBRATION_NEW_DATA, data); intent.putExtra(ACTION_STATE, WRITE);}
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(TELEMETRY_NUMBER_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(TELEMETRY_NUMBER_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(SHUTDOWN_CURRENT_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(SHUTDOWN_CURRENT_NEW_DATA, data); }
+            }
+
             //TEST
             if (String.valueOf(characteristic.getUuid()).equals(SampleGattAttributes.SHUTDOWN_CURRENT_HDLE)){
                 intent.putExtra(SHUTDOWN_CURRENT_HDLE, data);
@@ -177,6 +235,7 @@ public class BluetoothLeService extends Service {
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+        @SuppressLint("MissingPermission")
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
@@ -293,6 +352,7 @@ public class BluetoothLeService extends Service {
      *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      *         callback.
      */
+    @SuppressLint("MissingPermission")
     public boolean connect(final String address) {
         if (mBluetoothAdapter == null || address == null) {
             Timber.tag(TAG).w("BluetoothAdapter not initialized or unspecified address.");
@@ -331,6 +391,7 @@ public class BluetoothLeService extends Service {
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      * callback.
      */
+    @SuppressLint("MissingPermission")
     public void disconnect() {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Timber.tag(TAG).w("BluetoothAdapter not initialized");
@@ -343,6 +404,7 @@ public class BluetoothLeService extends Service {
      * After using a given BLE device, the app must call this method to ensure resources are
      * released properly.
      */
+    @SuppressLint("MissingPermission")
     public void close() {
         if (mBluetoothGatt == null) {
             return;
@@ -358,6 +420,7 @@ public class BluetoothLeService extends Service {
      *
      * @param characteristic The characteristic to read from.
      */
+    @SuppressLint("MissingPermission")
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Timber.tag(TAG).w("BluetoothAdapter not initialized");
@@ -373,6 +436,7 @@ public class BluetoothLeService extends Service {
      *
      * @param characteristic The characteristic a write.
      */
+    @SuppressLint("MissingPermission")
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Timber.tag(TAG).w("BluetoothAdapter not initialized");
@@ -387,6 +451,7 @@ public class BluetoothLeService extends Service {
      * @param characteristic Characteristic to act on.
      * @param enabled If true, enable notification.  False otherwise.
      */
+    @SuppressLint("MissingPermission")
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {

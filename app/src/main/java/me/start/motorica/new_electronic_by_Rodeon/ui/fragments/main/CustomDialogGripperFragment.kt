@@ -15,6 +15,7 @@ import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 
+@Suppress("DEPRECATION")
 class CustomDialogGripperFragment: DialogFragment() {
     private var rootView: View? = null
     private var main: MainActivity? = null
@@ -34,7 +35,7 @@ class CustomDialogGripperFragment: DialogFragment() {
     }
 
 
-    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n", "MissingSuperCall")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)

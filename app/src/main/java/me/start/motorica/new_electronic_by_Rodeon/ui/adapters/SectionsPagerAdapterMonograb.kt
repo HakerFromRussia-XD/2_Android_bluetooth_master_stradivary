@@ -11,6 +11,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package me.start.motorica.new_electronic_by_Rodeon.ui.adapters
 
 import androidx.fragment.app.Fragment

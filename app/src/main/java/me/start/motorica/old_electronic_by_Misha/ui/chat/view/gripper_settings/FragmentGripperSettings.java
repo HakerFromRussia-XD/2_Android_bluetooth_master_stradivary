@@ -54,7 +54,7 @@ public class FragmentGripperSettings extends Fragment implements ChartView {
         glSurfaceView = view.findViewById(R.id.gl_surface_view);
         final ActivityManager activityManager = (ActivityManager) chatActivity.getSystemService(Context.ACTIVITY_SERVICE);
         final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
-        final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
+        final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x00020000;
 
         if (supportsEs2) {
             glSurfaceView.setEGLContextClientVersion(2);

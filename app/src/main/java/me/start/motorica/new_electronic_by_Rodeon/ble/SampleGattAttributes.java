@@ -1,16 +1,3 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package me.start.motorica.new_electronic_by_Rodeon.ble;
 
 import java.util.HashMap;
@@ -32,8 +19,6 @@ public class SampleGattAttributes {
     public static String OPEN_MOTOR_HDLE = "0000fe48-8e22-4541-9d4c-21edae82ed19";
     public static String CLOSE_MOTOR_HDLE = "0000fe49-8e22-4541-9d4c-21edae82ed19";
     public static String SENSITIVITY_HDLE = "0000fe4a-8e22-4541-9d4c-21edae82ed19";
-//    public static String BRAKE_MOTOR_TIME_HDLE = "0000fe4b-8e22-4541-9d4c-21edae82ed19";
-//    public static String BRAKE_MOTOR_HDLE = "0000fe4c-8e22-4541-9d4c-21edae82ed19";
     public static String SENS_OPTIONS = "0000fe4d-8e22-4541-9d4c-21edae82ed19";
     public static String ADD_GESTURE = "0000fe4e-8e22-4541-9d4c-21edae82ed19";
     public static String SET_GESTURE = "0000fe4f-8e22-4541-9d4c-21edae82ed19";
@@ -43,7 +28,6 @@ public class SampleGattAttributes {
     public static String SET_START_UPDATE = "0000fe53-8e22-4541-9d4c-21edae82ed19";
     public static String SET_CHANGE_GESTURE = "0000fe54-8e22-4541-9d4c-21edae82ed19";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
-//    public static String MY_TEST_MEASUREMENT = "00002a00-0000-1000-8000-00805f9b34fb";
     public static String FESTO_A_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb";
 
 //      характеристики переработанного стека
@@ -73,6 +57,29 @@ public class SampleGattAttributes {
 
     public static String TELEMETRY_NUMBER_NEW = "43686172-4d74-726b-0300-526f64696f6e"; // 16 байт инфа о номере для телеметрии\
 
+//    характеристики переработанного стека для Новой Ваниной и Мишиной версии
+    public static String OPEN_THRESHOLD_NEW_VM = "43680000-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0000-526f64696f6e"; //(без блокировки у Родиона)
+    public static String CLOSE_THRESHOLD_NEW_VM = "43680001-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0001-526f64696f6e";
+    public static String OPEN_MOTOR_NEW_VM = "43680002-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0002-526f64696f6e";
+    public static String CLOSE_MOTOR_NEW_VM = "43680003-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0003-526f64696f6e";
+    public static String ADD_GESTURE_NEW_VM = "43680004-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0004-526f64696f6e";
+    public static String SET_GESTURE_NEW_VM = "43680005-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0005-526f64696f6e"; // (с блокировкой у Родиона)
+    public static String SET_REVERSE_NEW_VM = "43680006-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0006-526f64696f6e";
+    public static String SET_ONE_CHANNEL_NEW_VM = "43680007-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0007-526f64696f6e";
+    public static String CALIBRATION_NEW_VM = "43680008-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0008-526f64696f6e";// Чтение 0 - не калиброван, 1 - идет калибровка, 2 - одного из моторов нет, 3 - одного из энкодеров нет , 4 - один из моторов прокручивается, 5 - перетянуты винты, 6 - откалиброван  Запись 0 начинает калибровку левой кисти, 1 правой
+    public static String STATUS_CALIBRATION_NEW_VM = "43680009-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0009-526f64696f6e";// 6 байт по состоянию на каждый палец ( 0 - не калиброван, 1 - идет калибровка, 2 - мотора нет, 3 - энкодера нет , 4 - мотор прокручивается, 5 - перетянут винт, 6 - откалиброван )
+    public static String MOVE_ALL_FINGERS_NEW_VM = "4368000a-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-000a-526f64696f6e";// 6 байт по положению на каждый палец
+    public static String CHANGE_GESTURE_NEW_VM = "4368000b-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-000b-526f64696f6e";// 13 байт по положению на каждый палец на каждое положение + 1 байт номера жеста
+    public static String SHUTDOWN_CURRENT_NEW_VM = "4368000c-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-000c-526f64696f6e";// 6 байт по отсечке на каждый палец
+
+    public static String RESET_TO_FACTORY_SETTINGS_NEW_VM = "43680100-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0100-526f64696f6e";
+
+    public static String SENS_OPTIONS_NEW_VM = "43680200-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0200-526f64696f6e";
+    public static String MIO_MEASUREMENT_NEW_VM = "43680201-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0201-526f64696f6e";
+    public static String SENS_VERSION_NEW_VM = "43680202-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0202-526f64696f6e";
+    public static String SENS_ENABLED_NEW_VM = "43680203-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0203-526f64696f6e"; // 0-управление от датчиков отключео 1-управление от датчиков включено
+
+    public static String TELEMETRY_NUMBER_NEW_VM = "43680300-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0300-526f64696f6e"; // 16 байт инфа о номере для телеметрии\
 
 
 

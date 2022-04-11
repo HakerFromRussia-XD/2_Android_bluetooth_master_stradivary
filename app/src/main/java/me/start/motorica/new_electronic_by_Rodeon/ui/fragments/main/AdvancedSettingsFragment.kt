@@ -257,7 +257,7 @@ class AdvancedSettingsFragment : Fragment() {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (single_channel_control_sw?.isChecked!!) {
           single_channel_control_tv?.text = 1.toString()
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE)
             main?.setOneChannelNum = 1
           } else {
@@ -267,7 +267,7 @@ class AdvancedSettingsFragment : Fragment() {
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
           single_channel_control_tv?.text = 0.toString()
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE)
             main?.setOneChannelNum = 0
           } else {
@@ -284,7 +284,7 @@ class AdvancedSettingsFragment : Fragment() {
           sensorGestureSwitching = 0x01
           peak_time_rl?.visibility = View.VISIBLE
           if (mode.toInt() == 0) downtime_rl?.visibility = View.VISIBLE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             //TODO показывать меню пройного выбора, а обычный свич (переключение двумя/одним датчиком) скрывать
             mode_new_rl?.visibility = View.VISIBLE
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
@@ -299,7 +299,7 @@ class AdvancedSettingsFragment : Fragment() {
           sensorGestureSwitching = 0x00
           peak_time_rl?.visibility = View.GONE
           downtime_rl?.visibility = View.GONE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             //TODO скрывать меню пройного выбора
             mode_new_rl?.visibility = View.GONE
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
@@ -318,7 +318,7 @@ class AdvancedSettingsFragment : Fragment() {
           mode_tv?.text = "двумя\nдатчиками"
           mode = 0x01
           downtime_rl?.visibility = View.GONE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
@@ -329,7 +329,7 @@ class AdvancedSettingsFragment : Fragment() {
           mode_tv?.text = "одним\nдатчиком"
           mode = 0x00
           downtime_rl?.visibility = View.VISIBLE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
@@ -398,7 +398,7 @@ class AdvancedSettingsFragment : Fragment() {
             ((seekBar.progress + 5) * 0.05).toString() + "0c"
           }
         }
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
           time = (peak_time_sb?.progress?.times(0.04)).toString() + "c"
         }
         peak_time_tv?.text = time
@@ -418,12 +418,12 @@ class AdvancedSettingsFragment : Fragment() {
             ((seekBar.progress + 5) * 0.05).toString() + "0c"
           }
         }
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
           time = (peak_time_sb?.progress?.times(0.04)).toString() + "c"
         }
         peak_time_tv?.text = time
         if (!main?.lockWriteBeforeFirstRead!!) {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
@@ -447,7 +447,7 @@ class AdvancedSettingsFragment : Fragment() {
               ((seekBar.progress + 5) * 0.05).toString() + "0c"
             }
         }
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
           time = (downtime_sb?.progress?.times(0.04)).toString() + "c"
         }
         downtime_tv?.text = time
@@ -467,12 +467,12 @@ class AdvancedSettingsFragment : Fragment() {
             ((seekBar.progress + 5) * 0.05).toString() + "0c"
           }
         }
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
           time = (downtime_sb?.progress?.times(0.04)).toString() + "c"
         }
         downtime_tv?.text = time
         if (!main?.lockWriteBeforeFirstRead!!) {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
           } else {
             main?.bleCommandConnector(byteArrayOf(0x00, sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
@@ -485,7 +485,7 @@ class AdvancedSettingsFragment : Fragment() {
     reset_to_factory_settings_btn?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         System.err.println("tuk reset_to_factory_settings_btn")
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
           main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
         } else {
           main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
@@ -538,11 +538,11 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
-    if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_2) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_3) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+    if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_BT05) || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_MY_IPHONE) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
       shutdown_current_rl?.visibility = View.GONE
     }
     //Скрывает настройки, которые не актуальны для бионик кроме FEST-H
-    if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4) ) { telemetry_rl?.visibility = View.VISIBLE }
+    if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ) { telemetry_rl?.visibility = View.VISIBLE }
     else {
       telemetry_rl?.visibility = View.GONE
       calibration_rl?.visibility = View.GONE
@@ -613,7 +613,7 @@ class AdvancedSettingsFragment : Fragment() {
           ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
         }
       }
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
         time = (peak_time_sb?.progress?.times(0.04)).toString() + "c"
       }
       peak_time_tv?.text = time
@@ -628,7 +628,7 @@ class AdvancedSettingsFragment : Fragment() {
           ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
         }
       }
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_4)) {
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
         time = (downtime_sb?.progress?.times(0.04)).toString() + "c"
       }
       downtime_tv?.text = time

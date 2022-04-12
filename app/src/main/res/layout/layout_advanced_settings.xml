@@ -572,7 +572,7 @@
                             android:scrollbarSize="48dp"
                             android:thumb="@drawable/switch_le_thumb"
                             android:track="@drawable/switch_le_truck"
-                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck,DuplicateSpeakableTextCheck" />
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
@@ -642,7 +642,7 @@
                             android:scrollbarSize="48dp"
                             android:thumb="@drawable/switch_le_thumb"
                             android:track="@drawable/switch_le_truck"
-                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
@@ -712,7 +712,7 @@
                             android:scrollbarSize="48dp"
                             android:thumb="@drawable/switch_le_thumb"
                             android:track="@drawable/switch_le_truck"
-                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
@@ -788,7 +788,7 @@
                 </LinearLayout>
             </RelativeLayout>
 
-        <RelativeLayout
+            <RelativeLayout
             android:id="@+id/mode_new_rl"
             android:visibility="gone"
             android:layout_width="match_parent"
@@ -816,6 +816,7 @@
                 app:switchTabs="@array/switch_tabs"
                 app:textSize="11sp" />
         </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/peak_time_rl"
                 android:layout_width="match_parent"
@@ -992,14 +993,14 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
-                                android:paddingTop="0dp"
                                 android:hint="@string/telemetry_serial"
-                                android:maxLength="16"
                                 android:inputType="textVisiblePassword"
+                                android:maxLength="16"
+                                android:paddingTop="0dp"
                                 android:textColor="#ffffff"
                                 android:textColorHint="#ffffff"
                                 android:textSize="14sp"
-                                tools:ignore="Autofill,TextFields" />
+                                tools:ignore="Autofill,TextFields,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                     </RelativeLayout>
@@ -1014,17 +1015,17 @@
                             style="@style/Text"
                             android:layout_width="match_parent"
                             android:layout_height="42dp"
-                            android:layout_centerVertical="true"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
                             android:layout_marginStart="3dp"
-                            android:layout_marginEnd="3dp"
                             android:layout_marginTop="1dp"
+                            android:layout_marginEnd="3dp"
                             android:layout_marginBottom="3dp"
                             android:background="@drawable/custom_button_le"
                             android:text="@string/get"
                             android:textSize="10sp"
-                            tools:ignore="SmallSp" />
+                            tools:ignore="SmallSp,TouchTargetSizeCheck,TextContrastCheck" />
 
                     </RelativeLayout>
 
@@ -1038,17 +1039,17 @@
                             style="@style/Text"
                             android:layout_width="match_parent"
                             android:layout_height="42dp"
-                            android:layout_centerVertical="true"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
                             android:layout_marginStart="3dp"
-                            android:layout_marginEnd="0dp"
                             android:layout_marginTop="1dp"
+                            android:layout_marginEnd="0dp"
                             android:layout_marginBottom="3dp"
                             android:background="@drawable/custom_button_le"
                             android:text="@string/set"
                             android:textSize="10sp"
-                            tools:ignore="SmallSp" />
+                            tools:ignore="SmallSp,TouchTargetSizeCheck,TextContrastCheck" />
 
                     </RelativeLayout>
                 </LinearLayout>
@@ -1114,13 +1115,13 @@
                             android:layout_alignParentStart="true"
                             android:layout_alignParentEnd="true"
                             android:layout_marginEnd="0dp"
+                            android:checked="true"
                             android:ellipsize="middle"
                             android:paddingStart="16dp"
                             android:scrollbarSize="48dp"
-                            android:checked="true"
                             android:thumb="@drawable/switch_le_thumb"
                             android:track="@drawable/switch_le_truck"
-                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
@@ -1141,13 +1142,14 @@
                     android:layout_marginTop="0dp"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/custom_button_le"
-                    android:text="@string/reset_to_factory_settings" />
+                    android:text="@string/reset_to_factory_settings"
+                    tools:ignore="TouchTargetSizeCheck" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/calibration_rl"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_weight="1"
                 android:visibility="visible">
@@ -1160,39 +1162,42 @@
                     android:weightSum="2"
                     tools:ignore="DisableBaselineAlignment">
 
-<!--                    <RelativeLayout-->
-<!--                        android:layout_width="0dp"-->
-<!--                        android:layout_height="match_parent"-->
-<!--                        android:layout_weight="1">-->
-
-<!--                        <Button-->
-<!--                            android:id="@+id/calibration_btn"-->
-<!--                            style="@style/Text"-->
-<!--                            android:layout_width="match_parent"-->
-<!--                            android:layout_height="42dp"-->
-<!--                            android:layout_marginStart="16dp"-->
-<!--                            android:layout_marginTop="0dp"-->
-<!--                            android:layout_marginEnd="8dp"-->
-<!--                            android:layout_marginBottom="3dp"-->
-<!--                            android:background="@drawable/custom_button_le"-->
-<!--                            android:text="@string/start_calibration" />-->
-<!--                    </RelativeLayout>-->
-                    <RelativeLayout
+                    <LinearLayout
+                        android:id="@+id/calibration_start_button_ll"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="2">
+                        android:layout_height="48dp"
+                        android:orientation="vertical"
+                        android:layout_weight="0">
+
+                        <Button
+                            android:id="@+id/calibration_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="34dp"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/custom_button_le"
+                            android:text="@string/start_calibration" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="2"
+                        android:visibility="visible">
 
                         <Button
                             android:id="@+id/calibration_status_btn"
                             style="@style/Text"
                             android:layout_width="match_parent"
-                            android:layout_height="42dp"
+                            android:layout_height="34dp"
                             android:layout_marginStart="16dp"
                             android:layout_marginTop="0dp"
                             android:layout_marginEnd="16dp"
                             android:background="@drawable/custom_button_le"
-                            android:text="@string/calibration_status" />
-                    </RelativeLayout>
+                            android:text="@string/calibration_status"
+                            tools:ignore="TouchTargetSizeCheck" />
+                    </LinearLayout>
                 </LinearLayout>
             </RelativeLayout>
         </LinearLayout>

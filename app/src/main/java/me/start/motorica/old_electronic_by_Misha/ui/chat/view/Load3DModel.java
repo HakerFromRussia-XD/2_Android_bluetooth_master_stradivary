@@ -1,5 +1,6 @@
 package me.start.motorica.old_electronic_by_Misha.ui.chat.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import java.io.IOException;
@@ -9,17 +10,18 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.MAX
 
 public class Load3DModel  {
     public static final int MAX_NUMBER_DETAILSS = MAX_NUMBER_DETAILS;
+    @SuppressLint("StaticFieldLeak")
     private  static Context context;
     private static String[] text;
-    private volatile float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS][];
-    private volatile float[][] texturesArray = new float[MAX_NUMBER_DETAILS][];
-    private volatile float[][] normalsArray = new float[MAX_NUMBER_DETAILS][];
+    private final float[][] coordinatesArray = new float[MAX_NUMBER_DETAILS][];
+    private final float[][] texturesArray = new float[MAX_NUMBER_DETAILS][];
+    private final float[][] normalsArray = new float[MAX_NUMBER_DETAILS][];
     public volatile static float[][] verticesArray = new float[MAX_NUMBER_DETAILS][1];
     public static String[][] model = new String[MAX_NUMBER_DETAILS][];
     public volatile static int[][] indicesArrayVertices = new int[MAX_NUMBER_DETAILS][1];
 
     public Load3DModel(Context context) {
-        this.context = context;
+        Load3DModel.context = context;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -78,7 +80,7 @@ public class Load3DModel  {
             if (msg == 10) {
                 String[] currentLine = line.toString().split(" ");
                 if (line.toString().startsWith("# ")) {
-                    if (currentLine[2].equals("vertices\r\n")) {//\r
+                    if (currentLine[2].contains("vertices")) {//\r
                         coordinatesNumber = Integer.parseInt(currentLine[1]);
                         coordinatesArray[number] = new float[coordinatesNumber * 3];
 //                        System.out.println("Количество вершин: " + coordinatesNumber);
@@ -122,7 +124,7 @@ public class Load3DModel  {
             if (msg == 10){
                 String[] currentLine = line.toString().split(" ");
                 if(line.toString().startsWith("# ")){
-                    if(currentLine[2].equals("texture")){
+                    if(currentLine[2].contains("texture")){
                         texturesNumber = Integer.parseInt(currentLine[1]);
                         texturesArray[number] = new float[texturesNumber*2];
 //                        System.out.println("Количество текстурных координат: " + texturesNumber);
@@ -167,7 +169,7 @@ public class Load3DModel  {
             if (msg == 10) {
                 String[] currentLine = line.toString().split(" ");
                 if (line.toString().startsWith("# ")) {
-                    if (currentLine[2].equals("vertex")) {
+                    if (currentLine[2].contains("vertex")) {
                         normalsNumber = Integer.parseInt(currentLine[1]);
                         normalsArray[number] = new float[normalsNumber * 3];
 //                        System.out.println("Количество координат нормалей: " + normalsNumber);
@@ -216,7 +218,7 @@ public class Load3DModel  {
             if (msg == 10){
                 String[] currentLine = line.toString().split(" ");
                 if(line.toString().startsWith("# ")){
-                    if(currentLine[2].equals("facets\r\n")){//\r
+                    if(currentLine[2].contains("facets")){//\r
                         indicesVertices = Integer.parseInt(currentLine[1]);
                         verticesArray[number] = new float[indicesVertices*12*3];
                         indicesArrayVertices[number] = new int [indicesVertices*3];
@@ -276,7 +278,13 @@ public class Load3DModel  {
                     verticesArray[number][indicesVertices * 12 + 1] = coordinatesArray[number][indicesCoordinateV * 3 + 1];
                     verticesArray[number][indicesVertices * 12 + 2] = coordinatesArray[number][indicesCoordinateV * 3 + 2];
                     //нормали
-                    indicesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\r")[0]) - 1);//.split("\r")[0]
+                    if (currentLine[3].split("/")[2].contains("\r")) {
+                        indicesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\r")[0]) - 1);
+                    } else {
+                        if (currentLine[3].split("/")[2].contains("\n")) {
+                            indicesNormalsV = (Integer.parseInt(currentLine[3].split("/")[2].split("\n")[0]) - 1);
+                        }
+                    }
                     verticesArray[number][indicesVertices * 12 + 3] = normalsArray[number][indicesNormalsV * 3];
                     verticesArray[number][indicesVertices * 12 + 4] = normalsArray[number][indicesNormalsV * 3 + 1];
                     verticesArray[number][indicesVertices * 12 + 5] = normalsArray[number][indicesNormalsV * 3 + 2];

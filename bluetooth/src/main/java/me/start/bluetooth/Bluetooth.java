@@ -19,11 +19,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 
+@SuppressWarnings({"CommentedOutCode", "StatementWithEmptyBody", "JavaReflectionMemberAccess", "ConstantConditions"})
 public class Bluetooth {
     private static final int REQUEST_ENABLE_BT = 1111;
     public TextView CH1;
@@ -46,7 +48,7 @@ public class Bluetooth {
     private BluetoothCallback bluetoothCallback;
     private boolean connected;
     private boolean logic_disconnect;
-    private boolean DEBUG = false;
+    private final boolean DEBUG = false;
     public Thread dumpingIVariableThread;
     public boolean dumpingIVariableThreadFlag = false;
     private volatile int i = 1;
@@ -77,7 +79,7 @@ public class Bluetooth {
 
     public void onStart(){
         if (DEBUG) {System.out.println("BLUETOOTH--------------> onStart connected:" + connected);}
-        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2){
+        if(Build.VERSION_CODES.JELLY_BEAN_MR2 <= Build.VERSION.SDK_INT){
             bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
             if(bluetoothManager!=null) {
                 bluetoothAdapter = bluetoothManager.getAdapter();
@@ -152,12 +154,9 @@ public class Bluetooth {
         if (DEBUG) {System.out.println("BLUETOOTH--------------> onActivityResult connected:" + connected);}
         if(bluetoothCallback!=null){
             if(requestCode==REQUEST_ENABLE_BT){
-                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                    @Override
-                    public void run() {
-                        if(resultCode==Activity.RESULT_CANCELED){
-                            bluetoothCallback.onUserDeniedActivation();
-                        }
+                ThreadHelper.run(runOnUi, activity, () -> {
+                    if(resultCode==Activity.RESULT_CANCELED){
+                        bluetoothCallback.onUserDeniedActivation();
                     }
                 });
             }
@@ -213,15 +212,12 @@ public class Bluetooth {
             if (DEBUG) {System.out.println("BLUETOOTH--------------> disconnect socket.close eeeee!!! connected:" + connected);}
         } catch (final IOException e) {
             if(deviceCallback !=null) {
-                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                    @Override
-                    public void run() {
-                        if (DEBUG) {System.out.println("BLUETOOTH--------------> disconnect ERROR deviceCallback = null connected:" + connected);}
-                        deviceCallback.onError(e.getMessage());
-                        try {
-                            Thread.sleep(1000);
-                        }catch (Exception ignored){}
-                    }
+                ThreadHelper.run(runOnUi, activity, () -> {
+                    if (DEBUG) {System.out.println("BLUETOOTH--------------> disconnect ERROR deviceCallback = null connected:" + connected);}
+                    deviceCallback.onError(e.getMessage());
+                    try {
+                        Thread.sleep(1000);
+                    }catch (Exception ignored){}
                 });
             }
         }
@@ -244,13 +240,10 @@ public class Bluetooth {
         } catch (final IOException e) {
             connected=false;
             if(deviceCallback !=null){
-                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                    @Override
-                    public void run() {
-                        if (DEBUG) {System.out.println("BLUETOOTH--------------> send ERROR deviceCallback = null connected:" + connected);}
-                        System.out.println("BLUETOOTH--------------> disconnectit 1 connected:" + connected);
-                        deviceCallback.onDeviceDisconnected(device, e.getMessage());
-                    }
+                ThreadHelper.run(runOnUi, activity, () -> {
+                    if (DEBUG) {System.out.println("BLUETOOTH--------------> send ERROR deviceCallback = null connected:" + connected);}
+                    System.out.println("BLUETOOTH--------------> disconnectit 1 connected:" + connected);
+                    deviceCallback.onDeviceDisconnected(device, e.getMessage());
                 });
             }
         }
@@ -268,12 +261,9 @@ public class Bluetooth {
         } catch (final IOException e) {
             connected=false;
             if(deviceCallback !=null){
-                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                    @Override
-                    public void run() {
-                        System.out.println("BLUETOOTH--------------> disconnectit 2 connected:" + connected);
-                        deviceCallback.onDeviceDisconnected(device, e.getMessage());
-                    }
+                ThreadHelper.run(runOnUi, activity, () -> {
+                    System.out.println("BLUETOOTH--------------> disconnectit 2 connected:" + connected);
+                    deviceCallback.onDeviceDisconnected(device, e.getMessage());
                 });
             }
         }
@@ -322,12 +312,9 @@ public class Bluetooth {
             method.invoke(device, (Object[]) null);
         } catch (final Exception e) {
             if(discoveryCallback!=null) {
-                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                    @Override
-                    public void run() {
-                        if (DEBUG) {System.out.println("BLUETOOTH--------------> pair ERROR discoveryCallback = null connected:" + connected);}
-                        discoveryCallback.onError(e.getMessage());
-                    }
+                ThreadHelper.run(runOnUi, activity, () -> {
+                    if (DEBUG) {System.out.println("BLUETOOTH--------------> pair ERROR discoveryCallback = null connected:" + connected);}
+                    discoveryCallback.onError(e.getMessage());
                 });
             }
         }
@@ -342,18 +329,14 @@ public class Bluetooth {
             method.invoke(device, (Object[]) null);
         } catch (final Exception e) {
             if(discoveryCallback!=null) {
-                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                    @Override
-                    public void run() {
-                        discoveryCallback.onError(e.getMessage());
-                    }
-                });
+                ThreadHelper.run(runOnUi, activity, () -> discoveryCallback.onError(e.getMessage()));
             }
         }
     }
 
+    @SuppressWarnings({"FieldCanBeLocal", "ConstantConditions"})
     private class ReceiveThread extends Thread implements Runnable{
-        private int test = 2928;
+        private final int test = 2928;
         private int msg = 65;
         private int summator = 0;     //для проверки суммы первых символов МТ и последнего $
         private int msgLenght = 0;    //для свапа младших и старших байт длинны данных
@@ -370,15 +353,15 @@ public class Bluetooth {
         private byte msgRoughnessOfSensors = 0;
         private int lowByte = 0;                //для записи младшего байта при перемене младших и старших байт
         private int addressHDLCMassage = 0;     //для сохранения адреса с которого пришла HDLC посылка
-        private int directionHDLCMassage = 0;   //для сохранения направления с которого пришла HDLC посылка
+        private final int directionHDLCMassage = 0;   //для сохранения направления с которого пришла HDLC посылка
         private int typeHDLCMassage = 0;        //для сохранения типа принятой посылки HDLC
         private boolean request = true;                //true-ответ false-запрос
         public boolean no_error = true;                //true-нет ошибок false-есть ошибки
         private boolean msgCorrectAcceptance = true;   //true-безошиобочная CRC false-шибочная CRC
         private int branchOfParsing = 1;               //1-певый набор команд, 2-общая полыка с данными, 3-состояние параметров руки на момент включения
-        private StringBuffer msgStr = new StringBuffer();
-        private byte[] txtByteOut = {0x01, 0x02} ;
-        private byte[] byteMassCRC = new byte[10];
+        private final StringBuffer msgStr = new StringBuffer();
+        private final byte[] txtByteOut = {0x01, 0x02} ;
+        private final byte[] byteMassCRC = new byte[10];
 
         public void run(){
             if (DEBUG) {System.out.println("BLUETOOTH--------------> ReceiveThread connected:" + connected);}
@@ -489,29 +472,26 @@ public class Bluetooth {
                             }
                             if(((deviceCallback != null) && (msg == 36))){
                                 final String msgCopy = String.valueOf(msgStr);
-                                final Integer msgLenghtf = msgLenght;
+                                final int msgLenghtf = msgLenght;
                                 final Boolean requestf = request;
                                 final Integer msgRegtsterf = msgRegister;
-                                final Integer msgChannelf = msgChannel;
-                                final Integer msgLevelCHf = msgLevelCH;
+                                final int msgChannelf = msgChannel;
+                                final int msgLevelCHf = msgLevelCH;
                                 final Boolean msgCorrectAcceptancef = msgCorrectAcceptance;
                                 final Boolean errorReceptionf = errorReception;
-                                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(no_error && msgCorrectAcceptance) {
-                                            parserCallback.givsLenhgt(msgLenghtf);
-                                            parserCallback.givsChannel(msgChannelf);
-                                            parserCallback.givsRequest(requestf);
-                                            parserCallback.givsRegister(msgRegtsterf);
-                                            parserCallback.givsLevelCH(msgLevelCHf, msgChannelf);
-                                            parserCallback.givsErrorReception(errorReceptionf);
-                                            deviceCallback.onMessage(msgCopy);
-                                            if (DEBUG) {System.out.println("<-- сделал цикл по ветке 1:"+ msgCopy);}
-                                        }
-                                        parserCallback.givsCorrectAcceptance(msgCorrectAcceptancef);
-                                        resetAllVariables();
+                                ThreadHelper.run(runOnUi, activity, () -> {
+                                    if(no_error && msgCorrectAcceptance) {
+                                        parserCallback.givsLenhgt(msgLenghtf);
+                                        parserCallback.givsChannel(msgChannelf);
+                                        parserCallback.givsRequest(requestf);
+                                        parserCallback.givsRegister(msgRegtsterf);
+                                        parserCallback.givsLevelCH(msgLevelCHf, msgChannelf);
+                                        parserCallback.givsErrorReception(errorReceptionf);
+                                        deviceCallback.onMessage(msgCopy);
+                                        if (DEBUG) {System.out.println("<-- сделал цикл по ветке 1:"+ msgCopy);}
                                     }
+                                    parserCallback.givsCorrectAcceptance(msgCorrectAcceptancef);
+                                    resetAllVariables();
                                 });
                             }
                         }
@@ -555,23 +535,20 @@ public class Bluetooth {
                                 }
                                 if(((deviceCallback != null) && (msg == 35))){
                                     final String msgCopy = String.valueOf(msgStr);
-                                    final Integer msgCurrentf = msgCurrent;
-                                    final Integer msgLevelTrigCH1f = msgLevelCH1;
-                                    final Integer msgLevelTrigCH2f = msgLevelCH2;
-                                    final Byte msgIndicationInvertModef = msgIndicationState;
-                                    final Byte msgBlockIndicationf = msgBlockIndication;
-                                    final Byte msgRoughnessOfSensorsf = msgRoughnessOfSensors;
-                                    ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if(no_error && msgCorrectAcceptance) {
-                                                parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf, msgRoughnessOfSensorsf);
-                                                parserCallback.setStartParametersInChartActivity();
-                                                deviceCallback.onMessage(msgCopy);
-                                                if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2 первая итерация:"+ msgCopy +" no_error="+no_error);}
-                                            }
-                                            resetAllVariables();
+                                    final int msgCurrentf = msgCurrent;
+                                    final int msgLevelTrigCH1f = msgLevelCH1;
+                                    final int msgLevelTrigCH2f = msgLevelCH2;
+                                    final byte msgIndicationInvertModef = msgIndicationState;
+                                    final byte msgBlockIndicationf = msgBlockIndication;
+                                    final byte msgRoughnessOfSensorsf = msgRoughnessOfSensors;
+                                    ThreadHelper.run(runOnUi, activity, () -> {
+                                        if(no_error && msgCorrectAcceptance) {
+                                            parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf, msgRoughnessOfSensorsf);
+                                            parserCallback.setStartParametersInChartActivity();
+                                            deviceCallback.onMessage(msgCopy);
+                                            if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2 первая итерация:"+ msgCopy +" no_error="+no_error);}
                                         }
+                                        resetAllVariables();
                                     });
                                 }
                             }
@@ -614,22 +591,19 @@ public class Bluetooth {
                                 }
                                 if(((deviceCallback != null) && (msg == 35))){
                                     final String msgCopy = String.valueOf(msgStr);
-                                    final Integer msgCurrentf = msgCurrent;
-                                    final Integer msgLevelCH1f = msgLevelCH1;
-                                    final Integer msgLevelCH2f = msgLevelCH2;
-                                    final Byte msgIndicationStatef = msgIndicationState;
-                                    final Integer msgBatteryTensionf = msgBatteryTension;
-                                    ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if(no_error && msgCorrectAcceptance) {
+                                    final int msgCurrentf = msgCurrent;
+                                    final int msgLevelCH1f = msgLevelCH1;
+                                    final int msgLevelCH2f = msgLevelCH2;
+                                    final byte msgIndicationStatef = msgIndicationState;
+                                    final int msgBatteryTensionf = msgBatteryTension;
+                                    ThreadHelper.run(runOnUi, activity, () -> {
+                                        if(no_error && msgCorrectAcceptance) {
 //                                                System.out.println("BLUETOOTH--------------> receive");
-                                                parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
-                                                deviceCallback.onMessage(msgCopy);
-                                                if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2:"+ msgCopy +" no_error="+no_error);}
-                                            }
-                                            resetAllVariables();
+                                            parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
+                                            deviceCallback.onMessage(msgCopy);
+                                            if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2:"+ msgCopy +" no_error="+no_error);}
                                         }
+                                        resetAllVariables();
                                     });
                                 }
                             }
@@ -664,14 +638,9 @@ public class Bluetooth {
                                                 resetAllVariables();
                                             }
                                             break;
+//                                                System.out.println("BLUETOOTH--------------> WRITE -> HDLC_39 -> resetAllVariables");
                                         case BluetoothConstantManager.HDLC_39:
 //                                            System.out.println("BLUETOOTH--------------> WRITE -> HDLC_39");
-                                            i++;
-                                            if(i == 6){
-//                                                System.out.println("BLUETOOTH--------------> WRITE -> HDLC_39 -> resetAllVariables");
-                                                resetAllVariables();
-                                            }
-                                            break;
                                         default:
 //                                            System.out.println("BLUETOOTH--------------> WRITE -> DEFAULT");
                                             i++;
@@ -706,15 +675,12 @@ public class Bluetooth {
                                             }
                                             i++;
                                             if(((deviceCallback != null) && (msgCRC == calculationCRC(byteMassCRC,3)))){
-                                                final Integer msgLevelCH1f = msgLevelCH1;
-                                                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        parserCallback.givsStartParametersTrigCH1(msgLevelCH1f);
-                                                        parserCallback.setStartParametersInChartActivity();
+                                                final int msgLevelCH1f = msgLevelCH1;
+                                                ThreadHelper.run(runOnUi, activity, () -> {
+                                                    parserCallback.givsStartParametersTrigCH1(msgLevelCH1f);
+                                                    parserCallback.setStartParametersInChartActivity();
 //                                                            System.out.println("BLUETOOTH--------------> READ TRIG1 START PARAMETER ");
-                                                        resetAllVariables();
-                                                    }
+                                                    resetAllVariables();
                                                 });
                                             }
                                             break;
@@ -732,15 +698,12 @@ public class Bluetooth {
                                             i++;
                                             if(((deviceCallback != null) && (msgCRC == calculationCRC(byteMassCRC,3)))){
 
-                                                final Integer msgLevelCH2f = msgLevelCH2;
-                                                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        parserCallback.givsStartParametersTrigCH2(msgLevelCH2f);
-                                                        parserCallback.setStartParametersInChartActivity();
+                                                final int msgLevelCH2f = msgLevelCH2;
+                                                ThreadHelper.run(runOnUi, activity, () -> {
+                                                    parserCallback.givsStartParametersTrigCH2(msgLevelCH2f);
+                                                    parserCallback.setStartParametersInChartActivity();
 //                                                            System.out.println("BLUETOOTH--------------> READ TRIG2 START PARAMETER ");
-                                                        resetAllVariables();
-                                                    }
+                                                    resetAllVariables();
                                                 });
                                             }
                                             break;
@@ -758,15 +721,12 @@ public class Bluetooth {
                                             i++;
                                             if(((deviceCallback != null) && (msgCRC == calculationCRC(byteMassCRC,3)))) {
 
-                                                final Integer msgCurrentf = msgCurrent;
-                                                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        parserCallback.givsStartParametersCurrrent(msgCurrentf);
-                                                        parserCallback.setStartParametersInChartActivity();
+                                                final int msgCurrentf = msgCurrent;
+                                                ThreadHelper.run(runOnUi, activity, () -> {
+                                                    parserCallback.givsStartParametersCurrrent(msgCurrentf);
+                                                    parserCallback.setStartParametersInChartActivity();
 //                                                            System.out.println("BLUETOOTH--------------> READ CURRENT START PARAMETER ");
-                                                        resetAllVariables();
-                                                    }
+                                                    resetAllVariables();
                                                 });
                                             }
                                             break;
@@ -781,14 +741,11 @@ public class Bluetooth {
                                             i++;
                                             if(((deviceCallback != null) && (msgCRC == calculationCRC(byteMassCRC,2)))) {
 
-                                                final Integer msgBatteryTensionf = msgBatteryTension;
-                                                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        parserCallback.givsStartParametersBattery(msgBatteryTensionf);
+                                                final int msgBatteryTensionf = msgBatteryTension;
+                                                ThreadHelper.run(runOnUi, activity, () -> {
+                                                    parserCallback.givsStartParametersBattery(msgBatteryTensionf);
 //                                                            System.out.println("BLUETOOTH--------------> READ BATTERY START PARAMETER ");
-                                                        resetAllVariables();
-                                                    }
+                                                    resetAllVariables();
                                                 });
                                             }
                                             break;
@@ -805,15 +762,12 @@ public class Bluetooth {
                                             i++;
                                             if(((deviceCallback != null) && (msgCRC == calculationCRC(byteMassCRC,2)))) {
 
-                                                final Byte msgBlockIndicationf = msgBlockIndication;
-                                                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        parserCallback.givsStartParametersBlock(msgBlockIndicationf);
-                                                        parserCallback.setStartParametersInChartActivity();
+                                                final byte msgBlockIndicationf = msgBlockIndication;
+                                                ThreadHelper.run(runOnUi, activity, () -> {
+                                                    parserCallback.givsStartParametersBlock(msgBlockIndicationf);
+                                                    parserCallback.setStartParametersInChartActivity();
 //                                                            System.out.println("BLUETOOTH--------------> READ BLOCK START PARAMETER ");
-                                                        resetAllVariables();
-                                                    }
+                                                    resetAllVariables();
                                                 });
                                             }
                                             break;
@@ -826,15 +780,12 @@ public class Bluetooth {
                                             i++;
                                             if(((deviceCallback != null) && (i == 8))) {
 
-                                                final Byte msgRoughnessOfSensorsf = msgRoughnessOfSensors;
-                                                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        parserCallback.givsStartParametersRoughness (msgRoughnessOfSensorsf);
-                                                        parserCallback.setStartParametersInChartActivity();
+                                                final byte msgRoughnessOfSensorsf = msgRoughnessOfSensors;
+                                                ThreadHelper.run(runOnUi, activity, () -> {
+                                                    parserCallback.givsStartParametersRoughness (msgRoughnessOfSensorsf);
+                                                    parserCallback.setStartParametersInChartActivity();
 //                                                            System.out.println("BLUETOOTH--------------> READ ROUGHNESS START PARAMETER ");
-                                                        resetAllVariables();
-                                                    }
+                                                    resetAllVariables();
                                                 });
                                             }
                                             break;
@@ -856,21 +807,18 @@ public class Bluetooth {
                                             i++;
                                             if(((deviceCallback != null) && (msgCRC == calculationCRC(byteMassCRC,5)))){
                                                 final String msgCopy = String.valueOf(msgStr);
-                                                final Integer msgCurrentf = msgCurrent;
-                                                final Integer msgLevelCH1f = msgLevelCH1;
-                                                final Integer msgLevelCH2f = msgLevelCH2;
-                                                final Byte msgIndicationStatef = msgIndicationState;
-                                                final Integer msgBatteryTensionf = msgBatteryTension;
-                                                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                                    @Override
-                                                    public void run() {
+                                                final int msgCurrentf = msgCurrent;
+                                                final int msgLevelCH1f = msgLevelCH1;
+                                                final int msgLevelCH2f = msgLevelCH2;
+                                                final byte msgIndicationStatef = msgIndicationState;
+                                                final int msgBatteryTensionf = msgBatteryTension;
+                                                ThreadHelper.run(runOnUi, activity, () -> {
 //                                                System.out.println("BLUETOOTH--------------> receive");
-                                                        parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
-                                                        deviceCallback.onMessage(msgCopy);
-                                                        if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2:"+ msgCopy +" no_error="+no_error);}
+                                                    parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
+                                                    deviceCallback.onMessage(msgCopy);
+                                                    if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2:"+ msgCopy +" no_error="+no_error);}
 //                                                            System.out.println("BLUETOOTH--------------> READ -> CURR_MAIN_DATA_HDLC -> resetAllVariables");
-                                                        resetAllVariables();
-                                                    }
+                                                    resetAllVariables();
                                                 });
                                             }
                                             break;
@@ -887,13 +835,10 @@ public class Bluetooth {
             } catch (final IOException e) {
                 connected=false;
                 if(deviceCallback != null){
-                    ThreadHelper.run(runOnUi, activity, new Runnable() {
-                        @Override
-                        public void run() {
-                            if (DEBUG) {System.out.println("BLUETOOTH--------------> ReceiveThread ERROR deviceCallback = null connected:" + connected);}
-                            System.out.println("BLUETOOTH--------------> disconnectit 3 connected:" + connected);
-                            deviceCallback.onDeviceDisconnected(device, e.getMessage());
-                        }
+                    ThreadHelper.run(runOnUi, activity, () -> {
+                        if (DEBUG) {System.out.println("BLUETOOTH--------------> ReceiveThread ERROR deviceCallback = null connected:" + connected);}
+                        System.out.println("BLUETOOTH--------------> disconnectit 3 connected:" + connected);
+                        deviceCallback.onDeviceDisconnected(device, e.getMessage());
                     });
                 }
             }
@@ -918,8 +863,9 @@ public class Bluetooth {
         }
     }
 
+    @SuppressWarnings("FieldCanBeLocal")
     private class CheckReceiveThread extends Thread implements Runnable {
-        private volatile boolean mFinish = false;
+        private final boolean mFinish = false;
         private int msg = 65;
 
         public void run() {
@@ -931,12 +877,9 @@ public class Bluetooth {
             } catch (final IOException e) {
                 connected = false;
                 if (deviceCallback != null) {
-                    ThreadHelper.run(runOnUi, activity, new Runnable() {
-                        @Override
-                        public void run() {
-                            System.out.println("BLUETOOTH--------------> disconnectit 5 connected:" + connected);
-                            deviceCallback.onDeviceDisconnected(device, e.getMessage());
-                        }
+                    ThreadHelper.run(runOnUi, activity, () -> {
+                        System.out.println("BLUETOOTH--------------> disconnectit 5 connected:" + connected);
+                        deviceCallback.onDeviceDisconnected(device, e.getMessage());
                     });
                 }
             }
@@ -969,7 +912,7 @@ public class Bluetooth {
             try {
                 socket.connect();
                 out = socket.getOutputStream();
-                input = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ISO-8859-1"));
+                input = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.ISO_8859_1));
                 in = new InputStreamReader(socket.getInputStream());
                 connected=true;
 
@@ -977,21 +920,13 @@ public class Bluetooth {
 //                receiveThread.finish();
 
                 if(deviceCallback !=null) {
-                    ThreadHelper.run(runOnUi, activity, new Runnable() {
-                        @Override
-                        public void run() {
-                            deviceCallback.onDeviceConnected(device);
-                        }
-                    });
+                    ThreadHelper.run(runOnUi, activity, () -> deviceCallback.onDeviceConnected(device));
                 }
             } catch (final IOException e) {
                 if(deviceCallback !=null) {
-                    ThreadHelper.run(runOnUi, activity, new Runnable() {
-                        @Override
-                        public void run() {
-                            if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread ERROR deviceCallback null in progress connected:" + connected);}
-                            deviceCallback.onConnectError(device, e.getMessage());
-                        }
+                    ThreadHelper.run(runOnUi, activity, () -> {
+                        if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread ERROR deviceCallback null in progress connected:" + connected);}
+                        deviceCallback.onConnectError(device, e.getMessage());
                     });
                 }
 
@@ -1000,12 +935,9 @@ public class Bluetooth {
                     if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread socket.close connected:" + connected);}
                 } catch (final IOException closeException) {
                     if (deviceCallback != null) {
-                        ThreadHelper.run(runOnUi, activity, new Runnable() {
-                            @Override
-                            public void run() {
-                                if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread ERROR deviceCallback null in progress 2 connected:" + connected);}
-                                deviceCallback.onError(closeException.getMessage());//Could not connect. New attempt in 3sec...
-                            }
+                        ThreadHelper.run(runOnUi, activity, () -> {
+                            if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread ERROR deviceCallback null in progress 2 connected:" + connected);}
+                            deviceCallback.onError(closeException.getMessage());//Could not connect. New attempt in 3sec...
                         });
                     }
                 }
@@ -1013,8 +945,9 @@ public class Bluetooth {
         }
     }
 
+    @SuppressWarnings("FieldCanBeLocal")
     private class CheckConnectThread extends Thread {
-        private volatile boolean mFinish = false;
+        private final boolean mFinish = false;
         CheckConnectThread(BluetoothDevice device, boolean insecureConnection) {
             Bluetooth.this.device=device;
             try {
@@ -1039,7 +972,7 @@ public class Bluetooth {
             try {
                 socket.connect();
                 out = socket.getOutputStream();
-                input = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ISO-8859-1"));
+                input = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.ISO_8859_1));
                 in = new InputStreamReader(socket.getInputStream());
                 connected=true;
 //
@@ -1049,33 +982,18 @@ public class Bluetooth {
                     return;
                 }
                 if(deviceCallback !=null) {
-                    ThreadHelper.run(runOnUi, activity, new Runnable() {
-                        @Override
-                        public void run() {
-                            deviceCallback.onDeviceConnected(myDevice);
-                        }
-                    });
+                    ThreadHelper.run(runOnUi, activity, () -> deviceCallback.onDeviceConnected(myDevice));
                 }
             } catch (final IOException e) {
                 if(deviceCallback !=null) {
-                    ThreadHelper.run(runOnUi, activity, new Runnable() {
-                        @Override
-                        public void run() {
-                            deviceCallback.onConnectError(myDevice, e.getMessage());
-                        }
-                    });
+                    ThreadHelper.run(runOnUi, activity, () -> deviceCallback.onConnectError(myDevice, e.getMessage()));
                 }
 
                 try {
                     socket.close();
                 } catch (final IOException closeException) {
                     if (deviceCallback != null) {
-                        ThreadHelper.run(runOnUi, activity, new Runnable() {
-                            @Override
-                            public void run() {
-                                deviceCallback.onError(closeException.getMessage());
-                            }
-                        });
+                        ThreadHelper.run(runOnUi, activity, () -> deviceCallback.onError(closeException.getMessage()));
                     }
                 }
             }
@@ -1083,7 +1001,7 @@ public class Bluetooth {
     }
 
 
-    private BroadcastReceiver scanReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver scanReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (DEBUG) {System.out.println("BLUETOOTH--------------> BroadcastReceiver scanReceiver connected:" + connected);}
@@ -1094,45 +1012,25 @@ public class Bluetooth {
                         final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                         if (state == BluetoothAdapter.STATE_OFF) {
                             if (discoveryCallback != null) {
-                                ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        discoveryCallback.onError("Bluetooth turned off");
-                                    }
-                                });
+                                ThreadHelper.run(runOnUi, activity, () -> discoveryCallback.onError("Bluetooth turned off"));
                             }
                         }
                         break;
                     case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
                         if (discoveryCallback != null){
-                            ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                @Override
-                                public void run() {
-                                    discoveryCallback.onDiscoveryStarted();
-                                }
-                            });
+                            ThreadHelper.run(runOnUi, activity, () -> discoveryCallback.onDiscoveryStarted());
                         }
                         break;
                     case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                         context.unregisterReceiver(scanReceiver);
                         if (discoveryCallback != null){
-                            ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                @Override
-                                public void run() {
-                                    discoveryCallback.onDiscoveryFinished();
-                                }
-                            });
+                            ThreadHelper.run(runOnUi, activity, () -> discoveryCallback.onDiscoveryFinished());
                         }
                         break;
                     case BluetoothDevice.ACTION_FOUND:
                         final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                         if (discoveryCallback != null){
-                            ThreadHelper.run(runOnUi, activity, new Runnable() {
-                                @Override
-                                public void run() {
-                                    discoveryCallback.onDeviceFound(device);
-                                }
-                            });
+                            ThreadHelper.run(runOnUi, activity, () -> discoveryCallback.onDeviceFound(device));
                         }
                         break;
                 }
@@ -1155,22 +1053,12 @@ public class Bluetooth {
                 if (state == BluetoothDevice.BOND_BONDED && prevState == BluetoothDevice.BOND_BONDING) {
                     context.unregisterReceiver(pairReceiver);
                     if(discoveryCallback!=null){
-                        ThreadHelper.run(runOnUi, activity, new Runnable() {
-                            @Override
-                            public void run() {
-                                discoveryCallback.onDevicePaired(devicePair);
-                            }
-                        });
+                        ThreadHelper.run(runOnUi, activity, () -> discoveryCallback.onDevicePaired(devicePair));
                     }
                 } else if (state == BluetoothDevice.BOND_NONE && prevState == BluetoothDevice.BOND_BONDED){
                     context.unregisterReceiver(pairReceiver);
                     if(discoveryCallback!=null){
-                        ThreadHelper.run(runOnUi, activity, new Runnable() {
-                            @Override
-                            public void run() {
-                                discoveryCallback.onDeviceUnpaired(devicePair);
-                            }
-                        });
+                        ThreadHelper.run(runOnUi, activity, () -> discoveryCallback.onDeviceUnpaired(devicePair));
                     }
                 }
             }
@@ -1185,23 +1073,20 @@ public class Bluetooth {
             if (action!=null && action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                 if(bluetoothCallback!=null) {
-                    ThreadHelper.run(runOnUi, activity, new Runnable() {
-                        @Override
-                        public void run() {
-                            switch (state) {
-                                case BluetoothAdapter.STATE_OFF:
-                                    bluetoothCallback.onBluetoothOff();
-                                    break;
-                                case BluetoothAdapter.STATE_TURNING_OFF:
-                                    bluetoothCallback.onBluetoothTurningOff();
-                                    break;
-                                case BluetoothAdapter.STATE_ON:
-                                    bluetoothCallback.onBluetoothOn();
-                                    break;
-                                case BluetoothAdapter.STATE_TURNING_ON:
-                                    bluetoothCallback.onBluetoothTurningOn();
-                                    break;
-                            }
+                    ThreadHelper.run(runOnUi, activity, () -> {
+                        switch (state) {
+                            case BluetoothAdapter.STATE_OFF:
+                                bluetoothCallback.onBluetoothOff();
+                                break;
+                            case BluetoothAdapter.STATE_TURNING_OFF:
+                                bluetoothCallback.onBluetoothTurningOff();
+                                break;
+                            case BluetoothAdapter.STATE_ON:
+                                bluetoothCallback.onBluetoothOn();
+                                break;
+                            case BluetoothAdapter.STATE_TURNING_ON:
+                                bluetoothCallback.onBluetoothTurningOn();
+                                break;
                         }
                     });
                 }
@@ -1250,19 +1135,16 @@ public class Bluetooth {
     }
 
     public void startDumpingIVariableThread () {
-        dumpingIVariableThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("BLUETOOTH--------------> старт потока обнуления i");
-                dumpingIVariableThreadFlag = true;
-                try {
-                    Thread.sleep(BluetoothConstantManager.TIME_DAMPING_HDLC_MS);
-                }catch (Exception ignored){}
-                while (dumpingIVariableThreadFlag){
-                    System.out.println("BLUETOOTH--------------> обнуления i выполнилось");
-                    i =1;
-                    dumpingIVariableThreadFlag = false;
-                }
+        dumpingIVariableThread = new Thread(() -> {
+            System.out.println("BLUETOOTH--------------> старт потока обнуления i");
+            dumpingIVariableThreadFlag = true;
+            try {
+                Thread.sleep(BluetoothConstantManager.TIME_DAMPING_HDLC_MS);
+            }catch (Exception ignored){}
+            while (dumpingIVariableThreadFlag){
+                System.out.println("BLUETOOTH--------------> обнуления i выполнилось");
+                i =1;
+                dumpingIVariableThreadFlag = false;
             }
         });
         dumpingIVariableThread.start();

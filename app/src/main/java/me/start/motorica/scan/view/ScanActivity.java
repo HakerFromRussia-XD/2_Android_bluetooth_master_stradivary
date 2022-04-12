@@ -57,6 +57,7 @@ import me.start.motorica.scan.presenter.ScanPresenter;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.MAX_NUMBER_DETAILS;
 
 
+@SuppressWarnings("ALL")
 public class ScanActivity extends AppCompatActivity implements ScanView, ScanListAdapter.OnScanMyListener {
     /// BT
     RecyclerView pairedDeviceList;
@@ -149,6 +150,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         init3D();
     }
 
+    @SuppressLint("MissingPermission")
     private void scanLeDevice(final boolean enable) {
         if (enable) {
             mHandler.postDelayed(() -> {
@@ -317,6 +319,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         finish();
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) {
         for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
@@ -457,19 +460,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         Load3DModelNew.model[16] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_16_NEW);
         Load3DModelNew.model[17] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_17_NEW);
         Load3DModelNew.model[18] = mLoad3DModelNew.readData(ConstantManager.MODEDEL_18_NEW);
-
-//        for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
-//            final int finalJ = j;
-//            threadFunction[j] = new Thread(() -> mLoad3DModel.loadSTR2(finalJ));
-//            threadFunction[j].start();
-//        }
-
-//        for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
-//            final int finalK = k;
-//            System.err.println("Запуск загрузки: " + finalK);
-//            threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
-//            threadFunction[k].start();
-//        }
     }
     private void saveData(){
         SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);

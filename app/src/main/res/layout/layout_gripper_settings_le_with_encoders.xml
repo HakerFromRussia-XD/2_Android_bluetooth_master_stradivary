@@ -25,7 +25,8 @@
             android:id="@+id/gesture_state_rl"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2">
+            android:layout_weight="2"
+            tools:ignore="UselessParent">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -37,13 +38,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="0.8">
+
                     <TextView
                         style="@style/Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
-                        android:text="@string/gesture_state" />
+                        android:text="@string/gesture_state"
+                        tools:ignore="TextContrastCheck" />
 
 
                 </RelativeLayout>
@@ -54,14 +57,15 @@
 
                     <Button
                         android:id="@+id/gripper_state_le"
+                        style="@style/Text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="0dp"
-                        android:text="@string/gesture_state_open"
                         android:layout_gravity="center"
+                        android:layout_marginBottom="0dp"
+                        android:background="@drawable/custom_button_le_border"
+                        android:text="@string/gesture_state_open"
                         android:textColor="#FFFFFFFF"
-                        style="@style/Text"
-                        android:background="@drawable/custom_button_le_border" />
+                        tools:ignore="TouchTargetSizeCheck" />
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
@@ -160,11 +164,11 @@
         android:id="@+id/edit_gesture_name_btn"
         android:layout_width="42dp"
         android:layout_height="42dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="81dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginStart="81dp"
+        android:layout_marginTop="24dp"
         android:background="@drawable/track_invisible"
         android:src="@drawable/ic_edit_24"
         app:layout_constraintTop_toBottomOf="@+id/gesture_name_tv"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription,TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 </FrameLayout>

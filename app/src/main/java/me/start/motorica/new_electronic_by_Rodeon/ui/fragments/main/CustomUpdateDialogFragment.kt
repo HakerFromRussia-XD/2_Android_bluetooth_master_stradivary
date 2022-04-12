@@ -16,6 +16,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 
+@Suppress("DEPRECATION")
 class CustomUpdateDialogFragment: DialogFragment() {
     private var rootView: View? = null
     private var main: MainActivity? = null

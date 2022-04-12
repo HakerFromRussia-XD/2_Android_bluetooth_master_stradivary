@@ -13,6 +13,7 @@ import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 
+@Suppress("DEPRECATION")
 class GripperFragment: Fragment(), OnChartValueSelectedListener {
     private var rootView: View? = null
     private var main: MainActivity? = null
@@ -28,6 +29,7 @@ class GripperFragment: Fragment(), OnChartValueSelectedListener {
     @SuppressLint("ClickableViewAccessibility")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
     }
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {}

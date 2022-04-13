@@ -461,21 +461,21 @@ class AdvancedSettingsFragment : Fragment() {
 
     mode_new_sw?.setOnSwitchListener { position, _ ->
       if (position == 0) {
-        Toast.makeText(main?.baseContext,  "0", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(main?.baseContext,  "0", Toast.LENGTH_SHORT).show()
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
         mode = 0
         if (sensorGestureSwitching.toInt() == 1) downtime_rl?.visibility = View.VISIBLE
         main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
       }
       if (position == 1) {
-        Toast.makeText(main?.baseContext, "1", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(main?.baseContext, "1", Toast.LENGTH_SHORT).show()
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 1)
         mode = 1
         downtime_rl?.visibility = View.GONE
         main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
       }
       if (position == 2) {
-        Toast.makeText(main?.baseContext, "2", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(main?.baseContext, "2", Toast.LENGTH_SHORT).show()
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 2)
         mode = 2
         downtime_rl?.visibility = View.GONE

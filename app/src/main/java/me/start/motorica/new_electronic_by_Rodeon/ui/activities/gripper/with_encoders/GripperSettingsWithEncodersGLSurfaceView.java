@@ -42,7 +42,7 @@ public class GripperSettingsWithEncodersGLSurfaceView extends GLSurfaceView impl
 								R.string.lesson_eight_error_unknown), cause);
 			}
 
-			Toast.makeText(getContext(), text, Toast.LENGTH_LONG).show();
+//			Toast.makeText(getContext(), text, Toast.LENGTH_LONG).show();
 
 		});
 	}

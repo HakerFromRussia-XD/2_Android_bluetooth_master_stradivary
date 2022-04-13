@@ -1,16 +1,3 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 
 import android.animation.ObjectAnimator
@@ -38,7 +25,6 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
-import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -67,6 +53,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var updatingUIThread: Thread? = null
   private var scale = 0F
   private var oldStateSync = 0
+  private var count: Int = 0
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -77,7 +64,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     return rootView
   }
 
-  @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
+  @SuppressLint("ClickableViewAccessibility", "SetTextI18n", "Recycle")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     if (main?.locate?.contains("ru")!!) {
@@ -204,6 +191,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       false
     }
     open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH1 = $progress")
         ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
@@ -234,6 +222,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
     })
     close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH2 = $progress")
         ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()
@@ -421,18 +410,18 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     calibration_btn?.setOnClickListener {
       System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
           main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW_VM, WRITE)
         } else {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
           }
         }
       } else {
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
           main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW_VM, WRITE)
         } else {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
           }
         }
@@ -494,23 +483,52 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     set2.valueTextColor = Color.TRANSPARENT
     return set2
   }
+  private fun createSet3(): LineDataSet {
+    val set3 = LineDataSet(null, null)
+    set3.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
+    set3.lineWidth = 0.1f
+    set3.color = Color.WHITE
+    set3.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+    set3.setCircleColor(Color.TRANSPARENT)
+    set3.circleHoleColor = Color.TRANSPARENT
+    set3.fillColor = ColorTemplate.getHoloBlue()
+    set3.highLightColor = Color.rgb(244, 117, 177)
+    set3.valueTextColor = Color.TRANSPARENT
+    return set3
+  }
   private fun addEntry(sens1: Int, sens2: Int) {
     val data: LineData = chart_mainchart?.data!!
     var set = data.getDataSetByIndex(0)
     var set2 = data.getDataSetByIndex(1)
+    var set3 = data.getDataSetByIndex(2)
     if (set == null) {
       set = createSet()
       set2 = createSet2()
+      set3 = createSet3()
       data.addDataSet(set)
       data.addDataSet(set2)
+      data.addDataSet(set3)
     }
 
-    data.addEntry(Entry(set.entryCount.toFloat(), sens1.toFloat()), 0)
-    data.addEntry(Entry(set2!!.entryCount.toFloat(), sens2.toFloat()), 1)
+    System.err.println("addEntry set1 -> " + set.entryCount)
+    System.err.println("addEntry set2 -> " + set2.entryCount)
+    System.err.println("addEntry set3 -> " + set3.entryCount)
+    if (set.entryCount > 300 ) {
+      set.removeFirst()
+      set2.removeFirst()
+      set.addEntryOrdered(Entry(1f,255f))
+//      set3.removeFirst()
+    } else {
+      data.addEntry(Entry(count.toFloat(), 255f), 2)
+    }
+    data.addEntry(Entry(count.toFloat(), sens1.toFloat()), 0)
+    data.addEntry(Entry(count.toFloat(), sens2.toFloat()), 1)
+//    data.addEntry(Entry(count.toFloat(), 255f), 2)
     data.notifyDataChanged()
     chart_mainchart.notifyDataSetChanged()
-    chart_mainchart.setVisibleXRangeMaximum(100f)
-    chart_mainchart.moveViewToX(set.entryCount - 100.toFloat()) //data.getEntryCount()
+    chart_mainchart.setVisibleXRangeMaximum(300f)
+    chart_mainchart.moveViewToX(set.entryCount - 300.toFloat())
+    count += 1
   }
   private fun initializedSensorGraph() {
     chart_mainchart.contentDescription
@@ -540,7 +558,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     val y: YAxis = chart_mainchart.axisLeft
     y.textColor = Color.WHITE
     y.mAxisMaximum = 255f
-    y.mAxisMinimum = 0f
+    y.mAxisMinimum = 255f
     y.textSize = 0f
     y.textColor = Color.TRANSPARENT
     y.setDrawGridLines(true)
@@ -558,16 +576,16 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         main?.runOnUiThread {
           if (plotData) {
             addEntry(10, 255)
-            addEntry(115, 150)
+//            addEntry(115, 150)
             addEntry(10, 255)
             addEntry(115, 150)
-            addEntry(10, 255)
+//            addEntry(10, 255)
             addEntry(115, 150)
             addEntry(10, 255)
-            addEntry(115, 150)
+//            addEntry(115, 150)
             addEntry(10, 255)
             addEntry(115, 150)
-            addEntry(10, 255)
+//            addEntry(10, 255)
             addEntry(115, 150)
             plotData = false
           }
@@ -586,7 +604,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   override fun onNothingSelected() {}
 
 
-  @SuppressLint("SetTextI18n")
+  @SuppressLint("SetTextI18n", "Recycle")
   private fun startUpdatingUIThread() {
     updatingUIThread = Thread {
       while (testThreadFlag) {

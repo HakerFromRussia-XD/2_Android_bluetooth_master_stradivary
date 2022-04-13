@@ -1170,7 +1170,7 @@
                         android:layout_weight="0">
 
                         <Button
-                            android:id="@+id/calibration_btn"
+                            android:id="@+id/calibration_adv_btn"
                             style="@style/Text"
                             android:layout_width="match_parent"
                             android:layout_height="34dp"
@@ -1187,7 +1187,7 @@
                         android:visibility="visible">
 
                         <Button
-                            android:id="@+id/calibration_status_btn"
+                            android:id="@+id/calibration_status_adv_btn"
                             style="@style/Text"
                             android:layout_width="match_parent"
                             android:layout_height="34dp"

@@ -104,7 +104,7 @@ class AdvancedSettingsFragment : Fragment() {
       mode_tv?.textSize = 11f
       reset_to_factory_settings_btn?.textSize = 12f
 //      calibration_btn?.textSize = 12f
-      calibration_status_btn?.textSize = 12f
+      calibration_status_adv_btn?.textSize = 12f
       side_text_tv?.textSize = 11f
       left_right_side_swap_tv?.textSize = 11f
       shutdown_current_1_text_tv?.textSize = 11f
@@ -673,7 +673,7 @@ class AdvancedSettingsFragment : Fragment() {
 //      }
 //      saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
 //    }
-    calibration_status_btn?. setOnClickListener {
+    calibration_status_adv_btn?. setOnClickListener {
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
         main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW_VM)
       } else {

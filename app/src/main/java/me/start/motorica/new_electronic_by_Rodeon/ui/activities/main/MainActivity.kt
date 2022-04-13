@@ -1064,7 +1064,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         when (state) {
           // ПРАВИЛЬНАЯ ЦЕПЬ ЗАПРОСОВ
           0 -> {
-            showToast("Старт потока запросов начальных параметров")
+//            showToast("Старт потока запросов начальных параметров")
             System.err.println("$info = 0")
             bleCommand(READ_REGISTER, SENS_VERSION_NEW, READ)
             globalSemaphore = false
@@ -1231,7 +1231,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         when (state) {
           // ПРАВИЛЬНАЯ ЦЕПЬ ЗАПРОСОВ
           0 -> {
-            showToast("Старт потока запросов начальных параметров для FEST-X")
+//            showToast("Старт потока запросов начальных параметров для FEST-X")
             System.err.println("$info = 0")
             bleCommand(READ_REGISTER, SENS_VERSION_NEW_VM, READ)
             globalSemaphore = false
@@ -1551,27 +1551,27 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         )
 
         saveInt(
-          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 1),
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 2),
           gestureTable[i][1][0]
         )
         saveInt(
-          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 1),
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 2),
           gestureTable[i][1][1]
         )
         saveInt(
-          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 1),
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 2),
           gestureTable[i][1][2]
         )
         saveInt(
-          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 1),
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 2),
           gestureTable[i][1][3]
         )
         saveInt(
-          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 1),
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 2),
           gestureTable[i][1][4]
         )
         saveInt(
-          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 1),
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 2),
           gestureTable[i][1][5]
         )
       }

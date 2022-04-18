@@ -513,7 +513,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     System.err.println("addEntry set1 -> " + set.entryCount)
     System.err.println("addEntry set2 -> " + set2.entryCount)
     System.err.println("addEntry set3 -> " + set3.entryCount)
-    if (set.entryCount > 300 ) {
+    if (set.entryCount > 600 ) {
       set.removeFirst()
       set2.removeFirst()
       set.addEntryOrdered(Entry(1f,255f))
@@ -526,8 +526,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 //    data.addEntry(Entry(count.toFloat(), 255f), 2)
     data.notifyDataChanged()
     chart_mainchart.notifyDataSetChanged()
-    chart_mainchart.setVisibleXRangeMaximum(300f)
-    chart_mainchart.moveViewToX(set.entryCount - 300.toFloat())
+    chart_mainchart.setVisibleXRangeMaximum(600f)
+    chart_mainchart.moveViewToX(set.entryCount - 600.toFloat())
     count += 1
   }
   private fun initializedSensorGraph() {

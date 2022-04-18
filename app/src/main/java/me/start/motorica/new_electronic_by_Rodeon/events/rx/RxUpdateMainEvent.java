@@ -5,7 +5,6 @@ import io.reactivex.subjects.PublishSubject;
 import me.start.motorica.new_electronic_by_Rodeon.models.FingerAngle;
 import me.start.motorica.new_electronic_by_Rodeon.models.GestureState;
 import me.start.motorica.new_electronic_by_Rodeon.models.GestureStateWithEncoders;
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity;
 
 public class RxUpdateMainEvent {
 

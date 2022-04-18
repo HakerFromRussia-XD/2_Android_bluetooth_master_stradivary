@@ -17,7 +17,6 @@ import android.widget.TextView
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gripper_state_le
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
@@ -142,6 +141,9 @@ class GripperScreenWithEncodersActivity
                 .compose(bindToLifecycle())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { parameters ->
+//                    System.err.println(
+//                        "GripperSettingsRender--------> fingerAngleObservable  numberFinger = "
+//                                + parameters.numberFinger + "     fingerAngel = " + parameters.fingerAngel)
                     numberFinger = parameters.numberFinger
                     angleFinger = parameters.fingerAngel
                     if (numberFinger == 1) {
@@ -634,6 +636,7 @@ class GripperScreenWithEncodersActivity
 
     private fun compileBLEMassage (withChangeGesture: Boolean) {
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            System.err.println("GripperSettingsRender--------> compileBLEMassage FEST_H withChangeGesture =$withChangeGesture")
             val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
                 fingerOpenState1, fingerOpenState2, fingerOpenState3,
                 fingerOpenState4, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
@@ -643,6 +646,7 @@ class GripperScreenWithEncodersActivity
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         }
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            System.err.println("GripperSettingsRender--------> compileBLEMassage FEST_X withChangeGesture =$withChangeGesture")
             val gestureStateModel = GestureStateWithEncoders(gestureNumber,
                 fingerOpenState4, fingerOpenState3, fingerOpenState2,
                 fingerOpenState1, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
@@ -745,25 +749,25 @@ class GripperScreenWithEncodersActivity
                 mSettings!!.getString(
                     PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
                     text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber + 1), 0
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1), 0
             )
             fingerOpenState3 = mSettings!!.getInt(
                 mSettings!!.getString(
                     PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
                     text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber + 1), 0
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber + 1), 0
             )
             fingerOpenState2 = mSettings!!.getInt(
                 mSettings!!.getString(
                     PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
                     text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber + 1), 0
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber + 1), 0
             )
             fingerOpenState1 = mSettings!!.getInt(
                 mSettings!!.getString(
                     PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
                     text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1), 0
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber + 1), 0
             )
             fingerOpenState5 = mSettings!!.getInt(
                 mSettings!!.getString(
@@ -781,25 +785,25 @@ class GripperScreenWithEncodersActivity
                 mSettings!!.getString(
                     PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
                     text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber + 1), 0
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber + 1), 0
             )
             fingerCloseState3 = mSettings!!.getInt(
                 mSettings!!.getString(
                     PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
                     text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber + 1), 0
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber + 1), 0
             )
             fingerCloseState2 = mSettings!!.getInt(
                 mSettings!!.getString(
                     PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
                     text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber + 1), 0
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber + 1), 0
             )
             fingerCloseState1 = mSettings!!.getInt(
                 mSettings!!.getString(
                     PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
                     text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber + 1), 0
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber + 1), 0
             )
             fingerCloseState5 = mSettings!!.getInt(
                 mSettings!!.getString(

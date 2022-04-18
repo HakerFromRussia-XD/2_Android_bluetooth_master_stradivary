@@ -3,11 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../../layout/custom_preview.xml" value="0.3312820512820513" />
         <entry key="..\:/VRMMO/Adroid/Projekts/2_Android_bluetooth_master_stradivary/app/src/main/res/layout/activiti_experimental.xml" value="0.20471014492753623" />
         <entry key="..\:/VRMMO/Adroid/Projekts/2_Android_bluetooth_master_stradivary/app/src/main/res/layout/fragment_service_settings.xml" value="0.10182370820668693" />
         <entry key="..\:/VRMMO/Adroid/Projekts/2_Android_bluetooth_master_stradivary/app/src/main/res/layout/layout_sens_settings.xml" value="0.10182370820668693" />
         <entry key="app/src/main/res/layout/layout_advanced_settings.xml" value="0.18984691232874767" />
         <entry key="app/src/main/res/layout/layout_gripper_settings_le_with_encoders.xml" value="0.26721014492753625" />
+        <entry key="app/src/main/res/layout/layout_gripper_settings_le_without_encoders.xml" value="0.29347826086956524" />
         <entry key="app/src/main/res/layout/layout_updating_le.xml" value="0.2749094202898551" />
       </map>
     </option>

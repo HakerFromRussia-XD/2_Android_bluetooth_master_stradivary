@@ -225,6 +225,7 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 	private float angle75 = 75;
 	private float angle130 = 130;
 
+
 	enum SelectStation {UNSELECTED_OBJECT, SELECT_FINGER_1, SELECT_FINGER_2, SELECT_FINGER_3, SELECT_FINGER_4, SELECT_FINGER_5}
 	public SelectStation selectStation;
 	/**
@@ -1569,33 +1570,36 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 	}
 
 	private void transferCommand() {
+		FingerAngle fingerAngleModel;
+		FingerAngle fingerAngleModel2;
+
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_1")){
 			System.err.println("GripperSettingsRender--------> angleLittleFingerTransfer: "+ angleLittleFingerTransfer);
-			FingerAngle fingerAngleModel = new FingerAngle(1, angleLittleFingerTransfer);
+			fingerAngleModel = new FingerAngle(1, angleLittleFingerTransfer);
 			RxUpdateMainEvent.getInstance().updateFingerAngle(fingerAngleModel);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_2")){
 			System.err.println("GripperSettingsRender--------> angleRingFingerTransfer: "+ angleRingFingerTransfer);
-			FingerAngle fingerAngleModel = new FingerAngle(2, angleRingFingerTransfer);
+			fingerAngleModel = new FingerAngle(2, angleRingFingerTransfer);
 			RxUpdateMainEvent.getInstance().updateFingerAngle(fingerAngleModel);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_3")){
 			System.err.println("GripperSettingsRender--------> angleMiddleFingerTransfer: "+ angleMiddleFingerTransfer);
-			FingerAngle fingerAngleModel = new FingerAngle(3, angleMiddleFingerTransfer);
+			fingerAngleModel = new FingerAngle(3, angleMiddleFingerTransfer);
 			RxUpdateMainEvent.getInstance().updateFingerAngle(fingerAngleModel);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_4")){
 			System.err.println("GripperSettingsRender--------> angleForeFingerTransfer: "+ angleForeFingerTransfer);
-			FingerAngle fingerAngleModel = new FingerAngle(4, angleForeFingerTransfer);
+			fingerAngleModel = new FingerAngle(4, angleForeFingerTransfer);
 			RxUpdateMainEvent.getInstance().updateFingerAngle(fingerAngleModel);
 		}
 		if(String.valueOf(selectStation).equals("SELECT_FINGER_5")) {
 			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer1: " + (100 - ((int) ((float) (angleBigFingerTransfer1 + 60) / 90 * 100))));
-			FingerAngle fingerAngleModel = new FingerAngle(5, (100 - ((int) ((float) (angleBigFingerTransfer1 + 60) / 90 * 100))));
+			fingerAngleModel = new FingerAngle(5, (100 - ((int) ((float) (angleBigFingerTransfer1 + 60) / 90 * 100))));
 			RxUpdateMainEvent.getInstance().updateFingerAngle(fingerAngleModel);
 			//      далее конструкция инвертирования и приведения диапазона для вращения венца большого пальца
 			System.err.println("GripperSettingsRender--------> angleBigFingerTransfer2: " + (100 - ((int) ((float) angleBigFingerTransfer2 / 90 * 100))));
-			FingerAngle fingerAngleModel2 = new FingerAngle(6, (100 - ((int) ((float) angleBigFingerTransfer2 / 90 * 100))));
+			fingerAngleModel2 = new FingerAngle(6, (100 - ((int) ((float) angleBigFingerTransfer2 / 90 * 100))));
 			RxUpdateMainEvent.getInstance().updateFingerAngle(fingerAngleModel2);
 		}
 		transferFlag = false;

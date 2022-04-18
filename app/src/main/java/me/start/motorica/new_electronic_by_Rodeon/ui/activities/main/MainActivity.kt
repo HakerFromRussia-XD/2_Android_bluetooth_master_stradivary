@@ -1,16 +1,3 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 @file:Suppress("SameParameterValue")
 
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
@@ -548,13 +535,57 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { parameters ->
+              System.err.println("GripperSettingsRender--------> gestureStateWithEncodersObservable "+
+              "withChangeGesture = " +parameters.withChangeGesture + "    state = " + parameters.state)
               System.err.println("Prishedshie parametri: ${parameters.openStage1.toByte()}")
               if (parameters.state == 1) {
-                runWriteData(byteArrayOf(parameters.openStage1.toByte(), parameters.openStage2.toByte(), parameters.openStage3.toByte(),
-                        parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte()), MOVE_ALL_FINGERS_NEW, WRITE)
+                if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+                  runWriteData(
+                    byteArrayOf(
+                      parameters.openStage1.toByte(),
+                      parameters.openStage2.toByte(),
+                      parameters.openStage3.toByte(),
+                      parameters.openStage4.toByte(),
+                      parameters.openStage5.toByte(),
+                      parameters.openStage6.toByte()
+                    ), MOVE_ALL_FINGERS_NEW_VM, WRITE
+                  )
+                } else {
+                  runWriteData(
+                    byteArrayOf(
+                      parameters.openStage1.toByte(),
+                      parameters.openStage2.toByte(),
+                      parameters.openStage3.toByte(),
+                      parameters.openStage4.toByte(),
+                      parameters.openStage5.toByte(),
+                      parameters.openStage6.toByte()
+                    ), MOVE_ALL_FINGERS_NEW, WRITE
+                  )
+                }
               } else {
-                runWriteData(byteArrayOf(parameters.closeStage1.toByte(), parameters.closeStage2.toByte(), parameters.closeStage3.toByte(),
-                        parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), MOVE_ALL_FINGERS_NEW, WRITE)
+                if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+                runWriteData(
+                  byteArrayOf(
+                    parameters.closeStage1.toByte(),
+                    parameters.closeStage2.toByte(),
+                    parameters.closeStage3.toByte(),
+                    parameters.closeStage4.toByte(),
+                    parameters.closeStage5.toByte(),
+                    parameters.closeStage6.toByte()
+                  ), MOVE_ALL_FINGERS_NEW_VM, WRITE
+                )
+              } else {
+                runWriteData(
+                  byteArrayOf(
+                    parameters.closeStage1.toByte(),
+                    parameters.closeStage2.toByte(),
+                    parameters.closeStage3.toByte(),
+                    parameters.closeStage4.toByte(),
+                    parameters.closeStage5.toByte(),
+                    parameters.closeStage6.toByte()
+                  ), MOVE_ALL_FINGERS_NEW, WRITE
+                )
+              }
               }
               if (parameters.withChangeGesture) {
                 System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage1: ${parameters.openStage1}    closeStage1: ${parameters.closeStage1}")
@@ -564,11 +595,43 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                 System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage5: ${parameters.openStage5}    closeStage5: ${parameters.closeStage5}")
                 System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage6: ${parameters.openStage6}    closeStage6: ${parameters.closeStage6}")
 
-                runWriteData(byteArrayOf((parameters.gestureNumber).toByte(),
-                        parameters.openStage1.toByte(), parameters.openStage2.toByte(), parameters.openStage3.toByte(),
-                        parameters.openStage4.toByte(), parameters.openStage5.toByte(), parameters.openStage6.toByte(),
-                        parameters.closeStage1.toByte(), parameters.closeStage2.toByte(), parameters.closeStage3.toByte(),
-                        parameters.closeStage4.toByte(), parameters.closeStage5.toByte(), parameters.closeStage6.toByte()), CHANGE_GESTURE_NEW, WRITE)
+                if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+                  runWriteData(
+                    byteArrayOf(
+                      (parameters.gestureNumber).toByte(),
+                      parameters.openStage1.toByte(),
+                      parameters.openStage2.toByte(),
+                      parameters.openStage3.toByte(),
+                      parameters.openStage4.toByte(),
+                      parameters.openStage5.toByte(),
+                      parameters.openStage6.toByte(),
+                      parameters.closeStage1.toByte(),
+                      parameters.closeStage2.toByte(),
+                      parameters.closeStage3.toByte(),
+                      parameters.closeStage4.toByte(),
+                      parameters.closeStage5.toByte(),
+                      parameters.closeStage6.toByte()
+                    ), CHANGE_GESTURE_NEW_VM, WRITE
+                  )
+                } else {
+                  runWriteData(
+                    byteArrayOf(
+                      (parameters.gestureNumber).toByte(),
+                      parameters.openStage1.toByte(),
+                      parameters.openStage2.toByte(),
+                      parameters.openStage3.toByte(),
+                      parameters.openStage4.toByte(),
+                      parameters.openStage5.toByte(),
+                      parameters.openStage6.toByte(),
+                      parameters.closeStage1.toByte(),
+                      parameters.closeStage2.toByte(),
+                      parameters.closeStage3.toByte(),
+                      parameters.closeStage4.toByte(),
+                      parameters.closeStage5.toByte(),
+                      parameters.closeStage6.toByte()
+                    ), CHANGE_GESTURE_NEW, WRITE
+                  )
+                }
               }
             }
     RxUpdateMainEvent.getInstance().fingerSpeedObservable

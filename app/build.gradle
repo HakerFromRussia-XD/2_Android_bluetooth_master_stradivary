@@ -52,6 +52,8 @@ dependencies {
 
     // network
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
+    //app metrica
+    implementation 'com.yandex.android:mobmetricalib:4.2.0'
 
     // dagger
     implementation "com.google.dagger:dagger:2.30.1"

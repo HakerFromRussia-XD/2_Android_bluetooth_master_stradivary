@@ -1,5 +1,6 @@
 package me.start.bluetooth;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -26,6 +27,7 @@ import java.util.UUID;
 
 
 @SuppressWarnings({"CommentedOutCode", "StatementWithEmptyBody", "JavaReflectionMemberAccess", "ConstantConditions"})
+@SuppressLint("MissingPermission")
 public class Bluetooth {
     private static final int REQUEST_ENABLE_BT = 1111;
     public TextView CH1;
@@ -887,6 +889,7 @@ public class Bluetooth {
     }
 
     private class ConnectThread extends Thread {
+
         ConnectThread(BluetoothDevice device, boolean insecureConnection) {
             if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread connected:" + connected);}
             Bluetooth.this.device=device;
@@ -904,6 +907,7 @@ public class Bluetooth {
                 }
             }
         }
+
 
 
         public void run() {
@@ -948,6 +952,7 @@ public class Bluetooth {
     @SuppressWarnings("FieldCanBeLocal")
     private class CheckConnectThread extends Thread {
         private final boolean mFinish = false;
+
         CheckConnectThread(BluetoothDevice device, boolean insecureConnection) {
             Bluetooth.this.device=device;
             try {
@@ -963,6 +968,7 @@ public class Bluetooth {
                 }
             }
         }
+
 
         public void run() {
             final BluetoothDevice myDevice = device;

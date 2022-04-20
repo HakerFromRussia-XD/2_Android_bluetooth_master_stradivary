@@ -14,6 +14,8 @@
 package me.start.motorica.new_electronic_by_Rodeon
 
 import androidx.multidex.MultiDexApplication
+import com.yandex.metrica.YandexMetrica
+import com.yandex.metrica.YandexMetricaConfig
 import dagger.Component
 import me.start.motorica.old_electronic_by_Misha.data.BluetoothModule
 import javax.inject.Singleton
@@ -31,6 +33,14 @@ class WDApplication : MultiDexApplication() {
         .applicationModule(ApplicationModule1(this))
         .build()
     bluetoothModule = BluetoothModule(this)
+
+    //App Metrica
+    // Creating an extended library configuration.
+    val config = YandexMetricaConfig.newConfigBuilder("4140aa12-7386-4c82-8b5c-ca6ac12f6a85").build()
+    // Initializing the AppMetrica SDK.
+    YandexMetrica.activate(applicationContext, config)
+    // Automatic tracking of user activity.
+    YandexMetrica.enableActivityAutoTracking(this)
   }
 
   companion object {

@@ -14,6 +14,8 @@ import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import com.yandex.metrica.YandexMetrica
+import com.yandex.metrica.YandexMetricaConfig
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
@@ -38,8 +40,8 @@ import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.collections.ArrayList
 import kotlin.experimental.xor
+
 
 @Suppress("SameParameterValue", "SameParameterValue", "DEPRECATION")
 @RequirePresenter(MainPresenter::class)
@@ -496,6 +498,18 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
     initBaseView(this)
+
+
+//    //App Metrica
+//    // Creating an extended library configuration.
+//    val config = YandexMetricaConfig.newConfigBuilder("4140aa12-7386-4c82-8b5c-ca6ac12f6a85").build()
+//    // Initializing the AppMetrica SDK.
+//    YandexMetrica.activate(applicationContext, config)
+//    // Automatic tracking of user activity.
+//    YandexMetrica.enableActivityAutoTracking(baseContext)
+
+
+
     //changing statusbar
     val window = this.window
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)

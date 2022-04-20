@@ -1181,6 +1181,7 @@
                             android:text="@string/start_calibration" />
                     </LinearLayout>
                     <LinearLayout
+                        android:id="@+id/calibration_status_button_ll"
                         android:layout_width="0dp"
                         android:layout_height="48dp"
                         android:layout_weight="2"

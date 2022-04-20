@@ -23,18 +23,18 @@ import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
+import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
+import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
-import kotlinx.android.synthetic.main.layout_advanced_settings.*
-import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
-import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
@@ -103,8 +103,8 @@ class AdvancedSettingsFragment : Fragment() {
       downtime_text_tv?.textSize = 11f
       mode_tv?.textSize = 11f
       reset_to_factory_settings_btn?.textSize = 12f
-//      calibration_btn?.textSize = 12f
-      calibration_status_adv_btn?.textSize = 12f
+      calibration_adv_btn?.textSize = 10f
+      calibration_status_adv_btn?.textSize = 10f
       side_text_tv?.textSize = 11f
       left_right_side_swap_tv?.textSize = 11f
       shutdown_current_1_text_tv?.textSize = 11f
@@ -122,6 +122,16 @@ class AdvancedSettingsFragment : Fragment() {
       left_right_side_swap_tv?.text = resources.getString(R.string.left)
     }
 
+    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+      val calibrationStartParams: LinearLayout.LayoutParams =
+        calibration_start_button_ll.layoutParams as LinearLayout.LayoutParams
+      calibrationStartParams.weight = 1f
+      val calibrationStatusParams: LinearLayout.LayoutParams =
+        calibration_status_button_ll.layoutParams as LinearLayout.LayoutParams
+      calibrationStatusParams.weight = 1f
+    } else {
+      if (main?.locate?.contains("ru")!!) { calibration_status_adv_btn?.textSize = 12f }
+    }
 
     shutdown_current_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -664,15 +674,15 @@ class AdvancedSettingsFragment : Fragment() {
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
       }
     }
-//    calibration_btn?.setOnClickListener {
-//      System.err.println("запись глобальной калибровки тык")
-//      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-//        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
-//      } else {
-//        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
-//      }
-//      saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
-//    }
+    calibration_adv_btn?.setOnClickListener {
+      System.err.println("запись глобальной калибровки тык")
+      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
+      } else {
+        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
+      }
+      saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
+    }
     calibration_status_adv_btn?. setOnClickListener {
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
         main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW_VM)

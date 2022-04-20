@@ -358,8 +358,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         for (i in 0 until 7) {
           for (j in 0 until 2) {
             for (k in 0 until 6) {
+              if (data[i * 12 + j * 6 + k] < 0) { data[i * 12 + j * 6 + k] = 0}
+              if (data[i * 12 + j * 6 + k] > 100) { data[i * 12 + j * 6 + k] = 100}
               gestureTable[i][j][k] = castUnsignedCharToInt(data[i * 12 + j * 6 + k])
-              if(k == 4) { gestureTable[i][j][k] = ((88 - castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*91).toInt()-52 }
+              if(k == 4) {
+                if (data[i * 12 + j * 6 + k] < 5) { data[i * 12 + j * 6 + k] = 5}
+                gestureTable[i][j][k] = ((88 - castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*91).toInt()-52
+              }
               if(k == 5) { gestureTable[i][j][k] = (( castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*90).toInt() }
             }
           }
@@ -369,6 +374,47 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
         saveGestureState()
       }
+//      val testDataO = 5
+//      val testDataC = 100
+//      for (i in 0 until 2) {
+//        for (j in 0 until 2) {
+//          for (k in 0 until 6) {
+//            if (j == 0) {
+//              if (k == 0 || k == 1 || k == 2 || k == 3) {
+//                gestureTable[i][j][k] = castUnsignedCharToInt(testDataO.toByte())
+////              testData += 1
+//              }
+//              if (k == 4) {
+//                gestureTable[i][j][k] =
+//                  (88 - castUnsignedCharToInt(testDataO.toByte()).toFloat() / 100 * 91).toInt() - 52
+////              testData += 1
+//              }
+//              if (k == 5) {
+//                gestureTable[i][j][k] =
+//                  (castUnsignedCharToInt(testDataO.toByte()).toFloat() / 100 * 90).toInt()
+////              testData += 1
+//              }
+//            }
+//            if (j == 1) {
+//              if (k == 0 || k == 1 || k == 2 || k == 3) {
+//                gestureTable[i][j][k] = castUnsignedCharToInt(testDataC.toByte())
+////              testData += 1
+//              }
+//              if (k == 4) {
+//                gestureTable[i][j][k] =
+//                  (88 - castUnsignedCharToInt(testDataC.toByte()).toFloat() / 100 * 91).toInt() - 52
+////              testData += 1
+//              }
+//              if (k == 5) {
+//                gestureTable[i][j][k] =
+//                  (castUnsignedCharToInt(testDataC.toByte()).toFloat() / 100 * 90).toInt()
+////              testData += 1
+//              }
+//            }
+//          }
+//        }
+//      }
+//      saveGestureState()
 
       for (i in 0 until 7) {
         System.err.println("Данные жеста №$i")
@@ -548,6 +594,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                       parameters.openStage4.toByte(),
                       parameters.openStage5.toByte(),
                       parameters.openStage6.toByte()
+//                      parameters.openStage6.toByte()
                     ), MOVE_ALL_FINGERS_NEW_VM, WRITE
                   )
                 } else {
@@ -572,6 +619,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                     parameters.closeStage4.toByte(),
                     parameters.closeStage5.toByte(),
                     parameters.closeStage6.toByte()
+//                    parameters.openStage6.toByte()
                   ), MOVE_ALL_FINGERS_NEW_VM, WRITE
                 )
               } else {

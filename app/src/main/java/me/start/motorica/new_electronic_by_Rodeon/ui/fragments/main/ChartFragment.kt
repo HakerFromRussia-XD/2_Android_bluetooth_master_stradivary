@@ -510,9 +510,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       data.addDataSet(set3)
     }
 
-    System.err.println("addEntry set1 -> " + set.entryCount)
-    System.err.println("addEntry set2 -> " + set2.entryCount)
-    System.err.println("addEntry set3 -> " + set3.entryCount)
+//    System.err.println("addEntry set1 -> " + set.entryCount)
+//    System.err.println("addEntry set2 -> " + set2.entryCount)
+//    System.err.println("addEntry set3 -> " + set3.entryCount)
     if (set.entryCount > 600 ) {
       set.removeFirst()
       set2.removeFirst()

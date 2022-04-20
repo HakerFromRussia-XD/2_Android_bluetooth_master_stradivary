@@ -247,7 +247,7 @@ class GripperScreenWithEncodersActivity
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber),
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber + 1),
                     angleFinger
                 )
             }
@@ -263,7 +263,7 @@ class GripperScreenWithEncodersActivity
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber),
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber + 1),
                     angleFinger
                 )
             }
@@ -284,7 +284,7 @@ class GripperScreenWithEncodersActivity
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber),
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber + 1),
                     angleFinger
                 )
             }
@@ -300,7 +300,7 @@ class GripperScreenWithEncodersActivity
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber),
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber + 1),
                     angleFinger
                 )
             }
@@ -321,7 +321,7 @@ class GripperScreenWithEncodersActivity
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber),
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber + 1),
                     angleFinger
                 )
             }
@@ -337,7 +337,7 @@ class GripperScreenWithEncodersActivity
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber),
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber + 1),
                     angleFinger
                 )
             }
@@ -352,13 +352,13 @@ class GripperScreenWithEncodersActivity
         score3 = angleFinger
     }
     private fun changeStateFinger4(angleFinger: Int) {
-        System.err.println("Изменили палец41 $angleFinger")
+        System.err.println("Изменили палец4 $angleFinger")
         if (gestureState == 1) {
             fingerOpenState4 = angleFinger
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber),
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1),
                     angleFinger
                 )
             }
@@ -374,7 +374,7 @@ class GripperScreenWithEncodersActivity
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber),
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber + 1),
                     angleFinger
                 )
             }
@@ -392,11 +392,12 @@ class GripperScreenWithEncodersActivity
 //        System.err.println("Изменили палец 5 ${(angleFinger.toFloat()/100*91).toInt()-49}") //-16
 //        System.err.println("Изменили отправляемые значения палец 5 ${(100-((() +58).toFloat()/86*100).toInt())}")
         if (gestureState == 1) {
+            System.err.println("Изменили палец 5 gestureState = 1")
             fingerOpenState5 = (angleFinger.toFloat()/100*91).toInt()-49
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (gestureNumber),
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (gestureNumber + 1),
                     (angleFinger.toFloat() / 100 * 91).toInt() - 49
                 )
             }
@@ -408,15 +409,16 @@ class GripperScreenWithEncodersActivity
                 )
             }
         } else {
+            System.err.println("Изменили палец 5 gestureState = 0")
+            fingerCloseState5 = (angleFinger.toFloat() / 100 * 91).toInt() - 49
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (gestureNumber),
+                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (gestureNumber + 1),
                     (angleFinger.toFloat() / 100 * 91).toInt() - 49
                 )
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-                fingerCloseState5 = (angleFinger.toFloat() / 100 * 91).toInt() - 49
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
                         .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber,
@@ -646,8 +648,8 @@ class GripperScreenWithEncodersActivity
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         }
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            System.err.println("GripperSettingsRender--------> compileBLEMassage FEST_X withChangeGesture =$withChangeGesture")
-            val gestureStateModel = GestureStateWithEncoders(gestureNumber,
+            System.err.println("GripperSettingsRender--------> compileBLEMassage FEST_X withChangeGesture =$withChangeGesture   fingerOpenState5 : " + (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()) + "   fingerCloseState5 : " + (100 - (((fingerCloseState5) + 58).toFloat() / 86 * 100).toInt()))
+            val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1 ,
                 fingerOpenState4, fingerOpenState3, fingerOpenState2,
                 fingerOpenState1, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
                 fingerCloseState4, fingerCloseState3, fingerCloseState2,

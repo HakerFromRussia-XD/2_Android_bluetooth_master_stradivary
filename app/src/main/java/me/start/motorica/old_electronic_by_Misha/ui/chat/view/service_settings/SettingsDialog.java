@@ -13,8 +13,6 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 import me.start.motorica.R;
 import me.start.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 
@@ -27,9 +25,9 @@ public class SettingsDialog extends AppCompatDialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder settingsDialog = new AlertDialog.Builder(
-                Objects.requireNonNull(getActivity()));
+                requireActivity());
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.layout_dialog, null);
         if (getActivity() != null) {mChartActivity = (ChartActivity) getActivity();}
 
@@ -55,7 +53,7 @@ public class SettingsDialog extends AppCompatDialogFragment {
         try {
             mSettingsDialogListener = (SettingsDialogListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() +
+            throw new ClassCastException(context +
             "must implement SettingsDialogListener");
         }
     }

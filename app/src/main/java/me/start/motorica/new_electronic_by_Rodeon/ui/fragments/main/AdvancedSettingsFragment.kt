@@ -730,9 +730,9 @@ class AdvancedSettingsFragment : Fragment() {
     calibration_adv_btn?.setOnClickListener {
       System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
+        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW_VM, WRITE)
       } else {
-        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
+        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW_VM, WRITE)
       }
       saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibrationAdv)

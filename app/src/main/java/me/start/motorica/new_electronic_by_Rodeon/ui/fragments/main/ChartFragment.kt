@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.text.Html
 import android.view.LayoutInflater
@@ -20,8 +21,10 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
+import com.yandex.metrica.YandexMetrica
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
@@ -33,6 +36,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManag
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import javax.inject.Inject
+
 
 @Suppress("DEPRECATION")
 open class ChartFragment : Fragment(), OnChartValueSelectedListener {
@@ -54,6 +58,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var scale = 0F
   private var oldStateSync = 0
   private var count: Int = 0
+  private var timerGraphEnteringData: CountDownTimer? = null
+
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -86,9 +92,12 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     main?.setSwapOpenCloseButton(preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))
     scale = resources.displayMetrics.density
 
+    val eventYandexMetricaParametersClose = "{\"Screen chart\":\"Tup close button\"}"
+    val eventYandexMetricaParametersOpen = "{\"Screen chart\":\"Tup open button\"}"
     close_btn.setOnTouchListener { _, event ->
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersClose)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, WRITE)
@@ -112,6 +121,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
             }
           }
         } else {
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpen)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, WRITE)
@@ -141,6 +151,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     open_btn.setOnTouchListener { _, event ->
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpen)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, WRITE)
@@ -164,6 +175,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
             }
           }
         } else {
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersClose)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, WRITE)
@@ -190,6 +202,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
       false
     }
+
+
+    val eventYandexMetricaParametersOpenCH = "{\"Screen chart\":\"Change threshold open sensor\"}"
     open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
 
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -218,9 +233,13 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
           }
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpenCH)
         }
       }
     })
+
+
+    val eventYandexMetricaParametersCloseCH = "{\"Screen chart\":\"Change threshold close sensor\"}"
     close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
 
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -258,9 +277,13 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
           }
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCloseCH)
         }
       }
     })
+
+
+    val eventYandexMetricaParametersNoiseThresholdOpen = "{\"Screen chart\":\"Change noise threshold open sensor\"}"
     correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         correlator_noise_threshold_1_tv.text = progress.toString()
@@ -297,9 +320,13 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
           }
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdOpen)
         }
       }
     })
+
+
+    val eventYandexMetricaParametersNoiseThresholdClose = "{\"Screen chart\":\"Change noise threshold close sensor\"}"
     correlator_noise_threshold_2_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         correlator_noise_threshold_2_tv.text = seekBar.progress.toString()
@@ -336,9 +363,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
           }
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdClose)
         }
       }
     })
+
     sync_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         if (main?.locate?.contains("ru")!!) {
@@ -351,6 +380,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {}
     })
+
+
+    val eventYandexMetricaParametersSwapSensors = "{\"Screen chart\":\"Tup swap sensors switch\"}"
     swap_sensors_sw.setOnClickListener {
       if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
         if (swap_sensors_sw.isChecked) {
@@ -380,6 +412,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
           main?.setReverseNum = 0
         }
+        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSwapSensors)
       }
     }
     driver_tv.setOnLongClickListener {
@@ -398,6 +431,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
       false
     }
+
+
+    val eventYandexMetricaParametersThresholdsBlocking = "{\"Screen chart\":\"Tup settings blocking switch\"}"
     thresholds_blocking_sw.setOnClickListener{
       if (thresholds_blocking_sw.isChecked) {
         thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
@@ -406,7 +442,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         thresholds_blocking_tv.text = resources.getString(R.string.off)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersThresholdsBlocking)
     }
+
+
+    val eventYandexMetricaParametersCalibration = "{\"Screen chart\":\"Tup calibration button\"}"
     calibration_btn?.setOnClickListener {
       System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
@@ -427,6 +467,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         }
       }
       main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibration)
     }
   }
 
@@ -445,7 +486,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     System.err.println("ChartFragment onResume")
     graphThreadFlag = true
     testThreadFlag = true
-    startGraphEnteringDataThread()
+//    startGraphEnteringDataThread()
+    startGraphEnteringDataTimer()
   }
   override fun onPause() {
     super.onPause()
@@ -503,7 +545,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     val data: LineData = chart_mainchart?.data!!
     var set = data.getDataSetByIndex(0)
     var set2 = data.getDataSetByIndex(1)
-    var set3 = data.getDataSetByIndex(2)
+    val set3: ILineDataSet
     if (set == null) {
       set = createSet()
       set2 = createSet2()
@@ -513,20 +555,15 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       data.addDataSet(set3)
     }
 
-//    System.err.println("addEntry set1 -> " + set.entryCount)
-//    System.err.println("addEntry set2 -> " + set2.entryCount)
-//    System.err.println("addEntry set3 -> " + set3.entryCount)
     if (set.entryCount > 600 ) {
       set.removeFirst()
       set2.removeFirst()
       set.addEntryOrdered(Entry(1f,255f))
-//      set3.removeFirst()
     } else {
       data.addEntry(Entry(count.toFloat(), 255f), 2)
     }
     data.addEntry(Entry(count.toFloat(), sens1.toFloat()), 0)
     data.addEntry(Entry(count.toFloat(), sens2.toFloat()), 1)
-//    data.addEntry(Entry(count.toFloat(), 255f), 2)
     data.notifyDataChanged()
     chart_mainchart.notifyDataSetChanged()
     chart_mainchart.setVisibleXRangeMaximum(600f)
@@ -601,6 +638,55 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
     }
     graphThread?.start()
+  }
+
+  private fun startGraphEnteringDataTimer() {
+    timerGraphEnteringData?.cancel()
+    timerGraphEnteringData = object : CountDownTimer(5000000, 25) {
+      override fun onTick(millisUntilFinished: Long) {
+        if (plotData) {
+          addEntry(10, 255)
+          addEntry(10, 255)
+          addEntry(10, 255)
+          addEntry(115, 150)
+          addEntry(115, 150)
+          addEntry(115, 150)
+          addEntry(10, 255)
+          addEntry(10, 255)
+          addEntry(10, 255)
+          addEntry(115, 150)
+          addEntry(115, 150)
+          addEntry(115, 150)
+          plotData = false
+        }
+        addEntry(main!!.getDataSens1(), main!!.getDataSens2())
+      }
+
+      override fun onFinish() {
+        startGraphEnteringDataTimer()
+      }
+    }.start()
+  }
+
+  private fun startGraphEnteringDataCoroutine() {
+
+
+    if (plotData) {
+      addEntry(10, 255)
+      addEntry(10, 255)
+      addEntry(10, 255)
+      addEntry(115, 150)
+      addEntry(115, 150)
+      addEntry(115, 150)
+      addEntry(10, 255)
+      addEntry(10, 255)
+      addEntry(10, 255)
+      addEntry(115, 150)
+      addEntry(115, 150)
+      addEntry(115, 150)
+      plotData = false
+    }
+    addEntry(main!!.getDataSens1(), main!!.getDataSens2())
   }
 
   override fun onValueSelected(e: Entry?, h: Highlight?) {}

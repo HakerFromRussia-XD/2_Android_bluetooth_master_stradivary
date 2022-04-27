@@ -26,6 +26,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import com.yandex.metrica.YandexMetrica
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
@@ -133,6 +134,7 @@ class AdvancedSettingsFragment : Fragment() {
       if (main?.locate?.contains("ru")!!) { calibration_status_adv_btn?.textSize = 12f }
     }
 
+    var eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current\"}"
     shutdown_current_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         changeParameter = true
@@ -145,10 +147,12 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
         }
       }
     })
 
+    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 1\"}"
     shutdown_current_1_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         changeParameter = true
@@ -170,9 +174,11 @@ class AdvancedSettingsFragment : Fragment() {
               shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, seekBar.progress)
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
         }
       }
     })
+    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 2\"}"
     shutdown_current_2_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         changeParameter = true
@@ -208,9 +214,11 @@ class AdvancedSettingsFragment : Fragment() {
             )
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, seekBar.progress)
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
         }
       }
     })
+    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 3\"}"
     shutdown_current_3_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         changeParameter = true
@@ -246,9 +254,11 @@ class AdvancedSettingsFragment : Fragment() {
             )
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, seekBar.progress)
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
         }
       }
     })
+    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 4\"}"
     shutdown_current_4_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         changeParameter = true
@@ -284,9 +294,11 @@ class AdvancedSettingsFragment : Fragment() {
             )
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, seekBar.progress)
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
         }
       }
     })
+    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 5\"}"
     shutdown_current_5_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         changeParameter = true
@@ -322,9 +334,11 @@ class AdvancedSettingsFragment : Fragment() {
             )
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, seekBar.progress)
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
         }
       }
     })
+    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 6\"}"
     shutdown_current_6_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         changeParameter = true
@@ -360,10 +374,13 @@ class AdvancedSettingsFragment : Fragment() {
             )
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, seekBar.progress)
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
         }
       }
     })
 
+
+    val eventYandexMetricaParametersSwapOpenCloseButton = "{\"Screen advanced settings\":\"Tup swap open close button\"}"
     swap_open_close_sw?.setOnClickListener {
       if (swap_open_close_sw?.isChecked!!) {
         swap_open_close_tv?.text = 1.toString()
@@ -374,7 +391,11 @@ class AdvancedSettingsFragment : Fragment() {
         main?.setSwapOpenCloseButton(false)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
       }
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSwapOpenCloseButton)
     }
+
+
+    val eventYandexMetricaParametersSingleChannel = "{\"Screen advanced settings\":\"Tup single channel control switch\"}"
     single_channel_control_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (single_channel_control_sw.isChecked) {
@@ -404,8 +425,11 @@ class AdvancedSettingsFragment : Fragment() {
           main?.setOneChannelNum = 0
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
         }
+        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSingleChannel)
       }
     }
+
+    val eventYandexMetricaParametersOnOffGesturesSwitching = "{\"Screen advanced settings\":\"On/off gesture switch using sensors\"}"
     on_off_sensor_gesture_switching_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (on_off_sensor_gesture_switching_sw?.isChecked!!) {
@@ -439,8 +463,12 @@ class AdvancedSettingsFragment : Fragment() {
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
         }
+        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOnOffGesturesSwitching)
       }
     }
+
+
+    val eventYandexMetricaParametersMode = "{\"Screen advanced settings\":\"Change switching modes gestures using sensors\"}"
     mode_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (mode_sw?.isChecked!!) {
@@ -466,9 +494,9 @@ class AdvancedSettingsFragment : Fragment() {
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
         }
+        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersMode)
       }
     }
-
     mode_new_sw?.setOnSwitchListener { position, _ ->
       if (position == 0) {
 //        Toast.makeText(main?.baseContext,  "0", Toast.LENGTH_SHORT).show()
@@ -491,9 +519,12 @@ class AdvancedSettingsFragment : Fragment() {
         downtime_rl?.visibility = View.GONE
         main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
       }
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersMode)
     }
     mode_new_sw?.selectedTab = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
 
+
+    val eventYandexMetricaParametersGetTelemetryNumber = "{\"Screen advanced settings\":\"Tup get telemetry number button\"}"
     get_setup_btn?.setOnClickListener {
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
         main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
@@ -502,7 +533,9 @@ class AdvancedSettingsFragment : Fragment() {
         main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW_VM, READ, 17)
       }
       main?.lockChangeTelemetryNumber = true
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersGetTelemetryNumber)
     }
+    val eventYandexMetricaParametersSetTelemetryNumber = "{\"Screen advanced settings\":\"Tup set telemetry number button\"}"
     set_setup_btn?.setOnClickListener {
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
         main?.bleCommandConnector(
@@ -520,8 +553,12 @@ class AdvancedSettingsFragment : Fragment() {
           17
         )
       }
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSetTelemetryNumber)
     }
     main?.telemetryNumber = telemetry_number_et?.text.toString()
+
+
+    val eventYandexMetricaParametersLeftRight = "{\"Screen advanced settings\":\"Tup left right side swap switch\"}"
     left_right_side_swap_sw?.setOnClickListener{
       if (left_right_side_swap_sw.isChecked) {
         left_right_side_swap_tv?.text = Html.fromHtml(getString(R.string.right))
@@ -530,7 +567,11 @@ class AdvancedSettingsFragment : Fragment() {
         left_right_side_swap_tv?.text = resources.getString(R.string.left)
         saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
       }
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersLeftRight)
     }
+
+
+    val eventYandexMetricaParametersPeakTime = "{\"Screen advanced settings\":\"Change peak time\"}"
     peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         changeParameter = true
@@ -577,9 +618,12 @@ class AdvancedSettingsFragment : Fragment() {
               ROTATION_GESTURE_NEW, WRITE, 17)
           }
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, seekBar.progress)
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersPeakTime)
         }
       }
     })
+
+    val eventYandexMetricaParametersDowntime = "{\"Screen advanced settings\":\"Change downtime\"}"
     downtime_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         changeParameter = true
@@ -626,9 +670,13 @@ class AdvancedSettingsFragment : Fragment() {
               ROTATION_GESTURE_NEW, WRITE, 17)
           }
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, seekBar.progress)
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersDowntime)
         }
       }
     })
+
+
+    val eventYandexMetricaParametersReset = "{\"Screen advanced settings\":\"Tup reset to factory settings button\"}"
     reset_to_factory_settings_btn?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         System.err.println("tuk reset_to_factory_settings_btn")
@@ -672,8 +720,13 @@ class AdvancedSettingsFragment : Fragment() {
         mode_tv?.text = "одним\nдатчиком"
         mode = 0x00
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
+
+        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersReset)
       }
     }
+
+
+    val eventYandexMetricaParametersCalibrationAdv = "{\"Screen advanced settings\":\"Tup calibration button\"}"
     calibration_adv_btn?.setOnClickListener {
       System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
@@ -682,7 +735,9 @@ class AdvancedSettingsFragment : Fragment() {
         main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
       }
       saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibrationAdv)
     }
+    val eventYandexMetricaParametersCalibrationStatusAdv = "{\"Screen advanced settings\":\"Tup calibration status button\"}"
     calibration_status_adv_btn?. setOnClickListener {
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
         main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW_VM)
@@ -691,6 +746,7 @@ class AdvancedSettingsFragment : Fragment() {
           main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW)
         }
       }
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibrationStatusAdv)
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики

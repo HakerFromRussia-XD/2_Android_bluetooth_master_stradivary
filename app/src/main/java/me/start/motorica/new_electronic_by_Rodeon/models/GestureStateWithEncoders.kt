@@ -1,5 +1,6 @@
 package me.start.motorica.new_electronic_by_Rodeon.models
 
+
 data class GestureStateWithEncoders (val gestureNumber: Int,
 
                                      val openStage1: Int,

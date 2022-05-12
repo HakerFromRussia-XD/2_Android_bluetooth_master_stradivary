@@ -486,8 +486,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     System.err.println("ChartFragment onResume")
     graphThreadFlag = true
     testThreadFlag = true
-//    startGraphEnteringDataThread()
-    startGraphEnteringDataTimer()
+    startGraphEnteringDataThread()
+//    startGraphEnteringDataTimer()
   }
   override fun onPause() {
     super.onPause()
@@ -640,6 +640,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     graphThread?.start()
   }
 
+
+  //вызывает NullPointerException при открытии/закрытии расширенных настроек
   private fun startGraphEnteringDataTimer() {
     timerGraphEnteringData?.cancel()
     timerGraphEnteringData = object : CountDownTimer(5000000, 25) {

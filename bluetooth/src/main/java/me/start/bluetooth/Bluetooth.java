@@ -27,7 +27,6 @@ import java.util.UUID;
 
 
 @SuppressWarnings({"CommentedOutCode", "StatementWithEmptyBody", "JavaReflectionMemberAccess", "ConstantConditions"})
-@SuppressLint("MissingPermission")
 public class Bluetooth {
     private static final int REQUEST_ENABLE_BT = 1111;
     public TextView CH1;

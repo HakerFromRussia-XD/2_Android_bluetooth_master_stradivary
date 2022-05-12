@@ -1,5 +1,6 @@
 package me.start.motorica.scan.view;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -120,8 +122,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             scanListBLEPosition = 0;
             mLeDevices.clear();
             pairedDeviceList.setAdapter(mScanListAdapter);
-            scanLeDevice(true);
-            presenter.startScanning();
+            if ((ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+                scanLeDevice(true);
+                presenter.startScanning();
+            }
         });
 
         /// BLE
@@ -345,7 +350,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     protected void onStart() {
         super.onStart();
-        presenter.onStart(this);
+        if ((ContextCompat.checkSelfPermission(this,
+                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+            presenter.onStart(this);
+        }
     }
 
     @Override
@@ -359,8 +367,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanListBLEPosition = 0;
         mLeDevices.clear();
         pairedDeviceList.setAdapter(mScanListAdapter);
-        scanLeDevice(true);
-        presenter.startScanning();
+        if ((ContextCompat.checkSelfPermission(this,
+                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+            scanLeDevice(true);
+            presenter.startScanning();
+        }
     }
 
     @Override
@@ -375,7 +386,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     protected void onStop() {
         super.onStop();
         presenter.setOnPauseActivity(true);
-        presenter.onStop();
+        if ((ContextCompat.checkSelfPermission(this,
+                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+            presenter.onStop();
+        }
     }
 
     public boolean isFirstStart() {

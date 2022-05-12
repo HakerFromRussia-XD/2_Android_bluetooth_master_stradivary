@@ -748,7 +748,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
 
-  @SuppressLint("MissingPermission")
+
   override fun onResume() {
     super.onResume()
     // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
@@ -780,7 +780,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     endFlag = true
 
   }
-  @SuppressLint("MissingPermission")
+
+
   override fun onDestroy() {
     super.onDestroy()
     if (mBluetoothLeService != null) {

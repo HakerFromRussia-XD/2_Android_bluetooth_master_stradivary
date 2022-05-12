@@ -12,7 +12,7 @@ import me.start.bluetooth.BluetoothCallback;
 import me.start.bluetooth.DeviceCallback;
 import me.start.bluetooth.DiscoveryCallback;
 
-@SuppressLint("MissingPermission")
+
 public class ScanInteractorImpl implements ScanInteractor {
     private Bluetooth bluetooth;
     private DiscoveryCallback presenterDiscoveryCallback;

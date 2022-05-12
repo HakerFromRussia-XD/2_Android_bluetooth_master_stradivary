@@ -1,22 +1,7 @@
-/*
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -25,6 +10,7 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -33,6 +19,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -43,11 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import me.start.motorica.R;
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
 
-import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
-
-
-//import com.example.android.motorica.R;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
@@ -124,10 +107,20 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
             }
         }
     }
+//    private String[] getRequiredPermissions() {
+//        System.err.println(" LOLOLOEFWEF ---> getRequiredPermissions()");
+//        int targetSdkVersion = getApplicationInfo().targetSdkVersion;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && targetSdkVersion >= Build.VERSION_CODES.S) {
+//            return new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
+//        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && targetSdkVersion >= Build.VERSION_CODES.Q) {
+//            return new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+//        } else return new String[]{Manifest.permission.ACCESS_COARSE_LOCATION};
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NotNull String[] permissions, @NotNull int[] grantResults) {
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -164,6 +157,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
     }
 
 
+    @SuppressLint("SetTextI18n")
     private void scanLeDevice(final boolean enable) {
         if (enable) {
             mHandler.postDelayed(() -> {

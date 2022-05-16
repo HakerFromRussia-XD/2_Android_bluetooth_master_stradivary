@@ -196,6 +196,18 @@
     <string name="not_calibrated">The prosthesis is not calibrated</string>
     <string name="calibration_status">calibration status</string>
     <string name="sync_0">sync 0%</string>
+    <string name="refill">refill</string>
+    <string name="disconnect_the_cannula_from_the_magistral">disconnect the cannula from the magistral</string>
+    <string name="start">start</string>
+    <string name="pre_status_finger">status finger %d: </string>
+    <string name="pre_status_0_finger">not calibrated</string>
+    <string name="pre_status_1_finger">calibration in progress</string>
+    <string name="pre_status_2_finger">there is no motor</string>
+    <string name="pre_status_3_finger">there is no encoder</string>
+    <string name="pre_status_4_finger">motor scrolls</string>
+    <string name="pre_status_5_finger">screw pulled</string>
+    <string name="pre_status_6_finger">calibrated</string>
+    <string name="status_finger">\nencoder steps: %d \ncurrent: %d mA</string>
 
     <string-array name="numbers">
         <item>0</item>

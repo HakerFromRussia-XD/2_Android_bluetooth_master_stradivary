@@ -15,8 +15,11 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.text.Html
@@ -26,7 +29,10 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import com.airbnb.lottie.utils.Logger.error
 import com.yandex.metrica.YandexMetrica
+import io.reactivex.Completable.error
+import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
@@ -56,7 +62,6 @@ class AdvancedSettingsFragment : Fragment() {
   private var threadFlag = true
   private var changeParameter = false
   private var updatingUIThread: Thread? = null
-//  private var showCalibratingStatus: Boolean = false
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     val rootView = inflater.inflate(R.layout.layout_advanced_settings, container, false)
@@ -728,7 +733,6 @@ class AdvancedSettingsFragment : Fragment() {
 
     val eventYandexMetricaParametersCalibrationAdv = "{\"Screen advanced settings\":\"Tup calibration button\"}"
     calibration_adv_btn?.setOnClickListener {
-      System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
         main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW_VM, WRITE)
       } else {
@@ -747,6 +751,8 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibrationStatusAdv)
+
+//      showRefillDialog()
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
@@ -852,6 +858,29 @@ class AdvancedSettingsFragment : Fragment() {
       }
       downtime_tv?.text = time
 
+    }
+  }
+  @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")
+  private fun showRefillDialog() {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_info, null)
+    val myDialog = Dialog(requireContext())
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    myDialog.dialog_info_title_tv.text = getString(R.string.calibration_status)
+
+    myDialog.dialog_active_boluses_first_in_queue_tv.text = getString(R.string.pre_status_finger)+" "+getString(R.string.pre_status_0_finger)+getString(R.string.status_finger, 24653, 387)
+//    myDialog.info_dialog_massage_tv.text = "massage"
+
+    if (true) { myDialog.info_animation_view.setAnimation(R.raw.loader_calibrating) }
+    else { myDialog.info_animation_view.setAnimation("error") }
+
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_info_confirm)
+    yesBtn.setOnClickListener {
+      myDialog.dismiss()
     }
   }
 

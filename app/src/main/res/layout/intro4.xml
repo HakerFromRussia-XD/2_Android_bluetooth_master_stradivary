@@ -47,20 +47,6 @@
         android:textSize="28sp"
         tools:ignore="HardcodedText" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="center"
-        android:layout_weight="3"
-        android:gravity="center"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:text="приложение 'трекер инсулина' \nПредоставляет статистику\n для быстрого просмотра истории пользователя."
-        android:textColor="#ffffff"
-        android:textSize="18sp"
-        tools:ignore="HardcodedText" />
-
     <Space
         android:layout_width="match_parent"
         android:layout_height="0dp"

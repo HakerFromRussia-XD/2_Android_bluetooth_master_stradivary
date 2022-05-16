@@ -3,9 +3,12 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.bluetooth.*
 import android.bluetooth.BluetoothAdapter.LeScanCallback
 import android.content.*
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.nfc.NfcAdapter
 import android.os.*
 import android.view.View
@@ -16,6 +19,7 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_gestures.*
@@ -38,7 +42,6 @@ import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.collections.ArrayList
 import kotlin.experimental.xor
 
 @Suppress("SameParameterValue", "SameParameterValue", "DEPRECATION")
@@ -425,16 +428,50 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun displayDataStatusCalibrationNew(data: ByteArray?) {
     if (data != null) {
       var statusCalibration = ""
-      for (i in data.indices) {
-        statusCalibration += "  "+data[i]
-
-//        if (data[i].toInt() == 6) Toast.makeText(this, "Протез откалиброван!", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
-//        if (data[i].toInt() == 5) Toast.makeText(this, "Палец №$i слишком сильно затянут", Toast.LENGTH_LONG).show() //если палец слишком сильно затянут
-//        if (data[i].toInt() == 4) Toast.makeText(this, "Палец №$i прокручивается", Toast.LENGTH_LONG).show() //если палец прокручивается
-//        if (data[i].toInt() == 3) Toast.makeText(this, "На пальце №$i отключен энкодер", Toast.LENGTH_LONG).show() //если на пальце отключен энкодер
-//        if (data[i].toInt() == 2) Toast.makeText(this, "На пальце №$i отключен мотор", Toast.LENGTH_LONG).show() //если на пальце отключен мотор
+      for (j in data.indices) {
+        statusCalibration += data[j]
+        statusCalibration += " "
       }
-      Toast.makeText(this, "Статус калибровки: $statusCalibration", Toast.LENGTH_LONG).show()
+      println("------> statusCalibration: $statusCalibration    size : ${data.size}")
+      val statusFingers = mutableListOf<String>()
+      val statusEncoderFingers = mutableListOf<Int>()
+      val statusCurrentFingers = mutableListOf<Int>()
+      if (data.size >= 42) {
+        for (i in 0..5) {
+          println("------> statusCalibration: statusFingers   i : $i")
+          if (data[36+i].toInt() == 6) statusFingers.add(getString(R.string.pre_status_6_finger))
+          if (data[36+i].toInt() == 5) statusFingers.add(getString(R.string.pre_status_5_finger))
+          if (data[36+i].toInt() == 4) statusFingers.add(getString(R.string.pre_status_4_finger))
+          if (data[36+i].toInt() == 3) statusFingers.add(getString(R.string.pre_status_3_finger))
+          if (data[36+i].toInt() == 2) statusFingers.add(getString(R.string.pre_status_2_finger))
+          if (data[36+i].toInt() == 1) statusFingers.add(getString(R.string.pre_status_1_finger))
+          if (data[36+i].toInt() == 0) statusFingers.add(getString(R.string.pre_status_0_finger))
+        }
+
+        for (i in 0..5) {
+          println("------> statusCalibration: statusCalibration   i : $i")
+          println("------> statusCalibration: $statusCalibration    ${(castUnsignedCharToInt(data[(i*4)]))}")
+          println("------> statusCalibration: $statusCalibration    ${(castUnsignedCharToInt(data[1+(i*4)]) shl 8)}")
+          println("------> statusCalibration: $statusCalibration    ${(castUnsignedCharToInt(data[2+(i*4)]) shl 16)}")
+          println("------> statusCalibration: $statusCalibration    ${(castUnsignedCharToInt(data[3+(i*4)]) shl 24)}")
+          println("------> statusCalibration: statusCalibration   ++++++++++++++++++++")
+          val temp: Int = (castUnsignedCharToInt(data[(i*4)])) +
+                          (castUnsignedCharToInt(data[1+(i*4)]) shl 8) +
+                          (castUnsignedCharToInt(data[2+(i*4)]) shl 16) +
+                          (castUnsignedCharToInt(data[3+(i*4)]) shl 24)
+          statusEncoderFingers.add(temp)
+        }
+
+        for (i in 0..5) {
+          println("------> statusCalibration: statusCurrentFingers   i : $i")
+          val temp: Int = (castUnsignedCharToInt(data[24+(i*2)])) +
+                          (castUnsignedCharToInt(data[25+(i*2)])  shl 8)
+          statusCurrentFingers.add(temp)
+        }
+        showRefillDialog(statusFingers, statusEncoderFingers, statusCurrentFingers)
+      }
+
+//      Toast.makeText(this, "Статус калибровки: $statusCalibration", Toast.LENGTH_LONG).show()
       saveInt(mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 0)
       globalSemaphore = true
     }
@@ -1544,6 +1581,66 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun openFragmentInfoNotCalibration() {
     val dialog = CustomInfoNotCalibratedDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
+  }
+  @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")
+  private fun showRefillDialog(statusFinger: List<String>, statusEncoderFingers: List<Int>, statusCurrentFingers: List<Int>) {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_info, null)
+    val myDialog = Dialog(this)
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    myDialog.dialog_info_title_tv.text = getString(R.string.calibration_status)
+
+
+    if (statusFinger.isNotEmpty()) {
+      myDialog.dialog_active_boluses_first_in_queue_tv.text =
+        getString(R.string.pre_status_finger, 1) + " " + statusFinger[0] + getString(
+          R.string.status_finger,
+          statusEncoderFingers[0],
+          statusCurrentFingers[0]
+        )
+      myDialog.dialog_active_boluses_second_in_queue_tv.text =
+        getString(R.string.pre_status_finger, 2) + " " + statusFinger[1] + getString(
+          R.string.status_finger,
+          statusEncoderFingers[1],
+          statusCurrentFingers[1]
+        )
+      myDialog.dialog_active_boluses_third_in_queue_tv.text =
+        getString(R.string.pre_status_finger, 3) + " " + statusFinger[2] + getString(
+          R.string.status_finger,
+          statusEncoderFingers[2],
+          statusCurrentFingers[2]
+        )
+      myDialog.dialog_active_boluses_fourth_in_queue_tv.text =
+        getString(R.string.pre_status_finger, 4) + " " + statusFinger[3] + getString(
+          R.string.status_finger,
+          statusEncoderFingers[3],
+          statusCurrentFingers[3]
+        )
+      myDialog.dialog_active_boluses_fifth_in_queue_tv.text =
+        getString(R.string.pre_status_finger, 5) + " " + statusFinger[4] + getString(
+          R.string.status_finger,
+          statusEncoderFingers[4],
+          statusCurrentFingers[4]
+        )
+      myDialog.dialog_active_boluses_sixth_in_queue_tv.text =
+        getString(R.string.pre_status_finger, 6) + " " + statusFinger[5] + getString(
+          R.string.status_finger,
+          statusEncoderFingers[5],
+          statusCurrentFingers[5]
+        )
+    }
+
+//    myDialog.info_dialog_massage_tv.text = "massage"
+
+    myDialog.info_animation_view.setAnimation(R.raw.loader_calibrating)
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_info_confirm)
+    yesBtn.setOnClickListener {
+      myDialog.dismiss()
+    }
   }
   fun getProgressUpdate(): Int {
     return progressUpdate

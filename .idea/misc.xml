@@ -7,7 +7,26 @@
         <entry key="..\:/VRMMO/Adroid/Projekts/2_Android_bluetooth_master_stradivary/app/src/main/res/layout/activiti_experimental.xml" value="0.20471014492753623" />
         <entry key="..\:/VRMMO/Adroid/Projekts/2_Android_bluetooth_master_stradivary/app/src/main/res/layout/fragment_service_settings.xml" value="0.10182370820668693" />
         <entry key="..\:/VRMMO/Adroid/Projekts/2_Android_bluetooth_master_stradivary/app/src/main/res/layout/layout_sens_settings.xml" value="0.10182370820668693" />
+        <entry key="app/src/main/res/layout/activiti_experimental.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/activity_infinity_settings.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1793478260869565" />
+        <entry key="app/src/main/res/layout/activity_scan.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/button.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/dialog_info.xml" value="0.41802090419812155" />
+        <entry key="app/src/main/res/layout/dialog_refill.xml" value="0.17255434782608695" />
+        <entry key="app/src/main/res/layout/finger_template.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/fragment_gesture_settings.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/fragment_gripper_settings.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/fragment_service_settings.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/fragment_service_settings_mono.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/gestures_lest_layout.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/intro1.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/intro2.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/intro3.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/intro4.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/item_scanlist.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/layout_advanced_settings.xml" value="0.18984691232874767" />
+        <entry key="app/src/main/res/layout/layout_calibrating_le.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/layout_chart.xml" value="0.22475247524752476" />
         <entry key="app/src/main/res/layout/layout_gripper_settings_le_with_encoders.xml" value="0.26721014492753625" />
         <entry key="app/src/main/res/layout/layout_gripper_settings_le_without_encoders.xml" value="0.29347826086956524" />

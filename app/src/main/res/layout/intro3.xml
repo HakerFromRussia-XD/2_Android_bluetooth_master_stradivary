@@ -47,20 +47,6 @@
         android:textSize="28sp"
         tools:ignore="HardcodedText" />
 
-    <TextView
-        android:id="@+id/textView9"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="center"
-        android:layout_weight="3"
-        android:gravity="center"
-        android:paddingLeft="64dp"
-        android:paddingRight="64dp"
-        android:text="приложение 'трекер инсулина' \n использует NFC,\n чтобы обеспечить пользователям удобство."
-        android:textColor="#ffffff"
-        android:textSize="18sp"
-        tools:ignore="HardcodedText" />
-
     <Space
         android:layout_width="match_parent"
         android:layout_height="0dp"

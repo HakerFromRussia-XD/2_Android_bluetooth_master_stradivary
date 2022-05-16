@@ -196,6 +196,18 @@
     <string name="not_calibrated">Протез не откалиброван</string>
     <string name="calibration_status">статус калибровки</string>
     <string name="sync_0">синхро 0%</string>
+    <string name="refill">refill</string>
+    <string name="disconnect_the_cannula_from_the_magistral">disconnect the cannula from the magistral</string>
+    <string name="start">start</string>
+    <string name="pre_status_finger">статус пальца %d:</string>
+    <string name="pre_status_0_finger">не откалиброван</string>
+    <string name="pre_status_1_finger">идет калибровка</string>
+    <string name="pre_status_2_finger">мотора нет</string>
+    <string name="pre_status_3_finger">энкодера нет</string>
+    <string name="pre_status_4_finger">мотор прокручивается</string>
+    <string name="pre_status_5_finger">перетянут винт</string>
+    <string name="pre_status_6_finger">откалиброван</string>
+    <string name="status_finger">\nколичество шагов энкодера: %d \nток: %d мА</string>
 
 
     <string-array name="numbers">

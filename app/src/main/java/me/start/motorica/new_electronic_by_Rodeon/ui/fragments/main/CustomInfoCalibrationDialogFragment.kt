@@ -32,7 +32,8 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
     }
 
 
-    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
+    @Deprecated("Deprecated in Java")
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n", "MissingSuperCall")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         @Suppress("DEPRECATION")
         super.onActivityCreated(savedInstanceState)

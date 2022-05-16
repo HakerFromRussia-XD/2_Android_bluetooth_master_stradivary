@@ -427,16 +427,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataStatusCalibrationNew(data: ByteArray?) {
     if (data != null) {
-      var statusCalibration = ""
-      for (j in data.indices) {
-        statusCalibration += data[j]
-        statusCalibration += " "
-      }
-      println("------> statusCalibration: $statusCalibration    size : ${data.size}")
-      val statusFingers = mutableListOf<String>()
-      val statusEncoderFingers = mutableListOf<Int>()
-      val statusCurrentFingers = mutableListOf<Int>()
-      if (data.size >= 42) {
+      if (data.size == 42) {
+        val statusFingers = mutableListOf<String>()
+        val statusEncoderFingers = mutableListOf<Int>()
+        val statusCurrentFingers = mutableListOf<Int>()
         for (i in 0..5) {
           println("------> statusCalibration: statusFingers   i : $i")
           if (data[36+i].toInt() == 6) statusFingers.add(getString(R.string.pre_status_6_finger))
@@ -450,10 +444,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
         for (i in 0..5) {
           println("------> statusCalibration: statusCalibration   i : $i")
-          println("------> statusCalibration: $statusCalibration    ${(castUnsignedCharToInt(data[(i*4)]))}")
-          println("------> statusCalibration: $statusCalibration    ${(castUnsignedCharToInt(data[1+(i*4)]) shl 8)}")
-          println("------> statusCalibration: $statusCalibration    ${(castUnsignedCharToInt(data[2+(i*4)]) shl 16)}")
-          println("------> statusCalibration: $statusCalibration    ${(castUnsignedCharToInt(data[3+(i*4)]) shl 24)}")
           println("------> statusCalibration: statusCalibration   ++++++++++++++++++++")
           val temp: Int = (castUnsignedCharToInt(data[(i*4)])) +
                           (castUnsignedCharToInt(data[1+(i*4)]) shl 8) +
@@ -470,8 +460,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
         showRefillDialog(statusFingers, statusEncoderFingers, statusCurrentFingers)
       }
-
-//      Toast.makeText(this, "Статус калибровки: $statusCalibration", Toast.LENGTH_LONG).show()
+      if (data.size == 6) {
+        var statusCalibration = ""
+        for (j in data.indices) {
+          statusCalibration += data[j]
+          statusCalibration += " "
+        }
+        Toast.makeText(this, "Статус калибровки: $statusCalibration", Toast.LENGTH_LONG).show()
+      }
       saveInt(mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 0)
       globalSemaphore = true
     }

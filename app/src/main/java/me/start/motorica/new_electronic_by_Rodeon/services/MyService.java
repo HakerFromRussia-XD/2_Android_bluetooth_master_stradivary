@@ -1,5 +1,6 @@
 package me.start.motorica.new_electronic_by_Rodeon.services;
 
+import static androidx.core.app.NotificationCompat.PRIORITY_HIGH;
 import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
 
 import android.annotation.SuppressLint;
@@ -54,7 +55,7 @@ public class MyService extends Service {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
         Notification notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setPriority(PRIORITY_MIN)
+                .setPriority(PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .build();
 
@@ -88,7 +89,7 @@ public class MyService extends Service {
 //                startGraphEnteringDataTimer()
 //            }
 //        }.start()
-        new CountDownTimer(30000, 1000) {
+        new CountDownTimer(34000, 5000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 Toast.makeText(getApplicationContext(), "MyService CountDownTimer onTick()", Toast.LENGTH_SHORT).show();

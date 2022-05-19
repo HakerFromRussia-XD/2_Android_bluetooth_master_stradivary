@@ -30,6 +30,7 @@
         <entry key="app/src/main/res/layout/layout_chart.xml" value="0.22475247524752476" />
         <entry key="app/src/main/res/layout/layout_gripper_settings_le_with_encoders.xml" value="0.26721014492753625" />
         <entry key="app/src/main/res/layout/layout_gripper_settings_le_without_encoders.xml" value="0.29347826086956524" />
+        <entry key="app/src/main/res/layout/layout_kibi.xml" value="0.17844202898550723" />
         <entry key="app/src/main/res/layout/layout_updating_le.xml" value="0.2749094202898551" />
       </map>
     </option>

@@ -22,6 +22,7 @@ import me.start.motorica.scan.view.ScanActivity
 class SplashScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        System.err.println(" LOLOLOEFWEF --->  SplashScreen onCreate")
         askPermissions()
     }
 
@@ -44,10 +45,12 @@ class SplashScreen : AppCompatActivity() {
                 .withListener(object : MultiplePermissionsListener {
                     override fun onPermissionsChecked(report: MultiplePermissionsReport) {
                         if (report.areAllPermissionsGranted()) {
+                            System.err.println(" LOLOLOEFWEF --->  onPermissionsChecked true")
                             val intent = Intent(this@SplashScreen, ScanActivity::class.java)
                             startActivity(intent)
                             finish()
                         } else {
+                            System.err.println(" LOLOLOEFWEF --->  onPermissionsChecked false")
                             Toast.makeText(this@SplashScreen, R.string.we_need_these_permissions, Toast.LENGTH_SHORT
                             ).show()
                             askPermissions()
@@ -64,6 +67,7 @@ class SplashScreen : AppCompatActivity() {
         }
     }
 
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -77,6 +81,7 @@ class SplashScreen : AppCompatActivity() {
     private fun launchScanActivity() {
         if ((ContextCompat.checkSelfPermission(this,
                 Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+            System.err.println(" LOLOLOEFWEF --->  launchScanActivity true")
             val intent = Intent(this@SplashScreen, ScanActivity::class.java)
             startActivity(intent)
             finish()

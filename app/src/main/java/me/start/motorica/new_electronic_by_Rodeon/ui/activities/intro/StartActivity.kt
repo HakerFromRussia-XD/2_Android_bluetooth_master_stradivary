@@ -33,6 +33,7 @@ class StartActivity : AppIntro(), BaseView {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    System.err.println(" LOLOLOEFWEF --->  StartActivity onCreate")
     WDApplication.component.inject(this)
     mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, MODE_PRIVATE)
 

@@ -12,6 +12,7 @@ public interface ConstantManager {
     String EXTRAS_DEVICE_TYPE_MY_IPHONE = "BLE_test_services—•";
     String DEVICE_TYPE_FEST_H = "FEST-H";
     String DEVICE_TYPE_FEST_X = "FEST-X";
+    String DEVICE_TYPE_FEST_TEST = "TEST";
 
     int REQUEST_ENABLE_BT = 1;
 

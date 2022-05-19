@@ -16,6 +16,7 @@ import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -23,6 +24,7 @@ import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_gestures.*
+import kotlinx.android.synthetic.main.layout_kibi.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
@@ -32,10 +34,8 @@ import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePres
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
-import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapter
-import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograb
-import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograbWithAdvancedSettings
-import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterWithAdvancedSettings
+import me.start.motorica.new_electronic_by_Rodeon.services.MyService
+import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.*
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
@@ -43,6 +43,7 @@ import timber.log.Timber
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.experimental.xor
+
 
 @Suppress("SameParameterValue", "SameParameterValue", "DEPRECATION")
 @RequirePresenter(MainPresenter::class)
@@ -147,10 +148,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       val action = intent.action
       when {
         BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
-          //connected state
-//          mConnected = true
-//          mConnectView!!.visibility = View.VISIBLE
-//          mDisconnectView!!.visibility = View.GONE
           System.err.println("DeviceControlActivity------->   момент индикации коннекта")
           Toast.makeText(context, "подключение установлено к $mDeviceAddress", Toast.LENGTH_SHORT).show()
           reconnectThreadFlag = false
@@ -716,18 +713,34 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       NavigationUtils.showAdvancedSettings = true
     } else {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-        val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
+      if ( mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) {
+        val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+
+        val myIntent = Intent(this, MyService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+          ContextCompat.startForegroundService(this, myIntent)
+        } else {
+          startService(myIntent)
+        }
       } else {
-        val mSectionsPagerAdapter =  SectionsPagerAdapterMonograb(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+        if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+          || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+          || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
+        ) {
+          val mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+          mainactivity_viewpager.adapter = mSectionsPagerAdapter
+          //здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+          mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
+        } else {
+          val mSectionsPagerAdapter = SectionsPagerAdapterMonograb(supportFragmentManager)
+          mainactivity_viewpager.adapter = mSectionsPagerAdapter
+          //здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+          mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+        }
       }
     }
 
@@ -880,58 +893,64 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     enableInterface(true)
   }
   private fun enableInterface(enabled: Boolean) {
-    enableInterfaceStatus = enabled
-    close_btn.isEnabled = enabled
-    open_btn.isEnabled = enabled
-    calibration_btn.isEnabled = enabled
-    thresholds_blocking_sw.isEnabled = enabled
-    correlator_noise_threshold_1_sb.isEnabled = enabled
-    correlator_noise_threshold_2_sb.isEnabled = enabled
-    if(enabled) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-        gesture_1_btn?.isEnabled = enabled
-        gesture_2_btn?.isEnabled = enabled
-        gesture_3_btn?.isEnabled = enabled
-        gesture_4_btn?.isEnabled = enabled
-        gesture_5_btn?.isEnabled = enabled
-        gesture_6_btn?.isEnabled = enabled
-        gesture_7_btn?.isEnabled = enabled
-        gesture_8_btn?.isEnabled = enabled
-        gesture_settings_2_btn?.isEnabled = enabled
-        gesture_settings_3_btn?.isEnabled = enabled
-        gesture_settings_4_btn?.isEnabled = enabled
-        gesture_settings_5_btn?.isEnabled = enabled
-        gesture_settings_6_btn?.isEnabled = enabled
-        gesture_settings_7_btn?.isEnabled = enabled
-        gesture_settings_8_btn?.isEnabled = enabled
-        if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-          swap_sensors_sw?.isEnabled = enabled
-          swap_open_close_sw?.isEnabled = enabled
-          single_channel_control_sw?.isEnabled = enabled
-          reset_to_factory_settings_btn?.isEnabled = enabled
+    if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) {
+      set_kibi_btn?.isEnabled = enabled
+    } else {
+      enableInterfaceStatus = enabled
+      close_btn?.isEnabled = enabled
+      open_btn?.isEnabled = enabled
+      calibration_btn?.isEnabled = enabled
+      thresholds_blocking_sw?.isEnabled = enabled
+      correlator_noise_threshold_1_sb?.isEnabled = enabled
+      correlator_noise_threshold_2_sb?.isEnabled = enabled
+      if (enabled) {
+        if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+          || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+          || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
+        ) {
+          gesture_1_btn?.isEnabled = enabled
+          gesture_2_btn?.isEnabled = enabled
+          gesture_3_btn?.isEnabled = enabled
+          gesture_4_btn?.isEnabled = enabled
+          gesture_5_btn?.isEnabled = enabled
+          gesture_6_btn?.isEnabled = enabled
+          gesture_7_btn?.isEnabled = enabled
+          gesture_8_btn?.isEnabled = enabled
+          gesture_settings_2_btn?.isEnabled = enabled
+          gesture_settings_3_btn?.isEnabled = enabled
+          gesture_settings_4_btn?.isEnabled = enabled
+          gesture_settings_5_btn?.isEnabled = enabled
+          gesture_settings_6_btn?.isEnabled = enabled
+          gesture_settings_7_btn?.isEnabled = enabled
+          gesture_settings_8_btn?.isEnabled = enabled
+          if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+            swap_sensors_sw?.isEnabled = enabled
+            swap_open_close_sw?.isEnabled = enabled
+            single_channel_control_sw?.isEnabled = enabled
+            reset_to_factory_settings_btn?.isEnabled = enabled
 //          calibration_btn?.isEnabled = enabled
-          get_setup_btn?.isEnabled = enabled
-          set_setup_btn?.isEnabled = enabled
-          shutdown_current_sb?.isEnabled = enabled
+            get_setup_btn?.isEnabled = enabled
+            set_setup_btn?.isEnabled = enabled
+            shutdown_current_sb?.isEnabled = enabled
+          }
         }
-      }
-      sensorsDataThreadFlag = enabled
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)) {
-        runReadData()
-      } else {
-        if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-          runStart()
+        sensorsDataThreadFlag = enabled
+        if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        ) {
+          runReadData()
         } else {
-          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            runStartVM()
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+            runStart()
           } else {
-            startSubscribeSensorsDataThread()
+            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              runStartVM()
+            } else {
+              startSubscribeSensorsDataThread()
+            }
           }
         }
       }

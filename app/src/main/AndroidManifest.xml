@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="me.start.motorica">
-    <uses-feature android:name="android.hardware.bluetooth"    android:required="false"/>
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+    <uses-feature android:name="android.hardware.bluetooth"    android:required="true"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
 
     <uses-permission android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30" />
@@ -23,9 +23,12 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.QUICKBOOT_POWERON" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:name="me.start.motorica.new_electronic_by_Rodeon.WDApplication"
+        android:installLocation="internalOnly"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -41,9 +44,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<!--        <activity android:name="me.start.motorica.old_electronic_by_Misha.ui.SplashScreen"-->
+<!--            android:exported="true"-->
+<!--            tools:node="merge">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
         <activity
             android:name="me.start.motorica.scan.view.ScanActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name="me.start.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity"
             android:screenOrientation="portrait">
@@ -74,7 +85,22 @@
             android:screenOrientation="portrait"/>
 
         <service android:name="me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService" android:enabled="true"/>
-
+        <service
+            android:name="me.start.motorica.new_electronic_by_Rodeon.services.MyService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="me.start.motorica.new_electronic_by_Rodeon.services.MyService"/>
+            </intent-filter>
+        </service>
+        <receiver
+            android:name="me.start.motorica.new_electronic_by_Rodeon.services.receivers.BootCompletedReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

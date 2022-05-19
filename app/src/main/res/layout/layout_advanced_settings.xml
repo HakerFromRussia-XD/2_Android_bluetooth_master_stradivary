@@ -998,7 +998,7 @@
                                 android:maxLength="16"
                                 android:paddingTop="0dp"
                                 android:textColor="#ffffff"
-                                android:textColorHint="#ffffff"
+                                android:textColorHint="#afafaf"
                                 android:textSize="14sp"
                                 tools:ignore="Autofill,TextFields,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
                         </com.google.android.material.textfield.TextInputLayout>

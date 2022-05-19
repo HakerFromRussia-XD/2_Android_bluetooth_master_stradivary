@@ -98,6 +98,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.err.println(" LOLOLOEFWEF --->  ScanActivity onCreate");
         DaggerScanComponent.builder()
                 .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())
                 .scanModule(new ScanModule(this))
@@ -122,11 +123,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             scanListBLEPosition = 0;
             mLeDevices.clear();
             pairedDeviceList.setAdapter(mScanListAdapter);
-            if ((ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+//            if ((ContextCompat.checkSelfPermission(this,
+//                    Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
                 scanLeDevice(true);
                 presenter.startScanning();
-            }
+//            }
         });
 
         /// BLE
@@ -350,10 +351,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     protected void onStart() {
         super.onStart();
-        if ((ContextCompat.checkSelfPermission(this,
-                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+//        if ((ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
             presenter.onStart(this);
-        }
+//        }
     }
 
     @Override
@@ -367,11 +368,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanListBLEPosition = 0;
         mLeDevices.clear();
         pairedDeviceList.setAdapter(mScanListAdapter);
-        if ((ContextCompat.checkSelfPermission(this,
-                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+//        if ((ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
             scanLeDevice(true);
             presenter.startScanning();
-        }
+//        }
     }
 
     @Override
@@ -386,10 +387,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     protected void onStop() {
         super.onStop();
         presenter.setOnPauseActivity(true);
-        if ((ContextCompat.checkSelfPermission(this,
-                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+//        if ((ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
             presenter.onStop();
-        }
+//        }
     }
 
     public boolean isFirstStart() {

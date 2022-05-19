@@ -55,6 +55,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.err.println(" LOLOLOEFWEF --->  DeviceScanActivity onCreate");
         setContentView(R.layout.activity_scan);
         scanList = new ArrayList<>();
         buildScanListView();

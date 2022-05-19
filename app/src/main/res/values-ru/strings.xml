@@ -208,6 +208,7 @@
     <string name="pre_status_5_finger">перетянут винт</string>
     <string name="pre_status_6_finger">откалиброван</string>
     <string name="status_finger">\nколичество шагов энкодера: %d \nток: %d мА</string>
+    <string name="serial_number">установить серийный номер</string>
 
 
     <string-array name="numbers">

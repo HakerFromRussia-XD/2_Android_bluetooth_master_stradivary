@@ -12,6 +12,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.widget.Toast;
 
@@ -25,6 +26,7 @@ public class MyService extends Service {
 
     // Constants
     private static final int ID_SERVICE = 101;
+    private CountDownTimer timerGraphEnteringData;
 
 
     @Override
@@ -45,6 +47,7 @@ public class MyService extends Service {
 
         // do stuff like register for BroadcastReceiver, etc.
         Toast.makeText(getApplicationContext(), "MyService onCreate()", Toast.LENGTH_SHORT).show();
+        startGraphEnteringDataTimer();
         // Create the Foreground Service
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         String channelId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel(notificationManager) : "";
@@ -56,6 +59,47 @@ public class MyService extends Service {
                 .build();
 
         startForeground(ID_SERVICE, notification);
+    }
+
+
+    private void startGraphEnteringDataTimer() {
+//        timerGraphEnteringData.cancel();
+//        timerGraphEnteringData = object : CountDownTimer(5000000, 25) {
+//            override fun onTick(millisUntilFinished: Long) {
+//                if (plotData) {
+//                    addEntry(10, 255)
+//                    addEntry(10, 255)
+//                    addEntry(10, 255)
+//                    addEntry(115, 150)
+//                    addEntry(115, 150)
+//                    addEntry(115, 150)
+//                    addEntry(10, 255)
+//                    addEntry(10, 255)
+//                    addEntry(10, 255)
+//                    addEntry(115, 150)
+//                    addEntry(115, 150)
+//                    addEntry(115, 150)
+//                    plotData = false
+//                }
+//                addEntry(main!!.getDataSens1(), main!!.getDataSens2())
+//            }
+//
+//            override fun onFinish() {
+//                startGraphEnteringDataTimer()
+//            }
+//        }.start()
+        new CountDownTimer(30000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                Toast.makeText(getApplicationContext(), "MyService CountDownTimer onTick()", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFinish() {
+                Toast.makeText(getApplicationContext(), "MyService CountDownTimer onFinish()", Toast.LENGTH_SHORT).show();
+//                startGraphEnteringDataTimer();
+            }
+        }.start();
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

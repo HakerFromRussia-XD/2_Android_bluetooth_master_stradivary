@@ -698,22 +698,37 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private fun initUI() {
     if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+      if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
+        val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+
+        val myIntent = Intent(this, MyService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+          ContextCompat.startForegroundService(this, myIntent)
+        } else {
+          startService(myIntent)
+        }
+      } else {
+      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
         || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-        val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
+      ) {
+        val mSectionsPagerAdapter = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
       } else {
-        val mSectionsPagerAdapter =  SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
+        val mSectionsPagerAdapter =
+          SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
       }
+    }
       NavigationUtils.showAdvancedSettings = true
     } else {
-      if ( mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) {
+      if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
         val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
@@ -733,7 +748,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         ) {
           val mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
           mainactivity_viewpager.adapter = mSectionsPagerAdapter
-          //здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
           mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
         } else {
           val mSectionsPagerAdapter = SectionsPagerAdapterMonograb(supportFragmentManager)

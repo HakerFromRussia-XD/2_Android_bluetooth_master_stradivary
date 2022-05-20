@@ -48,6 +48,7 @@ class GripperScreenWithEncodersActivity
         var animationInProgress4 by Delegates.notNull<Boolean>()
         var animationInProgress5 by Delegates.notNull<Boolean>()
         var animationInProgress6 by Delegates.notNull<Boolean>()
+        var side by Delegates.notNull<Int>()
     }
 
     private var numberFinger = 0
@@ -103,6 +104,11 @@ class GripperScreenWithEncodersActivity
         animationInProgress4 = false
         animationInProgress5 = false
         animationInProgress6 = false
+        //control side in 3D
+        side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                                       + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
+        System.err.println(" LOLOLOEFWEF --->  side : $side")
+
 
         loadOldState()
         myLoadGesturesList()

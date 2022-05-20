@@ -455,7 +455,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                           (castUnsignedCharToInt(data[25+(i*2)])  shl 8)
           statusCurrentFingers.add(temp)
         }
-        showRefillDialog(statusFingers, statusEncoderFingers, statusCurrentFingers)
+        showCalibrationInfoDialog(statusFingers, statusEncoderFingers, statusCurrentFingers)
       }
       if (data.size == 6) {
         var statusCalibration = ""
@@ -1612,7 +1612,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     dialog.show(supportFragmentManager, "update dialog")
   }
   @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")
-  private fun showRefillDialog(statusFinger: List<String>, statusEncoderFingers: List<Int>, statusCurrentFingers: List<Int>) {
+  private fun showCalibrationInfoDialog(statusFinger: List<String>, statusEncoderFingers: List<Int>, statusCurrentFingers: List<Int>) {
     val dialogBinding = layoutInflater.inflate(R.layout.dialog_info, null)
     val myDialog = Dialog(this)
     myDialog.setContentView(dialogBinding)
@@ -1661,8 +1661,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           statusCurrentFingers[5]
         )
     }
-
-//    myDialog.info_dialog_massage_tv.text = "massage"
 
     myDialog.info_animation_view.setAnimation(R.raw.loader_calibrating)
 

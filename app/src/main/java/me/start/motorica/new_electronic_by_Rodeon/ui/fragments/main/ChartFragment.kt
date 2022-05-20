@@ -3,6 +3,7 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
@@ -33,6 +34,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import javax.inject.Inject
@@ -479,6 +481,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
       chart_calibration_rl.visibility = View.GONE
     }
+
+
+    //TODO выпилить этот интент после проведения испытаний с 3D
+    val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
+    startActivity(intent)
   }
 
   override fun onResume() {

@@ -529,6 +529,7 @@ public class GripperSettingsWithoutEncodersRenderer implements GLSurfaceView.Ren
 		Matrix.setIdentityM(modelMatrix, 0);
 		Matrix.translateM(modelMatrix, 0, 0.0f, 0.0f, 0.0f);
 
+
 		GLES20.glUniform1f(codeSelectUniform, 51);
 		if(String.valueOf(selectStation).equals("UNSELECTED_OBJECT")) {
 			/** поворот всей сборки */

@@ -22,12 +22,12 @@ import me.start.motorica.scan.view.ScanActivity
 class SplashScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        System.err.println(" LOLOLOEFWEF --->  SplashScreen onCreate")
+//        System.err.println(" LOLOLOEFWEF --->  SplashScreen onCreate")
         askPermissions()
     }
 
     private fun askPermissions() {
-        System.err.println(" LOLOLOEFWEF --->  askPermissions()")
+//        System.err.println(" LOLOLOEFWEF --->  askPermissions()")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             requestMultiplePermissions.launch(arrayOf(
                 Manifest.permission.BLUETOOTH_SCAN,
@@ -35,7 +35,7 @@ class SplashScreen : AppCompatActivity() {
             launchScanActivity()
         }
         else{
-            System.err.println(" LOLOLOEFWEF --->  askPermissions()  Build.VERSION_CODES.S  false")
+//            System.err.println(" LOLOLOEFWEF --->  askPermissions()  Build.VERSION_CODES.S  false")
             Dexter.withActivity(this).withPermissions(
                 Manifest.permission.BLUETOOTH,
                 Manifest.permission.BLUETOOTH_ADMIN,
@@ -45,12 +45,12 @@ class SplashScreen : AppCompatActivity() {
                 .withListener(object : MultiplePermissionsListener {
                     override fun onPermissionsChecked(report: MultiplePermissionsReport) {
                         if (report.areAllPermissionsGranted()) {
-                            System.err.println(" LOLOLOEFWEF --->  onPermissionsChecked true")
+//                            System.err.println(" LOLOLOEFWEF --->  onPermissionsChecked true")
                             val intent = Intent(this@SplashScreen, ScanActivity::class.java)
                             startActivity(intent)
                             finish()
                         } else {
-                            System.err.println(" LOLOLOEFWEF --->  onPermissionsChecked false")
+//                            System.err.println(" LOLOLOEFWEF --->  onPermissionsChecked false")
                             Toast.makeText(this@SplashScreen, R.string.we_need_these_permissions, Toast.LENGTH_SHORT
                             ).show()
                             askPermissions()

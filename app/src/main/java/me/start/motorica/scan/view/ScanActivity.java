@@ -98,7 +98,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.err.println(" LOLOLOEFWEF --->  ScanActivity onCreate");
+//        System.err.println(" LOLOLOEFWEF --->  ScanActivity onCreate");
         DaggerScanComponent.builder()
                 .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())
                 .scanModule(new ScanModule(this))

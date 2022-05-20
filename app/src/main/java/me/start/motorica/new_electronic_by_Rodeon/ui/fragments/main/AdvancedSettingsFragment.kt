@@ -41,6 +41,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import javax.inject.Inject
 
@@ -565,6 +566,7 @@ class AdvancedSettingsFragment : Fragment() {
 
     val eventYandexMetricaParametersLeftRight = "{\"Screen advanced settings\":\"Tup left right side swap switch\"}"
     left_right_side_swap_sw?.setOnClickListener{
+      System.err.println(" LOLOLOEFWEF --->  side key : ${main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE}")
       if (left_right_side_swap_sw.isChecked) {
         left_right_side_swap_tv?.text = Html.fromHtml(getString(R.string.right))
         saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
@@ -751,8 +753,6 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibrationStatusAdv)
-
-//      showRefillDialog()
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
@@ -860,29 +860,7 @@ class AdvancedSettingsFragment : Fragment() {
 
     }
   }
-  @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")
-  private fun showRefillDialog() {
-    val dialogBinding = layoutInflater.inflate(R.layout.dialog_info, null)
-    val myDialog = Dialog(requireContext())
-    myDialog.setContentView(dialogBinding)
-    myDialog.setCancelable(false)
-    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    myDialog.show()
 
-    myDialog.dialog_info_title_tv.text = getString(R.string.calibration_status)
-
-    myDialog.dialog_active_boluses_first_in_queue_tv.text = getString(R.string.pre_status_finger)+" "+getString(R.string.pre_status_0_finger)+getString(R.string.status_finger, 24653, 387)
-//    myDialog.info_dialog_massage_tv.text = "massage"
-
-    if (true) { myDialog.info_animation_view.setAnimation(R.raw.loader_calibrating) }
-    else { myDialog.info_animation_view.setAnimation("error") }
-
-
-    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_info_confirm)
-    yesBtn.setOnClickListener {
-      myDialog.dismiss()
-    }
-  }
 
   private fun startUpdatingUIThread() {
     updatingUIThread =  Thread {

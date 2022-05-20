@@ -19,7 +19,7 @@ public interface ConstantManager {
     byte[] READ_REGISTER = {0x00}; // просто заглушка для того чтобы функция отправки команды при чтении смотрелась красиво
 
     ////////////////////////////////////////////////
-/**                      3D                         **/
+/* *                      3D                         * */
     ////////////////////////////////////////////////
     String MODEDEL_0="STR2/STR2_big_finger_part18.obj";
     String MODEDEL_1="STR2/STR2_big_finger_part19.obj";
@@ -64,7 +64,7 @@ public interface ConstantManager {
     Integer MAX_NUMBER_DETAILS = 19;
 
     ////////////////////////////////////////////////
-/**                     delays                      **/
+/* *                     delays                      * */
     ////////////////////////////////////////////////
     int GRAPH_UPDATE_DELAY  = 25;
     int NOTIFY_UPDATE_DELAY  = 250;

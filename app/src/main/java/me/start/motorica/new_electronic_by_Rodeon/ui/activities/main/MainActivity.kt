@@ -1721,7 +1721,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
       for (i in 0 until 7) {
         saveInt(
-          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2),
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2), // проверить тут + 1
           gestureTable[i][0][0]
         )
         saveInt(

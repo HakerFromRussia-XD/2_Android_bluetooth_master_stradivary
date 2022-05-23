@@ -112,6 +112,7 @@ class GripperScreenWithEncodersActivity
 
         loadOldState()
         myLoadGesturesList()
+//        if ((gestureNumber - 1) >= 0)
         gesture_name_tv.text = gestureNameList[gestureNumber - 1]
 
 
@@ -364,7 +365,7 @@ class GripperScreenWithEncodersActivity
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                 saveInt(
                     mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1),
+                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1), // проверить тут + 0
                     angleFinger
                 )
             }
@@ -655,7 +656,7 @@ class GripperScreenWithEncodersActivity
         }
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             System.err.println("GripperSettingsRender--------> compileBLEMassage FEST_X withChangeGesture =$withChangeGesture   fingerOpenState5 : " + (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()) + "   fingerCloseState5 : " + (100 - (((fingerCloseState5) + 58).toFloat() / 86 * 100).toInt()))
-            val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1 ,
+            val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1 , // проверить тут -2
                 fingerOpenState4, fingerOpenState3, fingerOpenState2,
                 fingerOpenState1, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
                 fingerCloseState4, fingerCloseState3, fingerCloseState2,
@@ -757,7 +758,7 @@ class GripperScreenWithEncodersActivity
                 mSettings!!.getString(
                     PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
                     text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1), 0
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1), 0 //проверить тут +0
             )
             fingerOpenState3 = mSettings!!.getInt(
                 mSettings!!.getString(

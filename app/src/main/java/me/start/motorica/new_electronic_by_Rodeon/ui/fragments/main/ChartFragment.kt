@@ -484,8 +484,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
 
     //TODO выпилить этот интент после проведения испытаний с 3D
-    val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
-    startActivity(intent)
+//    val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
+//    startActivity(intent)
   }
 
   override fun onResume() {
@@ -562,19 +562,29 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       data.addDataSet(set3)
     }
 
-    if (set.entryCount > 600 ) {
-      set.removeFirst()
-      set2.removeFirst()
-      set.addEntryOrdered(Entry(1f,255f))
+
+    if (set.entryCount > 200 ) {
+      main?.runOnUiThread {
+        set.removeFirst()
+        set2.removeFirst()
+        set.addEntryOrdered(Entry(1f, 255f))
+      }
     } else {
-      data.addEntry(Entry(count.toFloat(), 255f), 2)
+      main?.runOnUiThread {
+        data.addEntry(Entry(count.toFloat(), 255f), 2)
+      }
     }
-    data.addEntry(Entry(count.toFloat(), sens1.toFloat()), 0)
-    data.addEntry(Entry(count.toFloat(), sens2.toFloat()), 1)
-    data.notifyDataChanged()
-    chart_mainchart.notifyDataSetChanged()
-    chart_mainchart.setVisibleXRangeMaximum(600f)
-    chart_mainchart.moveViewToX(set.entryCount - 600.toFloat())
+
+
+    main?.runOnUiThread {
+      data.addEntry(Entry(count.toFloat(), sens1.toFloat()), 0)
+      data.addEntry(Entry(count.toFloat(), sens2.toFloat()), 1)
+      data.notifyDataChanged()
+
+      chart_mainchart.notifyDataSetChanged()
+      chart_mainchart.setVisibleXRangeMaximum(200f)
+      chart_mainchart.moveViewToX(set.entryCount - 200.toFloat())
+    }
     count += 1
   }
   private fun initializedSensorGraph() {
@@ -620,7 +630,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private fun startGraphEnteringDataThread() {
     graphThread = Thread {
       while (graphThreadFlag) {
-        main?.runOnUiThread {
+//        main?.runOnUiThread {
           if (plotData) {
             addEntry(10, 255)
 //            addEntry(115, 150)
@@ -637,7 +647,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
             plotData = false
           }
           addEntry(main!!.getDataSens1(), main!!.getDataSens2())
-        }
+//        }
         try {
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) {

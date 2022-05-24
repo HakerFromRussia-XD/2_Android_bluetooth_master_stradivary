@@ -484,8 +484,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
 
     //TODO выпилить этот интент после проведения испытаний с 3D
-//    val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
-//    startActivity(intent)
+    val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
+    startActivity(intent)
   }
 
   override fun onResume() {

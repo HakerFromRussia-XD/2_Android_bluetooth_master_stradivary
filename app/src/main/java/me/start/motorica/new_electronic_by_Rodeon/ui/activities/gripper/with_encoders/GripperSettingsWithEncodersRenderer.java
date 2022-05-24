@@ -1519,9 +1519,17 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 		} else {
 			Matrix.setIdentityM(currentRotation, 0);
 			if(String.valueOf(selectStation).equals("SELECT_FINGER_5")){
-				angleBigFingerFloat2 += deltaX;
-				if((angleBigFingerFloat2 < 1 || angleBigFingerFloat2 > 89)) {
+				if (GripperScreenWithEncodersActivity.Companion.getSide() == 0) {
 					angleBigFingerFloat2 -= deltaX;
+				} else {
+					angleBigFingerFloat2 += deltaX;
+				}
+				if((angleBigFingerFloat2 < 1 || angleBigFingerFloat2 > 89)) {
+					if (GripperScreenWithEncodersActivity.Companion.getSide() == 0) {
+						angleBigFingerFloat2 += deltaX;
+					} else {
+						angleBigFingerFloat2 -= deltaX;
+					}
 					angleBigFingerTransfer2 = (int) angleBigFingerFloat2;
 				}
 				if((angleBigFingerTransfer2 >= 0 && angleBigFingerTransfer2 <= 90)) {

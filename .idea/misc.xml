@@ -7,12 +7,44 @@
         <entry key="..\:/VRMMO/Adroid/Projekts/2_Android_bluetooth_master_stradivary/app/src/main/res/layout/activiti_experimental.xml" value="0.20471014492753623" />
         <entry key="..\:/VRMMO/Adroid/Projekts/2_Android_bluetooth_master_stradivary/app/src/main/res/layout/fragment_service_settings.xml" value="0.10182370820668693" />
         <entry key="..\:/VRMMO/Adroid/Projekts/2_Android_bluetooth_master_stradivary/app/src/main/res/layout/layout_sens_settings.xml" value="0.10182370820668693" />
+        <entry key="app/src/main/res/drawable/andex_alert_dialog_et_background_selector2.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/button_background_selector.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/button_default.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/button_default_calibration.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/button_disabled.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/button_le_invisible.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/close_border.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/custom_button.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/custom_button_le_border.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/custom_button_le_selected.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/custom_ripple.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/ic_cancel_24.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/ic_edit_24.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/ok.xml" value="0.1245" />
+        <entry key="app/src/main/res/drawable/open_border.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/switch_le_thumb.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/switch_le_thumb_blue.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/switch_le_truck.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/switch_le_truck_blue.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/test.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/thumb.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/thumb_calibration.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/thumb_invisible.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/thumb_le.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/touch_aria_close.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/touch_aria_open.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/track.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/track_calibration.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/track_invisible.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/track_le.xml" value="0.1485" />
         <entry key="app/src/main/res/layout/activiti_experimental.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/activity_infinity_settings.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1793478260869565" />
         <entry key="app/src/main/res/layout/activity_scan.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/button.xml" value="0.21422101449275363" />
-        <entry key="app/src/main/res/layout/dialog_info.xml" value="0.41802090419812155" />
+        <entry key="app/src/main/res/layout/dialog_fingers_delay.xml" value="0.336932947001326" />
+        <entry key="app/src/main/res/layout/dialog_info.xml" value="0.20658444179577778" />
         <entry key="app/src/main/res/layout/dialog_refill.xml" value="0.17255434782608695" />
         <entry key="app/src/main/res/layout/finger_template.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/fragment_gesture_settings.xml" value="0.21422101449275363" />
@@ -25,11 +57,11 @@
         <entry key="app/src/main/res/layout/intro3.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/intro4.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/item_scanlist.xml" value="0.21422101449275363" />
-        <entry key="app/src/main/res/layout/layout_advanced_settings.xml" value="0.19349672486181968" />
+        <entry key="app/src/main/res/layout/layout_advanced_settings.xml" value="0.3651925820256776" />
         <entry key="app/src/main/res/layout/layout_calibrating_le.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/layout_chart.xml" value="0.22475247524752476" />
         <entry key="app/src/main/res/layout/layout_gestures.xml" value="0.15070921985815602" />
-        <entry key="app/src/main/res/layout/layout_gripper_settings_le_with_encoders.xml" value="0.26721014492753625" />
+        <entry key="app/src/main/res/layout/layout_gripper_settings_le_with_encoders.xml" value="0.5475753914596688" />
         <entry key="app/src/main/res/layout/layout_gripper_settings_le_without_encoders.xml" value="0.29347826086956524" />
         <entry key="app/src/main/res/layout/layout_kibi.xml" value="0.17844202898550723" />
         <entry key="app/src/main/res/layout/layout_updating_le.xml" value="0.2749094202898551" />

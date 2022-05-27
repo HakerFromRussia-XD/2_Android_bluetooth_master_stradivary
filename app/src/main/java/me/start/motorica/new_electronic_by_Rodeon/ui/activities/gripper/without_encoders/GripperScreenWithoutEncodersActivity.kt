@@ -107,7 +107,7 @@ class GripperScreenWithoutEncodersActivity
                         }
                         editMode = false
                     } else {
-                        edit_gesture_name_w_btn.setImageResource(R.drawable.ic_cancel_24)
+                        edit_gesture_name_w_btn.setImageResource(R.drawable.ic_ok_24)
                         gesture_name_w_et.visibility = View.VISIBLE
                         gesture_name_w_et.setText(gesture_name_w_tv.text, TextView.BufferType.EDITABLE)
                         gesture_name_w_tv.visibility = View.GONE

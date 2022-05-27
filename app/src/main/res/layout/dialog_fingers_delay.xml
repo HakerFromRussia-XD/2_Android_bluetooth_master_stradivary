@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="32dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#fff">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_andex_alert_dialog_layout_image_left1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.05" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_andex_alert_dialog_layout_image_right2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.95" />
+
+            <TextView
+                android:id="@+id/dialog_info_title_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/sf_pro_text_bold"
+                android:gravity="center"
+                android:maxLines="2"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Title dialog info"
+                android:textAlignment="center"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+                app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left1"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="HardcodedText" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/all_fingers_delay_cv"
+                android:layout_width="0dp"
+                android:layout_height="383dp"
+                android:layout_marginTop="16dp"
+                android:elevation="0dp"
+                app:cardCornerRadius="16dp"
+                app:cardUseCompatPadding="true"
+                app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+                app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left1"
+                app:layout_constraintTop_toBottomOf="@+id/dialog_info_title_tv">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/separator_settings"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+                    app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left1"
+                    app:layout_constraintTop_toBottomOf="@+id/dialog_info_title_tv">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/first_cl"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginBottom="2dp"
+                        android:background="@color/background_title_fragment">
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_1_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.33" />
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_2_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.50" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_first_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="@string/_1_finger_delay"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_1_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_first_2_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="123 ms"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/_1_1"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <androidx.appcompat.widget.AppCompatSeekBar
+                            android:id="@+id/dialog_fingers_delay_1_sb"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:max="100"
+                            android:paddingStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:paddingEnd="0dp"
+                            android:progress="0"
+                            android:progressDrawable="@drawable/track_le"
+                            android:thumb="@drawable/thumb_le"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/_2_1"
+                            tools:layout_editor_absoluteY="0dp" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/second_cl"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginBottom="2dp"
+                        android:background="@color/background_title_fragment">
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_1_2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.33" />
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_2_2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.5" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_second_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="@string/_2_finger_delay"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_1_2"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_second_2_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="123 ms"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_2"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/_1_2"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <androidx.appcompat.widget.AppCompatSeekBar
+                            android:id="@+id/dialog_fingers_delay_2_sb"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:max="100"
+                            android:paddingStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:paddingEnd="0dp"
+                            android:progress="0"
+                            android:progressDrawable="@drawable/track_le"
+                            android:thumb="@drawable/thumb_le"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/_2_2"
+                            tools:layout_editor_absoluteY="0dp" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/third_cl"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginBottom="2dp"
+                        android:background="@color/background_title_fragment">
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_1_3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.33" />
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_2_3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.5" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_third_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="@string/_3_finger_delay"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_1_3"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_third_2_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="123 ms"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_3"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/_1_3"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <androidx.appcompat.widget.AppCompatSeekBar
+                            android:id="@+id/dialog_fingers_delay_3_sb"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:max="100"
+                            android:paddingStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:paddingEnd="0dp"
+                            android:progress="0"
+                            android:progressDrawable="@drawable/track_le"
+                            android:thumb="@drawable/thumb_le"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/_2_3"
+                            tools:layout_editor_absoluteY="0dp" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/fourth_cl"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginBottom="2dp"
+                        android:background="@color/background_title_fragment">
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_1_4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.33" />
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_2_4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.5" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_fourth_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="@string/_4_finger_delay"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_1_4"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_fourth_2_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="123 ms"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_4"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/_1_4"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <androidx.appcompat.widget.AppCompatSeekBar
+                            android:id="@+id/dialog_fingers_delay_4_sb"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:max="100"
+                            android:paddingStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:paddingEnd="0dp"
+                            android:progress="0"
+                            android:progressDrawable="@drawable/track_le"
+                            android:thumb="@drawable/thumb_le"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/_2_4"
+                            tools:layout_editor_absoluteY="0dp" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/fifth_cl"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginBottom="2dp"
+                        android:background="@color/background_title_fragment">
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_1_5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.33" />
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_2_5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.5" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_fifth_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="@string/_5_finger_delay"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_1_5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_fifth_2_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="123 ms"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_5"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/_1_5"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <androidx.appcompat.widget.AppCompatSeekBar
+                            android:id="@+id/dialog_fingers_delay_5_sb"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:max="100"
+                            android:paddingStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:paddingEnd="0dp"
+                            android:progress="0"
+                            android:progressDrawable="@drawable/track_le"
+                            android:thumb="@drawable/thumb_le"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/_2_5"
+                            tools:layout_editor_absoluteY="0dp" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/sixth_cl"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginBottom="2dp"
+                        android:background="@color/background_title_fragment">
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_1_6"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.33" />
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/_2_6"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.5" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_sixth_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="@string/_6_finger_delay"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_1_6"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/dialog_fingers_delay_sixth_2_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:maxLines="3"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:singleLine="false"
+                            android:text="123 ms"
+                            android:textColor="#000"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_6"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="@+id/_1_6"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <androidx.appcompat.widget.AppCompatSeekBar
+                            android:id="@+id/dialog_fingers_delay_6_sb"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:max="100"
+                            android:paddingStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:paddingEnd="0dp"
+                            android:progress="0"
+                            android:progressDrawable="@drawable/track_le"
+                            android:thumb="@drawable/thumb_le"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/_2_6"
+                            tools:layout_editor_absoluteY="0dp" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <View
+                android:id="@+id/view4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="10dp"
+                android:background="#483c3c3c"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/all_fingers_delay_cv" />
+
+            <TextView
+                android:id="@+id/tv_andex_alert_dialog_layout_cancel_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/sf_pro_text_bold"
+                android:text="@string/close"
+                android:textColor="@color/system_blue"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view4" />
+
+            <View
+                android:id="@+id/dialog_fingers_delay_confirm"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/view4"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

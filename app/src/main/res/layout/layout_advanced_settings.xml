@@ -691,6 +691,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentStart="true"
                                 android:layout_centerVertical="true"
+                                android:lines="2"
                                 android:text="@string/gesture_switching_by_sensors"
                                 android:textStyle="bold" />
                         </RelativeLayout>
@@ -1147,6 +1148,79 @@
                         </RelativeLayout>
                     </LinearLayout>
                 </RelativeLayout>
+
+                <RelativeLayout
+                android:id="@+id/time_delay_of_fingers_rl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:layout_weight="1">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:weightSum="4"
+                    tools:ignore="DisableBaselineAlignment">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2">
+
+                        <TextView
+                            android:id="@+id/time_delay_of_fingers_tv"
+                            style="@style/Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:lines="2"
+                            android:text="@string/changing_the_finger_delay_time"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/time_delay_of_fingers_swap_tv"
+                            style="@style/Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="0"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <Switch
+                            android:id="@+id/time_delay_of_fingers_swap_sw"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="-2dp"
+                            android:layout_marginEnd="3dp"
+                            android:checked="false"
+                            android:ellipsize="middle"
+                            android:paddingStart="16dp"
+                            android:scrollbarSize="48dp"
+                            android:thumb="@drawable/switch_le_thumb"
+                            android:track="@drawable/switch_le_truck"
+                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/reset_to_factory_settings_rl"

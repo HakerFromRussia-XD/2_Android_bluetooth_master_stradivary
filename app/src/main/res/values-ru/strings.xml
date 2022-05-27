@@ -209,6 +209,14 @@
     <string name="pre_status_6_finger">откалиброван</string>
     <string name="status_finger">\nколичество шагов энкодера: %d \nток: %d мА</string>
     <string name="serial_number">установить серийный номер</string>
+    <string name="changing_the_finger_delay_time">изменение времени задержки пальцев</string>
+    <string name="finger_delay">задержка пальца</string>
+    <string name="_1_finger_delay">задержка пальца №1</string>
+    <string name="_2_finger_delay">задержка пальца №2</string>
+    <string name="_3_finger_delay">задержка пальца №3</string>
+    <string name="_4_finger_delay">задержка пальца №4</string>
+    <string name="_5_finger_delay">задержка пальца №5</string>
+    <string name="_6_finger_delay">задержка пальца №6</string>
 
 
     <string-array name="numbers">

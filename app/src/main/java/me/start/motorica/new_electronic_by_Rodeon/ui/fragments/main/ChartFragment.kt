@@ -482,7 +482,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       chart_calibration_rl.visibility = View.GONE
     }
 
-
     //TODO выпилить этот интент после проведения испытаний с 3D
     val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
     startActivity(intent)
@@ -494,7 +493,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     graphThreadFlag = true
     testThreadFlag = true
     startGraphEnteringDataThread()
-//    startGraphEnteringDataTimer()
   }
   override fun onPause() {
     super.onPause()

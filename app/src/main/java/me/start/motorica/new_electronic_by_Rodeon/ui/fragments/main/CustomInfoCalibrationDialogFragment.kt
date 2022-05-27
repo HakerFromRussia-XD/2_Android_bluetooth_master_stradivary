@@ -60,7 +60,7 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
     private fun startUpdatingUIThread() {
         updatingUIThread = Thread {
             while (updateThreadFlag) {
-                System.err.println("---> статус калибровки calibrationStage: " + main?.calibrationStage)
+//                System.err.println("---> статус калибровки calibrationStage: " + main?.calibrationStage)
                 if (main?.calibrationStage == 6) updateThreadFlag = false //если все пальцы успешно откалиброванны
                 if (main?.calibrationStage == 5) updateThreadFlag = false //если хоть один палец слишком сильно затянут
                 if (main?.calibrationStage == 4) updateThreadFlag = false //если хоть один палец прокручивается

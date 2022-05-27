@@ -113,6 +113,7 @@ class AdvancedSettingsFragment : Fragment() {
       calibration_adv_btn?.textSize = 10f
       calibration_status_adv_btn?.textSize = 10f
       side_text_tv?.textSize = 11f
+      time_delay_of_fingers_tv?.textSize = 11f
       left_right_side_swap_tv?.textSize = 11f
       shutdown_current_1_text_tv?.textSize = 11f
       shutdown_current_2_text_tv?.textSize = 11f
@@ -128,6 +129,13 @@ class AdvancedSettingsFragment : Fragment() {
       left_right_side_swap_sw?.isChecked = false
       left_right_side_swap_tv?.text = resources.getString(R.string.left)
     }
+    if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SET_FINGERS_DELAY, 0) == 1){
+      time_delay_of_fingers_swap_sw?.isChecked = true
+      time_delay_of_fingers_swap_tv?.text = 1.toString()
+    } else {
+      time_delay_of_fingers_swap_sw?.isChecked = false
+      time_delay_of_fingers_swap_tv?.text = 0.toString()
+    }
 
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
       val calibrationStartParams: LinearLayout.LayoutParams =
@@ -137,6 +145,7 @@ class AdvancedSettingsFragment : Fragment() {
         calibration_status_button_ll.layoutParams as LinearLayout.LayoutParams
       calibrationStatusParams.weight = 1f
     } else {
+      time_delay_of_fingers_rl?.visibility = View.GONE
       if (main?.locate?.contains("ru")!!) { calibration_status_adv_btn?.textSize = 12f }
     }
 
@@ -575,6 +584,21 @@ class AdvancedSettingsFragment : Fragment() {
         saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
       }
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersLeftRight)
+    }
+
+
+    val eventYandexMetricaParametersFingersDelay = "{\"Screen advanced settings\":\"Tup  time delay fingers swap switch\"}"
+    time_delay_of_fingers_swap_sw?.setOnClickListener {
+      if (time_delay_of_fingers_swap_sw.isChecked) {
+        System.err.println("time_delay_of_fingers_swap_sw 1")
+        time_delay_of_fingers_swap_tv?.text = 1.toString()
+        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_FINGERS_DELAY, 1)
+      } else {
+        System.err.println("time_delay_of_fingers_swap_sw 0")
+        time_delay_of_fingers_swap_tv?.text = 0.toString()
+        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_FINGERS_DELAY, 0)
+      }
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersFingersDelay)
     }
 
 

@@ -209,6 +209,14 @@
     <string name="pre_status_6_finger">calibrated</string>
     <string name="status_finger">\nencoder steps: %d \ncurrent: %d mA</string>
     <string name="serial_number">set serial number</string>
+    <string name="changing_the_finger_delay_time">changing the finger delay time</string>
+    <string name="finger_delay">finger delay</string>
+    <string name="_1_finger_delay">finger №1 delay</string>
+    <string name="_2_finger_delay">finger №2 delay</string>
+    <string name="_3_finger_delay">finger №3 delay</string>
+    <string name="_4_finger_delay">finger №4 delay</string>
+    <string name="_5_finger_delay">finger №5 delay</string>
+    <string name="_6_finger_delay">finger №6 delay</string>
 
     <string-array name="numbers">
         <item>0</item>

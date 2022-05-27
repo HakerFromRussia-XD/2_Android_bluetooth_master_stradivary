@@ -3,10 +3,13 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_en
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.ActivityManager
+import android.app.Dialog
 import android.app.Service
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.util.DisplayMetrics
@@ -49,6 +52,7 @@ class GripperScreenWithEncodersActivity
         var animationInProgress5 by Delegates.notNull<Boolean>()
         var animationInProgress6 by Delegates.notNull<Boolean>()
         var side by Delegates.notNull<Int>()
+        var setTimeDelayOfFingers by Delegates.notNull<Boolean>()
     }
 
     private var numberFinger = 0
@@ -107,12 +111,18 @@ class GripperScreenWithEncodersActivity
         //control side in 3D
         side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
                                        + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
-        System.err.println(" LOLOLOEFWEF --->  side : $side")
+
+        setTimeDelayOfFingers = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                                + PreferenceKeys.SET_FINGERS_DELAY, 0) == 1
+        if (setTimeDelayOfFingers) {
+            fingers_delay_btn?.visibility = View.VISIBLE
+        } else {
+            fingers_delay_btn?.visibility = View.GONE
+        }
 
 
         loadOldState()
         myLoadGesturesList()
-//        if ((gestureNumber - 1) >= 0)
         gesture_name_tv.text = gestureNameList[gestureNumber - 1]
 
 
@@ -132,7 +142,7 @@ class GripperScreenWithEncodersActivity
                         }
                         editMode = false
                     } else {
-                        edit_gesture_name_btn.setImageResource(R.drawable.ic_cancel_24)
+                        edit_gesture_name_btn.setImageResource(R.drawable.ic_ok_24)
                         gesture_name_et.visibility = View.VISIBLE
 //                        gesture_name_et.background.setColorFilter(resources.getColor(R.color.darkOrange), PorterDuff.Mode.SRC_ATOP)
                         gesture_name_et.setText(gesture_name_tv.text, TextView.BufferType.EDITABLE)
@@ -209,6 +219,10 @@ class GripperScreenWithEncodersActivity
                     }
                     finish()
                 }
+
+        fingers_delay_btn.setOnClickListener {
+            showFingersDelayDialog()
+        }
 
         seekBarSpeedFingerLE.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             @SuppressLint("SetTextI18n")
@@ -640,6 +654,22 @@ class GripperScreenWithEncodersActivity
                 }
             }
             anim6.start()
+        }
+    }
+
+    @SuppressLint("InflateParams")
+    private fun showFingersDelayDialog() {
+        val dialogBinding = layoutInflater.inflate(R.layout.dialog_fingers_delay, null)
+        val myDialog = Dialog(this)
+        myDialog.setContentView(dialogBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+
+
+        val cancelBtn = dialogBinding.findViewById<View>(R.id.dialog_fingers_delay_confirm)
+        cancelBtn.setOnClickListener {
+            myDialog.dismiss()
         }
     }
 

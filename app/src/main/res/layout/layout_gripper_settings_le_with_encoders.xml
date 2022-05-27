@@ -72,6 +72,88 @@
 
     </LinearLayout>
 
+<!--    <LinearLayout-->
+<!--        android:id="@+id/fingers_time_delay_ll"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="42dp"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:paddingLeft="16dp"-->
+<!--        android:paddingRight="16dp"-->
+<!--        android:layout_marginTop="66dp"-->
+<!--        android:layout_gravity="top"-->
+<!--        android:weightSum="2"-->
+<!--        tools:ignore="DisableBaselineAlignment">-->
+
+<!--        <RelativeLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="2"-->
+<!--            tools:ignore="UselessParent">-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:weightSum="4"-->
+<!--                tools:ignore="DisableBaselineAlignment">-->
+
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_weight="1">-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/peak_time_text_tv"-->
+<!--                        style="@style/Text"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_alignParentStart="true"-->
+<!--                        android:layout_alignParentLeft="true"-->
+<!--                        android:layout_alignParentEnd="true"-->
+<!--                        android:layout_centerVertical="true"-->
+<!--                        android:layout_marginStart="0dp"-->
+<!--                        android:text="@string/_1_finger_delay"-->
+<!--                        android:textStyle="bold"-->
+<!--                        tools:ignore="RtlHardcoded" />-->
+<!--                </RelativeLayout>-->
+
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_weight="0.5">-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/peak_time_tv"-->
+<!--                        style="@style/Text"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_centerInParent="true"-->
+<!--                        android:text="1,00c"-->
+<!--                        android:textStyle="bold"-->
+<!--                        tools:ignore="HardcodedText" />-->
+<!--                </RelativeLayout>-->
+
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="2.5">-->
+
+<!--                    <androidx.appcompat.widget.AppCompatSeekBar-->
+<!--                        android:id="@+id/peak_time_sb"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:max="100"-->
+<!--                        android:paddingStart="16dp"-->
+<!--                        android:paddingEnd="0dp"-->
+<!--                        android:progress="0"-->
+<!--                        android:progressDrawable="@drawable/track_le"-->
+<!--                        android:thumb="@drawable/thumb_le" />-->
+<!--                </RelativeLayout>-->
+<!--            </LinearLayout>-->
+<!--        </RelativeLayout>-->
+
+<!--    </LinearLayout>-->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -171,4 +253,19 @@
         android:src="@drawable/ic_edit_24"
         app:layout_constraintTop_toBottomOf="@+id/gesture_name_tv"
         tools:ignore="ContentDescription,TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+
+
+    <Button
+        android:id="@+id/fingers_delay_btn"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginStart="123dp"
+        android:layout_marginTop="24dp"
+        android:scaleX="0.7"
+        android:scaleY="0.7"
+        android:background="@drawable/ic_baseline_settings_24"
+        android:backgroundTint="@android:color/white"
+        android:visibility="visible"
+        tools:ignore="MissingConstraints" />
 </FrameLayout>

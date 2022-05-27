@@ -350,7 +350,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/edit/baseline_edit_24.xml" />
+                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/arrow_forward_ios/baseline_arrow_forward_ios_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -360,9 +360,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_edit_24" />
-                            <entry key="sourceFile" value="E:\VRMMO\Adroid\Projekts\2_Android_bluetooth_master_stradivary" />
+                            <entry key="outputName" value="arrow_forward_24" />
+                            <entry key="sourceFile" value="/E:\VRMMO\Adroid\Projekts\2_Android_bluetooth_master_stradivary" />
                           </map>
                         </option>
                       </PersistentState>

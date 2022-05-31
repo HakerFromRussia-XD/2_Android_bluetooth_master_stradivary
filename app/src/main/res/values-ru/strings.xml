@@ -180,7 +180,9 @@
     <string name="rotation_state_open">наружу</string>
     <string name="rotation_state_close">внутрь</string>
     <string name="gesture_state_open">открытое</string>
+    <string name="delay_state_open">Настройка задержек пальцев открытого состояния</string>
     <string name="gesture_state_close">закрытое</string>
+    <string name="delay_state_close">Настройка задержек пальцев закрытого состояния</string>
     <string name="prosthesis_calibrating">Калибровка протеза</string>
     <string name="waiting">ожидайте…</string>
     <string name="get">считать</string>
@@ -200,6 +202,7 @@
     <string name="disconnect_the_cannula_from_the_magistral">disconnect the cannula from the magistral</string>
     <string name="start">start</string>
     <string name="pre_status_finger">статус пальца %d:</string>
+    <string name="delay_finger_ms">%dмс </string>
     <string name="pre_status_0_finger">не откалиброван</string>
     <string name="pre_status_1_finger">идет калибровка</string>
     <string name="pre_status_2_finger">мотора нет</string>
@@ -211,12 +214,12 @@
     <string name="serial_number">установить серийный номер</string>
     <string name="changing_the_finger_delay_time">изменение времени задержки пальцев</string>
     <string name="finger_delay">задержка пальца</string>
-    <string name="_1_finger_delay">задержка пальца №1</string>
-    <string name="_2_finger_delay">задержка пальца №2</string>
-    <string name="_3_finger_delay">задержка пальца №3</string>
-    <string name="_4_finger_delay">задержка пальца №4</string>
-    <string name="_5_finger_delay">задержка пальца №5</string>
-    <string name="_6_finger_delay">задержка пальца №6</string>
+    <string name="_1_finger_delay">задержка указательного пальца</string>
+    <string name="_2_finger_delay">задержка среднего пальца</string>
+    <string name="_3_finger_delay">задержка безымянного пальца</string>
+    <string name="_4_finger_delay">задержка мизинца</string>
+    <string name="_5_finger_delay">задержка большого пальца</string>
+    <string name="_6_finger_delay">задержка ротации</string>
 
 
     <string-array name="numbers">

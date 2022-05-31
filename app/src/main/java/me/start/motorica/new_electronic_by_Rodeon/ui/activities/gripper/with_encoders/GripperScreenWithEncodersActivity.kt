@@ -11,17 +11,21 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.dialog_fingers_delay.*
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
+import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
@@ -72,6 +76,22 @@ class GripperScreenWithEncodersActivity
     private var fingerCloseState5 = 0
     private var fingerCloseState6 = 0
 
+    private var fingerOpenStateDelay1 = 0
+    private var fingerOpenStateDelay2 = 0
+    private var fingerOpenStateDelay3 = 0
+    private var fingerOpenStateDelay4 = 0
+    private var fingerOpenStateDelay5 = 0
+    private var fingerOpenStateDelay6 = 0
+
+    private var fingerCloseStateDelay1 = 0
+    private var fingerCloseStateDelay2 = 0
+    private var fingerCloseStateDelay3 = 0
+    private var fingerCloseStateDelay4 = 0
+    private var fingerCloseStateDelay5 = 0
+    private var fingerCloseStateDelay6 = 0
+
+    private var timerCheckReceivingData: CountDownTimer? = null
+
     private var gestureState = 0
 
     private var score1 = 0
@@ -81,6 +101,8 @@ class GripperScreenWithEncodersActivity
     private var score5 = 0
     private var score6 = 0
 
+    private var firstRequest = true
+    private var countTick = 0
     private var mSettings: SharedPreferences? = null
     private var gestureNumber: Int = 0
     private var gestureNameList =  ArrayList<String>()
@@ -165,27 +187,27 @@ class GripperScreenWithEncodersActivity
                     angleFinger = parameters.fingerAngel
                     if (numberFinger == 1) {
                         changeStateFinger1 (angleFinger)
-                        compileBLEMassage (true)
+                        compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
                     }
                     if (numberFinger == 2) {
                         changeStateFinger2 (angleFinger)
-                        compileBLEMassage (true)
+                        compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
                     }
                     if (numberFinger == 3) {
                         changeStateFinger3 (angleFinger)
-                        compileBLEMassage (true)
+                        compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
                     }
                     if (numberFinger == 4) {
                         changeStateFinger4 (angleFinger)
-                        compileBLEMassage (true)
+                        compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
                     }
                     if (numberFinger == 5) {
                         changeStateFinger5 (88 - angleFinger)
-                        compileBLEMassage (true)
+                        compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
                     }
                     if (numberFinger == 6) {
                         changeStateFinger6 (98 - angleFinger)
-                        compileBLEMassage (true)
+                        compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
                     }
                     if (numberFinger == 55) { }
                 }
@@ -206,7 +228,7 @@ class GripperScreenWithEncodersActivity
                         gestureState = 0
                         gripper_state_le.text = getString(R.string.gesture_state_close)
                     }
-                    compileBLEMassage (false)
+                    compileBLEMassage (withChangeGesture = false, onlyNumberGesture = false)
                 }
         RxView.clicks(findViewById(R.id.gripper_use_le))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -224,7 +246,7 @@ class GripperScreenWithEncodersActivity
             showFingersDelayDialog()
         }
 
-        seekBarSpeedFingerLE.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        seekBarSpeedFingerLE.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             @SuppressLint("SetTextI18n")
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (seekBarSpeedFingerLE.progress < 10) {
@@ -665,15 +687,184 @@ class GripperScreenWithEncodersActivity
         myDialog.setCancelable(false)
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         myDialog.show()
+        myDialog.delay_fingers_animation_view.setAnimation(R.raw.loader_calibrating)
+
+        loadFingersDelay()
+        if (gestureState == 1) {
+            myDialog.dialog_fingers_delay_title_tv.text = getString(R.string.delay_state_open)
+            myDialog.dialog_fingers_delay_1_sb.progress = fingerOpenStateDelay1
+            myDialog.dialog_fingers_delay_2_sb.progress = fingerOpenStateDelay2
+            myDialog.dialog_fingers_delay_3_sb.progress = fingerOpenStateDelay3
+            myDialog.dialog_fingers_delay_4_sb.progress = fingerOpenStateDelay4
+            myDialog.dialog_fingers_delay_5_sb.progress = fingerOpenStateDelay5
+            myDialog.dialog_fingers_delay_6_sb.progress = fingerOpenStateDelay6
+        } else {
+            myDialog.dialog_fingers_delay_title_tv.text = getString(R.string.delay_state_close)
+            myDialog.dialog_fingers_delay_1_sb.progress = fingerCloseStateDelay1
+            myDialog.dialog_fingers_delay_2_sb.progress = fingerCloseStateDelay2
+            myDialog.dialog_fingers_delay_3_sb.progress = fingerCloseStateDelay3
+            myDialog.dialog_fingers_delay_4_sb.progress = fingerCloseStateDelay4
+            myDialog.dialog_fingers_delay_5_sb.progress = fingerCloseStateDelay5
+            myDialog.dialog_fingers_delay_6_sb.progress = fingerCloseStateDelay6
+        }
+
+        timerCheckReceivingData = object : CountDownTimer(5000000, 500) {
+            override fun onTick(millisUntilFinished: Long) {
+                if (mSettings!!.getBoolean(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, false)) {
+                    timerCheckReceivingData?.onFinish()
+                    timerCheckReceivingData?.cancel()
+                    firstRequest = true
+                    countTick = 0
+                } else {
+                    if (firstRequest || (countTick%2 == 0)) {
+                        compileBLERead(SampleGattAttributes.CHANGE_GESTURE_NEW_VM)
+                        firstRequest = false
+                    }
+                    myDialog.delay_fingers_animation_view.visibility = View.VISIBLE
+
+                    myDialog.first_cl.visibility = View.GONE
+                    myDialog.second_cl.visibility = View.GONE
+                    myDialog.third_cl.visibility = View.GONE
+                    myDialog.fourth_cl.visibility = View.GONE
+                    myDialog.fifth_cl.visibility = View.GONE
+                    myDialog.sixth_cl.visibility = View.GONE
+
+                    System.err.println("compileBLERead тык $countTick")
+                    countTick++
+                }
+            }
+
+            override fun onFinish() {
+                myDialog.delay_fingers_animation_view.visibility = View.GONE
+
+                myDialog.first_cl.visibility = View.VISIBLE
+                myDialog.second_cl.visibility = View.VISIBLE
+                myDialog.third_cl.visibility = View.VISIBLE
+                myDialog.fourth_cl.visibility = View.VISIBLE
+                myDialog.fifth_cl.visibility = View.VISIBLE
+                myDialog.sixth_cl.visibility = View.VISIBLE
+
+                myDialog.dialog_fingers_delay_first_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_1_sb.progress*10)
+                myDialog.dialog_fingers_delay_second_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_2_sb.progress*10)
+                myDialog.dialog_fingers_delay_third_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_3_sb.progress*10)
+                myDialog.dialog_fingers_delay_fourth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_4_sb.progress*10)
+                myDialog.dialog_fingers_delay_fifth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_5_sb.progress*10)
+                myDialog.dialog_fingers_delay_sixth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_6_sb.progress*10)
+
+                myDialog.dialog_fingers_delay_1_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        myDialog.dialog_fingers_delay_first_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_1_sb.progress*10)
+                    }
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        if (seekBar != null) {
+                            if (gestureState == 1) {
+                                fingerOpenStateDelay1 = seekBar.progress
+                            } else {
+                                fingerCloseStateDelay1 = seekBar.progress
+                            }
+                            compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
+                            saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, false)
+                        }
+                    }
+                })
+                myDialog.dialog_fingers_delay_2_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        myDialog.dialog_fingers_delay_second_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_2_sb.progress*10)
+                    }
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        if (seekBar != null) {
+                            if (gestureState == 1) {
+                                fingerOpenStateDelay2 = seekBar.progress
+                            } else {
+                                fingerCloseStateDelay2 = seekBar.progress
+                            }
+                            compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
+                            saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, false)
+                        }
+                    }
+                })
+                myDialog.dialog_fingers_delay_3_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        myDialog.dialog_fingers_delay_third_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_3_sb.progress*10)
+                    }
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        if (seekBar != null) {
+                            if (gestureState == 1) {
+                                fingerOpenStateDelay3 = seekBar.progress
+                            } else {
+                                fingerCloseStateDelay3 = seekBar.progress
+                            }
+                            compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
+                            saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, false)
+                        }
+                    }
+                })
+                myDialog.dialog_fingers_delay_4_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        myDialog.dialog_fingers_delay_fourth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_4_sb.progress*10)
+                    }
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        if (seekBar != null) {
+                            if (gestureState == 1) {
+                                fingerOpenStateDelay4 = seekBar.progress
+                            } else {
+                                fingerCloseStateDelay4 = seekBar.progress
+                            }
+                            compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
+                            saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, false)
+                        }
+                    }
+                })
+                myDialog.dialog_fingers_delay_5_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        myDialog.dialog_fingers_delay_fifth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_5_sb.progress*10)
+                    }
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        if (seekBar != null) {
+                            if (gestureState == 1) {
+                                fingerOpenStateDelay5 = seekBar.progress
+                            } else {
+                                fingerCloseStateDelay5 = seekBar.progress
+                            }
+                            compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
+                            saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, false)
+                        }
+                    }
+                })
+                myDialog.dialog_fingers_delay_6_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        myDialog.dialog_fingers_delay_sixth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_6_sb.progress*10)
+                    }
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        if (seekBar != null) {
+                            if (gestureState == 1) {
+                                fingerOpenStateDelay6 = seekBar.progress
+                            } else {
+                                fingerCloseStateDelay6 = seekBar.progress
+                            }
+                            compileBLEMassage (withChangeGesture = true, onlyNumberGesture = false)
+                            saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, false)
+                        }
+                    }
+
+                })
+            }
+        }.start()
 
 
-        val cancelBtn = dialogBinding.findViewById<View>(R.id.dialog_fingers_delay_confirm)
+        val cancelBtn = dialogBinding.findViewById<View>(R.id.dialog_fingers_delay_cancel)
         cancelBtn.setOnClickListener {
             myDialog.dismiss()
         }
     }
 
-    private fun compileBLEMassage (withChangeGesture: Boolean) {
+    private fun compileBLEMassage (withChangeGesture: Boolean, onlyNumberGesture: Boolean) {
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             System.err.println("GripperSettingsRender--------> compileBLEMassage FEST_H withChangeGesture =$withChangeGesture")
             val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
@@ -681,7 +872,9 @@ class GripperScreenWithEncodersActivity
                 fingerOpenState4, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
                 fingerCloseState1, fingerCloseState2, fingerCloseState3,
                 fingerCloseState4, (100 - (((fingerCloseState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerCloseState6).toFloat() / 85 * 100).toInt()),
-                gestureState, withChangeGesture)
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                gestureState, withChangeGesture, onlyNumberGesture)
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         }
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
@@ -691,14 +884,24 @@ class GripperScreenWithEncodersActivity
                 fingerOpenState1, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
                 fingerCloseState4, fingerCloseState3, fingerCloseState2,
                 fingerCloseState1, (100 - (((fingerCloseState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerCloseState6).toFloat() / 85 * 100).toInt()),
-                gestureState, withChangeGesture)
+                fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
+                fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6,
+                gestureState, withChangeGesture, onlyNumberGesture)
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         }
+    }
+    private fun compileBLERead (characteristic: String) {
+        RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(characteristic)
     }
 
     private fun saveInt(key: String, variable: Int) {
         val editor: SharedPreferences.Editor = mSettings!!.edit()
         editor.putInt(key, variable)
+        editor.apply()
+    }
+    private fun saveBool(key: String, variable: Boolean) {
+        val editor: SharedPreferences.Editor = mSettings!!.edit()
+        editor.putBoolean(key, variable)
         editor.apply()
     }
     private fun mySaveText(key: String, text: String) {
@@ -858,6 +1061,7 @@ class GripperScreenWithEncodersActivity
             )
         }
 
+
         Handler().postDelayed({
             animateFinger1 ()
             animateFinger2 ()
@@ -866,8 +1070,59 @@ class GripperScreenWithEncodersActivity
             animateFinger5 ()
             animateFinger6 ()
             gestureState = 1
-            compileBLEMassage (false)
+            //отправка массива из шести байт для движения протеза в открытое состояние как у макета кисти
+            compileBLEMassage (withChangeGesture = false, onlyNumberGesture = false)
+            compileBLEMassage (withChangeGesture = false, onlyNumberGesture = false)
         }, 200)
+
+        Handler().postDelayed({
+            //флаг становящийся истиным только когда данные запроса приходят
+            saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, false)
+
+            //отправка одного байта(номера жеста) для получения задержек старта пальцев по нему
+            compileBLEMassage (withChangeGesture = false, onlyNumberGesture = true)
+            compileBLEMassage (withChangeGesture = false, onlyNumberGesture = true)
+        }, 600)
+
+        Handler().postDelayed({
+            //считывание данных
+            compileBLERead(SampleGattAttributes.CHANGE_GESTURE_NEW_VM)
+            compileBLERead(SampleGattAttributes.CHANGE_GESTURE_NEW_VM)
+            compileBLERead(SampleGattAttributes.CHANGE_GESTURE_NEW_VM)
+        }, 1000)
+    }
+    private fun loadFingersDelay() {
+        val text = "load not work"
+        mDeviceType = mSettings!!.getString((ConstantManager.EXTRAS_DEVICE_ADDRESS),text).toString()
+        if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            fingerOpenStateDelay1 = mSettings!!.getInt(
+                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 1, 0)
+            fingerOpenStateDelay2 =  mSettings!!.getInt(
+                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 2, 0)
+            fingerOpenStateDelay3 =  mSettings!!.getInt(
+                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 3, 0)
+            fingerOpenStateDelay4 = mSettings!!.getInt(
+                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 4, 0)
+            fingerOpenStateDelay5 =  mSettings!!.getInt(
+                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 5, 0)
+            fingerOpenStateDelay6 =  mSettings!!.getInt(
+                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 6, 0)
+
+            fingerCloseStateDelay1 = mSettings!!.getInt(
+                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 1, 0)
+            fingerCloseStateDelay2 = mSettings!!.getInt(
+                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 2, 0)
+            fingerCloseStateDelay3 = mSettings!!.getInt(
+                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 3, 0)
+            fingerCloseStateDelay4 = mSettings!!.getInt(
+                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 4, 0)
+            fingerCloseStateDelay5 = mSettings!!.getInt(
+                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 5, 0)
+            fingerCloseStateDelay6 = mSettings!!.getInt(
+                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 6, 0)
+
+
+        }
     }
     private fun myLoadGesturesList() {
         val text = "load not work"

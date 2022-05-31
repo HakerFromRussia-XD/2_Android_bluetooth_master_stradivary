@@ -37,7 +37,7 @@
                 app:layout_constraintGuide_percent="0.95" />
 
             <TextView
-                android:id="@+id/dialog_info_title_tv"
+                android:id="@+id/dialog_fingers_delay_title_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
@@ -66,7 +66,7 @@
                 app:cardUseCompatPadding="true"
                 app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
                 app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left1"
-                app:layout_constraintTop_toBottomOf="@+id/dialog_info_title_tv">
+                app:layout_constraintTop_toBottomOf="@+id/dialog_fingers_delay_title_tv">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -75,7 +75,20 @@
                     android:orientation="vertical"
                     app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
                     app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left1"
-                    app:layout_constraintTop_toBottomOf="@+id/dialog_info_title_tv">
+                    app:layout_constraintTop_toBottomOf="@+id/dialog_fingers_delay_title_tv">
+
+                    <com.airbnb.lottie.LottieAnimationView
+                        android:id="@+id/delay_fingers_animation_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:background="@color/white"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:lottie_autoPlay="true"
+                        app:lottie_loop="true"
+                        tools:ignore="ImageContrastCheck" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/first_cl"
@@ -582,7 +595,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/view4" />
 
             <View
-                android:id="@+id/dialog_fingers_delay_confirm"
+                android:id="@+id/dialog_fingers_delay_cancel"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="?android:attr/selectableItemBackground"

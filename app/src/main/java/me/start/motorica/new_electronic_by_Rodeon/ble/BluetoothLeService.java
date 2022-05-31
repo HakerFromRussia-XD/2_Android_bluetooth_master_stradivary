@@ -39,6 +39,7 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW_VM;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CHANGE_GESTURE_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_MOTOR_HDLE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW_VM;
@@ -107,6 +108,7 @@ public class BluetoothLeService extends Service {
     public final static String CALIBRATION_NEW_DATA = "com.example.bluetooth.le.CALIBRATION_NEW_DATA";
     public final static String SET_ONE_CHANNEL_NEW_DATA = "com.example.bluetooth.le.SET_ONE_CHANNEL_NEW_DATA";
     public final static String STATUS_CALIBRATION_NEW_DATA = "com.example.bluetooth.le.STATUS_CALIBRATION_NEW_DATA";
+    public final static String CHANGE_GESTURE_NEW_DATA = "com.example.bluetooth.le.CHANGE_GESTURE_NEW_DATA";
     public final static String TELEMETRY_NUMBER_NEW_DATA = "com.example.bluetooth.le.TELEMETRY_NUMBER_NEW_DATA";
     public final static String SHUTDOWN_CURRENT_NEW_DATA = "com.example.bluetooth.le.SHUTDOWN_CURRENT_NEW_DATA";
     public final static String DRIVER_VERSION_NEW_DATA = "com.example.bluetooth.le.DRIVER_VERSION_NEW_DATA";
@@ -207,6 +209,9 @@ public class BluetoothLeService extends Service {
             }
             if (String.valueOf(characteristic.getUuid()).equals(STATUS_CALIBRATION_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(STATUS_CALIBRATION_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(CHANGE_GESTURE_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(CHANGE_GESTURE_NEW_DATA, data); }
             }
             if (String.valueOf(characteristic.getUuid()).equals(ADD_GESTURE_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(ADD_GESTURE_NEW_DATA, data); }

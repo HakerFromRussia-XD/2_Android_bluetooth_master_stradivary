@@ -180,7 +180,9 @@
     <string name="rotation_state_open">outside</string>
     <string name="rotation_state_close">inside</string>
     <string name="gesture_state_open">open state</string>
+    <string name="delay_state_open">Setting open finger delays</string>
     <string name="gesture_state_close">off-state</string>
+    <string name="delay_state_close">Setting close finger delays</string>
     <string name="prosthesis_calibrating">Prosthesis calibrating</string>
     <string name="waiting">waiting...</string>
     <string name="get">get</string>
@@ -200,6 +202,7 @@
     <string name="disconnect_the_cannula_from_the_magistral">disconnect the cannula from the magistral</string>
     <string name="start">start</string>
     <string name="pre_status_finger">status finger %d: </string>
+    <string name="delay_finger_ms">%dms </string>
     <string name="pre_status_0_finger">not calibrated</string>
     <string name="pre_status_1_finger">calibration in progress</string>
     <string name="pre_status_2_finger">there is no motor</string>
@@ -211,12 +214,12 @@
     <string name="serial_number">set serial number</string>
     <string name="changing_the_finger_delay_time">changing the finger delay time</string>
     <string name="finger_delay">finger delay</string>
-    <string name="_1_finger_delay">finger №1 delay</string>
-    <string name="_2_finger_delay">finger №2 delay</string>
-    <string name="_3_finger_delay">finger №3 delay</string>
-    <string name="_4_finger_delay">finger №4 delay</string>
-    <string name="_5_finger_delay">finger №5 delay</string>
-    <string name="_6_finger_delay">finger №6 delay</string>
+    <string name="_1_finger_delay">forefinger delay</string>
+    <string name="_2_finger_delay">middle finger delay</string>
+    <string name="_3_finger_delay">ring finger delay</string>
+    <string name="_4_finger_delay">little finger delay</string>
+    <string name="_5_finger_delay">big finger delay</string>
+    <string name="_6_finger_delay">rotation delay</string>
 
     <string-array name="numbers">
         <item>0</item>

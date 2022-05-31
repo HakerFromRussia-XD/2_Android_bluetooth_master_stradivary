@@ -4,8 +4,11 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.bluetooth.*
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothAdapter.LeScanCallback
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattService
+import android.bluetooth.BluetoothManager
 import android.content.*
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -33,6 +36,8 @@ import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
+import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
@@ -205,6 +210,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               }
               if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) displayDataSetOneChannelNew(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA) != null) displayDataStatusCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.CHANGE_GESTURE_NEW_DATA) != null) displayDataChangeGestureNew(intent.getByteArrayExtra(BluetoothLeService.CHANGE_GESTURE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA) != null) displayDataShutdownCurrentNew(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA) != null) displayDataDriverVersionNew(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA))
             } else {
@@ -469,6 +475,19 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       globalSemaphore = true
     }
   }
+  private fun displayDataChangeGestureNew(data: ByteArray?) {
+    if (data != null) {
+      if (data.size == 25) {
+        for (i in 13..18) {
+          saveInt(GESTURE_OPEN_DELAY_FINGER+"${i-12}", castUnsignedCharToInt(data[i]))
+        }
+        for (i in 19..24) {
+          saveInt(GESTURE_CLOSE_DELAY_FINGER+"${i-18}", castUnsignedCharToInt(data[i]))
+        }
+      }
+      saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, true)
+    }
+  }
   private fun displayDataShutdownCurrentNew(data: ByteArray?) {
     if (data != null) {
       for (i in data.indices) {
@@ -573,104 +592,130 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               System.err.println("GripperSettingsRender--------> gestureStateWithEncodersObservable "+
               "withChangeGesture = " +parameters.withChangeGesture + "    state = " + parameters.state)
               System.err.println("Prishedshie parametri: ${parameters.openStage1.toByte()}")
-              if (parameters.state == 1) {
-                if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-                  runWriteData(
-                    byteArrayOf(
-                      parameters.openStage1.toByte(),
-                      parameters.openStage2.toByte(),
-                      parameters.openStage3.toByte(),
-                      parameters.openStage4.toByte(),
-                      parameters.openStage5.toByte(),
-                      parameters.openStage6.toByte()
-//                      parameters.openStage6.toByte()
-                    ), MOVE_ALL_FINGERS_NEW_VM, WRITE
-                  )
+              if (parameters.onlyNumberGesture) {
+                runWriteData(
+                  byteArrayOf(
+                    (parameters.gestureNumber).toByte()
+                  ), CHANGE_GESTURE_NEW_VM, WRITE
+                )
+              } else {
+                if (parameters.state == 1) {
+                  if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+                    runWriteData(
+                      byteArrayOf(
+                        parameters.openStage1.toByte(),
+                        parameters.openStage2.toByte(),
+                        parameters.openStage3.toByte(),
+                        parameters.openStage4.toByte(),
+                        parameters.openStage5.toByte(),
+                        parameters.openStage6.toByte()
+                      ), MOVE_ALL_FINGERS_NEW_VM, WRITE
+                    )
+                  } else {
+                    runWriteData(
+                      byteArrayOf(
+                        parameters.openStage1.toByte(),
+                        parameters.openStage2.toByte(),
+                        parameters.openStage3.toByte(),
+                        parameters.openStage4.toByte(),
+                        parameters.openStage5.toByte(),
+                        parameters.openStage6.toByte()
+                      ), MOVE_ALL_FINGERS_NEW, WRITE
+                    )
+                  }
                 } else {
-                  runWriteData(
-                    byteArrayOf(
-                      parameters.openStage1.toByte(),
-                      parameters.openStage2.toByte(),
-                      parameters.openStage3.toByte(),
-                      parameters.openStage4.toByte(),
-                      parameters.openStage5.toByte(),
-                      parameters.openStage6.toByte()
-                    ), MOVE_ALL_FINGERS_NEW, WRITE
-                  )
+                  if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+                    runWriteData(
+                      byteArrayOf(
+                        parameters.closeStage1.toByte(),
+                        parameters.closeStage2.toByte(),
+                        parameters.closeStage3.toByte(),
+                        parameters.closeStage4.toByte(),
+                        parameters.closeStage5.toByte(),
+                        parameters.closeStage6.toByte()
+                      ), MOVE_ALL_FINGERS_NEW_VM, WRITE
+                    )
+                  } else {
+                    runWriteData(
+                      byteArrayOf(
+                        parameters.closeStage1.toByte(),
+                        parameters.closeStage2.toByte(),
+                        parameters.closeStage3.toByte(),
+                        parameters.closeStage4.toByte(),
+                        parameters.closeStage5.toByte(),
+                        parameters.closeStage6.toByte()
+                      ), MOVE_ALL_FINGERS_NEW, WRITE
+                    )
+                  }
                 }
-              } else {
-                if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-                runWriteData(
-                  byteArrayOf(
-                    parameters.closeStage1.toByte(),
-                    parameters.closeStage2.toByte(),
-                    parameters.closeStage3.toByte(),
-                    parameters.closeStage4.toByte(),
-                    parameters.closeStage5.toByte(),
-                    parameters.closeStage6.toByte()
-//                    parameters.openStage6.toByte()
-                  ), MOVE_ALL_FINGERS_NEW_VM, WRITE
-                )
-              } else {
-                runWriteData(
-                  byteArrayOf(
-                    parameters.closeStage1.toByte(),
-                    parameters.closeStage2.toByte(),
-                    parameters.closeStage3.toByte(),
-                    parameters.closeStage4.toByte(),
-                    parameters.closeStage5.toByte(),
-                    parameters.closeStage6.toByte()
-                  ), MOVE_ALL_FINGERS_NEW, WRITE
-                )
-              }
-              }
-              if (parameters.withChangeGesture) {
-                System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage1: ${parameters.openStage1}    closeStage1: ${parameters.closeStage1}")
-                System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage2: ${parameters.openStage2}    closeStage2: ${parameters.closeStage2}")
-                System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage3: ${parameters.openStage3}    closeStage3: ${parameters.closeStage3}")
-                System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage4: ${parameters.openStage4}    closeStage4: ${parameters.closeStage4}")
-                System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage5: ${parameters.openStage5}    closeStage5: ${parameters.closeStage5}")
-                System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage6: ${parameters.openStage6}    closeStage6: ${parameters.closeStage6}")
+                if (parameters.withChangeGesture) {
+                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage1: ${parameters.openStage1}    closeStage1: ${parameters.closeStage1}")
+                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage2: ${parameters.openStage2}    closeStage2: ${parameters.closeStage2}")
+                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage3: ${parameters.openStage3}    closeStage3: ${parameters.closeStage3}")
+                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage4: ${parameters.openStage4}    closeStage4: ${parameters.closeStage4}")
+                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage5: ${parameters.openStage5}    closeStage5: ${parameters.closeStage5}")
+                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage6: ${parameters.openStage6}    closeStage6: ${parameters.closeStage6}")
 
-                if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-                  runWriteData(
-                    byteArrayOf(
-                      (parameters.gestureNumber).toByte(),
-                      parameters.openStage1.toByte(),
-                      parameters.openStage2.toByte(),
-                      parameters.openStage3.toByte(),
-                      parameters.openStage4.toByte(),
-                      parameters.openStage5.toByte(),
-                      parameters.openStage6.toByte(),
-                      parameters.closeStage1.toByte(),
-                      parameters.closeStage2.toByte(),
-                      parameters.closeStage3.toByte(),
-                      parameters.closeStage4.toByte(),
-                      parameters.closeStage5.toByte(),
-                      parameters.closeStage6.toByte()
-                    ), CHANGE_GESTURE_NEW_VM, WRITE
-                  )
-                } else {
-                  runWriteData(
-                    byteArrayOf(
-                      (parameters.gestureNumber).toByte(),
-                      parameters.openStage1.toByte(),
-                      parameters.openStage2.toByte(),
-                      parameters.openStage3.toByte(),
-                      parameters.openStage4.toByte(),
-                      parameters.openStage5.toByte(),
-                      parameters.openStage6.toByte(),
-                      parameters.closeStage1.toByte(),
-                      parameters.closeStage2.toByte(),
-                      parameters.closeStage3.toByte(),
-                      parameters.closeStage4.toByte(),
-                      parameters.closeStage5.toByte(),
-                      parameters.closeStage6.toByte()
-                    ), CHANGE_GESTURE_NEW, WRITE
-                  )
+                  if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+                    runWriteData(
+                      byteArrayOf(
+                        (parameters.gestureNumber).toByte(),
+                        parameters.openStage1.toByte(),
+                        parameters.openStage2.toByte(),
+                        parameters.openStage3.toByte(),
+                        parameters.openStage4.toByte(),
+                        parameters.openStage5.toByte(),
+                        parameters.openStage6.toByte(),
+                        parameters.closeStage1.toByte(),
+                        parameters.closeStage2.toByte(),
+                        parameters.closeStage3.toByte(),
+                        parameters.closeStage4.toByte(),
+                        parameters.closeStage5.toByte(),
+                        parameters.closeStage6.toByte(),
+                        parameters.openStageDelay1.toByte(),
+                        parameters.openStageDelay2.toByte(),
+                        parameters.openStageDelay3.toByte(),
+                        parameters.openStageDelay4.toByte(),
+                        parameters.openStageDelay5.toByte(),
+                        parameters.openStageDelay6.toByte(),
+                        parameters.closeStageDelay1.toByte(),
+                        parameters.closeStageDelay2.toByte(),
+                        parameters.closeStageDelay3.toByte(),
+                        parameters.closeStageDelay4.toByte(),
+                        parameters.closeStageDelay5.toByte(),
+                        parameters.closeStageDelay6.toByte()
+                      ), CHANGE_GESTURE_NEW_VM, WRITE
+                    )
+                  } else {
+                    runWriteData(
+                      byteArrayOf(
+                        (parameters.gestureNumber).toByte(),
+                        parameters.openStage1.toByte(),
+                        parameters.openStage2.toByte(),
+                        parameters.openStage3.toByte(),
+                        parameters.openStage4.toByte(),
+                        parameters.openStage5.toByte(),
+                        parameters.openStage6.toByte(),
+                        parameters.closeStage1.toByte(),
+                        parameters.closeStage2.toByte(),
+                        parameters.closeStage3.toByte(),
+                        parameters.closeStage4.toByte(),
+                        parameters.closeStage5.toByte(),
+                        parameters.closeStage6.toByte()
+                      ), CHANGE_GESTURE_NEW, WRITE
+                    )
+                  }
                 }
               }
             }
+
+    RxUpdateMainEvent.getInstance().readCharacteristicBLEObservable
+            .compose(bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+              runReadDataAllCharacteristics(it)
+            }
+
     RxUpdateMainEvent.getInstance().fingerSpeedObservable
             .compose(bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
@@ -1533,7 +1578,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       System.err.println("тык")
       bleCommand(null, Command, READ)
       try {
-        Thread.sleep(100)
+        Thread.sleep(1000)
       } catch (ignored: Exception) {}
   }
 
@@ -1828,6 +1873,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   internal fun saveInt(key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putInt(key, variable)
+    editor.apply()
+  }
+  private fun saveBool(key: String, variable: Boolean) {
+    val editor: SharedPreferences.Editor = mSettings!!.edit()
+    editor.putBoolean(key, variable)
     editor.apply()
   }
   private fun saveText(key: String, text: String) {

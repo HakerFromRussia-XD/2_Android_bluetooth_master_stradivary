@@ -13,6 +13,7 @@
 
 package me.start.motorica.new_electronic_by_Rodeon.persistence.preference
 
+import android.annotation.SuppressLint
 import android.content.Context
 
 class PreferenceManager(private val mContext: Context) {
@@ -32,18 +33,21 @@ class PreferenceManager(private val mContext: Context) {
     return pref.getString(key, default_value)!!
   }
 
+  @SuppressLint("CommitPrefEdits")
   fun putBoolean(key: String, default_value: Boolean) {
     val pref = mContext.getSharedPreferences(preferenceKey, 0)
     val editor = pref.edit()
     editor.putBoolean(key, default_value).apply()
   }
 
+  @SuppressLint("CommitPrefEdits")
   fun putInt(key: String, default_value: Int) {
     val pref = mContext.getSharedPreferences(preferenceKey, 0)
     val editor = pref.edit()
     editor.putInt(key, default_value).apply()
   }
 
+  @SuppressLint("CommitPrefEdits")
   fun putString(key: String, default_value: String) {
     val pref = mContext.getSharedPreferences(preferenceKey, 0)
     val editor = pref.edit()

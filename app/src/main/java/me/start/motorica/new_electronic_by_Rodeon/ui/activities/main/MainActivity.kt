@@ -38,6 +38,7 @@ import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
+import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
@@ -47,6 +48,7 @@ import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
+import javax.inject.Inject
 import kotlin.experimental.xor
 
 
@@ -212,6 +214,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA) != null) displayDataStatusCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CHANGE_GESTURE_NEW_DATA) != null) displayDataChangeGestureNew(intent.getByteArrayExtra(BluetoothLeService.CHANGE_GESTURE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA) != null) displayDataShutdownCurrentNew(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.ROTATION_GESTURE_NEW_VM_DATA) != null) displayDataRotationGesture(intent.getByteArrayExtra(BluetoothLeService.ROTATION_GESTURE_NEW_VM_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA) != null) displayDataDriverVersionNew(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA))
             } else {
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
@@ -496,6 +499,25 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         System.err.println("Принятые данные состояния токов: " + data[i] + "  " + mDeviceAddress + "SHUTDOWN_CURRENT_NUM_${i+1}")
         saveInt(mDeviceAddress + "SHUTDOWN_CURRENT_NUM_" + (i + 1), castUnsignedCharToInt(data[i]))
       }
+      RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
+      globalSemaphore = true
+    }
+  }
+  private fun displayDataRotationGesture(data: ByteArray?) {
+    if (data != null) {
+      for (i in data.indices) {
+        System.err.println("Принятые данные состояния переключения жестов: " + data[i])
+      }
+
+
+      if (castUnsignedCharToInt(data[0]) == 1) {
+        saveBool(mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
+      } else {
+        saveBool(mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+      }
+
+
+
       RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
       globalSemaphore = true
     }
@@ -1534,6 +1556,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           15 -> {
             System.err.println("$info = 15")
+            bleCommand(READ_REGISTER, ROTATION_GESTURE_NEW_VM, READ)
+            globalSemaphore = false
+            percentSynchronize = 95
+            state = 16
+          }
+          16 -> {
+            System.err.println("$info = 16")
             bleCommand(READ_REGISTER, SET_GESTURE_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 100

@@ -53,6 +53,7 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.READ;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ROTATION_GESTURE_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW;
@@ -111,6 +112,7 @@ public class BluetoothLeService extends Service {
     public final static String CHANGE_GESTURE_NEW_DATA = "com.example.bluetooth.le.CHANGE_GESTURE_NEW_DATA";
     public final static String TELEMETRY_NUMBER_NEW_DATA = "com.example.bluetooth.le.TELEMETRY_NUMBER_NEW_DATA";
     public final static String SHUTDOWN_CURRENT_NEW_DATA = "com.example.bluetooth.le.SHUTDOWN_CURRENT_NEW_DATA";
+    public final static String ROTATION_GESTURE_NEW_VM_DATA = "com.example.bluetooth.le.ROTATION_GESTURE_NEW_VM_DATA";
     public final static String DRIVER_VERSION_NEW_DATA = "com.example.bluetooth.le.DRIVER_VERSION_NEW_DATA";
 
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
@@ -176,6 +178,9 @@ public class BluetoothLeService extends Service {
             }
             if (String.valueOf(characteristic.getUuid()).equals(SHUTDOWN_CURRENT_NEW)) {
                 if (state.equals(READ)) { intent.putExtra(SHUTDOWN_CURRENT_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(ROTATION_GESTURE_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(ROTATION_GESTURE_NEW_VM_DATA, data); }
             }
             if (String.valueOf(characteristic.getUuid()).equals(DRIVER_VERSION_NEW)) {
                 if (state.equals(READ)) { intent.putExtra(DRIVER_VERSION_NEW_DATA, data); }

@@ -208,6 +208,7 @@ class AdvancedSettingsFragment : Fragment() {
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, seekBar.progress)
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
+          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
@@ -246,6 +247,7 @@ class AdvancedSettingsFragment : Fragment() {
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, seekBar.progress)
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
+          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
@@ -284,6 +286,7 @@ class AdvancedSettingsFragment : Fragment() {
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, seekBar.progress)
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
+          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
@@ -322,6 +325,7 @@ class AdvancedSettingsFragment : Fragment() {
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, seekBar.progress)
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
+          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
@@ -360,6 +364,7 @@ class AdvancedSettingsFragment : Fragment() {
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, seekBar.progress)
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
+          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
@@ -398,6 +403,7 @@ class AdvancedSettingsFragment : Fragment() {
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, seekBar.progress)
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
+          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
@@ -477,7 +483,7 @@ class AdvancedSettingsFragment : Fragment() {
                 ROTATION_GESTURE_NEW, WRITE, 17)
             }
           }
-          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
+          saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
         } else {
           on_off_sensor_gesture_switching_tv?.text = 0.toString()
           sensorGestureSwitching = 0x00
@@ -512,7 +518,7 @@ class AdvancedSettingsFragment : Fragment() {
               )
             }
           }
-          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+          saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
         }
         YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOnOffGesturesSwitching)
       }
@@ -778,7 +784,7 @@ class AdvancedSettingsFragment : Fragment() {
         mode_rl.visibility = View.GONE
         peak_time_rl.visibility = View.GONE
         downtime_rl.visibility = View.GONE
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+        saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
 
 
         mode_tv?.text = "одним\nдатчиком"
@@ -786,6 +792,7 @@ class AdvancedSettingsFragment : Fragment() {
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
 
         YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersReset)
+        RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
       }
     }
 
@@ -837,28 +844,17 @@ class AdvancedSettingsFragment : Fragment() {
 
     swap_open_close_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
     single_channel_control_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
-    on_off_sensor_gesture_switching_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
 
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-        mode_new_rl?.visibility = View.VISIBLE
-      }
-    }
+
+
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     }
     mode_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv?.text = 1.toString()
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv?.text = 1.toString()
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
-      on_off_sensor_gesture_switching_tv?.text = 1.toString()
-      sensorGestureSwitching = 0x01
-    } else {
-      sensorGestureSwitching = 0x00
-      mode_rl?.visibility = View.GONE
-      peak_time_rl?.visibility = View.GONE
-      downtime_rl?.visibility = View.GONE
-    }
+
+
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)) {
       mode_tv?.text = "двумя\nдатчиками"
       mode = 0x01
@@ -902,8 +898,8 @@ class AdvancedSettingsFragment : Fragment() {
     current5 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80)
     current6 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)
 
-
-    var time: String = when {
+    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+      var time: String = when {
       ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
         ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString() + "c"
       }
@@ -914,25 +910,50 @@ class AdvancedSettingsFragment : Fragment() {
         ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
       }
     }
-    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
       time = (peak_time_sb?.progress?.times(0.04)).toString() + "c"
-    }
-    peak_time_tv?.text = time
-    time = when {
-      ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
-        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "c"
+      peak_time_tv?.text = time
+      time = when {
+        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
+          ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "c"
+        }
+        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length > 4 -> {
+          ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().substring(0, 4) + "c"
+        }
+        else -> {
+          ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
+        }
       }
-      ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length > 4 -> {
-        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().substring(0, 4) + "c"
-      }
-      else -> {
-        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
-      }
-    }
-    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
       time = (downtime_sb?.progress?.times(0.04)).toString() + "c"
+      downtime_tv?.text = time
     }
-    downtime_tv?.text = time
+
+
+    on_off_sensor_gesture_switching_sw?.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+    if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+        peak_time_vm_rl?.visibility = View.VISIBLE
+      }
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+        mode_new_rl?.visibility = View.VISIBLE
+        peak_time_rl?.visibility = View.VISIBLE
+        //в зависимости от выбранного мода показывать тот или иной сетап сикбаров
+        when(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)) {
+          0 -> {
+            downtime_rl?.visibility = View.VISIBLE
+          }
+        }
+
+      }
+      on_off_sensor_gesture_switching_tv?.text = 1.toString()
+      sensorGestureSwitching = 0x01
+    } else {
+      on_off_sensor_gesture_switching_tv?.text = 0.toString()
+      sensorGestureSwitching = 0x00
+      mode_rl?.visibility = View.GONE
+      peak_time_vm_rl?.visibility = View.GONE
+      peak_time_rl?.visibility = View.GONE
+      downtime_rl?.visibility = View.GONE
+    }
   }
 
 
@@ -967,6 +988,11 @@ class AdvancedSettingsFragment : Fragment() {
   internal fun saveInt(key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putInt(key, variable)
+    editor.apply()
+  }
+  private fun saveBool(key: String, variable: Boolean) {
+    val editor: SharedPreferences.Editor = mSettings!!.edit()
+    editor.putBoolean(key, variable)
     editor.apply()
   }
 }

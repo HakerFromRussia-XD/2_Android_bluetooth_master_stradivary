@@ -220,6 +220,7 @@
     <string name="_4_finger_delay">задержка мизинца</string>
     <string name="_5_finger_delay">задержка большого пальца</string>
     <string name="_6_finger_delay">задержка ротации</string>
+    <string name="time_at_rest">время в упоре</string>
 
 
     <string-array name="numbers">

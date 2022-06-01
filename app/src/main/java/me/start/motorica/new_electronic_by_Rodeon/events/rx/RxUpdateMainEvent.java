@@ -16,6 +16,8 @@ public class RxUpdateMainEvent {
   private final PublishSubject<Integer> fingerSpeed;
   private final PublishSubject<Boolean> calibrating;
   private final PublishSubject<String> characteristics;
+  private final PublishSubject<Boolean> updateUIAdvancedSettings;
+
 
 
   private RxUpdateMainEvent() {
@@ -26,6 +28,7 @@ public class RxUpdateMainEvent {
     fingerSpeed = PublishSubject.create();
     calibrating = PublishSubject.create();
     characteristics = PublishSubject.create();
+    updateUIAdvancedSettings = PublishSubject.create();
   }
   public static RxUpdateMainEvent getInstance() {
     if (instance == null) {
@@ -41,6 +44,7 @@ public class RxUpdateMainEvent {
   public void updateFingerSpeed(Integer speed) { fingerSpeed.onNext(speed); }
   public void updateCalibrationStatus(Boolean status) { calibrating.onNext(status); }
   public void updateReadCharacteristicBLE(String characteristic) { characteristics.onNext(characteristic); }
+  public void updateUIAdvancedSettings(Boolean state) { updateUIAdvancedSettings.onNext(state); }
 
 
 
@@ -51,4 +55,5 @@ public class RxUpdateMainEvent {
   public Observable<Integer> getFingerSpeedObservable() { return fingerSpeed; }
   public Observable<Boolean> getCalibratingStatusObservable() { return calibrating; }
   public Observable<String> getReadCharacteristicBLEObservable() { return characteristics; }
+  public Observable<Boolean> getUIAdvancedSettings() { return updateUIAdvancedSettings; }
 }

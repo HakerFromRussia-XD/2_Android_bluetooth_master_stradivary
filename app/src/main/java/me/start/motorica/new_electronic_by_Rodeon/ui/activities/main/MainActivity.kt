@@ -480,9 +480,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       if (data.size == 25) {
         for (i in 13..18) {
           saveInt(GESTURE_OPEN_DELAY_FINGER+"${i-12}", castUnsignedCharToInt(data[i]))
+          System.err.println("Принятые данные состояния задержек: " + data[i])
         }
         for (i in 19..24) {
           saveInt(GESTURE_CLOSE_DELAY_FINGER+"${i-18}", castUnsignedCharToInt(data[i]))
+          System.err.println("Принятые данные состояния задержек: " + data[i])
         }
       }
       saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, true)
@@ -491,9 +493,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun displayDataShutdownCurrentNew(data: ByteArray?) {
     if (data != null) {
       for (i in data.indices) {
-        System.err.println("Принятые данные состояния токов: " + data[i] + "  " + mDeviceAddress + "SHUTDOWN_CURRENT_NUM_$i")
+        System.err.println("Принятые данные состояния токов: " + data[i] + "  " + mDeviceAddress + "SHUTDOWN_CURRENT_NUM_${i+1}")
         saveInt(mDeviceAddress + "SHUTDOWN_CURRENT_NUM_" + (i + 1), castUnsignedCharToInt(data[i]))
       }
+      RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
       globalSemaphore = true
     }
   }

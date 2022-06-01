@@ -32,12 +32,14 @@ import androidx.fragment.app.Fragment
 import com.airbnb.lottie.utils.Logger.error
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.Completable.error
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
+import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
@@ -60,10 +62,19 @@ class AdvancedSettingsFragment : Fragment() {
   private var scale = 0F
   private var mode: Byte = 0x00
   private var sensorGestureSwitching: Byte = 0x00
-  private var threadFlag = true
-  private var changeParameter = false
-  private var updatingUIThread: Thread? = null
+//  private var threadFlag = true
+//  private var changeParameter = false
+//  private var updatingUIThread: Thread? = null
 
+  private var current = 0
+  private var current1 = 0
+  private var current2 = 0
+  private var current3 = 0
+  private var current4 = 0
+  private var current5 = 0
+  private var current6 = 0
+
+  @SuppressLint("CheckResult")
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     val rootView = inflater.inflate(R.layout.layout_advanced_settings, container, false)
     WDApplication.component.inject(this)
@@ -72,29 +83,29 @@ class AdvancedSettingsFragment : Fragment() {
     this.mContext = context
     scale = resources.displayMetrics.density
 
-
-
+    RxUpdateMainEvent.getInstance().uiAdvancedSettings
+      .compose(main?.bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe {
+        updateAllParameters()
+      }
     return rootView
   }
 
-  override fun onPause() {
-    super.onPause()
-    threadFlag = false
-  }
+//  override fun onPause() {
+//    super.onPause()
+//    threadFlag = false
+//  }
+//
+//  override fun onResume() {
+//    super.onResume()
+//    threadFlag = true
+//  }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     initializeUI()
     updateAllParameters()
-    Handler().postDelayed({
-      startUpdatingUIThread()
-    }, 2000)
-
-//    RxUpdateMainEvent.getInstance().gestureStateObservable
-//            .compose(bindToLifecycle())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { parameters ->
-//            }
   }
 
   @SuppressLint("SetTextI18n", "CheckResult", "Recycle")
@@ -107,6 +118,7 @@ class AdvancedSettingsFragment : Fragment() {
       on_off_sensor_gesture_switching_text_tv?.textSize = 11f
       mode_text_tv?.textSize = 11f
       peak_time_text_tv?.textSize = 11f
+      peak_time_vm_text_tv?.textSize = 11f
       downtime_text_tv?.textSize = 11f
       mode_tv?.textSize = 11f
       reset_to_factory_settings_btn?.textSize = 12f
@@ -152,13 +164,11 @@ class AdvancedSettingsFragment : Fragment() {
     var eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current\"}"
     shutdown_current_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        changeParameter = true
         shutdown_current_tv?.text = seekBar.progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
@@ -170,23 +180,31 @@ class AdvancedSettingsFragment : Fragment() {
     eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 1\"}"
     shutdown_current_1_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        changeParameter = true
         shutdown_current_1_tv?.text = seekBar.progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
-              shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-              shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW_VM, WRITE, 0)
+            main?.bleCommandConnector(byteArrayOf(
+              shutdown_current_1_sb?.progress?.toByte()!!,
+              shutdown_current_2_sb?.progress?.toByte()!!,
+              shutdown_current_3_sb?.progress?.toByte()!!,
+              shutdown_current_4_sb?.progress?.toByte()!!,
+              shutdown_current_5_sb?.progress?.toByte()!!,
+              shutdown_current_6_sb?.progress?.toByte()!!),
+              SHUTDOWN_CURRENT_NEW_VM, WRITE, 0)
           }
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-            main?.bleCommandConnector(byteArrayOf(shutdown_current_1_sb?.progress?.toByte()!!, shutdown_current_2_sb?.progress?.toByte()!!,
-              shutdown_current_3_sb?.progress?.toByte()!!, shutdown_current_4_sb?.progress?.toByte()!!,
-              shutdown_current_5_sb?.progress?.toByte()!!, shutdown_current_6_sb?.progress?.toByte()!!), SHUTDOWN_CURRENT_NEW, WRITE, 0)
+            main?.bleCommandConnector(byteArrayOf(
+              shutdown_current_1_sb?.progress?.toByte()!!,
+              shutdown_current_2_sb?.progress?.toByte()!!,
+              shutdown_current_3_sb?.progress?.toByte()!!,
+              shutdown_current_4_sb?.progress?.toByte()!!,
+              shutdown_current_5_sb?.progress?.toByte()!!,
+              shutdown_current_6_sb?.progress?.toByte()!!),
+              SHUTDOWN_CURRENT_NEW, WRITE, 0)
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, seekBar.progress)
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
@@ -196,13 +214,11 @@ class AdvancedSettingsFragment : Fragment() {
     eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 2\"}"
     shutdown_current_2_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        changeParameter = true
         shutdown_current_2_tv?.text = seekBar.progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.bleCommandConnector(
@@ -236,13 +252,11 @@ class AdvancedSettingsFragment : Fragment() {
     eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 3\"}"
     shutdown_current_3_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        changeParameter = true
         shutdown_current_3_tv?.text = seekBar.progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.bleCommandConnector(
@@ -276,13 +290,11 @@ class AdvancedSettingsFragment : Fragment() {
     eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 4\"}"
     shutdown_current_4_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        changeParameter = true
         shutdown_current_4_tv?.text = seekBar.progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.bleCommandConnector(
@@ -316,13 +328,11 @@ class AdvancedSettingsFragment : Fragment() {
     eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 5\"}"
     shutdown_current_5_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        changeParameter = true
         shutdown_current_5_tv?.text = seekBar.progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.bleCommandConnector(
@@ -356,13 +366,11 @@ class AdvancedSettingsFragment : Fragment() {
     eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 6\"}"
     shutdown_current_6_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        changeParameter = true
         shutdown_current_6_tv?.text = seekBar.progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        changeParameter = false
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.bleCommandConnector(
@@ -452,14 +460,22 @@ class AdvancedSettingsFragment : Fragment() {
           sensorGestureSwitching = 0x01
           peak_time_rl?.visibility = View.VISIBLE
           if (mode.toInt() == 0) downtime_rl?.visibility = View.VISIBLE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-            //TODO показывать меню пройного выбора, а обычный свич (переключение двумя/одним датчиком) скрывать
-            mode_new_rl?.visibility = View.VISIBLE
-            main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            downtime_rl?.visibility = View.GONE
+            peak_time_rl?.visibility = View.GONE
+            mode_new_rl?.visibility = View.GONE
+            peak_time_vm_rl?.visibility = View.VISIBLE
+            main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW_VM, WRITE)
           } else {
-            mode_rl?.visibility = View.VISIBLE
-            main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
-              ROTATION_GESTURE_NEW, WRITE, 17)
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+              //TODO показывать меню пройного выбора, а обычный свич (переключение двумя/одним датчиком) скрывать
+              mode_new_rl?.visibility = View.VISIBLE
+              main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
+            } else {
+              mode_rl?.visibility = View.VISIBLE
+              main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
+                ROTATION_GESTURE_NEW, WRITE, 17)
+            }
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
         } else {
@@ -467,14 +483,34 @@ class AdvancedSettingsFragment : Fragment() {
           sensorGestureSwitching = 0x00
           peak_time_rl?.visibility = View.GONE
           downtime_rl?.visibility = View.GONE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-            //TODO скрывать меню пройного выбора
+          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             mode_new_rl?.visibility = View.GONE
-            main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
+            peak_time_vm_rl?.visibility = View.GONE
+            main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW_VM, WRITE)
           } else {
-            mode_rl?.visibility = View.GONE
-            main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
-              ROTATION_GESTURE_NEW, WRITE, 17)
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+              //TODO скрывать меню пройного выбора
+              mode_new_rl?.visibility = View.GONE
+              main?.runWriteData(
+                byteArrayOf(
+                  sensorGestureSwitching,
+                  mode,
+                  peak_time_sb?.progress?.toByte()!!,
+                  downtime_sb?.progress?.toByte()!!
+                ), ROTATION_GESTURE_NEW, WRITE
+              )
+            } else {
+              mode_rl?.visibility = View.GONE
+              main?.bleCommandConnector(
+                byteArrayOf(
+                  sensorGestureSwitching,
+                  mode,
+                  (peak_time_sb?.progress?.plus(5))?.toByte()!!,
+                  (downtime_sb?.progress?.plus(5))?.toByte()!!
+                ),
+                ROTATION_GESTURE_NEW, WRITE, 17
+              )
+            }
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
         }
@@ -605,7 +641,6 @@ class AdvancedSettingsFragment : Fragment() {
     val eventYandexMetricaParametersPeakTime = "{\"Screen advanced settings\":\"Change peak time\"}"
     peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        changeParameter = true
         var time: String = when {
           ((seekBar.progress + 5) * 0.05).toString().length == 4 -> {
             ((seekBar.progress + 5) * 0.05).toString() + "c"
@@ -625,7 +660,6 @@ class AdvancedSettingsFragment : Fragment() {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        changeParameter = false
         var time: String = when {
           ((seekBar.progress + 5) * 0.05).toString().length == 4 -> {
             ((seekBar.progress + 5) * 0.05).toString() + "c"
@@ -657,7 +691,6 @@ class AdvancedSettingsFragment : Fragment() {
     val eventYandexMetricaParametersDowntime = "{\"Screen advanced settings\":\"Change downtime\"}"
     downtime_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        changeParameter = true
         var time: String = when {
             ((seekBar.progress + 5) * 0.05).toString().length == 4 -> {
               ((seekBar.progress + 5) * 0.05).toString() + "c"
@@ -677,7 +710,6 @@ class AdvancedSettingsFragment : Fragment() {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        changeParameter = false
         var time: String = when {
           ((seekBar.progress + 5) * 0.05).toString().length == 4 -> {
             ((seekBar.progress + 5) * 0.05).toString() + "c"
@@ -720,6 +752,7 @@ class AdvancedSettingsFragment : Fragment() {
             main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
           }
         }
+
 
 
         swap_open_close_tv?.text = 0.toString()
@@ -805,6 +838,7 @@ class AdvancedSettingsFragment : Fragment() {
     swap_open_close_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
     single_channel_control_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
     on_off_sensor_gesture_switching_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
         mode_new_rl?.visibility = View.VISIBLE
@@ -837,89 +871,98 @@ class AdvancedSettingsFragment : Fragment() {
 
   @SuppressLint("Recycle")
   private fun updateAllParameters() {
-    if(!changeParameter) {
-      main?.runOnUiThread {
-//      System.err.println("Принятые данные состояния токов shutdown_current_1_sb: " + mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80))
-        ObjectAnimator.ofInt(shutdown_current_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
-        ObjectAnimator.ofInt(shutdown_current_1_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)).setDuration(200).start()
-        ObjectAnimator.ofInt(shutdown_current_2_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)).setDuration(200).start()
-        ObjectAnimator.ofInt(shutdown_current_3_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80)).setDuration(200).start()
-        ObjectAnimator.ofInt(shutdown_current_4_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, 80)).setDuration(200).start()
-        ObjectAnimator.ofInt(shutdown_current_5_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80)).setDuration(200).start()
-        ObjectAnimator.ofInt(shutdown_current_6_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)).setDuration(200).start()
+    main?.runOnUiThread {
+      System.err.println("Принятые данные состояния токов ОБНОВЛЕНИЕ")
+      ObjectAnimator.ofInt(shutdown_current_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_1_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_2_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_3_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_4_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_5_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80)).setDuration(200).start()
+      ObjectAnimator.ofInt(shutdown_current_6_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)).setDuration(200).start()
 
-        ObjectAnimator.ofInt(peak_time_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, 15)).setDuration(200).start()
-        ObjectAnimator.ofInt(downtime_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, 15)).setDuration(200).start()
-      }
-      shutdown_current_1_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80).toString()
-      shutdown_current_2_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80).toString()
-      shutdown_current_3_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80).toString()
-      shutdown_current_4_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, 80).toString()
-      shutdown_current_5_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80).toString()
-      shutdown_current_6_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80).toString()
-      shutdown_current_tv?.text = shutdown_current_sb?.progress.toString()
-      var time: String = when {
-        ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
-          ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString() + "c"
-        }
-        ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().length > 4 -> {
-          ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().substring(0, 4) + "c"
-        }
-        else -> {
-          ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
-        }
-      }
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-        time = (peak_time_sb?.progress?.times(0.04)).toString() + "c"
-      }
-      peak_time_tv?.text = time
-      time = when {
-        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
-          ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "c"
-        }
-        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length > 4 -> {
-          ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().substring(0, 4) + "c"
-        }
-        else -> {
-          ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
-        }
-      }
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-        time = (downtime_sb?.progress?.times(0.04)).toString() + "c"
-      }
-      downtime_tv?.text = time
 
+      ObjectAnimator.ofInt(peak_time_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, 15)).setDuration(200).start()
+      ObjectAnimator.ofInt(downtime_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, 15)).setDuration(200).start()
     }
+
+    shutdown_current_1_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80).toString()
+    shutdown_current_2_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80).toString()
+    shutdown_current_3_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80).toString()
+    shutdown_current_4_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, 80).toString()
+    shutdown_current_5_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80).toString()
+    shutdown_current_6_tv?.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80).toString()
+    shutdown_current_tv?.text = shutdown_current_sb?.progress.toString()
+
+    current  = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM,   80)
+    current1 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)
+    current2 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)
+    current3 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80)
+    current4 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, 80)
+    current5 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80)
+    current6 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)
+
+
+    var time: String = when {
+      ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
+        ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString() + "c"
+      }
+      ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().length > 4 -> {
+        ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().substring(0, 4) + "c"
+      }
+      else -> {
+        ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
+      }
+    }
+    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+      time = (peak_time_sb?.progress?.times(0.04)).toString() + "c"
+    }
+    peak_time_tv?.text = time
+    time = when {
+      ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
+        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "c"
+      }
+      ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length > 4 -> {
+        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().substring(0, 4) + "c"
+      }
+      else -> {
+        ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
+      }
+    }
+    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+      time = (downtime_sb?.progress?.times(0.04)).toString() + "c"
+    }
+    downtime_tv?.text = time
   }
 
 
-  private fun startUpdatingUIThread() {
-    updatingUIThread =  Thread {
-      while (threadFlag) {
-        main?.runOnUiThread {
-          if (main?.setOneChannelNum == 1) {
-            preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
-          } else {
-            preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
-          }
-          if (main?.lockChangeTelemetryNumber == true) {
-            telemetry_number_et?.setText(main?.telemetryNumber)
-            main?.lockChangeTelemetryNumber = false
-            System.err.println("telemetry_number_et записали принятые данные")
-          }
-          //////// блок кода применим только если у нас протез с новым протоколом
-
-          //////
+//  private fun startUpdatingUIThread() {
+//    updatingUIThread =  Thread {
+//      while (threadFlag) {
+//        main?.runOnUiThread {
+//          if (main?.setOneChannelNum == 1) {
+//            preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
+//          } else {
+//            preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+//          }
+//          if (main?.lockChangeTelemetryNumber == true) {
+//            telemetry_number_et?.setText(main?.telemetryNumber)
+//            main?.lockChangeTelemetryNumber = false
+//            System.err.println("telemetry_number_et записали принятые данные")
+//          }
+//          //////// блок кода применим только если у нас протез с новым протоколом
+//
+//          //////
 //          initializeUI()
-          updateAllParameters()
-        }
-        try {
-          Thread.sleep(1000)
-        } catch (ignored: Exception) {  }
-      }
-    }
-    updatingUIThread?.start()
-  }
+//          updateAllParameters()
+//        }
+//        try {
+//          Thread.sleep(1000)
+//        } catch (ignored: Exception) {  }
+//      }
+//    }
+//    updatingUIThread?.start()
+//  }
 
   internal fun saveInt(key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()

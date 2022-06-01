@@ -689,24 +689,6 @@ class GripperScreenWithEncodersActivity
         myDialog.show()
         myDialog.delay_fingers_animation_view.setAnimation(R.raw.loader_calibrating)
 
-        loadFingersDelay()
-        if (gestureState == 1) {
-            myDialog.dialog_fingers_delay_title_tv.text = getString(R.string.delay_state_open)
-            myDialog.dialog_fingers_delay_1_sb.progress = fingerOpenStateDelay1
-            myDialog.dialog_fingers_delay_2_sb.progress = fingerOpenStateDelay2
-            myDialog.dialog_fingers_delay_3_sb.progress = fingerOpenStateDelay3
-            myDialog.dialog_fingers_delay_4_sb.progress = fingerOpenStateDelay4
-            myDialog.dialog_fingers_delay_5_sb.progress = fingerOpenStateDelay5
-            myDialog.dialog_fingers_delay_6_sb.progress = fingerOpenStateDelay6
-        } else {
-            myDialog.dialog_fingers_delay_title_tv.text = getString(R.string.delay_state_close)
-            myDialog.dialog_fingers_delay_1_sb.progress = fingerCloseStateDelay1
-            myDialog.dialog_fingers_delay_2_sb.progress = fingerCloseStateDelay2
-            myDialog.dialog_fingers_delay_3_sb.progress = fingerCloseStateDelay3
-            myDialog.dialog_fingers_delay_4_sb.progress = fingerCloseStateDelay4
-            myDialog.dialog_fingers_delay_5_sb.progress = fingerCloseStateDelay5
-            myDialog.dialog_fingers_delay_6_sb.progress = fingerCloseStateDelay6
-        }
 
         timerCheckReceivingData = object : CountDownTimer(5000000, 500) {
             override fun onTick(millisUntilFinished: Long) {
@@ -743,6 +725,25 @@ class GripperScreenWithEncodersActivity
                 myDialog.fourth_cl.visibility = View.VISIBLE
                 myDialog.fifth_cl.visibility = View.VISIBLE
                 myDialog.sixth_cl.visibility = View.VISIBLE
+
+                loadFingersDelay()
+                if (gestureState == 1) {
+                    myDialog.dialog_fingers_delay_title_tv.text = getString(R.string.delay_state_open)
+                    myDialog.dialog_fingers_delay_1_sb.progress = fingerOpenStateDelay1
+                    myDialog.dialog_fingers_delay_2_sb.progress = fingerOpenStateDelay2
+                    myDialog.dialog_fingers_delay_3_sb.progress = fingerOpenStateDelay3
+                    myDialog.dialog_fingers_delay_4_sb.progress = fingerOpenStateDelay4
+                    myDialog.dialog_fingers_delay_5_sb.progress = fingerOpenStateDelay5
+                    myDialog.dialog_fingers_delay_6_sb.progress = fingerOpenStateDelay6
+                } else {
+                    myDialog.dialog_fingers_delay_title_tv.text = getString(R.string.delay_state_close)
+                    myDialog.dialog_fingers_delay_1_sb.progress = fingerCloseStateDelay1
+                    myDialog.dialog_fingers_delay_2_sb.progress = fingerCloseStateDelay2
+                    myDialog.dialog_fingers_delay_3_sb.progress = fingerCloseStateDelay3
+                    myDialog.dialog_fingers_delay_4_sb.progress = fingerCloseStateDelay4
+                    myDialog.dialog_fingers_delay_5_sb.progress = fingerCloseStateDelay5
+                    myDialog.dialog_fingers_delay_6_sb.progress = fingerCloseStateDelay6
+                }
 
                 myDialog.dialog_fingers_delay_first_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_1_sb.progress*10)
                 myDialog.dialog_fingers_delay_second_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_2_sb.progress*10)
@@ -854,6 +855,8 @@ class GripperScreenWithEncodersActivity
                     }
 
                 })
+
+
             }
         }.start()
 

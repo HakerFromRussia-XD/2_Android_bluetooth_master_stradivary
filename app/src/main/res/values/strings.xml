@@ -220,6 +220,7 @@
     <string name="_4_finger_delay">little finger delay</string>
     <string name="_5_finger_delay">big finger delay</string>
     <string name="_6_finger_delay">rotation delay</string>
+    <string name="time_at_rest">time at rest</string>
 
     <string-array name="numbers">
         <item>0</item>

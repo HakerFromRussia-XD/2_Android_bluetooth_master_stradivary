@@ -15,13 +15,9 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.Handler
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
@@ -29,11 +25,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
-import com.airbnb.lottie.utils.Logger.error
 import com.yandex.metrica.YandexMetrica
-import io.reactivex.Completable.error
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
@@ -43,7 +36,6 @@ import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import javax.inject.Inject
 
@@ -62,9 +54,6 @@ class AdvancedSettingsFragment : Fragment() {
   private var scale = 0F
   private var mode: Byte = 0x00
   private var sensorGestureSwitching: Byte = 0x00
-//  private var threadFlag = true
-//  private var changeParameter = false
-//  private var updatingUIThread: Thread? = null
 
   private var current = 0
   private var current1 = 0
@@ -92,15 +81,6 @@ class AdvancedSettingsFragment : Fragment() {
     return rootView
   }
 
-//  override fun onPause() {
-//    super.onPause()
-//    threadFlag = false
-//  }
-//
-//  override fun onResume() {
-//    super.onResume()
-//    threadFlag = true
-//  }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -471,7 +451,9 @@ class AdvancedSettingsFragment : Fragment() {
             peak_time_rl?.visibility = View.GONE
             mode_new_rl?.visibility = View.GONE
             peak_time_vm_rl?.visibility = View.VISIBLE
-            main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW_VM, WRITE)
+            updateAllParameters()
+            main?.runWriteData(byteArrayOf(sensorGestureSwitching, 0.toByte(), peak_time_vm_sb?.progress?.toByte()!!, 0.toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
+            RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
               //TODO показывать меню пройного выбора, а обычный свич (переключение двумя/одним датчиком) скрывать
@@ -492,7 +474,8 @@ class AdvancedSettingsFragment : Fragment() {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             mode_new_rl?.visibility = View.GONE
             peak_time_vm_rl?.visibility = View.GONE
-            main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW_VM, WRITE)
+            main?.runWriteData(byteArrayOf(sensorGestureSwitching, 0.toByte(), peak_time_vm_sb?.progress?.toByte()!!, 0.toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
+            RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
               //TODO скрывать меню пройного выбора
@@ -643,6 +626,47 @@ class AdvancedSettingsFragment : Fragment() {
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersFingersDelay)
     }
 
+
+    val eventYandexMetricaParametersPeakTimeVM = "{\"Screen advanced settings\":\"Change peak time VM\"}"
+    peak_time_vm_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        val time: String = when {
+          ((seekBar.progress + 1) * 0.1).toString().length == 4 -> {
+            ((seekBar.progress + 1) * 0.1).toString() + "c"
+          }
+          ((seekBar.progress + 1) * 0.1).toString().length > 4 -> {
+            ((seekBar.progress + 1) * 0.1).toString().substring(0,4) + "c"
+          }
+          else -> {
+            ((seekBar.progress + 1) * 0.1).toString() + "0c"
+          }
+        }
+        peak_time_vm_tv?.text = time
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        val time: String = when {
+          ((seekBar.progress + 1) * 0.1).toString().length == 4 -> {
+            ((seekBar.progress + 1) * 0.1).toString() + "c"
+          }
+          ((seekBar.progress + 1) * 0.1).toString().length > 4 -> {
+            ((seekBar.progress + 1) * 0.1).toString().substring(0,4) + "c"
+          }
+          else -> {
+            ((seekBar.progress + 1) * 0.1).toString() + "0c"
+          }
+        }
+        peak_time_vm_tv?.text = time
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.runWriteData(byteArrayOf(sensorGestureSwitching, 0.toByte(), peak_time_vm_sb?.progress?.toByte()!!, 0.toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
+          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
+
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, seekBar.progress)
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersPeakTimeVM)
+        }
+      }
+    })
 
     val eventYandexMetricaParametersPeakTime = "{\"Screen advanced settings\":\"Change peak time\"}"
     peak_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -846,7 +870,6 @@ class AdvancedSettingsFragment : Fragment() {
     single_channel_control_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
 
 
-
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     }
@@ -878,6 +901,7 @@ class AdvancedSettingsFragment : Fragment() {
       ObjectAnimator.ofInt(shutdown_current_6_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)).setDuration(200).start()
 
 
+      ObjectAnimator.ofInt(peak_time_vm_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, 15)).setDuration(200).start()
       ObjectAnimator.ofInt(peak_time_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, 15)).setDuration(200).start()
       ObjectAnimator.ofInt(downtime_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, 15)).setDuration(200).start()
     }
@@ -898,6 +922,20 @@ class AdvancedSettingsFragment : Fragment() {
     current5 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80)
     current6 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)
 
+    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+      val time: String = when {
+        ((peak_time_vm_sb?.progress?.plus(1))?.times(0.1)).toString().length == 4 -> {
+          ((peak_time_vm_sb?.progress?.plus(1))?.times(0.1)).toString() + "c"
+        }
+        ((peak_time_vm_sb?.progress?.plus(1))?.times(0.1)).toString().length > 4 -> {
+          ((peak_time_vm_sb?.progress?.plus(1))?.times(0.1)).toString().substring(0, 4) + "c"
+        }
+        else -> {
+          ((peak_time_vm_sb?.progress?.plus(1))?.times(0.1)).toString() + "0c"
+        }
+      }
+      peak_time_vm_tv?.text = time
+    }
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
       var time: String = when {
       ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
@@ -910,7 +948,7 @@ class AdvancedSettingsFragment : Fragment() {
         ((peak_time_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
       }
     }
-      time = (peak_time_sb?.progress?.times(0.04)).toString() + "c"
+//      time = (peak_time_sb?.progress?.times(0.04)).toString() + "c"
       peak_time_tv?.text = time
       time = when {
         ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
@@ -923,7 +961,7 @@ class AdvancedSettingsFragment : Fragment() {
           ((downtime_sb?.progress?.plus(5))?.times(0.05)).toString() + "0c"
         }
       }
-      time = (downtime_sb?.progress?.times(0.04)).toString() + "c"
+//      time = (downtime_sb?.progress?.times(0.04)).toString() + "c"
       downtime_tv?.text = time
     }
 
@@ -956,34 +994,6 @@ class AdvancedSettingsFragment : Fragment() {
     }
   }
 
-
-//  private fun startUpdatingUIThread() {
-//    updatingUIThread =  Thread {
-//      while (threadFlag) {
-//        main?.runOnUiThread {
-//          if (main?.setOneChannelNum == 1) {
-//            preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
-//          } else {
-//            preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
-//          }
-//          if (main?.lockChangeTelemetryNumber == true) {
-//            telemetry_number_et?.setText(main?.telemetryNumber)
-//            main?.lockChangeTelemetryNumber = false
-//            System.err.println("telemetry_number_et записали принятые данные")
-//          }
-//          //////// блок кода применим только если у нас протез с новым протоколом
-//
-//          //////
-//          initializeUI()
-//          updateAllParameters()
-//        }
-//        try {
-//          Thread.sleep(1000)
-//        } catch (ignored: Exception) {  }
-//      }
-//    }
-//    updatingUIThread?.start()
-//  }
 
   internal fun saveInt(key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()

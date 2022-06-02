@@ -77,6 +77,7 @@ public class SampleGattAttributes {
     public static String SENS_OPTIONS_NEW_VM = "43680200-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0200-526f64696f6e";
     public static String MIO_MEASUREMENT_NEW_VM = "43680201-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0201-526f64696f6e";
     public static String SENS_VERSION_NEW_VM = "43680202-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0202-526f64696f6e";
+    public static String DRIVER_VERSION_NEW_VM = "43680590-4d74-1001-726b-526f64696f6e";
     public static String SENS_ENABLED_NEW_VM = "43680203-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0203-526f64696f6e"; // 0-управление от датчиков отключео 1-управление от датчиков включено
 
     public static String TELEMETRY_NUMBER_NEW_VM = "43680300-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0300-526f64696f6e"; // 16 байт инфа о номере для телеметрии\

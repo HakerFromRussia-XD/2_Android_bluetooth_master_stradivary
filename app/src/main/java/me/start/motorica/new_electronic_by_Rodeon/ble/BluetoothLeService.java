@@ -44,6 +44,7 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.DRIVER_VERSION_NEW;
+import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.DRIVER_VERSION_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.FESTO_A_CHARACTERISTIC;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW;
@@ -183,6 +184,9 @@ public class BluetoothLeService extends Service {
                 if (state.equals(READ)) { intent.putExtra(ROTATION_GESTURE_NEW_VM_DATA, data); }
             }
             if (String.valueOf(characteristic.getUuid()).equals(DRIVER_VERSION_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(DRIVER_VERSION_NEW_DATA, data); }
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(DRIVER_VERSION_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(DRIVER_VERSION_NEW_DATA, data); }
             }
 

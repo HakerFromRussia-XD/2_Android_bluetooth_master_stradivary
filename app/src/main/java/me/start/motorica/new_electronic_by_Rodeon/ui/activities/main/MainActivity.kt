@@ -38,7 +38,6 @@ import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
-import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
@@ -48,7 +47,6 @@ import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
-import javax.inject.Inject
 import kotlin.experimental.xor
 
 
@@ -531,6 +529,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           driverVersion += data[i].toChar()
         }
       }
+
       driver_tv?.text = resources.getString(R.string.driver) +driverVersion + "v"
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true

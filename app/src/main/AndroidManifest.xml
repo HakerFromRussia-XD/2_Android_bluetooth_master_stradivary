@@ -44,14 +44,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<!--        <activity android:name="me.start.motorica.old_electronic_by_Misha.ui.SplashScreen"-->
-<!--            android:exported="true"-->
-<!--            tools:node="merge">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
         <activity
             android:name="me.start.motorica.scan.view.ScanActivity"
             android:screenOrientation="fullSensor" />
@@ -92,7 +84,7 @@
                 <action android:name="me.start.motorica.new_electronic_by_Rodeon.services.MyService"/>
             </intent-filter>
         </service>
-        <receiver
+<!--        <receiver
             android:name="me.start.motorica.new_electronic_by_Rodeon.services.receivers.BootCompletedReceiver"
             android:enabled="true"
             android:exported="true">
@@ -101,7 +93,7 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
-        </receiver>
+        </receiver>-->
     </application>
 
 </manifest>

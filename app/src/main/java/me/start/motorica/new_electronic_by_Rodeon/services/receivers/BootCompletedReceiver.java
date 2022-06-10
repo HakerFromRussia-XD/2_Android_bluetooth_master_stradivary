@@ -3,13 +3,10 @@ package me.start.motorica.new_electronic_by_Rodeon.services.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.widget.Toast;
 
-import androidx.core.content.ContextCompat;
 
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService;
-import timber.log.Timber;
 
 public class BootCompletedReceiver extends BroadcastReceiver {
 

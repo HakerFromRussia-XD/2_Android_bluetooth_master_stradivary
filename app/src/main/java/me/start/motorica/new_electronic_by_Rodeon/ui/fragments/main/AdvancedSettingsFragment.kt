@@ -864,6 +864,8 @@ class AdvancedSettingsFragment : Fragment() {
       shutdown_current_4_rl?.visibility = View.GONE
       shutdown_current_5_rl?.visibility = View.GONE
       shutdown_current_6_rl?.visibility = View.GONE
+      side_rl?.visibility = View.GONE
+      on_off_sensor_gesture_switching_rl?.visibility = View.GONE
     }
 
     swap_open_close_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)

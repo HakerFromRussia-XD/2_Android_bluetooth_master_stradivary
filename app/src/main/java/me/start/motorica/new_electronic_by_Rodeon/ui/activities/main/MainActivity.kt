@@ -2,6 +2,7 @@
 
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
@@ -10,6 +11,7 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.content.*
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.nfc.NfcAdapter
@@ -19,6 +21,7 @@ import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -878,13 +881,20 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
 
+//  @SuppressLint("MissingPermission")
   override fun onResume() {
     super.onResume()
     // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
     // fire an intent to display a dialog asking the user to grant permission to enable it.
     if (!mBluetoothAdapter!!.isEnabled) {
       val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-      startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+      if (ActivityCompat.checkSelfPermission(
+          this,
+          Manifest.permission.BLUETOOTH_CONNECT
+        ) != PackageManager.PERMISSION_GRANTED
+      ) { return } else {
+        startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+      }
     }
 
     val filter = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)

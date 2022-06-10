@@ -16,9 +16,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
+            android:orientation="vertical"
             android:paddingBottom="16dp"
             android:weightSum="16"
             tools:ignore="UselessParent">
@@ -27,8 +27,8 @@
                 android:id="@+id/shutdown_current_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -94,12 +94,13 @@
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/shutdown_current_1_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -165,12 +166,13 @@
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/shutdown_current_2_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -236,12 +238,13 @@
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/shutdown_current_3_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -307,12 +310,13 @@
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/shutdown_current_4_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -378,12 +382,13 @@
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/shutdown_current_5_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -449,12 +454,13 @@
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/shutdown_current_6_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -525,8 +531,8 @@
                 android:id="@+id/swap_open_close_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -596,8 +602,8 @@
                 android:id="@+id/single_channel_control_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -667,8 +673,8 @@
                 android:id="@+id/on_off_sensor_gesture_switching_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -739,9 +745,9 @@
                 android:id="@+id/mode_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:paddingTop="8dp"
-                android:visibility="gone"
-                android:layout_weight="1">
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -808,11 +814,11 @@
 
             <RelativeLayout
                 android:id="@+id/mode_new_rl"
-                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:visibility="gone">
 
                 <lib.kingja.switchbutton.SwitchMultiButton
                     android:id="@+id/mode_new_sw"
@@ -840,9 +846,9 @@
                 android:id="@+id/peak_time_vm_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:paddingTop="8dp"
-                android:visibility="gone"
-                android:layout_weight="1">
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -913,9 +919,9 @@
                 android:id="@+id/peak_time_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:paddingTop="8dp"
-                android:visibility="gone"
-                android:layout_weight="1">
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -986,9 +992,9 @@
                 android:id="@+id/downtime_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:paddingTop="8dp"
-                android:visibility="gone"
-                android:layout_weight="1">
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -1059,17 +1065,17 @@
                 android:id="@+id/telemetry_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:baselineAligned="false"
                     android:orientation="horizontal"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
-                    android:weightSum="4"
-                    android:baselineAligned="false">
+                    android:weightSum="4">
 
                     <RelativeLayout
                         android:layout_width="0dp"
@@ -1156,8 +1162,8 @@
                 android:id="@+id/side_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -1225,85 +1231,85 @@
             </RelativeLayout>
 
             <RelativeLayout
-            android:id="@+id/time_delay_of_fingers_rl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:layout_weight="1">
-
-            <LinearLayout
+                android:id="@+id/time_delay_of_fingers_rl"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:orientation="horizontal"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:weightSum="4"
-                tools:ignore="DisableBaselineAlignment">
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:weightSum="4"
+                    tools:ignore="DisableBaselineAlignment">
 
-                    <TextView
-                        android:id="@+id/time_delay_of_fingers_tv"
-                        style="@style/Text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true"
-                        android:lines="2"
-                        android:text="@string/changing_the_finger_delay_time"
-                        android:textStyle="bold" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <TextView
-                        android:id="@+id/time_delay_of_fingers_swap_tv"
-                        style="@style/Text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="0"
-                        android:textStyle="bold"
-                        tools:ignore="HardcodedText" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1">
-
-                    <Switch
-                        android:id="@+id/time_delay_of_fingers_swap_sw"
-                        android:layout_width="wrap_content"
+                    <RelativeLayout
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginStart="-2dp"
-                        android:layout_marginEnd="3dp"
-                        android:checked="false"
-                        android:ellipsize="middle"
-                        android:paddingStart="16dp"
-                        android:scrollbarSize="48dp"
-                        android:thumb="@drawable/switch_le_thumb"
-                        android:track="@drawable/switch_le_truck"
-                        tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
-                </RelativeLayout>
-            </LinearLayout>
-        </RelativeLayout>
+                        android:layout_weight="2">
+
+                        <TextView
+                            android:id="@+id/time_delay_of_fingers_tv"
+                            style="@style/Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:lines="2"
+                            android:text="@string/changing_the_finger_delay_time"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/time_delay_of_fingers_swap_tv"
+                            style="@style/Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="0"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <Switch
+                            android:id="@+id/time_delay_of_fingers_swap_sw"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="-2dp"
+                            android:layout_marginEnd="3dp"
+                            android:checked="false"
+                            android:ellipsize="middle"
+                            android:paddingStart="16dp"
+                            android:scrollbarSize="48dp"
+                            android:thumb="@drawable/switch_le_thumb"
+                            android:track="@drawable/switch_le_truck"
+                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/reset_to_factory_settings_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:paddingTop="8dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingTop="8dp">
 
                 <Button
                     android:id="@+id/reset_to_factory_settings_btn"
@@ -1323,8 +1329,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:paddingTop="8dp"
                 android:layout_weight="1"
+                android:paddingTop="8dp"
                 android:visibility="visible">
 
                 <LinearLayout
@@ -1339,8 +1345,8 @@
                         android:id="@+id/calibration_start_button_ll"
                         android:layout_width="0dp"
                         android:layout_height="48dp"
-                        android:orientation="vertical"
-                        android:layout_weight="0">
+                        android:layout_weight="0"
+                        android:orientation="vertical">
 
                         <Button
                             android:id="@+id/calibration_adv_btn"
@@ -1353,6 +1359,7 @@
                             android:background="@drawable/custom_button_le"
                             android:text="@string/start_calibration" />
                     </LinearLayout>
+
                     <LinearLayout
                         android:id="@+id/calibration_status_button_ll"
                         android:layout_width="0dp"

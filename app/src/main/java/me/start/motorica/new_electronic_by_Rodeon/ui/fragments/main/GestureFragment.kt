@@ -30,7 +30,7 @@ import org.jetbrains.anko.textColor
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
-class GestureFragment: Fragment(), OnChartValueSelectedListener {
+class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickListener {
     @Inject
     lateinit var preferenceManager: PreferenceManager
 
@@ -60,6 +60,15 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         }, 500)
 
 
+
+        gesture_settings_1_btn.setOnClickListener(this)
+        gesture_settings_2_btn.setOnClickListener(this)
+        gesture_settings_3_btn.setOnClickListener(this)
+        gesture_settings_4_btn.setOnClickListener(this)
+        gesture_settings_5_btn.setOnClickListener(this)
+        gesture_settings_6_btn.setOnClickListener(this)
+        gesture_settings_7_btn.setOnClickListener(this)
+        gesture_settings_8_btn.setOnClickListener(this)
         gesture_1_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()
@@ -67,10 +76,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
                 compileBLEMassage (0)
             }
-        }
-        gesture_settings_1_btn.setOnClickListener {
-            main?.openFragment(1)
-            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 1)
         }
         gesture_2_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
@@ -80,18 +85,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 compileBLEMassage (1)
             }
         }
-        gesture_settings_2_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
-                startActivity(intent)
-            } else {
-                val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
-                startActivity(intent)
-            }
-
-            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
-        }
         gesture_3_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()
@@ -99,17 +92,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 3)
                 compileBLEMassage (2)
             }
-        }
-        gesture_settings_3_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
-                startActivity(intent)
-            } else {
-                val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
-                startActivity(intent)
-            }
-            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 3)
         }
         gesture_4_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
@@ -119,17 +101,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 compileBLEMassage (3)
             }
         }
-        gesture_settings_4_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
-                startActivity(intent)
-            } else {
-                val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
-                startActivity(intent)
-            }
-            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
-        }
         gesture_5_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()
@@ -137,17 +108,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 5)
                 compileBLEMassage (4)
             }
-        }
-        gesture_settings_5_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
-                startActivity(intent)
-            } else {
-                val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
-                startActivity(intent)
-            }
-            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
         }
         gesture_6_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
@@ -157,17 +117,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 compileBLEMassage (5)
             }
         }
-        gesture_settings_6_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
-                startActivity(intent)
-            } else {
-                val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
-                startActivity(intent)
-            }
-            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
-        }
         gesture_7_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 resetStateButtons()
@@ -175,17 +124,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 7)
                 compileBLEMassage (6)
             }
-        }
-        gesture_settings_7_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
-                startActivity(intent)
-            } else {
-                val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
-                startActivity(intent)
-            }
-            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
         }
         gesture_8_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
@@ -195,16 +133,52 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
                 compileBLEMassage (7)
             }
         }
-        gesture_settings_8_btn.setOnClickListener {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
-                startActivity(intent)
-            } else {
-                val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
-                startActivity(intent)
+
+
+    }
+
+    override fun onClick(v: View?) {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
+            main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
+            startActivity(intent)
+        } else {
+            val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
+            startActivity(intent)
+        }
+        when (v?.id) {
+            R.id.gesture_settings_1_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 1)
             }
-            main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
+            R.id.gesture_settings_2_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
+            }
+            R.id.gesture_settings_3_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 3)
+            }
+            R.id.gesture_settings_4_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
+            }
+            R.id.gesture_settings_5_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
+            }
+            R.id.gesture_settings_6_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
+            }
+            R.id.gesture_settings_7_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
+            }
+            R.id.gesture_settings_8_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
+            }
+        }
+
+        System.err.println("click all")
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW, WRITE)
+        }
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, WRITE)
         }
     }
 
@@ -225,6 +199,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener {
         gestureNameList.clear()
         loadNameGestures()
         testThreadFlag = true
+
+        System.err.println("click all on")
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.runWriteData(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW, WRITE)
+        }
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.runWriteData(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW_VM, WRITE)
+        }
     }
     override fun onDestroy() {
         super.onDestroy()

@@ -285,9 +285,6 @@
                 style="@style/Text"
                 android:background="@drawable/custom_button"/>
 
-<!--            TODO стиль кнопок материал дизайн, возможно применить-->
-<!--            style="@style/Widget.AppCompat.Button.Borderless"-->
-
             <TextView
                 android:id="@+id/textView4"
                 android:layout_width="wrap_content"

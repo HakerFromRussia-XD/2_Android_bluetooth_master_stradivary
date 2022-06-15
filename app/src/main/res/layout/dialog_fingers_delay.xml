@@ -152,7 +152,8 @@
                             app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toStartOf="@+id/_1_1"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.0" />
+                            app:layout_constraintVertical_bias="0.0"
+                            tools:ignore="HardcodedText" />
 
                         <androidx.appcompat.widget.AppCompatSeekBar
                             android:id="@+id/dialog_fingers_delay_1_sb"
@@ -233,7 +234,8 @@
                             app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toStartOf="@+id/_1_2"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.0" />
+                            app:layout_constraintVertical_bias="0.0"
+                            tools:ignore="HardcodedText" />
 
                         <androidx.appcompat.widget.AppCompatSeekBar
                             android:id="@+id/dialog_fingers_delay_2_sb"
@@ -311,7 +313,8 @@
                             app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toStartOf="@+id/_1_3"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.0" />
+                            app:layout_constraintVertical_bias="0.0"
+                            tools:ignore="HardcodedText" />
 
                         <androidx.appcompat.widget.AppCompatSeekBar
                             android:id="@+id/dialog_fingers_delay_3_sb"
@@ -389,7 +392,8 @@
                             app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toStartOf="@+id/_1_4"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.0" />
+                            app:layout_constraintVertical_bias="0.0"
+                            tools:ignore="HardcodedText" />
 
                         <androidx.appcompat.widget.AppCompatSeekBar
                             android:id="@+id/dialog_fingers_delay_4_sb"
@@ -467,7 +471,8 @@
                             app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toStartOf="@+id/_1_5"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.0" />
+                            app:layout_constraintVertical_bias="0.0"
+                            tools:ignore="HardcodedText" />
 
                         <androidx.appcompat.widget.AppCompatSeekBar
                             android:id="@+id/dialog_fingers_delay_5_sb"
@@ -545,7 +550,8 @@
                             app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toStartOf="@+id/_1_6"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.0" />
+                            app:layout_constraintVertical_bias="0.0"
+                            tools:ignore="HardcodedText" />
 
                         <androidx.appcompat.widget.AppCompatSeekBar
                             android:id="@+id/dialog_fingers_delay_6_sb"

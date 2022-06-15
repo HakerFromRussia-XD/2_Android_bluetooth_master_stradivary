@@ -14,12 +14,14 @@ import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.R.drawable.*
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
+import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
@@ -41,11 +43,19 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     private var testThreadFlag = true
     private var updatingUIThread: Thread? = null
 
+    @SuppressLint("CheckResult")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.layout_gestures, container, false)
         WDApplication.component.inject(this)
         this.rootView = rootView
         if (activity != null) { main = activity as MainActivity? }
+
+        RxUpdateMainEvent.getInstance().uiGestures
+            .compose(main?.bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                selectActiveGesture(it)
+            }
         return rootView
     }
 
@@ -71,69 +81,52 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         gesture_settings_8_btn.setOnClickListener(this)
         gesture_1_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
-                resetStateButtons()
                 selectActiveGesture(1)
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
                 compileBLEMassage (0)
             }
         }
         gesture_2_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
-                resetStateButtons()
                 selectActiveGesture(2)
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 2)
                 compileBLEMassage (1)
             }
         }
         gesture_3_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
-                resetStateButtons()
                 selectActiveGesture(3)
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 3)
                 compileBLEMassage (2)
             }
         }
         gesture_4_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
-                resetStateButtons()
                 selectActiveGesture(4)
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 4)
                 compileBLEMassage (3)
             }
         }
         gesture_5_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
-                resetStateButtons()
                 selectActiveGesture(5)
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 5)
                 compileBLEMassage (4)
             }
         }
         gesture_6_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
-                resetStateButtons()
                 selectActiveGesture(6)
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 6)
                 compileBLEMassage (5)
             }
         }
         gesture_7_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
-                resetStateButtons()
                 selectActiveGesture(7)
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 7)
                 compileBLEMassage (6)
             }
         }
         gesture_8_btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
-                resetStateButtons()
                 selectActiveGesture(8)
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 8)
                 compileBLEMassage (7)
             }
         }
-
 
     }
 
@@ -173,7 +166,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             }
         }
 
-        System.err.println("click all")
+        //выключение работы протеза от датчиков
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW, WRITE)
         }
@@ -200,7 +193,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         loadNameGestures()
         testThreadFlag = true
 
-        System.err.println("click all on")
+        //включение работы протеза от датчиков
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW, WRITE)
         }
@@ -254,9 +247,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         gesture_8_btn?.text = gestureNameList[7]
     }
 
-
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
     private fun selectActiveGesture(active: Int) {
+        resetStateButtons()
         when (active) {
             1 -> { gesture_1_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
                    gesture_1_btn?.textColor = resources.getColor(R.color.orange)
@@ -283,6 +276,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                    gesture_8_btn?.textColor = resources.getColor(R.color.orange)
                    gesture_settings_8_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
         }
+        main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, active)
     }
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {}

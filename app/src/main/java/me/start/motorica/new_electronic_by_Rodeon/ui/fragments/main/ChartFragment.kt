@@ -481,10 +481,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     if (!main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
       chart_calibration_rl.visibility = View.GONE
     }
-
-    //TODO выпилить этот интент после проведения испытаний с 3D
-//    val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
-//    startActivity(intent)
   }
 
   override fun onResume() {

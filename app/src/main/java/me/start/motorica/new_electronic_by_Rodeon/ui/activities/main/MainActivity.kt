@@ -197,7 +197,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //              System.err.println("попадаем сюда")
           } else {
             if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              //TODO прописать новую функцию обработки пришедших данных
               if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensAndBMSVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
@@ -310,12 +309,25 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataNew(data: ByteArray?) {
     if (data != null) {
-        if (data.size == 2) {
-          dataSens1 = castUnsignedCharToInt(data[0])
-          dataSens2 = castUnsignedCharToInt(data[1])
-          calibrationDialogOpen = false
-          savingSettingsWhenModified = true
-        }
+      if (data.size == 2) {
+        dataSens1 = castUnsignedCharToInt(data[0])
+        dataSens2 = castUnsignedCharToInt(data[1])
+
+        calibrationDialogOpen = false
+        savingSettingsWhenModified = true
+      }
+      if (data.size == 3) {
+        dataSens1 = castUnsignedCharToInt(data[0])
+        dataSens2 = castUnsignedCharToInt(data[1])
+        RxUpdateMainEvent.getInstance().updateUIGestures(castUnsignedCharToInt(data[2])+1)
+
+        calibrationDialogOpen = false
+        savingSettingsWhenModified = true
+
+        System.err.println("displayDataNew dataSens1 ${castUnsignedCharToInt(data[0])}")
+        System.err.println("displayDataNew dataSens2 ${castUnsignedCharToInt(data[1])}")
+        System.err.println("displayDataNew номер жеста ${castUnsignedCharToInt(data[2])+1}")
+      }
       lockWriteBeforeFirstRead = false
     }
   }
@@ -424,8 +436,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       if (actionState.equals(WRITE)) {
         calibrationStage = castUnsignedCharToInt(data[0])
         if (calibrationStage == 9 || calibrationStage == 10) {// 9 и 10 - это числа отправляемые для калибровки правой и левой руки соответственно
-//          openFragmentInfoCalibration()
           RxUpdateMainEvent.getInstance().updateCalibrationStatus(true)
+          saveInt(mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
         }
         System.err.println("---> запись глобальной калибровки: $calibrationStage")
       }
@@ -1499,7 +1511,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
           7 -> {
             System.err.println("$info = 7")
-            bleCommand(READ_REGISTER, CALIBRATION_NEW_VM, READ) //TODO тут
+            bleCommand(READ_REGISTER, CALIBRATION_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 75
             state = 8
@@ -1507,9 +1519,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           8 -> {
             System.err.println("$info = 8")
             if (calibrationStage == 0) {
-              state = 9 //9   //TODO вернуть калибровку
+              state = 9 //9
             } else {
-              if (calibrationStage == 6) {
+              if (calibrationStage == 6 || calibrationStage == 1) {
                 state = 14
               } else {
                 if (calibrationStage == 2) {

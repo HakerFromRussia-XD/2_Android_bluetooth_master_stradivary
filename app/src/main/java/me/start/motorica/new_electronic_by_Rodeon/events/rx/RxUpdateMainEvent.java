@@ -17,6 +17,7 @@ public class RxUpdateMainEvent {
   private final PublishSubject<Boolean> calibrating;
   private final PublishSubject<String> characteristics;
   private final PublishSubject<Boolean> updateUIAdvancedSettings;
+  private final PublishSubject<Integer> updateUIGestures;
 
 
 
@@ -29,6 +30,7 @@ public class RxUpdateMainEvent {
     calibrating = PublishSubject.create();
     characteristics = PublishSubject.create();
     updateUIAdvancedSettings = PublishSubject.create();
+    updateUIGestures = PublishSubject.create();
   }
   public static RxUpdateMainEvent getInstance() {
     if (instance == null) {
@@ -45,6 +47,7 @@ public class RxUpdateMainEvent {
   public void updateCalibrationStatus(Boolean status) { calibrating.onNext(status); }
   public void updateReadCharacteristicBLE(String characteristic) { characteristics.onNext(characteristic); }
   public void updateUIAdvancedSettings(Boolean state) { updateUIAdvancedSettings.onNext(state); }
+  public void updateUIGestures(Integer number) { updateUIGestures.onNext(number); }
 
 
 
@@ -56,4 +59,5 @@ public class RxUpdateMainEvent {
   public Observable<Boolean> getCalibratingStatusObservable() { return calibrating; }
   public Observable<String> getReadCharacteristicBLEObservable() { return characteristics; }
   public Observable<Boolean> getUIAdvancedSettings() { return updateUIAdvancedSettings; }
+  public Observable<Integer> getUIGestures() { return updateUIGestures; }
 }

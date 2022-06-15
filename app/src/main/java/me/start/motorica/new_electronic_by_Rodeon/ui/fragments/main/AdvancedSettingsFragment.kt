@@ -15,8 +15,11 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Html
 import android.view.LayoutInflater
@@ -27,6 +30,7 @@ import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
@@ -456,7 +460,6 @@ class AdvancedSettingsFragment : Fragment() {
             RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-              //TODO показывать меню пройного выбора, а обычный свич (переключение двумя/одним датчиком) скрывать
               mode_new_rl?.visibility = View.VISIBLE
               main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, WRITE)
             } else {
@@ -478,7 +481,6 @@ class AdvancedSettingsFragment : Fragment() {
             RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-              //TODO скрывать меню пройного выбора
               mode_new_rl?.visibility = View.GONE
               main?.runWriteData(
                 byteArrayOf(
@@ -601,13 +603,8 @@ class AdvancedSettingsFragment : Fragment() {
     val eventYandexMetricaParametersLeftRight = "{\"Screen advanced settings\":\"Tup left right side swap switch\"}"
     left_right_side_swap_sw?.setOnClickListener{
       System.err.println(" LOLOLOEFWEF --->  side key : ${main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE}")
-      if (left_right_side_swap_sw.isChecked) {
-        left_right_side_swap_tv?.text = Html.fromHtml(getString(R.string.right))
-        saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
-      } else {
-        left_right_side_swap_tv?.text = resources.getString(R.string.left)
-        saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
-      }
+      //TODO открывать тут диалог предупреждения смены руки
+      showAlertChangeSideDialog()
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersLeftRight)
     }
 
@@ -832,7 +829,7 @@ class AdvancedSettingsFragment : Fragment() {
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibrationAdv)
     }
     val eventYandexMetricaParametersCalibrationStatusAdv = "{\"Screen advanced settings\":\"Tup calibration status button\"}"
-    calibration_status_adv_btn?. setOnClickListener {
+    calibration_status_adv_btn?.setOnClickListener {
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
         main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW_VM)
       } else {
@@ -993,6 +990,52 @@ class AdvancedSettingsFragment : Fragment() {
       peak_time_vm_rl?.visibility = View.GONE
       peak_time_rl?.visibility = View.GONE
       downtime_rl?.visibility = View.GONE
+    }
+  }
+  @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")
+  private fun showAlertChangeSideDialog() {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_chage_hand_side, null)
+    val myDialog = Dialog(requireContext())
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_change_hand_side_confirm)
+    yesBtn.setOnClickListener {
+      if (left_right_side_swap_sw.isChecked) {
+        left_right_side_swap_tv?.text = Html.fromHtml(getString(R.string.right))
+        saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
+      } else {
+        left_right_side_swap_tv?.text = resources.getString(R.string.left)
+        saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
+      }
+
+
+      //TODO запускать таймер, который раз в полсекунды отслеживает, была ли отправлена команда
+      // (по состоянию ключа CALIBRATING_STATUS =    1-была    0-не была   )
+      // и если не была, то повторяет отправку
+      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+        main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW_VM, WRITE)
+      } else {
+        main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW_VM, WRITE)
+      }
+
+      myDialog.dismiss()
+    }
+
+
+    val noBtn = dialogBinding.findViewById<View>(R.id.dialog_change_hand_side_cancel)
+    noBtn.setOnClickListener {
+      if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+        left_right_side_swap_sw?.isChecked = true
+        left_right_side_swap_tv?.text = Html.fromHtml(getString(R.string.right))
+      } else {
+        left_right_side_swap_sw?.isChecked = false
+        left_right_side_swap_tv?.text = resources.getString(R.string.left)
+      }
+      myDialog.dismiss()
     }
   }
 

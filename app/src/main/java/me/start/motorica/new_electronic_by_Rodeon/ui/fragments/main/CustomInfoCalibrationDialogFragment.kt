@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
     private var mSettings: SharedPreferences? = null
     private var updatingUIThread: Thread? = null
     private var updateThreadFlag = true
+    private var timer: CountDownTimer? = null
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -54,6 +56,7 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
 
         dialog!!.setCanceledOnTouchOutside(false)
         startUpdatingUIThread()
+        timerDeactivation()
     }
 
     @SuppressLint("SetTextI18n")
@@ -66,7 +69,7 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
                 if (main?.calibrationStage == 4) updateThreadFlag = false //если хоть один палец прокручивается
                 if (main?.calibrationStage == 3) updateThreadFlag = false //если хоть на одном пальце отключен энкодер
                 if (main?.calibrationStage == 2) updateThreadFlag = false //если хоть на одном пальце отключен мотор
-                if (main?.calibrationStage == 1) updateThreadFlag = false //если протез калибруется //TODO удалить когда мы поймём, почему у нас выдаётся это значение
+                if (main?.calibrationStage == 1) updateThreadFlag = false //если протез калибруется
                 if (main?.calibrationStage == 0) updateThreadFlag = false //если протез не откалиброван
 
                 if (!main?.calibrationDialogOpen!!) {
@@ -86,6 +89,19 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
 
         }
         updatingUIThread!!.start()
+    }
+
+    //скрывает окно калибровки в любом случае по прошествии пяти секунд
+    private fun timerDeactivation() {
+        timer?.cancel()
+        timer = object : CountDownTimer(5000, 1) {
+            override fun onTick(millisUntilFinished: Long) {}
+
+            override fun onFinish() {
+                saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 0)
+                dismiss()
+            }
+        }.start()
     }
 
     private fun saveInt(key: String, variable: Int) {

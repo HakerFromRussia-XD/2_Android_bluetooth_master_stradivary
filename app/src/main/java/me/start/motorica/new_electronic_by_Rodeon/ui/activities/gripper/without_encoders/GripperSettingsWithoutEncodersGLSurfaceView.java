@@ -68,7 +68,6 @@ public class GripperSettingsWithoutEncodersGLSurfaceView extends GLSurfaceView i
 					float deltaY = (y - previousY) / density / 2f;
 
 					/** этот блок чтобы пофиксить неработающий зум*/
-					//TODO выпилить это после допилки зума и мультитача
 					if (deltaX >  30) {deltaX = 0;}
 					if (deltaX < -30) {deltaX = 0;}
 					if (deltaY >  30) {deltaY = 0;}

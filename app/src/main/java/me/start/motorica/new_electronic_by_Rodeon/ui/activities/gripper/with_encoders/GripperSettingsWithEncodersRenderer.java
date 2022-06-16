@@ -222,10 +222,6 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 	private int angleBigFingerInt2 = 0;
 	private int lastAngleBigFingerInt2 = 0;
 	private int angleBigFingerTransfer2 = 0;
-	private float angle75 = 75;
-	private float angle110 = 110;
-	private float angle230 = 230;
-	private float angle130 = 130;
 	private float angle90 = 90;
 	private float angle95 = 95;
 
@@ -535,13 +531,8 @@ public class GripperSettingsWithEncodersRenderer implements GLSurfaceView.Render
 				Matrix.rotateM(currentRotation, 0, angle90, 0.0f, 0.0f, 1.0f);//angle75
 			}
 
-			angle75 = 0;
-			angle110 = 0;
-			angle230 = 0;
-			angle130 = 0;
 			angle90 = 0;
 			angle95 = 0;
-//			Matrix.rotateM(currentRotation, 0, deltaY, 1.0f, 0.0f, 0.0f);
 			Matrix.rotateM(currentRotation, 0, deltaX, 0.0f, 1.0f, 0.0f);
 			deltaX = 0.0f;
 			deltaY = 0.0f;

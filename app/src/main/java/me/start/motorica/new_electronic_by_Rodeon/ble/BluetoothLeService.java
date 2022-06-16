@@ -27,6 +27,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 
 import java.util.List;
@@ -73,7 +74,7 @@ import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttribute
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.TELEMETRY_NUMBER_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE;
 
-
+@SuppressLint("MissingPermission")
 public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
 
@@ -248,6 +249,7 @@ public class BluetoothLeService extends Service {
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
 
+
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
@@ -376,6 +378,9 @@ public class BluetoothLeService extends Service {
             Timber.d("Trying to use an existing mBluetoothGatt for connection.");
             if (mBluetoothGatt.connect()) {
                 mConnectionState = STATE_CONNECTING;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    mBluetoothGatt.setPreferredPhy(BluetoothDevice.PHY_LE_2M_MASK, BluetoothDevice.PHY_LE_2M_MASK, BluetoothDevice.PHY_OPTION_NO_PREFERRED);
+                }
                 return true;
             } else {
                 return false;

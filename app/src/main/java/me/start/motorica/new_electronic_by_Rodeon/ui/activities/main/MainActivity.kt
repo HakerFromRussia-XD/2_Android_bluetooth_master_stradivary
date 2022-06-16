@@ -53,6 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.experimental.xor
 
 
+@SuppressLint("MissingPermission")
 @Suppress("SameParameterValue", "SameParameterValue", "DEPRECATION")
 @RequirePresenter(MainPresenter::class)
 open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable {
@@ -187,7 +188,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             displayGattServices(mBluetoothLeService!!.supportedGattServices)
           }
         }
-
         BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
           if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A))
             || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05))
@@ -893,7 +893,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
 
-//  @SuppressLint("MissingPermission")
   override fun onResume() {
     super.onResume()
     // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
@@ -960,7 +959,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val unknownCharaString =("unknown_characteristic")
     val gattServiceData = ArrayList<HashMap<String, String?>>()
     val gattCharacteristicData = ArrayList<ArrayList<HashMap<String, String?>>>()
-    mGattCharacteristics = java.util.ArrayList()
+    mGattCharacteristics = ArrayList()
 
 
     // Loops through available GATT Services.
@@ -1694,11 +1693,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     override fun newArray(size: Int): Array<MainActivity?> { return arrayOfNulls(size) }
   }
 
-  fun openFragment(numberGesture: Int) {
-    dialog = CustomDialogFragment()
-    mNumberGesture = numberGesture
-    dialog.show(supportFragmentManager, "custom dialog")
-  }
   private fun openFragmentQuestion() {
     dialog = CustomUpdateDialogFragment()
     dialog.show(supportFragmentManager, "custom update dialog")

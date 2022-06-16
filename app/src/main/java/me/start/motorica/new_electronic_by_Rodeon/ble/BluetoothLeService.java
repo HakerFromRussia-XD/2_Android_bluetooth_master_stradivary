@@ -273,6 +273,10 @@ public class BluetoothLeService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    System.err.println("установили доп параметры соединения");
+                    mBluetoothGatt.setPreferredPhy(BluetoothDevice.PHY_LE_2M_MASK, BluetoothDevice.PHY_LE_2M_MASK, BluetoothDevice.PHY_OPTION_NO_PREFERRED);
+                }
             } else {
                 Timber.tag(TAG).w("onServicesDiscovered received: %s", status);
             }
@@ -378,9 +382,6 @@ public class BluetoothLeService extends Service {
             Timber.d("Trying to use an existing mBluetoothGatt for connection.");
             if (mBluetoothGatt.connect()) {
                 mConnectionState = STATE_CONNECTING;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    mBluetoothGatt.setPreferredPhy(BluetoothDevice.PHY_LE_2M_MASK, BluetoothDevice.PHY_LE_2M_MASK, BluetoothDevice.PHY_OPTION_NO_PREFERRED);
-                }
                 return true;
             } else {
                 return false;

@@ -55,4 +55,6 @@ dependencies {
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
 }
 
+
+
 //apply from: 'https://raw.githubusercontent.com/omaflak/Bintray/master/install.gradle'

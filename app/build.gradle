@@ -12,8 +12,8 @@ android {
         minSdkVersion 23
 //        maxSdkVersion 30
         targetSdkVersion 31
-        versionCode 34
-        versionName "2.4.490"
+        versionCode 35
+        versionName "2.4.507"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

@@ -43,6 +43,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import me.start.motorica.BuildConfig;
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
 import me.start.motorica.new_electronic_by_Rodeon.presenters.Load3DModelNew;

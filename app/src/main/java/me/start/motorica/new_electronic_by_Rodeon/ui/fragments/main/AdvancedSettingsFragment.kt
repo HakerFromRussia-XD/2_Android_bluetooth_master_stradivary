@@ -30,8 +30,8 @@ import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
+import me.start.motorica.BuildConfig
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
@@ -117,6 +117,7 @@ class AdvancedSettingsFragment : Fragment() {
       shutdown_current_4_text_tv?.textSize = 11f
       shutdown_current_5_text_tv?.textSize = 11f
       shutdown_current_6_text_tv?.textSize = 11f
+      version_app_tv?.textSize = 11f
     }
     if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
       left_right_side_swap_sw?.isChecked = true
@@ -885,6 +886,9 @@ class AdvancedSettingsFragment : Fragment() {
       mode_tv?.text = "одним\nдатчиком"
       mode = 0x00
     }
+
+    val versionName = BuildConfig.VERSION_NAME
+    version_app_tv?.text = (mContext?.resources?.getString(R.string.version_app) ?: "lol: ") + " " + versionName
   }
 
   @SuppressLint("Recycle")

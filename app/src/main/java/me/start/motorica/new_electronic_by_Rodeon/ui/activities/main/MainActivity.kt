@@ -844,6 +844,17 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
+
+    val testMass = IntArray(5)
+    testMass[4] = 100
+
+    try {
+      testMass[5] = 100
+    } catch (err : Exception) {
+      System.err.println("переполнение массива testMass[4]")
+      err.printStackTrace()
+    }
+    System.err.println("testMass[4] = ${testMass[4]}")
   }
 
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {

@@ -1381,6 +1381,42 @@
                     </LinearLayout>
                 </LinearLayout>
             </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/version_app_rl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:weightSum="4"
+                    tools:ignore="DisableBaselineAlignment">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2">
+
+
+                        <TextView
+                            android:id="@+id/version_app_tv"
+                            style="@style/Text_transparency_30"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:lines="2"
+                            android:text="@string/version_app"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </RelativeLayout>
         </LinearLayout>
 
     </ScrollView>

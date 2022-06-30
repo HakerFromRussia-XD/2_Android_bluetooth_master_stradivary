@@ -34,6 +34,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
@@ -471,6 +472,10 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibration)
     }
+
+    //TODO выпилить этот интент после проведения испытаний с 3D
+    val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)
+    startActivity(intent)
   }
 
   @SuppressLint("SetTextI18n")

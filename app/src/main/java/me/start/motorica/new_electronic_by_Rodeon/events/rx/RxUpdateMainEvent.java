@@ -3,6 +3,7 @@ package me.start.motorica.new_electronic_by_Rodeon.events.rx;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import me.start.motorica.new_electronic_by_Rodeon.models.FingerAngle;
+import me.start.motorica.new_electronic_by_Rodeon.models.FingersEncoderValue;
 import me.start.motorica.new_electronic_by_Rodeon.models.GestureState;
 import me.start.motorica.new_electronic_by_Rodeon.models.GestureStateWithEncoders;
 
@@ -18,6 +19,9 @@ public class RxUpdateMainEvent {
   private final PublishSubject<String> characteristics;
   private final PublishSubject<Boolean> updateUIAdvancedSettings;
   private final PublishSubject<Integer> updateUIGestures;
+  private final PublishSubject<Integer> updateEncodersError;
+  private final PublishSubject<FingersEncoderValue> updateEncoders;
+
 
 
 
@@ -31,6 +35,8 @@ public class RxUpdateMainEvent {
     characteristics = PublishSubject.create();
     updateUIAdvancedSettings = PublishSubject.create();
     updateUIGestures = PublishSubject.create();
+    updateEncoders = PublishSubject.create();
+    updateEncodersError = PublishSubject.create();
   }
   public static RxUpdateMainEvent getInstance() {
     if (instance == null) {
@@ -48,6 +54,8 @@ public class RxUpdateMainEvent {
   public void updateReadCharacteristicBLE(String characteristic) { characteristics.onNext(characteristic); }
   public void updateUIAdvancedSettings(Boolean state) { updateUIAdvancedSettings.onNext(state); }
   public void updateUIGestures(Integer number) { updateUIGestures.onNext(number); }
+  public void updateEncodersError(Integer number) { updateEncodersError.onNext(number); }
+  public void updateEncoders(FingersEncoderValue values) { updateEncoders.onNext(values); }
 
 
 
@@ -60,4 +68,6 @@ public class RxUpdateMainEvent {
   public Observable<String> getReadCharacteristicBLEObservable() { return characteristics; }
   public Observable<Boolean> getUIAdvancedSettings() { return updateUIAdvancedSettings; }
   public Observable<Integer> getUIGestures() { return updateUIGestures; }
+  public Observable<Integer> getEncodersError() { return updateEncodersError; }
+  public Observable<FingersEncoderValue> getEncoders() { return updateEncoders; }
 }

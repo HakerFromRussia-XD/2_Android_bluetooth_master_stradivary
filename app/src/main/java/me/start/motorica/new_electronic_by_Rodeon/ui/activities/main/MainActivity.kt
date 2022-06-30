@@ -38,6 +38,8 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
+import me.start.motorica.new_electronic_by_Rodeon.models.FingerAngle
+import me.start.motorica.new_electronic_by_Rodeon.models.FingersEncoderValue
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
@@ -138,7 +140,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private var gestureTable: Array<Array<Array<Int>>> = Array(7) { Array(2) { Array(6) { 0 } } }
   private var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
-  private var byteActiveGesture: Byte = 0 // номер активного в данный момент жеста 0-7
+//  private var byteActiveGesture: Byte = 0 // номер активного в данный момент жеста 0-7
 //  private var byteSideHand: Byte = 0 //  0-left 1-right
   var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   var telemetryNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
@@ -315,19 +317,33 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
         calibrationDialogOpen = false
         savingSettingsWhenModified = true
-      }
-      if (data.size == 3) {
-        dataSens1 = castUnsignedCharToInt(data[0])
-        dataSens2 = castUnsignedCharToInt(data[1])
-        RxUpdateMainEvent.getInstance().updateUIGestures(castUnsignedCharToInt(data[2])+1)
+      } else  {
+        if (data.size >= 3) {
+          dataSens1 = castUnsignedCharToInt(data[0])
+          dataSens2 = castUnsignedCharToInt(data[1])
+          RxUpdateMainEvent.getInstance().updateUIGestures(castUnsignedCharToInt(data[2])+1)
 
-        calibrationDialogOpen = false
-        savingSettingsWhenModified = true
+          calibrationDialogOpen = false
+          savingSettingsWhenModified = true
 
-        System.err.println("displayDataNew dataSens1 ${castUnsignedCharToInt(data[0])}")
-        System.err.println("displayDataNew dataSens2 ${castUnsignedCharToInt(data[1])}")
-        System.err.println("displayDataNew номер жеста ${castUnsignedCharToInt(data[2])+1}")
+          System.err.println("displayDataNew dataSens1 ${castUnsignedCharToInt(data[0])}")
+          System.err.println("displayDataNew dataSens2 ${castUnsignedCharToInt(data[1])}")
+          System.err.println("displayDataNew номер жеста ${castUnsignedCharToInt(data[2])+1}")
+          if (data.size in 4..10) {
+            val fingersEncoderValue = FingersEncoderValue(castUnsignedCharToInt(data[3]),
+                                                          castUnsignedCharToInt(data[4]),
+                                                          castUnsignedCharToInt(data[5]),
+                                                          castUnsignedCharToInt(data[6]),
+                   (((88 - castUnsignedCharToInt(data[7])).toFloat()/100*91).toInt()-52),
+                                                          castUnsignedCharToInt(data[8]))
+            RxUpdateMainEvent.getInstance().updateEncoders(fingersEncoderValue)
+            RxUpdateMainEvent.getInstance().updateEncodersError(castUnsignedCharToInt(data[9]))
+          }
+        }
       }
+
+
+
       lockWriteBeforeFirstRead = false
     }
   }
@@ -392,7 +408,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
         }
         byteEnabledGesture = castUnsignedCharToInt(data[84]).toByte()
-        byteActiveGesture = castUnsignedCharToInt(data[85]).toByte()
+//        byteActiveGesture = castUnsignedCharToInt(data[85]).toByte()
 
         saveGestureState()
       }
@@ -407,7 +423,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
       }
       System.err.println("Данные byteEnabledGesture   Данные:$byteEnabledGesture")
-      System.err.println("Данные byteActiveGesture   Данные:$byteActiveGesture")
+//      System.err.println("Данные byteActiveGesture   Данные:$byteActiveGesture")
       globalSemaphore = true
     }
   }

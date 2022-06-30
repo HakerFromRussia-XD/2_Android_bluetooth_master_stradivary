@@ -222,6 +222,7 @@
     <string name="recalibration_required_to_complete_prosthesis_side_change">Для завершения смены стороны протеза необходима перекалибровка.</string>
     <string name="do_you_want_to_start_calibration_now">Вы хотите начать калибровку сейчас?</string>
     <string name="version_app">версия приложения:</string>
+    <string name="error_code">Код ошибки: %d</string>
 
 
     <string-array name="numbers">

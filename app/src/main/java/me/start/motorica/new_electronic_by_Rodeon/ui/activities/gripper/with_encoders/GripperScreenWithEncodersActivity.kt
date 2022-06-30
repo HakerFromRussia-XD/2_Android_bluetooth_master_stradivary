@@ -855,8 +855,6 @@ class GripperScreenWithEncodersActivity
                     }
 
                 })
-
-
             }
         }.start()
 

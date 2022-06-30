@@ -222,6 +222,7 @@
     <string name="recalibration_required_to_complete_prosthesis_side_change">Recalibration required to complete prosthesis side change.</string>
     <string name="do_you_want_to_start_calibration_now">Do you want to start calibration now?</string>
     <string name="version_app">version app:</string>
+    <string name="error_code">Error code: %d</string>
 
     <string-array name="numbers">
         <item>0</item>

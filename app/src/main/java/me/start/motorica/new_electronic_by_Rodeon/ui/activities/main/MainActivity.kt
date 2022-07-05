@@ -38,7 +38,6 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
-import me.start.motorica.new_electronic_by_Rodeon.models.FingerAngle
 import me.start.motorica.new_electronic_by_Rodeon.models.FingersEncoderValue
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER

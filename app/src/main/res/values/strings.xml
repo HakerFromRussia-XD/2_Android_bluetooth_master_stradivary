@@ -223,6 +223,8 @@
     <string name="do_you_want_to_start_calibration_now">Do you want to start calibration now?</string>
     <string name="version_app">version app:</string>
     <string name="error_code">Error code: %d</string>
+    <string name="prosthesis_blocking">prosthesis blocking</string>
+    <string name="hold_to_lock_time">hold to lock time</string>
 
     <string-array name="numbers">
         <item>0</item>

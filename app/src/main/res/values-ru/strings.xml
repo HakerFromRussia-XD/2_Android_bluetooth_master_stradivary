@@ -223,6 +223,8 @@
     <string name="do_you_want_to_start_calibration_now">Вы хотите начать калибровку сейчас?</string>
     <string name="version_app">версия приложения:</string>
     <string name="error_code">Код ошибки: %d</string>
+    <string name="prosthesis_blocking">блокировка протеза</string>
+    <string name="hold_to_lock_time">время удержания для блокировки</string>
 
 
     <string-array name="numbers">

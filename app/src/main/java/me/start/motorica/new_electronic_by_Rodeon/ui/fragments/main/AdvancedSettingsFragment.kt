@@ -58,6 +58,7 @@ class AdvancedSettingsFragment : Fragment() {
   private var scale = 0F
   private var mode: Byte = 0x00
   private var sensorGestureSwitching: Byte = 0x00
+  private var lockProsthesis: Byte = 0x00
 
   private var current = 0
   private var current1 = 0
@@ -118,6 +119,8 @@ class AdvancedSettingsFragment : Fragment() {
       shutdown_current_5_text_tv?.textSize = 11f
       shutdown_current_6_text_tv?.textSize = 11f
       version_app_tv?.textSize = 11f
+      on_off_prosthesis_blocking_text_tv?.textSize = 11f
+      hold_to_lock_time_text_tv?.textSize = 10f
     }
     if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
       left_right_side_swap_sw?.isChecked = true
@@ -128,10 +131,10 @@ class AdvancedSettingsFragment : Fragment() {
     }
     if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SET_FINGERS_DELAY, 0) == 1){
       time_delay_of_fingers_swap_sw?.isChecked = true
-      time_delay_of_fingers_swap_tv?.text = 1.toString()
+      time_delay_of_fingers_swap_tv?.text = "1"
     } else {
       time_delay_of_fingers_swap_sw?.isChecked = false
-      time_delay_of_fingers_swap_tv?.text = 0.toString()
+      time_delay_of_fingers_swap_tv?.text = "0"
     }
 
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
@@ -143,7 +146,7 @@ class AdvancedSettingsFragment : Fragment() {
       calibrationStatusParams.weight = 1f
     } else {
       time_delay_of_fingers_rl?.visibility = View.GONE
-      if (main?.locate?.contains("ru")!!) { calibration_status_adv_btn?.textSize = 12f }
+      if (main?.locate?.contains("w")!!) { calibration_status_adv_btn?.textSize = 12f }
     }
 
     var eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current\"}"
@@ -397,11 +400,11 @@ class AdvancedSettingsFragment : Fragment() {
     val eventYandexMetricaParametersSwapOpenCloseButton = "{\"Screen advanced settings\":\"Tup swap open close button\"}"
     swap_open_close_sw?.setOnClickListener {
       if (swap_open_close_sw?.isChecked!!) {
-        swap_open_close_tv?.text = 1.toString()
+        swap_open_close_tv?.text = "1"
         main?.setSwapOpenCloseButton(true)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, true)
       } else {
-        swap_open_close_tv?.text = 0.toString()
+        swap_open_close_tv?.text = "0"
         main?.setSwapOpenCloseButton(false)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
       }
@@ -413,7 +416,7 @@ class AdvancedSettingsFragment : Fragment() {
     single_channel_control_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (single_channel_control_sw.isChecked) {
-          single_channel_control_tv?.text = 1.toString()
+          single_channel_control_tv?.text = "1"
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW_VM, WRITE)
           } else {
@@ -426,7 +429,7 @@ class AdvancedSettingsFragment : Fragment() {
           main?.setOneChannelNum = 1
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
-          single_channel_control_tv?.text = 0.toString()
+          single_channel_control_tv?.text = "0"
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW_VM, WRITE)
           } else {
@@ -443,11 +446,72 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
 
+    on_off_prosthesis_blocking_sw?.setOnClickListener {
+      if (!main?.lockWriteBeforeFirstRead!!) {
+        if (on_off_prosthesis_blocking_sw?.isChecked!!) {
+          on_off_prosthesis_blocking_tv?.text = "1"
+          lockProsthesis = 0x01
+          hold_to_lock_time_rl?.visibility = View.VISIBLE
+          main?.runWriteData(byteArrayOf(sensorGestureSwitching,
+            0.toByte(),
+            peak_time_vm_sb?.progress?.toByte()!!,
+            0.toByte(),
+            lockProsthesis,
+            (hold_to_lock_time_sb?.progress!!).toByte()
+          ), ROTATION_GESTURE_NEW_VM, WRITE)
+          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
+          saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, true)
+        } else {
+          on_off_prosthesis_blocking_tv?.text = "0"
+          lockProsthesis = 0x00
+          hold_to_lock_time_rl?.visibility = View.GONE
+          main?.runWriteData(byteArrayOf(sensorGestureSwitching,
+            0.toByte(),
+            peak_time_vm_sb?.progress?.toByte()!!,
+            0.toByte(), lockProsthesis,
+            (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
+          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
+          saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)
+        }
+      }
+    }
+    hold_to_lock_time_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        val time: String = when {
+          ((hold_to_lock_time_sb?.progress?.plus(1))?.times(0.1)).toString().length == 4 -> {
+            ((hold_to_lock_time_sb?.progress?.plus(1))?.times(0.1)).toString() + "c"
+          }
+          ((hold_to_lock_time_sb?.progress?.plus(1))?.times(0.1)).toString().length > 4 -> {
+            ((hold_to_lock_time_sb?.progress?.plus(1))?.times(0.1)).toString().substring(0, 4) + "c"
+          }
+          else -> {
+            ((hold_to_lock_time_sb?.progress?.plus(1))?.times(0.1)).toString() + "0c"
+          }
+        }
+        hold_to_lock_time_tv?.text = time
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.runWriteData(byteArrayOf(sensorGestureSwitching,
+            0.toByte(),
+            peak_time_vm_sb?.progress?.toByte()!!,
+            0.toByte(),
+            lockProsthesis,
+            (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
+          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.HOLD_TO_LOCK_TIME_NUM, seekBar.progress)
+        }
+      }
+    })
+
+
     val eventYandexMetricaParametersOnOffGesturesSwitching = "{\"Screen advanced settings\":\"On/off gesture switch using sensors\"}"
     on_off_sensor_gesture_switching_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (on_off_sensor_gesture_switching_sw?.isChecked!!) {
-          on_off_sensor_gesture_switching_tv?.text = 1.toString()
+          on_off_sensor_gesture_switching_tv?.text = "1"
           sensorGestureSwitching = 0x01
           peak_time_rl?.visibility = View.VISIBLE
           if (mode.toInt() == 0) downtime_rl?.visibility = View.VISIBLE
@@ -456,8 +520,12 @@ class AdvancedSettingsFragment : Fragment() {
             peak_time_rl?.visibility = View.GONE
             mode_new_rl?.visibility = View.GONE
             peak_time_vm_rl?.visibility = View.VISIBLE
-            updateAllParameters()
-            main?.runWriteData(byteArrayOf(sensorGestureSwitching, 0.toByte(), peak_time_vm_sb?.progress?.toByte()!!, 0.toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
+            main?.runWriteData(byteArrayOf(sensorGestureSwitching,
+              0.toByte(),
+              peak_time_vm_sb?.progress?.toByte()!!,
+              0.toByte(),
+              lockProsthesis,
+              (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
             RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
@@ -471,14 +539,19 @@ class AdvancedSettingsFragment : Fragment() {
           }
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
         } else {
-          on_off_sensor_gesture_switching_tv?.text = 0.toString()
+          on_off_sensor_gesture_switching_tv?.text = "0"
           sensorGestureSwitching = 0x00
           peak_time_rl?.visibility = View.GONE
           downtime_rl?.visibility = View.GONE
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             mode_new_rl?.visibility = View.GONE
             peak_time_vm_rl?.visibility = View.GONE
-            main?.runWriteData(byteArrayOf(sensorGestureSwitching, 0.toByte(), peak_time_vm_sb?.progress?.toByte()!!, 0.toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
+            main?.runWriteData(byteArrayOf(sensorGestureSwitching,
+              0.toByte(),
+              peak_time_vm_sb?.progress?.toByte()!!,
+              0.toByte(),
+              lockProsthesis,
+              (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
             RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
@@ -595,6 +668,13 @@ class AdvancedSettingsFragment : Fragment() {
           WRITE,
           17
         )
+
+        val dataset256 = "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345"
+        System.err.println("dataset_256:" + dataset256.length)
+
+        main?.runWriteData(dataset256.toByteArray(Charsets.UTF_8),
+          TELEMETRY_NUMBER_NEW_VM,
+          WRITE)
       }
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSetTelemetryNumber)
     }
@@ -614,11 +694,11 @@ class AdvancedSettingsFragment : Fragment() {
     time_delay_of_fingers_swap_sw?.setOnClickListener {
       if (time_delay_of_fingers_swap_sw.isChecked) {
         System.err.println("time_delay_of_fingers_swap_sw 1")
-        time_delay_of_fingers_swap_tv?.text = 1.toString()
+        time_delay_of_fingers_swap_tv?.text = "1"
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_FINGERS_DELAY, 1)
       } else {
         System.err.println("time_delay_of_fingers_swap_sw 0")
-        time_delay_of_fingers_swap_tv?.text = 0.toString()
+        time_delay_of_fingers_swap_tv?.text = "0"
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_FINGERS_DELAY, 0)
       }
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersFingersDelay)
@@ -657,7 +737,12 @@ class AdvancedSettingsFragment : Fragment() {
         }
         peak_time_vm_tv?.text = time
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.runWriteData(byteArrayOf(sensorGestureSwitching, 0.toByte(), peak_time_vm_sb?.progress?.toByte()!!, 0.toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
+          main?.runWriteData(byteArrayOf(sensorGestureSwitching,
+            0.toByte(),
+            peak_time_vm_sb?.progress?.toByte()!!,
+            0.toByte(),
+            lockProsthesis,
+            (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, WRITE)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
 
           saveInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, seekBar.progress)
@@ -783,25 +868,25 @@ class AdvancedSettingsFragment : Fragment() {
 
 
 
-        swap_open_close_tv?.text = 0.toString()
+        swap_open_close_tv?.text = "0"
         main?.setSwapOpenCloseButton(false)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
 
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
 
         swap_open_close_sw?.isChecked = false
-        swap_open_close_tv?.text = 0.toString()
+        swap_open_close_tv?.text = "0"
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
 
         preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
         ObjectAnimator.ofInt(shutdown_current_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
 
         single_channel_control_sw?.isChecked = false
-        single_channel_control_tv?.text = 0.toString()
+        single_channel_control_tv?.text = "0"
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
 
         on_off_sensor_gesture_switching_sw?.isChecked = false
-        on_off_sensor_gesture_switching_tv?.text = 0.toString()
+        on_off_sensor_gesture_switching_tv?.text = "0"
         sensorGestureSwitching = 0x00
         mode_rl.visibility = View.GONE
         peak_time_rl.visibility = View.GONE
@@ -849,21 +934,27 @@ class AdvancedSettingsFragment : Fragment() {
       || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
       shutdown_current_rl?.visibility = View.GONE
     }
-    //Скрывает настройки, которые не актуальны для бионик кроме FEST-H
-    if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)
-      || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-        telemetry_rl?.visibility = View.VISIBLE
-    } else {
-      telemetry_rl?.visibility = View.GONE
-      calibration_rl?.visibility = View.GONE
-      shutdown_current_1_rl?.visibility = View.GONE
-      shutdown_current_2_rl?.visibility = View.GONE
-      shutdown_current_3_rl?.visibility = View.GONE
-      shutdown_current_4_rl?.visibility = View.GONE
-      shutdown_current_5_rl?.visibility = View.GONE
-      shutdown_current_6_rl?.visibility = View.GONE
-      side_rl?.visibility = View.GONE
-      on_off_sensor_gesture_switching_rl?.visibility = View.GONE
+    //Скрывает настройки, которые не актуальны для бионик кроме FEST-H и FEST-X
+    when {
+        main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X) -> {
+          telemetry_rl?.visibility = View.VISIBLE
+          on_off_prosthesis_blocking_rl?.visibility = View.VISIBLE
+        }
+        main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) -> {
+          telemetry_rl?.visibility = View.VISIBLE
+        }
+        else -> {
+          telemetry_rl?.visibility = View.GONE
+          calibration_rl?.visibility = View.GONE
+          shutdown_current_1_rl?.visibility = View.GONE
+          shutdown_current_2_rl?.visibility = View.GONE
+          shutdown_current_3_rl?.visibility = View.GONE
+          shutdown_current_4_rl?.visibility = View.GONE
+          shutdown_current_5_rl?.visibility = View.GONE
+          shutdown_current_6_rl?.visibility = View.GONE
+          side_rl?.visibility = View.GONE
+          on_off_sensor_gesture_switching_rl?.visibility = View.GONE
+        }
     }
 
     swap_open_close_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
@@ -874,8 +965,8 @@ class AdvancedSettingsFragment : Fragment() {
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     }
     mode_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv?.text = 1.toString()
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv?.text = 1.toString()
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv?.text = "1"
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv?.text = "1"
 
 
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)) {
@@ -904,6 +995,7 @@ class AdvancedSettingsFragment : Fragment() {
       ObjectAnimator.ofInt(shutdown_current_6_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)).setDuration(200).start()
 
 
+      ObjectAnimator.ofInt(hold_to_lock_time_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.HOLD_TO_LOCK_TIME_NUM, 15)).setDuration(200).start()
       ObjectAnimator.ofInt(peak_time_vm_sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, 15)).setDuration(200).start()
       ObjectAnimator.ofInt(peak_time_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, 15)).setDuration(200).start()
       ObjectAnimator.ofInt(downtime_sb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, 15)).setDuration(200).start()
@@ -926,7 +1018,7 @@ class AdvancedSettingsFragment : Fragment() {
     current6 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)
 
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-      val time: String = when {
+      var time: String = when {
         ((peak_time_vm_sb?.progress?.plus(1))?.times(0.1)).toString().length == 4 -> {
           ((peak_time_vm_sb?.progress?.plus(1))?.times(0.1)).toString() + "c"
         }
@@ -938,6 +1030,18 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
       peak_time_vm_tv?.text = time
+      time = when {
+        ((hold_to_lock_time_sb?.progress?.plus(1))?.times(0.1)).toString().length == 4 -> {
+          ((hold_to_lock_time_sb?.progress?.plus(1))?.times(0.1)).toString() + "c"
+        }
+        ((hold_to_lock_time_sb?.progress?.plus(1))?.times(0.1)).toString().length > 4 -> {
+          ((hold_to_lock_time_sb?.progress?.plus(1))?.times(0.1)).toString().substring(0, 4) + "c"
+        }
+        else -> {
+          ((hold_to_lock_time_sb?.progress?.plus(1))?.times(0.1)).toString() + "0c"
+        }
+      }
+      hold_to_lock_time_tv?.text = time
     }
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
       var time: String = when {
@@ -969,6 +1073,19 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
 
+    if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)) {
+      on_off_prosthesis_blocking_sw?.isChecked = true
+      on_off_prosthesis_blocking_tv?.text = "1"
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+        hold_to_lock_time_rl?.visibility = View.VISIBLE
+      }
+    } else {
+      on_off_prosthesis_blocking_sw?.isChecked = false
+      on_off_prosthesis_blocking_tv?.text = "0"
+      hold_to_lock_time_rl?.visibility = View.GONE
+    }
+
+
     on_off_sensor_gesture_switching_sw?.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
@@ -985,10 +1102,10 @@ class AdvancedSettingsFragment : Fragment() {
         }
 
       }
-      on_off_sensor_gesture_switching_tv?.text = 1.toString()
+      on_off_sensor_gesture_switching_tv?.text = "1"
       sensorGestureSwitching = 0x01
     } else {
-      on_off_sensor_gesture_switching_tv?.text = 0.toString()
+      on_off_sensor_gesture_switching_tv?.text = "0"
       sensorGestureSwitching = 0x00
       mode_rl?.visibility = View.GONE
       peak_time_vm_rl?.visibility = View.GONE

@@ -474,8 +474,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
 
     //TODO выпилить этот интент после проведения испытаний с 3D
-    val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)
-    startActivity(intent)
+//    val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)
+//    startActivity(intent)
   }
 
   @SuppressLint("SetTextI18n")

@@ -537,13 +537,22 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         System.err.println("Принятые данные состояния переключения жестов: " + data[i])
       }
 
-      if (data.size == 4) {
+      if (data.size >= 4) {
         if (castUnsignedCharToInt(data[0]) == 1) {
           saveBool(mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
         } else {
           saveBool(mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
         }
         saveInt(mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, castUnsignedCharToInt(data[2]))
+
+        if (data.size >= 6) {
+          if (castUnsignedCharToInt(data[4]) == 1) {
+            saveBool(mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, true)
+          } else {
+            saveBool(mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)
+          }
+          saveInt(mDeviceAddress + PreferenceKeys.HOLD_TO_LOCK_TIME_NUM, castUnsignedCharToInt(data[5]))
+        }
       }
 
       RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
@@ -1604,7 +1613,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             System.err.println("$info = 15")
             bleCommand(READ_REGISTER, ROTATION_GESTURE_NEW_VM, READ)
             globalSemaphore = false
-            percentSynchronize = 95
+            percentSynchronize = 90
             state = 16
           }
           16 -> {

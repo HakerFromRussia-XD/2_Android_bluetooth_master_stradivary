@@ -225,6 +225,7 @@
     <string name="error_code">Код ошибки: %d</string>
     <string name="prosthesis_blocking">блокировка протеза</string>
     <string name="hold_to_lock_time">время удержания для блокировки</string>
+    <string name="debug_screen">отладочный экран</string>
 
 
     <string-array name="numbers">

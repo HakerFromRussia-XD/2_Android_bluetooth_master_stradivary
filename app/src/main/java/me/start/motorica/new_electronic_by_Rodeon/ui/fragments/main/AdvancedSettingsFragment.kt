@@ -17,6 +17,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -40,6 +41,7 @@ import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import javax.inject.Inject
 
@@ -924,6 +926,12 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibrationStatusAdv)
+    }
+
+
+    debug_screen_btn?.setOnClickListener {
+      val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)
+      startActivity(intent)
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики

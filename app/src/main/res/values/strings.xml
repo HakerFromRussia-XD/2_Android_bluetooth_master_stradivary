@@ -225,6 +225,7 @@
     <string name="error_code">Error code: %d</string>
     <string name="prosthesis_blocking">prosthesis blocking</string>
     <string name="hold_to_lock_time">hold to lock time</string>
+    <string name="debug_screen">debug screen</string>
 
     <string-array name="numbers">
         <item>0</item>

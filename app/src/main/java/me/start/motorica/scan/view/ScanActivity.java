@@ -321,6 +321,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
         presenter.setStartFlags(extraDevice.getName());
         Intent intent = new Intent(ScanActivity.this, ChartActivity.class);
+        if (extraDevice.getName().contains("NEMO")) {
+            //TODO выполнить маршрутизацию на экран для Миши
+//            intent = new Intent(ScanActivity.this, StartActivity.class);
+        }
         intent.putExtra(extraName, extraDevice);
         startActivity(intent);
         finish();
@@ -329,12 +333,15 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @SuppressLint("MissingPermission")
     @Override
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) {
-        for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
-            final int finalK = k;
-            System.err.println("Запуск загрузки: " + finalK);
-            threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
-            threadFunction[k].start();
-        }
+        mHandler.postDelayed(() -> {
+            for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
+                final int finalK = k;
+                System.err.println("Запуск загрузки: " + finalK);
+                threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
+                threadFunction[k].start();
+            }
+        }, 500);
+
 
         if (extraDevice == null) return;
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);

@@ -171,7 +171,7 @@ public class ChartPresenterImpl implements ChatPresenter {
                     break;
                 case 9:
                     if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
-                    if (DEBUG) {System.out.println("--> срабатывание датчика:" + txtbyte[1]);}
+                    if (DEBUG) {System.out.println("--> срабатывание датчика:" + txtbyte[1]+"  lenght:"+txtbyte.length);}
                     for (int i = 1; i < txtbyte.length; i++)
                     {
                         txtbyteout9[i + 6] = txtbyte[i];
@@ -255,9 +255,10 @@ public class ChartPresenterImpl implements ChatPresenter {
                     interactor.sendMessageByte(txtbyteout15);
                     break;
                 case 16:
-                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]);}
+                    if (DEBUG) {System.out.println("--> тип компановки:" + txtbyte[0]+" lenght:"+txtbyte.length);}
                     for (int i = 1; i < txtbyte.length; i++)
                     {
+//                        txtbyteout16[i + 6] = 0;
                         txtbyteout16[i + 6] = txtbyte[i];
                     }
                     for (int i = 0; i < txtbyteout16.length; i++)

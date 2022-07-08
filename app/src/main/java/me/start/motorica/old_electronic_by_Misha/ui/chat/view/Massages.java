@@ -200,7 +200,7 @@ public class Massages implements ChatPresenter {
         return TextByteTriggerSettings;
     }
     public byte[] CompileMassageSensorActivate(int numberSensor){
-        byte[] TextByteTriggerSettings = new byte[4];
+        byte[] TextByteTriggerSettings = new byte[2];
         TextByteTriggerSettings[0] = 0x09;
         TextByteTriggerSettings[1] = (byte) numberSensor;
         return TextByteTriggerSettings;
@@ -313,7 +313,7 @@ public class Massages implements ChatPresenter {
         return TextByteTriggerSettings;
     }
     public byte[] CompileMassageRoughness(byte roughness) {
-        byte[] TextByteTriggerSettings = new byte[5];
+        byte[] TextByteTriggerSettings = new byte[2];
         TextByteTriggerSettings[0] = 0x10;
         TextByteTriggerSettings[1] = roughness; // 0x01 on     0x00 off
         return TextByteTriggerSettings;

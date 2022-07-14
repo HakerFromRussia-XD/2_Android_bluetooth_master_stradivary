@@ -35,9 +35,9 @@
                     android:layout_height="42dp"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="0dp"
-                    android:textSize="12sp"
                     android:background="@drawable/custom_button_le"
                     android:text="@string/gesture_1_btn"
+                    android:textSize="12sp"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
 

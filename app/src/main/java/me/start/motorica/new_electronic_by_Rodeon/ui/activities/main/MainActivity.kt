@@ -340,9 +340,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
         }
       }
-
-
-
       lockWriteBeforeFirstRead = false
     }
   }
@@ -508,7 +505,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataChangeGestureNew(data: ByteArray?) {
     if (data != null) {
-      if (data.size == 25) {
+      if (data.size >= 25) {
         for (i in 13..18) {
           saveInt(GESTURE_OPEN_DELAY_FINGER+"${i-12}", castUnsignedCharToInt(data[i]))
           System.err.println("Принятые данные состояния задержек: " + data[i])
@@ -1029,7 +1026,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             android.R.layout.simple_expandable_list_item_2, arrayOf(listName, listUUID), intArrayOf(android.R.id.text1, android.R.id.text2))
     mGattServicesList!!.setAdapter(gattServiceAdapter)
     if (mScanning) { scanLeDevice(false) }
-    enableInterface(true)
+    readStartData(true)
   }
   private fun enableInterface(enabled: Boolean) {
     if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) {
@@ -1075,22 +1072,24 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             shutdown_current_sb?.isEnabled = enabled
           }
         }
-        sensorsDataThreadFlag = enabled
-        if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-        ) {
-          runReadData()
+      }
+    }
+  }
+  fun readStartData(enabled: Boolean) {
+    sensorsDataThreadFlag = enabled
+    if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+      || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+      || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+    ) {
+      runReadData()
+    } else {
+      if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+        runStart()
+      } else {
+        if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+          runStartVM()
         } else {
-          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-            runStart()
-          } else {
-            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              runStartVM()
-            } else {
-              startSubscribeSensorsDataThread()
-            }
-          }
+          startSubscribeSensorsDataThread()
         }
       }
     }
@@ -1631,6 +1630,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             state = 0
             endFlag = true
             startSubscribeSensorsNewDataThread()
+            runOnUiThread { enableInterface(true) }
           }
         }
         count = 0

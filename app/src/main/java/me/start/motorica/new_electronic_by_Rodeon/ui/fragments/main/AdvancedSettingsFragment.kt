@@ -429,7 +429,8 @@ class AdvancedSettingsFragment : Fragment() {
             }
           }
           main?.setOneChannelNum = 1
-          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
+//          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
+          saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
           single_channel_control_tv?.text = "0"
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
@@ -442,7 +443,8 @@ class AdvancedSettingsFragment : Fragment() {
             }
           }
           main?.setOneChannelNum = 0
-          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+//          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+          saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
         }
         YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSingleChannel)
       }
@@ -885,7 +887,8 @@ class AdvancedSettingsFragment : Fragment() {
 
         single_channel_control_sw?.isChecked = false
         single_channel_control_tv?.text = "0"
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+//        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+        saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
 
         on_off_sensor_gesture_switching_sw?.isChecked = false
         on_off_sensor_gesture_switching_tv?.text = "0"
@@ -950,8 +953,10 @@ class AdvancedSettingsFragment : Fragment() {
         }
         main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) -> {
           telemetry_rl?.visibility = View.VISIBLE
+          debug_screen_rl?.visibility = View.GONE
         }
         else -> {
+          debug_screen_rl?.visibility = View.GONE
           telemetry_rl?.visibility = View.GONE
           calibration_rl?.visibility = View.GONE
           shutdown_current_1_rl?.visibility = View.GONE
@@ -966,7 +971,7 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     swap_open_close_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
-    single_channel_control_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+    single_channel_control_sw?.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
 
 
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
@@ -974,7 +979,7 @@ class AdvancedSettingsFragment : Fragment() {
     }
     mode_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) swap_open_close_tv?.text = "1"
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv?.text = "1"
+    if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) single_channel_control_tv?.text = "1"
 
 
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)) {

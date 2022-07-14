@@ -18,6 +18,7 @@ public class RxUpdateMainEvent {
   private final PublishSubject<Boolean> calibrating;
   private final PublishSubject<String> characteristics;
   private final PublishSubject<Boolean> updateUIAdvancedSettings;
+  private final PublishSubject<Boolean> updateUIChart;
   private final PublishSubject<Integer> updateUIGestures;
   private final PublishSubject<Integer> updateEncodersError;
   private final PublishSubject<FingersEncoderValue> updateEncoders;
@@ -34,6 +35,7 @@ public class RxUpdateMainEvent {
     calibrating = PublishSubject.create();
     characteristics = PublishSubject.create();
     updateUIAdvancedSettings = PublishSubject.create();
+    updateUIChart = PublishSubject.create();
     updateUIGestures = PublishSubject.create();
     updateEncoders = PublishSubject.create();
     updateEncodersError = PublishSubject.create();
@@ -53,6 +55,7 @@ public class RxUpdateMainEvent {
   public void updateCalibrationStatus(Boolean status) { calibrating.onNext(status); }
   public void updateReadCharacteristicBLE(String characteristic) { characteristics.onNext(characteristic); }
   public void updateUIAdvancedSettings(Boolean state) { updateUIAdvancedSettings.onNext(state); }
+  public void updateUIChart(Boolean state) { updateUIChart.onNext(state); }
   public void updateUIGestures(Integer number) { updateUIGestures.onNext(number); }
   public void updateEncodersError(Integer number) { updateEncodersError.onNext(number); }
   public void updateEncoders(FingersEncoderValue values) { updateEncoders.onNext(values); }
@@ -66,6 +69,7 @@ public class RxUpdateMainEvent {
   public Observable<Integer> getFingerSpeedObservable() { return fingerSpeed; }
   public Observable<Boolean> getCalibratingStatusObservable() { return calibrating; }
   public Observable<String> getReadCharacteristicBLEObservable() { return characteristics; }
+  public Observable<Boolean> getUIChart() { return updateUIChart; }
   public Observable<Boolean> getUIAdvancedSettings() { return updateUIAdvancedSettings; }
   public Observable<Integer> getUIGestures() { return updateUIGestures; }
   public Observable<Integer> getEncodersError() { return updateEncodersError; }

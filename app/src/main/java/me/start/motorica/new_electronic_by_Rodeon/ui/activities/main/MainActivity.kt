@@ -95,10 +95,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var endFlag = false
   //  private var showAdvancedSettings = false
   private var swapOpenCloseButton = false
-  var setReverseNum = 0
   var setOneChannelNum = 0
   var calibrationDialogOpen: Boolean = false
   var percentSynchronize = 0
+  private var timer: CountDownTimer? = null
 
   private  var countCommand: AtomicInteger = AtomicInteger()
   private var actionState = READ
@@ -173,6 +173,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           invalidateOptionsMenu()
           clearUI()
           percentSynchronize = 0
+          updateUIChart()
 
           if(!reconnectThreadFlag && !mScanning){
             reconnectThreadFlag = true
@@ -195,7 +196,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))) { // новая схема обработки данных
             displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
-//              System.err.println("попадаем сюда")
           } else {
             if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
@@ -235,7 +235,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //      System.err.println("BluetoothLeService-------------> прошли первый иф ")
 //      System.err.println("============================================")
 //      for (bite in data) {
-//        System.err.println("BluetoothLeService-------------> байт: $bite  size: ${data.size}")
+//        System.err.println("BluetoothLeService------------->  size: ${data.size}  1- ${data[0]}")
 //      }
       if (castUnsignedCharToInt(data[0]) != 0xAA) {
 //        System.err.println("BluetoothLeService-------------> прошли второй иф")
@@ -257,7 +257,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
           savingSettingsWhenModified = true
-        } else if (data.size == 10) {
+        } else if (data.size >= 10) {
+//          System.err.println("BluetoothLeService------------->  data.size >= 10")
           if (castUnsignedCharToInt(data[0]) == 1) {
 //            System.err.println("mDeviceAddress-------------> штатный режим работы")
           } else if (castUnsignedCharToInt(data[0]) == 2) {
@@ -274,24 +275,53 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           dataSens2 = castUnsignedCharToInt(data[2])
           if (castUnsignedCharToInt(data[3]) != mSettings!!.getInt(PreferenceKeys.DRIVER_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.DRIVER_NUM, castUnsignedCharToInt(data[3]))
+            updateUIChart()
           }
           if (castUnsignedCharToInt(data[4]) != mSettings!!.getInt(PreferenceKeys.BMS_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.BMS_NUM, castUnsignedCharToInt(data[4]))
+            updateUIChart()
           }
           if (castUnsignedCharToInt(data[5]) != mSettings!!.getInt(PreferenceKeys.SENS_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.SENS_NUM, castUnsignedCharToInt(data[5]))
+            updateUIChart()
           }
           if (castUnsignedCharToInt(data[6]) != mSettings!!.getInt(PreferenceKeys.OPEN_CH_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[6]))
+            updateUIChart()
           }
           if (castUnsignedCharToInt(data[7]) != mSettings!!.getInt(PreferenceKeys.CLOSE_CH_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[7]))
+            updateUIChart()
           }
           if (castUnsignedCharToInt(data[8]) != mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, castUnsignedCharToInt(data[8]))
+            updateUIChart()
           }
           if (castUnsignedCharToInt(data[9]) != mSettings!!.getInt(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, castUnsignedCharToInt(data[9]))
+            updateUIChart()
+          }
+
+          if (data.size >= 12) {
+
+            if (castUnsignedCharToInt(data[10]) != mSettings!!.getInt(mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)) {
+              saveInt(mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, castUnsignedCharToInt(data[10]))
+              System.err.println("BluetoothLeService-------------> изменили SHUTDOWN_CURRENT_NUM: " + mSettings!!.getInt(mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80))
+              RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
+            }
+
+
+            if (((castUnsignedCharToInt(data[11]) shr 0 and 0b00000001) ==  1) != mSettings!!.getBoolean(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) {
+                saveBool(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, ((castUnsignedCharToInt(data[11]) shr 0 and 0b00000001) ==  1))
+              updateUIChart()
+            }
+
+
+            if (((castUnsignedCharToInt(data[11]) shr 1 and 0b00000001) == 1) != mSettings!!.getBoolean(mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) {
+              saveBool(mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, ((castUnsignedCharToInt(data[11]) shr 1 and 0b00000001) == 1))
+              System.err.println("BluetoothLeService-------------> изменили SET_ONE_CHANNEL_NUM: " + mSettings!!.getBoolean(mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)+ "   data[11]: "+castUnsignedCharToInt(data[11]))
+              RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
+            }
           }
         }
         lockWriteBeforeFirstRead = false
@@ -354,6 +384,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if (data != null) {
       saveInt(mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[0]))
       globalSemaphore = true
+      updateUIChart()
       System.err.println("---> Принятые данные порога: " + data[0])
     }
   }
@@ -361,6 +392,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if (data != null) {
       saveInt(mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[0]))
       globalSemaphore = true
+      updateUIChart()
     }
   }
   private fun displayDataSensOptionsNew(data: ByteArray?) {
@@ -381,8 +413,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun displayDataSetReverseNew(data: ByteArray?) {
     if (data != null) {
-      setReverseNum = castUnsignedCharToInt(data[0])
+      saveBool(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, ((castUnsignedCharToInt(data[0]) and 0b00000001) ==  1))
       globalSemaphore = true
+      updateUIChart()
     }
   }
   private fun displayDataAddGestureNew(data: ByteArray?) {
@@ -598,6 +631,23 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun clearUI() {
     mGattServicesList!!.setAdapter(null as SimpleExpandableListAdapter?)
     enableInterface(false)
+  }
+  private fun updateUIChart() {
+    try {
+      runOnUiThread{
+        timer?.cancel()
+        timer = object : CountDownTimer(300, 1) {
+          override fun onTick(millisUntilFinished: Long) {}
+
+          override fun onFinish() {
+            RxUpdateMainEvent.getInstance().updateUIChart(false)
+          }
+        }.start()
+      }
+    } catch (err : Exception)  {
+      System.err.println("Exception: $err")
+      return
+    }
   }
 
   @SuppressLint("CheckResult", "NewApi")
@@ -1027,6 +1077,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mGattServicesList!!.setAdapter(gattServiceAdapter)
     if (mScanning) { scanLeDevice(false) }
     readStartData(true)
+    if (!mDeviceName!!.contains(DEVICE_TYPE_FEST_X)) { enableInterface (true)}
   }
   private fun enableInterface(enabled: Boolean) {
     if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) {
@@ -1075,7 +1126,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
     }
   }
-  fun readStartData(enabled: Boolean) {
+  private fun readStartData(enabled: Boolean) {
     sensorsDataThreadFlag = enabled
     if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
       || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
@@ -1278,6 +1329,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           System.err.println("startSubscribeSensorsDataThread попытка подписки")
         }
         percentSynchronize = 100
+        RxUpdateMainEvent.getInstance().updateUIChart(false)
         try {
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) { }
@@ -1330,6 +1382,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SENS_VERSION_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 5
+            updateUIChart()
             state = 1
           }
           1 -> {
@@ -1337,6 +1390,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, OPEN_THRESHOLD_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 15
+            updateUIChart()
             state = 2
           }
           2 -> {
@@ -1344,6 +1398,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, CLOSE_THRESHOLD_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 25
+            updateUIChart()
             state = 3
           }
           3 -> {
@@ -1351,6 +1406,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SENS_OPTIONS_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 35
+            updateUIChart()
             state = 4
           }
           4 -> {
@@ -1358,6 +1414,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SET_REVERSE_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 45
+            updateUIChart()
             state = 5
           }
           5 -> {
@@ -1365,6 +1422,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SET_ONE_CHANNEL_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 55
+            updateUIChart()
             state = 6
           }
           6 -> {
@@ -1372,6 +1430,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, ADD_GESTURE_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 65
+            updateUIChart()
             state = 7  //11 пропустить калибровку //7 - выполнить
           }
 
@@ -1380,6 +1439,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, CALIBRATION_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 75
+            updateUIChart()
             state = 8
           }
           8 -> {
@@ -1439,6 +1499,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SHUTDOWN_CURRENT_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 85
+            updateUIChart()
             state = 15
           }
           15 -> {
@@ -1446,6 +1507,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SET_GESTURE_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 95
+            updateUIChart()
             state = 16
           }
           16 -> {
@@ -1453,6 +1515,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, DRIVER_VERSION_NEW, READ)
             globalSemaphore = false
             percentSynchronize = 100
+            updateUIChart()
             state = 0
             endFlag = true
             startSubscribeSensorsNewDataThread()
@@ -1497,6 +1560,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SENS_VERSION_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 5
+            updateUIChart()
             state = 1
           }
           1 -> {
@@ -1504,6 +1568,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, OPEN_THRESHOLD_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 15
+            updateUIChart()
             state = 2
           }
           2 -> {
@@ -1511,6 +1576,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, CLOSE_THRESHOLD_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 25
+            updateUIChart()
             state = 3
           }
           3 -> {
@@ -1518,6 +1584,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SENS_OPTIONS_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 35
+            updateUIChart()
             state = 4
           }
           4 -> {
@@ -1525,6 +1592,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SET_REVERSE_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 45
+            updateUIChart()
             state = 5
           }
           5 -> {
@@ -1532,6 +1600,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SET_ONE_CHANNEL_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 55
+            updateUIChart()
             state = 6
           }
           6 -> {
@@ -1539,6 +1608,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, ADD_GESTURE_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 65
+            updateUIChart()
             state = 7  //11 пропустить калибровку //7 - выполнить
           }
 
@@ -1547,6 +1617,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, CALIBRATION_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 75
+            updateUIChart()
             state = 8
           }
           8 -> {
@@ -1606,6 +1677,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SHUTDOWN_CURRENT_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 85
+            updateUIChart()
             state = 15
           }
           15 -> {
@@ -1613,6 +1685,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, ROTATION_GESTURE_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 90
+            updateUIChart()
             state = 16
           }
           16 -> {
@@ -1620,6 +1693,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, DRIVER_VERSION_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 95
+            updateUIChart()
             state = 17
           }
           17 -> {
@@ -1627,6 +1701,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             bleCommand(READ_REGISTER, SET_GESTURE_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 100
+            updateUIChart()
             state = 0
             endFlag = true
             startSubscribeSensorsNewDataThread()
@@ -1685,6 +1760,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       System.err.println("read counter: ${countCommand.get()}")
       bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
       percentSynchronize = 100
+      updateUIChart()
       try {
         Thread.sleep(100)
       } catch (ignored: Exception) {}
@@ -1964,7 +2040,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     editor.putInt(key, variable)
     editor.apply()
   }
-  private fun saveBool(key: String, variable: Boolean) {
+  internal fun saveBool(key: String, variable: Boolean) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putBoolean(key, variable)
     editor.apply()

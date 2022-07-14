@@ -3,11 +3,9 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.text.Html
 import android.view.LayoutInflater
@@ -26,16 +24,16 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.yandex.metrica.YandexMetrica
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
+import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import javax.inject.Inject
@@ -61,18 +59,25 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var scale = 0F
   private var oldStateSync = 0
   private var count: Int = 0
-  private var timerGraphEnteringData: CountDownTimer? = null
 
 
 
+  @SuppressLint("CheckResult")
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     val rootView = inflater.inflate(R.layout.layout_chart, container, false)
     WDApplication.component.inject(this)
     this.rootView = rootView
     if (activity != null) { main = activity as MainActivity? }
+    RxUpdateMainEvent.getInstance().uiChart
+      .compose(main?.bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe {
+        updateAllParameters()
+      }
     return rootView
   }
 
+  @Deprecated("Deprecated in Java")
   @SuppressLint("ClickableViewAccessibility", "SetTextI18n", "Recycle")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
@@ -88,9 +93,9 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     showAdvancedSettings = NavigationUtils.showAdvancedSettings
 
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-    Handler().postDelayed({
-      startUpdatingUIThread()
-    }, 500)
+//    Handler().postDelayed({
+//      startUpdatingUIThread()
+//    }, 500)
 
     main?.setSwapOpenCloseButton(preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))
     scale = resources.displayMetrics.density
@@ -399,8 +404,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
               main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
             }
           }
-          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
-          main?.setReverseNum = 1
+          main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
+//          main?.setReverseNum = 1
         } else {
           swap_sensors_tv.text = 0.toString()
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
@@ -412,8 +417,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
               main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
             }
           }
-          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
-          main?.setReverseNum = 0
+          main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+//          main?.setReverseNum = 0
         }
         YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSwapSensors)
       }
@@ -656,36 +661,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     graphThread?.start()
   }
 
-
-  //вызывает NullPointerException при открытии/закрытии расширенных настроек
-  private fun startGraphEnteringDataTimer() {
-    timerGraphEnteringData?.cancel()
-    timerGraphEnteringData = object : CountDownTimer(5000000, 25) {
-      override fun onTick(millisUntilFinished: Long) {
-        if (plotData) {
-          addEntry(10, 255)
-          addEntry(10, 255)
-          addEntry(10, 255)
-          addEntry(115, 150)
-          addEntry(115, 150)
-          addEntry(115, 150)
-          addEntry(10, 255)
-          addEntry(10, 255)
-          addEntry(10, 255)
-          addEntry(115, 150)
-          addEntry(115, 150)
-          addEntry(115, 150)
-          plotData = false
-        }
-        addEntry(main!!.getDataSens1(), main!!.getDataSens2())
-      }
-
-      override fun onFinish() {
-        startGraphEnteringDataTimer()
-      }
-    }.start()
-  }
-
   private fun startGraphEnteringDataCoroutine() {
 
 
@@ -712,46 +687,77 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
 
   @SuppressLint("SetTextI18n", "Recycle")
+  private fun updateAllParameters() {
+    open_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
+    close_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
+    swap_sensors_sw?.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+    if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) {
+      swap_sensors_tv?.text = 1.toString()
+    } else {
+      swap_sensors_tv?.text = 0.toString()
+    }
+    if (!(main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) ||
+              main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) ||
+              main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A))) {
+      driver_tv?.text = resources.getString(R.string.driver) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 1)).toFloat()/100 + "v"
+    }
+    bms_tv?.text = resources.getString(R.string.bms) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.BMS_NUM, 1)).toFloat()/100 + "v"
+    sensor_tv?.text = resources.getString(R.string.sens) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SENS_NUM, 1)).toFloat()/100 + "v"
+    ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
+      ?: 22.0f) * 1.04f)).setDuration(200).start()
+    ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
+      ?: 22.0f) * 1.04f)).setDuration(200).start()
+    ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
+      ?: 22.0f) * 1.04f)).setDuration(200).start()
+    ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
+      ?: 22.0f) * 1.04f)).setDuration(200).start()
+    ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 16))).setDuration(200).start()
+    ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 16))).setDuration(200).start()
+    if (oldStateSync != main?.percentSynchronize!!) {
+      ObjectAnimator.ofInt(sync_sb, "progress", oldStateSync, main?.percentSynchronize!!).setDuration(1000).start()
+      oldStateSync = main?.percentSynchronize!!
+    }
+  }
+
+  @SuppressLint("SetTextI18n", "Recycle")
   private fun startUpdatingUIThread() {
     updatingUIThread = Thread {
       while (testThreadFlag) {
-        open_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
-        close_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
-
-        if (main?.setReverseNum == 1) { preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
-        } else { preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false) }
+//        open_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
+//        close_CH_sb.progress = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
 
         main?.runOnUiThread {
-          swap_sensors_sw?.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+//          swap_sensors_sw?.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+//          System.err.println("BluetoothLeService-------------> swap_sensors_sw?.isChecked: "+ swap_sensors_sw?.isChecked)
 
-          if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) {
-            swap_sensors_tv?.text = 1.toString()
-          } else {
-            swap_sensors_tv?.text = 0.toString()
-          }
+//          if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) {
+//            swap_sensors_tv?.text = 1.toString()
+//          } else {
+//            swap_sensors_tv?.text = 0.toString()
+//          }
 
-          if (!(main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) ||
-                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A))) {
-              driver_tv?.text = resources.getString(R.string.driver) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 1)).toFloat()/100 + "v"
-          }
+//          if (!(main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) ||
+//                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) ||
+//                main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A))) {
+//              driver_tv?.text = resources.getString(R.string.driver) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 1)).toFloat()/100 + "v"
+//          }
 
-          bms_tv?.text = resources.getString(R.string.bms) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.BMS_NUM, 1)).toFloat()/100 + "v"
-          sensor_tv?.text = resources.getString(R.string.sens) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SENS_NUM, 1)).toFloat()/100 + "v"
-          ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
-                  ?: 22.0f) * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
-                  ?: 22.0f) * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
-                  ?: 22.0f) * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
-                  ?: 22.0f) * 1.04f)).setDuration(200).start()
-          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 16))).setDuration(200).start()
-          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 16))).setDuration(200).start()
-          if (oldStateSync != main?.percentSynchronize!!) {
-            ObjectAnimator.ofInt(sync_sb, "progress", oldStateSync, main?.percentSynchronize!!).setDuration(1000).start()
-            oldStateSync = main?.percentSynchronize!!
-          }
+//          bms_tv?.text = resources.getString(R.string.bms) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.BMS_NUM, 1)).toFloat()/100 + "v"
+//          sensor_tv?.text = resources.getString(R.string.sens) +(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SENS_NUM, 1)).toFloat()/100 + "v"
+//          ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
+//                  ?: 22.0f) * 1.04f)).setDuration(200).start()
+//          ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
+//                  ?: 22.0f) * 1.04f)).setDuration(200).start()
+//          ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
+//                  ?: 22.0f) * 1.04f)).setDuration(200).start()
+//          ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
+//                  ?: 22.0f) * 1.04f)).setDuration(200).start()
+//          ObjectAnimator.ofInt(correlator_noise_threshold_1_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 16))).setDuration(200).start()
+//          ObjectAnimator.ofInt(correlator_noise_threshold_2_sb, "progress", 255 - (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 16))).setDuration(200).start()
+//          if (oldStateSync != main?.percentSynchronize!!) {
+//            ObjectAnimator.ofInt(sync_sb, "progress", oldStateSync, main?.percentSynchronize!!).setDuration(1000).start()
+//            oldStateSync = main?.percentSynchronize!!
+//          }
         }
         try {
           Thread.sleep(1000)

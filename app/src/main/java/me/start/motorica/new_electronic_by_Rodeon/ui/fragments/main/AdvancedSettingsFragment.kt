@@ -121,6 +121,7 @@ class AdvancedSettingsFragment : Fragment() {
       shutdown_current_5_text_tv?.textSize = 11f
       shutdown_current_6_text_tv?.textSize = 11f
       version_app_tv?.textSize = 11f
+      scale_tv?.textSize = 11f
       on_off_prosthesis_blocking_text_tv?.textSize = 11f
       hold_to_lock_time_text_tv?.textSize = 10f
     }
@@ -995,7 +996,7 @@ class AdvancedSettingsFragment : Fragment() {
     version_app_tv?.text = (mContext?.resources?.getString(R.string.version_app) ?: "lol: ") + " " + versionName
   }
 
-  @SuppressLint("Recycle")
+  @SuppressLint("Recycle", "SetTextI18n")
   private fun updateAllParameters() {
     main?.runOnUiThread {
       System.err.println("Принятые данные состояния токов ОБНОВЛЕНИЕ")
@@ -1098,6 +1099,13 @@ class AdvancedSettingsFragment : Fragment() {
       hold_to_lock_time_rl?.visibility = View.GONE
     }
 
+
+    when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_SCALE, 0)) {
+      0 -> { scale_tv?.text = resources.getString(R.string.scale) + " S" }
+      1 -> { scale_tv?.text = resources.getString(R.string.scale) + " M" }
+      2 -> { scale_tv?.text = resources.getString(R.string.scale) + " L" }
+      3 -> { scale_tv?.text = resources.getString(R.string.scale) + " XL" }
+    }
 
     single_channel_control_sw?.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) { single_channel_control_tv?.text = "1" } else { single_channel_control_tv?.text = "0" }

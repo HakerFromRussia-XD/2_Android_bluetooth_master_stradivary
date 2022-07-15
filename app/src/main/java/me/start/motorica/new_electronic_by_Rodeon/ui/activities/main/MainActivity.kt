@@ -26,7 +26,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.dialog_confirm_select_scale.*
 import kotlinx.android.synthetic.main.dialog_info.*
+import kotlinx.android.synthetic.main.dialog_select_scale.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import kotlinx.android.synthetic.main.layout_chart.*
 import kotlinx.android.synthetic.main.layout_gestures.*
@@ -111,6 +113,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private val listName = "NAME"
   private val listUUID = "UUID"
+  private var firstActivateSetScaleDialog = false
+  private var scaleProsthesis = 5
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -306,7 +310,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           if (data.size >= 12) {
             if (castUnsignedCharToInt(data[10]) != mSettings!!.getInt(mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)) {
               saveInt(mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, castUnsignedCharToInt(data[10]))
-              System.err.println("BluetoothLeService-------------> изменили SHUTDOWN_CURRENT_NUM: " + mSettings!!.getInt(mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80))
               RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
             }
 
@@ -316,27 +319,23 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               updateUIChart(9)
             }
 
-            System.err.println("BluetoothLeService-------------> принятый SET_ONE_CHANNEL_NUM: "+ ((castUnsignedCharToInt(data[11]) shr 1 and 0b00000001) == 1))
             if (((castUnsignedCharToInt(data[11]) shr 1 and 0b00000001) == 1) != mSettings!!.getBoolean(mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) {
               saveBool(mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, ((castUnsignedCharToInt(data[11]) shr 1 and 0b00000001) == 1))
-              System.err.println("BluetoothLeService-------------> изменили SET_ONE_CHANNEL_NUM: " + mSettings!!.getBoolean(mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)+ "   data[11]: "+castUnsignedCharToInt(data[11]))
-              RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
+            RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
             }
 
-            if (((castUnsignedCharToInt(data[11]) shr 8 and 0b00000001) ==  1) != mSettings!!.getBoolean(mDeviceAddress + PreferenceKeys.SET_ACTIVATED_SCALE, false)) {
-              saveBool(mDeviceAddress + PreferenceKeys.SET_ACTIVATED_SCALE, ((castUnsignedCharToInt(data[11]) shr 8 and 0b00000001) ==  1))
-
-              System.err.println("BluetoothLeService-------------> SET_ACTIVATED_SCALE: "+(castUnsignedCharToInt(data[11]) shr 8 and 0b00000001))
-              when (castUnsignedCharToInt(data[11]) shr 2 and 0b00000011) {
-                0 -> { System.err.println("BluetoothLeService-------------> SCALE: S") }
-                1 -> { System.err.println("BluetoothLeService-------------> SCALE: M") }
-                2 -> { System.err.println("BluetoothLeService-------------> SCALE: L") }
-                3 -> { System.err.println("BluetoothLeService-------------> SCALE: XL") }
+            if ((castUnsignedCharToInt(data[11]) shr 7 and 0b00000001) !=  1) {
+              if (!firstActivateSetScaleDialog) {
+                System.err.println("BluetoothLeService-------------> ПОКАЗЫВАЕМ ДИАЛОГ ВЫБОРА РАЗМЕРА ПРОТЕЗА")
+                showChangeSideDialog()
+                firstActivateSetScaleDialog = true
               }
-
             }
 
-
+            if ((castUnsignedCharToInt(data[11]) shr 2 and 0b00000011) != mSettings!!.getInt(mDeviceAddress + PreferenceKeys.SET_SCALE, 0)) {
+              saveInt(mDeviceAddress + PreferenceKeys.SET_SCALE, (castUnsignedCharToInt(data[11]) shr 2 and 0b00000011))
+              updateUIChart(9)
+            }
           }
         }
         lockWriteBeforeFirstRead = false
@@ -1272,7 +1271,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       runWriteData(sendByteMassive, FESTO_A_CHARACTERISTIC, WRITE_WR)
     } else {
         bleCommand(byteArray, Command, typeCommand)
-        System.err.println("Отправили команду! Чтение")
+//        System.err.println("Отправили команду! Чтение")
     }
   }
   private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
@@ -1896,6 +1895,64 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_info_confirm)
     yesBtn.setOnClickListener {
+      myDialog.dismiss()
+    }
+  }
+  @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")
+  private fun showChangeSideDialog() {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_select_scale, null)
+    val myDialog = Dialog(this)
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    myDialog.dialog_select_scale_sw.setOnSwitchListener { position, _ ->
+      System.err.println("scaleProsthesis = ${myDialog.dialog_select_scale_sw.selectedTab}")
+      when (position) {
+        0 -> { scaleProsthesis = 0 }
+        1 -> { scaleProsthesis = 1 }
+        2 -> { scaleProsthesis = 2 }
+        3 -> { scaleProsthesis = 3 }
+      }
+    }
+
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_select_scale_confirm)
+    yesBtn.setOnClickListener {
+      scaleProsthesis = myDialog.dialog_select_scale_sw.selectedTab
+      System.err.println("scaleProsthesis = $scaleProsthesis")
+      showConfirmChangeSideDialog()
+      myDialog.dismiss()
+    }
+  }
+  @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")
+  private fun showConfirmChangeSideDialog() {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_confirm_select_scale, null)
+    val myDialog = Dialog(this)
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    myDialog.dialog_confirm_select_scale_message_tv.text =
+      when (scaleProsthesis) {
+        0 -> getString(R.string.the_size_of_your_prosthesis) + " \"S\" ?"
+        1 -> getString(R.string.the_size_of_your_prosthesis) + " \"M\" ?"
+        2 -> getString(R.string.the_size_of_your_prosthesis) + " \"L\" ?"
+        3 -> getString(R.string.the_size_of_your_prosthesis) + " \"XL\" ?"
+        else -> {getString(R.string.the_size_of_your_prosthesis) +" \"S\" ?"}
+      }
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_confirm_select_scale_confirm)
+    yesBtn.setOnClickListener {
+      bleCommand(byteArrayOf(scaleProsthesis.toByte()), SET_SELECT_SCALE, WRITE)
+      myDialog.dismiss()
+    }
+
+    val noBtn = dialogBinding.findViewById<View>(R.id.dialog_confirm_select_scale_cancel)
+    noBtn.setOnClickListener {
+      showChangeSideDialog()
       myDialog.dismiss()
     }
   }

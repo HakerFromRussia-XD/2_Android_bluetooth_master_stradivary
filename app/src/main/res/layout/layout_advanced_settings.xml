@@ -1586,6 +1586,24 @@
                             android:text="@string/version_app"
                             android:textStyle="bold" />
                     </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2">
+
+
+                        <TextView
+                            android:id="@+id/scale_tv"
+                            style="@style/Text_transparency_30"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="0dp"
+                            android:lines="2"
+                            android:text="@string/scale"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
         </LinearLayout>

@@ -26,11 +26,11 @@ public class SampleGattAttributes {
     public static String RESET_TO_FACTORY_SETTINGS = "0000fe51-8e22-4541-9d4c-21edae82ed19";
     public static String SET_ONE_CHANNEL = "0000fe52-8e22-4541-9d4c-21edae82ed19";
     public static String SET_START_UPDATE = "0000fe53-8e22-4541-9d4c-21edae82ed19";
-    public static String SET_CHANGE_GESTURE = "0000fe54-8e22-4541-9d4c-21edae82ed19";
+    public static String SET_SELECT_SCALE = "0000fe54-8e22-4541-9d4c-21edae82ed19";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     public static String FESTO_A_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb";
 
-//      характеристики переработанного стека
+    //      характеристики переработанного стека
     public static String DRIVER_VERSION_NEW = "00002a26-0000-1000-8000-00805f9b34fb";
 
     public static String OPEN_THRESHOLD_NEW = "43686172-4d74-726b-0000-526f64696f6e"; //(без блокировки у Родиона)
@@ -57,7 +57,7 @@ public class SampleGattAttributes {
 
     public static String TELEMETRY_NUMBER_NEW = "43686172-4d74-726b-0300-526f64696f6e"; // 16 байт инфа о номере для телеметрии\
 
-//    характеристики переработанного стека для Новой Ваниной и Мишиной версии
+    //    характеристики переработанного стека для Новой Ваниной и Мишиной версии
     public static String OPEN_THRESHOLD_NEW_VM = "43680000-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0000-526f64696f6e"; //(без блокировки у Родиона)
     public static String CLOSE_THRESHOLD_NEW_VM = "43680001-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0001-526f64696f6e";
     public static String OPEN_MOTOR_NEW_VM = "43680002-4d74-1001-726b-526f64696f6e";//"43686172-4d74-726b-0002-526f64696f6e";

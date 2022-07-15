@@ -226,6 +226,10 @@
     <string name="prosthesis_blocking">блокировка протеза</string>
     <string name="hold_to_lock_time">время удержания для блокировки</string>
     <string name="debug_screen">отладочный экран</string>
+    <string name="scale">размер:</string>
+    <string name="сhoose_the_size_of_the_prosthesis">Выберете типоразмер протеза.</string>
+    <string name="yes">да</string>
+    <string name="the_size_of_your_prosthesis">Размер вашего протеза</string>
 
 
     <string-array name="numbers">

@@ -1,29 +1,17 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.ActivityManager
-import android.app.Dialog
-import android.app.Service
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.graphics.PixelFormat
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.CountDownTimer
-import android.os.Handler
 import android.util.DisplayMetrics
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.TextView
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.dialog_fingers_delay.*
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.edit_gesture_name_btn
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.fingers_delay_btn
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gesture_name_et
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gesture_name_tv
@@ -33,7 +21,6 @@ import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.t
 import kotlinx.android.synthetic.main.layout_gripper_test_settings_le_with_encoders.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
-import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent

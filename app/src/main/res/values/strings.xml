@@ -226,6 +226,10 @@
     <string name="prosthesis_blocking">prosthesis blocking</string>
     <string name="hold_to_lock_time">hold to lock time</string>
     <string name="debug_screen">debug screen</string>
+    <string name="scale">scale:</string>
+    <string name="сhoose_the_size_of_the_prosthesis">Сhoose the size of the prosthesis.</string>
+    <string name="yes">yes</string>
+    <string name="the_size_of_your_prosthesis">The size of your prosthesis</string>
 
     <string-array name="numbers">
         <item>0</item>

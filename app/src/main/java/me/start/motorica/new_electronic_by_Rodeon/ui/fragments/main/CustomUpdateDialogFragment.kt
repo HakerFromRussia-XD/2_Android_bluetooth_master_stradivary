@@ -38,31 +38,12 @@ class CustomUpdateDialogFragment: DialogFragment() {
         super.onActivityCreated(savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
-        //info block
-//        if (main?.locate?.contains("ru")!!) {
-//            rootView?.tv_andex_alert_dialog_layout_title?.text  = "Кофигуратор жеста " + main?.getMNumberGesture()
-//            tv_andex_alert_dialog_layout_title2.textSize = 10f
-//            tv_andex_alert_dialog_layout_title3.textSize = 10f
-//            tv_andex_alert_dialog_layout_message.textSize = 14f
-//            tv_andex_alert_dialog_layout_message_2.textSize = 14f
-//            tv_andex_alert_dialog_layout_message_3.textSize = 14f
-//            tv_andex_alert_dialog_layout_message_4.textSize = 14f
-//            tv_andex_alert_dialog_layout_message_5.textSize = 14f
-//            tv_andex_alert_dialog_layout_message_6.textSize = 14f
-//        } else {
-//            rootView?.tv_andex_alert_dialog_layout_title?.text  = "Gesture " + main?.getMNumberGesture()+ " configurator"
-//        }
-
 
         rootView?.v_andex_alert_dialog_layout_confirm?.setOnClickListener {
             System.err.println("ok")
             main?.bleCommandConnector(byteArrayOf(0x01), SampleGattAttributes.SET_START_UPDATE, SampleGattAttributes.WRITE, 18)
-//            main?.incrementCountCommand()
             main?.openFragmentInfoUpdate()
             dismiss()
-//            tv_andex_alert_dialog_layout_message_2.visibility = View.GONE
-//            tv_andex_alert_dialog_layout_message_3.visibility = View.VISIBLE
-//            view5.layoutParams.resolveLayoutDirection(ConstraintReference.ConstraintReferenceFactory {  })
         }
         rootView?.v_andex_alert_dialog_layout_cancel?.setOnClickListener {
             System.err.println("Ne ok")

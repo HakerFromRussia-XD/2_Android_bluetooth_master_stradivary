@@ -951,10 +951,12 @@ class AdvancedSettingsFragment : Fragment() {
         main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X) -> {
           telemetry_rl?.visibility = View.VISIBLE
           on_off_prosthesis_blocking_rl?.visibility = View.VISIBLE
+          scale_tv?.visibility = View.GONE
         }
         main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) -> {
           telemetry_rl?.visibility = View.VISIBLE
           debug_screen_rl?.visibility = View.GONE
+          scale_tv?.visibility = View.GONE
         }
         else -> {
           debug_screen_rl?.visibility = View.GONE

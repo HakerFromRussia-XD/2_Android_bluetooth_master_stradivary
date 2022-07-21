@@ -482,16 +482,16 @@ public class Bluetooth {
                                 final Boolean errorReceptionf = errorReception;
                                 ThreadHelper.run(runOnUi, activity, () -> {
                                     if(no_error && msgCorrectAcceptance) {
-                                        parserCallback.givsLenhgt(msgLenghtf);
-                                        parserCallback.givsChannel(msgChannelf);
-                                        parserCallback.givsRequest(requestf);
-                                        parserCallback.givsRegister(msgRegtsterf);
-                                        parserCallback.givsLevelCH(msgLevelCHf, msgChannelf);
-                                        parserCallback.givsErrorReception(errorReceptionf);
+                                        parserCallback.givesLenhgt(msgLenghtf);
+                                        parserCallback.givesChannel(msgChannelf);
+                                        parserCallback.givesRequest(requestf);
+                                        parserCallback.givesRegister(msgRegtsterf);
+                                        parserCallback.givesLevelCH(msgLevelCHf, msgChannelf);
+                                        parserCallback.givesErrorReception(errorReceptionf);
                                         deviceCallback.onMessage(msgCopy);
                                         if (DEBUG) {System.out.println("<-- сделал цикл по ветке 1:"+ msgCopy);}
                                     }
-                                    parserCallback.givsCorrectAcceptance(msgCorrectAcceptancef);
+                                    parserCallback.givesCorrectAcceptance(msgCorrectAcceptancef);
                                     resetAllVariables();
                                 });
                             }
@@ -544,8 +544,8 @@ public class Bluetooth {
                                     final byte msgRoughnessOfSensorsf = msgRoughnessOfSensors;
                                     ThreadHelper.run(runOnUi, activity, () -> {
                                         if(no_error && msgCorrectAcceptance) {
-                                            parserCallback.givsStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf, msgRoughnessOfSensorsf);
-                                            parserCallback.setStartParametersInChartActivity();
+                                            parserCallback.givesStartParameters(msgCurrentf, msgLevelTrigCH1f, msgLevelTrigCH2f, msgIndicationInvertModef, msgBlockIndicationf, msgRoughnessOfSensorsf);
+                                            parserCallback.setStartParametersInNemoStandActivity();
                                             deviceCallback.onMessage(msgCopy);
                                             if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2 первая итерация:"+ msgCopy +" no_error="+no_error);}
                                         }
@@ -600,7 +600,7 @@ public class Bluetooth {
                                     ThreadHelper.run(runOnUi, activity, () -> {
                                         if(no_error && msgCorrectAcceptance) {
 //                                                System.out.println("BLUETOOTH--------------> receive");
-                                            parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
+                                            parserCallback.givesGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
                                             deviceCallback.onMessage(msgCopy);
                                             if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2:"+ msgCopy +" no_error="+no_error);}
                                         }
@@ -678,8 +678,8 @@ public class Bluetooth {
                                             if(((deviceCallback != null) && (msgCRC == calculationCRC(byteMassCRC,3)))){
                                                 final int msgLevelCH1f = msgLevelCH1;
                                                 ThreadHelper.run(runOnUi, activity, () -> {
-                                                    parserCallback.givsStartParametersTrigCH1(msgLevelCH1f);
-                                                    parserCallback.setStartParametersInChartActivity();
+                                                    parserCallback.givesStartParametersTrigCH1(msgLevelCH1f);
+                                                    parserCallback.setStartParametersInNemoStandActivity();
 //                                                            System.out.println("BLUETOOTH--------------> READ TRIG1 START PARAMETER ");
                                                     resetAllVariables();
                                                 });
@@ -701,8 +701,8 @@ public class Bluetooth {
 
                                                 final int msgLevelCH2f = msgLevelCH2;
                                                 ThreadHelper.run(runOnUi, activity, () -> {
-                                                    parserCallback.givsStartParametersTrigCH2(msgLevelCH2f);
-                                                    parserCallback.setStartParametersInChartActivity();
+                                                    parserCallback.givesStartParametersTrigCH2(msgLevelCH2f);
+                                                    parserCallback.setStartParametersInNemoStandActivity();
 //                                                            System.out.println("BLUETOOTH--------------> READ TRIG2 START PARAMETER ");
                                                     resetAllVariables();
                                                 });
@@ -724,8 +724,8 @@ public class Bluetooth {
 
                                                 final int msgCurrentf = msgCurrent;
                                                 ThreadHelper.run(runOnUi, activity, () -> {
-                                                    parserCallback.givsStartParametersCurrrent(msgCurrentf);
-                                                    parserCallback.setStartParametersInChartActivity();
+                                                    parserCallback.givesStartParametersCurrent(msgCurrentf);
+                                                    parserCallback.setStartParametersInNemoStandActivity();
 //                                                            System.out.println("BLUETOOTH--------------> READ CURRENT START PARAMETER ");
                                                     resetAllVariables();
                                                 });
@@ -744,7 +744,7 @@ public class Bluetooth {
 
                                                 final int msgBatteryTensionf = msgBatteryTension;
                                                 ThreadHelper.run(runOnUi, activity, () -> {
-                                                    parserCallback.givsStartParametersBattery(msgBatteryTensionf);
+                                                    parserCallback.givesStartParametersBattery(msgBatteryTensionf);
 //                                                            System.out.println("BLUETOOTH--------------> READ BATTERY START PARAMETER ");
                                                     resetAllVariables();
                                                 });
@@ -765,8 +765,8 @@ public class Bluetooth {
 
                                                 final byte msgBlockIndicationf = msgBlockIndication;
                                                 ThreadHelper.run(runOnUi, activity, () -> {
-                                                    parserCallback.givsStartParametersBlock(msgBlockIndicationf);
-                                                    parserCallback.setStartParametersInChartActivity();
+                                                    parserCallback.givesStartParametersBlock(msgBlockIndicationf);
+                                                    parserCallback.setStartParametersInNemoStandActivity();
 //                                                            System.out.println("BLUETOOTH--------------> READ BLOCK START PARAMETER ");
                                                     resetAllVariables();
                                                 });
@@ -783,8 +783,8 @@ public class Bluetooth {
 
                                                 final byte msgRoughnessOfSensorsf = msgRoughnessOfSensors;
                                                 ThreadHelper.run(runOnUi, activity, () -> {
-                                                    parserCallback.givsStartParametersRoughness (msgRoughnessOfSensorsf);
-                                                    parserCallback.setStartParametersInChartActivity();
+                                                    parserCallback.givesStartParametersRoughness (msgRoughnessOfSensorsf);
+                                                    parserCallback.setStartParametersInNemoStandActivity();
 //                                                            System.out.println("BLUETOOTH--------------> READ ROUGHNESS START PARAMETER ");
                                                     resetAllVariables();
                                                 });
@@ -815,7 +815,7 @@ public class Bluetooth {
                                                 final int msgBatteryTensionf = msgBatteryTension;
                                                 ThreadHelper.run(runOnUi, activity, () -> {
 //                                                System.out.println("BLUETOOTH--------------> receive");
-                                                    parserCallback.givsGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
+                                                    parserCallback.givesGeneralParcel(msgCurrentf, msgLevelCH1f, msgLevelCH2f, msgIndicationStatef, msgBatteryTensionf);
                                                     deviceCallback.onMessage(msgCopy);
                                                     if (DEBUG) {System.out.println("<-- сделал цикл по ветке 2:"+ msgCopy +" no_error="+no_error);}
 //                                                            System.out.println("BLUETOOTH--------------> READ -> CURR_MAIN_DATA_HDLC -> resetAllVariables");

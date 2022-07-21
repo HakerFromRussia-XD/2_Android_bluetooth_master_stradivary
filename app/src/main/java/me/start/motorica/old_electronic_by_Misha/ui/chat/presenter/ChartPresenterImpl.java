@@ -285,7 +285,7 @@ public class ChartPresenterImpl implements ChatPresenter {
     public ParserCallback parserCallback = new ParserCallback(){
 
         @Override
-        public Integer givsLenhgt(int lenght) {
+        public Integer givesLenhgt(int lenght) {
             Integer integer =  new Integer(lenght);
 //            System.out.println("принятая длинна:" + integer);
             return integer;
@@ -293,19 +293,19 @@ public class ChartPresenterImpl implements ChatPresenter {
 
 
         @Override
-        public void givsRequest(Boolean request) {
+        public void givesRequest(Boolean request) {
             Boolean bolean = new Boolean(request);
 //            System.out.println("приём:" + bolean);
         }
 
         @Override
-        public void givsChannel(int channel) {
+        public void givesChannel(int channel) {
             Integer numberChannel = new Integer(channel);
 //            System.out.println("номер канала:" + numberChannel);
         }
 
         @Override
-        public void givsLevelCH(int levelCH, int channel) {
+        public void givesLevelCH(int levelCH, int channel) {
             Integer lelvel = new Integer(levelCH);
             Integer numberChannel = new Integer(channel);
             view.setValueCH(levelCH, numberChannel);
@@ -314,7 +314,7 @@ public class ChartPresenterImpl implements ChatPresenter {
 
 
         @Override
-        public void givsGeneralParcel(int current, int levelCH1, int levelCH2, byte indicationState, int batteryTension) {
+        public void givesGeneralParcel(int current, int levelCH1, int levelCH2, byte indicationState, int batteryTension) {
             Integer receiveСurrent = new Integer(current);
             Integer receiveLevelCH1 = new Integer(levelCH1);
             Integer receiveLevelCH2 = new Integer(levelCH2);
@@ -324,7 +324,7 @@ public class ChartPresenterImpl implements ChatPresenter {
         }
 
         @Override
-        public void givsStartParameters(int current, int levelTrigCH1, int levelTrigCH2, byte indicationInvertMode, byte blockIndication, byte roughnessOfSensors) {
+        public void givesStartParameters(int current, int levelTrigCH1, int levelTrigCH2, byte indicationInvertMode, byte blockIndication, byte roughnessOfSensors) {
             Integer receiveСurrent = new Integer(current);
             Integer receiveLevelTrigCH1 = new Integer(levelTrigCH1);
             Integer receiveLevelTrigCH2 = new Integer(levelTrigCH2);
@@ -335,62 +335,62 @@ public class ChartPresenterImpl implements ChatPresenter {
         }
 
         @Override
-        public void givsStartParametersTrigCH1(int levelTrigCH1) {
+        public void givesStartParametersTrigCH1(int levelTrigCH1) {
             Integer receiveLevelTrigCH1 = new Integer(levelTrigCH1);
             view.setStartParametersTrigCH1 (receiveLevelTrigCH1);
         }
 
         @Override
-        public void givsStartParametersTrigCH2(int levelTrigCH2) {
+        public void givesStartParametersTrigCH2(int levelTrigCH2) {
             Integer receiveLevelTrigCH2 = new Integer(levelTrigCH2);
             view.setStartParametersTrigCH2 (receiveLevelTrigCH2);
         }
 
         @Override
-        public void givsStartParametersCurrrent(int current) {
+        public void givesStartParametersCurrent(int current) {
             Integer receiveСurrent = new Integer(current);
             view.setStartParametersCurrent(receiveСurrent);
         }
 
         @Override
-        public void givsStartParametersBlock(byte blockIndication) {
+        public void givesStartParametersBlock(byte blockIndication) {
             Byte receiveBlockIndication = new Byte(blockIndication);
             view.setStartParametersBlock (receiveBlockIndication);
         }
 
         @Override
-        public void givsStartParametersRoughness(byte roughnessOfSensors) {
+        public void givesStartParametersRoughness(byte roughnessOfSensors) {
             Byte receiveRoughnessOfSensors = new Byte(roughnessOfSensors);
             view.setStartParametersRoughness (receiveRoughnessOfSensors);
         }
 
         @Override
-        public void givsStartParametersBattery(int batteryTension) {
+        public void givesStartParametersBattery(int batteryTension) {
 //            Integer receiveBatteryTension = new Integer(batteryTension);
 //            view.setStartParametersBattery (receiveBatteryTension);
         }
 
 
         @Override
-        public void givsRegister(Integer register) {
+        public void givesRegister(Integer register) {
             Integer registr = new Integer(register);
 //            System.out.println("принятая значение регистра:"+registr);
         }
 
         @Override
-        public void givsCorrectAcceptance(Boolean correct_acceptence) {
-            Boolean boleann = new Boolean(correct_acceptence);
-//            System.out.println("проверка CRC:" + boleann);
+        public void givesCorrectAcceptance(Boolean correct_acceptence) {
+            Boolean bolean = new Boolean(correct_acceptence);
+//            System.out.println("проверка CRC:" + bolean);
         }
 
         @Override
-        public void givsErrorReception(Boolean givsErrorReception) {
-            Boolean bolean = new Boolean(givsErrorReception);
+        public void givesErrorReception(Boolean givesErrorReception) {
+            Boolean bolean = new Boolean(givesErrorReception);
             view.setErrorReception(bolean);
         }
 
         @Override
-        public void setStartParametersInChartActivity() {
+        public void setStartParametersInNemoStandActivity() {
             view.setStartParametersInChartActivity();
         }
 

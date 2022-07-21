@@ -230,6 +230,7 @@
     <string name="сhoose_the_size_of_the_prosthesis">Сhoose the size of the prosthesis.</string>
     <string name="yes">yes</string>
     <string name="the_size_of_your_prosthesis">The size of your prosthesis</string>
+    <string name="amplitude">amplitude</string>
 
     <string-array name="numbers">
         <item>0</item>

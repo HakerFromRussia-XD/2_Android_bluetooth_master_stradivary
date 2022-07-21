@@ -51,6 +51,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActiv
 import me.start.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 import me.start.motorica.R;
 import me.start.motorica.old_electronic_by_Misha.ui.chat.view.Load3DModel;
+import me.start.motorica.old_electronic_by_Misha.ui.chat.view.NemoStandActivity;
 import me.start.motorica.scan.data.DaggerScanComponent;
 import me.start.motorica.scan.data.ScanItem;
 import me.start.motorica.scan.data.ScanListAdapter;
@@ -321,9 +322,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
         presenter.setStartFlags(extraDevice.getName());
         Intent intent = new Intent(ScanActivity.this, ChartActivity.class);
-        if (extraDevice.getName().contains("NEMO")) {
-            //TODO выполнить маршрутизацию на экран для Миши
-//            intent = new Intent(ScanActivity.this, StartActivity.class);
+        if (extraDevice.getName().contains("NEMO") ||
+            extraDevice.getName().contains("STAND") ) {
+            intent = new Intent(ScanActivity.this, NemoStandActivity.class);
         }
         intent.putExtra(extraName, extraDevice);
         startActivity(intent);

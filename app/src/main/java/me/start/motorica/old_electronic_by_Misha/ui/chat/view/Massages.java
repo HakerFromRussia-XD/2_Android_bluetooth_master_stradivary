@@ -256,6 +256,70 @@ public class Massages implements ChatPresenter {
         TextByteTriggerSettings[1] = turningOn;
         return TextByteTriggerSettings;
     }
+    public byte[] CompileMessageSetRed (byte amplitude) {
+        byte[] TextByteMass = new byte[3];
+        TextByteMass[0] = amplitude;
+        TextByteMass[1] = 0x00;
+        TextByteMass[2] = 0x00;
+        return TextByteMass;
+    }
+    public byte[] CompileMessageSetGreen (byte amplitude) {
+        byte[] TextByteMass = new byte[3];
+        TextByteMass[0] = 0x00;
+        TextByteMass[1] = amplitude;
+        TextByteMass[2] = 0x00;
+        return TextByteMass;
+    }
+    public byte[] CompileMessageSetLine (byte amplitudeR1, byte amplitudeG1, byte amplitudeR2, byte amplitudeG2,
+                                         byte amplitudeR3, byte amplitudeG3, byte amplitudeR4, byte amplitudeG4,
+                                         byte amplitudeR5, byte amplitudeG5, byte amplitudeR6, byte amplitudeG6,
+                                         byte amplitudeR7, byte amplitudeG7, byte amplitudeR8, byte amplitudeG8) {
+        byte[] TextByteMass = new byte[24];
+        TextByteMass[0]  = amplitudeR1;
+        TextByteMass[1]  = amplitudeG1;
+        TextByteMass[2]  = 0x00;
+        TextByteMass[3]  = amplitudeR2;
+        TextByteMass[4]  = amplitudeG2;
+        TextByteMass[5]  = 0x00;
+        TextByteMass[6]  = amplitudeR3;
+        TextByteMass[7]  = amplitudeG3;
+        TextByteMass[8]  = 0x00;
+        TextByteMass[9]  = amplitudeR4;
+        TextByteMass[10] = amplitudeG4;
+        TextByteMass[11] = 0x00;
+        TextByteMass[12] = amplitudeR5;
+        TextByteMass[13] = amplitudeG5;
+        TextByteMass[14] = 0x00;
+        TextByteMass[15] = amplitudeR6;
+        TextByteMass[16] = amplitudeG6;
+        TextByteMass[17] = 0x00;
+        TextByteMass[18] = amplitudeR7;
+        TextByteMass[19] = amplitudeG7;
+        TextByteMass[20] = 0x00;
+        TextByteMass[21] = amplitudeR8;
+        TextByteMass[22] = amplitudeG8;
+        TextByteMass[23] = 0x00;
+        return TextByteMass;
+    }
+    public byte[] CompileMessagePass () {
+        byte[] TextByteMass = new byte[14];
+        TextByteMass[0] = 0x4D;
+        TextByteMass[1] = 0x30;
+        TextByteMass[2] = 0x74;
+        TextByteMass[3] = 0x30;
+        TextByteMass[4] = 0x72;
+        TextByteMass[5] = 0x31;
+        TextByteMass[6] = 0x43;
+        TextByteMass[7] = 0x61;
+        TextByteMass[8] = 0x34;
+        TextByteMass[9] = 0x34;
+        TextByteMass[10] = 0x33;
+        TextByteMass[11] = 0x32;
+        TextByteMass[12] = 0x0D;
+        TextByteMass[13] = 0x0A;
+        return TextByteMass;
+    }
+
     public byte[] CompileMassageReadStartParameters() {
         byte[] TextByteTriggerSettings = new byte[2];
         TextByteTriggerSettings[0] = 0x0D;

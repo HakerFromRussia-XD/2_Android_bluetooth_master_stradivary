@@ -45,4 +45,13 @@
         <item name="colorControlHighlight">@color/darkOrange</item>
     </style>
 
+    <style name="NumberPickerTheme" parent="Theme.AppCompat.Light">
+        <item name="colorAccent">@android:color/white</item>
+        <!-- To remove divider of the number picker -->
+        <item name="colorControlNormal">@android:color/transparent</item>
+
+        <item name="android:textColorPrimary">@android:color/black</item>
+        <item name="android:background">@color/number_picker_bg</item>
+        <item name="android:textSize">30sp</item>
+    </style>
 </resources>

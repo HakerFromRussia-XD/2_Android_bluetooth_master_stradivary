@@ -51,6 +51,10 @@
             android:name="me.start.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity"
             android:screenOrientation="portrait">
         </activity>
+        <activity
+            android:name="me.start.motorica.old_electronic_by_Misha.ui.chat.view.NemoStandActivity"
+            android:screenOrientation="portrait">
+        </activity>
 
         <activity
             android:theme="@style/AppTheme.NoActionBar"

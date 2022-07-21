@@ -327,7 +327,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             if ((castUnsignedCharToInt(data[11]) shr 7 and 0b00000001) !=  1) {
               if (!firstActivateSetScaleDialog) {
                 System.err.println("BluetoothLeService-------------> ПОКАЗЫВАЕМ ДИАЛОГ ВЫБОРА РАЗМЕРА ПРОТЕЗА")
-                showChangeSideDialog()
+                showChangeSizeDialog()
                 firstActivateSetScaleDialog = true
               }
             }
@@ -1853,37 +1853,37 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
 
     if (statusFinger.isNotEmpty()) {
-      myDialog.dialog_active_boluses_first_in_queue_tv.text =
+      myDialog.dialog_first_in_queue_tv.text =
         getString(R.string.pre_status_finger, 1) + " " + statusFinger[0] + getString(
           R.string.status_finger,
           statusEncoderFingers[0],
           statusCurrentFingers[0]
         )
-      myDialog.dialog_active_boluses_second_in_queue_tv.text =
+      myDialog.dialog_second_in_queue_tv.text =
         getString(R.string.pre_status_finger, 2) + " " + statusFinger[1] + getString(
           R.string.status_finger,
           statusEncoderFingers[1],
           statusCurrentFingers[1]
         )
-      myDialog.dialog_active_boluses_third_in_queue_tv.text =
+      myDialog.dialog_third_in_queue_tv.text =
         getString(R.string.pre_status_finger, 3) + " " + statusFinger[2] + getString(
           R.string.status_finger,
           statusEncoderFingers[2],
           statusCurrentFingers[2]
         )
-      myDialog.dialog_active_boluses_fourth_in_queue_tv.text =
+      myDialog.dialog_fourth_in_queue_tv.text =
         getString(R.string.pre_status_finger, 4) + " " + statusFinger[3] + getString(
           R.string.status_finger,
           statusEncoderFingers[3],
           statusCurrentFingers[3]
         )
-      myDialog.dialog_active_boluses_fifth_in_queue_tv.text =
+      myDialog.dialog_fifth_in_queue_tv.text =
         getString(R.string.pre_status_finger, 5) + " " + statusFinger[4] + getString(
           R.string.status_finger,
           statusEncoderFingers[4],
           statusCurrentFingers[4]
         )
-      myDialog.dialog_active_boluses_sixth_in_queue_tv.text =
+      myDialog.dialog_sixth_in_queue_tv.text =
         getString(R.string.pre_status_finger, 6) + " " + statusFinger[5] + getString(
           R.string.status_finger,
           statusEncoderFingers[5],
@@ -1899,7 +1899,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
   }
   @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")
-  private fun showChangeSideDialog() {
+  private fun showChangeSizeDialog() {
     val dialogBinding = layoutInflater.inflate(R.layout.dialog_select_scale, null)
     val myDialog = Dialog(this)
     myDialog.setContentView(dialogBinding)
@@ -1952,7 +1952,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     val noBtn = dialogBinding.findViewById<View>(R.id.dialog_confirm_select_scale_cancel)
     noBtn.setOnClickListener {
-      showChangeSideDialog()
+      showChangeSizeDialog()
       myDialog.dismiss()
     }
   }

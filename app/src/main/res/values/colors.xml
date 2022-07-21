@@ -4,6 +4,10 @@
     <color name="colorPrimaryDark">#393939</color>
     <color name="colorAccent">#92AE0F</color>
     <color name="white">#fff</color>
+    <color name="black">#000</color>
+    <color name="tool_bar">#FF2B2B2B</color>
+    <color name="transparent">#000000ff</color>
+    <color name="number_picker_bg">#D7D7D8</color>
     <color name="cream_white">#faf0dc</color>
     <color name="light_gray">#45494A</color>
     <color name="green">#0f9b0f</color>
@@ -17,9 +21,13 @@
     <color name="system_blue">#FF007AFF</color>
     <color name="ripple">#c0c0c0</color>
     <color name="start_gradient">#d0d0d0</color>
+    <color name="start2_gradient">#808080</color>
+    <color name="center2_gradient">#c0c0c0</color>
+    <color name="end2_gradient">#b0b0b0</color>
+
     <color name="deepDark">#343434</color>
     <color name="end_gradient">#e0e0e0</color>
-    <color name="dark">#45494A</color>
+    <color name="dark">#888</color>
     <color name="open_threshold">#ffab00</color>
     <color name="close_threshold">#ffffff</color>
     <color name="separator_settings">#c6c6c8</color>

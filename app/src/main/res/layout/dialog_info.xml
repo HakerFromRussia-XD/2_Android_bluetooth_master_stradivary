@@ -87,7 +87,7 @@
                     android:background="@color/background_title_fragment">
 
                     <TextView
-                        android:id="@+id/dialog_active_boluses_first_in_queue_tv"
+                        android:id="@+id/dialog_first_in_queue_tv"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:fontFamily="@font/sf_pro_display_light"
@@ -115,7 +115,7 @@
                     android:background="@color/background_title_fragment">
 
                     <TextView
-                        android:id="@+id/dialog_active_boluses_second_in_queue_tv"
+                        android:id="@+id/dialog_second_in_queue_tv"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:fontFamily="@font/sf_pro_display_light"
@@ -143,7 +143,7 @@
                     android:background="@color/background_title_fragment">
 
                     <TextView
-                        android:id="@+id/dialog_active_boluses_third_in_queue_tv"
+                        android:id="@+id/dialog_third_in_queue_tv"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:fontFamily="@font/sf_pro_display_light"
@@ -171,7 +171,7 @@
                     android:background="@color/background_title_fragment">
 
                     <TextView
-                        android:id="@+id/dialog_active_boluses_fourth_in_queue_tv"
+                        android:id="@+id/dialog_fourth_in_queue_tv"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:fontFamily="@font/sf_pro_display_light"
@@ -199,7 +199,7 @@
                     android:background="@color/background_title_fragment">
 
                     <TextView
-                        android:id="@+id/dialog_active_boluses_fifth_in_queue_tv"
+                        android:id="@+id/dialog_fifth_in_queue_tv"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:fontFamily="@font/sf_pro_display_light"
@@ -227,7 +227,7 @@
                     android:background="@color/background_title_fragment">
 
                     <TextView
-                        android:id="@+id/dialog_active_boluses_sixth_in_queue_tv"
+                        android:id="@+id/dialog_sixth_in_queue_tv"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:fontFamily="@font/sf_pro_display_light"

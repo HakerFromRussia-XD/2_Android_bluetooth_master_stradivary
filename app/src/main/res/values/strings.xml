@@ -184,7 +184,7 @@
     <string name="gesture_state_close">off-state</string>
     <string name="delay_state_close">Setting close finger delays</string>
     <string name="prosthesis_calibrating">Prosthesis calibrating</string>
-    <string name="waiting">waiting...</string>
+    <string name="waiting">waiting…</string>
     <string name="get">get</string>
     <string name="telemetry_serial">telemetry serial</string>
     <string name="shutdown_current_1">shutdown current 1</string>
@@ -226,8 +226,8 @@
     <string name="prosthesis_blocking">prosthesis blocking</string>
     <string name="hold_to_lock_time">hold to lock time</string>
     <string name="debug_screen">debug screen</string>
-    <string name="scale">scale:</string>
-    <string name="сhoose_the_size_of_the_prosthesis">Сhoose the size of the prosthesis.</string>
+    <string name="scale">prosthesis size:</string>
+    <string name="сhoose_the_size_of_the_prosthesis">Сhoose the size of the prosthesis</string>
     <string name="yes">yes</string>
     <string name="the_size_of_your_prosthesis">The size of your prosthesis</string>
     <string name="amplitude">amplitude</string>

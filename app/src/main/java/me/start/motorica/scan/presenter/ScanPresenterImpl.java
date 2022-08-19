@@ -1,5 +1,6 @@
 package me.start.motorica.scan.presenter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 
@@ -14,11 +15,11 @@ import me.start.bluetooth.BluetoothCallback;
 import me.start.bluetooth.DiscoveryCallback;
 import me.start.motorica.R;
 
-
+@SuppressLint("MissingPermission")
 public class ScanPresenterImpl implements ScanPresenter{
     private static final String TAG = "ScanPresenterImpl";
-    private ScanView view;
-    private ScanInteractor interactor;
+    private final ScanView view;
+    private final ScanInteractor interactor;
     private Thread pauseStartThread;
     private Thread setStatusThread;
     private boolean canceledDiscovery = false;
@@ -28,7 +29,7 @@ public class ScanPresenterImpl implements ScanPresenter{
     public int scanListPosition = 0;
     private boolean flagDiscovering = true;
     private boolean flagPairNewDevice = false;
-    private int position = 0;
+    private final int position = 0;
     private int positionPairDevice = 0;
     private List<String> pairedDeviceNames;
     private boolean firstScanClick = true;
@@ -140,7 +141,7 @@ public class ScanPresenterImpl implements ScanPresenter{
     }
 
 
-    private DeviceCallback communicationCallback = new DeviceCallback() {
+    private final DeviceCallback communicationCallback = new DeviceCallback() {
         @Override
         public void onDeviceConnected(BluetoothDevice device) {
             flagCheckingNow = false;
@@ -196,7 +197,7 @@ public class ScanPresenterImpl implements ScanPresenter{
         }
     };
 
-    private DiscoveryCallback discoveryCallback = new DiscoveryCallback() {
+    private final DiscoveryCallback discoveryCallback = new DiscoveryCallback() {
         @Override
         public void onDiscoveryStarted() {
             flagDiscovering = true;//мой флаг, для отсечения ошибки клика по сканлисту после завершения сканирования
@@ -265,7 +266,7 @@ public class ScanPresenterImpl implements ScanPresenter{
         }
     };
 
-    private BluetoothCallback bluetoothCallback = new BluetoothCallback() {
+    private final BluetoothCallback bluetoothCallback = new BluetoothCallback() {
 
         @Override
         public void onBluetoothTurningOn() {
@@ -347,31 +348,17 @@ public class ScanPresenterImpl implements ScanPresenter{
     }
 
     private boolean checkOurName (String deviceName){
-        if(     deviceName.split("-")[0].equals("MLT") ||
-                deviceName.split("-")[0].equals("FNG") ||
-                deviceName.split("-")[0].equals("FNS") ||
-                deviceName.split(" ")[0].equals("MLT") ||
-                deviceName.split(" ")[0].equals("FNG") ||
-                deviceName.split(" ")[0].equals("FNS") ||
-                deviceName.split("-")[0].equals("STR") ||
-                deviceName.split("-")[0].equals("CBY") ||
-                deviceName.split("-")[0].equals("HND") ||
-                deviceName.split(" ")[0].equals("STR") ||
-                deviceName.split(" ")[0].equals("CBY") ||
-                deviceName.split(" ")[0].equals("HND") ||
-                deviceName.split("-")[0].equals("IND") ||
-                deviceName.split("-")[0].equals(" IND")||
-                deviceName.split(" ")[0].equals("IND") ||
-                deviceName.split("-")[0].equals("MLX") ||
-                deviceName.split("-")[0].equals(" MLX")||
-                deviceName.split(" ")[0].equals("MLX") ||
-                deviceName.split("-")[0].equals("FNX") ||
-                deviceName.split("-")[0].equals(" FNX")||
-                deviceName.split(" ")[0].equals("FNX")) {
-            return true;
-        } else {
-            return false;
-        }
+        return deviceName.contains("MLT") ||
+                deviceName.contains("FNG") ||
+                deviceName.contains("FNS") ||
+                deviceName.contains("MLX") ||
+                deviceName.contains("FNX") ||
+                deviceName.contains("STR") ||
+                deviceName.contains("CBY") ||
+                deviceName.contains("IND") ||
+                deviceName.contains("HND") ||
+                deviceName.contains("NEMO") ||
+                deviceName.contains("STAND");
     }
 
     private void checkDevices(){
@@ -389,14 +376,11 @@ public class ScanPresenterImpl implements ScanPresenter{
     }
 
     public void pauseCheckDevicesThread (final int pauseTime) {
-        pauseStartThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(pauseTime);
-                }catch (Exception ignored){}
-                checkDevices();
-            }
+        pauseStartThread = new Thread(() -> {
+            try {
+                Thread.sleep(pauseTime);
+            }catch (Exception ignored){}
+            checkDevices();
         });
         pauseStartThread.start();
     }

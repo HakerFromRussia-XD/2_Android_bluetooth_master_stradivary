@@ -84,18 +84,28 @@
             <RelativeLayout
                 android:id="@+id/layout_info"
                 android:layout_width="match_parent"
-                android:layout_height="700dp"
+                android:layout_height="760dp"
                 android:layout_weight="1.2"
                 android:background="#e0e0e0"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="MissingConstraints"
                 tools:layout_editor_absoluteX="0dp">
 
+                <ImageView
+                    android:id="@+id/logo_iv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="55dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/logo_nemo"
+                    tools:ignore="ContentDescription" />
 
                 <View
                     android:id="@+id/trunk"
                     android:layout_width="24dp"
                     android:layout_height="680dp"
+                    android:layout_below="@+id/logo_iv"
                     android:layout_alignStart="@+id/electrode_2_btn"
                     android:layout_marginStart="5dp"
                     android:layout_marginTop="10dp"
@@ -212,7 +222,7 @@
             <RelativeLayout
                 android:id="@+id/layout_info_state"
                 android:layout_width="match_parent"
-                android:layout_height="700dp"
+                android:layout_height="760dp"
                 android:layout_weight="0.8"
                 android:background="#e0e0e0"
                 app:layout_constraintTop_toTopOf="parent"
@@ -222,10 +232,12 @@
                 <LinearLayout
                     android:id="@+id/all2_ll"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="0dp"
                     android:orientation="vertical"
-                    android:weightSum="2"
-                    tools:ignore="DisableBaselineAlignment">
+                    android:weightSum="2.3"
+                    tools:ignore="DisableBaselineAlignment,UselessParent">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -250,7 +262,8 @@
                                 android:textStyle="bold"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:ignore="HardcodedText" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -276,7 +289,8 @@
                                     android:layout_height="100dp"
                                     android:layout_marginTop="-25dp"
                                     android:layout_marginBottom="-25dp"
-                                    android:theme="@style/NumberPickerTheme" />
+                                    android:theme="@style/NumberPickerTheme"
+                                    tools:ignore="TooDeepLayout" />
                             </androidx.cardview.widget.CardView>
 
 
@@ -392,7 +406,8 @@
                                 android:textStyle="bold"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:ignore="HardcodedText" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -534,7 +549,8 @@
                                 android:textStyle="bold"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:ignore="HardcodedText" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -676,7 +692,8 @@
                                 android:textStyle="bold"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:ignore="HardcodedText" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -697,22 +714,21 @@
                                 app:layout_constraintTop_toTopOf="parent">
 
 
-
                                 <NumberPicker
                                     android:id="@+id/unit_amplitude"
                                     android:layout_width="100dp"
                                     android:layout_height="120dp"
                                     android:layout_marginTop="-35dp"
                                     android:layout_marginBottom="-35dp"
+                                    android:animateLayoutChanges="false"
                                     android:clickable="false"
                                     android:fontFamily="@font/font_open_sans"
-                                    android:animateLayoutChanges="false"
                                     android:theme="@style/NumberPickerTheme" />
 
                                 <Button
                                     android:layout_width="100dp"
                                     android:layout_height="50dp"
-                                    android:background="@color/transparent"/>
+                                    android:background="@color/transparent" />
                             </androidx.cardview.widget.CardView>
 
 
@@ -822,14 +838,38 @@
 
                         <ImageView
                             android:layout_width="200dp"
-                            android:layout_height="300dp"
+                            android:layout_height="370dp"
                             android:layout_alignParentStart="true"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentEnd="true"
-                            android:layout_alignParentBottom="true"
                             android:paddingTop="16dp"
+                            android:scaleX="-1"
                             android:paddingBottom="16dp"
-                            android:src="@drawable/hand3" />
+                            android:src="@drawable/hand3"
+                            tools:ignore="ContentDescription" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp"
+                        android:orientation="horizontal"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        tools:ignore="DisableBaselineAlignment">
+
+                        <Button
+                            android:id="@+id/start_stop_btn"
+                            android:layout_width="match_parent"
+                            android:layout_height="34dp"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/border_nemo"
+                            android:fontFamily="@font/font_open_sans"
+                            android:text="start"
+                            tools:ignore="HardcodedText,TouchTargetSizeCheck" />
                     </RelativeLayout>
                 </LinearLayout>
 
@@ -849,28 +889,7 @@
             android:layout_marginBottom="16dp"
             android:paddingTop="8dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:weightSum="4"
-                tools:ignore="DisableBaselineAlignment">
 
-                <Button
-                    android:id="@+id/start_stop_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="34dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginEnd="16dp"
-                    android:fontFamily="@font/font_open_sans"
-                    android:background="@drawable/border_nemo"
-                    android:text="start"
-                    tools:ignore="HardcodedText,TouchTargetSizeCheck" />
-            </LinearLayout>
         </RelativeLayout>
 </RelativeLayout>
 

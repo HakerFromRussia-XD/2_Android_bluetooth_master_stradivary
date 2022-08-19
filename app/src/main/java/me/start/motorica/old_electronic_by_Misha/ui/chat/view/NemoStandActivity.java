@@ -7,24 +7,19 @@ import android.bluetooth.BluetoothDevice;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
-import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.inject.Inject;
-
 import butterknife.ButterKnife;
 import me.start.motorica.R;
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication;

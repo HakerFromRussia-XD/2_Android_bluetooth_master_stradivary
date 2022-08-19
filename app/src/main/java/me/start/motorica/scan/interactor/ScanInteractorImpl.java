@@ -14,7 +14,7 @@ import me.start.bluetooth.DiscoveryCallback;
 
 
 public class ScanInteractorImpl implements ScanInteractor {
-    private Bluetooth bluetooth;
+    private final Bluetooth bluetooth;
     private DiscoveryCallback presenterDiscoveryCallback;
     private List<BluetoothDevice> discoveredDevices;
     private int ourGadgets = 0;
@@ -83,34 +83,25 @@ public class ScanInteractorImpl implements ScanInteractor {
         bluetooth.enable();
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public List<String> getPairedDevices() {
         List<String> items = new ArrayList<>();
         int position = 0;
         ourGadgets = 0;
         for(BluetoothDevice device : bluetooth.getPairedDevices()){
-            if( device.getName().split("-")[0].equals("MLT") ||
-                    device.getName().split("-")[0].equals("FNG") ||
-                    device.getName().split("-")[0].equals("FNS") ||
-                    device.getName().split("-")[0].equals("MLX") ||
-                    device.getName().split("-")[0].equals(" MLX")||
-                    device.getName().split("-")[0].equals("FNX") ||
-                    device.getName().split("-")[0].equals(" FNX")||
-                    device.getName().split(" ")[0].equals("MLT") ||
-                    device.getName().split(" ")[0].equals("FNG") ||
-                    device.getName().split(" ")[0].equals("FNS") ||
-                    device.getName().split(" ")[0].equals("FNX") ||
-                    device.getName().split(" ")[0].equals("MLX") ||
-                    device.getName().split("-")[0].equals("STR") ||
-                    device.getName().split("-")[0].equals("CBY") ||
-                    device.getName().split("-")[0].equals("HND") ||
-                    device.getName().split("-")[0].equals("IND") ||
-                    device.getName().split("-")[0].equals(" IND")||
-                    device.getName().split(" ")[0].equals("STR") ||
-                    device.getName().split(" ")[0].equals("CBY") ||
-                    device.getName().split(" ")[0].equals("HND") ||
-                    device.getName().split(" ")[0].equals("NEMO") ||
-                    device.getName().split(" ")[1].equals("STAND")
+            if(
+                    device.getName().contains("MLT") ||
+                    device.getName().contains("FNG") ||
+                    device.getName().contains("FNS") ||
+                    device.getName().contains("MLX") ||
+                    device.getName().contains("FNX") ||
+                    device.getName().contains("STR") ||
+                    device.getName().contains("CBY") ||
+                    device.getName().contains("IND") ||
+                    device.getName().contains("HND") ||
+                    device.getName().contains("NEMO") ||
+                    device.getName().contains("STAND")
             ){//device.getName().split(" ")[0].equals("MacBook")
                 System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
                 items.add(device.getName()+":p:"+(position+1));//device.getAddress()+" : "+

@@ -57,7 +57,8 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
     private static SelectStation selectStation6;
     private static SelectStation selectStation7;
     private static SelectStation selectStation8;
-    private static final int START_AMPLITUDE = 150;
+    private static final int START_AMPLITUDE = 1;
+    private static final int AMPLITUDE_MULTIPLIER = 20;
     private static int amplitude = START_AMPLITUDE;
     private int amplitudeR1 = START_AMPLITUDE;
     private int amplitudeG1 = START_AMPLITUDE;
@@ -147,9 +148,9 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
         _3Np.setMaxValue(1000);
         _3Np.setMinValue(1000);
 
-        amplitudeNp.setMaxValue(250);
+        amplitudeNp.setMaxValue(10);
         amplitudeNp.setMinValue(0);
-        amplitudeNp.setValue(150);
+        amplitudeNp.setValue(START_AMPLITUDE);
 
         electrode1Btn.setOnClickListener(view -> {
             switch (selectStation1) {
@@ -382,14 +383,14 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
         });
         amplitudeDecBtn.setOnClickListener(view -> {
             if (amplitude > 0) {
-                amplitude -= 10;
+                amplitude -= 1;
                 amplitudeNp.setValue(amplitude);
                 if (startTest) {compileMassage();}
             }
         });
         amplitudeAddBtn.setOnClickListener(view -> {
-            if (amplitude < 250) {
-                amplitude += 10;
+            if (amplitude < 10) {
+                amplitude += 1;
                 amplitudeNp.setValue(amplitude);
                 if (startTest) {compileMassage();}
             }
@@ -447,13 +448,13 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
                 break;
 
             case SELECT_MINUS:
-                amplitudeR1 = amplitude;
+                amplitudeR1 = amplitude*AMPLITUDE_MULTIPLIER;
                 amplitudeG1 = 0x00;
                 break;
 
             case SELECT_PLUS:
                 amplitudeR1 = 0x00;
-                amplitudeG1 = amplitude;
+                amplitudeG1 = amplitude*AMPLITUDE_MULTIPLIER;
                 break;
         }
         switch (selectStation2) {
@@ -463,13 +464,13 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
                 break;
 
             case SELECT_MINUS:
-                amplitudeR2 = amplitude;
+                amplitudeR2 = amplitude*AMPLITUDE_MULTIPLIER;
                 amplitudeG2 = 0x00;
                 break;
 
             case SELECT_PLUS:
                 amplitudeR2 = 0x00;
-                amplitudeG2 = amplitude;
+                amplitudeG2 = amplitude*AMPLITUDE_MULTIPLIER;
                 break;
         }
         switch (selectStation3) {
@@ -479,13 +480,13 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
                 break;
 
             case SELECT_MINUS:
-                amplitudeR3 = amplitude;
+                amplitudeR3 = amplitude*AMPLITUDE_MULTIPLIER;
                 amplitudeG3 = 0x00;
                 break;
 
             case SELECT_PLUS:
                 amplitudeR3 = 0x00;
-                amplitudeG3 = amplitude;
+                amplitudeG3 = amplitude*AMPLITUDE_MULTIPLIER;
                 break;
         }
         switch (selectStation4) {
@@ -495,13 +496,13 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
                 break;
 
             case SELECT_MINUS:
-                amplitudeR4 = amplitude;
+                amplitudeR4 = amplitude*AMPLITUDE_MULTIPLIER;
                 amplitudeG4 = 0x00;
                 break;
 
             case SELECT_PLUS:
                 amplitudeR4 = 0x00;
-                amplitudeG4 = amplitude;
+                amplitudeG4 = amplitude*AMPLITUDE_MULTIPLIER;
                 break;
         }
         switch (selectStation5) {
@@ -511,13 +512,13 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
                 break;
 
             case SELECT_MINUS:
-                amplitudeR5 = amplitude;
+                amplitudeR5 = amplitude*AMPLITUDE_MULTIPLIER;
                 amplitudeG5 = 0x00;
                 break;
 
             case SELECT_PLUS:
                 amplitudeR5 = 0x00;
-                amplitudeG5 = amplitude;
+                amplitudeG5 = amplitude*AMPLITUDE_MULTIPLIER;
                 break;
         }
         switch (selectStation6) {
@@ -527,13 +528,13 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
                 break;
 
             case SELECT_MINUS:
-                amplitudeR6 = amplitude;
+                amplitudeR6 = amplitude*AMPLITUDE_MULTIPLIER;
                 amplitudeG6 = 0x00;
                 break;
 
             case SELECT_PLUS:
                 amplitudeR6 = 0x00;
-                amplitudeG6 = amplitude;
+                amplitudeG6 = amplitude*AMPLITUDE_MULTIPLIER;
                 break;
         }
         switch (selectStation7) {
@@ -543,13 +544,13 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
                 break;
 
             case SELECT_MINUS:
-                amplitudeR7 = amplitude;
+                amplitudeR7 = amplitude*AMPLITUDE_MULTIPLIER;
                 amplitudeG7 = 0x00;
                 break;
 
             case SELECT_PLUS:
                 amplitudeR7 = 0x00;
-                amplitudeG7 = amplitude;
+                amplitudeG7 = amplitude*AMPLITUDE_MULTIPLIER;
                 break;
         }
         switch (selectStation8) {
@@ -559,13 +560,13 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
                 break;
 
             case SELECT_MINUS:
-                amplitudeR8 = amplitude;
+                amplitudeR8 = amplitude*AMPLITUDE_MULTIPLIER;
                 amplitudeG8 = 0x00;
                 break;
 
             case SELECT_PLUS:
                 amplitudeR8 = 0x00;
-                amplitudeG8 = amplitude;
+                amplitudeG8 = amplitude*AMPLITUDE_MULTIPLIER;
                 break;
         }
 

@@ -12,7 +12,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 31
         versionCode 37
-        versionName "2.4.521"
+        versionName "2.4.526"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -30,9 +30,7 @@ android {
         sourceCompatibility "1.8"
         targetCompatibility "1.8"
     }
-    lint {
-        checkReleaseBuilds false
-    }
+    lint { checkReleaseBuilds false }
     namespace 'me.start.motorica'
 
 }

@@ -15,6 +15,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.nfc.NfcAdapter
+import android.opengl.GLES20
 import android.os.*
 import android.view.View
 import android.view.WindowManager
@@ -115,6 +116,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private val listUUID = "UUID"
   private var firstActivateSetScaleDialog = false
   private var scaleProsthesis = 5
+  private var oldNumGesture = 0
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -238,9 +240,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if (data != null){
 //      System.err.println("BluetoothLeService-------------> прошли первый иф ")
 //      System.err.println("============================================")
-//      for (bite in data) {
-//        System.err.println("BluetoothLeService------------->  size: ${data.size}  1- ${data[0]}")
-//      }
+      for (i in data.indices) {
+        System.err.println("BluetoothLeService------------->  size: ${data.size}    $i - ${data[i]}")
+      }
+
+
       if (castUnsignedCharToInt(data[0]) != 0xAA) {
 //        System.err.println("BluetoothLeService-------------> прошли второй иф")
 //        System.err.println("data.size: " + data.size)
@@ -327,8 +331,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             if ((castUnsignedCharToInt(data[11]) shr 7 and 0b00000001) !=  1) {
               if (!firstActivateSetScaleDialog) {
                 System.err.println("BluetoothLeService-------------> ПОКАЗЫВАЕМ ДИАЛОГ ВЫБОРА РАЗМЕРА ПРОТЕЗА")
-                showChangeSizeDialog()
-                firstActivateSetScaleDialog = true
+                if (mDeviceName != EXTRAS_DEVICE_TYPE_BT05) {
+                  showChangeSizeDialog()
+                  firstActivateSetScaleDialog = true
+                }
               }
             }
 
@@ -364,14 +370,18 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         if (data.size >= 3) {
           dataSens1 = castUnsignedCharToInt(data[0])
           dataSens2 = castUnsignedCharToInt(data[1])
-          RxUpdateMainEvent.getInstance().updateUIGestures(castUnsignedCharToInt(data[2])+1)
+          if (oldNumGesture != castUnsignedCharToInt(data[2])+1) {
+            RxUpdateMainEvent.getInstance().updateUIGestures(castUnsignedCharToInt(data[2])+1)
+            oldNumGesture = castUnsignedCharToInt(data[2])+1
+            System.err.println("displayDataNew номер жеста ${castUnsignedCharToInt(data[2])+1}")
+          }
+
 
           calibrationDialogOpen = false
           savingSettingsWhenModified = true
 
           System.err.println("displayDataNew dataSens1 ${castUnsignedCharToInt(data[0])}")
           System.err.println("displayDataNew dataSens2 ${castUnsignedCharToInt(data[1])}")
-          System.err.println("displayDataNew номер жеста ${castUnsignedCharToInt(data[2])+1}")
           if (data.size in 4..10) {
             val fingersEncoderValue = FingersEncoderValue(castUnsignedCharToInt(data[3]),
                                                           castUnsignedCharToInt(data[4]),

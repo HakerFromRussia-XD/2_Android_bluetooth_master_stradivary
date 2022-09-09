@@ -379,7 +379,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         } else {
           sync_tv?.text = "sync "+seekBar.progress.toString()+"%"
         }
-
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {}
@@ -473,10 +472,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibration)
     }
-
-    //TODO выпилить этот интент после проведения испытаний с 3D
-//    val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)
-//    startActivity(intent)
   }
 
   @SuppressLint("SetTextI18n")

@@ -117,6 +117,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var firstActivateSetScaleDialog = false
   private var scaleProsthesis = 5
   private var oldNumGesture = 0
+  @Volatile
+  private var idCommand = 0
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -204,7 +206,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
           } else {
             if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
+              System.err.println("id-команды: " + (intent.getStringExtra(BluetoothLeService.CHARACTERISTIC_UUID)
+                ?.substring(4)
+                  ?.substringBefore('-') ?: "not write command")
+              )
+
+              if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW), intent.getStringExtra(BluetoothLeService.CHARACTERISTIC_UUID))
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensAndBMSVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) displayDataCloseThresholdNew(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA))
@@ -358,7 +365,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
     }
   }
-  private fun displayDataNew(data: ByteArray?) {
+  private fun displayDataNew(data: ByteArray?, uuid: String?) {
     if (data != null) {
       if (data.size == 2) {
         dataSens1 = castUnsignedCharToInt(data[0])
@@ -688,6 +695,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+
+
+//    runTestTask(1)
+//    runTestTask(5)
+//    runTestTask(4)
+//    runTestTask(2)
+//    runTestTask(3)
+
 
     // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
     // BluetoothAdapter through BluetoothManager.
@@ -1780,9 +1795,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       } catch (ignored: Exception) {}
   }
 
-  private fun runReadData() {
-    getReadData().let { queue.put(it) }
-  }
+  private fun runReadData() { getReadData().let { queue.put(it) } }
   open fun getReadData(): Runnable { return Runnable { readData() } }
   private fun readData() {
     while (readDataFlag) {
@@ -1795,6 +1808,30 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       } catch (ignored: Exception) {}
     }
   }
+
+  private fun runTestTask(idTask: Int) { getTestTask(idTask).let { queue.put(it) } }
+  open fun getTestTask(idTask: Int): Runnable { return Runnable { testTask(idTask) } }
+  private fun testTask(idTask: Int) {
+    var couter = 0
+    idCommand = idTask
+    for (i in 0 until 200) {
+      couter += 1
+      System.err.println("testTask       idTask: $idCommand      counter: $couter")
+
+      try { Thread.sleep(100)
+      } catch (ignored: Exception) {}
+    }
+//    while (readDataFlag) {
+//      System.err.println("read counter: ${countCommand.get()}")
+//      bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
+//      percentSynchronize = 100
+//      updateUIChart(37)
+//      try {
+//        Thread.sleep(100)
+//      } catch (ignored: Exception) {}
+//    }
+  }
+
 
   private fun makeGattUpdateIntentFilter(): IntentFilter {
     val intentFilter = IntentFilter()

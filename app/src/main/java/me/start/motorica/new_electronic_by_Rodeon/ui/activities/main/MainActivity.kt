@@ -15,13 +15,13 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.nfc.NfcAdapter
-import android.opengl.GLES20
 import android.os.*
 import android.view.View
 import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
+import androidx.annotation.IntegerRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -118,7 +118,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var scaleProsthesis = 5
   private var oldNumGesture = 0
   @Volatile
-  private var idCommand = 0
+  private var expectedIdCommand = "not set"
+  private var expectedReceiveConfirmation = 0
+  private var timerResendCommandDLE: CountDownTimer? = null
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -206,12 +208,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
           } else {
             if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              System.err.println("id-команды: " + (intent.getStringExtra(BluetoothLeService.CHARACTERISTIC_UUID)
-                ?.substring(4)
-                  ?.substringBefore('-') ?: "not write command")
-              )
 
-              if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW), intent.getStringExtra(BluetoothLeService.CHARACTERISTIC_UUID))
+              if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
               if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensAndBMSVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) displayDataCloseThresholdNew(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA))
@@ -365,7 +363,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
     }
   }
-  private fun displayDataNew(data: ByteArray?, uuid: String?) {
+  private fun displayDataNew(data: ByteArray?) {
     if (data != null) {
       if (data.size == 2) {
         dataSens1 = castUnsignedCharToInt(data[0])
@@ -387,17 +385,37 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           calibrationDialogOpen = false
           savingSettingsWhenModified = true
 
-          System.err.println("displayDataNew dataSens1 ${castUnsignedCharToInt(data[0])}")
-          System.err.println("displayDataNew dataSens2 ${castUnsignedCharToInt(data[1])}")
+//          System.err.println("displayDataNew dataSens1 ${castUnsignedCharToInt(data[0])}")
+//          System.err.println("displayDataNew dataSens2 ${castUnsignedCharToInt(data[1])}")
           if (data.size in 4..10) {
-            val fingersEncoderValue = FingersEncoderValue(castUnsignedCharToInt(data[3]),
-                                                          castUnsignedCharToInt(data[4]),
-                                                          castUnsignedCharToInt(data[5]),
-                                                          castUnsignedCharToInt(data[6]),
-                   (((88 - castUnsignedCharToInt(data[7])).toFloat()/100*91).toInt()-52),
-                                                          castUnsignedCharToInt(data[8]))
-            RxUpdateMainEvent.getInstance().updateEncoders(fingersEncoderValue)
-            RxUpdateMainEvent.getInstance().updateEncodersError(castUnsignedCharToInt(data[9]))
+            if (data.size >= 10) {
+              val fingersEncoderValue = FingersEncoderValue(
+                castUnsignedCharToInt(data[3]),
+                castUnsignedCharToInt(data[4]),
+                castUnsignedCharToInt(data[5]),
+                castUnsignedCharToInt(data[6]),
+                (((88 - castUnsignedCharToInt(data[7])).toFloat() / 100 * 91).toInt() - 52),
+                castUnsignedCharToInt(data[8])
+              )
+              RxUpdateMainEvent.getInstance().updateEncoders(fingersEncoderValue)
+              RxUpdateMainEvent.getInstance().updateEncodersError(castUnsignedCharToInt(data[9]))
+            }
+          }
+          if (data.size in 11..12) {
+            if (data.size >= 12) {
+
+//              val receiveIdCommand = uuid?.substring(4)?.substringBefore('-') ?: "not write command"
+              val receiveIdCommand = "%02x".format(castUnsignedCharToInt(data[10])) + "%02x".format(castUnsignedCharToInt(data[11]))
+//                      "${Integer.toHexString(castUnsignedCharToInt(data[11]))}"
+              if (expectedIdCommand == receiveIdCommand) {
+                expectedReceiveConfirmation = 2
+                expectedIdCommand = "not set"
+              }
+
+              System.err.println("startSendCommand receiveIdCommand $receiveIdCommand")
+              System.err.println("startSendCommand displayDataNew id part 1 ${castUnsignedCharToInt(data[10])}")
+              System.err.println("startSendCommand displayDataNew id part 2 ${castUnsignedCharToInt(data[11])}")
+            }
           }
         }
       }
@@ -959,16 +977,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
 
-    val testMass = IntArray(5)
-    testMass[4] = 100
-
-    try {
-      testMass[5] = 100
-    } catch (err : Exception) {
-      System.err.println("переполнение массива testMass[4]")
-      err.printStackTrace()
-    }
-    System.err.println("testMass[4] = ${testMass[4]}")
+//    val testMass = IntArray(5)
+//    testMass[4] = 100
+//
+//    try {
+//      testMass[5] = 100
+//    } catch (err : Exception) {
+//      System.err.println("переполнение массива testMass[4]")
+//      err.printStackTrace()
+//    }
+//    System.err.println("testMass[4] = ${testMass[4]}")
   }
 
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {
@@ -1809,27 +1827,64 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
   }
 
-  private fun runTestTask(idTask: Int) { getTestTask(idTask).let { queue.put(it) } }
-  open fun getTestTask(idTask: Int): Runnable { return Runnable { testTask(idTask) } }
-  private fun testTask(idTask: Int) {
-    var couter = 0
-    idCommand = idTask
-    for (i in 0 until 200) {
-      couter += 1
-      System.err.println("testTask       idTask: $idCommand      counter: $couter")
+  fun runSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) { getSendCommand(data, uuidCommand, countRestart).let { queue.put(it) } }
+  open fun getSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int): Runnable { return Runnable { sendCommand(data, uuidCommand, countRestart) } }
+  private fun sendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) {
+    val idCommand = uuidCommand.substring(4).substringBefore('-')
+    val info = "startSendCommand id $idCommand  state"
+    expectedIdCommand = idCommand
+//    val hexString = Integer.toHexString(4)
+    var countRestartLocal = countRestart
+    var state = 0 // переключается здесь в потоке
+    var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
+    var resendCommandTimer = true
+    while (!endFlag) {
+        when (state) {
+          0 -> {
+            System.err.println("$info = $state")
+            bleCommand(data, uuidCommand, WRITE)
+            expectedReceiveConfirmation = 1
+            state += 1
+          }
+          1 -> {
+            if (countRestartLocal > 0) {
+              if (resendCommandTimer) {
+                runOnUiThread{
+                  timerResendCommandDLE = object : CountDownTimer(500, 1) {
+                    override fun onTick(millisUntilFinished: Long) {}
+                    override fun onFinish() {
+                      System.err.println("$info = $state  countRestartLocal=$countRestartLocal")
+                      resendCommandTimer = true
+                      state -= 1
+                      countRestartLocal -= 1
+                    }
+                  }.start()
+                }
+                resendCommandTimer = false
+              }
+            } else {
+              System.err.println("$info = $state  countRestartLocal=$countRestartLocal")
+              state += 1
+              showToast("команда id:$idCommand не отправлена")
+            }
 
-      try { Thread.sleep(100)
+            if (expectedReceiveConfirmation == 2) {
+              timerResendCommandDLE?.cancel()
+              state += 1
+              showToast("команда id:$idCommand отправлена")
+            }
+          }
+          2 -> {
+            System.err.println("$info = $state")
+            endFlag = true
+            state = 0
+            expectedReceiveConfirmation = 0
+          }
+        }
+      try {
+        Thread.sleep(10)
       } catch (ignored: Exception) {}
     }
-//    while (readDataFlag) {
-//      System.err.println("read counter: ${countCommand.get()}")
-//      bleCommand(null, FESTO_A_CHARACTERISTIC, READ)
-//      percentSynchronize = 100
-//      updateUIChart(37)
-//      try {
-//        Thread.sleep(100)
-//      } catch (ignored: Exception) {}
-//    }
   }
 
 

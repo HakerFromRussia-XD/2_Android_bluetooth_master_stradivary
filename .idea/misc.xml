@@ -71,7 +71,7 @@
         <entry key="app/src/main/res/layout/item_scanlist.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/layout_advanced_settings.xml" value="0.32441101074218753" />
         <entry key="app/src/main/res/layout/layout_calibrating_le.xml" value="0.21422101449275363" />
-        <entry key="app/src/main/res/layout/layout_chart.xml" value="0.39194139194139194" />
+        <entry key="app/src/main/res/layout/layout_chart.xml" value="0.1" />
         <entry key="app/src/main/res/layout/layout_dialog.xml" value="0.15070921985815602" />
         <entry key="app/src/main/res/layout/layout_gestures.xml" value="0.15070921985815602" />
         <entry key="app/src/main/res/layout/layout_gripper_settings_le.xml" value="0.15070921985815602" />

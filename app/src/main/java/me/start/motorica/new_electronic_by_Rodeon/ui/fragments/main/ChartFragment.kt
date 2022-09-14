@@ -339,13 +339,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.runWriteData(
-              byteArrayOf(
-                (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-                44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36,
-                18, 44, 52, 64, 72, 0x40, 5, 64
-              ), SENS_OPTIONS_NEW_VM, WRITE
-            )
+            main?.runSendCommand(byteArrayOf(
+              (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+              44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36,
+              18, 44, 52, 64, 72, 0x40, 5, 64
+            ), SENS_OPTIONS_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               main?.runWriteData(

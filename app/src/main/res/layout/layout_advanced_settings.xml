@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_sensamount"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/blueAccent">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -54,7 +55,9 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="0dp"
+                            android:gravity="center_vertical"
                             android:text="@string/shutdown_current"
+                            android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
@@ -69,9 +72,9 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="230"
+                            android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
@@ -126,7 +129,9 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="0dp"
+                            android:gravity="center_vertical"
                             android:text="@string/shutdown_current_1"
+                            android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
@@ -141,9 +146,9 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="230"
+                            android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
@@ -198,7 +203,9 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="0dp"
+                            android:gravity="center_vertical"
                             android:text="@string/shutdown_current_2"
+                            android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
@@ -213,10 +220,10 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="230"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -270,7 +277,9 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="0dp"
+                            android:gravity="center_vertical"
                             android:text="@string/shutdown_current_3"
+                            android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
@@ -285,10 +294,10 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="230"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -342,7 +351,9 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="0dp"
+                            android:gravity="center_vertical"
                             android:text="@string/shutdown_current_4"
+                            android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
@@ -357,10 +368,10 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="230"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -414,7 +425,9 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="0dp"
+                            android:gravity="center_vertical"
                             android:text="@string/shutdown_current_5"
+                            android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
@@ -429,10 +442,10 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="230"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -486,7 +499,9 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="0dp"
+                            android:gravity="center_vertical"
                             android:text="@string/shutdown_current_6"
+                            android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
@@ -501,10 +516,10 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="230"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -555,8 +570,10 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
+                            android:gravity="center_vertical"
                             android:lines="2"
                             android:text="@string/swap_button_open_close"
+                            android:textColor="@color/white"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
@@ -573,6 +590,7 @@
                             android:layout_centerInParent="true"
                             android:text="0"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -626,8 +644,10 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
+                            android:gravity="center_vertical"
                             android:lines="2"
                             android:text="@string/single_channel_control"
+                            android:textColor="@color/white"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
@@ -641,10 +661,10 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="0"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -675,8 +695,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:visibility="gone"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -699,7 +719,9 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
+                            android:gravity="center_vertical"
                             android:lines="2"
+                            android:textColor="@color/white"
                             android:text="@string/prosthesis_blocking"
                             android:textStyle="bold" />
                     </RelativeLayout>
@@ -718,6 +740,7 @@
                             android:layout_centerInParent="true"
                             android:text="0"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText,TooManyViews" />
                     </RelativeLayout>
 
@@ -748,8 +771,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:visibility="gone"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -778,6 +801,7 @@
                             android:lines="3"
                             android:text="@string/hold_to_lock_time"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
 
@@ -791,10 +815,10 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="230"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -845,8 +869,10 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
+                            android:gravity="center_vertical"
                             android:lines="2"
                             android:text="@string/gesture_switching_by_sensors"
+                            android:textColor="@color/white"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
@@ -864,6 +890,7 @@
                             android:layout_centerInParent="true"
                             android:text="0"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText,TooManyViews" />
                     </RelativeLayout>
 
@@ -919,6 +946,7 @@
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
                             android:text="@string/switching_mode"
+                            android:textColor="@color/white"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
@@ -933,9 +961,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
-                            android:text="одним датчиком"
-                            android:textStyle="bold"
-                            tools:ignore="HardcodedText" />
+                            android:text="@string/one_sensor"
+                            android:textColor="@color/white"
+                            android:textStyle="bold" />
                     </RelativeLayout>
 
                     <RelativeLayout
@@ -1024,6 +1052,7 @@
                             android:layout_marginStart="0dp"
                             android:text="@string/time_at_rest"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
 
@@ -1037,10 +1066,11 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="1,00c"
                             android:textStyle="bold"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -1095,8 +1125,10 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="0dp"
+                            android:gravity="center_vertical"
                             android:text="@string/peak_time"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
 
@@ -1110,10 +1142,10 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="1,00c"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -1169,6 +1201,8 @@
                             android:layout_centerVertical="true"
                             android:layout_marginStart="0dp"
                             android:text="@string/time_between_peaks"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
@@ -1183,10 +1217,10 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="1.00c"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -1248,8 +1282,8 @@
                                 android:inputType="textVisiblePassword"
                                 android:maxLength="16"
                                 android:paddingTop="0dp"
-                                android:textColor="#ffffff"
-                                android:textColorHint="#afafaf"
+                                android:textColor="@color/white"
+                                android:textColorHint="@color/white"
                                 android:textSize="14sp"
                                 tools:ignore="Autofill,TextFields,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
                         </com.google.android.material.textfield.TextInputLayout>
@@ -1276,6 +1310,7 @@
                             android:background="@drawable/custom_button_le"
                             android:text="@string/get"
                             android:textSize="10sp"
+                            android:textColor="@color/white"
                             tools:ignore="SmallSp,TouchTargetSizeCheck,TextContrastCheck" />
 
                     </RelativeLayout>
@@ -1300,6 +1335,7 @@
                             android:background="@drawable/custom_button_le"
                             android:text="@string/set"
                             android:textSize="10sp"
+                            android:textColor="@color/white"
                             tools:ignore="SmallSp,TouchTargetSizeCheck,TextContrastCheck" />
 
                     </RelativeLayout>
@@ -1335,6 +1371,8 @@
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
                             android:text="@string/hand_side"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/white"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
@@ -1348,10 +1386,10 @@
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
+                            android:layout_centerInParent="true"
                             android:text="@string/right"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -1406,8 +1444,10 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
+                            android:gravity="center_vertical"
                             android:lines="2"
                             android:text="@string/changing_the_finger_delay_time"
+                            android:textColor="@color/white"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
@@ -1424,6 +1464,7 @@
                             android:layout_centerInParent="true"
                             android:text="0"
                             android:textStyle="bold"
+                            android:textColor="@color/white"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -1470,6 +1511,7 @@
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/custom_button_le"
                     android:text="@string/reset_to_factory_settings"
+                    android:textColor="@color/white"
                     tools:ignore="TouchTargetSizeCheck" />
             </RelativeLayout>
 
@@ -1506,6 +1548,7 @@
                             android:layout_marginTop="0dp"
                             android:layout_marginEnd="16dp"
                             android:background="@drawable/custom_button_le"
+                            android:textColor="@color/white"
                             android:text="@string/start_calibration" />
                     </LinearLayout>
 
@@ -1526,6 +1569,7 @@
                             android:layout_marginEnd="16dp"
                             android:background="@drawable/custom_button_le"
                             android:text="@string/calibration_status"
+                            android:textColor="@color/white"
                             tools:ignore="TouchTargetSizeCheck" />
                     </LinearLayout>
                 </LinearLayout>
@@ -1550,6 +1594,7 @@
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/custom_button_le"
                     android:text="@string/debug_screen"
+                    android:textColor="@color/white"
                     tools:ignore="TouchTargetSizeCheck" />
             </RelativeLayout>
 
@@ -1586,6 +1631,7 @@
                             android:text="@string/version_app"
                             android:textStyle="bold" />
                     </RelativeLayout>
+
                     <RelativeLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"

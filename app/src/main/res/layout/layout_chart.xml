@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_chart"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/blueAccent">
 
     <!-- # Main Layout # -->
     <RelativeLayout
@@ -57,6 +58,7 @@
                 android:layout_marginTop="4dp"
                 android:text="@string/driver_0_00v"
                 android:textSize="10sp"
+                android:textColor="@color/white"
                 tools:ignore="RtlHardcoded,SmallSp" />
 
             <TextView
@@ -70,6 +72,7 @@
                 android:layout_toEndOf="@+id/driver_tv"
                 android:text="@string/bms_0_00v"
                 android:textSize="10sp"
+                android:textColor="@color/white"
                 tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
 
             <TextView
@@ -83,6 +86,7 @@
                 android:layout_toEndOf="@+id/bms_tv"
                 android:text="@string/sens_0_00v"
                 android:textSize="10sp"
+                android:textColor="@color/white"
                 tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
 
             <TextView
@@ -96,6 +100,7 @@
                 android:layout_marginEnd="5dp"
                 android:text="@string/sync_0"
                 android:textSize="10sp"
+                android:textColor="@color/white"
                 tools:ignore="RtlHardcoded,SmallSp" />
 
             <androidx.appcompat.widget.AppCompatSeekBar
@@ -375,6 +380,7 @@
                                 android:text="@string/opening_sensor_sensitivity"
                                 android:textSize="9sp"
                                 android:textStyle="bold"
+                                android:textColor="@color/white"
                                 tools:ignore="SmallSp" />
                         </RelativeLayout>
 
@@ -388,10 +394,10 @@
                                 style="@style/Text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_centerHorizontal="true"
-                                android:layout_centerVertical="true"
+                                android:layout_centerInParent="true"
                                 android:text="0"
                                 android:textStyle="bold"
+                                android:textColor="@color/white"
                                 tools:ignore="HardcodedText" />
                         </RelativeLayout>
 
@@ -468,6 +474,7 @@
                                 android:text="@string/closing_sensor_sensitivity"
                                 android:textSize="9sp"
                                 android:textStyle="bold"
+                                android:textColor="@color/white"
                                 tools:ignore="SmallSp" />
                         </RelativeLayout>
 
@@ -481,10 +488,10 @@
                                 style="@style/Text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_centerHorizontal="true"
-                                android:layout_centerVertical="true"
+                                android:layout_centerInParent="true"
                                 android:text="0"
                                 android:textStyle="bold"
+                                android:textColor="@color/white"
                                 tools:ignore="HardcodedText" />
                         </RelativeLayout>
 
@@ -535,6 +542,7 @@
                                 android:layout_alignParentStart="true"
                                 android:layout_centerVertical="true"
                                 android:text="@string/swap_sensors"
+                                android:textColor="@color/white"
                                 android:textStyle="bold" />
                         </RelativeLayout>
 
@@ -548,10 +556,10 @@
                                 style="@style/Text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_centerHorizontal="true"
-                                android:layout_centerVertical="true"
+                                android:layout_centerInParent="true"
                                 android:text="0"
                                 android:textStyle="bold"
+                                android:textColor="@color/white"
                                 tools:ignore="HardcodedText" />
                         </RelativeLayout>
 
@@ -605,6 +613,7 @@
                                 android:layout_alignParentStart="true"
                                 android:layout_centerVertical="true"
                                 android:text="@string/settings_blocking"
+                                android:textColor="@color/white"
                                 android:textStyle="bold" />
                         </RelativeLayout>
 
@@ -618,9 +627,9 @@
                                 style="@style/Text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_centerHorizontal="true"
-                                android:layout_centerVertical="true"
+                                android:layout_centerInParent="true"
                                 android:text="@string/off"
+                                android:textColor="@color/white"
                                 android:textStyle="bold" />
                         </RelativeLayout>
 
@@ -674,6 +683,7 @@
                                 android:layout_marginEnd="8dp"
                                 android:background="@drawable/custom_button_le"
                                 android:text="@string/open_btn"
+                                android:textColor="@color/white"
                                 android:visibility="visible" />
                         </RelativeLayout>
 
@@ -691,6 +701,7 @@
                                 android:layout_marginTop="16dp"
                                 android:background="@drawable/custom_button_le"
                                 android:text="@string/close_btn"
+                                android:textColor="@color/white"
                                 android:visibility="visible" />
                         </RelativeLayout>
                     </LinearLayout>
@@ -711,6 +722,7 @@
                         android:layout_marginEnd="16dp"
                         android:layout_marginBottom="3dp"
                         android:background="@drawable/custom_button_le"
+                        android:textColor="@color/white"
                         android:text="@string/start_calibration" />
                 </RelativeLayout>
 

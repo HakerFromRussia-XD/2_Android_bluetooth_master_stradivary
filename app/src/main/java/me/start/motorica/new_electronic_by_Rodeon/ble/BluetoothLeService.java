@@ -192,8 +192,6 @@ public class BluetoothLeService extends Service {
             if (String.valueOf(characteristic.getUuid()).equals(DRIVER_VERSION_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(DRIVER_VERSION_NEW_DATA, data); }
             }
-
-
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT_NEW_VM)) {
                 intent.putExtra(MIO_DATA_NEW, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);

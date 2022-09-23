@@ -231,6 +231,7 @@
     <string name="yes">yes</string>
     <string name="the_size_of_your_prosthesis">The size of your prosthesis</string>
     <string name="amplitude">amplitude</string>
+    <string name="one_sensor">one sensor</string>
 
     <string-array name="numbers">
         <item>0</item>

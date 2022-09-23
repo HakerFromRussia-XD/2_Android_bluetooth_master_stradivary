@@ -104,7 +104,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersClose)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, WRITE)
+              main?.runSendCommand(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW, WRITE)
@@ -115,7 +115,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, WRITE)
+              main?.runSendCommand(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW, WRITE)
@@ -128,7 +128,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpen)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, WRITE)
+              main?.runSendCommand(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW, WRITE)
@@ -139,7 +139,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, WRITE)
+              main?.runSendCommand(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW, WRITE)
@@ -158,7 +158,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpen)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, WRITE)
+              main?.runSendCommand(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW, WRITE)
@@ -169,7 +169,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, WRITE)
+              main?.runSendCommand(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW, WRITE)
@@ -182,7 +182,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersClose)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, WRITE)
+              main?.runSendCommand(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW, WRITE)
@@ -193,7 +193,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, WRITE)
+              main?.runSendCommand(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW, WRITE)
@@ -210,7 +210,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     val eventYandexMetricaParametersOpenCH = "{\"Screen chart\":\"Change threshold open sensor\"}"
     open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH1 = $progress")
         ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
@@ -223,8 +222,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, WRITE
-            )
+            main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW, WRITE
@@ -245,7 +243,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     val eventYandexMetricaParametersCloseCH = "{\"Screen chart\":\"Change threshold close sensor\"}"
     close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH2 = $progress")
         ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()
@@ -257,25 +254,12 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.runWriteData(
-              byteArrayOf(seekBar.progress.toByte()),
-              CLOSE_THRESHOLD_NEW_VM,
-              WRITE
-            )
+            main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(
-                byteArrayOf(seekBar.progress.toByte()),
-                CLOSE_THRESHOLD_NEW,
-                WRITE
-              )
+              main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW, WRITE)
             } else {
-              main?.bleCommandConnector(
-                byteArrayOf(seekBar.progress.toByte()),
-                CLOSE_THRESHOLD_HDLE,
-                WRITE,
-                5
-              )
+              main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
             }
           }
           if (main?.savingSettingsWhenModified == true) {
@@ -296,13 +280,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.runWriteData(
-              byteArrayOf(
-                (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
-                64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-                44, 52, 64, 72, 0x40, 5, 64
-              ), SENS_OPTIONS_NEW_VM, WRITE
-            )
+            main?.runSendCommand(byteArrayOf(
+              (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+              64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+              44, 52, 64, 72, 0x40, 5, 64
+            ), SENS_OPTIONS_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               main?.runWriteData(
@@ -389,7 +371,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (swap_sensors_sw.isChecked) {
           swap_sensors_tv.text = 1.toString()
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW_VM, WRITE)
+            main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW, WRITE)
@@ -402,7 +384,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         } else {
           swap_sensors_tv.text = 0.toString()
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW_VM, WRITE)
+            main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW, WRITE)
@@ -452,7 +434,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
         if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-          main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW_VM, WRITE)
+          main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
         } else {
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
@@ -460,7 +442,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         }
       } else {
         if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-          main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW_VM, WRITE)
+          main?.runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
         } else {
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)

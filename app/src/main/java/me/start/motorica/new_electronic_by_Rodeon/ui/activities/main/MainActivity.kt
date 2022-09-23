@@ -71,6 +71,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var mDeviceName: String? = null
   var mDeviceAddress: String? = null
   var mDeviceType: String? = null
+  var driverVersionS: String? = null
   private var mBluetoothLeService: BluetoothLeService? = null
   private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
   private var mGattServicesList: ExpandableListView? = null
@@ -149,20 +150,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private var gestureTable: Array<Array<Array<Int>>> = Array(7) { Array(2) { Array(6) { 0 } } }
   private var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
-//  private var byteActiveGesture: Byte = 0 // номер активного в данный момент жеста 0-7
-//  private var byteSideHand: Byte = 0 //  0-left 1-right
   var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   var telemetryNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
-//  private var firstShowPreloaderCalibration: Boolean = true // нужна для одиночного показа уведомления о начале калибровки
-//  private var firstHidePreloaderCalibration: Boolean = true // нужна для скрытия уведомления о начале калибровки
   private lateinit var dialog: DialogFragment
-
-  // Handles various events fired by the Service.
-  // ACTION_GATT_CONNECTED: connected to a GATT server.
-  // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
-  // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
-  // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
-  //                        or notification operations.
   private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
       val action = intent.action
@@ -385,8 +375,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           calibrationDialogOpen = false
           savingSettingsWhenModified = true
 
-//          System.err.println("displayDataNew dataSens1 ${castUnsignedCharToInt(data[0])}")
-//          System.err.println("displayDataNew dataSens2 ${castUnsignedCharToInt(data[1])}")
+
           if (data.size in 4..10) {
             if (data.size >= 10) {
               val fingersEncoderValue = FingersEncoderValue(
@@ -403,18 +392,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
           if (data.size in 11..12) {
             if (data.size >= 12) {
-
-//              val receiveIdCommand = uuid?.substring(4)?.substringBefore('-') ?: "not write command"
-              val receiveIdCommand = "%02x".format(castUnsignedCharToInt(data[10])) + "%02x".format(castUnsignedCharToInt(data[11]))
-//                      "${Integer.toHexString(castUnsignedCharToInt(data[11]))}"
+              val receiveIdCommand = "%02x".format(castUnsignedCharToInt(data[11])) + "%02x".format(castUnsignedCharToInt(data[10]))
               if (expectedIdCommand == receiveIdCommand) {
+                System.err.println("startSendCommand id $receiveIdCommand  receive")
                 expectedReceiveConfirmation = 2
                 expectedIdCommand = "not set"
               }
-
-              System.err.println("startSendCommand receiveIdCommand $receiveIdCommand")
-              System.err.println("startSendCommand displayDataNew id part 1 ${castUnsignedCharToInt(data[10])}")
-              System.err.println("startSendCommand displayDataNew id part 2 ${castUnsignedCharToInt(data[11])}")
             }
           }
         }
@@ -648,6 +631,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
       }
 
+      driverVersionS = driverVersion
       driver_tv?.text = resources.getString(R.string.driver) +driverVersion + "v"
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
@@ -976,17 +960,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
-
-//    val testMass = IntArray(5)
-//    testMass[4] = 100
-//
-//    try {
-//      testMass[5] = 100
-//    } catch (err : Exception) {
-//      System.err.println("переполнение массива testMass[4]")
-//      err.printStackTrace()
-//    }
-//    System.err.println("testMass[4] = ${testMass[4]}")
   }
 
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {
@@ -1831,9 +1804,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   open fun getSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int): Runnable { return Runnable { sendCommand(data, uuidCommand, countRestart) } }
   private fun sendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) {
     val idCommand = uuidCommand.substring(4).substringBefore('-')
-    val info = "startSendCommand id $idCommand  state"
+    val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
+    val useNewSystemSendCommand = driverNum.toInt() > 233
+    val info = "startSendCommand id $idCommand   state"
     expectedIdCommand = idCommand
-//    val hexString = Integer.toHexString(4)
     var countRestartLocal = countRestart
     var state = 0 // переключается здесь в потоке
     var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
@@ -1841,10 +1815,17 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     while (!endFlag) {
         when (state) {
           0 -> {
-            System.err.println("$info = $state")
+            System.err.println("$info = $state  countRestart:$countRestart")
             bleCommand(data, uuidCommand, WRITE)
-            expectedReceiveConfirmation = 1
-            state += 1
+            if (useNewSystemSendCommand) {
+              expectedReceiveConfirmation = 1
+              state += 1 //если версия используемого протеза (касается только FEST-X) 234 и
+            // выше то ожидаем подтверждения оправки команды и используем повторную отправку
+            // до подтверждения
+            } else {
+              state += 2 //если версия используемого протеза (касается только FEST-X) 233 и
+            // ниже, то просто отправляем команду и завершаем отправку команды
+            }
           }
           1 -> {
             if (countRestartLocal > 0) {
@@ -1853,7 +1834,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                   timerResendCommandDLE = object : CountDownTimer(500, 1) {
                     override fun onTick(millisUntilFinished: Long) {}
                     override fun onFinish() {
-                      System.err.println("$info = $state  countRestartLocal=$countRestartLocal")
+//                      System.err.println("$info = $state  countRestartLocal=$countRestartLocal")
                       resendCommandTimer = true
                       state -= 1
                       countRestartLocal -= 1
@@ -1863,15 +1844,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                 resendCommandTimer = false
               }
             } else {
-              System.err.println("$info = $state  countRestartLocal=$countRestartLocal")
               state += 1
-              showToast("команда id:$idCommand не отправлена")
+              showToast("Нестабильное соединение, поднесите протез ближе к смартфону")
             }
 
             if (expectedReceiveConfirmation == 2) {
               timerResendCommandDLE?.cancel()
               state += 1
-              showToast("команда id:$idCommand отправлена")
+//              showToast("команда id:$idCommand отправлена")
             }
           }
           2 -> {

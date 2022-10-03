@@ -21,7 +21,6 @@ import android.view.WindowManager
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
-import androidx.annotation.IntegerRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -115,7 +114,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private val listName = "NAME"
   private val listUUID = "UUID"
-  private var firstActivateSetScaleDialog = false
+  var firstActivateSetScaleDialog = false
   private var scaleProsthesis = 5
   private var oldNumGesture = 0
   @Volatile
@@ -895,121 +894,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
     initUI()
   }
-
-  private fun initUI() {
-    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-      if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
-        val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
-
-        val myIntent = Intent(this, MyService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-          ContextCompat.startForegroundService(this, myIntent)
-        } else {
-          startService(myIntent)
-        }
-      } else {
-      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
-      ) {
-        val mSectionsPagerAdapter = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
-      } else {
-        val mSectionsPagerAdapter =
-          SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
-      }
-    }
-      NavigationUtils.showAdvancedSettings = true
-    } else {
-      if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
-        val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
-
-        val myIntent = Intent(this, MyService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-          ContextCompat.startForegroundService(this, myIntent)
-        } else {
-          startService(myIntent)
-        }
-      } else {
-        if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-          || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
-          || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
-        ) {
-          val mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
-          mainactivity_viewpager.adapter = mSectionsPagerAdapter
-          mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
-        } else {
-          val mSectionsPagerAdapter = SectionsPagerAdapterMonograb(supportFragmentManager)
-          mainactivity_viewpager.adapter = mSectionsPagerAdapter
-          //здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-          mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
-        }
-      }
-    }
-
-    mainactivity_viewpager.offscreenPageLimit = 3
-    NavigationUtils.setComponents(baseContext, mainactivity_navi)
-  }
-
-  fun showAdvancedSettings(showAdvancedSettings: Boolean) {
-    NavigationUtils.showAdvancedSettings = showAdvancedSettings
-    if (showAdvancedSettings) {
-      saveInt(PreferenceKeys.ADVANCED_SETTINGS, 1)
-    }  else {
-      saveInt(PreferenceKeys.ADVANCED_SETTINGS, 0)
-    }
-
-
-    mainactivity_viewpager.isSaveFromParentEnabled = false
-    if (showAdvancedSettings) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-        val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
-      } else {
-        val mSectionsPagerAdapter =  SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
-      }
-    } else {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
-        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-        val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-      } else {
-        val mSectionsPagerAdapter =  SectionsPagerAdapterMonograb(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-      }
-    }
-
-    Toast.makeText(this, "Advanced settings: $showAdvancedSettings", Toast.LENGTH_SHORT).show()
-
-    mainactivity_viewpager.offscreenPageLimit = 3
-    NavigationUtils.setComponents(baseContext, mainactivity_navi)
-    updateUIChart(40)
-  }
-
-
   override fun onResume() {
     super.onResume()
     // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
@@ -1047,8 +931,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     endFlag = true
 
   }
-
-
   override fun onDestroy() {
     super.onDestroy()
     if (mBluetoothLeService != null) {
@@ -1064,6 +946,72 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     super.onNewIntent(intent)
     setIntent(intent)
   }
+  private fun initUI() {
+    if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+      if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
+        val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+
+        val myIntent = Intent(this, MyService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+          ContextCompat.startForegroundService(this, myIntent)
+        } else {
+          startService(myIntent)
+        }
+      } else {
+        if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+          || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+          || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
+        ) {
+          val mSectionsPagerAdapter = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
+          mainactivity_viewpager.adapter = mSectionsPagerAdapter
+          mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
+        } else {
+          val mSectionsPagerAdapter =
+            SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
+          mainactivity_viewpager.adapter = mSectionsPagerAdapter
+          mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+        }
+      }
+      NavigationUtils.showAdvancedSettings = true
+    } else {
+      if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
+        val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+
+        val myIntent = Intent(this, MyService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+          ContextCompat.startForegroundService(this, myIntent)
+        } else {
+          startService(myIntent)
+        }
+      } else {
+        if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+          || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+          || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
+        ) {
+          val mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+          mainactivity_viewpager.adapter = mSectionsPagerAdapter
+          mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
+        } else {
+          val mSectionsPagerAdapter = SectionsPagerAdapterMonograb(supportFragmentManager)
+          mainactivity_viewpager.adapter = mSectionsPagerAdapter
+          //здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+          mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+        }
+      }
+    }
+
+    mainactivity_viewpager.offscreenPageLimit = 3
+    NavigationUtils.setComponents(baseContext, mainactivity_navi)
+  }
+
 
   // Demonstrates how to iterate through the supported GATT Services/Characteristics.
   // In this sample, we populate the data structure that is bound to the ExpandableListView
@@ -1921,6 +1869,52 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun openFragmentInfoNotCalibration() {
     val dialog = CustomInfoNotCalibratedDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
+  }
+  fun showAdvancedSettings(showAdvancedSettings: Boolean) {
+    NavigationUtils.showAdvancedSettings = showAdvancedSettings
+    if (showAdvancedSettings) {
+      saveInt(PreferenceKeys.ADVANCED_SETTINGS, 1)
+    }  else {
+      saveInt(PreferenceKeys.ADVANCED_SETTINGS, 0)
+    }
+
+
+    mainactivity_viewpager.isSaveFromParentEnabled = false
+    if (showAdvancedSettings) {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+        val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
+      } else {
+        val mSectionsPagerAdapter =  SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+      }
+    } else {
+      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+        val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+      } else {
+        val mSectionsPagerAdapter =  SectionsPagerAdapterMonograb(supportFragmentManager)
+        mainactivity_viewpager.adapter = mSectionsPagerAdapter
+        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+      }
+    }
+
+    Toast.makeText(this, "Advanced settings: $showAdvancedSettings", Toast.LENGTH_SHORT).show()
+
+    mainactivity_viewpager.offscreenPageLimit = 3
+    NavigationUtils.setComponents(baseContext, mainactivity_navi)
+    updateUIChart(40)
   }
   @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")
   private fun showCalibrationInfoDialog(statusFinger: List<String>, statusEncoderFingers: List<Int>, statusCurrentFingers: List<Int>) {

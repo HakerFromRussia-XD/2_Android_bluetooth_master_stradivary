@@ -58,7 +58,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             }
         return rootView
     }
-
     @SuppressLint("ClickableViewAccessibility", "UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -129,6 +128,105 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         }
 
     }
+    override fun onResume() {
+        super.onResume()
+        gestureNameList.clear()
+        loadNameGestures()
+        testThreadFlag = true
+
+        //включение работы протеза от датчиков
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.runWriteData(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW, WRITE)
+        }
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.runSendCommand(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW_VM, 50)
+        }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        testThreadFlag = false
+    }
+
+    private fun compileBLEMassage (useGesture: Int) {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.runSendCommand(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW_VM, 50)
+        } else {
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                main?.runWriteData(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW, WRITE)
+            } else {
+                main?.bleCommandConnector(byteArrayOf(useGesture.toByte()), SET_GESTURE, WRITE, 13)
+            }
+        }
+    }
+    @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
+    fun resetStateButtons() {
+        gesture_1_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
+        gesture_2_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
+        gesture_3_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
+        gesture_4_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
+        gesture_5_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
+        gesture_6_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
+        gesture_7_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
+        gesture_8_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
+        gesture_1_btn?.textColor = WHITE
+        gesture_2_btn?.textColor = WHITE
+        gesture_3_btn?.textColor = WHITE
+        gesture_4_btn?.textColor = WHITE
+        gesture_5_btn?.textColor = WHITE
+        gesture_6_btn?.textColor = WHITE
+        gesture_7_btn?.textColor = WHITE
+        gesture_8_btn?.textColor = WHITE
+        gesture_settings_1_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_settings_2_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_settings_3_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_settings_4_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_settings_5_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_settings_6_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_settings_7_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_settings_8_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+    }
+    private fun loadNameGestures() {
+        myLoadGesturesList()
+        gesture_1_btn?.text = gestureNameList[0]
+        gesture_2_btn?.text = gestureNameList[1]
+        gesture_3_btn?.text = gestureNameList[2]
+        gesture_4_btn?.text = gestureNameList[3]
+        gesture_5_btn?.text = gestureNameList[4]
+        gesture_6_btn?.text = gestureNameList[5]
+        gesture_7_btn?.text = gestureNameList[6]
+        gesture_8_btn?.text = gestureNameList[7]
+    }
+    @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
+    private fun selectActiveGesture(active: Int) {
+        resetStateButtons()
+        when (active) {
+            1 -> { gesture_1_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                   gesture_1_btn?.textColor = resources.getColor(R.color.orange)
+                   gesture_settings_1_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            2 -> { gesture_2_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                   gesture_2_btn?.textColor = resources.getColor(R.color.orange)
+                   gesture_settings_2_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            3 -> { gesture_3_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                   gesture_3_btn?.textColor = resources.getColor(R.color.orange)
+                   gesture_settings_3_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            4 -> { gesture_4_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                   gesture_4_btn?.textColor = resources.getColor(R.color.orange)
+                   gesture_settings_4_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            5 -> { gesture_5_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                   gesture_5_btn?.textColor = resources.getColor(R.color.orange)
+                   gesture_settings_5_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            6 -> { gesture_6_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                   gesture_6_btn?.textColor = resources.getColor(R.color.orange)
+                   gesture_settings_6_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            7 -> { gesture_7_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                   gesture_7_btn?.textColor = resources.getColor(R.color.orange)
+                   gesture_settings_7_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            8 -> { gesture_8_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                   gesture_8_btn?.textColor = resources.getColor(R.color.orange)
+                   gesture_settings_8_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+        }
+        main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, active)
+    }
 
     override fun onClick(v: View?) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
@@ -171,114 +269,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW, WRITE)
         }
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, WRITE)
+            main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 50)
         }
     }
-
-    private fun compileBLEMassage (useGesture: Int) {
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            main?.runWriteData(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW_VM, WRITE)
-        } else {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-                main?.runWriteData(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW, WRITE)
-            } else {
-                main?.bleCommandConnector(byteArrayOf(useGesture.toByte()), SET_GESTURE, WRITE, 13)
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        gestureNameList.clear()
-        loadNameGestures()
-        testThreadFlag = true
-
-        //включение работы протеза от датчиков
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-            main?.runWriteData(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW, WRITE)
-        }
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            main?.runWriteData(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW_VM, WRITE)
-        }
-    }
-    override fun onDestroy() {
-        super.onDestroy()
-        testThreadFlag = false
-    }
-
-
-    @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
-    fun resetStateButtons() {
-        gesture_1_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_2_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_3_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_4_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_5_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_6_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_7_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_8_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_1_btn?.textColor = WHITE
-        gesture_2_btn?.textColor = WHITE
-        gesture_3_btn?.textColor = WHITE
-        gesture_4_btn?.textColor = WHITE
-        gesture_5_btn?.textColor = WHITE
-        gesture_6_btn?.textColor = WHITE
-        gesture_7_btn?.textColor = WHITE
-        gesture_8_btn?.textColor = WHITE
-        gesture_settings_1_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_2_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_3_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_4_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_5_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_6_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_7_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_8_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-    }
-
-    private fun loadNameGestures() {
-        myLoadGesturesList()
-        gesture_1_btn?.text = gestureNameList[0]
-        gesture_2_btn?.text = gestureNameList[1]
-        gesture_3_btn?.text = gestureNameList[2]
-        gesture_4_btn?.text = gestureNameList[3]
-        gesture_5_btn?.text = gestureNameList[4]
-        gesture_6_btn?.text = gestureNameList[5]
-        gesture_7_btn?.text = gestureNameList[6]
-        gesture_8_btn?.text = gestureNameList[7]
-    }
-
-    @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
-    private fun selectActiveGesture(active: Int) {
-        resetStateButtons()
-        when (active) {
-            1 -> { gesture_1_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_1_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_1_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            2 -> { gesture_2_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_2_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_2_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            3 -> { gesture_3_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_3_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_3_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            4 -> { gesture_4_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_4_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_4_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            5 -> { gesture_5_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_5_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_5_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            6 -> { gesture_6_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_6_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_6_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            7 -> { gesture_7_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_7_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_7_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            8 -> { gesture_8_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_8_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_8_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-        }
-        main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, active)
-    }
-
     override fun onValueSelected(e: Entry?, h: Highlight?) {}
     override fun onNothingSelected() {}
 

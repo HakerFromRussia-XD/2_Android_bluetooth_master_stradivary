@@ -121,6 +121,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var expectedIdCommand = "not set"
   private var expectedReceiveConfirmation = 0
   private var timerResendCommandDLE: CountDownTimer? = null
+  var stage = "not set"
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -748,6 +749,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               System.err.println("Prishedshie parametri: ${parameters.openStage1.toByte()}")
               if (parameters.onlyNumberGesture) {
                 if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+                  stage = "main activity"
                   runSendCommand(
                     byteArrayOf((parameters.gestureNumber).toByte()),
                     CHANGE_GESTURE_NEW_VM, 50)
@@ -760,6 +762,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               } else {
                 if (parameters.state == 1) {
                   if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+                    stage = "main activity"
                     runSendCommand(byteArrayOf(
                       parameters.openStage1.toByte(),
                       parameters.openStage2.toByte(),
@@ -782,6 +785,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                   }
                 } else {
                   if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+                    stage = "main activity"
                     runSendCommand(byteArrayOf(
                       parameters.closeStage1.toByte(),
                       parameters.closeStage2.toByte(),
@@ -812,6 +816,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                   System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage6: ${parameters.openStage6}    closeStage6: ${parameters.closeStage6}")
 
                   if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+                    stage = "main activity"
                     runSendCommand(byteArrayOf(
                       (parameters.gestureNumber).toByte(),
                       parameters.openStage1.toByte(),
@@ -1752,65 +1757,71 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private fun sendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) {
     val idCommand = uuidCommand.substring(4).substringBefore('-')
     val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
-    val useNewSystemSendCommand = driverNum.toInt() > 233
-    val info = "startSendCommand id $idCommand   state"
-    expectedIdCommand = idCommand
-    var countRestartLocal = countRestart
-    var state = 0 // переключается здесь в потоке
-    var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
-    var resendCommandTimer = true
-    while (!endFlag) {
-        when (state) {
-          0 -> {
-            System.err.println("$info = $state  countRestart:$countRestart")
-            bleCommand(data, uuidCommand, WRITE)
-            if (useNewSystemSendCommand) {
-              expectedReceiveConfirmation = 1
-              state += 1 //если версия используемого протеза (касается только FEST-X) 234 и
-            // выше то ожидаем подтверждения оправки команды и используем повторную отправку
-            // до подтверждения
-            } else {
-              state += 2 //если версия используемого протеза (касается только FEST-X) 233 и
-            // ниже, то просто отправляем команду и завершаем отправку команды
-            }
-          }
-          1 -> {
-            if (countRestartLocal > 0) {
-              if (resendCommandTimer) {
-                runOnUiThread{
-                  timerResendCommandDLE = object : CountDownTimer(500, 1) {
-                    override fun onTick(millisUntilFinished: Long) {}
-                    override fun onFinish() {
-//                      System.err.println("$info = $state  countRestartLocal=$countRestartLocal")
-                      resendCommandTimer = true
-                      state -= 1
-                      countRestartLocal -= 1
-                    }
-                  }.start()
-                }
-                resendCommandTimer = false
+//    System.err.println("startSendCommand $stage")
+    try {
+      val useNewSystemSendCommand = driverNum.toInt() > 233
+      val info = "startSendCommand id $idCommand   state"
+      expectedIdCommand = idCommand
+      var countRestartLocal = countRestart
+      var state = 0 // переключается здесь в потоке
+      var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
+      var resendCommandTimer = true
+      while (!endFlag) {
+          when (state) {
+            0 -> {
+              System.err.println("$info = $state  countRestart:$countRestart")
+              bleCommand(data, uuidCommand, WRITE)
+              if (useNewSystemSendCommand) {
+                expectedReceiveConfirmation = 1
+                state += 1 //если версия используемого протеза (касается только FEST-X) 234 и
+              // выше то ожидаем подтверждения оправки команды и используем повторную отправку
+              // до подтверждения
+              } else {
+                state += 2 //если версия используемого протеза (касается только FEST-X) 233 и
+              // ниже, то просто отправляем команду и завершаем отправку команды
               }
-            } else {
-              state += 1
-              showToast("Нестабильное соединение, поднесите протез ближе к смартфону")
             }
+            1 -> {
+              if (countRestartLocal > 0) {
+                if (resendCommandTimer) {
+                  runOnUiThread{
+                    timerResendCommandDLE = object : CountDownTimer(500, 1) {
+                      override fun onTick(millisUntilFinished: Long) {}
+                      override fun onFinish() {
+  //                      System.err.println("$info = $state  countRestartLocal=$countRestartLocal")
+                        resendCommandTimer = true
+                        state -= 1
+                        countRestartLocal -= 1
+                      }
+                    }.start()
+                  }
+                  resendCommandTimer = false
+                }
+              } else {
+                state += 1
+                showToast("Нестабильное соединение, поднесите протез ближе к смартфону")
+              }
 
-            if (expectedReceiveConfirmation == 2) {
-              timerResendCommandDLE?.cancel()
-              state += 1
-//              showToast("команда id:$idCommand отправлена")
+              if (expectedReceiveConfirmation == 2) {
+                timerResendCommandDLE?.cancel()
+                state += 1
+  //              showToast("команда id:$idCommand отправлена")
+              }
+            }
+            2 -> {
+              System.err.println("$info = $state")
+              endFlag = true
+              state = 0
+              expectedReceiveConfirmation = 0
             }
           }
-          2 -> {
-            System.err.println("$info = $state")
-            endFlag = true
-            state = 0
-            expectedReceiveConfirmation = 0
-          }
-        }
-      try {
-        Thread.sleep(10)
-      } catch (ignored: Exception) {}
+        try {
+          Thread.sleep(10)
+        } catch (ignored: Exception) {}
+      }
+    } catch (err : Exception)  {
+      System.err.println("startSendCommand Exception: $err")
+      return
     }
   }
 

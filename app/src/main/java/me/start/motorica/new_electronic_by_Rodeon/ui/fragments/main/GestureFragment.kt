@@ -139,6 +139,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             main?.runWriteData(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW, WRITE)
         }
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "gesture activity 1"
             main?.runSendCommand(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW_VM, 50)
         }
     }
@@ -149,6 +150,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 
     private fun compileBLEMassage (useGesture: Int) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "gesture activity 2"
             main?.runSendCommand(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW_VM, 50)
         } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
@@ -269,6 +271,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW, WRITE)
         }
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "gesture activity 3"
             main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 50)
         }
     }

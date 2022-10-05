@@ -104,6 +104,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersClose)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
               main?.runSendCommand(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -115,6 +116,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
               main?.runSendCommand(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -128,6 +130,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpen)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
               main?.runSendCommand(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -139,6 +142,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
               main?.runSendCommand(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -158,6 +162,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpen)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
               main?.runSendCommand(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -169,6 +174,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
               main?.runSendCommand(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -182,6 +188,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersClose)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
               main?.runSendCommand(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -193,6 +200,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
           }
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
               main?.runSendCommand(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -222,6 +230,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
             main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -254,6 +263,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
             main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -280,6 +290,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
             main?.runSendCommand(byteArrayOf(
               (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
               64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
@@ -321,6 +332,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
             main?.runSendCommand(byteArrayOf(
               (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
               44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36,
@@ -371,6 +383,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         if (swap_sensors_sw.isChecked) {
           swap_sensors_tv.text = 1.toString()
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
             main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -384,6 +397,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         } else {
           swap_sensors_tv.text = 0.toString()
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
             main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -434,6 +448,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
         if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+          main?.stage = "chart activity"
           main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
         } else {
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -442,6 +457,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         }
       } else {
         if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+          main?.stage = "chart activity"
           main?.runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
         } else {
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {

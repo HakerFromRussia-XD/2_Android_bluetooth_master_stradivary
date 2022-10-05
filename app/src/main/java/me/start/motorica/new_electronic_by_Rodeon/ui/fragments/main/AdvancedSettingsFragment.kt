@@ -179,6 +179,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               shutdown_current_1_sb?.progress?.toByte()!!,
               shutdown_current_2_sb?.progress?.toByte()!!,
@@ -214,6 +215,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               shutdown_current_1_sb?.progress?.toByte()!!,
               shutdown_current_2_sb?.progress?.toByte()!!,
@@ -251,6 +253,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               shutdown_current_1_sb?.progress?.toByte()!!,
               shutdown_current_2_sb?.progress?.toByte()!!,
@@ -288,6 +291,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               shutdown_current_1_sb?.progress?.toByte()!!,
               shutdown_current_2_sb?.progress?.toByte()!!,
@@ -325,6 +329,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               shutdown_current_1_sb?.progress?.toByte()!!,
               shutdown_current_2_sb?.progress?.toByte()!!,
@@ -362,6 +367,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               shutdown_current_1_sb?.progress?.toByte()!!,
               shutdown_current_2_sb?.progress?.toByte()!!,
@@ -412,6 +418,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (single_channel_control_sw.isChecked) {
           single_channel_control_tv?.text = "1"
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
@@ -426,6 +433,7 @@ class AdvancedSettingsFragment : Fragment() {
         } else {
           single_channel_control_tv?.text = "0"
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW_VM, 50)
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
@@ -448,6 +456,7 @@ class AdvancedSettingsFragment : Fragment() {
           on_off_prosthesis_blocking_tv?.text = "1"
           lockProsthesis = 0x01
           hold_to_lock_time_rl?.visibility = View.VISIBLE
+          main?.stage = "advanced activity"
           main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
             0.toByte(),
             peak_time_vm_sb?.progress?.toByte()!!,
@@ -460,6 +469,7 @@ class AdvancedSettingsFragment : Fragment() {
           on_off_prosthesis_blocking_tv?.text = "0"
           lockProsthesis = 0x00
           hold_to_lock_time_rl?.visibility = View.GONE
+          main?.stage = "advanced activity"
           main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
             0.toByte(),
             peak_time_vm_sb?.progress?.toByte()!!,
@@ -489,6 +499,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.stage = "advanced activity"
           main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
             0.toByte(),
             peak_time_vm_sb?.progress?.toByte()!!,
@@ -515,6 +526,7 @@ class AdvancedSettingsFragment : Fragment() {
             peak_time_rl?.visibility = View.GONE
             mode_new_rl?.visibility = View.GONE
             peak_time_vm_rl?.visibility = View.VISIBLE
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
               0.toByte(),
               peak_time_vm_sb?.progress?.toByte()!!,
@@ -541,6 +553,7 @@ class AdvancedSettingsFragment : Fragment() {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             mode_new_rl?.visibility = View.GONE
             peak_time_vm_rl?.visibility = View.GONE
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
               0.toByte(),
               peak_time_vm_sb?.progress?.toByte()!!,
@@ -587,6 +600,7 @@ class AdvancedSettingsFragment : Fragment() {
           mode = 0x01
           downtime_rl?.visibility = View.GONE
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, 50)
           } else {
             main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
@@ -598,6 +612,7 @@ class AdvancedSettingsFragment : Fragment() {
           mode = 0x00
           downtime_rl?.visibility = View.VISIBLE
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(sensorGestureSwitching, mode, peak_time_sb?.progress?.toByte()!!, downtime_sb?.progress?.toByte()!!), ROTATION_GESTURE_NEW, 50)
           } else {
             main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (peak_time_sb?.progress?.plus(5))?.toByte()!!, (downtime_sb?.progress?.plus(5))?.toByte()!!),
@@ -666,6 +681,7 @@ class AdvancedSettingsFragment : Fragment() {
         }
         peak_time_vm_tv?.text = time
         if (!main?.lockWriteBeforeFirstRead!!) {
+          main?.stage = "advanced activity"
           main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
             0.toByte(),
             peak_time_vm_sb?.progress?.toByte()!!,
@@ -803,6 +819,7 @@ class AdvancedSettingsFragment : Fragment() {
         )
       }
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+        main?.stage = "advanced activity"
         main?.runSendCommand(telemetry_number_et?.text.toString().toByteArray(Charsets.UTF_8),
           TELEMETRY_NUMBER_NEW_VM, 50)
 
@@ -848,6 +865,7 @@ class AdvancedSettingsFragment : Fragment() {
       if (!main?.lockWriteBeforeFirstRead!!) {
         System.err.println("tuk reset_to_factory_settings_btn")
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          main?.stage = "advanced activity"
           main?.runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
         } else {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
@@ -900,8 +918,10 @@ class AdvancedSettingsFragment : Fragment() {
     val eventYandexMetricaParametersCalibrationAdv = "{\"Screen advanced settings\":\"Tup calibration button\"}"
     calibration_adv_btn?.setOnClickListener {
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+        main?.stage = "advanced activity"
         main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
       } else {
+        main?.stage = "advanced activity"
         main?.runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
       }
       saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
@@ -1151,8 +1171,10 @@ class AdvancedSettingsFragment : Fragment() {
       // (по состоянию ключа CALIBRATING_STATUS =    1-была    0-не была   )
       // и если не была, то повторяет отправку
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+        main?.stage = "advanced activity"
         main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
       } else {
+        main?.stage = "advanced activity"
         main?.runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
       }
 

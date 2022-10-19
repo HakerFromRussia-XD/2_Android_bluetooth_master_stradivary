@@ -376,7 +376,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           savingSettingsWhenModified = true
 
 
-          if (data.size in 4..10) {
+          if (data.size in 4..12) {
             if (data.size >= 10) {
               val fingersEncoderValue = FingersEncoderValue(
                 castUnsignedCharToInt(data[3]),
@@ -393,6 +393,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           if (data.size in 11..12) {
             if (data.size >= 12) {
               val receiveIdCommand = "%02x".format(castUnsignedCharToInt(data[11])) + "%02x".format(castUnsignedCharToInt(data[10]))
+              System.err.println("данные IdCommand: $receiveIdCommand")
               if (expectedIdCommand == receiveIdCommand) {
                 System.err.println("startSendCommand id $receiveIdCommand  receive")
                 expectedReceiveConfirmation = 2
@@ -982,7 +983,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       NavigationUtils.showAdvancedSettings = true
     } else {
-      if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
+      if (mDeviceType?.contains(DEVICE_TYPE_FEST_TEST) == true) {
         val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
         mainactivity_viewpager.adapter = mSectionsPagerAdapter
         mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
@@ -994,11 +995,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           startService(myIntent)
         }
       } else {
-        if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-          || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
-          || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
+        if (mDeviceType?.contains(EXTRAS_DEVICE_TYPE_FEST_A) == true
+          || mDeviceType?.contains(EXTRAS_DEVICE_TYPE_BT05) == true
+          || mDeviceType?.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE) == true
+          || mDeviceType?.contains(DEVICE_TYPE_FEST_H) == true
+          || mDeviceType?.contains(DEVICE_TYPE_FEST_X) == true
         ) {
           val mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
           mainactivity_viewpager.adapter = mSectionsPagerAdapter

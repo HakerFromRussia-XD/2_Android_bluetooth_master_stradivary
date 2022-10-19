@@ -27,6 +27,7 @@ import java.util.UUID;
 
 
 @SuppressWarnings({"CommentedOutCode", "StatementWithEmptyBody", "JavaReflectionMemberAccess", "ConstantConditions"})
+@SuppressLint("MissingPermission")
 public class Bluetooth {
     private static final int REQUEST_ENABLE_BT = 1111;
     public TextView CH1;
@@ -281,27 +282,45 @@ public class Bluetooth {
         sendstr(msgStr, "US-ASCII");
     }
 
+
     public List<BluetoothDevice> getPairedDevices(){
         if (DEBUG) {System.out.println("BLUETOOTH--------------> getPairedDevices connected:" + connected);}
-        return new ArrayList<>(bluetoothAdapter.getBondedDevices());
+        List<BluetoothDevice> outputList = new ArrayList<>();
+        try {
+            outputList = new ArrayList<>(bluetoothAdapter.getBondedDevices());
+        } catch (Exception e) {
+            System.err.println("Exception getPairedDevices: " + e);
+        }
+        return outputList;
     }
+
 
     public void startScanning(){
         if (DEBUG) {System.out.println("BLUETOOTH--------------> startScanning connected:" + connected);}
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        try {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(BluetoothDevice.ACTION_FOUND);
+            filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
 
-        context.registerReceiver(scanReceiver, filter);
-        bluetoothAdapter.startDiscovery();
+            context.registerReceiver(scanReceiver, filter);
+            bluetoothAdapter.startDiscovery();
+        } catch (Exception e) {
+            System.err.println("Exception startScanning: " + e);
+        }
     }
+
 
     public void stopScanning(){
         if (DEBUG) {System.out.println("BLUETOOTH--------------> stopScanning connected:" + connected);}
-        context.unregisterReceiver(scanReceiver);
-        bluetoothAdapter.cancelDiscovery();
+        try {
+            context.unregisterReceiver(scanReceiver);
+            bluetoothAdapter.cancelDiscovery();
+        } catch (Exception e) {
+            System.err.println("Exception stopScanning: " + e);
+        }
+
     }
 
     public void pair(BluetoothDevice device){
@@ -887,7 +906,9 @@ public class Bluetooth {
         }
     }
 
+
     private class ConnectThread extends Thread {
+
 
         ConnectThread(BluetoothDevice device, boolean insecureConnection) {
             if (DEBUG) {System.out.println("BLUETOOTH--------------> ConnectThread connected:" + connected);}
@@ -906,7 +927,6 @@ public class Bluetooth {
                 }
             }
         }
-
 
 
         public void run() {

@@ -475,7 +475,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     thresholds_blocking_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
     main?.offSensorsUIBeforeConnection()
-    if (!main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+    if (main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false) {
       chart_calibration_rl.visibility = View.GONE
     }
   }

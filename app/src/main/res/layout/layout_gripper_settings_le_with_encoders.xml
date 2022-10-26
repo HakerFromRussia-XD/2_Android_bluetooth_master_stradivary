@@ -45,6 +45,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
+                        android:textColor="@color/white"
                         android:text="@string/gesture_state"
                         tools:ignore="TextContrastCheck" />
 

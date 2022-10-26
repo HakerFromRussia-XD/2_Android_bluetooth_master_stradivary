@@ -1757,8 +1757,14 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   open fun getSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int): Runnable { return Runnable { sendCommand(data, uuidCommand, countRestart) } }
   private fun sendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) {
     val idCommand = uuidCommand.substring(4).substringBefore('-')
-    val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
-//    System.err.println("startSendCommand $stage")
+    var driverNum = ""
+    try {
+      driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
+    } catch (e : Exception) {
+      showToast("driverVersionS is incorrect @$e@")
+      return
+    }
+
     try {
       val useNewSystemSendCommand = driverNum.toInt() > 233
       val info = "startSendCommand id $idCommand   state"

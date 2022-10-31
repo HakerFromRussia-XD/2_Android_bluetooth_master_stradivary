@@ -432,7 +432,7 @@ public class ChartPresenterImpl implements ChatPresenter {
 
         @Override
         public void onMessage(String message) {
-            String string = new String(message);
+            String string = message;
         }
 
         @Override

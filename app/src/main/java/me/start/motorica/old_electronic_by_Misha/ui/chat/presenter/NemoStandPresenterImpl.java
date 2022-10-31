@@ -20,21 +20,21 @@ public class NemoStandPresenterImpl implements NemoStandPresenter {
     private final boolean DEBUG = true;
     private final byte[] aByte = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x01, 0x24};
     private final byte[] txtbyteout1 = {0x4D, 0x54, 0x07, 0x00, 0x01, 0x02, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для отправки порогов сигналов 0x77 заменяемые данные всего 15 байт
-    private final byte txtbyteout2[] = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x77, 0x24};                                     //компановка для запроса сигналов на датчиках 0x77 заменяемые данные всего 9 байт
-    private final byte txtbyteout3[] = {0x4D, 0x54, 0x07, 0x00, 0x01, 0x04, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для настройки схватов сигналов 0x77 заменяемые данные всего 15 байт
-    private final byte txtbyteout4[] = {0x4D, 0x54, 0x0E, 0x00, 0x01, 0x05, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};//компановка для настройки переходов между двумя схватами 0x77 заменяемые данные всего 23 байт
-    private final byte txtbyteout5[] = {0x4D, 0x54, 0x05, 0x00, 0x01, 0x04, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};             //компановка для установки(применения/движения) скорости и угла определённого движка 0x77 заменяемые данные всего 13 байт
-    private final byte txtbyteout6[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x06, 0x00, 0x77, 0x24};                                     //компановка для установки жеста 0x77 заменяемые данные всего 9 байт
-    private final byte txtbyteout7[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x07, 0x00, 0x77, 0x24};                                     //компановка для установки схвата 0x77 заменяемые данные всего 9 байт
-    private final byte txtbyteout8[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x08, 0x00, 0x77, 0x24};                                     //компановка для установки режима срабатывания 0x77 заменяемые данные всего 9 байт
-    private final byte txtbyteout9[] = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x09, 0x00, 0x77, 0x24};                                     //компановка для иммитации срабатывания 0x77 заменяемые данные всего 9 байт
-    private final byte txtbyteout10[] ={0x4D, 0x54, 0x08, 0x00, 0x01, 0x0A, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};//компановка для настройки бесконечного движения 0x77 заменяемые данные всего 16 байт
-    private final byte txtbyteout11[] ={0x4D, 0x54, 0x03, 0x00, 0x01, 0x0B, 0x00, 0x77, 0x77, 0x77, 0x24};                         //компановка для настройки тока останова и влючения инвертированного управления 0x77 заменяемые данные всего 11 байт
-    private final byte txtbyteout12[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0C, 0x00, 0x77, 0x24};                                     //компановка для включения/отключения(0х01/0х00) режима непрерывной отсылки параметров с руки всего 9 байт
-    private final byte txtbyteout13[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0D, 0x00, 0x77, 0x24};                                     //компановка для начального запроса параметров
-    private final byte txtbyteout14[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0E, 0x00, 0x77, 0x24};                                     //компановка для включения/отключения(0х01/0х00) блокировки
-    private final byte txtbyteout15[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0F, 0x00, 0x77, 0x77, 0x24};                               //компановка для задачи номера открытого и закрытого схватов 0x77 заменяемые данные всего 10 байт
-    private final byte txtbyteout16[] ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x10, 0x00, 0x77, 0x24};                                     //компановка для установки грубости датчиков 0x77 заменяемые данные всего 9 байт
+    private final byte[] txtbyteout2 = {0x4D, 0x54, 0x01, 0x00, 0x00, 0x03, 0x00, 0x77, 0x24};                                     //компановка для запроса сигналов на датчиках 0x77 заменяемые данные всего 9 байт
+    private final byte[] txtbyteout3 = {0x4D, 0x54, 0x07, 0x00, 0x01, 0x04, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24}; //компановка для настройки схватов сигналов 0x77 заменяемые данные всего 15 байт
+    private final byte[] txtbyteout4 = {0x4D, 0x54, 0x0E, 0x00, 0x01, 0x05, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};//компановка для настройки переходов между двумя схватами 0x77 заменяемые данные всего 23 байт
+    private final byte[] txtbyteout5 = {0x4D, 0x54, 0x05, 0x00, 0x01, 0x04, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};             //компановка для установки(применения/движения) скорости и угла определённого движка 0x77 заменяемые данные всего 13 байт
+    private final byte[] txtbyteout6 = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x06, 0x00, 0x77, 0x24};                                     //компановка для установки жеста 0x77 заменяемые данные всего 9 байт
+    private final byte[] txtbyteout7 = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x07, 0x00, 0x77, 0x24};                                     //компановка для установки схвата 0x77 заменяемые данные всего 9 байт
+    private final byte[] txtbyteout8 = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x08, 0x00, 0x77, 0x24};                                     //компановка для установки режима срабатывания 0x77 заменяемые данные всего 9 байт
+    private final byte[] txtbyteout9 = {0x4D, 0x54, 0x01, 0x00, 0x01, 0x09, 0x00, 0x77, 0x24};                                     //компановка для иммитации срабатывания 0x77 заменяемые данные всего 9 байт
+    private final byte[] txtbyteout10 ={0x4D, 0x54, 0x08, 0x00, 0x01, 0x0A, 0x00, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x24};//компановка для настройки бесконечного движения 0x77 заменяемые данные всего 16 байт
+    private final byte[] txtbyteout11 ={0x4D, 0x54, 0x03, 0x00, 0x01, 0x0B, 0x00, 0x77, 0x77, 0x77, 0x24};                         //компановка для настройки тока останова и влючения инвертированного управления 0x77 заменяемые данные всего 11 байт
+    private final byte[] txtbyteout12 ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0C, 0x00, 0x77, 0x24};                                     //компановка для включения/отключения(0х01/0х00) режима непрерывной отсылки параметров с руки всего 9 байт
+    private final byte[] txtbyteout13 ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0D, 0x00, 0x77, 0x24};                                     //компановка для начального запроса параметров
+    private final byte[] txtbyteout14 ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0E, 0x00, 0x77, 0x24};                                     //компановка для включения/отключения(0х01/0х00) блокировки
+    private final byte[] txtbyteout15 ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x0F, 0x00, 0x77, 0x77, 0x24};                               //компановка для задачи номера открытого и закрытого схватов 0x77 заменяемые данные всего 10 байт
+    private final byte[] txtbyteout16 ={0x4D, 0x54, 0x01, 0x00, 0x01, 0x10, 0x00, 0x77, 0x24};                                     //компановка для установки грубости датчиков 0x77 заменяемые данные всего 9 байт
     private boolean onPauseActivity = false;
 
     public NemoStandPresenterImpl(NemoStandView view, NemoStandInteractor interactor) {
@@ -66,81 +66,79 @@ public class NemoStandPresenterImpl implements NemoStandPresenter {
 
         @Override
         public Integer givesLenhgt(int lenght) {
-            Integer integer =  new Integer(lenght);
-//            System.out.println("принятая длинна:" + integer);
-            return integer;
+            //            System.out.println("принятая длинна:" + integer);
+            return lenght;
         }
 
 
         @Override
         public void givesRequest(Boolean request) {
-            Boolean bolean = new Boolean(request);
-//            System.out.println("приём:" + bolean);
+            //            System.out.println("приём:" + bolean);
         }
 
         @Override
         public void givesChannel(int channel) {
-            Integer numberChannel = new Integer(channel);
+//            Integer numberChannel = new Integer(channel);
 //            System.out.println("номер канала:" + numberChannel);
         }
 
         @Override
         public void givesLevelCH(int levelCH, int channel) {
-            Integer lelvel = new Integer(levelCH);
-            Integer numberChannel = new Integer(channel);
+//            Integer lelvel = new Integer(levelCH);
+//            Integer numberChannel = new Integer(channel);
 //            view.setValueCH(levelCH, numberChannel);
-            if (DEBUG) {System.out.println("принятый уровень CH:" + lelvel);}
+//            if (DEBUG) {System.out.println("принятый уровень CH:" + lelvel);}
         }
 
 
         @Override
         public void givesGeneralParcel(int current, int levelCH1, int levelCH2, byte indicationState, int batteryTension) {
-            Integer receiveСurrent = new Integer(current);
-            Integer receiveLevelCH1 = new Integer(levelCH1);
-            Integer receiveLevelCH2 = new Integer(levelCH2);
-            Byte receiveIndicationState = new Byte(indicationState);
-            Integer receiveBatteryTension = new Integer(batteryTension);
+//            Integer receiveСurrent = new Integer(current);
+//            Integer receiveLevelCH1 = new Integer(levelCH1);
+//            Integer receiveLevelCH2 = new Integer(levelCH2);
+//            Byte receiveIndicationState = new Byte(indicationState);
+//            Integer receiveBatteryTension = new Integer(batteryTension);
 //            view.setGeneralValue(receiveСurrent, receiveLevelCH1, receiveLevelCH2, receiveIndicationState, receiveBatteryTension);
         }
 
         @Override
         public void givesStartParameters(int current, int levelTrigCH1, int levelTrigCH2, byte indicationInvertMode, byte blockIndication, byte roughnessOfSensors) {
-            Integer receiveСurrent = new Integer(current);
-            Integer receiveLevelTrigCH1 = new Integer(levelTrigCH1);
-            Integer receiveLevelTrigCH2 = new Integer(levelTrigCH2);
-            Byte receiveIndicationInvertMode = new Byte(indicationInvertMode);
-            Byte receiveBlockIndication = new Byte(blockIndication);
-            Byte receiveRoughnessOfSensors = new Byte(roughnessOfSensors);
+//            Integer receiveСurrent = new Integer(current);
+//            Integer receiveLevelTrigCH1 = new Integer(levelTrigCH1);
+//            Integer receiveLevelTrigCH2 = new Integer(levelTrigCH2);
+//            Byte receiveIndicationInvertMode = new Byte(indicationInvertMode);
+//            Byte receiveBlockIndication = new Byte(blockIndication);
+//            Byte receiveRoughnessOfSensors = new Byte(roughnessOfSensors);
 //            view.setStartParameters(receiveСurrent, receiveLevelTrigCH1, receiveLevelTrigCH2, receiveIndicationInvertMode,  receiveBlockIndication, receiveRoughnessOfSensors);
         }
 
         @Override
         public void givesStartParametersTrigCH1(int levelTrigCH1) {
-            Integer receiveLevelTrigCH1 = Integer.valueOf(levelTrigCH1);
+//            Integer receiveLevelTrigCH1 = Integer.valueOf(levelTrigCH1);
 //            view.setStartParametersTrigCH1 (receiveLevelTrigCH1);
         }
 
         @Override
         public void givesStartParametersTrigCH2(int levelTrigCH2) {
-            Integer receiveLevelTrigCH2 = Integer.valueOf(levelTrigCH2);
+//            Integer receiveLevelTrigCH2 = Integer.valueOf(levelTrigCH2);
 //            view.setStartParametersTrigCH2 (receiveLevelTrigCH2);
         }
 
         @Override
         public void givesStartParametersCurrent(int current) {
-            Integer receiveСurrent = current;
+//            Integer receiveСurrent = current;
 //            view.setStartParametersCurrent(receiveСurrent);
         }
 
         @Override
         public void givesStartParametersBlock(byte blockIndication) {
-            Byte receiveBlockIndication = new Byte(blockIndication);
+//            Byte receiveBlockIndication = new Byte(blockIndication);
 //            view.setStartParametersBlock (receiveBlockIndication);
         }
 
         @Override
         public void givesStartParametersRoughness(byte roughnessOfSensors) {
-            Byte receiveRoughnessOfSensors = new Byte(roughnessOfSensors);
+//            Byte receiveRoughnessOfSensors = new Byte(roughnessOfSensors);
 //            view.setStartParametersRoughness (receiveRoughnessOfSensors);
         }
 
@@ -153,20 +151,19 @@ public class NemoStandPresenterImpl implements NemoStandPresenter {
 
         @Override
         public void givesRegister(Integer register) {
-            Integer registr = new Integer(register);
+//            Integer registr = new Integer(register);
 //            System.out.println("принятая значение регистра:"+registr);
         }
 
         @Override
         public void givesCorrectAcceptance(Boolean correct_acceptence) {
-            Boolean boleann = new Boolean(correct_acceptence);
+//            Boolean boleann = new Boolean(correct_acceptence);
 //            System.out.println("проверка CRC:" + boleann);
         }
 
         @Override
         public void givesErrorReception(Boolean givesErrorReception) {
-            Boolean bolean = new Boolean(givesErrorReception);
-            view.setErrorReception(bolean);
+            view.setErrorReception(givesErrorReception);
         }
 
         @Override
@@ -209,7 +206,6 @@ public class NemoStandPresenterImpl implements NemoStandPresenter {
 
         @Override
         public void onMessage(String message) {
-            String string = new String(message);
         }
 
         @Override
@@ -222,12 +218,9 @@ public class NemoStandPresenterImpl implements NemoStandPresenter {
             if (DEBUG) {System.out.println("Подключение №" + attemptConnect);}
             attemptConnect += 1;
             if(attemptConnect < 5001) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(!onPauseActivity){
-                            interactor.connectToDevice(device, communicationCallback);
-                        }
+                new Handler().postDelayed(() -> {
+                    if(!onPauseActivity){
+                        interactor.connectToDevice(device, communicationCallback);
                     }
                 }, 10);
             } else{

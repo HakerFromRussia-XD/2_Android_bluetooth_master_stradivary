@@ -39,14 +39,4 @@ class KibiFragment: Fragment() {
         return rootView
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-//        main?.startService(main!!.intent.putExtra("time", 3).putExtra("service--> label", "Call 1") )
-//        val toast = Toast.makeText(
-//            requireContext(),
-//            "KibiFragment onViewCreated() " + main!!.intent.action, Toast.LENGTH_LONG
-//        )
-//        toast.show()
-    }
-
 }

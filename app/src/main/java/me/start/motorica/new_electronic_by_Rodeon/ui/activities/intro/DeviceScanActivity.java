@@ -184,7 +184,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
     }
 
     // Device scan callback.
-    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+    private final BluetoothAdapter.LeScanCallback mLeScanCallback =
             (device, rssi, scanRecord) -> runOnUiThread(() -> {
                 if(device.getName() != null){
                     System.err.println("\n=======================================================================");
@@ -246,6 +246,6 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         pairedDeviceList = findViewById(R.id.activity_scan_paired_list);
         pairedDeviceList.setHasFixedSize(true);
         pairedDeviceList.setLayoutManager(new LinearLayoutManager(this));
-        mScanListAdapter = new ScanListAdapter(this, scanList, (ScanListAdapter.OnScanMyListener) this);
+        mScanListAdapter = new ScanListAdapter(this, scanList, this);
     }
 }

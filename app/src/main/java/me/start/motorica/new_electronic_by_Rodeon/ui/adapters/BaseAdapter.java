@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class BaseAdapter extends RecyclerView.Adapter<BaseViewHolder> {
-  private List<List<Object>> sections = new ArrayList<>();
+  private final List<List<Object>> sections = new ArrayList<>();
 
   public List<List<Object>> sections() {
     return sections;

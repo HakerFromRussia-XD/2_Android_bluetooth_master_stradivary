@@ -36,6 +36,7 @@ public class Load3DModelNew {
             is.read(buffer);
             is.close();
             String line = new String(buffer);
+//            String line = String.valueOf(buffer);//должно работать быстрее
             text = line.split("#");
         } catch (IOException e){
             e.printStackTrace();

@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.dialog_change_value.*
 import kotlinx.android.synthetic.main.dialog_confirm_select_scale.*
 import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.dialog_select_scale.*
@@ -47,7 +48,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.*
+import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.*
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import timber.log.Timber
@@ -311,7 +312,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               saveInt(mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, castUnsignedCharToInt(data[10]))
               RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
             }
-
 
             if (((castUnsignedCharToInt(data[11]) shr 0 and 0b00000001) ==  1) != mSettings!!.getBoolean(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) {
                 saveBool(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, ((castUnsignedCharToInt(data[11]) shr 0 and 0b00000001) ==  1))
@@ -700,11 +700,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
 
 
-//    runTestTask(1)
-//    runTestTask(5)
-//    runTestTask(4)
-//    runTestTask(2)
-//    runTestTask(3)
+
+//    openValueChangeDialog(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM)
+//    testDialog()
 
 
     // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
@@ -1756,16 +1754,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   fun runSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) { getSendCommand(data, uuidCommand, countRestart).let { queue.put(it) } }
   open fun getSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int): Runnable { return Runnable { sendCommand(data, uuidCommand, countRestart) } }
   private fun sendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) {
-    val idCommand = uuidCommand.substring(4).substringBefore('-')
-    var driverNum = ""
-    try {
-      driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
-    } catch (e : Exception) {
-      showToast("driverVersionS is incorrect @$e@")
-      return
-    }
 
+//    System.err.println("startSendCommand $stage")
     try {
+      val idCommand = uuidCommand.substring(4).substringBefore('-')
+      val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
       val useNewSystemSendCommand = driverNum.toInt() > 233
       val info = "startSendCommand id $idCommand   state"
       expectedIdCommand = idCommand
@@ -1885,6 +1878,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun openFragmentInfoNotCalibration() {
     val dialog = CustomInfoNotCalibratedDialogFragment()
+    dialog.show(supportFragmentManager, "update dialog")
+  }
+  fun openValueChangeDialog(keyValue: String) {
+    val dialog = CustomDialogChangeValue(keyValue = keyValue)
     dialog.show(supportFragmentManager, "update dialog")
   }
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {
@@ -2049,6 +2046,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       myDialog.dismiss()
     }
   }
+
+
   fun getProgressUpdate(): Int {
     return progressUpdate
   }

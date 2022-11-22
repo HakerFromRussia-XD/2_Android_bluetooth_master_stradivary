@@ -96,6 +96,261 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     main?.setSwapOpenCloseButton(preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))
     scale = resources.displayMetrics.density
 
+
+    driver_tv.setOnLongClickListener {
+      showAdvancedSettings = if (showAdvancedSettings) {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        false
+      } else {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        true
+      }
+      false
+    }
+    sync_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        if (main?.locate?.contains("ru")!!) {
+          sync_tv?.text = "снхро "+seekBar.progress.toString()+"%"
+        } else {
+          sync_tv?.text = "sync "+seekBar.progress.toString()+"%"
+        }
+      }
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {}
+    })
+
+
+    val eventYandexMetricaParametersOpenCH = "{\"Screen chart\":\"Change threshold open sensor\"}"
+    open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        System.err.println("CH1 = $progress")
+        ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+        ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+
+        open_threshold_tv.text = progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
+            main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, 50)
+          } else {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW, WRITE
+              )
+            } else {
+              main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4
+              )
+            }
+          }
+          if (main?.savingSettingsWhenModified == true) {
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
+          }
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpenCH)
+        }
+      }
+    })
+    val eventYandexMetricaParametersCloseCH = "{\"Screen chart\":\"Change threshold close sensor\"}"
+    close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        System.err.println("CH2 = $progress")
+        ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()
+        ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+        close_threshold_tv.text = progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
+            main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW_VM, 50)
+          } else {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW, WRITE)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
+            }
+          }
+          if (main?.savingSettingsWhenModified == true) {
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
+          }
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCloseCH)
+        }
+      }
+    })
+
+
+
+    correlator_noise_threshold_1_tv.setOnClickListener { main!!.openValueChangeDialog(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM) }
+    correlator_noise_threshold_2_tv.setOnClickListener { main!!.openValueChangeDialog(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM) }
+    val eventYandexMetricaParametersNoiseThresholdOpen = "{\"Screen chart\":\"Change noise threshold open sensor\"}"
+    correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        correlator_noise_threshold_1_tv.text = progress.toString()
+      }
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
+            main?.runSendCommand(byteArrayOf(
+              (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+              64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+              44, 52, 64, 72, 0x40, 5, 64
+            ), SENS_OPTIONS_NEW_VM, 50)
+          } else {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              main?.runWriteData(
+                byteArrayOf(
+                  (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+                  64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+                  44, 52, 64, 72, 0x40, 5, 64
+                ), SENS_OPTIONS_NEW, WRITE
+              )
+            } else {
+              main?.bleCommandConnector(
+                byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01),
+                SENS_OPTIONS,
+                WRITE,
+                11
+              )
+            }
+          }
+          if (main?.savingSettingsWhenModified == true) {
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
+          }
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdOpen)
+        }
+      }
+    })
+    val eventYandexMetricaParametersNoiseThresholdClose = "{\"Screen chart\":\"Change noise threshold close sensor\"}"
+    correlator_noise_threshold_2_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        correlator_noise_threshold_2_tv.text = seekBar.progress.toString()
+      }
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
+            main?.runSendCommand(byteArrayOf(
+              (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+              44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36,
+              18, 44, 52, 64, 72, 0x40, 5, 64
+            ), SENS_OPTIONS_NEW_VM, 50)
+          } else {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              main?.runWriteData(
+                byteArrayOf(
+                  (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+                  44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36,
+                  18, 44, 52, 64, 72, 0x40, 5, 64
+                ), SENS_OPTIONS_NEW, WRITE
+              )
+            } else {
+              main?.bleCommandConnector(
+                byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02),
+                SENS_OPTIONS,
+                WRITE,
+                11
+              )
+            }
+          }
+          if (main?.savingSettingsWhenModified == true) {
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
+          }
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdClose)
+        }
+      }
+    })
+
+
+    val eventYandexMetricaParametersSwapSensors = "{\"Screen chart\":\"Tup swap sensors switch\"}"
+    swap_sensors_sw.setOnClickListener {
+      if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
+        if (swap_sensors_sw.isChecked) {
+          swap_sensors_tv.text = 1.toString()
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
+            main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, 50)
+          } else {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW, WRITE)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
+            }
+          }
+          main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
+//          main?.setReverseNum = 1
+        } else {
+          swap_sensors_tv.text = 0.toString()
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
+            main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, 50)
+          } else {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW, WRITE)
+            } else {
+              main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
+            }
+          }
+          main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+//          main?.setReverseNum = 0
+        }
+        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSwapSensors)
+      }
+    }
+
+
+    val eventYandexMetricaParametersThresholdsBlocking = "{\"Screen chart\":\"Tup settings blocking switch\"}"
+    thresholds_blocking_sw.setOnClickListener{
+      if (thresholds_blocking_sw.isChecked) {
+        thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
+      } else {
+        thresholds_blocking_tv.text = resources.getString(R.string.off)
+        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
+      }
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersThresholdsBlocking)
+    }
+
+
+    val eventYandexMetricaParametersCalibration = "{\"Screen chart\":\"Tup calibration button\"}"
+    calibration_btn?.setOnClickListener {
+      System.err.println("запись глобальной калибровки тык")
+      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+          main?.stage = "chart activity"
+          main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
+        } else {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+            main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
+          }
+        }
+      } else {
+        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+          main?.stage = "chart activity"
+          main?.runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
+        } else {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+            main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
+          }
+        }
+      }
+      main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibration)
+    }
+
+
     val eventYandexMetricaParametersClose = "{\"Screen chart\":\"Tup close button\"}"
     val eventYandexMetricaParametersOpen = "{\"Screen chart\":\"Tup open button\"}"
     close_btn.setOnTouchListener { _, event ->
@@ -213,260 +468,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         }
       }
       false
-    }
-
-
-    val eventYandexMetricaParametersOpenCH = "{\"Screen chart\":\"Change threshold open sensor\"}"
-    open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        System.err.println("CH1 = $progress")
-        ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
-        ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
-
-        open_threshold_tv.text = progress.toString()
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW, WRITE
-              )
-            } else {
-              main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4
-              )
-            }
-          }
-          if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
-          }
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpenCH)
-        }
-      }
-    })
-
-
-    val eventYandexMetricaParametersCloseCH = "{\"Screen chart\":\"Change threshold close sensor\"}"
-    close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        System.err.println("CH2 = $progress")
-        ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()
-        ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
-        close_threshold_tv.text = progress.toString()
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW, WRITE)
-            } else {
-              main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
-            }
-          }
-          if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
-          }
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCloseCH)
-        }
-      }
-    })
-
-
-    val eventYandexMetricaParametersNoiseThresholdOpen = "{\"Screen chart\":\"Change noise threshold open sensor\"}"
-    correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        correlator_noise_threshold_1_tv.text = progress.toString()
-      }
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(
-              (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
-              64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-              44, 52, 64, 72, 0x40, 5, 64
-            ), SENS_OPTIONS_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(
-                byteArrayOf(
-                  (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
-                  64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-                  44, 52, 64, 72, 0x40, 5, 64
-                ), SENS_OPTIONS_NEW, WRITE
-              )
-            } else {
-              main?.bleCommandConnector(
-                byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01),
-                SENS_OPTIONS,
-                WRITE,
-                11
-              )
-            }
-          }
-          if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
-          }
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdOpen)
-        }
-      }
-    })
-
-
-    val eventYandexMetricaParametersNoiseThresholdClose = "{\"Screen chart\":\"Change noise threshold close sensor\"}"
-    correlator_noise_threshold_2_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        correlator_noise_threshold_2_tv.text = seekBar.progress.toString()
-      }
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(
-              (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-              44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36,
-              18, 44, 52, 64, 72, 0x40, 5, 64
-            ), SENS_OPTIONS_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(
-                byteArrayOf(
-                  (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-                  44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36,
-                  18, 44, 52, 64, 72, 0x40, 5, 64
-                ), SENS_OPTIONS_NEW, WRITE
-              )
-            } else {
-              main?.bleCommandConnector(
-                byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02),
-                SENS_OPTIONS,
-                WRITE,
-                11
-              )
-            }
-          }
-          if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
-          }
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdClose)
-        }
-      }
-    })
-
-    sync_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        if (main?.locate?.contains("ru")!!) {
-          sync_tv?.text = "снхро "+seekBar.progress.toString()+"%"
-        } else {
-          sync_tv?.text = "sync "+seekBar.progress.toString()+"%"
-        }
-      }
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {}
-    })
-
-
-    val eventYandexMetricaParametersSwapSensors = "{\"Screen chart\":\"Tup swap sensors switch\"}"
-    swap_sensors_sw.setOnClickListener {
-      if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
-        if (swap_sensors_sw.isChecked) {
-          swap_sensors_tv.text = 1.toString()
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW, WRITE)
-            } else {
-              main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
-            }
-          }
-          main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
-//          main?.setReverseNum = 1
-        } else {
-          swap_sensors_tv.text = 0.toString()
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW, WRITE)
-            } else {
-              main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
-            }
-          }
-          main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
-//          main?.setReverseNum = 0
-        }
-        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSwapSensors)
-      }
-    }
-    driver_tv.setOnLongClickListener {
-      showAdvancedSettings = if (showAdvancedSettings) {
-        graphThreadFlag = false
-        Handler().postDelayed({
-          main?.showAdvancedSettings(showAdvancedSettings)
-        }, 100)
-        false
-      } else {
-        graphThreadFlag = false
-        Handler().postDelayed({
-          main?.showAdvancedSettings(showAdvancedSettings)
-        }, 100)
-        true
-      }
-      false
-    }
-
-
-    val eventYandexMetricaParametersThresholdsBlocking = "{\"Screen chart\":\"Tup settings blocking switch\"}"
-    thresholds_blocking_sw.setOnClickListener{
-      if (thresholds_blocking_sw.isChecked) {
-        thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
-      } else {
-        thresholds_blocking_tv.text = resources.getString(R.string.off)
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
-      }
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersThresholdsBlocking)
-    }
-
-
-    val eventYandexMetricaParametersCalibration = "{\"Screen chart\":\"Tup calibration button\"}"
-    calibration_btn?.setOnClickListener {
-      System.err.println("запись глобальной калибровки тык")
-      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-          main?.stage = "chart activity"
-          main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
-        } else {
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-            main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
-          }
-        }
-      } else {
-        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-          main?.stage = "chart activity"
-          main?.runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
-        } else {
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-            main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
-          }
-        }
-      }
-      main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibration)
     }
   }
 

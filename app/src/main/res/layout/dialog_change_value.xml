@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent"
+    android:layout_marginTop="32dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <SeekBar
+            android:id="@+id/value_invisible_sb"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            tools:ignore="MissingConstraints"
+            android:max="255"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#fff">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_andex_alert_dialog_layout_image_left1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.05" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_andex_alert_dialog_layout_image_right2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.95" />
+
+            <TextView
+                android:id="@+id/dialog_change_value_title_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/sf_pro_text_bold"
+                android:gravity="center"
+                android:maxLines="3"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/change_value"
+                android:textAlignment="center"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+                app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left1"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_2"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_marginTop="32dp"
+                app:cardCornerRadius="16dp"
+                android:visibility="visible"
+                app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+                app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left1"
+                app:layout_constraintTop_toBottomOf="@+id/dialog_change_value_title_tv">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/parent_cl"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#00000000"
+                    app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
+                    app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left1"
+                    app:layout_constraintTop_toBottomOf="@+id/dialog_change_value_title_tv">
+
+                    <TextView
+                        android:id="@+id/value_tv"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:fontFamily="@font/sf_pro_text_bold"
+                        android:gravity="center"
+                        android:text="145"
+                        android:textColor="@color/dark"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toTopOf="@+id/my_wheel_hwv"
+                        app:layout_constraintEnd_toEndOf="@+id/my_wheel_hwv"
+                        app:layout_constraintStart_toStartOf="@+id/my_wheel_hwv"
+                        app:layout_constraintTop_toTopOf="@+id/minus_btn"
+                        tools:ignore="HardcodedText" />
+
+                    <com.github.shchurov.horizontalwheelview.HorizontalWheelView
+                        android:id="@+id/my_wheel_hwv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:activeColor="@color/system_blue"
+                        app:endLock="true"
+                        android:layout_marginBottom="0dp"
+                        app:flow_maxElementsWrap="100"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="@+id/parent_cl"
+                        app:marksCount="50"
+                        app:normalColor="@color/dark"
+                        app:showActiveRange="true" />
+
+                    <View
+                        android:id="@+id/view1"
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="#483c3c3c"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/my_wheel_hwv"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/textView8"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:fontFamily="@font/sf_pro_text_bold"
+                        android:gravity="center"
+                        android:text="–"
+                        android:textColor="@color/system_blue"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@+id/minus_btn"
+                        app:layout_constraintEnd_toEndOf="@+id/minus_btn"
+                        app:layout_constraintStart_toStartOf="@+id/minus_btn"
+                        app:layout_constraintTop_toTopOf="@+id/minus_btn"
+                        tools:ignore="HardcodedText" />
+                    <View
+                        android:id="@+id/minus_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/my_wheel_hwv"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="SpeakableTextPresentCheck" />
+
+
+                    <View
+                        android:id="@+id/view2"
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="#483c3c3c"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/my_wheel_hwv"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/textView12"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:fontFamily="@font/sf_pro_text_bold"
+                        android:gravity="center"
+                        android:text="+"
+                        android:textColor="@color/system_blue"
+                        android:textSize="18sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/plus_btn"
+                        app:layout_constraintEnd_toEndOf="@+id/plus_btn"
+                        app:layout_constraintStart_toStartOf="@+id/plus_btn"
+                        app:layout_constraintTop_toTopOf="@+id/plus_btn"
+                        tools:ignore="HardcodedText" />
+                    <View
+                        android:id="@+id/plus_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/my_wheel_hwv"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="SpeakableTextPresentCheck" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <View
+                android:id="@+id/view4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="10dp"
+                android:background="#483c3c3c"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cv_2" />
+
+            <View
+                android:id="@+id/v_andex_alert_dialog_layout_button_divider"
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="10dp"
+                android:background="#483c3c3c"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view4" />
+
+            <TextView
+                android:id="@+id/tv_andex_alert_dialog_layout_confirm_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/sf_pro_text_bold"
+                android:text="@string/ok"
+                android:textColor="@color/system_blue"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/v_andex_alert_dialog_layout_button_divider"
+                app:layout_constraintTop_toBottomOf="@+id/view4" />
+
+            <View
+                android:id="@+id/dialog_confirm_change_value_confirm"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/v_andex_alert_dialog_layout_button_divider"
+                app:layout_constraintTop_toBottomOf="@+id/view4"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <TextView
+                android:id="@+id/tv_andex_alert_dialog_layout_cancel_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/cancel"
+                android:textColor="@color/system_blue"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/v_andex_alert_dialog_layout_button_divider"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view4"
+                tools:ignore="TextContrastCheck" />
+
+            <View
+                android:id="@+id/dialog_confirm_change_value_cancel"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/v_andex_alert_dialog_layout_button_divider"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/view4"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

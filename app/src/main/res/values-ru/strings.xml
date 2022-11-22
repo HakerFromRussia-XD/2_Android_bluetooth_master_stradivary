@@ -232,6 +232,7 @@
     <string name="the_size_of_your_prosthesis">Размер вашего протеза</string>
     <string name="amplitude">амплитуда</string>
     <string name="one_sensor">одним датчиком</string>
+    <string name="change_value">Изменение значения</string>
 
 
     <string-array name="numbers">

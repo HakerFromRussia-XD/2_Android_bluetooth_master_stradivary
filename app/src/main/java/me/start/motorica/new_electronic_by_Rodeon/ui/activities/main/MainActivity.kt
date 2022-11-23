@@ -26,7 +26,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.dialog_change_value.*
 import kotlinx.android.synthetic.main.dialog_confirm_select_scale.*
 import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.dialog_select_scale.*
@@ -106,8 +105,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
   private  var countCommand: AtomicInteger = AtomicInteger()
   private var actionState = READ
-  var savingSettingsWhenModified = true//продакшн false
-  var lockWriteBeforeFirstRead = false //продакшн true    переменная, необходимая для ожидания первого пришедшего ответа от устройства на
+  var savingSettingsWhenModified = false//продакшн false
+  var lockWriteBeforeFirstRead = true //продакшн true    переменная, необходимая для ожидания первого пришедшего ответа от устройства на
   var lockChangeTelemetryNumber = true //продакшн true    переменная, для разового изменения серийника телеметрии
   private var enableInterfaceStatus: Boolean = false
   // отправленный запрос чтения. Если не ожидать её, то поток чтения не перезамускается
@@ -123,6 +122,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var expectedReceiveConfirmation = 0
   private var timerResendCommandDLE: CountDownTimer? = null
   var stage = "not set"
+
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -435,6 +435,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         saveInt(mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, castUnsignedCharToInt(data[13]))
       }
       globalSemaphore = true
+      updateUIChart(11)
     }
   }
   private fun displayDataSetGestureNew(data: ByteArray?) {
@@ -701,8 +702,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
 
 
-//    openValueChangeDialog(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM)
-//    testDialog()
+
+
+
+
+
 
 
     // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
@@ -1076,6 +1080,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       thresholds_blocking_sw?.isEnabled = enabled
       correlator_noise_threshold_1_sb?.isEnabled = enabled
       correlator_noise_threshold_2_sb?.isEnabled = enabled
+      correlator_noise_threshold_1_tv?.isEnabled = enabled
+      correlator_noise_threshold_2_tv?.isEnabled = enabled
       if (enabled) {
         if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
           || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
@@ -1880,8 +1886,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val dialog = CustomInfoNotCalibratedDialogFragment()
     dialog.show(supportFragmentManager, "update dialog")
   }
-  fun openValueChangeDialog(keyValue: String) {
-    val dialog = CustomDialogChangeValue(keyValue = keyValue)
+  fun openValueChangeDialog(keyValue: String, callback: ChartFragmentCallback? = null) {
+    val dialog = CustomDialogChangeValue(keyValue = keyValue, callbackChartFragment = callback)
     dialog.show(supportFragmentManager, "update dialog")
   }
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {
@@ -2260,6 +2266,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     thresholds_blocking_sw?.isEnabled = false
     correlator_noise_threshold_1_sb?.isEnabled = false
     correlator_noise_threshold_2_sb?.isEnabled = false
+    correlator_noise_threshold_1_tv?.isEnabled = false
+    correlator_noise_threshold_2_tv?.isEnabled = false
   }
 
 

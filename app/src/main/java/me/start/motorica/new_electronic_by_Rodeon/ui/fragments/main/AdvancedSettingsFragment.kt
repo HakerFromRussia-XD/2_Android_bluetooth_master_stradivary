@@ -839,7 +839,6 @@ class AdvancedSettingsFragment : Fragment() {
     val eventYandexMetricaParametersLeftRight = "{\"Screen advanced settings\":\"Tup left right side swap switch\"}"
     left_right_side_swap_sw?.setOnClickListener{
       System.err.println(" LOLOLOEFWEF --->  side key : ${main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE}")
-      //TODO открывать тут диалог предупреждения смены руки
       showAlertChangeSideDialog()
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersLeftRight)
     }

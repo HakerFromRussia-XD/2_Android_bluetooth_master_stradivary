@@ -35,6 +35,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.ChartFragmentCallback
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import javax.inject.Inject
 
@@ -58,6 +59,21 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var scale = 0F
   private var oldStateSync = 0
   private var count: Int = 0
+  private var callbackFromDialogChangeValue: ChartFragmentCallback = object: ChartFragmentCallback {
+    override fun changeCorrelatorNoiseThreshold1(value: Int) {
+      System.err.println("lol sendCommandToBLE CORRELATOR_NOISE_THRESHOLD_1_NUM TestCallback from ChartFragment!!!!")
+      sendCorrelatorNoiseThreshold1(value)
+      main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - value))
+      updateAllParameters()
+    }
+
+    override fun changeCorrelatorNoiseThreshold2(value: Int) {
+      System.err.println("lol sendCommandToBLE CORRELATOR_NOISE_THRESHOLD_2_NUM TestCallback from ChartFragment!!!!")
+      sendCorrelatorNoiseThreshold2(value)
+      main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - value))
+      updateAllParameters()
+    }
+  }
 
 
 
@@ -190,8 +206,12 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
 
 
-    correlator_noise_threshold_1_tv.setOnClickListener { main!!.openValueChangeDialog(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM) }
-    correlator_noise_threshold_2_tv.setOnClickListener { main!!.openValueChangeDialog(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM) }
+    correlator_noise_threshold_1_tv.setOnClickListener {
+      main!!.openValueChangeDialog(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, callbackFromDialogChangeValue)
+    }
+    correlator_noise_threshold_2_tv.setOnClickListener {
+      main!!.openValueChangeDialog(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, callbackFromDialogChangeValue)
+    }
     val eventYandexMetricaParametersNoiseThresholdOpen = "{\"Screen chart\":\"Change noise threshold open sensor\"}"
     correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -200,31 +220,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(
-              (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
-              64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-              44, 52, 64, 72, 0x40, 5, 64
-            ), SENS_OPTIONS_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(
-                byteArrayOf(
-                  (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
-                  64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-                  44, 52, 64, 72, 0x40, 5, 64
-                ), SENS_OPTIONS_NEW, WRITE
-              )
-            } else {
-              main?.bleCommandConnector(
-                byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x01),
-                SENS_OPTIONS,
-                WRITE,
-                11
-              )
-            }
-          }
+          sendCorrelatorNoiseThreshold1(seekBar.progress)
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
           }
@@ -240,31 +236,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(
-              (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-              44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36,
-              18, 44, 52, 64, 72, 0x40, 5, 64
-            ), SENS_OPTIONS_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(
-                byteArrayOf(
-                  (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-                  44, 52, 64, 72, 0x40, 5, 64, (255 - seekBar.progress).toByte(), 6, 1, 0x10, 36,
-                  18, 44, 52, 64, 72, 0x40, 5, 64
-                ), SENS_OPTIONS_NEW, WRITE
-              )
-            } else {
-              main?.bleCommandConnector(
-                byteArrayOf(0x01, (255 - seekBar.progress).toByte(), 0x02),
-                SENS_OPTIONS,
-                WRITE,
-                11
-              )
-            }
-          }
+          sendCorrelatorNoiseThreshold2(seekBar.progress)
           if (main?.savingSettingsWhenModified == true) {
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
           }
@@ -720,6 +692,60 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
         ObjectAnimator.ofInt(sync_sb, "progress", oldStateSync, main?.percentSynchronize!!)
           .setDuration(1000).start()
         oldStateSync = main?.percentSynchronize!!
+      }
+    }
+  }
+  private fun sendCorrelatorNoiseThreshold1(value: Int) {
+    if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+      main?.stage = "chart activity"
+      main?.runSendCommand(byteArrayOf(
+        (255 - value).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+        64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+        44, 52, 64, 72, 0x40, 5, 64
+      ), SENS_OPTIONS_NEW_VM, 50)
+    } else {
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+        main?.runWriteData(
+          byteArrayOf(
+            (255 - value).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+            64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+            44, 52, 64, 72, 0x40, 5, 64
+          ), SENS_OPTIONS_NEW, WRITE
+        )
+      } else {
+        main?.bleCommandConnector(
+          byteArrayOf(0x01, (255 - value).toByte(), 0x01),
+          SENS_OPTIONS,
+          WRITE,
+          11
+        )
+      }
+    }
+  }
+  private fun sendCorrelatorNoiseThreshold2(value: Int) {
+    if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+      main?.stage = "chart activity"
+      main?.runSendCommand(byteArrayOf(
+        (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+        44, 52, 64, 72, 0x40, 5, 64, (255 - value).toByte(), 6, 1, 0x10, 36,
+        18, 44, 52, 64, 72, 0x40, 5, 64
+      ), SENS_OPTIONS_NEW_VM, 50)
+    } else {
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+        main?.runWriteData(
+          byteArrayOf(
+            (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+            44, 52, 64, 72, 0x40, 5, 64, (255 - value).toByte(), 6, 1, 0x10, 36,
+            18, 44, 52, 64, 72, 0x40, 5, 64
+          ), SENS_OPTIONS_NEW, WRITE
+        )
+      } else {
+        main?.bleCommandConnector(
+          byteArrayOf(0x01, (255 - value).toByte(), 0x02),
+          SENS_OPTIONS,
+          WRITE,
+          11
+        )
       }
     }
   }

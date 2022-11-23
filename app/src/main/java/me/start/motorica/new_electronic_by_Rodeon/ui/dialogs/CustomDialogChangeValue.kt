@@ -17,14 +17,15 @@ import kotlinx.android.synthetic.main.dialog_change_value.view.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import java.math.RoundingMode
 
-class CustomDialogChangeValue(keyValue: String): DialogFragment() {
+class CustomDialogChangeValue(private var keyValue: String, private val callbackChartFragment: ChartFragmentCallback? = null): DialogFragment() {
     private var rootView: View? = null
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
     private var changingValue = 0
-    private var keyValue = keyValue
     private var timerChangeValue: CountDownTimer? = null
+    private val coefficient = 2.82
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,23 +48,28 @@ class CustomDialogChangeValue(keyValue: String): DialogFragment() {
 
         rootView?.plus_btn?.setOnClickListener {
             changingValue += 1
-            rootView?.my_wheel_hwv?.degreesAngle = ((changingValue*2.8)-359)
-            System.err.println("lol plus_btn " + ((changingValue*2.8)-359))
-//            setProgressInvisibleSB(changingValue)
-//            animatedWheel(changingValue, 200)
+            changingValue = checkRange(changingValue)
+            rootView?.my_wheel_hwv?.degreesAngle = ((changingValue*coefficient)-359)
+            System.err.println("lol plus_btn " + ((changingValue*coefficient)-359) + "  changingValue= "+changingValue)
         }
 
 
         rootView?.minus_btn?.setOnClickListener {
             changingValue -= 1
-            rootView?.my_wheel_hwv?.degreesAngle = ((changingValue*2.8)-359)
-            System.err.println("lol minus_btn " + ((changingValue*2.8)-359))
-//            setProgressInvisibleSB(changingValue)
-//            animatedWheel(changingValue, 200)
+            changingValue = checkRange(changingValue)
+            rootView?.my_wheel_hwv?.degreesAngle = ((changingValue*coefficient)-359)
+            System.err.println("lol minus_btn " + ((changingValue*coefficient)-359) + "  changingValue= "+changingValue)
         }
 
 
         rootView?.dialog_confirm_change_value_confirm?.setOnClickListener {
+            //TODO дописать код отправки изменённой команды, сохранения значения в память
+            // и обновление юая того вью, на котором была переменная
+//            main?.saveInt(main?.mDeviceAddress + keyValue, changingValue)
+            if (callbackChartFragment != null) {
+                changeValue(keyValue, callbackChartFragment)
+            }
+
             timerChangeValue?.cancel()
             dismiss()
         }
@@ -77,10 +83,9 @@ class CustomDialogChangeValue(keyValue: String): DialogFragment() {
 
         timerChangeValue = object : CountDownTimer(5000000, 10) {
             override fun onTick(millisUntilFinished: Long) {
-                val wheelValue = rootView?.my_wheel_hwv?.degreesAngle?.toInt() ?: 0
-                var convertedResult = 0
-                convertedResult = ((wheelValue + 359) / 2.8).toInt()
-//                changingValue = convertedResult
+                val wheelValue: Double = rootView?.my_wheel_hwv?.degreesAngle ?: 0.0
+                val convertedResult: Int = ((wheelValue + 359) / coefficient).toBigDecimal().setScale(1, RoundingMode.HALF_UP).toInt()//((wheelValue + 359) / coefficient).toInt()
+                changingValue = convertedResult
                 rootView?.value_tv?.text =  convertedResult.toString()
             }
 
@@ -90,7 +95,7 @@ class CustomDialogChangeValue(keyValue: String): DialogFragment() {
 
         rootView?.value_invisible_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                rootView?.my_wheel_hwv?.degreesAngle = ((progress*2.8)-359)
+                rootView?.my_wheel_hwv?.degreesAngle = ((progress*coefficient)-359)
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -98,9 +103,20 @@ class CustomDialogChangeValue(keyValue: String): DialogFragment() {
         })
     }
 
-
-    private fun setProgressInvisibleSB(process: Int) {
-        rootView?.value_invisible_sb?.progress = process
+    private fun changeValue(keyValue: String, callbackChartFragment: ChartFragmentCallback? = null) {
+        when (keyValue) {
+            PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM -> {
+                callbackChartFragment?.changeCorrelatorNoiseThreshold1(changingValue)
+            }
+            PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM -> {
+                callbackChartFragment?.changeCorrelatorNoiseThreshold2(changingValue)
+            }
+        }
+    }
+    private fun checkRange(value: Int): Int {
+        if (value > 255) { return 255 }
+        if (value < 0) { return 0 }
+        return changingValue
     }
     private fun animatedWheel(position: Int, timeMs: Int) {
         ObjectAnimator.ofInt(

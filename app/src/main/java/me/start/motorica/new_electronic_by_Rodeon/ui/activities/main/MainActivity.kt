@@ -1769,6 +1769,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       val info = "startSendCommand id $idCommand   state"
       expectedIdCommand = idCommand
       var countRestartLocal = countRestart
+      var countAttempt = 0
       var state = 0 // переключается здесь в потоке
       var endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
       var resendCommandTimer = true
@@ -1798,6 +1799,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                         resendCommandTimer = true
                         state -= 1
                         countRestartLocal -= 1
+                        countAttempt += 1
                       }
                     }.start()
                   }
@@ -1815,6 +1817,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               }
             }
             2 -> {
+              System.err.println("test connection    countAttempt: $countAttempt")
               System.err.println("$info = $state")
               endFlag = true
               state = 0

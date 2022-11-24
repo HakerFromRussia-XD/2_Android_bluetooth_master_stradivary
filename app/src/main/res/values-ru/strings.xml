@@ -233,6 +233,7 @@
     <string name="amplitude">амплитуда</string>
     <string name="one_sensor">одним датчиком</string>
     <string name="change_value">Изменение значения</string>
+    <string name="test_connection">тест связи</string>
 
 
     <string-array name="numbers">

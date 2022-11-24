@@ -43,6 +43,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import org.jetbrains.anko.attempt
 import org.jetbrains.anko.textColor
 import javax.inject.Inject
 
@@ -70,6 +71,8 @@ class AdvancedSettingsFragment : Fragment() {
   private var current4 = 0
   private var current5 = 0
   private var current6 = 0
+  private var testingConnectionCount = 0
+  private var percentageCommunicationQuality = 0
 
   @SuppressLint("CheckResult")
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -86,6 +89,27 @@ class AdvancedSettingsFragment : Fragment() {
       .subscribe {
         updateAllParameters()
       }
+    RxUpdateMainEvent.getInstance().communicationTestResult
+      .compose(main?.bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe { attempt ->
+        testingConnectionCount += 1
+        //TODO перенести код подсчёта процентов и обновления IU хода теста в диалоговое окно
+        // прогресса теста
+        when(attempt) {
+          1 -> { percentageCommunicationQuality += 10 }
+          2 -> { percentageCommunicationQuality += 8 }
+          3 -> { percentageCommunicationQuality += 6 }
+          4 -> { percentageCommunicationQuality += 4 }
+          5 -> { percentageCommunicationQuality += 2 }
+        }
+
+        if (testingConnectionCount == 10) {
+          //TODO показ диалога с качеством соединения
+          percentageCommunicationQuality = 0
+          testingConnectionCount = 0
+        }
+      }
     return rootView
   }
 
@@ -99,33 +123,35 @@ class AdvancedSettingsFragment : Fragment() {
   @SuppressLint("SetTextI18n", "CheckResult", "Recycle")
   private fun initializeUI() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-//    if (main?.locate?.contains("ru")!!) {
-      shutdown_current_text_tv?.textSize = 11f
-      swap_button_open_close_tv?.textSize = 11f
-      single_channel_control_text_tv?.textSize = 11f
-      on_off_sensor_gesture_switching_text_tv?.textSize = 11f
-      mode_text_tv?.textSize = 11f
-      peak_time_text_tv?.textSize = 11f
-      peak_time_vm_text_tv?.textSize = 11f
-      downtime_text_tv?.textSize = 11f
-      mode_tv?.textSize = 11f
-      reset_to_factory_settings_btn?.textSize = 12f
-      calibration_adv_btn?.textSize = 10f
-      calibration_status_adv_btn?.textSize = 10f
-      side_text_tv?.textSize = 11f
-      time_delay_of_fingers_tv?.textSize = 11f
-      left_right_side_swap_tv?.textSize = 11f
-      shutdown_current_1_text_tv?.textSize = 11f
-      shutdown_current_2_text_tv?.textSize = 11f
-      shutdown_current_3_text_tv?.textSize = 11f
-      shutdown_current_4_text_tv?.textSize = 11f
-      shutdown_current_5_text_tv?.textSize = 11f
-      shutdown_current_6_text_tv?.textSize = 11f
-      version_app_tv?.textSize = 11f
-      scale_tv?.textSize = 11f
-      on_off_prosthesis_blocking_text_tv?.textSize = 11f
-      hold_to_lock_time_text_tv?.textSize = 10f
-//    }
+
+    shutdown_current_text_tv?.textSize = 11f
+    swap_button_open_close_tv?.textSize = 11f
+    single_channel_control_text_tv?.textSize = 11f
+    on_off_sensor_gesture_switching_text_tv?.textSize = 11f
+    mode_text_tv?.textSize = 11f
+    peak_time_text_tv?.textSize = 11f
+    peak_time_vm_text_tv?.textSize = 11f
+    downtime_text_tv?.textSize = 11f
+    mode_tv?.textSize = 11f
+    reset_to_factory_settings_btn?.textSize = 10f
+    calibration_adv_btn?.textSize = 10f
+    calibration_status_adv_btn?.textSize = 10f
+    debug_screen_btn?.textSize = 10f
+    test_connection_btn?.textSize = 10f
+    side_text_tv?.textSize = 11f
+    time_delay_of_fingers_tv?.textSize = 11f
+    left_right_side_swap_tv?.textSize = 11f
+    shutdown_current_1_text_tv?.textSize = 11f
+    shutdown_current_2_text_tv?.textSize = 11f
+    shutdown_current_3_text_tv?.textSize = 11f
+    shutdown_current_4_text_tv?.textSize = 11f
+    shutdown_current_5_text_tv?.textSize = 11f
+    shutdown_current_6_text_tv?.textSize = 11f
+    version_app_tv?.textSize = 11f
+    scale_tv?.textSize = 11f
+    on_off_prosthesis_blocking_text_tv?.textSize = 11f
+    hold_to_lock_time_text_tv?.textSize = 10f
+
     if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
       left_right_side_swap_sw?.isChecked = true
       left_right_side_swap_tv?.text = Html.fromHtml(getString(R.string.right))
@@ -944,6 +970,13 @@ class AdvancedSettingsFragment : Fragment() {
       startActivity(intent)
     }
 
+    test_connection_btn?.setOnClickListener{
+      main?.testingConnection = true
+      System.err.println("test connection "+main?.getTestingConnection())
+      main?.testingConnection = false
+      System.err.println("test connection "+main?.getTestingConnection())
+    }
+
     //Скрывает настройки, которые не актуальны для многосхватной бионики
     if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A)
       || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_BT05)
@@ -957,6 +990,7 @@ class AdvancedSettingsFragment : Fragment() {
         main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X) -> {
           telemetry_rl?.visibility = View.VISIBLE
           on_off_prosthesis_blocking_rl?.visibility = View.VISIBLE
+          test_connection_rl?.visibility = View.VISIBLE
           scale_tv?.visibility = View.GONE
         }
         main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) -> {

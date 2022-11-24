@@ -1308,8 +1308,8 @@
                             android:layout_marginBottom="3dp"
                             android:background="@drawable/custom_button_le"
                             android:text="@string/get"
-                            android:textSize="10sp"
                             android:textColor="@color/white"
+                            android:textSize="10sp"
                             tools:ignore="SmallSp,TouchTargetSizeCheck,TextContrastCheck" />
 
                     </RelativeLayout>
@@ -1593,6 +1593,30 @@
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/custom_button_le"
                     android:text="@string/debug_screen"
+                    android:textColor="@color/white"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/test_connection_rl"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:paddingTop="8dp">
+
+                <Button
+                    android:id="@+id/test_connection_btn"
+                    style="@style/Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="34dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/custom_button_le"
+                    android:text="@string/test_connection"
                     android:textColor="@color/white"
                     tools:ignore="TouchTargetSizeCheck" />
             </RelativeLayout>

@@ -122,6 +122,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var expectedReceiveConfirmation = 0
   private var timerResendCommandDLE: CountDownTimer? = null
   var stage = "not set"
+  var testingConnection = false
+  private var testingConnectionCount = 0
 
 
   // Code to manage Service lifecycle.
@@ -1817,7 +1819,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               }
             }
             2 -> {
-              System.err.println("test connection    countAttempt: $countAttempt")
+              if ( testingConnection ) {
+                System.err.println("test connection    countAttempt: $countAttempt")
+                RxUpdateMainEvent.getInstance().updateCommunicationTestResult(countAttempt)
+              }
               System.err.println("$info = $state")
               endFlag = true
               state = 0
@@ -1832,6 +1837,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       System.err.println("startSendCommand Exception: $err")
       return
     }
+  }
+  @JvmName("getTestingConnection1")
+  fun getTestingConnection(): Boolean {
+    return testingConnection
   }
 
 

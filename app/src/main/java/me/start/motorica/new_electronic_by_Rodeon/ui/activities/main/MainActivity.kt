@@ -577,11 +577,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       if (data.size >= 25) {
         for (i in 13..18) {
           saveInt(GESTURE_OPEN_DELAY_FINGER+"${i-12}", castUnsignedCharToInt(data[i]))
-          System.err.println("Принятые данные состояния задержек: " + data[i])
+          System.err.println("Принятые данные состояния задержек открытого состояния: " + data[i])
         }
         for (i in 19..24) {
           saveInt(GESTURE_CLOSE_DELAY_FINGER+"${i-18}", castUnsignedCharToInt(data[i]))
-          System.err.println("Принятые данные состояния задержек: " + data[i])
+          System.err.println("Принятые данные состояния задержек закрытого состояния: " + data[i])
         }
       }
       saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, true)
@@ -706,7 +706,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
 
 
-
+    openTestConnectionProgressDialog()
 
 
 
@@ -1783,10 +1783,15 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               if (useNewSystemSendCommand) {
                 expectedReceiveConfirmation = 1
                 state += 1 //если версия используемого протеза (касается только FEST-X) 234 и
+//                System.err.println("GSR--------> useNewSystemSendCommand: $useNewSystemSendCommand")
               // выше то ожидаем подтверждения оправки команды и используем повторную отправку
               // до подтверждения
               } else {
                 state += 2 //если версия используемого протеза (касается только FEST-X) 233 и
+//                System.err.println("GSR--------> useNewSystemSendCommand: $useNewSystemSendCommand")
+                for (i in 13..24) {
+                  System.err.println("GSR--------> Посланные данные состояния задержек: " + (data?.get(i) ?: 0))
+                }
               // ниже, то просто отправляем команду и завершаем отправку команды
               }
             }
@@ -1900,6 +1905,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   fun openValueChangeDialog(keyValue: String, callback: ChartFragmentCallback? = null) {
     val dialog = CustomDialogChangeValue(keyValue = keyValue, callbackChartFragment = callback)
+    dialog.show(supportFragmentManager, "update dialog")
+  }
+  private fun openTestConnectionProgressDialog() {
+    val dialog = CustomDialogTestCommunication()
     dialog.show(supportFragmentManager, "update dialog")
   }
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {

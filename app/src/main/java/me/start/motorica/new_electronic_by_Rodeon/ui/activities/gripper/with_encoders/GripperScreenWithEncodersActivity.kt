@@ -879,7 +879,9 @@ class GripperScreenWithEncodersActivity
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         }
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            System.err.println("GripperSettingsRender--------> compileBLEMassage FEST_X withChangeGesture =$withChangeGesture   fingerOpenState5 : " + (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()) + "   fingerCloseState5 : " + (100 - (((fingerCloseState5) + 58).toFloat() / 86 * 100).toInt()))
+//            System.err.println("GSR--------> compileBLEMassage FEST_X")
+//            System.err.println("GSR--------> fingerOpenStateDelay1: $fingerOpenStateDelay1  fingerOpenStateDelay2: $fingerOpenStateDelay2 fingerOpenStateDelay3: $fingerOpenStateDelay3 fingerOpenStateDelay4: $fingerOpenStateDelay4    fingerOpenStateDelay5: $fingerOpenStateDelay5 fingerOpenStateDelay6: $fingerOpenStateDelay6")
+//            System.err.println("GSR--------> fingerCloseStateDelay1: $fingerCloseStateDelay1  fingerCloseStateDelay2: $fingerCloseStateDelay2  fingerCloseStateDelay3: $fingerCloseStateDelay3   fingerCloseStateDelay4: $fingerCloseStateDelay4   fingerCloseStateDelay5: $fingerCloseStateDelay5   fingerCloseStateDelay6: $fingerCloseStateDelay6")
             val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1 , // проверить тут -2
                 fingerOpenState4, fingerOpenState3, fingerOpenState2,
                 fingerOpenState1, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),

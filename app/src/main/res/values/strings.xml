@@ -234,6 +234,8 @@
     <string name="one_sensor">one sensor</string>
     <string name="change_value">Change value</string>
     <string name="test_connection">test connection</string>
+    <string name="communication_testing">Communication testing</string>
+    <string name="communication_testing_in_progress">Communication testing in progress...</string>
 
     <string-array name="numbers">
         <item>0</item>

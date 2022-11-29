@@ -29,21 +29,6 @@
         tools:ignore="MissingConstraints">
 
 
-        <TextView
-            android:id="@+id/tv_test_communication_dialog_layout_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:text="@string/communication_testing"
-            android:textAlignment="center"
-            android:textColor="#000"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gl_andex_alert_dialog_layout_image_left"
             android:layout_width="wrap_content"
@@ -58,24 +43,23 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.30" />
 
-        <ImageView
-            android:id="@+id/anim_preloader_lav"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="0dp"
-            android:scaleType="fitCenter"
-            app:layout_constraintDimensionRatio="0.2:0.2"
-            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
-            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
-            app:layout_constraintTop_toBottomOf="@+id/tv_test_communication_dialog_layout_title"
-            tools:ignore="ContentDescription" />
+            <ImageView
+                android:id="@+id/anim_preloader_lav"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleType="fitCenter"
+                android:layout_marginTop="20dp"
+                app:layout_constraintDimensionRatio="0.2:0.2"
+                app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
+                app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/test_communication_animation_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_gravity="center"
-            android:layout_marginTop="16dp"
             android:background="@color/white"
             app:layout_constraintBottom_toBottomOf="@+id/anim_preloader_lav"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"

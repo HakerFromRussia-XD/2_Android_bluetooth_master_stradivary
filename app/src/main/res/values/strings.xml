@@ -236,6 +236,7 @@
     <string name="test_connection">test connection</string>
     <string name="communication_testing">Communication testing</string>
     <string name="communication_testing_in_progress">Communication testing in progress...</string>
+    <string name="functionality_in_development">Functionality in development</string>
 
     <string-array name="numbers">
         <item>0</item>

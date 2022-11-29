@@ -971,10 +971,11 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     test_connection_btn?.setOnClickListener{
-      main?.testingConnection = true
-      System.err.println("test connection "+main?.getTestingConnection())
-      main?.testingConnection = false
-      System.err.println("test connection "+main?.getTestingConnection())
+//      main?.testingConnection = true
+//      System.err.println("test connection "+main?.getTestingConnection())
+//      main?.testingConnection = false
+//      System.err.println("test connection "+main?.getTestingConnection())
+      main?.showToast(getString(R.string.functionality_in_development))
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики

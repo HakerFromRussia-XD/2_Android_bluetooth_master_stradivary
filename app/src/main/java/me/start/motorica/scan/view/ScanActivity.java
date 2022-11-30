@@ -252,7 +252,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             }
         }
         //TODO удалить автоматическое подключение после завершения тестов
-//        navigateToLEChart("extraName", device);
+        navigateToLEChart("extraName", device);
     }
 
     @Override

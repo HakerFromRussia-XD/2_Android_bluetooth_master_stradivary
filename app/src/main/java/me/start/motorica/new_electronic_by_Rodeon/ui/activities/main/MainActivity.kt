@@ -706,10 +706,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
 
 
-//    openTestConnectionProgressDialog()
-
-
-
 
     // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
     // BluetoothAdapter through BluetoothManager.
@@ -1333,6 +1329,23 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun startSubscribeSensorsNewDataThread() {
     subscribeThread = Thread {
+
+      //TODO выпилить, когда закончится тестирование
+      //start communication test
+      openTestConnectionProgressDialog()
+      testingConnection = true
+      runSendCommand(byteArrayOf(0x01), ROTATION_GESTURE_NEW_VM, 6)
+      runSendCommand(byteArrayOf(0x02), ROTATION_GESTURE_NEW_VM, 6)
+      runSendCommand(byteArrayOf(0x03), ROTATION_GESTURE_NEW_VM, 6)
+      runSendCommand(byteArrayOf(0x04), ROTATION_GESTURE_NEW_VM, 6)
+      runSendCommand(byteArrayOf(0x05), ROTATION_GESTURE_NEW_VM, 6)
+      runSendCommand(byteArrayOf(0x11), ROTATION_GESTURE_NEW_VM, 6)
+      runSendCommand(byteArrayOf(0x12), ROTATION_GESTURE_NEW_VM, 6)
+      runSendCommand(byteArrayOf(0x13), ROTATION_GESTURE_NEW_VM, 6)
+      runSendCommand(byteArrayOf(0x14), ROTATION_GESTURE_NEW_VM, 6)
+      runSendCommand(byteArrayOf(0x15), ROTATION_GESTURE_NEW_VM, 6)
+      //end
+
       while (sensorsDataThreadFlag) {
         try {
           Thread.sleep(500)
@@ -1808,7 +1821,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                   timerResendCommandDLE = object : CountDownTimer(500, 1) {
                     override fun onTick(millisUntilFinished: Long) {}
                     override fun onFinish() {
-//                      System.err.println("$info = $state  countRestartLocal=$countRestartLocal")
                       resendCommandTimer = true
                       state -= 1
                       countRestartLocal -= 1
@@ -1820,18 +1832,17 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               }
             } else {
               state += 1
-              showToast("Нестабильное соединение, поднесите протез ближе к смартфону")
+//              showToast(getString(R.string.unstable_connection))
             }
 
             if (expectedReceiveConfirmation == 2) {
               timerResendCommandDLE?.cancel()
+              countAttempt += 1
               state += 1
-//              showToast("команда id:$idCommand отправлена")
             }
           }
           2 -> {
             if ( testingConnection ) {
-              System.err.println("test connection    countAttempt: $countAttempt")
               RxUpdateMainEvent.getInstance().updateCommunicationTestResult(countAttempt)
             }
             if ( !useNewSystemSendCommand) { //добавляем задержку для совместимости с предыдущими версиями
@@ -1839,7 +1850,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                 Thread.sleep(100)
               } catch (ignored: Exception) {}
             }
-            System.err.println("$info = $state")
+            System.err.println("$info = $state   testingConnection: $testingConnection")
             endFlag = true
             state = 0
             expectedReceiveConfirmation = 0
@@ -1849,10 +1860,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         Thread.sleep(10)
       } catch (ignored: Exception) {}
     }
-  }
-  @JvmName("getTestingConnection1")
-  fun getTestingConnection(): Boolean {
-    return testingConnection
   }
 
 
@@ -1914,8 +1921,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val dialog = CustomDialogChangeValue(keyValue = keyValue, callbackChartFragment = callback)
     dialog.show(supportFragmentManager, "update dialog")
   }
-  private fun openTestConnectionProgressDialog() {
+  fun openTestConnectionProgressDialog() {
     val dialog = CustomDialogTestCommunication()
+    dialog.show(supportFragmentManager, "update dialog")
+  }
+  fun openTestConnectionResultDialog(percentageCommunicationQuality: Int) {
+    val dialog = CustomDialogResultTestCommunication(percentageCommunicationQuality)
     dialog.show(supportFragmentManager, "update dialog")
   }
   fun showAdvancedSettings(showAdvancedSettings: Boolean) {

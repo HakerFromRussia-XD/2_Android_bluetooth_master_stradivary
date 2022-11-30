@@ -109,6 +109,8 @@ class AdvancedSettingsFragment : Fragment() {
           percentageCommunicationQuality = 0
           testingConnectionCount = 0
         }
+
+        System.err.println("AdvancedSettingsFragment attempt: $attempt")
       }
     return rootView
   }
@@ -971,11 +973,24 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     test_connection_btn?.setOnClickListener{
-//      main?.testingConnection = true
+      //start communication test
+      main?.openTestConnectionProgressDialog()
+      main?.testingConnection = true
+      main?.runSendCommand(byteArrayOf(0x01), ROTATION_GESTURE_NEW_VM, 6)
+      main?.runSendCommand(byteArrayOf(0x02), ROTATION_GESTURE_NEW_VM, 6)
+      main?.runSendCommand(byteArrayOf(0x03), ROTATION_GESTURE_NEW_VM, 6)
+      main?.runSendCommand(byteArrayOf(0x04), ROTATION_GESTURE_NEW_VM, 6)
+      main?.runSendCommand(byteArrayOf(0x05), ROTATION_GESTURE_NEW_VM, 6)
+      main?.runSendCommand(byteArrayOf(0x11), ROTATION_GESTURE_NEW_VM, 6)
+      main?.runSendCommand(byteArrayOf(0x12), ROTATION_GESTURE_NEW_VM, 6)
+      main?.runSendCommand(byteArrayOf(0x13), ROTATION_GESTURE_NEW_VM, 6)
+      main?.runSendCommand(byteArrayOf(0x14), ROTATION_GESTURE_NEW_VM, 6)
+      main?.runSendCommand(byteArrayOf(0x15), ROTATION_GESTURE_NEW_VM, 6)
+      //end
 //      System.err.println("test connection "+main?.getTestingConnection())
 //      main?.testingConnection = false
 //      System.err.println("test connection "+main?.getTestingConnection())
-      main?.showToast(getString(R.string.functionality_in_development))
+//      main?.showToast(getString(R.string.functionality_in_development))
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики

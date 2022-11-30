@@ -43,31 +43,21 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.30" />
 
-            <ImageView
-                android:id="@+id/anim_preloader_lav"
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/test_communication_animation_view"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:scaleType="fitCenter"
                 android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                android:background="@color/white"
                 app:layout_constraintDimensionRatio="0.2:0.2"
                 app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
                 app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/test_communication_animation_view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center"
-            android:background="@color/white"
-            app:layout_constraintBottom_toBottomOf="@+id/anim_preloader_lav"
-            app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left2"
-            app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right"
-            app:layout_constraintTop_toTopOf="@+id/anim_preloader_lav"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            tools:ignore="ImageContrastCheck" />
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                tools:ignore="ImageContrastCheck" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gl_andex_alert_dialog_layout_image_left2"
@@ -96,7 +86,7 @@
             android:visibility="visible"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
-            app:layout_constraintTop_toBottomOf="@+id/anim_preloader_lav" />
+            app:layout_constraintTop_toBottomOf="@+id/test_communication_animation_view" />
 
         <ProgressBar
             android:id="@+id/pb_test_communication"
@@ -104,6 +94,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:max="1000"
             app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
             app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left"
             app:layout_constraintTop_toBottomOf="@+id/tv_test_communication_dialog_layout_title2" />

@@ -4,15 +4,15 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.Romans.motorica"
         minSdkVersion 23
-        targetSdkVersion 31
-        versionCode 42
-        versionName "2.4.537"
+        targetSdkVersion 32
+        versionCode 45
+        versionName "2.4.540"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -86,7 +86,7 @@ dependencies {
     kapt 'com.jakewharton:butterknife-compiler:10.2.3'
 
     // BLE connection
-    implementation "com.android.support:cardview-v7:31.0.0"
+    implementation "com.android.support:cardview-v7:32.0.0"
     implementation 'com.polidea.rxandroidble2:rxandroidble:1.11.1'
 
     // multi dex
@@ -99,12 +99,12 @@ dependencies {
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:30.0.0-alpha'
-    implementation 'com.android.support:design:31.0.0'
-    implementation 'com.android.support:mediarouter-v7:31.0.0'
-    implementation 'com.android.support:recyclerview-v7:31.0.0'
-    implementation 'com.android.support:cardview-v7:31.0.0'
-    implementation 'com.android.support:support-v13:31.0.0'
-    implementation 'com.android.support:support-v4:31.0.0'
+    implementation 'com.android.support:design:32.0.0'
+    implementation 'com.android.support:mediarouter-v7:32.0.0'
+    implementation 'com.android.support:recyclerview-v7:32.0.0'
+    implementation 'com.android.support:cardview-v7:32.0.0'
+    implementation 'com.android.support:support-v13:32.0.0'
+    implementation 'com.android.support:support-v4:32.0.0'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation project(path: ':bluetooth')
 

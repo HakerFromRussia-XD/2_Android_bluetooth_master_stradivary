@@ -237,6 +237,15 @@
     <string name="communication_testing">Тестирование связи</string>
     <string name="communication_testing_in_progress">Тестируем связь...</string>
     <string name="functionality_in_development">Функционал находится в разработке</string>
+    <string name="unstable_connection">Нестабильное соединение</string>
+    <string name="communication_quality">Качество соединения</string>
+    <string name="quality_description">описание качества</string>
+    <string name="no_link">связь отсутствует</string>
+    <string name="terrible_quality">ужасное качество</string>
+    <string name="poor_quality">плохое качество</string>
+    <string name="satisfactory_quality">удовлетворительное качество</string>
+    <string name="high_quality">хорошее качество</string>
+    <string name="excellent_quality">отличное качество</string>
 
 
     <string-array name="numbers">

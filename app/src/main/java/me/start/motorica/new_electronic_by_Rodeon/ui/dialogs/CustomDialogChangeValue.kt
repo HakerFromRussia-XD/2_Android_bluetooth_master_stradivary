@@ -63,9 +63,6 @@ class CustomDialogChangeValue(private var keyValue: String, private val callback
 
 
         rootView?.dialog_confirm_change_value_confirm?.setOnClickListener {
-            //TODO дописать код отправки изменённой команды, сохранения значения в память
-            // и обновление юая того вью, на котором была переменная
-//            main?.saveInt(main?.mDeviceAddress + keyValue, changingValue)
             if (callbackChartFragment != null) {
                 changeValue(keyValue, callbackChartFragment)
             }
@@ -126,6 +123,7 @@ class CustomDialogChangeValue(private var keyValue: String, private val callback
         ).setDuration(timeMs.toLong()).start()
     }
     private fun loadOldState() {
+        System.err.println("test save correlator value" + main?.mDeviceAddress + keyValue)
         changingValue = 255 -  mSettings!!.getInt(main?.mDeviceAddress + keyValue,127)
         animatedWheel(changingValue, 500)
     }

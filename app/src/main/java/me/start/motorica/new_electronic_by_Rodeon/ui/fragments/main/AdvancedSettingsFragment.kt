@@ -71,8 +71,6 @@ class AdvancedSettingsFragment : Fragment() {
   private var current4 = 0
   private var current5 = 0
   private var current6 = 0
-  private var testingConnectionCount = 0
-  private var percentageCommunicationQuality = 0
 
   @SuppressLint("CheckResult")
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -89,29 +87,6 @@ class AdvancedSettingsFragment : Fragment() {
       .subscribe {
         updateAllParameters()
       }
-    RxUpdateMainEvent.getInstance().communicationTestResult
-      .compose(main?.bindToLifecycle())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe { attempt ->
-        testingConnectionCount += 1
-        //TODO перенести код подсчёта процентов и обновления IU хода теста в диалоговое окно
-        // прогресса теста
-        when(attempt) {
-          1 -> { percentageCommunicationQuality += 10 }
-          2 -> { percentageCommunicationQuality += 8 }
-          3 -> { percentageCommunicationQuality += 6 }
-          4 -> { percentageCommunicationQuality += 4 }
-          5 -> { percentageCommunicationQuality += 2 }
-        }
-
-        if (testingConnectionCount == 10) {
-          //TODO показ диалога с качеством соединения
-          percentageCommunicationQuality = 0
-          testingConnectionCount = 0
-        }
-
-        System.err.println("AdvancedSettingsFragment attempt: $attempt")
-      }
     return rootView
   }
 
@@ -121,6 +96,12 @@ class AdvancedSettingsFragment : Fragment() {
     initializeUI()
     updateAllParameters()
   }
+
+  override fun onResume() {
+    super.onResume()
+    main!!.setDebagScreenIsOpen(false)
+  }
+
 
   @SuppressLint("SetTextI18n", "CheckResult", "Recycle")
   private fun initializeUI() {
@@ -969,6 +950,7 @@ class AdvancedSettingsFragment : Fragment() {
 
     debug_screen_btn?.setOnClickListener {
       val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)
+      main!!.setDebagScreenIsOpen(true)
       startActivity(intent)
     }
 
@@ -987,10 +969,6 @@ class AdvancedSettingsFragment : Fragment() {
       main?.runSendCommand(byteArrayOf(0x14), ROTATION_GESTURE_NEW_VM, 6)
       main?.runSendCommand(byteArrayOf(0x15), ROTATION_GESTURE_NEW_VM, 6)
       //end
-//      System.err.println("test connection "+main?.getTestingConnection())
-//      main?.testingConnection = false
-//      System.err.println("test connection "+main?.getTestingConnection())
-//      main?.showToast(getString(R.string.functionality_in_development))
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
@@ -1216,9 +1194,6 @@ class AdvancedSettingsFragment : Fragment() {
       }
 
 
-      //TODO запускать таймер, который раз в полсекунды отслеживает, была ли отправлена команда
-      // (по состоянию ключа CALIBRATING_STATUS =    1-была    0-не была   )
-      // и если не была, то повторяет отправку
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
         main?.stage = "advanced activity"
         main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)

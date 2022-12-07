@@ -15,20 +15,17 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.fingers_delay_btn
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gesture_name_et
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gesture_name_tv
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gripper_state_le
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.seekBarSpeedFingerLE
 import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.textSpeedFingerLE
 import kotlinx.android.synthetic.main.layout_gripper_test_settings_le_with_encoders.*
 import me.start.motorica.R
-import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
-import me.start.motorica.new_electronic_by_Rodeon.models.GestureStateWithEncoders
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
-import kotlin.math.abs
 import kotlin.properties.Delegates
 
 
@@ -80,6 +77,7 @@ class GripperTestScreenWithEncodersActivity
         animationInProgress4 = true
         animationInProgress5 = true
         animationInProgress6 = true
+
         //control side in 3D
         side = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
                                        + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)

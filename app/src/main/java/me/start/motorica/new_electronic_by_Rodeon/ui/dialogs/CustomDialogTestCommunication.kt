@@ -13,13 +13,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.dialog_progress_communication_test.*
-import kotlinx.android.synthetic.main.dialog_progress_communication_test.view.*
-import kotlinx.android.synthetic.main.layout_updating_le.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import java.util.concurrent.Flow
+
 
 @Suppress("DEPRECATION")
 class CustomDialogTestCommunication: DialogFragment() {
@@ -39,34 +40,43 @@ class CustomDialogTestCommunication: DialogFragment() {
         val view = inflater.inflate(R.layout.dialog_progress_communication_test, container, false)
         rootView = view
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        if (activity != null) { main = activity as MainActivity? }
+        if (activity != null) {
+            main = activity as MainActivity?
+        }
 
 
-        RxUpdateMainEvent.getInstance().communicationTestResult
+        val test = RxUpdateMainEvent.getInstance().communicationTestResult
+
+        test
             .compose(main?.bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { attempt ->
                 countReceivedCommandToCommunicationTest += 1
-                when(attempt) {
+                when (attempt) {
                     1 -> { percentageCommunicationQuality += 10 }
                     2 -> { percentageCommunicationQuality += 8 }
                     3 -> { percentageCommunicationQuality += 6 }
                     4 -> { percentageCommunicationQuality += 4 }
                     5 -> { percentageCommunicationQuality += 2 }
                 }
-                System.err.println("CustomDialogTestCommunication attempt: $attempt")
-                changeLoader((countReceivedCommandToCommunicationTest+1) * 90)
+                System.err.println("CustomDialogTestCommunication attempt: $attempt   countReceivedCommandToCommunicationTest: $countReceivedCommandToCommunicationTest")
+                changeLoader((countReceivedCommandToCommunicationTest + 1) * 90)
                 if (countReceivedCommandToCommunicationTest == 10) {
-                    System.err.println("Test completed!!!!!!!  attempt percentageCommunicationQuality: $percentageCommunicationQuality")
                     main?.openTestConnectionResultDialog(percentageCommunicationQuality)
                     percentageCommunicationQuality = 0
                     main?.testingConnection = false
+
+                    test
+                        .compose(main?.bindToLifecycle())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .unsubscribeOn(AndroidSchedulers.mainThread())
+
                     dismiss()
+                    System.err.println("Test completed!!!!!!!  attempt percentageCommunicationQuality: $percentageCommunicationQuality")
                 }
             }
         return view
     }
-
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         @Suppress("DEPRECATION")
@@ -78,6 +88,9 @@ class CustomDialogTestCommunication: DialogFragment() {
         test_communication_animation_view.setAnimation(R.raw.test_communication_animation)
 
         dialog_test_communication_cancel.setOnClickListener {
+            countReceivedCommandToCommunicationTest = 0
+            percentageCommunicationQuality = 0
+            main?.testingConnection = false
             dismiss()
         }
     }

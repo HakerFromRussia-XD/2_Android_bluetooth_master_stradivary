@@ -123,7 +123,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var timerResendCommandDLE: CountDownTimer? = null
   var stage = "not set"
   var testingConnection = false
-  private var testingConnectionCount = 0
+  private var countdownToUpdate = COUNT_ATTEMPTS_TO_UPDATE
+  private var debagScreenIsOpen = false
 
 
   // Code to manage Service lifecycle.
@@ -310,34 +311,68 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
 
           if (data.size >= 12) {
-            if (castUnsignedCharToInt(data[10]) != mSettings!!.getInt(mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)) {
-              saveInt(mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, castUnsignedCharToInt(data[10]))
-              RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
-            }
+            // оптимизация для уменьшения лагов на маломощных телефонах
+            // (проводим сложные расчёты в n раз реже)
+            countdownToUpdate -= 1
+            if (countdownToUpdate == 0) {
+              if (castUnsignedCharToInt(data[10]) != mSettings!!.getInt(
+                  mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM,
+                  80
+                )
+              ) {
+                saveInt(
+                  mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM,
+                  castUnsignedCharToInt(data[10])
+                )
+                RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
+              }
 
-            if (((castUnsignedCharToInt(data[11]) shr 0 and 0b00000001) ==  1) != mSettings!!.getBoolean(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) {
-                saveBool(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, ((castUnsignedCharToInt(data[11]) shr 0 and 0b00000001) ==  1))
-              updateUIChart(9)
-            }
+              if (((castUnsignedCharToInt(data[11]) shr 0 and 0b00000001) == 1) != mSettings!!.getBoolean(
+                  mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM,
+                  false
+                )
+              ) {
+                saveBool(
+                  mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM,
+                  ((castUnsignedCharToInt(data[11]) shr 0 and 0b00000001) == 1)
+                )
+                updateUIChart(9)
+              }
 
-            if (((castUnsignedCharToInt(data[11]) shr 1 and 0b00000001) == 1) != mSettings!!.getBoolean(mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) {
-              saveBool(mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, ((castUnsignedCharToInt(data[11]) shr 1 and 0b00000001) == 1))
-            RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
-            }
+              if (((castUnsignedCharToInt(data[11]) shr 1 and 0b00000001) == 1) != mSettings!!.getBoolean(
+                  mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM,
+                  false
+                )
+              ) {
+                saveBool(
+                  mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM,
+                  ((castUnsignedCharToInt(data[11]) shr 1 and 0b00000001) == 1)
+                )
+                RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
+              }
 
-            if ((castUnsignedCharToInt(data[11]) shr 7 and 0b00000001) !=  1) {
-              if (!firstActivateSetScaleDialog) {
-                System.err.println("BluetoothLeService-------------> ПОКАЗЫВАЕМ ДИАЛОГ ВЫБОРА РАЗМЕРА ПРОТЕЗА")
-                if (mDeviceName != EXTRAS_DEVICE_TYPE_BT05) {
-                  showChangeSizeDialog()
-                  firstActivateSetScaleDialog = true
+              if ((castUnsignedCharToInt(data[11]) shr 7 and 0b00000001) != 1) {
+                if (!firstActivateSetScaleDialog) {
+                  System.err.println("BluetoothLeService-------------> ПОКАЗЫВАЕМ ДИАЛОГ ВЫБОРА РАЗМЕРА ПРОТЕЗА")
+                  if (mDeviceName != EXTRAS_DEVICE_TYPE_BT05) {
+                    showChangeSizeDialog()
+                    firstActivateSetScaleDialog = true
+                  }
                 }
               }
-            }
 
-            if ((castUnsignedCharToInt(data[11]) shr 2 and 0b00000011) != mSettings!!.getInt(mDeviceAddress + PreferenceKeys.SET_SCALE, 0)) {
-              saveInt(mDeviceAddress + PreferenceKeys.SET_SCALE, (castUnsignedCharToInt(data[11]) shr 2 and 0b00000011))
-              updateUIChart(9)
+              if ((castUnsignedCharToInt(data[11]) shr 2 and 0b00000011) != mSettings!!.getInt(
+                  mDeviceAddress + PreferenceKeys.SET_SCALE,
+                  0
+                )
+              ) {
+                saveInt(
+                  mDeviceAddress + PreferenceKeys.SET_SCALE,
+                  (castUnsignedCharToInt(data[11]) shr 2 and 0b00000011)
+                )
+                updateUIChart(9)
+              }
+              countdownToUpdate = COUNT_ATTEMPTS_TO_UPDATE
             }
           }
         }
@@ -360,9 +395,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       if (data.size == 2) {
         dataSens1 = castUnsignedCharToInt(data[0])
         dataSens2 = castUnsignedCharToInt(data[1])
-
-        calibrationDialogOpen = false
-        savingSettingsWhenModified = true
       } else  {
         if (data.size >= 3) {
           dataSens1 = castUnsignedCharToInt(data[0])
@@ -373,12 +405,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
             System.err.println("displayDataNew номер жеста ${castUnsignedCharToInt(data[2])+1}")
           }
 
-
-          calibrationDialogOpen = false
-          savingSettingsWhenModified = true
-
-
-          if (data.size in 4..12) {
+          // оптимизация для уменьшения лагов на маломощных телефонах
+          // (просчёт этой части только при открытом отладочном окне)
+          if (debagScreenIsOpen) {
             if (data.size >= 10) {
               val fingersEncoderValue = FingersEncoderValue(
                 castUnsignedCharToInt(data[3]),
@@ -392,8 +421,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
               RxUpdateMainEvent.getInstance().updateEncodersError(castUnsignedCharToInt(data[9]))
             }
           }
-          if (data.size in 11..12) {
-            if (data.size >= 12) {
+
+
+          if (data.size >= 12) {
               val receiveIdCommand = "%02x".format(castUnsignedCharToInt(data[11])) + "%02x".format(castUnsignedCharToInt(data[10]))
               System.err.println("данные IdCommand: $receiveIdCommand")
               if (expectedIdCommand == receiveIdCommand) {
@@ -402,9 +432,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
                 expectedIdCommand = "not set"
               }
             }
-          }
         }
       }
+      calibrationDialogOpen = false
+      savingSettingsWhenModified = true
       lockWriteBeforeFirstRead = false
     }
   }
@@ -701,10 +732,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
-
-
-
-
 
 
     // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
@@ -1329,23 +1356,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   private fun startSubscribeSensorsNewDataThread() {
     subscribeThread = Thread {
-
-      //TODO выпилить, когда закончится тестирование
-      //start communication test
-      openTestConnectionProgressDialog()
-      testingConnection = true
-      runSendCommand(byteArrayOf(0x01), ROTATION_GESTURE_NEW_VM, 6)
-      runSendCommand(byteArrayOf(0x02), ROTATION_GESTURE_NEW_VM, 6)
-      runSendCommand(byteArrayOf(0x03), ROTATION_GESTURE_NEW_VM, 6)
-      runSendCommand(byteArrayOf(0x04), ROTATION_GESTURE_NEW_VM, 6)
-      runSendCommand(byteArrayOf(0x05), ROTATION_GESTURE_NEW_VM, 6)
-      runSendCommand(byteArrayOf(0x11), ROTATION_GESTURE_NEW_VM, 6)
-      runSendCommand(byteArrayOf(0x12), ROTATION_GESTURE_NEW_VM, 6)
-      runSendCommand(byteArrayOf(0x13), ROTATION_GESTURE_NEW_VM, 6)
-      runSendCommand(byteArrayOf(0x14), ROTATION_GESTURE_NEW_VM, 6)
-      runSendCommand(byteArrayOf(0x15), ROTATION_GESTURE_NEW_VM, 6)
-      //end
-
       while (sensorsDataThreadFlag) {
         try {
           Thread.sleep(500)
@@ -1876,6 +1886,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   fun getDataSens2(): Int { return dataSens2 }
   fun getMNumberGesture(): Int { return mNumberGesture }
   fun setSensorsDataThreadFlag(value: Boolean){ sensorsDataThreadFlag = value }
+  fun setDebagScreenIsOpen(value: Boolean) { debagScreenIsOpen = value }
   override fun writeToParcel(parcel: Parcel, flags: Int) {
     parcel.writeByte(if (sensorsDataThreadFlag) 1 else 0)
     parcel.writeString(mDeviceName)

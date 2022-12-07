@@ -251,8 +251,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 scanListBLEPosition++;
             }
         }
-        //TODO удалить автоматическое подключение после завершения тестов
-        navigateToLEChart("extraName", device);
     }
 
     @Override

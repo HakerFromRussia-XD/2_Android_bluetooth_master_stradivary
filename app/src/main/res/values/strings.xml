@@ -246,6 +246,7 @@
     <string name="satisfactory_quality">satisfactory quality</string>
     <string name="high_quality">high quality</string>
     <string name="excellent_quality">excellent quality</string>
+    <string name="smart_connection">smart connection</string>
 
 
     <string-array name="numbers">

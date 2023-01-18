@@ -246,6 +246,7 @@
     <string name="satisfactory_quality">удовлетворительное качество</string>
     <string name="high_quality">хорошее качество</string>
     <string name="excellent_quality">отличное качество</string>
+    <string name="smart_connection">умное подключение</string>
 
 
     <string-array name="numbers">

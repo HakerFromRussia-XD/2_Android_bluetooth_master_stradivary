@@ -1,6 +1,5 @@
 package me.start.motorica.scan.view;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -25,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,9 +41,9 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import me.start.motorica.BuildConfig;
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication;
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
+import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
 import me.start.motorica.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
 import me.start.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
@@ -74,6 +72,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     Load3DModel mLoad3DModel = new Load3DModel(this);
     Load3DModelNew mLoad3DModelNew = new Load3DModelNew(this);
     public Thread[] threadFunction = new Thread[MAX_NUMBER_DETAILS+MAX_NUMBER_DETAILS];
+    private SharedPreferences mSettings = null;
 
     @Inject
     ScanPresenter presenter;
@@ -135,6 +134,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         /// BLE
         mLeDevices = new ArrayList<>();
         mHandler = new Handler();
+        // Smart connection
+        mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE);
         // Checks if Bluetooth is supported on the device.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, "BLE не завёлся", Toast.LENGTH_SHORT).show();
@@ -156,6 +157,47 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
         checkLocationPermission();
         init3D();
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        if ((ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+        presenter.onStart(this);
+//        }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.setOnPauseActivity(false);
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+        scanListBLEPosition = 0;
+        mLeDevices.clear();
+        pairedDeviceList.setAdapter(mScanListAdapter);
+//        if ((ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+        scanLeDevice(true);
+        presenter.startScanning();
+//        }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveData();
+        presenter.setOnPauseActivity(true);
+        scanLeDevice(false);
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        presenter.setOnPauseActivity(true);
+//        if ((ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+        presenter.onStop();
+//        }
     }
 
     @SuppressLint("MissingPermission")
@@ -197,6 +239,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //                            +" | "+device.getType()+" | "+device.getClass().getCanonicalName()+" | "+device.getName()+" | "+device.getClass().getSimpleName()+" | "
 //                            +device.getClass().getTypeName()+" | "+device.getClass().getAnnotations().length);
                     System.err.println("DeviceScanActivity ---------> device: "+ device.getName() + " | " + device.getAddress() +" | "+rssi);
+                    System.err.println("DeviceScanActivity ---------> loadBool "+loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
+                    System.err.println("DeviceScanActivity ---------> LAST_CONNECTION_MAC: "+loadString(PreferenceKeys.LAST_CONNECTION_MAC));
                     System.err.println("===========================================");
                     addLEDeviceToScanList(device.getName()+":l:", device, rssi);
                 }
@@ -224,7 +268,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
 
     }
-
     @Override
     public void addLEDeviceToScanList(String item, BluetoothDevice device, int rssi) {
         boolean canAdd = true;
@@ -236,7 +279,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 canAdd = false;
             }
         }
-        System.err.println("DeviceScanActivity addLEDeviceToScanList ---------> device address: " + device.getAddress());
+//        System.err.println("DeviceScanActivity addLEDeviceToScanList ---------> device address: " + device.getAddress());
         //здесь мы принимаем решение добавлять ли новое устройство в список отсканированных
         if (canAdd) {
             if(checkOurLEName(item)){
@@ -251,8 +294,20 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 scanListBLEPosition++;
             }
         }
+        smartConnection(device);
     }
-
+    private void smartConnection(BluetoothDevice device) {
+        System.err.println("найдено SET_MODE_SMART_CONNECTION до проверки");
+        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
+            System.err.println("найдено SET_MODE_SMART_CONNECTION true       "+device.getAddress().toString()+"   "+loadString(PreferenceKeys.LAST_CONNECTION_MAC));
+            if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
+                System.err.println("найдено устройство к которому мы подключались ранее "+ device.getName());
+                navigateToLEChart("device", device);
+            }
+        } else  {
+            System.err.println("найдено устройство к которому мы подключались ранее "+ device.getName()+ ", но мы не будем к нему подключаться потому что функция отключена");
+        }
+    }
     @Override
     public void addDeviceToScanList(String item, String address, BluetoothDevice device) {
         scanList.add(
@@ -263,7 +318,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                         false));
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
-
     @Override
     public void setScanStatus(String status, boolean enabled) {
         try {
@@ -273,7 +327,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             System.err.println("Exception setScanStatus: " + e);
         }
     }
-
     @Override
     public void setScanStatus(int resId, boolean enabled) {
         try {
@@ -282,7 +335,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             System.err.println("Exception setScanStatus: " + e);
         }
     }
-
     @Override
     public void clearScanList() {
         int scanDeviceCount = 0;
@@ -299,28 +351,23 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
-
     @Override
     public void clearPairedList() {
         scanList.clear();
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
-
     @Override
     public void showProgress(boolean enabled) {
         progress.setVisibility(enabled?View.VISIBLE:View.GONE);
     }
-
     @Override
     public void enableScanButton(boolean enabled) {
         scanButton.setVisibility(enabled?View.VISIBLE:View.GONE);
     }
-
     @Override
     public void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
-
     @Override
     public void navigateToChart(String extraName, BluetoothDevice extraDevice) {
         for (int j = 0; j<MAX_NUMBER_DETAILS; j++) {
@@ -338,7 +385,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         startActivity(intent);
         finish();
     }
-
     @SuppressLint("MissingPermission")
     @Override
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) {
@@ -365,61 +411,14 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         finish();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-//        if ((ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
-            presenter.onStart(this);
-//        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        presenter.setOnPauseActivity(false);
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
-        scanListBLEPosition = 0;
-        mLeDevices.clear();
-        pairedDeviceList.setAdapter(mScanListAdapter);
-//        if ((ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
-            scanLeDevice(true);
-            presenter.startScanning();
-//        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        saveData();
-        presenter.setOnPauseActivity(true);
-        scanLeDevice(false);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        presenter.setOnPauseActivity(true);
-//        if ((ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
-            presenter.onStop();
-//        }
-    }
-
     public boolean isFirstStart() {
         return firstStart;
     }
-
     @Override
     public void onScanClick(int position) {
         pairedDeviceList.setClickable(false);
         presenter.itemClick(position);
     }
-
     public void setNewStageCellScanList (int numberCell, int setImage, String setText){
         ScanItem cell = new ScanItem(
                 setImage,
@@ -429,22 +428,18 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanList.set(numberCell,cell);
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
-
     public List<ScanItem> getMyScanList () {
         return scanList;
     }
-
     public ArrayList<BluetoothDevice> getLeDevices() {
         return mLeDevices;
     }
-
     public void buildScanListView() {
         pairedDeviceList = findViewById(R.id.activity_scan_paired_list);
         pairedDeviceList.setHasFixedSize(true);
         pairedDeviceList.setLayoutManager(new LinearLayoutManager(this));
         mScanListAdapter = new ScanListAdapter(this, scanList, this);
     }
-
     private boolean checkOurLEName (@NotNull String deviceName){
 //        return deviceName.split(":")[0].equals("HRSTM") ||
 //                deviceName.split(":")[0].equals("BLE_test_service—•——");
@@ -521,7 +516,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         Type type = new TypeToken<ArrayList<ScanItem>>() {}.getType();
         scanList = gson.fromJson(json, type);
     }
-
+    private Boolean loadBool(String key) { return mSettings.getBoolean(key, false); }
+    private String loadString(String key) { return mSettings.getString(key, "null"); }
 
     private void checkLocationPermission() {
         //проверка включена ли геолокация и если выключена, то показ предложения её включить

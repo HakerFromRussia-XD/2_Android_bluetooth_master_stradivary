@@ -748,6 +748,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     getWindow().navigationBarColor = resources.getColor(R.color.colorPrimary)
     mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
+
     val intent = intent
     mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
     mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS)
@@ -756,6 +757,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
     mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE_FEST_A)
     System.err.println("mDeviceAddress: $mDeviceAddress")
+    //TODO сделать осмысленное переключение флагов
+    saveBool(PreferenceKeys.SET_MODE_SMART_CONNECTION, true)
+    saveText(PreferenceKeys.LAST_CONNECTION_MAC, mDeviceAddress)
 
     // Sets up UI references.
     mGattServicesList = findViewById(R.id.gatt_services_list)
@@ -2270,7 +2274,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     editor.putBoolean(key, variable)
     editor.apply()
   }
-  private fun saveText(key: String, text: String) {
+  private fun saveText(key: String, text: String?) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putString(key, text)
     editor.apply()

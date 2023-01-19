@@ -297,15 +297,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         smartConnection(device);
     }
     private void smartConnection(BluetoothDevice device) {
-        System.err.println("найдено SET_MODE_SMART_CONNECTION до проверки");
         if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
-            System.err.println("найдено SET_MODE_SMART_CONNECTION true       "+device.getAddress().toString()+"   "+loadString(PreferenceKeys.LAST_CONNECTION_MAC));
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
-                System.err.println("найдено устройство к которому мы подключались ранее "+ device.getName());
                 navigateToLEChart("device", device);
             }
-        } else  {
-            System.err.println("найдено устройство к которому мы подключались ранее "+ device.getName()+ ", но мы не будем к нему подключаться потому что функция отключена");
         }
     }
     @Override

@@ -757,9 +757,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
     mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE_FEST_A)
     System.err.println("mDeviceAddress: $mDeviceAddress")
-    //TODO сделать осмысленное переключение флагов
-    saveBool(PreferenceKeys.SET_MODE_SMART_CONNECTION, true)
     saveText(PreferenceKeys.LAST_CONNECTION_MAC, mDeviceAddress)
+
+
 
     // Sets up UI references.
     mGattServicesList = findViewById(R.id.gatt_services_list)

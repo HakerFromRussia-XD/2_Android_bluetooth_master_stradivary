@@ -90,7 +90,6 @@ class AdvancedSettingsFragment : Fragment() {
     return rootView
   }
 
-
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     initializeUI()
@@ -123,6 +122,7 @@ class AdvancedSettingsFragment : Fragment() {
     test_connection_btn?.textSize = 10f
     side_text_tv?.textSize = 11f
     time_delay_of_fingers_tv?.textSize = 11f
+    smart_connection_tv?.textSize = 11f
     left_right_side_swap_tv?.textSize = 11f
     shutdown_current_1_text_tv?.textSize = 11f
     shutdown_current_2_text_tv?.textSize = 11f
@@ -148,6 +148,13 @@ class AdvancedSettingsFragment : Fragment() {
     } else {
       time_delay_of_fingers_swap_sw?.isChecked = false
       time_delay_of_fingers_swap_tv?.text = "0"
+    }
+    if (mSettings!!.getBoolean(PreferenceKeys.SET_MODE_SMART_CONNECTION, false)) {
+      smart_connection_swap_sw?.isChecked = true
+      smart_connection_swap_tv?.text = "1"
+    } else {
+      smart_connection_swap_sw?.isChecked = false
+      smart_connection_swap_tv?.text = "0"
     }
 
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
@@ -867,6 +874,16 @@ class AdvancedSettingsFragment : Fragment() {
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersFingersDelay)
     }
 
+
+    smart_connection_swap_sw?.setOnClickListener {
+      if (smart_connection_swap_sw.isChecked) {
+        smart_connection_swap_tv?.text = "1"
+        saveBool(PreferenceKeys.SET_MODE_SMART_CONNECTION, true)
+      } else {
+        smart_connection_swap_tv?.text = "0"
+        saveBool(PreferenceKeys.SET_MODE_SMART_CONNECTION, false)
+      }
+    }
 
     val eventYandexMetricaParametersReset = "{\"Screen advanced settings\":\"Tup reset to factory settings button\"}"
     reset_to_factory_settings_btn?.setOnClickListener {

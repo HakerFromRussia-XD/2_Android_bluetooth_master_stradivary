@@ -114,8 +114,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     name_tv.text = main?.mDeviceName
     name_tv.setOnClickListener {
-      main?.showToast("lol")
-      main?.disconnect()
+//      main?.disconnect()
+      main?.showDisconnectDialog()
     }
 
     driver_tv.setOnLongClickListener {

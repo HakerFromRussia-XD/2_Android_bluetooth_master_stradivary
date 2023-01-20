@@ -247,6 +247,8 @@
     <string name="high_quality">хорошее качество</string>
     <string name="excellent_quality">отличное качество</string>
     <string name="smart_connection">умное подключение</string>
+    <string name="disconnection_from_the_device">Отключение от устройства</string>
+    <string name="are_you_sure_you_want_to_disconnect_from_your_device_and_go_to_the_scan_screen">Вы действительно хотите отключиться от устройства и перейти на экран сканирования?</string>
 
 
     <string-array name="numbers">

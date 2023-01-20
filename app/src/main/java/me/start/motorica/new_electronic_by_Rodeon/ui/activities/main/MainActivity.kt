@@ -46,10 +46,12 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.*
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
+import me.start.motorica.scan.view.ScanActivity
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -130,6 +132,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
     override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
+      System.err.println("Check ServiceConnection onServiceConnected()")
       mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
       if (!mBluetoothLeService?.initialize()!!) {
         Timber.e("Unable to initialize Bluetooth")
@@ -148,6 +151,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
 
     override fun onServiceDisconnected(componentName: ComponentName) {
+      System.err.println("Check ServiceConnection onServiceDisconnected()")
       mBluetoothLeService = null
     }
   }
@@ -162,12 +166,13 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       val action = intent.action
       when {
         BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
+          System.err.println("Check BroadcastReceiver() ACTION_GATT_CONNECTED")
           System.err.println("DeviceControlActivity------->   момент индикации коннекта")
-          Toast.makeText(context, "подключение установлено к $mDeviceAddress", Toast.LENGTH_SHORT).show()
           reconnectThreadFlag = false
           invalidateOptionsMenu()
         }
         BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+          System.err.println("Check BroadcastReceiver() ACTION_GATT_DISCONNECTED")
           //disconnected state
           mConnected = false
           endFlag = true
@@ -186,6 +191,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
         }
         BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
+          System.err.println("Check BroadcastReceiver() ACTION_GATT_SERVICES_DISCOVERED")
+          Toast.makeText(context, "подключение установлено к $mDeviceAddress", Toast.LENGTH_SHORT).show()
           System.err.println("DeviceControlActivity------->   ACTION_GATT_SERVICES_DISCOVERED")
           mConnected = true
           mConnectView!!.visibility = View.VISIBLE
@@ -932,6 +939,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   override fun onResume() {
     super.onResume()
+    System.err.println("Check life cycle onResume()")
     // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
     // fire an intent to display a dialog asking the user to grant permission to enable it.
     if (!mBluetoothAdapter!!.isEnabled) {
@@ -964,11 +972,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   override fun onPause() {
     super.onPause()
+    System.err.println("Check life cycle onPause()")
     endFlag = true
-
   }
   override fun onDestroy() {
     super.onDestroy()
+    System.err.println("Check life cycle onDestroy()")
     if (mBluetoothLeService != null) {
       unbindService(mServiceConnection)
       mBluetoothLeService = null
@@ -980,6 +989,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
+    System.err.println("Check life cycle onNewIntent()")
     setIntent(intent)
   }
   private fun initUI() {
@@ -2106,6 +2116,25 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       myDialog.dismiss()
     }
   }
+  @SuppressLint("InflateParams")
+  fun showDisconnectDialog() {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_disconnection, null)
+    val myDialog = Dialog(this)
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_disconnection_confirm)
+    yesBtn.setOnClickListener {
+      disconnect()
+      myDialog.dismiss()
+    }
+    val noBtn = dialogBinding.findViewById<View>(R.id.dialog_disconnection_cancel)
+    noBtn.setOnClickListener {
+      myDialog.dismiss()
+    }
+  }
 
 
   fun getProgressUpdate(): Int {
@@ -2325,8 +2354,19 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
 
+  private fun openScanActivity() {
+    System.err.println("Check openScanActivity()")
+    resetLastMAC()
+    val intent = Intent(this@MainActivity, ScanActivity::class.java)
+    startActivity(intent)
+    finish()
+  }
+  private fun resetLastMAC() {
+    saveText(PreferenceKeys.LAST_CONNECTION_MAC, "null")
+  }
   fun disconnect () {
     //TODO проработать грамотный дисконнект
+    System.err.println("Check disconnect()")
     if (mBluetoothLeService != null) {
       println("--> дисконнектим всё к хуям и анбайндим")
       mBluetoothLeService!!.disconnect()
@@ -2342,15 +2382,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
     invalidateOptionsMenu()
     percentSynchronize = 0
-
-//    if(!reconnectThreadFlag && !mScanning && !inScanFragmentFlag){
-//      reconnectThreadFlag = true
-//      reconnectThread()
-//      println("--> disconnect  reconnectThread()")
-//    }
+    openScanActivity()
   }
   private fun reconnect () {
     //полное завершение сеанса связи и создание нового в onResume
+    System.err.println("Check reconnect()")
     if (mBluetoothLeService != null) {
       unbindService(mServiceConnection)
       mBluetoothLeService = null
@@ -2371,6 +2407,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
    */
   @SuppressLint("MissingPermission")
   private fun scanLeDevice(enable: Boolean) {
+    System.err.println("Check scanLeDevice() $enable")
     if (enable) {
       mScanning = true
       mBluetoothAdapter!!.startLeScan(mLeScanCallback)

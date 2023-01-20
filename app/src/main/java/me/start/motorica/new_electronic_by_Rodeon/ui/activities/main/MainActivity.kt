@@ -67,7 +67,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   private var mScanning = false
   private var mBluetoothAdapter: BluetoothAdapter? = null
 
-  private var mDeviceName: String? = null
+  var mDeviceName: String? = null
   var mDeviceAddress: String? = null
   var mDeviceType: String? = null
   private var driverVersionS: String? = null
@@ -2325,6 +2325,30 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   }
 
 
+  fun disconnect () {
+    //TODO проработать грамотный дисконнект
+    if (mBluetoothLeService != null) {
+      println("--> дисконнектим всё к хуям и анбайндим")
+      mBluetoothLeService!!.disconnect()
+      unbindService(mServiceConnection)
+      mBluetoothLeService = null
+    }
+    mConnected = false
+    endFlag = true
+    runOnUiThread {
+      mConnectView!!.visibility = View.GONE
+      mDisconnectView!!.visibility = View.VISIBLE
+      mGattServicesList!!.setAdapter(null as SimpleExpandableListAdapter?)
+    }
+    invalidateOptionsMenu()
+    percentSynchronize = 0
+
+//    if(!reconnectThreadFlag && !mScanning && !inScanFragmentFlag){
+//      reconnectThreadFlag = true
+//      reconnectThread()
+//      println("--> disconnect  reconnectThread()")
+//    }
+  }
   private fun reconnect () {
     //полное завершение сеанса связи и создание нового в onResume
     if (mBluetoothLeService != null) {

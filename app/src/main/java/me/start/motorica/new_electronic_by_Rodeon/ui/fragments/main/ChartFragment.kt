@@ -112,6 +112,11 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     main?.setSwapOpenCloseButton(preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))
     scale = resources.displayMetrics.density
 
+    name_tv.text = main?.mDeviceName
+    name_tv.setOnClickListener {
+      main?.showToast("lol")
+      main?.disconnect()
+    }
 
     driver_tv.setOnLongClickListener {
       showAdvancedSettings = if (showAdvancedSettings) {

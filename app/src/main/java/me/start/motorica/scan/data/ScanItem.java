@@ -1,21 +1,21 @@
 package me.start.motorica.scan.data;
 
 public class ScanItem {
-    private int image;
+//    private int image;
     private String title;
     private String address;
-    private boolean checkProgress;
+//    private boolean checkProgress;
 
     public ScanItem(int image, String title, String address,boolean checkProgress) {
-        this.image = image;
+//        this.image = image;
         this.title = title;
         this.address = address;
-        this.checkProgress = checkProgress;
+//        this.checkProgress = checkProgress;
     }
 
-    public int getImage() {
-        return image;
-    }
+//    public int getImage() {
+//        return image;
+//    }
 
     public String getTitle() {
         return title;
@@ -25,5 +25,5 @@ public class ScanItem {
         return address;
     }
 
-    public boolean getCheckProgress() { return checkProgress; }
+//    public boolean getCheckProgress() { return checkProgress; }
 }

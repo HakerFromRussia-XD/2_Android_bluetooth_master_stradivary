@@ -3,66 +3,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:paddingTop="8dp">
+    android:background="@drawable/custom_ripple"
+    android:paddingTop="1dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:focusable="true"
-        android:background="@drawable/custom_ripple"
+        android:background="#E7EAEB"
         tools:ignore="MissingConstraints">
 
         <TextView
             android:id="@+id/textViewTitle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="0dp"
-            android:layout_marginEnd="52dp"
-            android:gravity="center_vertical"
-            android:minHeight="?android:attr/listPreferredItemHeightSmall"
-            android:paddingStart="16dp"
-            android:text="привет"
-            android:textColor="#FF525252"
+            android:layout_marginEnd="0dp"
+            android:gravity="center"
+            android:text="Indy Hand"
+            android:textColor="#0C212C"
             android:textSize="16sp"
             tools:ignore="HardcodedText,RtlSymmetry" />
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/textViewTitle"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="0dp"
-            android:layout_marginEnd="0dp"
-            android:padding="16dp"
-            app:srcCompat="@drawable/circle_16_green"
-            tools:ignore="ContentDescription,HardcodedText" />
-
-        <ProgressBar
-            android:id="@+id/activity_check_progress"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="0dp"
-            android:layout_marginEnd="0dp"
-            android:visibility="visible"
-            android:indeterminate="true"
-            android:padding="10dp" />
-
-        <!--    <View-->
-        <!--        android:layout_width="match_parent"-->
-        <!--        android:layout_height="1dp"-->
-        <!--        android:layout_below="@+id/textViewTitle"-->
-        <!--        android:layout_marginTop="0dp"-->
-        <!--        android:layout_marginEnd="16dp"-->
-        <!--        android:layout_marginStart="16dp"-->
-        <!--        android:background="#FF929292" />-->
-<!--    </RelativeLayout>-->
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

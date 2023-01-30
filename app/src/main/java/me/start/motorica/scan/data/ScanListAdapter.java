@@ -45,8 +45,8 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
         ScanItem item = mScanList.get(position);
 
         holder.textViewTitle.setText(item.getTitle());
-        holder.imageView.setImageDrawable(mCtx.getResources().getDrawable(item.getImage()));
-        holder.checkProgress.setVisibility(item.getCheckProgress()?View.VISIBLE:View.GONE);
+//        holder.imageView.setImageDrawable(mCtx.getResources().getDrawable(item.getImage()));
+//        holder.checkProgress.setVisibility(item.getCheckProgress()?View.VISIBLE:View.GONE);
     }
 
     @Override
@@ -56,18 +56,18 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
 
     public static class ScanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        ImageView imageView;
+//        ImageView imageView;
         TextView textViewTitle;
-        ProgressBar checkProgress;
+//        ProgressBar checkProgress;
         OnScanMyListener onScanMyListener;
 
 
         public ScanViewHolder(View itemView, OnScanMyListener onScanMyListener) {
             super(itemView);
 
-            imageView = itemView.findViewById(R.id.imageView);
+//            imageView = itemView.findViewById(R.id.imageView);
             textViewTitle = itemView.findViewById(R.id.textViewTitle);
-            checkProgress = itemView.findViewById(R.id.activity_check_progress);
+//            checkProgress = itemView.findViewById(R.id.activity_check_progress);
 
             this.onScanMyListener = onScanMyListener;
             itemView.setOnClickListener(this);

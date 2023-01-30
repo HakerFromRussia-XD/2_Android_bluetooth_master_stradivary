@@ -23,6 +23,7 @@
         <entry key="app/src/main/res/drawable/custom_button_le_border.xml" value="0.1485" />
         <entry key="app/src/main/res/drawable/custom_button_le_selected.xml" value="0.1485" />
         <entry key="app/src/main/res/drawable/custom_ripple.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/gradient_background.xml" value="0.174" />
         <entry key="app/src/main/res/drawable/gradient_nemo.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_add.xml" value="0.1295" />
         <entry key="app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.1485" />
@@ -50,7 +51,7 @@
         <entry key="app/src/main/res/layout/activiti_experimental.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/activity_infinity_settings.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1793478260869565" />
-        <entry key="app/src/main/res/layout/activity_scan.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/activity_scan.xml" value="0.2363922119140625" />
         <entry key="app/src/main/res/layout/button.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/dialog_chage_hand_side.xml" value="0.24309203235815602" />
         <entry key="app/src/main/res/layout/dialog_change_value.xml" value="0.2674787826959599" />

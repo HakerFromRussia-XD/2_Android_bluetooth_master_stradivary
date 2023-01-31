@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -195,6 +196,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     public Thread requestStartTrig2Thread;
     public Thread requestStartCurrentThread;
     public Thread requestStartRoughnessThread;
+    Toolbar toolbar;
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
@@ -230,8 +232,10 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         //changing statusbar
         Window window = this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark));
+        window.setStatusBarColor(this.getResources().getColor(R.color.tool_bar));
+
 
         if(monograbVersion){
             //односхватная версия
@@ -271,6 +275,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         borderGray = findViewById(R.id.borderGray);
         borderGreen = findViewById(R.id.borderGreen);
         borderRed = findViewById(R.id.borderRed);
+        toolbar = (Toolbar) findViewById(R.id.my_toolbar);
 
         if(monograbVersion){
             //односхватная версия
@@ -355,8 +360,14 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                 }
             });
         }
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        Objects.requireNonNull(getSupportActionBar()).setSubtitle(deviceName);
+        toolbar.setTitle(R.string.app_name);
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setSubtitle(deviceName);
+        toolbar.setSubtitleTextColor(getColor(R.color.end2_gradient));
+        toolbar.inflateMenu(R.menu.menu_main);
+        myMenu = toolbar.getMenu();
+        createOptionsMenu(myMenu);
+        optionsItemSelected(toolbar);
         mainActivityStarted = true;
         final float scale = getResources().getDisplayMetrics().density;
 
@@ -951,13 +962,9 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     //////////////////////////////////////////////////////////////////////////////
     /**                        работа с меню в ботбаре                         **/
     //////////////////////////////////////////////////////////////////////////////
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        myMenu = menu;
-        return super.onPrepareOptionsMenu(myMenu);
-    }
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+    private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @SuppressLint("NonConstantResourceId")
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
@@ -972,7 +979,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                     layoutSensors.setVisibility(View.VISIBLE);
                     myMenu.setGroupVisible(R.id.service_settings, true);
                     showMenu = true;
-                    fab.hide();
+//                    fab.hide();
                     layoutGestures.setVisibility(View.GONE);
                     return true;
             }
@@ -984,83 +991,83 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
     //////////////////////////////////////////////////////////////////////////////
     /**                        работа с меню в апбаре                          **/
     //////////////////////////////////////////////////////////////////////////////
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+    private boolean createOptionsMenu(Menu menu) {
         menu.setGroupVisible(R.id.modes, false);
         menu.setGroupVisible(R.id.service_settings, false);
         if(loadVariable(deviceName +"action_Trigger") == 0) {
             saveVariable( deviceName+"action_Trigger", 1);
         }
-        menu.getItem(loadVariable(deviceName +"action_Trigger")).setChecked(true);
+        menu.getItem(loadVariable(deviceName +"action_Trigger")+1).setChecked(true);
         return true;
     }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // ставим галочку напротив
-        if(item.isChecked()){
-            item.setChecked(true);
-        } else {
-            item.setChecked(false);
-        }
-        // получим идентификатор выбранного пункта меню
-        int id = item.getItemId();
-        // Операции для выбранного пункта меню
-        switch (id) {
-            case R.id.action_Trigger0:
-                openSettingsDialog();
-                return true;
-            case R.id.action_Trigger1:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(1));
-                } else {
-                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(1));
-                }
-                saveVariable( deviceName+"action_Trigger", 1);
-                return true;
-            case R.id.action_Trigger2:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(2));
-                } else {
-                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(2));
-                }
-                saveVariable( deviceName+"action_Trigger", 2);
-                return true;
-            case R.id.action_Trigger3:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(3));
-                } else {
-                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(3));
-                }
-                saveVariable( deviceName+"action_Trigger", 3);
-                return true;
-            case R.id.action_Trigger8:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(8));
-                } else {
-                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(8));
-                }
-                saveVariable( deviceName+"action_Trigger", 4);
-                return true;
-            case R.id.action_Trigger9:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(9));
-                } else {
-                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(9));
-                }
-                saveVariable( deviceName+"action_Trigger", 5);
-                return true;
-            case R.id.action_Trigger10:
-                if(flagUseHDLCProtocol){
-                    pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(10));
-                } else {
-                    presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(10));
-                }
-                saveVariable( deviceName+"action_Trigger", 6);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    private void optionsItemSelected (Toolbar toolbar) {
+        toolbar.setOnMenuItemClickListener(item -> {
+            // ставим галочку напротив
+            if(item.isChecked()){
+                item.setChecked(true);
+            } else {
+                item.setChecked(false);
+            }
+            // получим идентификатор выбранного пункта меню
+            int id = item.getItemId();
+            System.err.println("item.getItemId: "+id);
+            // Операции для выбранного пункта меню
+            switch (id) {
+                case R.id.action_Trigger0:
+                    openSettingsDialog();
+                    return true;
+                case R.id.action_Trigger1:
+                    if(flagUseHDLCProtocol){
+                        pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(1));
+                    } else {
+                        presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(1));
+                    }
+                    saveVariable( deviceName+"action_Trigger", 1);
+                    return true;
+                case R.id.action_Trigger2:
+                    if(flagUseHDLCProtocol){
+                        pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(2));
+                    } else {
+                        presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(2));
+                    }
+                    saveVariable( deviceName+"action_Trigger", 2);
+                    return true;
+                case R.id.action_Trigger3:
+                    if(flagUseHDLCProtocol){
+                        pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(3));
+                    } else {
+                        presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(3));
+                    }
+                    saveVariable( deviceName+"action_Trigger", 3);
+                    return true;
+                case R.id.action_Trigger8:
+                    if(flagUseHDLCProtocol){
+                        pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(8));
+                    } else {
+                        presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(8));
+                    }
+                    saveVariable( deviceName+"action_Trigger", 4);
+                    return true;
+                case R.id.action_Trigger9:
+                    if(flagUseHDLCProtocol){
+                        pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(9));
+                    } else {
+                        presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(9));
+                    }
+                    saveVariable( deviceName+"action_Trigger", 5);
+                    return true;
+                case R.id.action_Trigger10:
+                    if(flagUseHDLCProtocol){
+                        pauseSendingThread(mMassages.CompileMassageTriggerModHDLC(10));
+                    } else {
+                        presenter.onHelloWorld(mMassages.CompileMassageTriggerMod(10));
+                    }
+                    saveVariable( deviceName+"action_Trigger", 6);
+                    return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
+        });
     }
     private void openSettingsDialog() {
         SettingsDialog settingsDialog = new SettingsDialog();

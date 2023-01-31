@@ -737,8 +737,11 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     //changing statusbar
     val window = this.window
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+//    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+    window.navigationBarColor = resources.getColor(R.color.colorPrimary)
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+    mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
 
     // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
@@ -749,12 +752,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
     registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
 
-
     locate = Locale.getDefault().toString()
-    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    getWindow().navigationBarColor = resources.getColor(R.color.colorPrimary)
-    mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-
 
     val intent = intent
     mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
@@ -2365,7 +2363,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     saveText(PreferenceKeys.LAST_CONNECTION_MAC, "null")
   }
   fun disconnect () {
-    //TODO проработать грамотный дисконнект
     System.err.println("Check disconnect()")
     if (mBluetoothLeService != null) {
       println("--> дисконнектим всё к хуям и анбайндим")

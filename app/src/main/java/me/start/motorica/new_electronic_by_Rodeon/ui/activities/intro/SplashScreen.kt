@@ -2,10 +2,13 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -16,23 +19,35 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import me.start.motorica.R
+import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.scan.view.ScanActivity
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        System.err.println(" LOLOLOEFWEF --->  SplashScreen onCreate")
+        setContentView(R.layout.activity_splash_screen)
+        System.err.println(" LOLOLOEFWEF --->  SplashScreen onCreate")
+
+        val window = this.window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.navigationBarColor = this.resources.getColor(R.color.colorPrimary, theme)
+        window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+
         askPermissions()
     }
 
     private fun askPermissions() {
-//        System.err.println(" LOLOLOEFWEF --->  askPermissions()")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            requestMultiplePermissions.launch(arrayOf(
-                Manifest.permission.BLUETOOTH_SCAN,
-                Manifest.permission.BLUETOOTH_CONNECT))
-            launchScanActivity()
+            Handler().postDelayed({
+                requestMultiplePermissions.launch(arrayOf(
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_CONNECT))
+                launchScanActivity()
+            }, 300)
+
         }
         else{
 //            System.err.println(" LOLOLOEFWEF --->  askPermissions()  Build.VERSION_CODES.S  false")

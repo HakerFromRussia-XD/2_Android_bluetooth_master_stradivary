@@ -6,7 +6,7 @@
 
     <group
         android:id="@+id/nemo_logo"
-        android:visible="true">
+        android:visible="false">
         <item
             android:id="@+id/nemo_logo_btn"
             android:icon="@drawable/logo_nemo"
@@ -39,7 +39,6 @@
             android:title="@string/action_Trigger2"
             app:showAsAction="never"
             android:checked="true"/>
-
         <item
             android:id="@+id/action_Trigger3"
             android:orderInCategory="100"
@@ -56,7 +55,6 @@
             android:title="@string/single_channel_by_sensor_1"
             app:showAsAction="never" />
 <!--    only first channel-->
-
         <item
             android:id="@+id/action_Trigger10"
             android:orderInCategory="100"

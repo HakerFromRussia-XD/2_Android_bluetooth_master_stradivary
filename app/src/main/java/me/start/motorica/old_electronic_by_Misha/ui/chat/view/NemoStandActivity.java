@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -15,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Timer;
@@ -79,6 +82,8 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
     private final int test = 0;
     private boolean startTest = false;
     private boolean activeIncentive = true;
+    private Menu myMenu;
+    private Toolbar toolbar;
 
     public static String deviceName;
     private final boolean firstSendPass = true;
@@ -107,10 +112,22 @@ public class NemoStandActivity extends AppCompatActivity implements NemoStandVie
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.setStatusBarColor(this.getResources().getColor(R.color.colorPrimaryDark));
+        window.setStatusBarColor(this.getResources().getColor(R.color.tool_bar));
         setContentView(R.layout.nemo_stand);
         final float scale = getResources().getDisplayMetrics().density;
-        Objects.requireNonNull(getSupportActionBar()).setSubtitle(deviceName);
+
+
+        toolbar = (Toolbar) findViewById(R.id.nemo_toolbar);
+        toolbar.setTitle(R.string.app_name);
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setSubtitle(deviceName);
+        toolbar.setSubtitleTextColor(getColor(R.color.end2_gradient));
+        toolbar.inflateMenu(R.menu.menu_main);
+        myMenu = toolbar.getMenu();
+        myMenu.setGroupVisible(R.id.nemo_logo, true);
+        myMenu.setGroupVisible(R.id.modes, false);
+        myMenu.setGroupVisible(R.id.service_settings, false);
+
 
         borderGray = findViewById(R.id.borderGray);
         borderGreen = findViewById(R.id.borderGreen);

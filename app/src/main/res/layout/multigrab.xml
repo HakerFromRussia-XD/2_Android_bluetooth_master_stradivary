@@ -7,6 +7,17 @@
     android:orientation="vertical"
     tools:context=".old_electronic_by_Misha.ui.chat.view.ChartActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/tool_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/MyDarkToolbarStyle"/>
+
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="0dp"
@@ -24,8 +35,9 @@
     <RelativeLayout
         android:id="@+id/layout_info_state"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/scrollView2"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="0dp">
 
@@ -80,13 +92,12 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="4dp"
         android:layout_marginBottom="48dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/layout_info_state"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="MissingConstraints">
 
@@ -246,19 +257,20 @@
 
             <Button
                 android:id="@+id/open_btn"
+                style="@style/Text"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
                 android:layout_alignStart="@+id/chartCH1"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="3dp"
+                android:background="@drawable/custom_button"
                 android:text="@string/helloWorld"
-                android:visibility="visible"
-                style="@style/Text"
-                android:background="@drawable/custom_button"/>
+                android:visibility="visible" />
 
             <Button
                 android:id="@+id/close_btn"
+                style="@style/Text"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
@@ -267,13 +279,13 @@
                 android:layout_marginTop="3dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="0dp"
+                android:background="@drawable/custom_button"
                 android:text="@string/helloWorld2"
-                android:visibility="visible"
-                style="@style/Text"
-                android:background="@drawable/custom_button"/>
+                android:visibility="visible" />
 
             <Button
                 android:id="@+id/activity_chat_gesture1"
+                style="@style/Text"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
@@ -281,22 +293,21 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="57dp"
                 android:layout_marginBottom="0dp"
+                android:background="@drawable/custom_button"
                 android:text="@string/gesture1"
-                android:visibility="visible"
-                style="@style/Text"
-                android:background="@drawable/custom_button"/>
+                android:visibility="visible" />
 
             <Button
                 android:id="@+id/activity_chat_gesture2"
+                style="@style/Text"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="57dp"
+                android:background="@drawable/custom_button"
                 android:text="@string/gesture2"
-                android:visibility="visible"
-                style="@style/Text"
-                android:background="@drawable/custom_button"/>
+                android:visibility="visible" />
 
             <Button
                 android:id="@+id/activity_chat_off_update"
@@ -316,6 +327,7 @@
 
             <Button
                 android:id="@+id/activity_chat_gesture3"
+                style="@style/Text"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/border7"
@@ -323,10 +335,9 @@
                 android:layout_marginTop="57dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="0dp"
+                android:background="@drawable/custom_button"
                 android:text="@string/gesture3"
-                android:visibility="visible"
-                style="@style/Text"
-                android:background="@drawable/custom_button"/>
+                android:visibility="visible" />
 
             <Button
                 android:id="@+id/activity_chat_gesture4"
@@ -459,8 +470,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/open_btn"
                 android:layout_marginTop="3dp"
-                tools:ignore="MissingConstraints"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                tools:ignore="MissingConstraints" />
 
         </RelativeLayout>
     </ScrollView>
@@ -469,7 +480,6 @@
         android:id="@+id/gestures_list_relative"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="4dp"
         android:layout_marginBottom="48dp"
         android:paddingLeft="0dp"
         android:paddingRight="0dp"
@@ -479,7 +489,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="MissingConstraints">
 
@@ -499,9 +509,13 @@
     <FrameLayout
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_alignParentBottom="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintBottom_toBottomOf="@+id/navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"

@@ -738,7 +738,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     val window = this.window
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-//    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     window.navigationBarColor = resources.getColor(R.color.colorPrimary)
     window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
     mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)

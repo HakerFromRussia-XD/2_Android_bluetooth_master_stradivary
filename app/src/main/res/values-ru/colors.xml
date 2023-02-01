@@ -24,6 +24,8 @@
     <color name="start2_gradient">#808080</color>
     <color name="center2_gradient">#c0c0c0</color>
     <color name="end2_gradient">#b0b0b0</color>
+    <color name="background_scan_list">#D9D9D9</color>
+    <color name="background_scan_cell">#E7EAEB</color>
 
     <color name="deepDark">#343434</color>
     <color name="end_gradient">#e0e0e0</color>

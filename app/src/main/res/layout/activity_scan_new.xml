@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".scan.view.ScanActivity"
+    android:background="@drawable/gradient_background">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidline_mid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <View
+        android:id="@+id/filter_v"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/view_with_corners_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <View
+        android:id="@+id/select_v"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/view_with_corners_white"
+        app:layout_constraintBottom_toBottomOf="@+id/filter_v"
+        app:layout_constraintEnd_toStartOf="@+id/guidline_mid"
+        app:layout_constraintStart_toStartOf="@+id/filter_v"
+        app:layout_constraintTop_toTopOf="@+id/filter_v" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_open_sans"
+        android:text="Protheses"
+        android:textSize="14sp"
+        android:textColor="#0C212C"
+        app:layout_constraintBottom_toBottomOf="@+id/filter_v"
+        app:layout_constraintEnd_toStartOf="@+id/guidline_mid"
+        app:layout_constraintStart_toStartOf="@+id/filter_v"
+        app:layout_constraintTop_toTopOf="@+id/filter_v" />
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_open_sans"
+        android:text="All devices"
+        android:textSize="14sp"
+        android:textColor="#576B74"
+        app:layout_constraintBottom_toBottomOf="@+id/filter_v"
+        app:layout_constraintEnd_toEndOf="@+id/filter_v"
+        app:layout_constraintStart_toStartOf="@+id/guidline_mid"
+        app:layout_constraintTop_toTopOf="@+id/filter_v" />
+
+    <View
+        android:id="@+id/protheses_select_btn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/filter_v"
+        app:layout_constraintEnd_toEndOf="@+id/guidline_mid"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/filter_v"
+        app:layout_constraintTop_toTopOf="@+id/filter_v"
+        app:layout_constraintVertical_bias="1.0"
+        tools:ignore="SpeakableTextPresentCheck" />
+    <View
+        android:id="@+id/all_devices_select_btn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/filter_v"
+        app:layout_constraintEnd_toEndOf="@+id/filter_v"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guidline_mid"
+        app:layout_constraintTop_toTopOf="@+id/filter_v"
+        app:layout_constraintVertical_bias="1.0"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+
+    <TextView
+        android:id="@+id/PAIRED_DEVICE_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/font_open_sans"
+        android:text="PAIRED DEVICE"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filter_v" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/scan_paired_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/view_with_corners_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/PAIRED_DEVICE_tv" />
+
+    <TextView
+        android:id="@+id/AVAILIBLE_DEVICES_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/font_open_sans"
+        android:text="AVAILIBLE DEVICES "
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scan_paired_list" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/scan_progress"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:indeterminate="true"
+        android:padding="10dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/AVAILIBLE_DEVICES_tv"
+        app:layout_constraintStart_toEndOf="@+id/AVAILIBLE_DEVICES_tv"
+        app:layout_constraintTop_toTopOf="@+id/AVAILIBLE_DEVICES_tv"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/loader_spinner" />
+
+    <View
+        android:id="@+id/scan_btn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toTopOf="@+id/scan_list"
+        app:layout_constraintEnd_toEndOf="@+id/filter_v"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/AVAILIBLE_DEVICES_tv"
+        app:layout_constraintTop_toBottomOf="@+id/scan_paired_list"
+        app:layout_constraintVertical_bias="1.0"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/scan_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/view_with_corners_gray_dark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/AVAILIBLE_DEVICES_tv" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

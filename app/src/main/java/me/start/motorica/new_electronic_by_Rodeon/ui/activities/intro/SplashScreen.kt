@@ -27,7 +27,7 @@ class SplashScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
-        System.err.println(" LOLOLOEFWEF --->  SplashScreen onCreate")
+//        System.err.println(" LOLOLOEFWEF --->  SplashScreen onCreate")
 
         val window = this.window
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)

@@ -3,20 +3,27 @@ package me.start.motorica.scan.data;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import me.start.motorica.R;
+import me.start.motorica.scan.view.ScanActivity;
 import me.start.motorica.scan.view.ScanView;
 
 public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanViewHolder> implements ScanView {
@@ -24,6 +31,13 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     private final Context mCtx;
     private final List<ScanItem> mScanList;
     private final OnScanMyListener mOnScanMyListener;
+    private ArrayList<Long> percentAnimationPairedList = new ArrayList<Long>();
+    private int lastPosition = -1;
+    private boolean firstBind = true;
+    private CountDownTimer timer;
+    private long time = 0;
+//    private int lastPosition = 0;
+    private final static int ANIM_DURATION = 10000;
 
     public ScanListAdapter(Context  mCtx, List<ScanItem> mScanList, OnScanMyListener onScanMyListener) {
         this.mCtx = mCtx;
@@ -47,8 +61,56 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
         holder.textViewTitle.setText(item.getTitle());
 
         if (position==(mScanList.size() - 1)) {
-            holder.itemView.setOnClickListener(null);
             holder.divider.setVisibility(View.GONE);
+        }
+
+//        if (position > lastPosition) {
+//            setScaleAnimation(holder.itemView);
+//            lastPosition = position;
+//        }
+        if (firstBind) {
+
+//            System.err.println("screen testIntFunc: " + scanActivity.testIntFunc());
+            timer = new CountDownTimer(3000000, 1) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    time += 1;
+                }
+
+                @Override
+                public void onFinish() {}
+            }.start();
+            firstBind = false;
+        } else {
+//            setScaleAnimation(holder.itemView, position);
+        }
+        if (position != lastPosition) {
+            percentAnimationPairedList.add(time);
+            lastPosition = position;
+        }
+        for(Long time: percentAnimationPairedList){
+            System.err.println("screen time: " + time + "  position: " + position);
+        }
+
+    }
+
+    private void setFadeAnimation(View view) {
+        AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(1000);
+        view.startAnimation(anim);
+    }
+    private void setScaleAnimation(View view, int percentAnimation) {
+        ScaleAnimation anim = new ScaleAnimation(1.0f*percentAnimation, 1.0f, 0.0f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        anim.setDuration(ANIM_DURATION - (long) ANIM_DURATION / 100 * percentAnimation);
+        view.startAnimation(anim);
+    }
+    private void setAnimation(View viewToAnimate, int position) {
+        // If the bound view wasn't previously displayed on screen, it's animated
+        if (position > lastPosition) {
+            ScaleAnimation anim = new ScaleAnimation(0.0f, 1.0f, 0.0f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+            anim.setDuration(10000);//to make duration random number between [0,501)
+            viewToAnimate.startAnimation(anim);
+            lastPosition = position;
         }
     }
 

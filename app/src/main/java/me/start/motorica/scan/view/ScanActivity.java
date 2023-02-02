@@ -1,6 +1,7 @@
 package me.start.motorica.scan.view;
 
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -16,7 +17,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -71,6 +74,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     View allDevicesButtonFilter;
     View scanButton;
     View selectView;
+    View filterView;
+    private int filterWidth = 0;
     private boolean firstStart = true;
     // 3D
     Load3DModel mLoad3DModel = new Load3DModel(this);
@@ -127,6 +132,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         prothesesButtonFilter = findViewById(R.id.protheses_select_btn);
         allDevicesButtonFilter = findViewById(R.id.all_devices_select_btn);
         selectView = findViewById(R.id.select_v);
+        filterView = findViewById(R.id.filter_v);
         /////////////////////////////////////////
 
         scanList = new ArrayList<>();
@@ -168,6 +174,58 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
         checkLocationPermission();
         init3D();
+        //TODO выпилить после того как разгадаешь загадку с движением фильтра
+//        testNavigate();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                addLEDeviceToScanList("test 2", null, 50);
+                animatePairedList(2);
+            }
+        }, 200);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                addLEDeviceToScanList("test 3", null, 50);
+                animatePairedList(3);
+            }
+        }, 500);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                addLEDeviceToScanList("test 4", null, 50);
+//            }
+//        }, 1000);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                addLEDeviceToScanList("test 5", null, 50);
+//            }
+//        }, 1500);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                addLEDeviceToScanList("test 6", null, 50);
+                animatePairedList(4);
+            }
+        }, 2000);
+
+        animatePairedList(1);
+        addLEDeviceToScanList("test 1", null, 50);
+//        addLEDeviceToScanList("test 1", null, 50);
+//        addLEDeviceToScanList("test 1", null, 50);
+//        addLEDeviceToScanList("test 1", null, 50);
+//        addLEDeviceToScanList("test 1", null, 50);
+//        addLEDeviceToScanList("test 1", null, 50);
+//        addLEDeviceToScanList("test 1", null, 50);
+//        addLEDeviceToScanList("test 1", null, 50);
+//        addLEDeviceToScanList("test 1", null, 50);
+//        addLEDeviceToScanList("test 1", null, 50);
+    }
+    public void onWindowFocusChanged(boolean hasFocus){
+        super.onWindowFocusChanged(hasFocus);
+        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+        filterWidth = (int) (filterView.getWidth()/displayMetrics.density);
     }
     @Override
     protected void onStart() {
@@ -282,6 +340,18 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     public void addLEDeviceToScanList(String item, BluetoothDevice device, int rssi) {
         boolean canAdd = true;
+        if (device == null) {
+            scanList.add(
+                    new ScanItem(
+                            R.drawable.circle_16_blue,
+                            item+scanListBLEPosition+":   "+rssi,
+                            "device.getAddress()",
+                            false));
+            pairedDeviceList.scheduleLayoutAnimation();
+            pairedDeviceList.setAdapter(mScanListAdapter);
+            scanListBLEPosition++;
+            return;
+        }
         for (int i = 0; i<scanList.size(); i++) {
 //            if(scanList.get(i).getTitle().split(":")[0].equals(item.split(":")[0])){
 //                canAdd = false;
@@ -417,41 +487,64 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         startActivity(intent);
         finish();
     }
+    private void testNavigate() {
+        Intent intent = new Intent(ScanActivity.this, StartActivity.class);
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "lol");
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, "lol");
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, "lol");
+        if (mScanning) {
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            mScanning = false;
+        }
+        startActivity(intent);
+        finish();
+    }
 
     public boolean isFirstStart() {
         return firstStart;
     }
     private void onProthesesFilterClick() {
         prothesesButtonFilter.setOnClickListener(v -> {
-            showToast("protheses");
+//            showToast("protheses");
             moveFilterSelection(1);
         });
     }
     private void onAllDevicesFilterClick() {
         allDevicesButtonFilter.setOnClickListener(v -> {
-            showToast("all devices");
+//            showToast("all devices");
             moveFilterSelection(2);
         });
     }
-
     private void moveFilterSelection(int position) {
-
-//        System.err.println("X: "+(30 * scale - 5f + (position * scale * 10f)));
-//        count += position;
-        System.err.println("X: "+(546/scale));
-//        ObjectAnimator.ofFloat(selectView, "x", 30 * scale - 5f + (position * scale * 10f)).setDuration(200).start();
-//        ObjectAnimator.ofFloat(selectView, "x", count).setDuration(200).start();
+        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
         switch (position) {
             case(1):
-                ObjectAnimator.ofFloat(selectView, "x", 17.333334f*scale).setDuration(200).start();
+                ObjectAnimator.ofFloat(selectView, "x", (18 * displayMetrics.density)).setDuration(200).start();//53
                 break;
             case(2):
-                ObjectAnimator.ofFloat(selectView, "x", 182f*scale).setDuration(200).start();
+                ObjectAnimator.ofFloat(selectView, "x", ((filterWidth/2)+18) * displayMetrics.density).setDuration(200).start();//546
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + position);
         }
 
+    }
+    private void animatePairedList(int countItems) {
+        if (countItems <= 3) {
+            DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+            ValueAnimator anim = ValueAnimator.ofInt(pairedDeviceList.getMeasuredHeight(), (int) (57 * displayMetrics.density * countItems));
+            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    int val = (Integer) valueAnimator.getAnimatedValue();
+                    ViewGroup.LayoutParams layoutParams = pairedDeviceList.getLayoutParams();
+                    layoutParams.height = val;
+                    pairedDeviceList.setLayoutParams(layoutParams);
+                }
+            });
+            anim.setDuration(200);
+            anim.start();
+        }
     }
     @Override
     public void onScanClick(int position) {

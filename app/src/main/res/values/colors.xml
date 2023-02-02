@@ -19,7 +19,7 @@
     <color name="blueStatusBar">#007991</color>
     <color name="blueAccent">#4bacc8</color>
     <color name="system_blue">#FF007AFF</color>
-    <color name="ripple">#c0c0c0</color>
+    <color name="ripple">#00c0c0c0</color>
     <color name="start_gradient">#d0d0d0</color>
     <color name="start2_gradient">#808080</color>
     <color name="center2_gradient">#c0c0c0</color>

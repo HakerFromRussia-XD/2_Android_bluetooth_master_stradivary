@@ -176,20 +176,20 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         init3D();
         //TODO выпилить после того как разгадаешь загадку с движением фильтра
 //        testNavigate();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                addLEDeviceToScanList("test 2", null, 50);
-                animatePairedList(2);
-            }
-        }, 200);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                addLEDeviceToScanList("test 3", null, 50);
-                animatePairedList(3);
-            }
-        }, 500);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                addLEDeviceToScanList("test 2", null, 50);
+//                animatePairedList(2);
+//            }
+//        }, 200);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                addLEDeviceToScanList("test 3", null, 50);
+//                animatePairedList(3);
+//            }
+//        }, 500);
 //        new Handler().postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
@@ -206,12 +206,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             @Override
             public void run() {
                 addLEDeviceToScanList("test 6", null, 50);
-                animatePairedList(4);
+                animatePairedList(1);
             }
         }, 2000);
 
-        animatePairedList(1);
-        addLEDeviceToScanList("test 1", null, 50);
+//        animatePairedList(1);
+//        addLEDeviceToScanList("test 1", null, 50);
 //        addLEDeviceToScanList("test 1", null, 50);
 //        addLEDeviceToScanList("test 1", null, 50);
 //        addLEDeviceToScanList("test 1", null, 50);

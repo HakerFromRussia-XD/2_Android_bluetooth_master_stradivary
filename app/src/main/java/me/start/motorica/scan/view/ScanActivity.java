@@ -206,12 +206,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             @Override
             public void run() {
                 addLEDeviceToScanList("test 6", null, 50);
-                animatePairedList(1);
+                animatePairedList(2);
             }
         }, 2000);
 
-//        animatePairedList(1);
-//        addLEDeviceToScanList("test 1", null, 50);
+        animatePairedList(1);
+        addLEDeviceToScanList("test 1", null, 50);
 //        addLEDeviceToScanList("test 1", null, 50);
 //        addLEDeviceToScanList("test 1", null, 50);
 //        addLEDeviceToScanList("test 1", null, 50);
@@ -352,15 +352,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             scanListBLEPosition++;
             return;
         }
-        for (int i = 0; i<scanList.size(); i++) {
-//            if(scanList.get(i).getTitle().split(":")[0].equals(item.split(":")[0])){
+//        for (int i = 0; i<scanList.size(); i++) {
+//            if(scanList.get(i).getAddress().equals(device.getAddress())){
 //                canAdd = false;
 //            }
-            if(scanList.get(i).getAddress().equals(device.getAddress())){
-                canAdd = false;
-            }
-        }
-//        System.err.println("DeviceScanActivity addLEDeviceToScanList ---------> device address: " + device.getAddress());
+//        }
+
         //здесь мы принимаем решение добавлять ли новое устройство в список отсканированных
         if (canAdd) {
             if(checkOurLEName(item)){
@@ -377,13 +374,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
         smartConnection(device);
     }
-    private void smartConnection(BluetoothDevice device) {
-        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
-            if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
-                navigateToLEChart("device", device);
-            }
-        }
-    }
     @Override
     public void addDeviceToScanList(String item, String address, BluetoothDevice device) {
         scanList.add(
@@ -393,6 +383,13 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                         address,
                         false));
         pairedDeviceList.setAdapter(mScanListAdapter);
+    }
+    private void smartConnection(BluetoothDevice device) {
+        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
+            if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
+                navigateToLEChart("device", device);
+            }
+        }
     }
     @Override
     public void setScanStatus(String status, boolean enabled) {

@@ -55,7 +55,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ScanViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ScanViewHolder holder, @SuppressLint("RecyclerView") int position) {
         ScanItem item = mScanList.get(position);
 
         holder.textViewTitle.setText(item.getTitle());

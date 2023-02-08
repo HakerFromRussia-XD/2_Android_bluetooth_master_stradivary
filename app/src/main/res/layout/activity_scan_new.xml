@@ -45,7 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/font_open_sans"
-        android:text="Protheses"
+        android:text="@string/protheses"
         android:textSize="14sp"
         android:textColor="#0C212C"
         app:layout_constraintBottom_toBottomOf="@+id/filter_v"
@@ -57,7 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/font_open_sans"
-        android:text="All devices"
+        android:text="@string/all_devices"
         android:textSize="14sp"
         android:textColor="#576B74"
         app:layout_constraintBottom_toBottomOf="@+id/filter_v"
@@ -100,7 +100,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
         android:fontFamily="@font/font_open_sans"
-        android:text="PAIRED DEVICE"
+        android:text="@string/paired_device"
         android:textColor="@color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/filter_v" />
@@ -118,13 +118,13 @@
         app:layout_constraintTop_toBottomOf="@+id/PAIRED_DEVICE_tv" />
 
     <TextView
-        android:id="@+id/AVAILIBLE_DEVICES_tv"
+        android:id="@+id/scanning_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
         android:fontFamily="@font/font_open_sans"
-        android:text="AVAILIBLE DEVICES "
+        android:text="@string/availible_devices"
         android:textColor="@color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scan_paired_list" />
@@ -136,12 +136,22 @@
         android:indeterminate="true"
         android:padding="10dp"
         android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/AVAILIBLE_DEVICES_tv"
-        app:layout_constraintStart_toEndOf="@+id/AVAILIBLE_DEVICES_tv"
-        app:layout_constraintTop_toTopOf="@+id/AVAILIBLE_DEVICES_tv"
+        app:layout_constraintBottom_toBottomOf="@+id/scanning_tv"
+        app:layout_constraintStart_toEndOf="@+id/scanning_tv"
+        app:layout_constraintTop_toTopOf="@+id/scanning_tv"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        app:lottie_rawRes="@raw/loader_spinner" />
+        app:lottie_rawRes="@raw/preloader_scan" />
+
+    <ImageView
+        android:id="@+id/rescan_iv"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="15dp"
+        app:layout_constraintBottom_toBottomOf="@+id/scanning_tv"
+        app:layout_constraintStart_toEndOf="@+id/scanning_tv"
+        app:layout_constraintTop_toTopOf="@+id/scanning_tv"
+        android:src="@drawable/reset"/>
 
     <View
         android:id="@+id/scan_btn"
@@ -150,12 +160,14 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintBottom_toTopOf="@+id/scan_list"
+        android:layout_marginTop="-8dp"
+        android:layout_marginBottom="-8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/scanning_tv"
         app:layout_constraintEnd_toEndOf="@+id/filter_v"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/AVAILIBLE_DEVICES_tv"
-        app:layout_constraintTop_toBottomOf="@+id/scan_paired_list"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/scanning_tv"
+        app:layout_constraintTop_toTopOf="@+id/scanning_tv"
+        app:layout_constraintVertical_bias="0.0"
         tools:ignore="SpeakableTextPresentCheck" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -164,13 +176,15 @@
         android:layout_height="0dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="24dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/view_with_corners_gray_dark"
+        android:background="@drawable/view_with_corners_white"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/AVAILIBLE_DEVICES_tv" />
+        app:layout_constraintTop_toBottomOf="@+id/scanning_tv" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

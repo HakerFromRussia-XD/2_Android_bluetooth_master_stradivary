@@ -101,10 +101,11 @@ public class ScanInteractorImpl implements ScanInteractor {
                     device.getName().contains("IND") ||
                     device.getName().contains("HND") ||
                     device.getName().contains("NEMO") ||
-                    device.getName().contains("STAND")
-            ){//device.getName().split(" ")[0].equals("MacBook")
+                    device.getName().contains("STAND") ||
+                    device.getName().contains("FEST")
+            ){
                 System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
-                items.add(device.getName()+":p:"+(position+1));//device.getAddress()+" : "+
+                items.add(device.getName());
                 ourGadgets++;
             } else {
                 System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));

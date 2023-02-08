@@ -32,6 +32,7 @@ public class ScanPresenterImpl implements ScanPresenter{
     private final int position = 0;
     private int positionPairDevice = 0;
     private List<String> pairedDeviceNames;
+    private List<String> TEST_scanDeviceNames;
     private boolean firstScanClick = true;
     private boolean flagCheckingNow = false;
 
@@ -65,7 +66,7 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void startScanning() {
-        view.clearScanList();
+//        view.clearScanList();
         interactor.scanDevices(discoveryCallback);
         canceledDiscovery = false;
         scanListPosition = 0;
@@ -101,7 +102,8 @@ public class ScanPresenterImpl implements ScanPresenter{
     @Override
     public void pairedItemClick(int position) {
         if(pairedDeviceNames == null) {pairedDeviceNames = interactor.getPairedDevices();}
-        BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(pairedDeviceNames.get(position).split(":")[2])-1);
+        System.err.println("TEST -----> position: "+position);
+        BluetoothDevice device = interactor.getPairedDevice(position);
         ChartActivity chatActivity = new ChartActivity();
         chatActivity.getNameFromDevice(device);
         view.navigateToChart("device", device);
@@ -117,21 +119,21 @@ public class ScanPresenterImpl implements ScanPresenter{
     @Override
     public void itemClick(int position) {
         if (view.getMyScanList() != null){
-            String typeDevice = view.getMyScanList().get(position).getTitle().split(":")[1];
-            if(typeDevice.equals("p")){
+//            String typeDevice = view.getMyScanList().get(position).getTitle().split(":")[1];
+//            if(typeDevice.equals("p")){
                 pairedItemClick(position);
-            } else {
-                if(typeDevice.equals("s")){
-                    scanItemClick(Integer.parseInt(view.getMyScanList().get(position).getTitle().split(":")[2]), view.getMyScanList().get(position).getTitle().split(":")[0]);
-                } else {
-                    if (typeDevice.equals("l")) {
-                        leItemClick(Integer.parseInt(view.getMyScanList().get(position).getTitle().split(":")[2]));
-                        System.err.println("=======================================================================");
-                        System.err.println("l itemClick -----> position: "+position);
-                        System.err.println("l itemClick -----> view.getMyScanList().get(position).getTitle().split(\":\")[0]: "+view.getMyScanList().get(position).getTitle().split(":")[0]);
-                    }
-                }
-            }
+//            } else {
+//                if(typeDevice.equals("s")){
+//                    scanItemClick(Integer.parseInt(view.getMyScanList().get(position).getTitle().split(":")[2]), view.getMyScanList().get(position).getTitle().split(":")[0]);
+//                } else {
+//                    if (typeDevice.equals("l")) {
+//                        leItemClick(Integer.parseInt(view.getMyScanList().get(position).getTitle().split(":")[2]));
+//                        System.err.println("=======================================================================");
+//                        System.err.println("l itemClick -----> position: "+position);
+//                        System.err.println("l itemClick -----> view.getMyScanList().get(position).getTitle().split(\":\")[0]: "+view.getMyScanList().get(position).getTitle().split(":")[0]);
+//                    }
+//                }
+//            }
         }
     }
 
@@ -216,10 +218,9 @@ public class ScanPresenterImpl implements ScanPresenter{
         @Override
         public void onDeviceFound(BluetoothDevice device) {
             System.err.println("=======================================================================");
-            boolean check = checkOurName(device.getName()+":s:"+scanListPosition);
+            boolean check = checkOurName((device.getName() == null) ? "" : device.getName());
 
             if(check){//проверяет соответствие серийника найденного устройства соответствию нашим серийникам
-//            if(true){
                 boolean equals = false;
                 if(pairedDeviceNames == null) {pairedDeviceNames=interactor.getPairedDevices();}
                 for(int i=0; i<pairedDeviceNames.size(); i++){//меняет флаг если наше устройство уже находится в списке спаренных
@@ -358,7 +359,8 @@ public class ScanPresenterImpl implements ScanPresenter{
                 deviceName.contains("IND") ||
                 deviceName.contains("HND") ||
                 deviceName.contains("NEMO") ||
-                deviceName.contains("STAND");
+                deviceName.contains("STAND") ||
+                deviceName.contains("FEST");
     }
 
     private void checkDevices(){

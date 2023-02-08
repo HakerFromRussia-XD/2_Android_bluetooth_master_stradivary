@@ -10,10 +10,10 @@
     <string name="on_update">включение графиков</string>
     <string name="gesture4">parting position</string>
 
-    <string name="scan_again">сканировать снова</string>
+    <string name="scan_again">СКАНИРОВАТЬ СНОВА</string>
     <string name="activity_scan_paired_text">Связанные устройства:</string>
 
-    <string name="bluetooth_scanning">сканирование…</string>
+    <string name="bluetooth_scanning">СКАНИРОВАНИЕ…</string>
     <string name="bluetooth_scan_finished">сканирование завершено.</string>
     <string name="bluetooth_pairing">соединение…</string>
     <string name="bluetooth_paired">Девайс соединён.</string>
@@ -249,6 +249,10 @@
     <string name="smart_connection">умное подключение</string>
     <string name="disconnection_from_the_device">Отключение от устройства</string>
     <string name="are_you_sure_you_want_to_disconnect_from_your_device_and_go_to_the_scan_screen">Вы действительно хотите отключиться от устройства и перейти на экран сканирования?</string>
+    <string name="availible_devices">ДОСТУПНЫЕ УСТРОЙСТВА</string>
+    <string name="paired_device">СВЯЗАННЫЕ УСТРОЙСТВА</string>
+    <string name="all_devices">Все устройства</string>
+    <string name="protheses">Протезы</string>
 
 
     <string-array name="numbers">

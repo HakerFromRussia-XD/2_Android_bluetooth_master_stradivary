@@ -22,8 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ListView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,6 +74,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     View scanButton;
     View selectView;
     View filterView;
+    ImageView rescanImage;
+    TextView scanningText;
     private int filterWidth = 0;
     private boolean firstStart = true;
     // 3D
@@ -129,6 +130,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         deviceList = findViewById(R.id.scan_list);
         progress = findViewById(R.id.scan_progress);
         scanButton = findViewById(R.id.scan_btn);
+        rescanImage = findViewById(R.id.rescan_iv);
+        scanningText = findViewById(R.id.scanning_tv);
         prothesesButtonFilter = findViewById(R.id.protheses_select_btn);
         allDevicesButtonFilter = findViewById(R.id.all_devices_select_btn);
         selectView = findViewById(R.id.select_v);
@@ -140,12 +143,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         onProthesesFilterClick();
         onAllDevicesFilterClick();
         scanButton.setOnClickListener(v -> {
-            scanListBLEPosition = 0;
+//            scanListBLEPosition = 0;
             mLeDevices.clear();
-            pairedDeviceList.setAdapter(mScanListAdapter);
-                scanLeDevice(true);
-                presenter.startScanning();
-//            }
+//            pairedDeviceList.setAdapter(mScanListAdapter);
+            scanLeDevice(true);
+            presenter.startScanning();
         });
 
         /// BLE
@@ -202,17 +204,17 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //                addLEDeviceToScanList("test 5", null, 50);
 //            }
 //        }, 1500);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                addLEDeviceToScanList("test 6", null, 50);
-                animatePairedList(2);
-            }
-        }, 2000);
-
-        animatePairedList(1);
-        addLEDeviceToScanList("test 1", null, 50);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                addLEDeviceToScanList("test 6", null, 50);
+//                animatePairedList(3);
+//            }
+//        }, 2000);
+//
+//        animatePairedList(1);
 //        addLEDeviceToScanList("test 1", null, 50);
+//        animatePairedList(2);
 //        addLEDeviceToScanList("test 1", null, 50);
 //        addLEDeviceToScanList("test 1", null, 50);
 //        addLEDeviceToScanList("test 1", null, 50);
@@ -243,14 +245,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
+
         scanListBLEPosition = 0;
         mLeDevices.clear();
         pairedDeviceList.setAdapter(mScanListAdapter);
-//        if ((ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
         scanLeDevice(true);
         presenter.startScanning();
-//        }
     }
     @Override
     protected void onPause() {
@@ -277,21 +277,22 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 invalidateOptionsMenu();
                 progress.setVisibility(View.GONE);
+                rescanImage.setVisibility(View.VISIBLE);
                 scanButton.setEnabled(true);
-//                scanButton.setText(R.string.scan_again);
+                scanningText.setText(R.string.availible_devices);
             }, SCAN_PERIOD);
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
-//            mBluetoothAdapter.getBluetoothLeAdvertiser().startAdvertising(settingsBuilder.build(), dataBuilder.build(), mLeAdvertisingCallback);
             scanButton.setEnabled(false);
-//            scanButton.setText(R.string.bluetooth_scanning);
+            scanningText.setText(R.string.bluetooth_scanning);
         } else {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             scanButton.setEnabled(true);
-//            scanButton.setText(R.string.scan_again);
+            scanningText.setText(R.string.scan_again);
         }
         progress.setVisibility(enable?View.VISIBLE:View.GONE);
+        rescanImage.setVisibility(!enable?View.VISIBLE:View.GONE);
         invalidateOptionsMenu();
     }
 
@@ -301,16 +302,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private final BluetoothAdapter.LeScanCallback mLeScanCallback =
             (device, rssi, scanRecord) -> runOnUiThread(() -> {
                 if(device.getName() != null){
-                    System.err.println("===========================================");
-//                    System.err.println("DeviceScanActivity ---------> device name: "+device.getName()+ "   Uuids: "+device.getUuids());
-//                    System.err.println("DeviceScanActivity ---------> device rssi: "+rssi);
-//                    System.err.println("DeviceScanActivity ---------> device: "+device.toString()+" | "+device.getAddress()+" | "+device.getUuids()+" | "+device.getName()
-//                            +" | "+device.getType()+" | "+device.getClass().getCanonicalName()+" | "+device.getName()+" | "+device.getClass().getSimpleName()+" | "
-//                            +device.getClass().getTypeName()+" | "+device.getClass().getAnnotations().length);
-                    System.err.println("DeviceScanActivity ---------> device: "+ device.getName() + " | " + device.getAddress() +" | "+rssi);
-                    System.err.println("DeviceScanActivity ---------> loadBool "+loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
-                    System.err.println("DeviceScanActivity ---------> LAST_CONNECTION_MAC: "+loadString(PreferenceKeys.LAST_CONNECTION_MAC));
-                    System.err.println("===========================================");
+//                    System.err.println("===========================================");
+//                    System.err.println("DeviceScanActivity ---------> device: "+ device.getName() + " | " + device.getAddress() +" | "+rssi);
+//                    System.err.println("DeviceScanActivity ---------> loadBool "+loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION));
+//                    System.err.println("DeviceScanActivity ---------> LAST_CONNECTION_MAC: "+loadString(PreferenceKeys.LAST_CONNECTION_MAC));
+//                    System.err.println("===========================================");
                     addLEDeviceToScanList(device.getName()+":l:", device, rssi);
                 }
             });
@@ -340,35 +336,34 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @Override
     public void addLEDeviceToScanList(String item, BluetoothDevice device, int rssi) {
         boolean canAdd = true;
-        if (device == null) {
-            scanList.add(
-                    new ScanItem(
-                            R.drawable.circle_16_blue,
-                            item+scanListBLEPosition+":   "+rssi,
-                            "device.getAddress()",
-                            false));
-            pairedDeviceList.scheduleLayoutAnimation();
-            pairedDeviceList.setAdapter(mScanListAdapter);
-            scanListBLEPosition++;
-            return;
-        }
-//        for (int i = 0; i<scanList.size(); i++) {
-//            if(scanList.get(i).getAddress().equals(device.getAddress())){
-//                canAdd = false;
-//            }
+//        if (device == null) {
+//            scanList.add(
+//                    new ScanItem(
+//                            R.drawable.circle_16_blue,
+//                            item+" "+scanListBLEPosition+":   "+rssi,
+//                            "device.getAddress()",
+//                            false));
+//            deviceList.setAdapter(mScanListAdapter);
+//            scanListBLEPosition++;
+//            return;
 //        }
+        for (int i = 0; i<scanList.size(); i++) {
+            if(scanList.get(i).getAddress().equals(device.getAddress())){
+                canAdd = false;
+            }
+        }
 
         //здесь мы принимаем решение добавлять ли новое устройство в список отсканированных
         if (canAdd) {
             if(checkOurLEName(item)){
                 mLeDevices.add(device);
-                scanList.add(
-                        new ScanItem(
-                                R.drawable.circle_16_blue,
-                                item+scanListBLEPosition+":   "+rssi,
-                                device.getAddress(),
-                                false));
-                pairedDeviceList.setAdapter(mScanListAdapter);
+//                scanList.add(
+//                        new ScanItem(
+//                                R.drawable.circle_16_blue,
+//                                item+scanListBLEPosition+":   "+rssi,
+//                                device.getAddress(),
+//                                false));
+                deviceList.setAdapter(mScanListAdapter);
                 scanListBLEPosition++;
             }
         }
@@ -382,6 +377,27 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                         item,
                         address,
                         false));
+        pairedDeviceList.setAdapter(mScanListAdapter);
+    }
+    @Override
+    public void clearScanList() {
+//        int scanDeviceCount = 0;
+//        int scanListSize = scanList.size();
+        //вычисление числа неспаренных устройств в списке
+//        for(ScanItem str: scanList){
+//            if(str.getTitle().split(":")[1].equals("s") || str.getTitle().split(":")[1].equals("l")){
+//                scanDeviceCount++;
+//            }
+//        }
+        //удаление этого числа элементов из конца списка
+//        if (scanListSize > ((scanListSize - 1) - scanDeviceCount) + 1) {
+//            scanList.subList(((scanListSize - 1) - scanDeviceCount) + 1, scanListSize).clear();
+//        }
+//        pairedDeviceList.setAdapter(mScanListAdapter);
+    }
+    @Override
+    public void clearPairedList() {
+        scanList.clear();
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
     private void smartConnection(BluetoothDevice device) {
@@ -408,27 +424,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         } catch (Exception e) {
             System.err.println("Exception setScanStatus: " + e);
         }
-    }
-    @Override
-    public void clearScanList() {
-        int scanDeviceCount = 0;
-        int scanListSize = scanList.size();
-        //вычисление числа неспаренных устройств в списке
-        for(ScanItem str: scanList){
-            if(str.getTitle().split(":")[1].equals("s") || str.getTitle().split(":")[1].equals("l")){
-                scanDeviceCount++;
-            }
-        }
-        //удаление этого числа элементов из конца списка
-        if (scanListSize > ((scanListSize - 1) - scanDeviceCount) + 1) {
-            scanList.subList(((scanListSize - 1) - scanDeviceCount) + 1, scanListSize).clear();
-        }
-        pairedDeviceList.setAdapter(mScanListAdapter);
-    }
-    @Override
-    public void clearPairedList() {
-        scanList.clear();
-        pairedDeviceList.setAdapter(mScanListAdapter);
     }
     @Override
     public void showProgress(boolean enabled) {
@@ -623,13 +618,15 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         Gson gson = new Gson();
         int scanDeviceCount = 0;
         int scanListSize = scanList.size();
+        // считаем количество отсканированных устройств
         for(ScanItem str: scanList){
             if(str.getTitle().split(":")[1].equals("s")){
                 scanDeviceCount++;
             }
         }
-        if (scanListSize > ((scanListSize - 1) - scanDeviceCount) + 1) {
-            scanList.subList(((scanListSize - 1) - scanDeviceCount) + 1, scanListSize).clear();
+        // удаляем конец списка с отсканированными устройствоми
+        if (scanListSize > scanListSize - scanDeviceCount) {
+            scanList.subList(scanListSize  - scanDeviceCount, scanListSize).clear();
         }
         mScanListAdapter = new ScanListAdapter(this, scanList, this);
         pairedDeviceList.setAdapter(mScanListAdapter);

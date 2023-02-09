@@ -1055,7 +1055,6 @@ public class Bluetooth {
                     case BluetoothDevice.ACTION_FOUND:
                         final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                         if (discoveryCallback != null){
-                            System.err.println("TEST -----> "+device.getName());
                             ThreadHelper.run(runOnUi, activity, () -> discoveryCallback.onDeviceFound(device));
                         }
                         break;

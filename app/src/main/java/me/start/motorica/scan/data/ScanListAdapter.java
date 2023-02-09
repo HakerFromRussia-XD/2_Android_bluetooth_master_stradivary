@@ -178,6 +178,10 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     public List<ScanItem> getMyScanList() {
         return null;
     }
+
+    @Override
+    public boolean getFilteringOursDevices() {return false;}
+
     @Override
     public void loadData() { }
     @Override

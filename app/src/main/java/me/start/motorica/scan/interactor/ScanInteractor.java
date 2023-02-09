@@ -10,7 +10,7 @@ import me.start.bluetooth.DeviceCallback;
 import me.start.bluetooth.DiscoveryCallback;
 
 public interface ScanInteractor {
-    List<String> getPairedDevices();
+    List<String> getPairedDevices(boolean filteringOursDevices);
     BluetoothDevice getPairedDevice(int position);
     void scanDevices(DiscoveryCallback callback);
     boolean isBluetoothEnabled();

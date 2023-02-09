@@ -85,7 +85,7 @@ public class ScanInteractorImpl implements ScanInteractor {
 
     @SuppressLint("MissingPermission")
     @Override
-    public List<String> getPairedDevices() {
+    public List<String> getPairedDevices(boolean filteringOursDevices) {
         List<String> items = new ArrayList<>();
         int position = 0;
         ourGadgets = 0;
@@ -102,10 +102,11 @@ public class ScanInteractorImpl implements ScanInteractor {
                     device.getName().contains("HND") ||
                     device.getName().contains("NEMO") ||
                     device.getName().contains("STAND") ||
-                    device.getName().contains("FEST")
+                    device.getName().contains("FEST") ||
+                    !filteringOursDevices
             ){
                 System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
-                items.add(device.getName());
+                items.add(device.getName()+":"+(position+1));
                 ourGadgets++;
             } else {
                 System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));

@@ -48,8 +48,9 @@ public class ScanPresenterImpl implements ScanPresenter{
         positionPairDevice = 0;
         if(interactor.isBluetoothEnabled()){
             startScanning();
-            pairedDeviceNames = interactor.getPairedDevices();
+            pairedDeviceNames = interactor.getPairedDevices(view.getFilteringOursDevices());
             view.showPairedList(pairedDeviceNames);
+            view.getMyScanList();
             pauseCheckDevicesThread(5000);
         }
         else{
@@ -101,9 +102,11 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void pairedItemClick(int position) {
-        if(pairedDeviceNames == null) {pairedDeviceNames = interactor.getPairedDevices();}
+        if(pairedDeviceNames == null) {pairedDeviceNames = interactor.getPairedDevices(view.getFilteringOursDevices());}
         System.err.println("TEST -----> position: "+position);
-        BluetoothDevice device = interactor.getPairedDevice(position);
+        System.err.println("TEST -----> Integer.parseInt(pairedDeviceNames.get(position).split(\":\")[2])-1: "+(Integer.parseInt(pairedDeviceNames.get(position).split(":")[1])-1));
+
+        BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(pairedDeviceNames.get(position).split(":")[1])-1);
         ChartActivity chatActivity = new ChartActivity();
         chatActivity.getNameFromDevice(device);
         view.navigateToChart("device", device);
@@ -222,7 +225,7 @@ public class ScanPresenterImpl implements ScanPresenter{
 
             if(check){//проверяет соответствие серийника найденного устройства соответствию нашим серийникам
                 boolean equals = false;
-                if(pairedDeviceNames == null) {pairedDeviceNames=interactor.getPairedDevices();}
+                if(pairedDeviceNames == null) {pairedDeviceNames=interactor.getPairedDevices(view.getFilteringOursDevices());}
                 for(int i=0; i<pairedDeviceNames.size(); i++){//меняет флаг если наше устройство уже находится в списке спаренных
                     if(pairedDeviceNames.get(i).split(":")[0].equals(device.getName())){
                         equals = true;
@@ -277,7 +280,7 @@ public class ScanPresenterImpl implements ScanPresenter{
         @Override
         public void onBluetoothOn() {
             startScanning();
-            view.showPairedList(interactor.getPairedDevices());
+            view.showPairedList(interactor.getPairedDevices(view.getFilteringOursDevices()));
         }
 
         @Override

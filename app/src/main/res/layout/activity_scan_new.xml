@@ -42,24 +42,25 @@
         app:layout_constraintStart_toStartOf="@+id/filter_v"
         app:layout_constraintTop_toTopOf="@+id/filter_v" />
     <TextView
+        android:id="@+id/protheses_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/font_open_sans"
         android:text="@string/protheses"
         android:textSize="14sp"
-        android:textColor="#0C212C"
+        android:textColor="@color/selected_filter"
         app:layout_constraintBottom_toBottomOf="@+id/filter_v"
         app:layout_constraintEnd_toStartOf="@+id/guidline_mid"
         app:layout_constraintStart_toStartOf="@+id/filter_v"
         app:layout_constraintTop_toTopOf="@+id/filter_v" />
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/all_devices_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/font_open_sans"
         android:text="@string/all_devices"
         android:textSize="14sp"
-        android:textColor="#576B74"
+        android:textColor="@color/unselected_filter"
         app:layout_constraintBottom_toBottomOf="@+id/filter_v"
         app:layout_constraintEnd_toEndOf="@+id/filter_v"
         app:layout_constraintStart_toStartOf="@+id/guidline_mid"

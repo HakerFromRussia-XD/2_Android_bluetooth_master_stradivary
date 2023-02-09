@@ -22,6 +22,7 @@ public interface ScanView{
     void navigateToLEChart(String extraName, BluetoothDevice extraDevice);
     void setNewStageCellScanList (int numberCell, int setImage, String setText);
     List<ScanItem> getMyScanList ();
+    boolean getFilteringOursDevices ();
     void loadData();
     void buildScanListView();
     boolean isFirstStart();

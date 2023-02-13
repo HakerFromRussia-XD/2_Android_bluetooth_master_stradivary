@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.start.bluetooth.DeviceCallback;
@@ -32,6 +33,7 @@ public class ScanPresenterImpl implements ScanPresenter{
     private final int position = 0;
     private int positionPairDevice = 0;
     private List<String> pairedDeviceNames;
+    private ArrayList<ScanItem> pairedDevices;
     private List<String> TEST_scanDeviceNames;
     private boolean firstScanClick = true;
     private boolean flagCheckingNow = false;
@@ -48,20 +50,23 @@ public class ScanPresenterImpl implements ScanPresenter{
         positionPairDevice = 0;
         if(interactor.isBluetoothEnabled()){
             startScanning();
-            pairedDeviceNames = interactor.getPairedDevices(view.getFilteringOursDevices());
-            view.showPairedList(pairedDeviceNames);
+//            pairedDeviceNames = interactor.getPairedDevices(view.getFilteringOursDevices());
+            pairedDevices = interactor.getPairedDevicesItem(view.getFilteringOursDevices());
+            view.showPairedList(pairedDevices);
             view.getMyScanList();
-            pauseCheckDevicesThread(5000);
         }
         else{
             interactor.enableBluetooth();
         }
     }
 
+    public ArrayList<ScanItem> getPairedList () {
+        return interactor.getPairedDevicesItem(view.getFilteringOursDevices());
+    }
+
     @Override
     public void onStop() {
         interactor.onStop();
-        view.clearPairedList();
         firstStart = true;
     }
 
@@ -75,6 +80,7 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void scanItemClick(int position, String name) {
+        System.err.println("TEST scanItemClick position: "+position);
         if(firstScanClick){//исключение многоразавого нажатия на отсканированные давайсы
             if(flagDiscovering){//для отсечения ошибки клика по сканлисту после завершения сканирования
                 canceledDiscovery = true;
@@ -87,7 +93,7 @@ public class ScanPresenterImpl implements ScanPresenter{
                 canceledDiscovery = true;
                 flagPairNewDevice = true;
                 positionPairDevice = position;// функция interactor.pair(position); вызавается после завершения чека доступности текущего утройства
-                if (!flagCheckingNow) {interactor.pair(position);}//или сразу, если все спаренные устройства уже проверенны
+                if (!flagCheckingNow) { interactor.pair(position); }//или сразу, если все спаренные устройства уже проверенны
                 view.setScanStatus(R.string.bluetooth_pairing, true);
             }
             ChartActivity chatActivity = new ChartActivity();
@@ -96,21 +102,7 @@ public class ScanPresenterImpl implements ScanPresenter{
         }
     }
 
-    private void afterScanItemClick(int position){
-        interactor.pair(position);
-    }
-
-    @Override
-    public void pairedItemClick(int position) {
-        if(pairedDeviceNames == null) {pairedDeviceNames = interactor.getPairedDevices(view.getFilteringOursDevices());}
-        System.err.println("TEST -----> position: "+position);
-        System.err.println("TEST -----> Integer.parseInt(pairedDeviceNames.get(position).split(\":\")[2])-1: "+(Integer.parseInt(pairedDeviceNames.get(position).split(":")[1])-1));
-
-        BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(pairedDeviceNames.get(position).split(":")[1])-1);
-        ChartActivity chatActivity = new ChartActivity();
-        chatActivity.getNameFromDevice(device);
-        view.navigateToChart("device", device);
-    }
+    private void afterScanItemClick(int position){ interactor.pair(position); }
 
     @Override
     public void leItemClick(int position) {
@@ -120,23 +112,14 @@ public class ScanPresenterImpl implements ScanPresenter{
     }
 
     @Override
-    public void itemClick(int position) {
+    public void pairedItemClick(int position) {
         if (view.getMyScanList() != null){
-//            String typeDevice = view.getMyScanList().get(position).getTitle().split(":")[1];
-//            if(typeDevice.equals("p")){
-                pairedItemClick(position);
-//            } else {
-//                if(typeDevice.equals("s")){
-//                    scanItemClick(Integer.parseInt(view.getMyScanList().get(position).getTitle().split(":")[2]), view.getMyScanList().get(position).getTitle().split(":")[0]);
-//                } else {
-//                    if (typeDevice.equals("l")) {
-//                        leItemClick(Integer.parseInt(view.getMyScanList().get(position).getTitle().split(":")[2]));
-//                        System.err.println("=======================================================================");
-//                        System.err.println("l itemClick -----> position: "+position);
-//                        System.err.println("l itemClick -----> view.getMyScanList().get(position).getTitle().split(\":\")[0]: "+view.getMyScanList().get(position).getTitle().split(":")[0]);
-//                    }
-//                }
-//            }
+            if(pairedDeviceNames == null) {pairedDeviceNames = interactor.getPairedDevices(view.getFilteringOursDevices());}
+
+            BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(pairedDeviceNames.get(position).split(":")[1])-1);
+            ChartActivity chatActivity = new ChartActivity();
+            chatActivity.getNameFromDevice(device);
+            view.navigateToChart("device", device);
         }
     }
 
@@ -145,62 +128,6 @@ public class ScanPresenterImpl implements ScanPresenter{
         interactor.disconnect();
     }
 
-
-    private final DeviceCallback communicationCallback = new DeviceCallback() {
-        @Override
-        public void onDeviceConnected(BluetoothDevice device) {
-            flagCheckingNow = false;
-            interactor.disconnect();
-            if(!onPauseActivity){
-                if(flagPairNewDevice){
-                    afterScanItemClick(positionPairDevice);
-                    flagPairNewDevice = false;
-                } else {
-                    checkDevices();
-                }
-            }
-            String deviceName = device.getName();
-            for(int i = 0; i < pairedDeviceNames.size(); i++) {
-                if(deviceName.equals(pairedDeviceNames.get(i).split(":")[0])){
-                    if(!onPauseActivity){view.setNewStageCellScanList(i,R.drawable.circle_16_green, pairedDeviceNames.get(i));}
-                }
-            }
-        }
-
-        @Override
-        public void onDeviceDisconnected(final BluetoothDevice device, String message) {
-            System.err.println("ScanPresenter--------------> onDeviceCheckDisconnected "+message+" "+device);
-        }
-
-        @Override
-        public void onMessage(String message) {
-            System.err.println("ScanPresenter--------------> onMessage "+message);
-        }
-
-        @Override
-        public void onError(String message) {
-            System.err.println("ScanPresenter--------------> onError "+message);
-        }
-
-        @Override
-        public void onConnectError(final BluetoothDevice device, String message) {
-            flagCheckingNow = false;
-            if(!onPauseActivity){
-                if(flagPairNewDevice){
-                    afterScanItemClick(positionPairDevice);
-                    flagPairNewDevice = false;
-                } else {
-                    checkDevices();
-                }
-            }
-            String deviceName = device.getName();
-            for(int i = 0; i < pairedDeviceNames.size(); i++) {
-                if(deviceName.equals(pairedDeviceNames.get(i).split(":")[0])){
-                    if(!onPauseActivity){view.setNewStageCellScanList(i,R.drawable.circle_16_red, pairedDeviceNames.get(i));}
-                }
-            }
-        }
-    };
 
     private final DiscoveryCallback discoveryCallback = new DiscoveryCallback() {
         @Override
@@ -219,42 +146,7 @@ public class ScanPresenterImpl implements ScanPresenter{
         }
 
         @Override
-        public void onDeviceFound(BluetoothDevice device) {
-            System.err.println("=======================================================================");
-            boolean check = checkOurName((device.getName() == null) ? "" : device.getName());
-
-            if(check){//проверяет соответствие серийника найденного устройства соответствию нашим серийникам
-                boolean equals = false;
-                if(pairedDeviceNames == null) {pairedDeviceNames=interactor.getPairedDevices(view.getFilteringOursDevices());}
-                for(int i=0; i<pairedDeviceNames.size(); i++){//меняет флаг если наше устройство уже находится в списке спаренных
-                    if(pairedDeviceNames.get(i).split(":")[0].equals(device.getName())){
-                        equals = true;
-                    }
-                }
-                if(equals){//это условие проверяет есть ли найденное устройство в списке спаренных
-                    equals = false;
-                } else {
-                    if(device.getType() == 1){//тип один - компьютеры и телефоны, тип - 2 вякая хуйня и те профили в протезах, которые мы хотим отсечь
-                        List<ScanItem> scanItemList = view.getMyScanList();
-                        boolean canAdd = true;
-                        for(int i=0; i<scanItemList.size(); i++){//проверяет есть ли в списке отсканированных устройств вновь найденное
-                            if(scanItemList.get(i).getTitle().split(":")[1].equals("s")){
-                                if(scanItemList.get(i).getTitle().split(":")[0].equals(device.getName())){
-                                    canAdd = false;
-                                }
-                            }
-                        }
-                        if(canAdd){
-                            view.addDeviceToScanList(device.getName()+":s:"+scanListPosition, device.getAddress(), device);
-                        } else {
-                            canAdd = true;
-                        }
-                    }
-                }
-            }
-            System.err.println("ScanPresenterImpl ---------> найдено устройство: "+device.getName()+ " scanListPosition: "+scanListPosition);
-            scanListPosition++;
-        }
+        public void onDeviceFound(BluetoothDevice device) {}
 
         @Override
         public void onDevicePaired(BluetoothDevice device) {
@@ -271,17 +163,13 @@ public class ScanPresenterImpl implements ScanPresenter{
     };
 
     private final BluetoothCallback bluetoothCallback = new BluetoothCallback() {
-
         @Override
         public void onBluetoothTurningOn() {
             view.setScanStatus(R.string.bluetooth_turning_on, true);
         }
 
         @Override
-        public void onBluetoothOn() {
-            startScanning();
-            view.showPairedList(interactor.getPairedDevices(view.getFilteringOursDevices()));
-        }
+        public void onBluetoothOn() { startScanning(); }
 
         @Override
         public void onBluetoothTurningOff() {
@@ -297,12 +185,8 @@ public class ScanPresenterImpl implements ScanPresenter{
         public void onUserDeniedActivation() {
         }
 
-
-
         @Override
-        public boolean getFirstRead() {
-            return false;
-        }
+        public boolean getFirstRead() { return false; }
     };
 
     public void setOnPauseActivity(boolean onPauseActivity) {
@@ -310,9 +194,7 @@ public class ScanPresenterImpl implements ScanPresenter{
     }
 
     @Override
-    public int getOurGadgets() {
-        return interactor.getOurGadgets();
-    }
+    public int getOurGadgets() { return interactor.getOurGadgets(); }
 
     public void setStartFlags (String deviceName){
         if(     deviceName.split("-")[0].equals("MLT") ||
@@ -364,29 +246,5 @@ public class ScanPresenterImpl implements ScanPresenter{
                 deviceName.contains("NEMO") ||
                 deviceName.contains("STAND") ||
                 deviceName.contains("FEST");
-    }
-
-    private void checkDevices(){
-        BluetoothDevice device = interactor.getPairedDevice(checkDevicePosition);
-        if (device != null) {
-            if(checkOurName(device.getName())){
-                flagCheckingNow = true;
-                interactor.checkAvailableDevice(device, communicationCallback);
-                checkDevicePosition++;
-            } else {
-                checkDevicePosition++;
-                checkDevices();
-            }
-        }
-    }
-
-    public void pauseCheckDevicesThread (final int pauseTime) {
-        pauseStartThread = new Thread(() -> {
-            try {
-                Thread.sleep(pauseTime);
-            }catch (Exception ignored){}
-            checkDevices();
-        });
-        pauseStartThread.start();
     }
 }

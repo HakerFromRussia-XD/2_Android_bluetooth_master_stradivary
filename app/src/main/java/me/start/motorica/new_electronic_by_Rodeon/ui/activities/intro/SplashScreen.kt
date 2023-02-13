@@ -89,14 +89,14 @@ class SplashScreen : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        System.err.println(" LOLOLOEFWEF --->  onRequestPermissionsResult")
+//        System.err.println(" LOLOLOEFWEF --->  onRequestPermissionsResult")
         launchScanActivity()
     }
 
     private fun launchScanActivity() {
         if ((ContextCompat.checkSelfPermission(this,
                 Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
-            System.err.println(" LOLOLOEFWEF --->  launchScanActivity true")
+//            System.err.println(" LOLOLOEFWEF --->  launchScanActivity true")
             val intent = Intent(this@SplashScreen, ScanActivity::class.java)
             startActivity(intent)
             finish()
@@ -108,7 +108,7 @@ class SplashScreen : AppCompatActivity() {
     private val requestMultiplePermissions =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             permissions.entries.forEach {
-                System.err.println("LOLOLOEFWEF --->  ${it.key} = ${it.value}")
+//                System.err.println("LOLOLOEFWEF --->  ${it.key} = ${it.value}")
             }
         }
 }

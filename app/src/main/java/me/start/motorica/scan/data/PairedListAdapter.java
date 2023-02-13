@@ -24,19 +24,18 @@ import me.start.motorica.scan.view.ScanView;
 public class PairedListAdapter extends RecyclerView.Adapter<PairedListAdapter.ScanViewHolder> implements ScanView {
 
     private final Context mCtx;
-    private final List<ScanItem> mScanList;
+    private final List<ScanItem> mPairedList;
     private final OnScanMyListener mOnScanMyListener;
-    private ArrayList<Long> percentAnimationPairedList = new ArrayList<Long>();
+    private final ArrayList<Long> percentAnimationPairedList = new ArrayList<>();
     private int lastPosition = -1;
-    private boolean firstBind = true;
+    private final boolean firstBind = true;
     private CountDownTimer timer;
-    private long time = 0;
-//    private int lastPosition = 0;
+    private final long time = 0;
     private final static int ANIM_DURATION = 10000;
 
-    public PairedListAdapter(Context  mCtx, List<ScanItem> mScanList, OnScanMyListener onScanMyListener) {
+    public PairedListAdapter(Context  mCtx, List<ScanItem> mPairedList, OnScanMyListener onScanMyListener) {
         this.mCtx = mCtx;
-        this.mScanList = mScanList;
+        this.mPairedList = mPairedList;
         this.mOnScanMyListener = onScanMyListener;
     }
 
@@ -51,42 +50,9 @@ public class PairedListAdapter extends RecyclerView.Adapter<PairedListAdapter.Sc
 
     @Override
     public void onBindViewHolder(@NonNull ScanViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        ScanItem item = mScanList.get(position);
+        ScanItem item = mPairedList.get(position);
 
         holder.textViewTitle.setText(item.getTitle());
-
-        if (position==(mScanList.size() - 1)) {
-            holder.divider.setVisibility(View.GONE);
-        }
-
-//        if (position > lastPosition) {
-//            setScaleAnimation(holder.itemView);
-//            lastPosition = position;
-//        }
-        if (firstBind) {
-
-//            System.err.println("screen testIntFunc: " + scanActivity.testIntFunc());
-            timer = new CountDownTimer(3000000, 1) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    time += 1;
-                }
-
-                @Override
-                public void onFinish() {}
-            }.start();
-            firstBind = false;
-        } else {
-//            setScaleAnimation(holder.itemView, position);
-        }
-        if (position != lastPosition) {
-            percentAnimationPairedList.add(time);
-            lastPosition = position;
-        }
-        for(Long time: percentAnimationPairedList){
-            System.err.println("screen time: " + time + "  position: " + position);
-        }
-
     }
 
     private void setFadeAnimation(View view) {
@@ -111,7 +77,7 @@ public class PairedListAdapter extends RecyclerView.Adapter<PairedListAdapter.Sc
 
     @Override
     public int getItemCount() {
-        return mScanList.size();
+        return mPairedList.size();
     }
 
     public static class ScanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -133,24 +99,26 @@ public class PairedListAdapter extends RecyclerView.Adapter<PairedListAdapter.Sc
 
         @Override
         public void onClick(View v) {
-            onScanMyListener.onScanClick(getAdapterPosition());
+            onScanMyListener.onPairedClick(getAdapterPosition());
         }
     }
 
-    public interface OnScanMyListener { void onScanClick(int position); }
+    public interface OnScanMyListener { void onPairedClick(int position); }
+
+
+
 
     @Override
-    public void showPairedList(List<String> items) { }
+    public void showPairedList(ArrayList<ScanItem> items) { }
+
     @Override
     public void addDeviceToScanList(String item, String address, BluetoothDevice device) { }
 
     @Override
-    public void addLEDeviceToScanList(String item, BluetoothDevice device, int rssi) { }
+    public void addLEDeviceToLeDevicesList(BluetoothDevice device, int rssi) { }
 
     @Override
     public void clearScanList() { }
-    @Override
-    public void clearPairedList() { }
     @Override
     public void setScanStatus(String status, boolean enabled) { }
     @Override
@@ -180,12 +148,11 @@ public class PairedListAdapter extends RecyclerView.Adapter<PairedListAdapter.Sc
     @Override
     public void loadData() { }
     @Override
-    public void buildScanListView() { }
-    @Override
     public boolean isFirstStart() {
         return false;
     }
 
     @Override
     public ArrayList<BluetoothDevice> getLeDevices() { return null; }
+
 }

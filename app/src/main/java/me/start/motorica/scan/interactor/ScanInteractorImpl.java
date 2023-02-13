@@ -11,6 +11,7 @@ import me.start.bluetooth.Bluetooth;
 import me.start.bluetooth.BluetoothCallback;
 import me.start.bluetooth.DeviceCallback;
 import me.start.bluetooth.DiscoveryCallback;
+import me.start.motorica.scan.data.ScanItem;
 
 
 public class ScanInteractorImpl implements ScanInteractor {
@@ -105,18 +106,69 @@ public class ScanInteractorImpl implements ScanInteractor {
                     device.getName().contains("FEST") ||
                     !filteringOursDevices
             ){
-                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
+//                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
                 items.add(device.getName()+":"+(position+1));
                 ourGadgets++;
             } else {
-                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
+//                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
                 items.add(".");
             }
             position++;
         }
         for (int i = 0; i < items.size(); i++) {
             if(items.get(i).equals(".") || items.get(i).equals(".\n") || items.get(i).equals(".\r") || items.get(i).equals(".\n\r") || items.get(i).equals(".\r\n")){
-                System.err.println("ScanInteractorImpl--------------> remove: position="+(i+1));
+//                System.err.println("ScanInteractorImpl--------------> remove: position="+(i+1));
+                items.remove(i);
+                i--;
+            }
+        }
+        return items;
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public ArrayList<ScanItem> getPairedDevicesItem(boolean filteringOursDevices) {
+        ArrayList<ScanItem> items = new ArrayList<>();
+        int position = 0;
+        ourGadgets = 0;
+        for(BluetoothDevice device : bluetooth.getPairedDevices()){
+            if(
+                    device.getName().contains("MLT") ||
+                    device.getName().contains("FNG") ||
+                    device.getName().contains("FNS") ||
+                    device.getName().contains("MLX") ||
+                    device.getName().contains("FNX") ||
+                    device.getName().contains("STR") ||
+                    device.getName().contains("CBY") ||
+                    device.getName().contains("IND") ||
+                    device.getName().contains("HND") ||
+                    device.getName().contains("NEMO") ||
+                    device.getName().contains("STAND") ||
+                    device.getName().contains("FEST") ||
+                    !filteringOursDevices
+            ){
+//                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
+                items.add(position,
+                        new ScanItem(
+                                device.getName(),
+                                device.getAddress(),
+                                (position+1),
+                    true));
+                ourGadgets++;
+            } else {
+//                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
+                items.add(position,
+                        new ScanItem(
+                                ".",
+                                ".",
+                                (position+1),
+                                true));
+            }
+            position++;
+        }
+        for (int i = 0; i < items.size(); i++) {
+            if(items.get(i).getTitle().equals(".") || items.get(i).getTitle().equals(".\n") || items.get(i).getTitle().equals(".\r") || items.get(i).getTitle().equals(".\n\r") || items.get(i).equals(".\r\n")){
+//                System.err.println("ScanInteractorImpl--------------> remove: position="+items.get(i).getTitle()+" "+(i+1));
                 items.remove(i);
                 i--;
             }

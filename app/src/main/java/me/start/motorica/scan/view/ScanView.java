@@ -8,11 +8,10 @@ import java.util.List;
 import me.start.motorica.scan.data.ScanItem;
 
 public interface ScanView{
-    void showPairedList(List<String> items);
+    void showPairedList(ArrayList<ScanItem> items);
     void addDeviceToScanList(String item, String address, BluetoothDevice device);
-    void addLEDeviceToScanList(String item, BluetoothDevice device, int rssi);
+    void addLEDeviceToLeDevicesList(BluetoothDevice device, int rssi);
     void clearScanList();
-    void clearPairedList();
     void setScanStatus(String status, boolean enabled);
     void setScanStatus(int resId, boolean enabled);
     void showProgress(boolean enabled);
@@ -24,7 +23,6 @@ public interface ScanView{
     List<ScanItem> getMyScanList ();
     boolean getFilteringOursDevices ();
     void loadData();
-    void buildScanListView();
     boolean isFirstStart();
     ArrayList<BluetoothDevice>  getLeDevices();
 }

@@ -53,7 +53,7 @@ public class ScanPresenterImpl implements ScanPresenter{
 //            pairedDeviceNames = interactor.getPairedDevices(view.getFilteringOursDevices());
             pairedDevices = interactor.getPairedDevicesItem(view.getFilteringOursDevices());
             view.showPairedList(pairedDevices);
-            view.getMyScanList();
+//            view.getMyScanList();
         }
         else{
             interactor.enableBluetooth();
@@ -113,14 +113,12 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     @Override
     public void pairedItemClick(int position) {
-        if (view.getMyScanList() != null){
-            if(pairedDeviceNames == null) {pairedDeviceNames = interactor.getPairedDevices(view.getFilteringOursDevices());}
+        if(pairedDeviceNames == null) {pairedDeviceNames = interactor.getPairedDevices(view.getFilteringOursDevices());}
 
-            BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(pairedDeviceNames.get(position).split(":")[1])-1);
-            ChartActivity chatActivity = new ChartActivity();
-            chatActivity.getNameFromDevice(device);
-            view.navigateToChart("device", device);
-        }
+        BluetoothDevice device = interactor.getPairedDevice(Integer.parseInt(pairedDeviceNames.get(position).split(":")[1])-1);
+        ChartActivity chatActivity = new ChartActivity();
+        chatActivity.getNameFromDevice(device);
+        view.navigateToChart("device", device);
     }
 
     @Override

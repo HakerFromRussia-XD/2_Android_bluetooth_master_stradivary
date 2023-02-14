@@ -136,17 +136,8 @@ public class PairedListAdapter extends RecyclerView.Adapter<PairedListAdapter.Sc
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) { }
 
     @Override
-    public void setNewStageCellScanList(int numberCell, int setImage, String setText) { }
-    @Override
-    public List<ScanItem> getMyScanList() {
-        return null;
-    }
-
-    @Override
     public boolean getFilteringOursDevices() { return false; }
 
-    @Override
-    public void loadData() { }
     @Override
     public boolean isFirstStart() {
         return false;

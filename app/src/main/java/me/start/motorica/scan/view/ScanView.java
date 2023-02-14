@@ -19,10 +19,7 @@ public interface ScanView{
     void showToast(String message);
     void navigateToChart(String extraName, BluetoothDevice extraDevice);
     void navigateToLEChart(String extraName, BluetoothDevice extraDevice);
-    void setNewStageCellScanList (int numberCell, int setImage, String setText);
-    List<ScanItem> getMyScanList ();
     boolean getFilteringOursDevices ();
-    void loadData();
     boolean isFirstStart();
     ArrayList<BluetoothDevice>  getLeDevices();
 }

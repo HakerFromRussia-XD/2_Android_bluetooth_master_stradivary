@@ -192,7 +192,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         }
         BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
           System.err.println("Check BroadcastReceiver() ACTION_GATT_SERVICES_DISCOVERED")
-          Toast.makeText(context, "подключение установлено к $mDeviceAddress", Toast.LENGTH_SHORT).show()
+          Toast.makeText(context, "подключение установлено к $mDeviceName:$mDeviceAddress", Toast.LENGTH_SHORT).show()
           System.err.println("DeviceControlActivity------->   ACTION_GATT_SERVICES_DISCOVERED")
           mConnected = true
           mConnectView!!.visibility = View.VISIBLE
@@ -202,6 +202,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
         }
         BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
+//          Toast.makeText(context, "подключение установлено к $mDeviceAddress", Toast.LENGTH_SHORT).show()
           if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A))
             || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05))
             || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))) { // новая схема обработки данных
@@ -247,7 +248,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 //      System.err.println("BluetoothLeService-------------> прошли первый иф ")
 //      System.err.println("============================================")
       for (i in data.indices) {
-        System.err.println("BluetoothLeService------------->  size: ${data.size}    $i - ${data[i]}")
+//        System.err.println("BluetoothLeService------------->  size: ${data.size}    $i - ${data[i]}")
       }
 
 
@@ -360,7 +361,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
 
               if ((castUnsignedCharToInt(data[11]) shr 7 and 0b00000001) != 1) {
                 if (!firstActivateSetScaleDialog) {
-                  System.err.println("BluetoothLeService-------------> ПОКАЗЫВАЕМ ДИАЛОГ ВЫБОРА РАЗМЕРА ПРОТЕЗА")
+//                  System.err.println("BluetoothLeService-------------> ПОКАЗЫВАЕМ ДИАЛОГ ВЫБОРА РАЗМЕРА ПРОТЕЗА")
                   if (mDeviceName != EXTRAS_DEVICE_TYPE_BT05) {
                     showChangeSizeDialog()
                     firstActivateSetScaleDialog = true
@@ -979,6 +980,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     if (mBluetoothLeService != null) {
       unbindService(mServiceConnection)
       mBluetoothLeService = null
+      unregisterReceiver(mGattUpdateReceiver)
     }
     readDataFlag = false
 //    sensorsDataThreadFlag = false

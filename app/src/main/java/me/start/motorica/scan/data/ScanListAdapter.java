@@ -63,7 +63,8 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
 
     @Override
     public int getItemCount() {
-        return mScanList.size();
+        if (mScanList != null) { return mScanList.size(); }
+        else {return 0;}
     }
 
     public static class ScanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -117,17 +118,8 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) { }
 
     @Override
-    public void setNewStageCellScanList(int numberCell, int setImage, String setText) { }
-    @Override
-    public List<ScanItem> getMyScanList() {
-        return null;
-    }
-
-    @Override
     public boolean getFilteringOursDevices() {return false;}
 
-    @Override
-    public void loadData() { }
     @Override
     public boolean isFirstStart() {
         return false;

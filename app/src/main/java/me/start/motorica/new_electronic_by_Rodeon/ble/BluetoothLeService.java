@@ -125,7 +125,7 @@ public class BluetoothLeService extends Service {
 
         if (data != null && data.length > 0) {
             for(byte byteChar : data){
-                if(SHOW_EVERYONE_RECEIVE_BYTE) System.err.println("BluetoothLeService-------------> append massage: " + String.format("%02X ", byteChar));
+//                if(SHOW_EVERYONE_RECEIVE_BYTE) System.err.println("BluetoothLeService-------------> append massage: " + String.format("%02X ", byteChar));
             }
             if (state.equals(WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){

@@ -35,7 +35,6 @@ import java.util.UUID;
 
 import timber.log.Timber;
 
-import static me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.SHOW_EVERYONE_RECEIVE_BYTE;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW_VM;
 import static me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW;
@@ -124,9 +123,9 @@ public class BluetoothLeService extends Service {
         final byte[] data = characteristic.getValue();
 
         if (data != null && data.length > 0) {
-            for(byte byteChar : data){
+//            for(byte byteChar : data){
 //                if(SHOW_EVERYONE_RECEIVE_BYTE) System.err.println("BluetoothLeService-------------> append massage: " + String.format("%02X ", byteChar));
-            }
+//            }
             if (state.equals(WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
                 intent.putExtra(MIO_DATA, data);
@@ -387,7 +386,7 @@ public class BluetoothLeService extends Service {
                 return false;
             }
         }
-
+//TODO раскомментить после завершения теста с сохранением имён жестов
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
             Timber.tag(TAG).w("Device not found.  Unable to connect.");

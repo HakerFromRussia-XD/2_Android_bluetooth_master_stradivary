@@ -7,14 +7,12 @@ import android.bluetooth.BluetoothDevice;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.start.bluetooth.DeviceCallback;
 import me.start.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 import me.start.motorica.scan.data.ScanItem;
 import me.start.motorica.scan.interactor.ScanInteractor;
 import me.start.motorica.scan.view.ScanView;
 import me.start.bluetooth.BluetoothCallback;
 import me.start.bluetooth.DiscoveryCallback;
-import me.start.motorica.R;
 
 @SuppressLint("MissingPermission")
 public class ScanPresenterImpl implements ScanPresenter{
@@ -36,7 +34,7 @@ public class ScanPresenterImpl implements ScanPresenter{
     private ArrayList<ScanItem> pairedDevices;
     private List<String> TEST_scanDeviceNames;
     private boolean firstScanClick = true;
-    private boolean flagCheckingNow = false;
+    private final boolean flagCheckingNow = false;
 
     public ScanPresenterImpl(ScanView view, ScanInteractor interactor) {
         this.view = view;
@@ -88,13 +86,11 @@ public class ScanPresenterImpl implements ScanPresenter{
                 interactor.stopScanning();
                 positionPairDevice = position;
                 interactor.pair(position);
-                view.setScanStatus(R.string.bluetooth_pairing, true);
             } else {
                 canceledDiscovery = true;
                 flagPairNewDevice = true;
                 positionPairDevice = position;// функция interactor.pair(position); вызавается после завершения чека доступности текущего утройства
-                if (!flagCheckingNow) { interactor.pair(position); }//или сразу, если все спаренные устройства уже проверенны
-                view.setScanStatus(R.string.bluetooth_pairing, true);
+                if (!flagCheckingNow) { interactor.pair(position); }//или сразу, если все спаренные устройства уже проверенн
             }
             ChartActivity chatActivity = new ChartActivity();
             chatActivity.getName(name);
@@ -162,9 +158,7 @@ public class ScanPresenterImpl implements ScanPresenter{
 
     private final BluetoothCallback bluetoothCallback = new BluetoothCallback() {
         @Override
-        public void onBluetoothTurningOn() {
-            view.setScanStatus(R.string.bluetooth_turning_on, true);
-        }
+        public void onBluetoothTurningOn() {}
 
         @Override
         public void onBluetoothOn() { startScanning(); }

@@ -24,7 +24,6 @@ import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePres
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
 import kotlin.properties.Delegates
 
@@ -111,8 +110,10 @@ class GripperTestScreenWithEncodersActivity
                 .subscribe {
                     if (editMode) {
                         gestureNameList[(gestureNumber - 1)] = gesture_name_et.text.toString()
+                        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
+                        System.err.println("5 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
+                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                         }
                     }
                     finish()

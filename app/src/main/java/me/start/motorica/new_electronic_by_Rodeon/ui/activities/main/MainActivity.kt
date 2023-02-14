@@ -139,6 +139,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
         finish()
       }
       // Automatically connects to the device upon successful start-up initialization.
+//TODO раскомментить после завершения теста с сохранением имён жестов
       mBluetoothLeService?.connect(mDeviceAddress)
       if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
@@ -202,7 +203,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
           }
         }
         BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-//          Toast.makeText(context, "подключение установлено к $mDeviceAddress", Toast.LENGTH_SHORT).show()
           if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A))
             || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05))
             || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))) { // новая схема обработки данных

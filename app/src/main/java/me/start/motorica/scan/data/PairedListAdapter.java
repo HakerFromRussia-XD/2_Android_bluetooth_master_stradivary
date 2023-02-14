@@ -122,8 +122,6 @@ public class PairedListAdapter extends RecyclerView.Adapter<PairedListAdapter.Sc
     @Override
     public void setScanStatus(String status, boolean enabled) { }
     @Override
-    public void setScanStatus(int resId, boolean enabled) { }
-    @Override
     public void showProgress(boolean enabled) { }
     @Override
     public void enableScanButton(boolean enabled) { }

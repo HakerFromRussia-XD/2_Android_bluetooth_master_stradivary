@@ -13,7 +13,6 @@ public interface ScanView{
     void addLEDeviceToLeDevicesList(BluetoothDevice device, int rssi);
     void clearScanList();
     void setScanStatus(String status, boolean enabled);
-    void setScanStatus(int resId, boolean enabled);
     void showProgress(boolean enabled);
     void enableScanButton(boolean enabled);
     void showToast(String message);

@@ -28,15 +28,10 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewSwitcher;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -44,13 +39,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -62,7 +54,6 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager;
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
 import me.start.motorica.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity;
 import me.start.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 import me.start.motorica.R;
 import me.start.motorica.old_electronic_by_Misha.ui.chat.view.Load3DModel;
@@ -163,7 +154,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanningTextSwitcher.setInAnimation(this, android.R.anim.slide_in_left);
         scanningTextSwitcher.setOutAnimation(this, android.R.anim.slide_out_right);
         scanningTextSwitcher.setFactory(this);
-        /////////////////////////////////////////
+
+
+        /// BLE
+        // Smart connection
+        mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE);
+        initUI();
         buildPairedListView();
         buildScanListView();
         onProthesesFilterClick();
@@ -176,11 +172,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             presenter.startScanning();
         });
 
-
-        /// BLE
-        // Smart connection
-        mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE);
-        initUI();
         // Checks if Bluetooth is supported on the device.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, "BLE не завёлся", Toast.LENGTH_SHORT).show();
@@ -376,15 +367,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
     }
     @Override
-    public void setScanStatus(int resId, boolean enabled) {
-        try {
-            //TODO переделать изменение текста в зависимости от этапа сканирования
-//            scanButton.setText(resId);
-        } catch (Exception e) {
-            System.err.println("Exception setScanStatus: " + e);
-        }
-    }
-    @Override
     public void showProgress(boolean enabled) {
         progress.setVisibility(enabled?View.VISIBLE:View.GONE);
     }
@@ -439,10 +421,19 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         finish();
     }
     private void testNavigate() {
+        mHandler.postDelayed(() -> {
+            for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
+                final int finalK = k;
+                System.err.println("Запуск загрузки: " + finalK);
+                threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
+                threadFunction[k].start();
+            }
+        }, 500);
+
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "lol");
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "FEST-H");
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, "lol");
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, "lol");
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, "FEST-H");
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
@@ -602,7 +593,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                     moveFilterSelection(2);
                 }
             }
-        }, 200);
+        }, 500);
     }
     private void setScaleAnimation(View view, float scale) {
         view.animate()

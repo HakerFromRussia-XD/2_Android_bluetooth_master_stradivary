@@ -27,6 +27,7 @@ import me.start.motorica.new_electronic_by_Rodeon.models.GestureState
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
+import org.jetbrains.anko.makeCall
 import kotlin.properties.Delegates
 
 
@@ -100,8 +101,10 @@ class GripperScreenWithoutEncodersActivity
                         gesture_name_w_tv.text = gesture_name_w_et.text
                         gesture_name_w_et.visibility = View.GONE
                         gestureNameList[(gestureNumber - 1)] = gesture_name_w_tv.text.toString()
+                        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
+                        System.err.println("2 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
+                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                         }
                         editMode = false
                     } else {
@@ -187,10 +190,12 @@ class GripperScreenWithoutEncodersActivity
                     System.err.println("SAVE STATE openStage: $openStage")
                     saveInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "").toString() + PreferenceKeys.GESTURE_CLOSE_STATE_NUM + gestureNumber, closeStage)
                     System.err.println("SAVE STATE closeStage: $closeStage")
+                    val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
+                    System.err.println("3 LAST_CONNECTION_MAC: $macKey")
                     if (editMode) {
                         gestureNameList[(gestureNumber - 1)] = gesture_name_et.text.toString()
                         for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
+                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                         }
                     }
                     finish()
@@ -622,8 +627,10 @@ class GripperScreenWithoutEncodersActivity
     }
     private fun myLoadGesturesList() {
         val text = "load not work"
+        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, text)
+        System.err.println("4 LAST_CONNECTION_MAC: $macKey")
         for (i in 0 until PreferenceKeys.NUM_GESTURES) {
-            gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, text).toString())
+            gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, text).toString())
         }
     }
 }

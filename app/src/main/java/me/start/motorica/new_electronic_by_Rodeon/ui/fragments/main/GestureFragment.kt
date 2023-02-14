@@ -280,8 +280,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 
     private fun myLoadGesturesList() {
         val text = "load not work"
+        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, text)
+
         for (i in 0 until PreferenceKeys.NUM_GESTURES) {
-            gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, text).toString())
+            System.err.println("9 LAST_CONNECTION_MAC: "+PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
+            gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, text).toString())
         }
     }
 

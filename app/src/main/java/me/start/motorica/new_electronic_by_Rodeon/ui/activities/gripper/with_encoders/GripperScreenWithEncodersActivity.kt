@@ -159,8 +159,10 @@ class GripperScreenWithEncodersActivity
                         gesture_name_tv.text = gesture_name_et.text
                         gesture_name_et.visibility = View.GONE
                         gestureNameList[(gestureNumber - 1)] = gesture_name_tv.text.toString()
+                        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
+                        System.err.println("6 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
+                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                         }
                         editMode = false
                     } else {
@@ -235,8 +237,10 @@ class GripperScreenWithEncodersActivity
                 .subscribe {
                     if (editMode) {
                         gestureNameList[(gestureNumber - 1)] = gesture_name_et.text.toString()
+                        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
+                        System.err.println("1 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, gestureNameList[i])
+                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                         }
                     }
                     finish()
@@ -1129,8 +1133,10 @@ class GripperScreenWithEncodersActivity
     }
     private fun myLoadGesturesList() {
         val text = "load not work"
+        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, text)
+        System.err.println("7 LAST_CONNECTION_MAC: $macKey")
         for (i in 0 until PreferenceKeys.NUM_GESTURES) {
-            gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + i, text).toString())
+            gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM  + macKey + i, text).toString())
         }
     }
 }

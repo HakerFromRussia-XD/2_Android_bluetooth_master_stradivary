@@ -12,7 +12,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 32
         versionCode 45
-        versionName "2.4.540"
+        versionName "2.4.563"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

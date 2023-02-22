@@ -94,9 +94,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="4dp"
+                android:layout_marginEnd="0dp"
+                android:layout_toStartOf="@+id/sync_tv"
                 android:layout_toEndOf="@+id/driver_tv"
                 android:gravity="center_horizontal"
                 android:text="..."
@@ -163,6 +164,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
+
                     <SeekBar
                         android:id="@+id/close_CH_sb"
                         android:layout_width="300dp"
@@ -170,8 +172,8 @@
                         android:layout_alignParentTop="true"
                         android:layout_alignParentBottom="true"
                         android:layout_marginTop="-10dp"
-                        android:layout_marginBottom="-40dp"
                         android:layout_marginEnd="-100dp"
+                        android:layout_marginBottom="-40dp"
                         android:indeterminate="false"
                         android:max="255"
                         android:progress="30"

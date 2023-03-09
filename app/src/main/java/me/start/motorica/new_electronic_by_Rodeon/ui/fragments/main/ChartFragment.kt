@@ -151,8 +151,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH1 = $progress")
-        ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
-        ObjectAnimator.ofFloat(open_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+        ObjectAnimator.ofFloat(limit_CH1, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+        ObjectAnimator.ofFloat(open_border, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
 
         open_threshold_tv.text = progress.toString()
       }
@@ -183,8 +183,8 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH2 = $progress")
-        ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()
-        ObjectAnimator.ofFloat(close_border, "y", 300 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+        ObjectAnimator.ofFloat(limit_CH2, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()
+        ObjectAnimator.ofFloat(close_border, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
         close_threshold_tv.text = progress.toString()
       }
 

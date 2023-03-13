@@ -140,7 +140,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
       }
       // Automatically connects to the device upon successful start-up initialization.
 //TODO раскомментить после завершения теста с сохранением имён жестов
-      mBluetoothLeService?.connect(mDeviceAddress)
+//      mBluetoothLeService?.connect(mDeviceAddress)
       if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
         || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)

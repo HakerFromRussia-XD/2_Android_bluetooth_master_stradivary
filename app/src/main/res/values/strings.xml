@@ -253,6 +253,8 @@
     <string name="paired_device">PAIRED DEVICE</string>
     <string name="all_devices">All devices</string>
     <string name="protheses">Protheses</string>
+    <string name="need_help">Need help?</string>
+    <string name="here_you_can_find_information_nabout_the_prosthesis_and_the_app">Here you can find information\nabout the prosthesis and the app</string>
 
 
     <string-array name="numbers">

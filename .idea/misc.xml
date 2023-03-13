@@ -30,6 +30,10 @@
         <entry key="app/src/main/res/drawable/ic_cancel_24.xml" value="0.1435" />
         <entry key="app/src/main/res/drawable/ic_dec.xml" value="0.1295" />
         <entry key="app/src/main/res/drawable/ic_edit_24.xml" value="0.1485" />
+        <entry key="app/src/main/res/drawable/massage.xml" value="0.1645" />
+        <entry key="app/src/main/res/drawable/massage_arrow_bottom.xml" value="0.1645" />
+        <entry key="app/src/main/res/drawable/massage_arrow_right.xml" value="0.1645" />
+        <entry key="app/src/main/res/drawable/massage_top_right.xml" value="0.1645" />
         <entry key="app/src/main/res/drawable/ok.xml" value="0.1245" />
         <entry key="app/src/main/res/drawable/open_border.xml" value="0.1485" />
         <entry key="app/src/main/res/drawable/switch_le_thumb.xml" value="0.1485" />
@@ -61,12 +65,15 @@
         <entry key="app/src/main/res/layout/dialog_chage_hand_side.xml" value="0.24309203235815602" />
         <entry key="app/src/main/res/layout/dialog_change_value.xml" value="0.2674787826959599" />
         <entry key="app/src/main/res/layout/dialog_confirm_select_scale.xml" value="0.4936708860759494" />
+        <entry key="app/src/main/res/layout/dialog_disconnection.xml" value="0.25427350427350426" />
         <entry key="app/src/main/res/layout/dialog_fingers_delay.xml" value="0.2246603029583572" />
+        <entry key="app/src/main/res/layout/dialog_help_start.xml" value="0.3345646740141369" />
         <entry key="app/src/main/res/layout/dialog_info.xml" value="0.45281552089734034" />
         <entry key="app/src/main/res/layout/dialog_progress_communication_test.xml" value="0.3228164672851563" />
         <entry key="app/src/main/res/layout/dialog_refill.xml" value="0.17255434782608695" />
         <entry key="app/src/main/res/layout/dialog_result_communication_test.xml" value="0.2980072463768116" />
         <entry key="app/src/main/res/layout/dialog_select_scale.xml" value="0.3051449498386248" />
+        <entry key="app/src/main/res/layout/dialog_user_profiles.xml" value="0.25427350427350426" />
         <entry key="app/src/main/res/layout/finger_template.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/fragment_gesture_settings.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/fragment_gripper_settings.xml" value="0.21422101449275363" />

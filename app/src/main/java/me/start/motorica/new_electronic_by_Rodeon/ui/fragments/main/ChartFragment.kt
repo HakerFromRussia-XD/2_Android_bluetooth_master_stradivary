@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import com.cysion.wedialog.WeDialog
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
@@ -448,6 +449,25 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
       false
     }
+
+    help_btn.setOnClickListener {
+      main!!.showToast("help btn tup")
+    }
+    save_profile_btn.setOnClickListener {
+      main!!.showToast("save profile btn tup")
+    }
+
+
+    Handler().postDelayed({
+      WeDialog.custom(main!!)
+        .layout(R.layout.dialog_help_start)
+        .setWidthRatio(0.75f)
+        .anchor(help_btn)
+        .setYOffset(-85)
+        .setDim(0f)
+        .setCancelableOutSide(true)
+        .show()
+    }, 500)
   }
 
   @SuppressLint("SetTextI18n")

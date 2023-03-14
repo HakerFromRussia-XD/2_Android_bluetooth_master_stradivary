@@ -459,14 +459,14 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
 
     Handler().postDelayed({
-      WeDialog.custom(main!!)
+      var myDialog = WeDialog.custom(main!!)
         .layout(R.layout.dialog_help_start)
         .setWidthRatio(0.75f)
         .anchor(help_btn)
         .setYOffset(-85)
         .setDim(0f)
         .setCancelableOutSide(true)
-        .show()
+      myDialog.show()
     }, 500)
   }
 

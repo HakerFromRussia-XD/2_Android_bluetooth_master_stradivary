@@ -18,9 +18,7 @@ import android.nfc.NfcAdapter
 import android.os.*
 import android.view.View
 import android.view.WindowManager
-import android.widget.ExpandableListView
-import android.widget.SimpleExpandableListAdapter
-import android.widget.Toast
+import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -31,6 +29,7 @@ import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.dialog_select_scale.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import kotlinx.android.synthetic.main.layout_chart.*
+import kotlinx.android.synthetic.main.layout_chart.view.*
 import kotlinx.android.synthetic.main.layout_gestures.*
 import kotlinx.android.synthetic.main.layout_kibi.*
 import me.start.motorica.R
@@ -46,7 +45,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Decorator
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.*
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
@@ -935,7 +934,16 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     worker.start()
 
     initUI()
+
+//    val decorator = Decorator()
+////    this.window.decorView.findViewById(R.id.layout_chart)
+//    decorator.showGuideView1(this, this.window.decorView.findViewById(R.id.my_main_ll), findViewById<Button>(R.id.test_btn))
   }
+//  override fun onWindowFocusChanged(hasFocus: Boolean) {
+//    super.onWindowFocusChanged(hasFocus)
+//    val decorator = Decorator()
+//    decorator.showGuideView1(this@MainActivity, this.window.decorView.findViewById(R.id.my_main_ll), findViewById<Button>(R.id.test_btn))
+//  }
   override fun onResume() {
     super.onResume()
     System.err.println("Check life cycle onResume()")
@@ -1057,7 +1065,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
-
+  fun setDecorator(decorator: Decorator, targetView: View) {
+    decorator.showGuideView1(window, this@MainActivity, my_main_ll, targetView)
+  }
+  fun removeDecorator(decorator: Decorator) {
+    decorator.removeDecorator(window, this@MainActivity)
+  }
 
   // Demonstrates how to iterate through the supported GATT Services/Characteristics.
   // In this sample, we populate the data structure that is bound to the ExpandableListView
@@ -2134,6 +2147,9 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     noBtn.setOnClickListener {
       myDialog.dismiss()
     }
+  }
+  fun showHelpHint() {
+
   }
 
 

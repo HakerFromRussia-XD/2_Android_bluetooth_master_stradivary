@@ -35,6 +35,7 @@ import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Decorator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.ChartFragmentCallback
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
@@ -75,6 +76,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       updateAllParameters()
     }
   }
+  private lateinit var myAppContext: Context
 
 
 
@@ -84,6 +86,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     WDApplication.component.inject(this)
     this.rootView = rootView
     if (activity != null) { main = activity as MainActivity? }
+    myAppContext = activity?.applicationContext!!
     RxUpdateMainEvent.getInstance().uiChart
       .compose(main?.bindToLifecycle())
       .observeOn(AndroidSchedulers.mainThread())
@@ -457,17 +460,39 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       main!!.showToast("save profile btn tup")
     }
 
+    val decorator = Decorator()
+    val mdlg = WeDialog.custom(main!!)
+      .layout(R.layout.dialog_help_start)
+      .setWidthRatio(0.75f)
+      .anchor(help_btn)
+      .setYOffset(-85)
+      .setDim(0f)
+      .setCancelableOutSide(false)
 
     Handler().postDelayed({
-      var myDialog = WeDialog.custom(main!!)
-        .layout(R.layout.dialog_help_start)
-        .setWidthRatio(0.75f)
-        .anchor(help_btn)
-        .setYOffset(-85)
-        .setDim(0f)
-        .setCancelableOutSide(true)
-      myDialog.show()
+      main!!.setDecorator(decorator, help_btn)
+
+      mdlg.show()
     }, 500)
+
+//    Handler().postDelayed({
+//      main!!.removeDecorator(decorator)
+//      mdlg.setCancelable(true)
+//    }, 1500)
+
+    rootView?.setOnTouchListener { v, event ->
+//      System.err.println("ALL_EVENTS [Touch]")
+      when(event.action) {
+//        MotionEvent.ACTION_MOVE -> { System.err.println("ACTION_MOVE [Touch]") }
+        MotionEvent.ACTION_DOWN -> { System.err.println("ACTION_DOWN [Touch]") }
+        MotionEvent.ACTION_UP -> { System.err.println("ACTION_UP [Touch]") }
+        MotionEvent.ACTION_CANCEL -> { System.err.println("ACTION_CANCEL [Touch]") }
+        MotionEvent.ACTION_HOVER_ENTER -> { System.err.println("ACTION_HOVER_ENTER [Touch]") }
+        MotionEvent.ACTION_SCROLL -> { System.err.println("ACTION_SCROLL [Touch]") }
+        MotionEvent.ACTION_POINTER_DOWN -> { System.err.println("ACTION_POINTER_DOWN [Touch]") }
+      }
+      true
+    }
   }
 
   @SuppressLint("SetTextI18n")
@@ -479,7 +504,6 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       chart_calibration_rl.visibility = View.GONE
     }
   }
-
   override fun onResume() {
     super.onResume()
     System.err.println("ChartFragment onResume")

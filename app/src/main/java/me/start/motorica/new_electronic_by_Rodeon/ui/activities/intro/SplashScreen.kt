@@ -2,7 +2,6 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -19,7 +18,6 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import me.start.motorica.R
-import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.scan.view.ScanActivity
 
 @SuppressLint("CustomSplashScreen")
@@ -105,8 +103,7 @@ class SplashScreen : AppCompatActivity() {
 
 
     @SuppressLint("LogNotTimber")
-    private val requestMultiplePermissions =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+    private val requestMultiplePermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             permissions.entries.forEach {
 //                System.err.println("LOLOLOEFWEF --->  ${it.key} = ${it.value}")
             }

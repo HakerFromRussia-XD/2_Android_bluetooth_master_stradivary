@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_chart"
     android:layout_width="match_parent"
@@ -372,7 +373,7 @@
 
                     <View
                         android:layout_width="7.5dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="400dp"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentBottom="true"
@@ -396,62 +397,65 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:baselineAligned="false"
                         android:orientation="horizontal"
                         android:paddingLeft="16dp"
                         android:paddingRight="16dp"
                         android:weightSum="4">
 
-                        <RelativeLayout
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="1">
+                            android:layout_weight="1"
+                            android:id="@+id/relativeLayout11">
 
                             <TextView
                                 android:id="@+id/opening_sensor_sensitivity_tv"
                                 style="@style/Text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_alignParentStart="true"
-                                android:layout_alignParentEnd="true"
-                                android:layout_centerVertical="true"
                                 android:text="@string/opening_sensor_sensitivity"
+                                android:textColor="@color/white"
                                 android:textSize="9sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/white"
-                                tools:ignore="SmallSp" />
-                        </RelativeLayout>
+                                tools:ignore="SmallSp"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                        <RelativeLayout
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="0.5">
+                            android:layout_weight="0.5"
+                            android:id="@+id/relativeLayout10">
+
 
                             <TextView
                                 android:id="@+id/correlator_noise_threshold_1_tv"
                                 style="@style/Text"
                                 android:layout_width="0dp"
                                 android:layout_height="0dp"
-                                android:layout_alignParentStart="true"
-                                android:layout_alignParentTop="true"
-                                android:layout_alignParentEnd="true"
-                                android:layout_alignParentBottom="true"
                                 android:layout_marginStart="0dp"
                                 android:layout_marginTop="0dp"
                                 android:layout_marginEnd="0dp"
                                 android:layout_marginBottom="0dp"
                                 android:gravity="center"
-                                android:text="0"
                                 android:textColor="@color/white"
                                 android:textStyle="bold"
-                                tools:ignore="HardcodedText" />
-                        </RelativeLayout>
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                        <RelativeLayout
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2.5">
+                            android:layout_height="match_parent"
+                            android:layout_weight="2.5"
+                            android:id="@+id/relativeLayout9">
 
                             <androidx.appcompat.widget.AppCompatSeekBar
                                 android:id="@+id/correlator_noise_threshold_1_sb"
@@ -462,8 +466,12 @@
                                 android:paddingEnd="0dp"
                                 android:progress="0"
                                 android:progressDrawable="@drawable/track_le"
-                                android:thumb="@drawable/thumb_le" />
-                        </RelativeLayout>
+                                android:thumb="@drawable/thumb_le"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
                 </RelativeLayout>
 
@@ -498,14 +506,15 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:baselineAligned="false"
                         android:orientation="horizontal"
                         android:paddingLeft="16dp"
                         android:paddingRight="16dp"
                         android:weightSum="4">
 
-                        <RelativeLayout
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/relativeLayout12"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1">
@@ -515,17 +524,19 @@
                                 style="@style/Text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_alignParentStart="true"
-                                android:layout_alignParentEnd="true"
-                                android:layout_centerVertical="true"
                                 android:text="@string/closing_sensor_sensitivity"
+                                android:textColor="@color/white"
                                 android:textSize="9sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/white"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
                                 tools:ignore="SmallSp" />
-                        </RelativeLayout>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                        <RelativeLayout
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/relativeLayout13"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="0.5">
@@ -533,26 +544,25 @@
                             <TextView
                                 android:id="@+id/correlator_noise_threshold_2_tv"
                                 style="@style/Text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentStart="true"
-                                android:layout_alignParentTop="true"
-                                android:layout_alignParentBottom="true"
-                                android:layout_alignParentEnd="true"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
                                 android:layout_marginStart="0dp"
                                 android:layout_marginTop="0dp"
-                                android:layout_marginBottom="0dp"
                                 android:layout_marginEnd="0dp"
+                                android:layout_marginBottom="0dp"
                                 android:gravity="center"
-                                android:text="0"
                                 android:textColor="@color/white"
                                 android:textStyle="bold"
-                                tools:ignore="HardcodedText" />
-                        </RelativeLayout>
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                        <RelativeLayout
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/relativeLayout14"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_weight="2.5">
 
                             <androidx.appcompat.widget.AppCompatSeekBar
@@ -564,8 +574,12 @@
                                 android:paddingEnd="0dp"
                                 android:progress="0"
                                 android:progressDrawable="@drawable/track_le"
-                                android:thumb="@drawable/thumb_le" />
-                        </RelativeLayout>
+                                android:thumb="@drawable/thumb_le"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
                 </RelativeLayout>
 

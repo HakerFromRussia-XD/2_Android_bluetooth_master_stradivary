@@ -461,24 +461,29 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
 
     val decorator = Decorator()
-    val mdlg = WeDialog.custom(main!!)
-      .layout(R.layout.dialog_help_start)
-      .setWidthRatio(0.75f)
-      .anchor(help_btn)
-      .setYOffset(-85)
-      .setDim(0f)
-      .setCancelableOutSide(false)
+//    val mdlg = WeDialog.custom(main!!)
+//      .layout(R.layout.dialog_help_start)
+//      .setWidthRatio(0.75f)
+//      .anchor(help_btn)
+//      .setYOffset(-85)
+//      .setDim(0f)
+//      .setCancelableOutSide(false)
 
     Handler().postDelayed({
-      main!!.setDecorator(decorator, help_btn)
-
-      mdlg.show()
+      main!!.setDecorator(decorator, help_btn, 1)
     }, 500)
+
+    Handler().postDelayed({
+      main!!.removeDecorator(decorator)
+    }, 1500)
+
+    Handler().postDelayed({
+      main!!.setDecorator(decorator, save_profile_btn, 2)
+    }, 2500)
 
 //    Handler().postDelayed({
 //      main!!.removeDecorator(decorator)
-//      mdlg.setCancelable(true)
-//    }, 1500)
+//    }, 3500)
 
     rootView?.setOnTouchListener { v, event ->
 //      System.err.println("ALL_EVENTS [Touch]")

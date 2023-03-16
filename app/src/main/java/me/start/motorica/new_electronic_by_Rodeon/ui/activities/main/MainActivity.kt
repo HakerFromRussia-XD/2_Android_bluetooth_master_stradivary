@@ -934,16 +934,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     worker.start()
 
     initUI()
+}
 
-//    val decorator = Decorator()
-////    this.window.decorView.findViewById(R.id.layout_chart)
-//    decorator.showGuideView1(this, this.window.decorView.findViewById(R.id.my_main_ll), findViewById<Button>(R.id.test_btn))
-  }
-//  override fun onWindowFocusChanged(hasFocus: Boolean) {
-//    super.onWindowFocusChanged(hasFocus)
-//    val decorator = Decorator()
-//    decorator.showGuideView1(this@MainActivity, this.window.decorView.findViewById(R.id.my_main_ll), findViewById<Button>(R.id.test_btn))
-//  }
   override fun onResume() {
     super.onResume()
     System.err.println("Check life cycle onResume()")
@@ -1065,8 +1057,12 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
-  fun setDecorator(decorator: Decorator, targetView: View) {
-    decorator.showGuideView1(window, this@MainActivity, my_main_ll, targetView)
+  fun setDecorator(decorator: Decorator, targetView: View, type: Int) {
+    when(type) {
+      1 -> decorator.showGuideView1(this@MainActivity, window, my_main_ll, targetView)
+      2 -> decorator.showGuideView2(this@MainActivity, window, my_main_ll, targetView)
+    }
+
   }
   fun removeDecorator(decorator: Decorator) {
     decorator.removeDecorator(window, this@MainActivity)

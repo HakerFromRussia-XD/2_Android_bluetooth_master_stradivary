@@ -58,7 +58,7 @@
         <entry key="app/src/main/res/drawable/view_with_corners_white.xml" value="0.135" />
         <entry key="app/src/main/res/layout/activiti_experimental.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/activity_infinity_settings.xml" value="0.21422101449275363" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.45682525634765625" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_scan.xml" value="0.2462615966796875" />
         <entry key="app/src/main/res/layout/activity_scan_new.xml" value="0.3105300903320312" />
         <entry key="app/src/main/res/layout/activity_splash_screen.xml" value="0.1" />

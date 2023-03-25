@@ -21,13 +21,46 @@ internal class HelpMassageConstraintLayout(context: Context, targetView: View) :
 
     private fun messageWithRightArrow(context: Context?, targetView: View) {
 
+        val massageTv = TextView(context)
+        massageTv.id = generateViewId()
+        val typeface2: Typeface? = context?.let { ResourcesCompat.getFont(it, R.font.sf_pro_display_light) }
+        massageTv.typeface = typeface2
+        massageTv.text = "Here you can find information about the prosthesis and the app Here you can find information about the prosthesis and the app"
+        massageTv.textSize = 14f
+        massageTv.setTextColor(Color.BLACK)
+
+        val buttonNext = Button(context)
+        buttonNext.id = generateViewId()
+        buttonNext.text = "Got it"
+
         val backgroundImage = ImageView(context)
         backgroundImage.id = generateViewId()
         backgroundImage.setImageResource(R.drawable.massage)
+        addView(backgroundImage)
+        val layoutParamsBackground = LayoutParams(
+            LayoutParams.MATCH_CONSTRAINT,
+            LayoutParams.MATCH_CONSTRAINT
+        )
+        layoutParamsBackground.startToStart = id
+        layoutParamsBackground.topToTop = id
+        layoutParamsBackground.endToEnd = id
+        layoutParamsBackground.bottomToBottom = id
+        layoutParamsBackground.rightMargin = (11*scale).toInt()
+        backgroundImage.layoutParams = layoutParamsBackground
 
         val pointerImage = ImageView(context)
         pointerImage.id = generateViewId()
         pointerImage.setImageResource(R.drawable.massage_arrow_right)
+        addView(pointerImage)
+        val layoutParamsPointer = LayoutParams(
+            (targetView.height/scale).toInt(),
+            (11*scale).toInt()
+        )
+        layoutParamsPointer.topToTop = id
+        layoutParamsPointer.endToEnd = id
+        layoutParamsPointer.topMargin = (15*scale).toInt()
+        pointerImage.layoutParams = layoutParamsPointer
+
 
         val titleTv = TextView(context)
         titleTv.id = generateViewId()
@@ -36,89 +69,31 @@ internal class HelpMassageConstraintLayout(context: Context, targetView: View) :
         titleTv.text = "Need help?"
         titleTv.textSize = 18f
         titleTv.setTextColor(Color.BLACK)
-
-        val titleTv2 = TextView(context)
-        titleTv2.id = generateViewId()
-        titleTv2.typeface = typeface
-        titleTv2.text = "Need helpppp?"
-        titleTv2.textSize = 18f
-        titleTv2.setTextColor(Color.BLACK)
-
-        val massageTv = TextView(context)
-        massageTv.id = generateViewId()
-        val typeface2: Typeface? = context?.let { ResourcesCompat.getFont(it, R.font.sf_pro_display_light) }
-        massageTv.typeface = typeface2
-        massageTv.text = "Here you can find "//information about the prosthesis and the app Here you can find information about the prosthesis and the app
-        massageTv.textSize = 14f
-        massageTv.setTextColor(Color.BLACK)
-
-        val buttonNext = Button(context)
-        buttonNext.id = generateViewId()
-        buttonNext.text = "Got it"
-
-
-        val layoutParamsBackground = LayoutParams(
-            LayoutParams.MATCH_CONSTRAINT,
-            LayoutParams.MATCH_CONSTRAINT
-        )
-        layoutParamsBackground.startToStart = LayoutParams.PARENT_ID
-        layoutParamsBackground.topToTop = LayoutParams.PARENT_ID
-        layoutParamsBackground.endToEnd = LayoutParams.PARENT_ID
-        layoutParamsBackground.bottomToBottom = LayoutParams.PARENT_ID
-        layoutParamsBackground.rightMargin = (11*scale).toInt()
-        backgroundImage.layoutParams = layoutParamsBackground
-        addView(backgroundImage)
-
-        val layoutParamsPointer = LayoutParams(
-            (11*scale).toInt(),
-            (11*scale).toInt()
-        )
-        layoutParamsPointer.topToTop = LayoutParams.PARENT_ID
-        layoutParamsPointer.endToEnd = LayoutParams.PARENT_ID
-        layoutParamsPointer.topMargin = (targetView.height/scale).toInt()
-        pointerImage.layoutParams = layoutParamsPointer
-        addView(pointerImage)
+        addView(titleTv)
 
         val layoutParamsTitle = LayoutParams(
             LayoutParams.WRAP_CONTENT,
             LayoutParams.WRAP_CONTENT
         )
-        layoutParamsTitle.startToStart = LayoutParams.PARENT_ID
-        layoutParamsTitle.topToTop = LayoutParams.PARENT_ID
-        layoutParamsTitle.bottomToTop = massageTv.id
+        layoutParamsTitle.startToStart = id
+        layoutParamsTitle.topToTop = id
+//        layoutParamsTitle.bottomToTop = massageTv.id
         layoutParamsTitle.leftMargin = (24*scale).toInt()
         layoutParamsTitle.topMargin = (16*scale).toInt()
-//        layoutParamsTitle.bottomMargin = (80*scale).toInt()
         titleTv.layoutParams = layoutParamsTitle
-        addView(titleTv)
-
-
-        val layoutParamsTitle2 = LayoutParams(
-            LayoutParams.WRAP_CONTENT,
-            LayoutParams.WRAP_CONTENT
-        )
-        layoutParamsTitle2.startToStart = LayoutParams.PARENT_ID
-        layoutParamsTitle2.topToTop = LayoutParams.PARENT_ID
-//        layoutParamsTitle.bottomToBottom = id
-        layoutParamsTitle2.leftMargin = (44*scale).toInt()
-        layoutParamsTitle2.topMargin = (16*scale).toInt()
-//        layoutParamsTitle.bottomMargin = (80*scale).toInt()
-        titleTv2.layoutParams = layoutParamsTitle2
-        addView(titleTv2)
 
 
         val layoutParamsMassage = LayoutParams(
-            LayoutParams.WRAP_CONTENT,
+            LayoutParams.MATCH_CONSTRAINT,
             LayoutParams.WRAP_CONTENT
         )
-        layoutParamsMassage.startToStart = LayoutParams.PARENT_ID
+        layoutParamsMassage.startToStart = titleTv.id
         layoutParamsMassage.topToBottom = titleTv.id
-//        layoutParamsMassage.endToEnd = LayoutParams.PARENT_ID
-//        layoutParamsMassage.bottomToTop = buttonNext.id
-        layoutParamsMassage.leftMargin = (24*scale).toInt()
-//        layoutParamsMassage.verticalMargin = (0*scale).toInt()
-//        layoutParamsMassage.rightMargin = (16*scale).toInt()
-//        layoutParamsMassage.bottomMargin = (16*scale).toInt()
+        layoutParamsMassage.endToEnd = id
+//        layoutParamsMassage.bottomToBottom = buttonNext.id
+//        layoutParamsMassage.leftMargin = (24*scale).toInt()
+//        layoutParamsMassage.topMargin = (4*scale).toInt()
+        layoutParamsMassage.rightMargin = (16*scale).toInt()
         massageTv.layoutParams = layoutParamsMassage
         addView(massageTv)
 
@@ -126,18 +101,15 @@ internal class HelpMassageConstraintLayout(context: Context, targetView: View) :
             LayoutParams.WRAP_CONTENT,
             LayoutParams.WRAP_CONTENT
         )
-        layoutParamsButtonNext.startToStart = id
-        layoutParamsButtonNext.endToEnd = id
-        layoutParamsButtonNext.bottomToBottom = id
-        layoutParamsMassage.topToBottom = massageTv.id
-        layoutParamsMassage.marginStart = (24*scale).toInt()
-        layoutParamsMassage.topMargin = (4*scale).toInt()
-        layoutParamsMassage.marginEnd = (16*scale).toInt()
-        layoutParamsMassage.bottomMargin = (16*scale).toInt()
-        buttonNext.layoutParams = layoutParamsMassage
+//        layoutParamsButtonNext.startToStart = id
+        layoutParamsButtonNext.endToEnd = massageTv.id
+        layoutParamsButtonNext.topToBottom = massageTv.id
+//        layoutParamsMassage.bottomToBottom = id
+//        layoutParamsButtonNext.topToBottom = massageTv.id
+        layoutParamsButtonNext.topMargin = (4*scale).toInt()
+//        layoutParamsButtonNext.marginEnd = (16*scale).toInt()
+        buttonNext.layoutParams = layoutParamsButtonNext
         addView(buttonNext)
-
-//        setContentView(constraintLayout)
     }
 
     init {

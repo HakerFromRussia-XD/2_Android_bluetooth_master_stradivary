@@ -27,7 +27,6 @@ class Decorator(main: MainActivity) : View.OnTouchListener {
     fun showGuideView1(window: Window, context: Context, decorView: View, targetView: View) {
         scale = context.resources.displayMetrics.density
         val view: View = decorView
-//        view.setOnTouchListener(this)
         decorView.setOnTouchListener(this)
 
         window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
@@ -55,7 +54,7 @@ class Decorator(main: MainActivity) : View.OnTouchListener {
         myConstraintLayout = HelpMassageConstraintLayout(context, targetView)
         val params = ConstraintLayout.LayoutParams(
             ConstraintLayout.LayoutParams.MATCH_PARENT,
-            ConstraintLayout.LayoutParams.MATCH_PARENT
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
         params.topMargin = y
         params.marginStart = 20

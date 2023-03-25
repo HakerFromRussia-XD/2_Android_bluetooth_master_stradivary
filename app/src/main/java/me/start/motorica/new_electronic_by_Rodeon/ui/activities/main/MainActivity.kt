@@ -124,7 +124,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var testingConnection = false
   private var countdownToUpdate = COUNT_ATTEMPTS_TO_UPDATE
   private var debagScreenIsOpen = false
-  private val decorator = Decorator( this)
+  private var decorator: Decorator? = null
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -734,6 +734,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     initBaseView(this)
     //changing statusbar
     val window = this.window
+    decorator = Decorator( window, this)
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -1062,15 +1063,15 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mainactivity_navi.isEnabled = false
     my_main_ll.isEnabled = false
     when(type) {
-      1 -> decorator.showGuideView1( window, this, my_main_ll, targetView)
-      2 -> decorator.showGuideView2(this@MainActivity, window, my_main_ll, targetView)
+      1 -> decorator?.showGuideView1( my_main_ll, targetView )
+      2 -> decorator?.showGuideView2(this@MainActivity, window, my_main_ll, targetView )
     }
 
   }
   fun hideDecorator() {
     mainactivity_viewpager.isEnabled = true
     mainactivity_navi.isEnabled = true
-    decorator.hideDecorator()//(window, this@MainActivity)
+    decorator?.hideDecorator()
   }
 
   // Demonstrates how to iterate through the supported GATT Services/Characteristics.

@@ -250,6 +250,7 @@
     <string name="smart_connection">умное подключение</string>
     <string name="disconnection_from_the_device">Отключение от устройства</string>
     <string name="are_you_sure_you_want_to_disconnect_from_your_device_and_go_to_the_scan_screen">Вы действительно хотите отключиться от устройства и перейти на экран сканирования?</string>
+    <string name="got_it">Понятно</string>
     <string name="availible_devices">ДОСТУПНЫЕ УСТРОЙСТВА</string>
     <string name="paired_device">СВЯЗАННЫЕ УСТРОЙСТВА</string>
     <string name="all_devices">Все устройства</string>

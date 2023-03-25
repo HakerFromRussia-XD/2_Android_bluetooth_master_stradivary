@@ -1,33 +1,27 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.MotionEventCompat
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 
-class Decorator(main: MainActivity) : View.OnTouchListener {
+class Decorator(private val window: Window, private val context: Context) {
     private var mb : DimWithMask? = null
     private var scale = 0f
     private lateinit var viewParent: ViewParent
     private var myConstraintLayout: ConstraintLayout? = null
     private var lottieView: LottieAnimationView? = null
-    private var myRootClass = main
 
 
-    fun showGuideView1(window: Window, context: Context, decorView: View, targetView: View) {
+    fun showGuideView1 (decorView: View, targetView: View) {
         scale = context.resources.displayMetrics.density
         val view: View = decorView
-        decorView.setOnTouchListener(this)
 
         window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
         window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary_dim_50)
@@ -51,7 +45,7 @@ class Decorator(main: MainActivity) : View.OnTouchListener {
 
 
 
-        myConstraintLayout = HelpMassageConstraintLayout(context, targetView)
+        myConstraintLayout = HelpMassageConstraintLayout(context, targetView, this)
         val params = ConstraintLayout.LayoutParams(
             ConstraintLayout.LayoutParams.MATCH_PARENT,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
@@ -136,22 +130,8 @@ class Decorator(main: MainActivity) : View.OnTouchListener {
             (viewParent as FrameLayout).removeView(myConstraintLayout)
         }
 
-//        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar)
-//        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary)
-    }
 
-
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        System.err.println("ACTION_ALL 2 [Touch]")
-        when(event?.action) {
-            MotionEvent.ACTION_DOWN -> { System.err.println("ACTION_DOWN 2 [Touch]") }
-            MotionEvent.ACTION_UP -> {
-                System.err.println("ACTION_UP 2 [Touch]")
-//                myRootClass.hideDecorator()
-            }
-            else -> return false
-        }
-        return true
+        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar)
+        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary)
     }
 }

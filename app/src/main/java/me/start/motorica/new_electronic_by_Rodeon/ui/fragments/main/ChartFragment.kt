@@ -493,19 +493,19 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 //    }, 1000)
 
 
-    rootView?.setOnTouchListener { v, event ->
-      System.err.println("ACTION_ALL [Touch]")
-      when(event.action) {
-        MotionEvent.ACTION_MOVE -> { System.err.println("ACTION_MOVE [Touch]") }
-        MotionEvent.ACTION_DOWN -> { System.err.println("ACTION_DOWN [Touch]") }
-        MotionEvent.ACTION_UP -> { System.err.println("ACTION_UP [Touch]") }
-        MotionEvent.ACTION_CANCEL -> { System.err.println("ACTION_CANCEL [Touch]") }
-        MotionEvent.ACTION_HOVER_ENTER -> { System.err.println("ACTION_HOVER_ENTER [Touch]") }
-        MotionEvent.ACTION_SCROLL -> { System.err.println("ACTION_SCROLL [Touch]") }
-        MotionEvent.ACTION_POINTER_DOWN -> { System.err.println("ACTION_POINTER_DOWN [Touch]") }
-      }
-      true
-    }
+//    rootView?.setOnTouchListener { _, event ->
+//      System.err.println("ACTION_ALL [Touch]")
+//      when(event.action) {
+//        MotionEvent.ACTION_MOVE -> { System.err.println("ACTION_MOVE [Touch]") }
+//        MotionEvent.ACTION_DOWN -> { System.err.println("ACTION_DOWN [Touch]") }
+//        MotionEvent.ACTION_UP -> { System.err.println("ACTION_UP [Touch]") }
+//        MotionEvent.ACTION_CANCEL -> { System.err.println("ACTION_CANCEL [Touch]") }
+//        MotionEvent.ACTION_HOVER_ENTER -> { System.err.println("ACTION_HOVER_ENTER [Touch]") }
+//        MotionEvent.ACTION_SCROLL -> { System.err.println("ACTION_SCROLL [Touch]") }
+//        MotionEvent.ACTION_POINTER_DOWN -> { System.err.println("ACTION_POINTER_DOWN [Touch]") }
+//      }
+//      true
+//    }
   }
 
   @SuppressLint("SetTextI18n")
@@ -819,16 +819,4 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     System.err.println("hideDecorator [Touch]")
     main?.hideDecorator()
   }
-
-//  override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-//    when(event!!.action) {
-//      MotionEvent.ACTION_MOVE -> {
-//        this.
-////        this.getParent().requestDisallowInterceptTouchEvent(true)
-//        return true
-//      }
-//      else -> { super.onTouchEvent(event) }
-//    }
-//    return false
-//  }
 }

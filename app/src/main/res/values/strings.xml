@@ -249,12 +249,13 @@
     <string name="smart_connection">smart connection</string>
     <string name="disconnection_from_the_device">Disconnection from the device</string>
     <string name="are_you_sure_you_want_to_disconnect_from_your_device_and_go_to_the_scan_screen">Are you sure you want to disconnect from your device and go to the scan screen?</string>
+    <string name="got_it">Got it</string>
     <string name="availible_devices">AVAILIBLE DEVICES</string>
     <string name="paired_device">PAIRED DEVICE</string>
     <string name="all_devices">All devices</string>
     <string name="protheses">Protheses</string>
     <string name="need_help">Need help?</string>
-    <string name="here_you_can_find_information_nabout_the_prosthesis_and_the_app">Here you can find information\nabout the prosthesis and the app</string>
+    <string name="here_you_can_find_information_nabout_the_prosthesis_and_the_app">Here you can find information about the prosthesis and the app</string>
     <string name="setup_profiles">Setup profiles</string>
     <string name="you_can_create_your_own_settings_profile_by_saving_a_previously_created_profile_a_new_profile_is_created_by_copying_all_settings_of_the_previous_one_also_in_this_menu_you_will_be_able_to_switch_between_all_previously_created_profiles">You can create your own settings profile by saving a previously created profile. A new profile is created by copying all settings of the previous one. Also in this menu you will be able to switch between all previously created profiles.</string>
 

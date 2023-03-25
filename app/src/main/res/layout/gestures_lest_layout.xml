@@ -62,7 +62,7 @@
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="5dp"
                 android:layout_toEndOf="@id/imageView"
-                android:background="@color/colorPrimary"
+                android:background="@color/color_primary"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
                 android:text="4.7"

@@ -3,9 +3,9 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/darkOrange</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">@color/dark_orange</item>
     </style>
 
     <style name="MyDarkToolbarStyle" parent="ThemeOverlay.AppCompat.Light">
@@ -41,12 +41,12 @@
     </style>
 
     <style name="TextInputLayout">
-        <item name="colorAccent">@color/darkOrange</item>
-        <item name="android:textColorPrimary">@color/darkOrange</item>
-        <item name="android:textColor">@color/darkOrange</item>
-        <item name="colorControlNormal">@color/darkOrange</item>
-        <item name="colorControlActivated">@color/darkOrange</item>
-        <item name="colorControlHighlight">@color/darkOrange</item>
+        <item name="colorAccent">@color/dark_orange</item>
+        <item name="android:textColorPrimary">@color/dark_orange</item>
+        <item name="android:textColor">@color/dark_orange</item>
+        <item name="colorControlNormal">@color/dark_orange</item>
+        <item name="colorControlActivated">@color/dark_orange</item>
+        <item name="colorControlHighlight">@color/dark_orange</item>
     </style>
 
     <style name="NumberPickerTheme" parent="Theme.AppCompat.Light">

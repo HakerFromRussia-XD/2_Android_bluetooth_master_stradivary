@@ -1,5 +1,4 @@
 @file:Suppress("SameParameterValue")
-
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.Manifest
@@ -29,7 +28,6 @@ import kotlinx.android.synthetic.main.dialog_info.*
 import kotlinx.android.synthetic.main.dialog_select_scale.*
 import kotlinx.android.synthetic.main.layout_advanced_settings.*
 import kotlinx.android.synthetic.main.layout_chart.*
-import kotlinx.android.synthetic.main.layout_chart.view.*
 import kotlinx.android.synthetic.main.layout_gestures.*
 import kotlinx.android.synthetic.main.layout_kibi.*
 import me.start.motorica.R
@@ -60,7 +58,7 @@ import kotlin.experimental.xor
 @SuppressLint("MissingPermission")
 @Suppress("SameParameterValue", "SameParameterValue", "DEPRECATION")
 @RequirePresenter(MainPresenter::class)
-open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable {
+class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable {
 
   private var sensorsDataThreadFlag: Boolean = true
   var reconnectThreadFlag: Boolean = false
@@ -126,7 +124,7 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
   var testingConnection = false
   private var countdownToUpdate = COUNT_ATTEMPTS_TO_UPDATE
   private var debagScreenIsOpen = false
-
+  private val decorator = Decorator( this)
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -739,8 +737,8 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-    window.navigationBarColor = resources.getColor(R.color.colorPrimary)
-    window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+    window.navigationBarColor = resources.getColor(R.color.color_primary)
+    window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
     mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
 
@@ -933,9 +931,10 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     }
     worker.start()
 
+
+
     initUI()
 }
-
   override fun onResume() {
     super.onResume()
     System.err.println("Check life cycle onResume()")
@@ -1057,15 +1056,21 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     mainactivity_viewpager.offscreenPageLimit = 3
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
-  fun setDecorator(decorator: Decorator, targetView: View, type: Int) {
+
+  fun setDecorator(targetView: View, type: Int) {
+    mainactivity_viewpager.isEnabled = false
+    mainactivity_navi.isEnabled = false
+    my_main_ll.isEnabled = false
     when(type) {
-      1 -> decorator.showGuideView1(this@MainActivity, window, my_main_ll, targetView)
+      1 -> decorator.showGuideView1( window, this, my_main_ll, targetView)
       2 -> decorator.showGuideView2(this@MainActivity, window, my_main_ll, targetView)
     }
 
   }
-  fun removeDecorator(decorator: Decorator) {
-    decorator.removeDecorator(window, this@MainActivity)
+  fun hideDecorator() {
+    mainactivity_viewpager.isEnabled = true
+    mainactivity_navi.isEnabled = true
+    decorator.hideDecorator()//(window, this@MainActivity)
   }
 
   // Demonstrates how to iterate through the supported GATT Services/Characteristics.
@@ -2143,9 +2148,6 @@ open class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), Mai
     noBtn.setOnClickListener {
       myDialog.dismiss()
     }
-  }
-  fun showHelpHint() {
-
   }
 
 

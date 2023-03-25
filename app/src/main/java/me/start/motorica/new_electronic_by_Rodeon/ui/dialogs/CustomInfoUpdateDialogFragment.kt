@@ -44,7 +44,7 @@ class CustomInfoUpdateDialogFragment: DialogFragment() {
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
         dialog!!.setCanceledOnTouchOutside(false)
-        pb_update.progressTintList = ColorStateList.valueOf(this.resources.getColor(R.color.darkOrange))
+        pb_update.progressTintList = ColorStateList.valueOf(this.resources.getColor(R.color.dark_orange))
         startUpdatingUIThread()
     }
 

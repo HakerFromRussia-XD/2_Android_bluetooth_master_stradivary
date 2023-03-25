@@ -14,9 +14,9 @@ class SectionsPagerAdapterWithAdvancedSettings(fm: FragmentManager) : FragmentSt
   override fun getItem(position: Int): Fragment {
     var fragment: Fragment = ChartFragment()
     when (position) {
-      0 -> fragment = GestureFragment()//AlarmFragment()
-      1 -> fragment = ChartFragment()//MainWaterFragment()
-      2 -> fragment = AdvancedSettingsFragment()//ChartFragment()
+      0 -> fragment = GestureFragment()
+      1 -> fragment = ChartFragment()
+      2 -> fragment = AdvancedSettingsFragment()
     }
     return fragment
   }

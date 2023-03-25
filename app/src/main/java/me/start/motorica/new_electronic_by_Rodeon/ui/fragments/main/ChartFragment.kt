@@ -26,6 +26,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.dialog_help_start.*
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
@@ -43,7 +44,7 @@ import javax.inject.Inject
 
 
 @Suppress("DEPRECATION")
-open class ChartFragment : Fragment(), OnChartValueSelectedListener {
+class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
   @Inject
   lateinit var sqliteManager: SqliteManager
@@ -77,7 +78,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
   }
   private lateinit var myAppContext: Context
-
+  private val testBool = true
 
 
   @SuppressLint("CheckResult")
@@ -86,6 +87,7 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
     WDApplication.component.inject(this)
     this.rootView = rootView
     if (activity != null) { main = activity as MainActivity? }
+//    decorator = Decorator(this)
     myAppContext = activity?.applicationContext!!
     RxUpdateMainEvent.getInstance().uiChart
       .compose(main?.bindToLifecycle())
@@ -460,35 +462,41 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       main!!.showToast("save profile btn tup")
     }
 
-    val decorator = Decorator()
-//    val mdlg = WeDialog.custom(main!!)
-//      .layout(R.layout.dialog_help_start)
-//      .setWidthRatio(0.75f)
-//      .anchor(help_btn)
-//      .setYOffset(-85)
-//      .setDim(0f)
-//      .setCancelableOutSide(false)
 
+    if (testBool) {
+      name_tv.isEnabled = false
+      driver_tv.isEnabled = false
+      sync_sb.isEnabled = false
+      open_CH_sb.isEnabled = false
+      close_CH_sb.isEnabled = false
+      correlator_noise_threshold_1_tv.isEnabled = false
+      correlator_noise_threshold_2_tv.isEnabled = false
+      correlator_noise_threshold_1_sb.isEnabled = false
+      correlator_noise_threshold_2_sb.isEnabled = false
+      swap_sensors_sw.isEnabled = false
+      thresholds_blocking_sw.isEnabled = false
+      calibration_btn.isEnabled = false
+      close_btn.isEnabled = false
+      open_btn.isEnabled = false
+      help_btn.isEnabled = false
+      save_profile_btn.isEnabled = false
+    }
+
+    //TODO тут начинается обучение
     Handler().postDelayed({
-      main!!.setDecorator(decorator, help_btn, 1)
+      main!!.setDecorator(help_btn, 1)
     }, 500)
 
-    Handler().postDelayed({
-      main!!.removeDecorator(decorator)
-    }, 1500)
-
-    Handler().postDelayed({
-      main!!.setDecorator(decorator, save_profile_btn, 2)
-    }, 2500)
 
 //    Handler().postDelayed({
-//      main!!.removeDecorator(decorator)
-//    }, 3500)
+//      main!!.hideDecorator(decorator!!)
+//    }, 1000)
+
 
     rootView?.setOnTouchListener { v, event ->
-//      System.err.println("ALL_EVENTS [Touch]")
+      System.err.println("ACTION_ALL [Touch]")
       when(event.action) {
-//        MotionEvent.ACTION_MOVE -> { System.err.println("ACTION_MOVE [Touch]") }
+        MotionEvent.ACTION_MOVE -> { System.err.println("ACTION_MOVE [Touch]") }
         MotionEvent.ACTION_DOWN -> { System.err.println("ACTION_DOWN [Touch]") }
         MotionEvent.ACTION_UP -> { System.err.println("ACTION_UP [Touch]") }
         MotionEvent.ACTION_CANCEL -> { System.err.println("ACTION_CANCEL [Touch]") }
@@ -805,4 +813,22 @@ open class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
     }
   }
+
+
+  fun hideDecorator() {
+    System.err.println("hideDecorator [Touch]")
+    main?.hideDecorator()
+  }
+
+//  override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+//    when(event!!.action) {
+//      MotionEvent.ACTION_MOVE -> {
+//        this.
+////        this.getParent().requestDisallowInterceptTouchEvent(true)
+//        return true
+//      }
+//      else -> { super.onTouchEvent(event) }
+//    }
+//    return false
+//  }
 }

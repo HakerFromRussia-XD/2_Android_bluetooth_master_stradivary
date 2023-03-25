@@ -13,8 +13,8 @@ class SectionsPagerAdapterMonograbWithAdvancedSettings(fm: FragmentManager) : Fr
   override fun getItem(position: Int): Fragment {
     var fragment: Fragment = ChartFragment()
     when (position) {
-      0 -> fragment = ChartFragment()//AlarmFragment()
-      1 -> fragment = AdvancedSettingsFragment()//MainWaterFragment()
+      0 -> fragment = ChartFragment()
+      1 -> fragment = AdvancedSettingsFragment()
     }
     return fragment
   }

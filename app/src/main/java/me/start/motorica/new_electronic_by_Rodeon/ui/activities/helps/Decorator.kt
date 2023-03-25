@@ -1,49 +1,38 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewParent
-import android.view.Window
+import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.MotionEventCompat
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
-import com.cysion.wedialog.WeDialog
-import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 
-class Decorator {
-    private var mb : MyMB? = null
-    private var lottieView : LottieAnimationView? = null
+class Decorator(main: MainActivity) : View.OnTouchListener {
+    private var mb : DimWithMask? = null
     private var scale = 0f
     private lateinit var viewParent: ViewParent
-    private var helpDialog = WeDialog
+    private var myConstraintLayout: ConstraintLayout? = null
+    private var lottieView: LottieAnimationView? = null
+    private var myRootClass = main
 
 
-    fun showGuideView1(mainActivity: MainActivity, window: Window, decorView: View, targetView: View) {
-        scale = mainActivity.applicationContext.resources.displayMetrics.density
-        val view: View = decorView ?: return //Get decoreView
-        window.statusBarColor = ContextCompat.getColor(mainActivity.applicationContext, R.color.blueStatusBarDim_50)
-        window.navigationBarColor = ContextCompat.getColor(mainActivity.applicationContext, R.color.colorPrimaryDim50)
+    fun showGuideView1(window: Window, context: Context, decorView: View, targetView: View) {
+        scale = context.resources.displayMetrics.density
+        val view: View = decorView
+//        view.setOnTouchListener(this)
+        decorView.setOnTouchListener(this)
 
-        helpDialog.custom(mainActivity)
-            .layout(R.layout.dialog_help_start)
-            .setWidthRatio(0.75f)
-            .anchor(targetView)
-            .setYOffset(-85)
-            .setDim(0f)
-            .setCancelableOutSide(true)
-            .show()
-//        helpDialog.loading(mainActivity,"hvafuyagefyusbfuiaehdfadf")
+        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
+        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary_dim_50)
 
-        mb = MyMB(mainActivity.applicationContext)
-        mb!!.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        ) //Set the width and height of mb to match_parent
 
         val locInWindow = IntArray(2)
         decorView.getLocationInWindow(locInWindow)
@@ -54,9 +43,28 @@ class Decorator {
         val y = location[1] - topOffset
         System.err.println("showGuideView1 target : x_dp = ${x/scale}    y_dp = ${y/scale}   height_dp = ${targetView.width/scale} [metrics]")
 
+        mb = DimWithMask(context)
+        mb!!.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT)
+        mb!!.setTypeDim(TypeDimMasks.CIRCLE)
+        mb!!.setCircleAccent(x+targetView.height/2, y+targetView.height/2, (targetView.width/2))
+
+
+
+        myConstraintLayout = HelpMassageConstraintLayout(context, targetView)
+        val params = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.MATCH_PARENT
+        )
+        params.topMargin = y
+        params.marginStart = 20
+        params.marginEnd = decorView.width - x + 10
+        (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
+
 
         //
-        lottieView = LottieAnimationView(mainActivity.applicationContext)
+        lottieView = LottieAnimationView(context)
         lottieView!!.layoutParams = LinearLayout.LayoutParams((targetView.width*1.5).toInt(), (targetView.height*1.5).toInt())
         System.err.println("showGuideView1 target : targetView.width/scale = ${targetView.width/scale}    targetView.width = ${targetView.width} [metrics]")
         System.err.println("showGuideView1 target : targetView.width/scale = ${targetView.height/scale}    targetView.width = ${targetView.height} [metrics]")
@@ -65,38 +73,27 @@ class Decorator {
 
         lottieView!!.setAnimation(R.raw.help_accent_circle)
 
-        lottieView!!.repeatCount = LottieDrawable.INFINITE;
+        lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
         //
 
 
-        mb!!.setCircleAccent(x+targetView.height/2, y+targetView.height/2, (targetView.width/2))
-        //реализовать интерфейс для выбора рисуемой формы
-
         viewParent = view.parent
         if (viewParent is FrameLayout) {
-            (viewParent as FrameLayout).addView(mb) //Add mask
-            (viewParent as FrameLayout).addView(lottieView) //Add image
+            (viewParent as FrameLayout).addView(mb)
+            (viewParent as FrameLayout).addView(lottieView)
+            (viewParent as FrameLayout).addView(myConstraintLayout)
         }
     }
 
     fun showGuideView2(mainActivity: MainActivity, window: Window, decorView: View, targetView: View) {
         scale = mainActivity.applicationContext.resources.displayMetrics.density
         val view: View = decorView
-        window.statusBarColor = ContextCompat.getColor(mainActivity.applicationContext, R.color.blueStatusBarDim_50)
-        window.navigationBarColor = ContextCompat.getColor(mainActivity.applicationContext, R.color.colorPrimaryDim50)
+        window.statusBarColor = ContextCompat.getColor(mainActivity.applicationContext, R.color.blue_status_bar_dim_50)
+        window.navigationBarColor = ContextCompat.getColor(mainActivity.applicationContext, R.color.color_primary_dim_50)
 
-        helpDialog.custom(mainActivity)
-            .layout(R.layout.dialog_user_profiles)
-            .setWidthRatio(0.8f)
-            .anchor(targetView)
-            .setYOffset(0)
-            .setXOffset(60)
-            .setDim(0f)
-            .setCancelableOutSide(true)
-            .show()
 
-        mb = MyMB(mainActivity.applicationContext)
+        mb = DimWithMask(mainActivity.applicationContext)
         mb!!.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
@@ -133,14 +130,29 @@ class Decorator {
         }
     }
 
-    fun removeDecorator(window: Window, context: Context) {
+    fun hideDecorator() {//window: Window, context: Context
         if (viewParent is FrameLayout) {
             (viewParent as FrameLayout).removeView(mb)
             (viewParent as FrameLayout).removeView(lottieView)
+            (viewParent as FrameLayout).removeView(myConstraintLayout)
         }
-//        helpDialog.dismiss()
 
-        window.statusBarColor = ContextCompat.getColor(context, R.color.blueStatusBar)
-        window.navigationBarColor = ContextCompat.getColor(context, R.color.colorPrimary)
+//        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar)
+//        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary)
+    }
+
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        System.err.println("ACTION_ALL 2 [Touch]")
+        when(event?.action) {
+            MotionEvent.ACTION_DOWN -> { System.err.println("ACTION_DOWN 2 [Touch]") }
+            MotionEvent.ACTION_UP -> {
+                System.err.println("ACTION_UP 2 [Touch]")
+//                myRootClass.hideDecorator()
+            }
+            else -> return false
+        }
+        return true
     }
 }

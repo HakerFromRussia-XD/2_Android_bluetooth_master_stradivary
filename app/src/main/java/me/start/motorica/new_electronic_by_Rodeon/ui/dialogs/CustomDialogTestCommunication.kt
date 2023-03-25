@@ -13,13 +13,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.dialog_progress_communication_test.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
-import java.util.concurrent.Flow
 
 
 @Suppress("DEPRECATION")
@@ -82,7 +80,7 @@ class CustomDialogTestCommunication: DialogFragment() {
         @Suppress("DEPRECATION")
         super.onActivityCreated(savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-        pb_test_communication?.progressTintList = ColorStateList.valueOf(this.resources.getColor(R.color.darkOrange))
+        pb_test_communication?.progressTintList = ColorStateList.valueOf(this.resources.getColor(R.color.dark_orange))
         changeLoader(100)
 
         test_communication_animation_view.setAnimation(R.raw.test_communication_animation)

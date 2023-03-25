@@ -135,8 +135,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             Window window = this.getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(this.getResources().getColor(R.color.blueStatusBar));
-            window.setNavigationBarColor(this.getResources().getColor(R.color.colorPrimary));
+            window.setStatusBarColor(this.getResources().getColor(R.color.blue_status_bar));
+            window.setNavigationBarColor(this.getResources().getColor(R.color.color_primary));
         }
         scale = this.getResources().getDisplayMetrics().density;
         /////////////////////////////////////////

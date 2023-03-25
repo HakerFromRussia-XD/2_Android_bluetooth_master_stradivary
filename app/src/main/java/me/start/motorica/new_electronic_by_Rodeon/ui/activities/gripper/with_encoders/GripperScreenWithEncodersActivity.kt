@@ -114,8 +114,8 @@ class GripperScreenWithEncodersActivity
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_gripper_settings_le_with_encoders)
         initBaseView(this)
-        window.navigationBarColor = resources.getColor(R.color.colorPrimaryDark)
-        window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+        window.navigationBarColor = resources.getColor(R.color.color_primary_dark)
+        window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
         mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         gestureNumber = mSettings!!.getInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 0)
         angleFinger1 = 0

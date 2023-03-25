@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root_rl"
+    android:id="@+id/root_help_dialog_rl"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -31,11 +31,10 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/sf_pro_text_bold"
             android:text="@string/need_help"
             android:textColor="#000"
-            android:fontFamily="@font/sf_pro_text_bold"
             android:textSize="18sp"
-            android:textStyle="bold"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -50,10 +49,10 @@
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="@font/sf_pro_display_light"
-            android:textSize="14sp"
-            android:textStyle="bold"
             android:text="@string/here_you_can_find_information_nabout_the_prosthesis_and_the_app"
-            android:textColor="#000" />
+            android:textColor="#000"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
     </RelativeLayout>
 

@@ -31,8 +31,8 @@ class SplashScreen : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-        window.navigationBarColor = this.resources.getColor(R.color.colorPrimary, theme)
-        window.statusBarColor = this.resources.getColor(R.color.blueStatusBar, theme)
+        window.navigationBarColor = this.resources.getColor(R.color.color_primary, theme)
+        window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
 
         askPermissions()
     }

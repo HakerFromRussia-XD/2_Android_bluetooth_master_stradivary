@@ -15,6 +15,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.nfc.NfcAdapter
 import android.os.*
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
@@ -734,7 +735,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     initBaseView(this)
     //changing statusbar
     val window = this.window
-    decorator = Decorator( window, this)
+    decorator = Decorator( window, this, my_main_ll)
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -933,7 +934,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     worker.start()
 
 
-
     initUI()
 }
   override fun onResume() {
@@ -1058,15 +1058,14 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     NavigationUtils.setComponents(baseContext, mainactivity_navi)
   }
 
-  fun setDecorator(targetView: View, type: Int) {
+  @SuppressLint("ClickableViewAccessibility")
+  fun setDecorator(name: String, targetView: View) {
     mainactivity_viewpager.isEnabled = false
+
+    mainactivity_viewpager.setOnTouchListener { _, _ -> true }
     mainactivity_navi.isEnabled = false
     my_main_ll.isEnabled = false
-    when(type) {
-      1 -> decorator?.showGuideView1( my_main_ll, targetView )
-      2 -> decorator?.showGuideView2(this@MainActivity, window, my_main_ll, targetView )
-    }
-
+    decorator?.showNameGuide(name, targetView)
   }
   fun hideDecorator() {
     mainactivity_viewpager.isEnabled = true
@@ -1409,8 +1408,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   /**
    * Запуск задачи чтения параметров экрана графиков
    */
-  private fun runStart() { getStart()?.let { queue.put(it) } }
-  open fun getStart(): Runnable? { return Runnable { readStart() } }
+  private fun runStart() { getStart().let { queue.put(it) } }
+  private fun getStart(): Runnable { return Runnable { readStart() } }
   private fun readStart() {
     val info = "------->   Чтение порогов и версий"
     var count = 0
@@ -1588,7 +1587,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
    * Запуск задачи чтения параметров экрана графиков
    */
   private fun runStartVM() { getStartVM()?.let { queue.put(it) } }
-  open fun getStartVM(): Runnable? { return Runnable { readStartVM() } }
+  private fun getStartVM(): Runnable? { return Runnable { readStartVM() } }
   private fun readStartVM() {
     val info = "-------> displayDataNew  Чтение порогов и версий"
     var count = 0
@@ -1771,7 +1770,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
-  open fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
+  private fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
   private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
     try {
       Thread.sleep(200) // меньше нельзя ставить для работоспособности xiaomi 6 | samsung работает на значении 200
@@ -1788,7 +1787,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   fun runReadDataAllCharacteristics(Command: String) {
     getReadDataAllCharacteristics(Command).let { queue.put(it) }
   }
-  open fun getReadDataAllCharacteristics(Command: String): Runnable { return Runnable { readDataAllCharacteristics(Command) } }
+  private fun getReadDataAllCharacteristics(Command: String): Runnable { return Runnable { readDataAllCharacteristics(Command) } }
   private fun readDataAllCharacteristics(Command: String) {
       System.err.println("тык")
       bleCommand(null, Command, READ)
@@ -1798,7 +1797,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   private fun runReadData() { getReadData().let { queue.put(it) } }
-  open fun getReadData(): Runnable { return Runnable { readData() } }
+  private fun getReadData(): Runnable { return Runnable { readData() } }
   private fun readData() {
     while (readDataFlag) {
       System.err.println("read counter: ${countCommand.get()}")
@@ -1812,7 +1811,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   fun runSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) { getSendCommand(data, uuidCommand, countRestart).let { queue.put(it) } }
-  open fun getSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int): Runnable { return Runnable { sendCommand(data, uuidCommand, countRestart) } }
+  private fun getSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int): Runnable { return Runnable { sendCommand(data, uuidCommand, countRestart) } }
   private fun sendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) {
     val idCommand = uuidCommand.substring(4).substringBefore('-')
     val info = "startSendCommand id $idCommand   state"

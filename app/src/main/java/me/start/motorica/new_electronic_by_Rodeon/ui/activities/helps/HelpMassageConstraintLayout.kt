@@ -18,19 +18,22 @@ import org.jetbrains.anko.textColor
 
 
 @SuppressLint("ViewConstructor")
-internal class HelpMassageConstraintLayout(context: Context, targetView: View,
-                                           private val decorator: Decorator
+internal class HelpMassageConstraintLayout(context: Context,
+                                           targetView: View,
+                                           private val directionArrow: TypeDirectionArrow,
+                                           private val decorator: Decorator,
+                                           private val title: String
 ) : ConstraintLayout(context),
     View.OnClickListener {
     private val scale = context.resources.displayMetrics.density
 
-    private fun messageWithRightArrow(context: Context?, targetView: View) {
+    private fun messageWithRightArrow(targetView: View) {
 
         val titleTv = TextView(context)
         titleTv.id = generateViewId()
         val typeface: Typeface? = context?.let { ResourcesCompat.getFont(it, R.font.sf_pro_text_bold) }
         titleTv.typeface = typeface
-        titleTv.text = resources.getText(R.string.need_help)
+        titleTv.text = title//resources.getText(R.string.need_help)
         titleTv.textSize = 18f
         titleTv.setTextColor(Color.BLACK)
 
@@ -112,6 +115,97 @@ internal class HelpMassageConstraintLayout(context: Context, targetView: View,
         buttonNext.layoutParams = layoutParamsButtonNext
         addView(buttonNext)
     }
+    private fun messageWithTopArrow(targetView: View) {
+        val location = IntArray(2)
+        targetView.getLocationOnScreen(location)
+        val x = location[0]
+
+        val titleTv = TextView(context)
+        titleTv.id = generateViewId()
+        val typeface: Typeface? = context?.let { ResourcesCompat.getFont(it, R.font.sf_pro_text_bold) }
+        titleTv.typeface = typeface
+        titleTv.text = title//resources.getText(R.string.need_help)
+        titleTv.textSize = 18f
+        titleTv.setTextColor(Color.BLACK)
+
+        val massageTv = TextView(context)
+        massageTv.id = generateViewId()
+        val typeface2: Typeface? = context?.let { ResourcesCompat.getFont(it, R.font.sf_pro_display_light) }
+        massageTv.typeface = typeface2
+        massageTv.text = resources.getText(R.string.here_you_can_find_information_nabout_the_prosthesis_and_the_app)
+        massageTv.textSize = 14f
+        massageTv.setTextColor(Color.BLACK)
+
+        val buttonNext = Button(context)
+        buttonNext.id = generateViewId()
+        buttonNext.text = resources.getText(R.string.got_it)
+        buttonNext.isAllCaps = false
+        buttonNext.typeface = typeface
+        buttonNext.textColor = resources.getColor(R.color.dark)
+        buttonNext.backgroundColor = Color.TRANSPARENT
+        buttonNext.setOnClickListener(this)
+
+        val backgroundImage = ImageView(context)
+        backgroundImage.id = generateViewId()
+        backgroundImage.setImageResource(R.drawable.massage)
+        addView(backgroundImage)
+        val layoutParamsBackground = LayoutParams(
+            LayoutParams.MATCH_CONSTRAINT,
+            LayoutParams.MATCH_CONSTRAINT
+        )
+        layoutParamsBackground.startToStart = id
+        layoutParamsBackground.topToTop = id
+        layoutParamsBackground.endToEnd = id
+        layoutParamsBackground.bottomToBottom = id
+        layoutParamsBackground.topMargin = (11*scale).toInt()
+        backgroundImage.layoutParams = layoutParamsBackground
+
+        val pointerImage = ImageView(context)
+        pointerImage.id = generateViewId()
+        pointerImage.setImageResource(R.drawable.massage_arrow_top)
+        addView(pointerImage)
+        val layoutParamsPointer = LayoutParams(
+            (11*scale).toInt(),
+            (11*scale).toInt()
+        )
+        layoutParamsPointer.startToStart = id
+        layoutParamsPointer.topToTop = id
+        layoutParamsPointer.leftMargin = (x + targetView.width/scale).toInt()
+        pointerImage.layoutParams = layoutParamsPointer
+
+        val layoutParamsTitle = LayoutParams(
+            LayoutParams.WRAP_CONTENT,
+            LayoutParams.WRAP_CONTENT
+        )
+        layoutParamsTitle.startToStart = id
+        layoutParamsTitle.topToTop = id
+        layoutParamsTitle.leftMargin = (24*scale).toInt()
+        layoutParamsTitle.topMargin = (16*scale).toInt()
+        titleTv.layoutParams = layoutParamsTitle
+        addView(titleTv)
+
+
+        val layoutParamsMassage = LayoutParams(
+            LayoutParams.MATCH_CONSTRAINT,
+            LayoutParams.WRAP_CONTENT
+        )
+        layoutParamsMassage.startToStart = titleTv.id
+        layoutParamsMassage.topToBottom = titleTv.id
+        layoutParamsMassage.endToEnd = id
+        layoutParamsMassage.rightMargin = (16*scale).toInt()
+        massageTv.layoutParams = layoutParamsMassage
+        addView(massageTv)
+
+        val layoutParamsButtonNext = LayoutParams(
+            LayoutParams.WRAP_CONTENT,
+            LayoutParams.WRAP_CONTENT
+        )
+        layoutParamsButtonNext.endToEnd = massageTv.id
+        layoutParamsButtonNext.topToBottom = massageTv.id
+        layoutParamsButtonNext.topMargin = (4*scale).toInt()
+        buttonNext.layoutParams = layoutParamsButtonNext
+        addView(buttonNext)
+    }
 
     init {
         id = generateViewId()
@@ -123,8 +217,11 @@ internal class HelpMassageConstraintLayout(context: Context, targetView: View,
         setBackgroundColor(resources.getColor(R.color.transparent))
         val constraintSet = ConstraintSet()
         constraintSet.clone(this)
-        messageWithRightArrow(context, targetView = targetView)
         constraintSet.applyTo(this)
+        when(directionArrow) {
+            TypeDirectionArrow.RIGHT -> {messageWithRightArrow(targetView = targetView)}
+            TypeDirectionArrow.TOP -> {messageWithTopArrow(targetView = targetView)}
+        }
     }
 
     override fun onClick(v: View?) {

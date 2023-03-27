@@ -112,14 +112,14 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="4dp"
                 android:layout_centerHorizontal="true"
-                android:text="..."
+                android:text="........."
                 android:textColor="@color/orange"
                 android:textSize="18sp"
                 tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
 
             <Button
                 android:id="@+id/save_profile_btn"
-                android:layout_width="28dp"
+                android:layout_width="0dp"
                 android:layout_height="28dp"
                 android:layout_alignTop="@+id/name_tv"
                 android:layout_alignParentEnd="true"
@@ -156,22 +156,44 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="0dp"
                 android:orientation="horizontal"
                 android:weightSum="2"
                 tools:ignore="DisableBaselineAlignment">
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
+
+
+                    <View
+                        android:id="@+id/open_CH_v"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginStart="0dp"
+                        android:layout_marginTop="40dp"
+                        android:layout_marginEnd="0dp"
+                        android:layout_marginBottom="0dp"
+                        android:background="@color/transparent"/>
 
                     <SeekBar
                         android:id="@+id/open_CH_sb"
                         android:layout_width="300dp"
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
                         android:layout_alignParentBottom="true"
-                        android:layout_marginStart="-100dp"
                         android:layout_marginTop="0dp"
+                        android:layout_marginEnd="0dp"
+                        android:layout_marginStart="-100dp"
                         android:layout_marginBottom="-40dp"
                         android:indeterminate="false"
                         android:max="255"
@@ -182,17 +204,35 @@
 
 
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
+
+                    <View
+                        android:id="@+id/close_CH_v"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginStart="0dp"
+                        android:layout_marginTop="40dp"
+                        android:layout_marginEnd="0dp"
+                        android:layout_marginBottom="0dp"
+                        android:background="@color/transparent"/>
+
                     <SeekBar
                         android:id="@+id/close_CH_sb"
                         android:layout_width="300dp"
                         android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentBottom="true"
+                        android:layout_marginStart="0dp"
                         android:layout_marginTop="0dp"
                         android:layout_marginEnd="-100dp"
                         android:layout_marginBottom="-40dp"
@@ -208,10 +248,10 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_mainchart"
                 android:layout_width="match_parent"
-                android:layout_marginEnd="-19dp"
+                android:layout_height="320dp"
                 android:layout_marginStart="-14dp"
                 android:layout_marginTop="20dp"
-                android:layout_height="320dp"
+                android:layout_marginEnd="-19dp"
                 android:foregroundGravity="center" />
 
             <RelativeLayout
@@ -356,6 +396,7 @@
                 android:weightSum="6.5">
 
                 <RelativeLayout
+                    android:id="@+id/open_sensors_sensitivity_rl"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1">
@@ -590,6 +631,7 @@
                     android:layout_weight="1">
 
                     <LinearLayout
+                        android:id="@+id/swap_sensors_ll"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -725,6 +767,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/movement_buttons_rl"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1.5">

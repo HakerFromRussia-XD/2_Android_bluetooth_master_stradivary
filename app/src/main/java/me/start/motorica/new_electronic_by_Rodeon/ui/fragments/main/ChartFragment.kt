@@ -140,6 +140,54 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
       false
     }
+    bms_tv.setOnLongClickListener {
+      showAdvancedSettings = if (showAdvancedSettings) {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        false
+      } else {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        true
+      }
+      false
+    }
+    sensor_tv.setOnLongClickListener {
+      showAdvancedSettings = if (showAdvancedSettings) {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        false
+      } else {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        true
+      }
+      false
+    }
+    sync_tv.setOnLongClickListener {
+      showAdvancedSettings = if (showAdvancedSettings) {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        false
+      } else {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        true
+      }
+      false
+    }
     sync_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         if (main?.locate?.contains("ru")!!) {
@@ -463,49 +511,47 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
 
 
-    if (testBool) {
-      name_tv.isEnabled = false
-      driver_tv.isEnabled = false
-      sync_sb.isEnabled = false
-      open_CH_sb.isEnabled = false
-      close_CH_sb.isEnabled = false
-      correlator_noise_threshold_1_tv.isEnabled = false
-      correlator_noise_threshold_2_tv.isEnabled = false
-      correlator_noise_threshold_1_sb.isEnabled = false
-      correlator_noise_threshold_2_sb.isEnabled = false
-      swap_sensors_sw.isEnabled = false
-      thresholds_blocking_sw.isEnabled = false
-      calibration_btn.isEnabled = false
-      close_btn.isEnabled = false
-      open_btn.isEnabled = false
-      help_btn.isEnabled = false
-      save_profile_btn.isEnabled = false
-    }
+//    if (testBool) {
+//      name_tv.isEnabled = false
+//      driver_tv.isEnabled = false
+//      sync_sb.isEnabled = false
+//      open_CH_sb.isEnabled = false
+//      close_CH_sb.isEnabled = false
+//      correlator_noise_threshold_1_tv.isEnabled = false
+//      correlator_noise_threshold_2_tv.isEnabled = false
+//      correlator_noise_threshold_1_sb.isEnabled = false
+//      correlator_noise_threshold_2_sb.isEnabled = false
+//      swap_sensors_sw.isEnabled = false
+//      thresholds_blocking_sw.isEnabled = false
+//      calibration_btn.isEnabled = false
+//      close_btn.isEnabled = false
+//      open_btn.isEnabled = false
+//      help_btn.isEnabled = false
+//      save_profile_btn.isEnabled = false
+//    }
 
     //TODO тут начинается обучение
-    Handler().postDelayed({
-      main!!.setDecorator(help_btn, 1)
-    }, 500)
-
-
 //    Handler().postDelayed({
-//      main!!.hideDecorator(decorator!!)
+//      main!!.setDecorator("showHelpGuide", help_btn)
+//    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator("showDeviceNameGuide", swap_sensors_ll)
+//    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator("showDeviceNameGuide", name_tv)
+//    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator("showMovementButtonsGuide", movement_buttons_rl)
+//    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator("showMovementButtonsGuide", open_sensors_sensitivity_rl)
 //    }, 1000)
-
-
-//    rootView?.setOnTouchListener { _, event ->
-//      System.err.println("ACTION_ALL [Touch]")
-//      when(event.action) {
-//        MotionEvent.ACTION_MOVE -> { System.err.println("ACTION_MOVE [Touch]") }
-//        MotionEvent.ACTION_DOWN -> { System.err.println("ACTION_DOWN [Touch]") }
-//        MotionEvent.ACTION_UP -> { System.err.println("ACTION_UP [Touch]") }
-//        MotionEvent.ACTION_CANCEL -> { System.err.println("ACTION_CANCEL [Touch]") }
-//        MotionEvent.ACTION_HOVER_ENTER -> { System.err.println("ACTION_HOVER_ENTER [Touch]") }
-//        MotionEvent.ACTION_SCROLL -> { System.err.println("ACTION_SCROLL [Touch]") }
-//        MotionEvent.ACTION_POINTER_DOWN -> { System.err.println("ACTION_POINTER_DOWN [Touch]") }
-//      }
-//      true
-//    }
+//    Handler().postDelayed({
+//      main!!.setDecorator("showSensorsThresholdLevelsGuide", open_CH_v)
+//    }, 500)
+    Handler().postDelayed({
+      main!!.setDecorator("showSensorsThresholdLevelsGuide", close_CH_v)
+    }, 500)
   }
 
   @SuppressLint("SetTextI18n")

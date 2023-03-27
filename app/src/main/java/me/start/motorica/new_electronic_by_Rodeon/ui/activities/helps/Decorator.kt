@@ -11,7 +11,10 @@ import com.airbnb.lottie.LottieDrawable
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 
-class Decorator(private val window: Window, private val context: Context) {
+class Decorator(private val window: Window,
+                private val context: Context,
+                private var decorView: View
+) {
     private var mb : DimWithMask? = null
     private var scale = 0f
     private lateinit var viewParent: ViewParent
@@ -19,7 +22,7 @@ class Decorator(private val window: Window, private val context: Context) {
     private var lottieView: LottieAnimationView? = null
 
 
-    fun showGuideView1 (decorView: View, targetView: View) {
+    private fun showHelpGuide (targetView: View) {
         scale = context.resources.displayMetrics.density
         val view: View = decorView
 
@@ -34,7 +37,6 @@ class Decorator(private val window: Window, private val context: Context) {
         targetView.getLocationOnScreen(location)
         val x = location[0]
         val y = location[1] - topOffset
-        System.err.println("showGuideView1 target : x_dp = ${x/scale}    y_dp = ${y/scale}   height_dp = ${targetView.width/scale} [metrics]")
 
         mb = DimWithMask(context)
         mb!!.layoutParams = ViewGroup.LayoutParams(
@@ -44,8 +46,13 @@ class Decorator(private val window: Window, private val context: Context) {
         mb!!.setCircleAccent(x+targetView.height/2, y+targetView.height/2, (targetView.width/2))
 
 
-
-        myConstraintLayout = HelpMassageConstraintLayout(context, targetView, this)
+        myConstraintLayout = HelpMassageConstraintLayout(
+            context,
+            targetView,
+            TypeDirectionArrow.RIGHT,
+            this,
+            context.resources.getText(R.string.need_help).toString()
+        )
         val params = ConstraintLayout.LayoutParams(
             ConstraintLayout.LayoutParams.MATCH_PARENT,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
@@ -59,8 +66,6 @@ class Decorator(private val window: Window, private val context: Context) {
         //
         lottieView = LottieAnimationView(context)
         lottieView!!.layoutParams = LinearLayout.LayoutParams((targetView.width*1.5).toInt(), (targetView.height*1.5).toInt())
-        System.err.println("showGuideView1 target : targetView.width/scale = ${targetView.width/scale}    targetView.width = ${targetView.width} [metrics]")
-        System.err.println("showGuideView1 target : targetView.width/scale = ${targetView.height/scale}    targetView.width = ${targetView.height} [metrics]")
         lottieView!!.x = (x-targetView.width/3.9).toFloat()
         lottieView!!.y = (y-targetView.height/3.9).toFloat()
 
@@ -78,19 +83,12 @@ class Decorator(private val window: Window, private val context: Context) {
             (viewParent as FrameLayout).addView(myConstraintLayout)
         }
     }
-
-    fun showGuideView2(mainActivity: MainActivity, window: Window, decorView: View, targetView: View) {
-        scale = mainActivity.applicationContext.resources.displayMetrics.density
+    private fun showDeviceNameGuide (targetView: View) {
+        scale = context.resources.displayMetrics.density
         val view: View = decorView
-        window.statusBarColor = ContextCompat.getColor(mainActivity.applicationContext, R.color.blue_status_bar_dim_50)
-        window.navigationBarColor = ContextCompat.getColor(mainActivity.applicationContext, R.color.color_primary_dim_50)
+        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
+        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary_dim_50)
 
-
-        mb = DimWithMask(mainActivity.applicationContext)
-        mb!!.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        ) //Set the width and height of mb to match_parent
         val locInWindow = IntArray(2)
         decorView.getLocationInWindow(locInWindow)
         val topOffset = locInWindow[1]
@@ -98,28 +96,189 @@ class Decorator(private val window: Window, private val context: Context) {
         targetView.getLocationOnScreen(location)
         val x = location[0]
         val y = location[1] - topOffset
-        System.err.println("showGuideView1 target : x_dp = ${x/scale}    y_dp = ${y/scale}   height_dp = ${targetView.width/scale} [metrics]")
+
+        mb = DimWithMask(context)
+        mb!!.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT)
+        mb!!.setTypeDim(TypeDimMasks.HORISONTAL_RECTANGLE)
+        mb!!.setRectangleAccent(x, y, x+targetView.width, y+targetView.height)
 
 
-        lottieView = LottieAnimationView(mainActivity.applicationContext)
+
+
+        myConstraintLayout = HelpMassageConstraintLayout(
+            context,
+            targetView,
+            TypeDirectionArrow.TOP,
+            this,
+            context.resources.getText(R.string.need_help).toString()
+        )
+        val params = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.topMargin = y + targetView.height + 20
+        params.marginStart = 20
+        params.marginEnd = 20
+        (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
+
+
+
+
+
+        lottieView = LottieAnimationView(context)
         lottieView!!.layoutParams = LinearLayout.LayoutParams((targetView.width*1.5).toInt(), (targetView.height*1.5).toInt())
-        System.err.println("showGuideView1 target : targetView.width/scale = ${targetView.width/scale}    targetView.width = ${targetView.width} [metrics]")
-        System.err.println("showGuideView1 target : targetView.width/scale = ${targetView.height/scale}    targetView.width = ${targetView.height} [metrics]")
         lottieView!!.x = (x-targetView.width/3.9).toFloat()
         lottieView!!.y = (y-targetView.height/3.9).toFloat()
-
-        lottieView!!.setAnimation(R.raw.help_accent_circle)
-
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal)
         lottieView!!.repeatCount = LottieDrawable.INFINITE;
         lottieView!!.playAnimation()
 
 
-
-        mb!!.setCircleAccent(x+targetView.height/2, y+targetView.height/2, (targetView.width/2))
         viewParent = view.parent
         if (viewParent is FrameLayout) {
-            (viewParent as FrameLayout).addView(mb) //Add mask
+            (viewParent as FrameLayout).addView(mb)
             (viewParent as FrameLayout).addView(lottieView)
+            (viewParent as FrameLayout).addView(myConstraintLayout)
+        }
+    }
+    private fun showMovementButtonsGuide (targetView: View) {
+        scale = context.resources.displayMetrics.density
+        val view: View = decorView
+        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
+        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary_dim_50)
+
+        val locInWindow = IntArray(2)
+        decorView.getLocationInWindow(locInWindow)
+        val topOffset = locInWindow[1]
+        val location = IntArray(2)
+        targetView.getLocationOnScreen(location)
+        val x = location[0]
+        val y = location[1] - topOffset
+
+        mb = DimWithMask(context)
+        mb!!.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT)
+        mb!!.setTypeDim(TypeDimMasks.HORISONTAL_RECTANGLE_ALL_WIDTH)
+        mb!!.setRectangleAccent(x, y, x+targetView.width, y+targetView.height)
+
+
+
+
+        myConstraintLayout = HelpMassageConstraintLayout(
+            context,
+            targetView,
+            TypeDirectionArrow.TOP,
+            this,
+            context.resources.getText(R.string.need_help).toString()
+        )
+        val params = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.topMargin = y + targetView.height + 20
+        params.marginStart = 20
+        params.marginEnd = 20
+        (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
+
+
+
+
+
+        lottieView = LottieAnimationView(context)
+        val lottieLayoutParams = LinearLayout.LayoutParams(
+            (targetView.width*1.5).toInt(),
+            (targetView.height*1.25).toInt()
+        )
+//        lottieLayoutParams.width = (40*scale).toInt()
+//        lottieLayoutParams.
+//        lottieLayoutParams.s
+        lottieView!!.layoutParams = lottieLayoutParams
+//        lottieView!!.scaleType =
+        //TODO подогнать анимацию по ширине в афтер эффекте, а после под неё подогнать маску
+        lottieView!!.x = (x-targetView.width/3.9).toFloat()
+        lottieView!!.y = (y-targetView.height/8).toFloat()
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal)
+        lottieView!!.repeatCount = LottieDrawable.INFINITE;
+        lottieView!!.playAnimation()
+
+
+        viewParent = view.parent
+        if (viewParent is FrameLayout) {
+            (viewParent as FrameLayout).addView(mb)
+            (viewParent as FrameLayout).addView(lottieView)
+            (viewParent as FrameLayout).addView(myConstraintLayout)
+        }
+    }
+    private fun showSensorsThresholdLevelsGuide (targetView: View) {
+        scale = context.resources.displayMetrics.density
+        val view: View = decorView
+        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
+        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary_dim_50)
+
+        val locInWindow = IntArray(2)
+        decorView.getLocationInWindow(locInWindow)
+        val topOffset = locInWindow[1]
+        val location = IntArray(2)
+        targetView.getLocationOnScreen(location)
+        val x = location[0]
+        val y = location[1] - topOffset
+
+        mb = DimWithMask(context)
+        mb!!.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT)
+        mb!!.setTypeDim(TypeDimMasks.VERTICAL_RECTANGLE)
+        mb!!.setRectangleAccent(x, y, x+targetView.width, y+targetView.height)
+
+
+
+
+        myConstraintLayout = HelpMassageConstraintLayout(
+            context,
+            targetView,
+            TypeDirectionArrow.TOP,
+            this,
+            context.resources.getText(R.string.need_help).toString()
+        )
+        val params = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.topMargin = y + targetView.height + 20
+        params.marginStart = 20
+        params.marginEnd = 20
+        (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
+
+
+
+
+
+        lottieView = LottieAnimationView(context)
+        val lottieLayoutParams = LinearLayout.LayoutParams(
+            (targetView.width).toInt(),
+            (targetView.height).toInt()
+        )
+//        lottieLayoutParams.width = (40*scale).toInt()
+//        lottieLayoutParams.
+//        lottieLayoutParams.s
+        lottieView!!.layoutParams = lottieLayoutParams
+//        lottieView!!.scaleType =
+        //TODO подогнать анимацию по ширине в афтер эффекте, а после под неё подогнать маску
+        lottieView!!.x = (x).toFloat()
+        lottieView!!.y = (y).toFloat()
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_vertical)
+        lottieView!!.repeatCount = LottieDrawable.INFINITE;
+        lottieView!!.playAnimation()
+
+
+        viewParent = view.parent
+        if (viewParent is FrameLayout) {
+            (viewParent as FrameLayout).addView(mb)
+            (viewParent as FrameLayout).addView(lottieView)
+            (viewParent as FrameLayout).addView(myConstraintLayout)
         }
     }
 
@@ -133,5 +292,14 @@ class Decorator(private val window: Window, private val context: Context) {
 
         window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar)
         window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary)
+    }
+
+    fun showNameGuide(nameGuide: String, targetView: View) {
+        when (nameGuide) {
+            "showHelpGuide" -> {showHelpGuide(targetView)}
+            "showDeviceNameGuide" -> {showDeviceNameGuide(targetView)}
+            "showMovementButtonsGuide" -> {showMovementButtonsGuide(targetView)}
+            "showSensorsThresholdLevelsGuide" -> {showSensorsThresholdLevelsGuide(targetView)}
+        }
     }
 }

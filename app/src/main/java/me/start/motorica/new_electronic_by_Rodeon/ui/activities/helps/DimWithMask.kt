@@ -12,10 +12,10 @@ class DimWithMask(context: Context?) : View(context) {
     private var anchorX = 26f
     private var anchorY = 26f
     private var typeDimMasks: TypeDimMasks = TypeDimMasks.CIRCLE
-    private var leftX = 26f
-    private var rightX = 26f
-    private var topY = 26f
-    private var bottomY = 26f
+    private var leftRect = 0f
+    private var rightRect = 26f
+    private var topRect = 0f
+    private var bottomRect = 26f
 
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -40,11 +40,11 @@ class DimWithMask(context: Context?) : View(context) {
         radius = radius_DP.toFloat()
     }
 
-    fun setRectangleAccent (leftX_DP: Int, topY_DP: Int, rightX_DP: Int, bottomY_DP: Int) {
-        leftX = leftX_DP.toFloat()
-        topY = topY_DP.toFloat()
-        rightX = rightX_DP.toFloat()
-        bottomY = bottomY_DP.toFloat()
+    fun setRectangleAccent (leftRect_DP: Int, topRect_DP: Int, rightRect_DP: Int, bottomRect_DP: Int) {
+        leftRect = leftRect_DP.toFloat()
+        topRect = topRect_DP.toFloat()
+        rightRect = rightRect_DP.toFloat()
+        bottomRect = bottomRect_DP.toFloat()
     }
 
 
@@ -62,8 +62,30 @@ class DimWithMask(context: Context?) : View(context) {
         mPaint.xfermode = pdf
         when (typeDimMasks) {
             TypeDimMasks.CIRCLE -> { canvas.drawCircle(anchorX, anchorY, radius, mPaint) }
-            TypeDimMasks.VERTICAL_RECTANGLE -> {}
-            TypeDimMasks.HORISONTAL_RECTANGLE -> {}
+            TypeDimMasks.VERTICAL_RECTANGLE -> {
+                canvas.drawRect(leftRect+120f, topRect+40f, rightRect-120f, bottomRect-40f, mPaint)
+                canvas.drawRect(leftRect+50f, topRect+120f, rightRect-50f, bottomRect-120f, mPaint)
+                canvas.drawCircle(leftRect+120f, topRect+110f, 70f, mPaint)
+                canvas.drawCircle(rightRect-120f, topRect+110f, 70f, mPaint)
+                canvas.drawCircle(rightRect-120f, bottomRect-110f, 70f, mPaint)
+                canvas.drawCircle(leftRect+120f, bottomRect-110f, 70f, mPaint)
+            }
+            TypeDimMasks.HORISONTAL_RECTANGLE -> {
+                canvas.drawRect(leftRect-13f, topRect, rightRect+13f, bottomRect, mPaint)
+                canvas.drawRect(leftRect-27f, topRect+13f, rightRect+27f, bottomRect-13f, mPaint)
+                canvas.drawCircle(leftRect-13f, topRect+13f, 13f, mPaint)
+                canvas.drawCircle(rightRect+13f, topRect+13f, 13f, mPaint)
+                canvas.drawCircle(rightRect+13f, bottomRect-13f, 13f, mPaint)
+                canvas.drawCircle(leftRect-13f, bottomRect-13f, 13f, mPaint)
+            }
+            TypeDimMasks.HORISONTAL_RECTANGLE_ALL_WIDTH -> {
+                canvas.drawRect(leftRect+25f, topRect, rightRect-25f, bottomRect, mPaint)
+//                canvas.drawRect(leftRect-27f, topRect+13f, rightRect+27f, bottomRect-13f, mPaint)
+//                canvas.drawCircle(leftRect-13f, topRect+13f, 13f, mPaint)
+//                canvas.drawCircle(rightRect+13f, topRect+13f, 13f, mPaint)
+//                canvas.drawCircle(rightRect+13f, bottomRect-13f, 13f, mPaint)
+//                canvas.drawCircle(leftRect-13f, bottomRect-13f, 13f, mPaint)
+            }
         }
     }
 }

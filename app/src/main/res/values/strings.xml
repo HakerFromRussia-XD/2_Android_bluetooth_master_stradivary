@@ -255,7 +255,9 @@
     <string name="all_devices">All devices</string>
     <string name="protheses">Protheses</string>
     <string name="need_help">Need help?</string>
-    <string name="here_you_can_find_information_nabout_the_prosthesis_and_the_app">Here you can find information about the prosthesis and the app</string>
+    <string name="name_connected_device">Name connected device</string>
+    <string name="help_massage_1">Here you can find information about the prosthesis and the app.</string>
+    <string name="help_massage_2">The name of the connected device is displayed here. If you click on it, you can disconnect from the current device and select another one.</string>
     <string name="setup_profiles">Setup profiles</string>
     <string name="you_can_create_your_own_settings_profile_by_saving_a_previously_created_profile_a_new_profile_is_created_by_copying_all_settings_of_the_previous_one_also_in_this_menu_you_will_be_able_to_switch_between_all_previously_created_profiles">You can create your own settings profile by saving a previously created profile. A new profile is created by copying all settings of the previous one. Also in this menu you will be able to switch between all previously created profiles.</string>
 

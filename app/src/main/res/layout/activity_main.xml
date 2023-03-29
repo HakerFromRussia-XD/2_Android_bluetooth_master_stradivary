@@ -8,6 +8,17 @@
     android:background="@drawable/gradient_background"
     android:orientation="vertical">
 
+    <Button
+        android:id="@+id/cancelable_touch_btn"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/mainactivity_navi"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/mainactivity_viewpager" />
+
     <View
         android:id="@+id/connect_view"
         android:layout_width="match_parent"

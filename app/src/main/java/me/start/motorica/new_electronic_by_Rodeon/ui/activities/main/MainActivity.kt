@@ -735,7 +735,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     initBaseView(this)
     //changing statusbar
     val window = this.window
-    decorator = Decorator( window, this, my_main_ll)
+    decorator = Decorator( this, window, this, my_main_ll)
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -1060,17 +1060,13 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
   @SuppressLint("ClickableViewAccessibility")
   fun setDecorator(name: String, targetView: View) {
-    mainactivity_viewpager.isEnabled = false
-
-    mainactivity_viewpager.setOnTouchListener { _, _ -> true }
-    mainactivity_navi.isEnabled = false
-    my_main_ll.isEnabled = false
+    cancelable_touch_btn.visibility = View.VISIBLE
     decorator?.showNameGuide(name, targetView)
   }
+  @SuppressLint("ClickableViewAccessibility")
   fun hideDecorator() {
-    mainactivity_viewpager.isEnabled = true
-    mainactivity_navi.isEnabled = true
     decorator?.hideDecorator()
+    cancelable_touch_btn.visibility = View.GONE
   }
 
   // Demonstrates how to iterate through the supported GATT Services/Characteristics.

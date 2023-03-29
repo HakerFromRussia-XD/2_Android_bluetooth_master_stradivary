@@ -9,6 +9,7 @@
     <color name="tool_bar">#FF2B2B2B</color>
     <color name="number_picker_bg">#D7D7D8</color>
     <color name="transparent">#000000ff</color>
+    <color name="transparent_50">#0000005f</color>
     <color name="cream_white">#faf0dc</color>
     <color name="light_gray">#45494A</color>
     <color name="green">#0f9b0f</color>

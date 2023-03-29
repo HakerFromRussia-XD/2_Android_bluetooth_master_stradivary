@@ -13,16 +13,18 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
 import me.start.motorica.R
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.textColor
 
 
 @SuppressLint("ViewConstructor")
-internal class HelpMassageConstraintLayout(context: Context,
+internal class HelpMassageConstraintLayout(private val main: MainActivity,
+                                           context: Context,
                                            targetView: View,
-                                           private val directionArrow: TypeDirectionArrow,
-                                           private val decorator: Decorator,
-                                           private val title: String
+                                           directionArrow: TypeDirectionArrow,
+                                           private val title: String,
+                                           private val massage: String
 ) : ConstraintLayout(context),
     View.OnClickListener {
     private val scale = context.resources.displayMetrics.density
@@ -41,7 +43,7 @@ internal class HelpMassageConstraintLayout(context: Context,
         massageTv.id = generateViewId()
         val typeface2: Typeface? = context?.let { ResourcesCompat.getFont(it, R.font.sf_pro_display_light) }
         massageTv.typeface = typeface2
-        massageTv.text = resources.getText(R.string.here_you_can_find_information_nabout_the_prosthesis_and_the_app)
+        massageTv.text = massage
         massageTv.textSize = 14f
         massageTv.setTextColor(Color.BLACK)
 
@@ -132,7 +134,7 @@ internal class HelpMassageConstraintLayout(context: Context,
         massageTv.id = generateViewId()
         val typeface2: Typeface? = context?.let { ResourcesCompat.getFont(it, R.font.sf_pro_display_light) }
         massageTv.typeface = typeface2
-        massageTv.text = resources.getText(R.string.here_you_can_find_information_nabout_the_prosthesis_and_the_app)
+        massageTv.text = massage
         massageTv.textSize = 14f
         massageTv.setTextColor(Color.BLACK)
 
@@ -225,6 +227,7 @@ internal class HelpMassageConstraintLayout(context: Context,
     }
 
     override fun onClick(v: View?) {
-        decorator.hideDecorator()
+//        decorator.hideDecorator()
+        main.hideDecorator()
     }
 }

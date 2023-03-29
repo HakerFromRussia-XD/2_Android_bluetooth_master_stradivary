@@ -535,8 +535,11 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 //      main!!.setDecorator("showHelpGuide", help_btn)
 //    }, 500)
 //    Handler().postDelayed({
-//      main!!.setDecorator("showDeviceNameGuide", swap_sensors_ll)
-//    }, 500)
+//      hideDecorator()
+//    }, 1000)
+    Handler().postDelayed({
+      main!!.setDecorator("showDeviceNameGuide", name_tv)
+    }, 500)
 //    Handler().postDelayed({
 //      main!!.setDecorator("showDeviceNameGuide", name_tv)
 //    }, 500)
@@ -544,14 +547,14 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 //      main!!.setDecorator("showMovementButtonsGuide", movement_buttons_rl)
 //    }, 500)
 //    Handler().postDelayed({
-//      main!!.setDecorator("showMovementButtonsGuide", open_sensors_sensitivity_rl)
+//      main!!.setDecorator("showSensorsSensitivityGuide", open_sensors_sensitivity_rl)
 //    }, 1000)
 //    Handler().postDelayed({
 //      main!!.setDecorator("showSensorsThresholdLevelsGuide", open_CH_v)
 //    }, 500)
-    Handler().postDelayed({
-      main!!.setDecorator("showSensorsThresholdLevelsGuide", close_CH_v)
-    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator("showSensorsThresholdLevelsGuide", close_CH_v)
+//    }, 500)
   }
 
   @SuppressLint("SetTextI18n")
@@ -862,7 +865,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
 
   fun hideDecorator() {
-    System.err.println("hideDecorator [Touch]")
     main?.hideDecorator()
   }
 }

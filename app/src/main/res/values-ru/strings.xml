@@ -256,7 +256,9 @@
     <string name="all_devices">Все устройства</string>
     <string name="protheses">Протезы</string>
     <string name="need_help">Нужна помощь?</string>
-    <string name="here_you_can_find_information_nabout_the_prosthesis_and_the_app">Здесь можно узнать о протезе и\nработе приложения</string>
+    <string name="name_connected_device">Имя подключенного устройства</string>
+    <string name="help_massage_1">Здесь можно узнать о протезе и работе приложения.</string>
+    <string name="help_massage_2">Здесь отображается имя подключённого устройства. Если нажать на него, то можно отключиться от текущего устройства и выбрать другое.</string>
     <string name="setup_profiles">Профили настроек</string>
     <string name="you_can_create_your_own_settings_profile_by_saving_a_previously_created_profile_a_new_profile_is_created_by_copying_all_settings_of_the_previous_one_also_in_this_menu_you_will_be_able_to_switch_between_all_previously_created_profiles">Вы можете создать свой собственный профиль настроек, сохранив созданный ранее. Новый профиль создаётся копируя все настройки предыдущего Также в этом меню можно будет переключаться между всеми ранее созданными профилями.</string>
 

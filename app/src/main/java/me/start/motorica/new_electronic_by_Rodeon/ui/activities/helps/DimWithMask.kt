@@ -79,12 +79,20 @@ class DimWithMask(context: Context?) : View(context) {
                 canvas.drawCircle(leftRect-13f, bottomRect-13f, 13f, mPaint)
             }
             TypeDimMasks.HORISONTAL_RECTANGLE_ALL_WIDTH -> {
-                canvas.drawRect(leftRect+25f, topRect, rightRect-25f, bottomRect, mPaint)
-//                canvas.drawRect(leftRect-27f, topRect+13f, rightRect+27f, bottomRect-13f, mPaint)
-//                canvas.drawCircle(leftRect-13f, topRect+13f, 13f, mPaint)
-//                canvas.drawCircle(rightRect+13f, topRect+13f, 13f, mPaint)
-//                canvas.drawCircle(rightRect+13f, bottomRect-13f, 13f, mPaint)
-//                canvas.drawCircle(leftRect-13f, bottomRect-13f, 13f, mPaint)
+                canvas.drawRect(leftRect+70f, topRect+3f, rightRect-70f, bottomRect-3f, mPaint)
+                canvas.drawRect(leftRect+33f, topRect+40f, rightRect-33f, bottomRect-40f, mPaint)
+                canvas.drawCircle(leftRect+67f, topRect+40f, 35f, mPaint)
+                canvas.drawCircle(rightRect-67f, topRect+40f, 35f, mPaint)
+                canvas.drawCircle(rightRect-67f, bottomRect-37f, 35f, mPaint)
+                canvas.drawCircle(leftRect+67f, bottomRect-37f, 35f, mPaint)
+            }
+            TypeDimMasks.HORISONTAL_RECTANGLE_ALL_WIDTH_MOVEMENT_BUTTONS -> {
+                canvas.drawRect(leftRect+70f, topRect+3f, rightRect-70f, bottomRect-3f, mPaint)
+                canvas.drawRect(leftRect+33f, topRect+40f, rightRect-33f, bottomRect-40f, mPaint)
+                canvas.drawCircle(leftRect+67f, topRect+40f, 35f, mPaint)
+                canvas.drawCircle(rightRect-67f, topRect+40f, 35f, mPaint)
+                canvas.drawCircle(rightRect-67f, bottomRect-37f, 35f, mPaint)
+                canvas.drawCircle(leftRect+67f, bottomRect-37f, 35f, mPaint)
             }
         }
     }

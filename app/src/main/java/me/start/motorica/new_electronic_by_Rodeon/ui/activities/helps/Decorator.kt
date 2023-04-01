@@ -170,28 +170,17 @@ class Decorator(private val main: MainActivity,
             main,
             context,
             targetView,
-            TypeDirectionArrow.TOP,
+            TypeDirectionArrow.BOTTOM,
             context.resources.getText(R.string.need_help).toString(),
             context.resources.getText(R.string.help_massage_2).toString()
         )
-
-
-
-
-
-
-
-
-
-
-
 
 
         val params = ConstraintLayout.LayoutParams(
             ConstraintLayout.LayoutParams.MATCH_PARENT,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
-        params.topMargin = y + targetView.height + 20
+        params.topMargin = y - 400
         params.marginStart = 20
         params.marginEnd = 20
         (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
@@ -385,13 +374,13 @@ class Decorator(private val main: MainActivity,
         window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary)
     }
 
-    fun showNameGuide(nameGuide: String, targetView: View) {
+    fun showNameGuide(nameGuide: TypeGuides, targetView: View) {
         when (nameGuide) {
-            "showHelpGuide" -> {showHelpGuide(targetView)}
-            "showDeviceNameGuide" -> {showDeviceNameGuide(targetView)}
-            "showMovementButtonsGuide" -> {showMovementButtonsGuide(targetView)}
-            "showSensorsSensitivityGuide" -> {showSensorsSensitivityGuide(targetView)}
-            "showSensorsThresholdLevelsGuide" -> {showSensorsThresholdLevelsGuide(targetView)}
+            TypeGuides.SHOW_HELP_GUIDE -> {showHelpGuide(targetView)}
+            TypeGuides.SHOW_DEVICE_NAME_GUIDE -> {showDeviceNameGuide(targetView)}
+            TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE -> {showMovementButtonsGuide(targetView)}
+            TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE -> {showSensorsSensitivityGuide(targetView)}
+            TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE -> {showSensorsThresholdLevelsGuide(targetView)}
         }
     }
 }

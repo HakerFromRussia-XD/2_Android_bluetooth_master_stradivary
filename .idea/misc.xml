@@ -31,7 +31,7 @@
         <entry key="app/src/main/res/drawable/ic_dec.xml" value="0.1295" />
         <entry key="app/src/main/res/drawable/ic_edit_24.xml" value="0.1485" />
         <entry key="app/src/main/res/drawable/massage.xml" value="0.1645" />
-        <entry key="app/src/main/res/drawable/massage_arrow_bottom.xml" value="0.1645" />
+        <entry key="app/src/main/res/drawable/massage_arrow_bottom.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/massage_arrow_right.xml" value="0.1645" />
         <entry key="app/src/main/res/drawable/massage_arrow_top.xml" value="0.173" />
         <entry key="app/src/main/res/drawable/massage_top_right.xml" value="0.1645" />

@@ -45,6 +45,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Decorator
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.*
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
@@ -1059,9 +1060,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   @SuppressLint("ClickableViewAccessibility")
-  fun setDecorator(name: String, targetView: View) {
+  fun setDecorator(guide: TypeGuides, targetView: View) {
     cancelable_touch_btn.visibility = View.VISIBLE
-    decorator?.showNameGuide(name, targetView)
+    decorator?.showNameGuide(guide, targetView)
   }
   @SuppressLint("ClickableViewAccessibility")
   fun hideDecorator() {

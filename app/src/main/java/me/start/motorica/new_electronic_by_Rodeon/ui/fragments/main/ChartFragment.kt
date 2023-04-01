@@ -37,6 +37,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Decorator
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.ChartFragmentCallback
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
@@ -78,7 +79,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
   }
   private lateinit var myAppContext: Context
-  private val testBool = true
+//  private val number
 
 
   @SuppressLint("CheckResult")
@@ -511,25 +512,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
 
 
-//    if (testBool) {
-//      name_tv.isEnabled = false
-//      driver_tv.isEnabled = false
-//      sync_sb.isEnabled = false
-//      open_CH_sb.isEnabled = false
-//      close_CH_sb.isEnabled = false
-//      correlator_noise_threshold_1_tv.isEnabled = false
-//      correlator_noise_threshold_2_tv.isEnabled = false
-//      correlator_noise_threshold_1_sb.isEnabled = false
-//      correlator_noise_threshold_2_sb.isEnabled = false
-//      swap_sensors_sw.isEnabled = false
-//      thresholds_blocking_sw.isEnabled = false
-//      calibration_btn.isEnabled = false
-//      close_btn.isEnabled = false
-//      open_btn.isEnabled = false
-//      help_btn.isEnabled = false
-//      save_profile_btn.isEnabled = false
-//    }
-
     //TODO тут начинается обучение
 //    Handler().postDelayed({
 //      main!!.setDecorator("showHelpGuide", help_btn)
@@ -537,15 +519,15 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 //    Handler().postDelayed({
 //      hideDecorator()
 //    }, 1000)
-    Handler().postDelayed({
-      main!!.setDecorator("showDeviceNameGuide", name_tv)
-    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, name_tv)
+//    }, 500)
 //    Handler().postDelayed({
 //      main!!.setDecorator("showDeviceNameGuide", name_tv)
 //    }, 500)
-//    Handler().postDelayed({
-//      main!!.setDecorator("showMovementButtonsGuide", movement_buttons_rl)
-//    }, 500)
+    Handler().postDelayed({
+      main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, movement_buttons_rl)
+    }, 500)
 //    Handler().postDelayed({
 //      main!!.setDecorator("showSensorsSensitivityGuide", open_sensors_sensitivity_rl)
 //    }, 1000)
@@ -861,10 +843,5 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         )
       }
     }
-  }
-
-
-  fun hideDecorator() {
-    main?.hideDecorator()
   }
 }

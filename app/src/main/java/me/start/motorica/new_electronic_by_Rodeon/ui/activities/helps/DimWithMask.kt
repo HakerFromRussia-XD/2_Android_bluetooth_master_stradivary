@@ -88,11 +88,11 @@ class DimWithMask(context: Context?) : View(context) {
             }
             TypeDimMasks.HORISONTAL_RECTANGLE_ALL_WIDTH_MOVEMENT_BUTTONS -> {
                 canvas.drawRect(leftRect+70f, topRect+3f, rightRect-70f, bottomRect-3f, mPaint)
-                canvas.drawRect(leftRect+33f, topRect+40f, rightRect-33f, bottomRect-40f, mPaint)
-                canvas.drawCircle(leftRect+67f, topRect+40f, 35f, mPaint)
-                canvas.drawCircle(rightRect-67f, topRect+40f, 35f, mPaint)
-                canvas.drawCircle(rightRect-67f, bottomRect-37f, 35f, mPaint)
-                canvas.drawCircle(leftRect+67f, bottomRect-37f, 35f, mPaint)
+                canvas.drawRect(leftRect+27f, topRect+37f, rightRect-27f, bottomRect-37f, mPaint)
+                canvas.drawCircle(leftRect+62f, topRect+37f, 35f, mPaint)
+                canvas.drawCircle(rightRect-62f, topRect+37f, 35f, mPaint)
+                canvas.drawCircle(rightRect-62f, bottomRect-37f, 35f, mPaint)
+                canvas.drawCircle(leftRect+62f, bottomRect-37f, 35f, mPaint)
             }
         }
     }

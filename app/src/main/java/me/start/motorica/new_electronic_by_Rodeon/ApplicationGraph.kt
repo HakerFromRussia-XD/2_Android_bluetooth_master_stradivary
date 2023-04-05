@@ -40,4 +40,8 @@ interface ApplicationGraph {
   fun inject(target_: GripperScreenPresenter)
 
   fun inject(target_: KibiFragment)
+
+  fun inject(settingsFragment: HelpFragment)
+
+  fun inject(testFragment: TestFragment)
 }

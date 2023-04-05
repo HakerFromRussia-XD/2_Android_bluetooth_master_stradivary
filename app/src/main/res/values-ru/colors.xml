@@ -35,6 +35,7 @@
     <color name="deep_dark">#343434</color>
     <color name="end_gradient">#e0e0e0</color>
     <color name="dark">#888</color>
+    <color name="back_help_menu">#f8f8f8</color>
     <color name="open_threshold">#ffab00</color>
     <color name="close_threshold">#ffffff</color>
     <color name="separator_settings">#c6c6c8</color>

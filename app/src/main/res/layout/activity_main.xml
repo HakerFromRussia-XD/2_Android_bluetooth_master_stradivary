@@ -45,7 +45,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <com.gigamole.navigationtabbar.ntb.NavigationTabBar
         android:id="@+id/mainactivity_navi"
         android:layout_width="match_parent"
@@ -63,10 +62,23 @@
         app:ntb_inactive_color="@color/cream_white"
         app:ntb_preview_colors="@array/colors"
         app:ntb_scaled="true"
-        app:ntb_swiped="true"
+        app:ntb_swiped="false"
         app:ntb_tinted="true"
-        app:ntb_title_mode="active"
+        app:ntb_title_mode="all"
         app:ntb_titled="true" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/mainactivity_help_fcv"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/transparent"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
     <ExpandableListView
         android:id="@+id/gatt_services_list"

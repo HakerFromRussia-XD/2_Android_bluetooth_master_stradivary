@@ -10,6 +10,7 @@ import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 
 class Decorator(private val main: MainActivity,
                 private val window: Window,
@@ -23,10 +24,7 @@ class Decorator(private val main: MainActivity,
     private var lottieView: LottieAnimationView? = null
     private var lottieView2: LottieAnimationView? = null
 
-
-
-
-    private fun showHelpGuide (targetView: View) {
+    private fun showHelpGuide (targetView: View, rootClass: Any) {
         scale = context.resources.displayMetrics.density
         val view: View = decorView
 
@@ -51,6 +49,7 @@ class Decorator(private val main: MainActivity,
 
 
         myConstraintLayout = HelpMassageConstraintLayout(
+            rootClass,
             main,
             context,
             targetView,
@@ -88,7 +87,7 @@ class Decorator(private val main: MainActivity,
             (viewParent as FrameLayout).addView(myConstraintLayout)
         }
     }
-    private fun showDeviceNameGuide (targetView: View) {
+    private fun showDeviceNameGuide (targetView: View, rootClass: Any) {
         scale = context.resources.displayMetrics.density
         val view: View = decorView
         window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
@@ -111,6 +110,7 @@ class Decorator(private val main: MainActivity,
 
 
         myConstraintLayout = HelpMassageConstraintLayout(
+            rootClass,
             main,
             context,
             targetView,
@@ -144,7 +144,64 @@ class Decorator(private val main: MainActivity,
             (viewParent as FrameLayout).addView(myConstraintLayout)
         }
     }
-    private fun showMovementButtonsGuide (targetView: View) {
+    private fun showVersionGuide (targetView: View, rootClass: Any) {
+        scale = context.resources.displayMetrics.density
+        val view: View = decorView
+        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
+        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary_dim_50)
+
+        val locInWindow = IntArray(2)
+        decorView.getLocationInWindow(locInWindow)
+        val topOffset = locInWindow[1]
+        val location = IntArray(2)
+        targetView.getLocationOnScreen(location)
+        val x = location[0]
+        val y = location[1] - topOffset
+
+        mb = DimWithMask(context)
+        mb!!.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT)
+        mb!!.setTypeDim(TypeDimMasks.CIRCLE)
+        mb!!.setCircleAccent(x+targetView.height/2, y+targetView.height/2, ((targetView.width/1.4).toInt()))
+
+
+        myConstraintLayout = HelpMassageConstraintLayout(
+            rootClass,
+            main,
+            context,
+            targetView,
+            TypeDirectionArrow.LEFT,
+            context.resources.getText(R.string.software_versions_and_synchronization).toString(),
+            context.resources.getText(R.string.help_massage_3).toString()
+        )
+        val params = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.topMargin = y
+        params.marginStart = x + targetView.width + 40
+        params.marginEnd = 20
+        (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
+
+
+        lottieView = LottieAnimationView(context)
+        lottieView!!.layoutParams = LinearLayout.LayoutParams((targetView.width*2.5).toInt(), (targetView.height*2.5).toInt())
+        lottieView!!.x = (x-targetView.width/1.2).toFloat()
+        lottieView!!.y = (y-targetView.height/1.5).toFloat()
+        lottieView!!.setAnimation(R.raw.help_accent_circle)
+        lottieView!!.repeatCount = LottieDrawable.INFINITE;
+        lottieView!!.playAnimation()
+
+
+        viewParent = view.parent
+        if (viewParent is FrameLayout) {
+            (viewParent as FrameLayout).addView(mb)
+            (viewParent as FrameLayout).addView(lottieView)
+            (viewParent as FrameLayout).addView(myConstraintLayout)
+        }
+    }
+    private fun showMovementButtonsGuide (targetView: View, rootClass: Any) {
         scale = context.resources.displayMetrics.density
         val view: View = decorView
         window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
@@ -167,6 +224,7 @@ class Decorator(private val main: MainActivity,
 
 
         myConstraintLayout = HelpMassageConstraintLayout(
+            rootClass,
             main,
             context,
             targetView,
@@ -206,7 +264,7 @@ class Decorator(private val main: MainActivity,
             (viewParent as FrameLayout).addView(myConstraintLayout)
         }
     }
-    private fun showSensorsSensitivityGuide (targetView: View) {
+    private fun showSensorsSensitivityGuide (targetView: View, rootClass: Any) {
         scale = context.resources.displayMetrics.density
         val view: View = decorView
         window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
@@ -229,6 +287,7 @@ class Decorator(private val main: MainActivity,
 
 
         myConstraintLayout = HelpMassageConstraintLayout(
+            rootClass,
             main,
             context,
             targetView,
@@ -279,7 +338,7 @@ class Decorator(private val main: MainActivity,
             (viewParent as FrameLayout).addView(myConstraintLayout)
         }
     }
-    private fun showSensorsThresholdLevelsGuide (targetView: View) {
+    private fun showSensorsThresholdLevelsGuide (targetView: View, rootClass: Any) {
         scale = context.resources.displayMetrics.density
         val view: View = decorView
         window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
@@ -302,6 +361,7 @@ class Decorator(private val main: MainActivity,
 
 
         myConstraintLayout = HelpMassageConstraintLayout(
+            rootClass,
             main,
             context,
             targetView,
@@ -374,13 +434,14 @@ class Decorator(private val main: MainActivity,
         window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary)
     }
 
-    fun showNameGuide(nameGuide: TypeGuides, targetView: View) {
+    fun showNameGuide(nameGuide: TypeGuides, targetView: View, rootClass: Any) {
         when (nameGuide) {
-            TypeGuides.SHOW_HELP_GUIDE -> {showHelpGuide(targetView)}
-            TypeGuides.SHOW_DEVICE_NAME_GUIDE -> {showDeviceNameGuide(targetView)}
-            TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE -> {showMovementButtonsGuide(targetView)}
-            TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE -> {showSensorsSensitivityGuide(targetView)}
-            TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE -> {showSensorsThresholdLevelsGuide(targetView)}
+            TypeGuides.SHOW_HELP_GUIDE -> {showHelpGuide(targetView, rootClass)}
+            TypeGuides.SHOW_DEVICE_NAME_GUIDE -> {showDeviceNameGuide(targetView, rootClass)}
+            TypeGuides.SHOW_VERSION_GUIDE -> {showVersionGuide(targetView, rootClass)}
+            TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE -> {showMovementButtonsGuide(targetView, rootClass)}
+            TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE -> {showSensorsSensitivityGuide(targetView, rootClass)}
+            TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE -> {showSensorsThresholdLevelsGuide(targetView, rootClass)}
         }
     }
 }

@@ -131,6 +131,7 @@
     <string name="test">тест</string>
     <string name="setting_up_gestures">настройки жестов</string>
     <string name="sensor_settings">настройки датчиков</string>
+    <string name="sensor_settingss">Настройки датчиков</string>
     <string name="special_settings">спецнастройки</string>
     <string name="driver_0_00v">драйвер: 0.00v</string>
     <string name="driver">"драйвер: "</string>
@@ -257,10 +258,23 @@
     <string name="protheses">Протезы</string>
     <string name="need_help">Нужна помощь?</string>
     <string name="name_connected_device">Имя подключенного устройства</string>
+    <string name="software_versions_and_synchronization">Версии ПО и синхронизация</string>
     <string name="help_massage_1">Здесь можно узнать о протезе и работе приложения.</string>
     <string name="help_massage_2">Здесь отображается имя подключённого устройства. Если нажать на него, то можно отключиться от текущего устройства и выбрать другое.</string>
+    <string name="help_massage_3">Параметры показывают версии программного обеспечения каждой из плат, установленных в кисти. Процент синхронизации показывает то, насколько процентов завершено считывание всех параметров из протеза в приложение.</string>
     <string name="setup_profiles">Профили настроек</string>
     <string name="you_can_create_your_own_settings_profile_by_saving_a_previously_created_profile_a_new_profile_is_created_by_copying_all_settings_of_the_previous_one_also_in_this_menu_you_will_be_able_to_switch_between_all_previously_created_profiles">Вы можете создать свой собственный профиль настроек, сохранив созданный ранее. Новый профиль создаётся копируя все настройки предыдущего Также в этом меню можно будет переключаться между всеми ранее созданными профилями.</string>
+    <string name="app_control">УПРАВЛЕНИЕ В ПРИЛОЖЕНИИ</string>
+    <string name="help">Помощь</string>
+    <string name="setting_gestures">Настройка жестов</string>
+    <string name="prosthesis_use">ИСПОЛЬЗОВАНИЕ ПРОТЕЗА</string>
+    <string name="how_prosthesis_works">Как работает протез</string>
+    <string name="how_to_put_on_a_prosthesis_socket">Как надеть гильзу</string>
+    <string name="complete_set">Комплектация</string>
+    <string name="prosthesis_charge">Зарядка протеза</string>
+    <string name="prosthesis_care">Уход за протезом</string>
+    <string name="contact_us">КОНТАКТЫ</string>
+    <string name="contact_support">Связаться со службой поддержки</string>
 
 
     <string-array name="numbers">

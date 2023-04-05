@@ -37,7 +37,9 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Decorator
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.DecoratorChange
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.ChartFragmentCallback
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
@@ -45,7 +47,7 @@ import javax.inject.Inject
 
 
 @Suppress("DEPRECATION")
-class ChartFragment : Fragment(), OnChartValueSelectedListener {
+class ChartFragment : Fragment(), DecoratorChange, OnChartValueSelectedListener {
 
   @Inject
   lateinit var sqliteManager: SqliteManager
@@ -79,6 +81,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
   }
   private lateinit var myAppContext: Context
+  private var displayedTypeGuides: TypeGuides? = TypeGuides.SHOW_HELP_GUIDE
 //  private val number
 
 
@@ -505,7 +508,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     }
 
     help_btn.setOnClickListener {
-      main!!.showToast("help btn tup")
+      navigator().showHelpContainerView(true)
+      navigator().showHelpScreen()
     }
     save_profile_btn.setOnClickListener {
       main!!.showToast("save profile btn tup")
@@ -514,20 +518,26 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     //TODO тут начинается обучение
 //    Handler().postDelayed({
-//      main!!.setDecorator("showHelpGuide", help_btn)
+//      main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, open_threshold_help_v, this)
+//    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, version_help_v, this)
+//    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator(TypeGuides.SHOW_HELP_GUIDE, help_btn, this)
 //    }, 500)
 //    Handler().postDelayed({
 //      hideDecorator()
 //    }, 1000)
 //    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, name_tv)
+//      main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, name_tv,this)
 //    }, 500)
 //    Handler().postDelayed({
 //      main!!.setDecorator("showDeviceNameGuide", name_tv)
 //    }, 500)
-    Handler().postDelayed({
-      main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, movement_buttons_rl)
-    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, movement_buttons_rl)
+//    }, 500)
 //    Handler().postDelayed({
 //      main!!.setDecorator("showSensorsSensitivityGuide", open_sensors_sensitivity_rl)
 //    }, 1000)
@@ -537,6 +547,16 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 //    Handler().postDelayed({
 //      main!!.setDecorator("showSensorsThresholdLevelsGuide", close_CH_v)
 //    }, 500)
+  }
+  override fun setNextDecorator() {
+    when(displayedTypeGuides) {
+      TypeGuides.SHOW_HELP_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, name_tv, this)
+        displayedTypeGuides = TypeGuides.SHOW_DEVICE_NAME_GUIDE
+      }
+      TypeGuides.SHOW_DEVICE_NAME_GUIDE -> { main!!.hideDecorator() }
+    }
   }
 
   @SuppressLint("SetTextI18n")

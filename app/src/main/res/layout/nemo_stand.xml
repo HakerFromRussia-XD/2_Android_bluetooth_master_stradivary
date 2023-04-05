@@ -130,7 +130,7 @@
                         android:layout_centerInParent="true"
                         android:layout_marginTop="-2dp"
                         android:background="@drawable/border_nemo"
-                        android:fontFamily="@font/font_open_sans"
+                        android:fontFamily="@font/font_open_sans_bold"
                         android:text="1"
                         tools:ignore="HardcodedText" />
 
@@ -143,7 +143,7 @@
                         android:layout_marginStart="0dp"
                         android:layout_marginTop="20dp"
                         android:background="@drawable/border_nemo"
-                        android:fontFamily="@font/font_open_sans"
+                        android:fontFamily="@font/font_open_sans_bold"
                         android:text="2"
                         tools:ignore="HardcodedText" />
 
@@ -156,7 +156,7 @@
                         android:layout_marginStart="0dp"
                         android:layout_marginTop="20dp"
                         android:background="@drawable/border_nemo"
-                        android:fontFamily="@font/font_open_sans"
+                        android:fontFamily="@font/font_open_sans_bold"
                         android:text="3"
                         tools:ignore="HardcodedText" />
 
@@ -169,7 +169,7 @@
                         android:layout_marginStart="0dp"
                         android:layout_marginTop="20dp"
                         android:background="@drawable/border_nemo"
-                        android:fontFamily="@font/font_open_sans"
+                        android:fontFamily="@font/font_open_sans_bold"
                         android:text="4"
                         tools:ignore="HardcodedText" />
 
@@ -182,7 +182,7 @@
                         android:layout_marginStart="0dp"
                         android:layout_marginTop="20dp"
                         android:background="@drawable/border_nemo"
-                        android:fontFamily="@font/font_open_sans"
+                        android:fontFamily="@font/font_open_sans_bold"
                         android:text="5"
                         tools:ignore="HardcodedText" />
 
@@ -195,7 +195,7 @@
                         android:layout_marginStart="0dp"
                         android:layout_marginTop="20dp"
                         android:background="@drawable/border_nemo"
-                        android:fontFamily="@font/font_open_sans"
+                        android:fontFamily="@font/font_open_sans_bold"
                         android:text="6"
                         tools:ignore="HardcodedText" />
 
@@ -208,7 +208,7 @@
                         android:layout_marginStart="0dp"
                         android:layout_marginTop="20dp"
                         android:background="@drawable/border_nemo"
-                        android:fontFamily="@font/font_open_sans"
+                        android:fontFamily="@font/font_open_sans_bold"
                         android:text="7"
                         tools:ignore="HardcodedText" />
 
@@ -221,7 +221,7 @@
                         android:layout_marginStart="0dp"
                         android:layout_marginTop="20dp"
                         android:background="@drawable/border_nemo"
-                        android:fontFamily="@font/font_open_sans"
+                        android:fontFamily="@font/font_open_sans_bold"
                         android:text="8"
                         tools:ignore="HardcodedText" />
 
@@ -731,7 +731,7 @@
                                         android:layout_marginBottom="-35dp"
                                         android:animateLayoutChanges="false"
                                         android:clickable="false"
-                                        android:fontFamily="@font/font_open_sans"
+                                        android:fontFamily="@font/font_open_sans_bold"
                                         android:theme="@style/NumberPickerTheme" />
 
                                     <Button
@@ -876,7 +876,7 @@
                                 android:layout_marginTop="0dp"
                                 android:layout_marginEnd="16dp"
                                 android:background="@drawable/border_nemo"
-                                android:fontFamily="@font/font_open_sans"
+                                android:fontFamily="@font/font_open_sans_bold"
                                 android:text="start"
                                 tools:ignore="HardcodedText,TouchTargetSizeCheck" />
                         </RelativeLayout>

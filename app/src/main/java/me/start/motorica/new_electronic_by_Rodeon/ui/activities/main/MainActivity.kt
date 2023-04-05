@@ -2,6 +2,7 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
@@ -15,14 +16,16 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.nfc.NfcAdapter
 import android.os.*
-import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.activity_infinity_settings.view.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_confirm_select_scale.*
 import kotlinx.android.synthetic.main.dialog_info.*
@@ -45,9 +48,12 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Decorator
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.*
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.HelpFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.TestFragment
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import me.start.motorica.scan.view.ScanActivity
@@ -60,7 +66,8 @@ import kotlin.experimental.xor
 @SuppressLint("MissingPermission")
 @Suppress("SameParameterValue", "SameParameterValue", "DEPRECATION")
 @RequirePresenter(MainPresenter::class)
-class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable {
+class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable,
+  Navigator {
 
   private var sensorsDataThreadFlag: Boolean = true
   var reconnectThreadFlag: Boolean = false
@@ -127,6 +134,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var countdownToUpdate = COUNT_ATTEMPTS_TO_UPDATE
   private var debagScreenIsOpen = false
   private var decorator: Decorator? = null
+  private val currentFragment: Fragment
+    get() = supportFragmentManager.findFragmentById(R.id.mainactivity_help_fcv)!!
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -935,6 +944,10 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     worker.start()
 
 
+    showHelpContainerView(true)
+    showHelpScreen()
+
+
     initUI()
 }
   override fun onResume() {
@@ -993,6 +1006,63 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     System.err.println("Check life cycle onNewIntent()")
     setIntent(intent)
   }
+
+
+
+
+  override fun showHelpContainerView(show: Boolean) {
+    if (show) {
+//      mainactivity_help_fcv.visibility = View.VISIBLE
+      window.statusBarColor = resources.getColor(R.color.back_help_menu, theme)
+      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+    }
+    else {
+//      mainactivity_help_fcv.visibility = View.GONE
+
+      window.statusBarColor = resources.getColor(R.color.blue_status_bar, theme)
+      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE
+    }
+  }
+  override fun showHelpScreen() { launchFragment(HelpFragment()) }
+  override fun showTestScreen() { launchFragment(TestFragment()) }
+  override fun goingBack() {
+    onBackPressed()
+//    showHelpContainerView(false)
+  }
+  override fun onBackPressed() {
+    super.onBackPressed()
+    System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
+    if (supportFragmentManager.backStackEntryCount == 0) {
+      showHelpContainerView(false)
+    }
+  }
+
+
+  private fun launchFragment(fragment: Fragment) {
+    supportFragmentManager
+      .beginTransaction()
+      .setCustomAnimations(
+        R.anim.slide_in,
+        R.anim.slide_out_next,
+        R.anim.slide_in_next,
+        R.anim.slide_out
+      )
+      .addToBackStack(null)
+      .replace(R.id.mainactivity_help_fcv, fragment)
+      .commit()
+  }
+  private fun launchFragmentWithoutStack(fragment: Fragment) {
+    val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+    transaction.setCustomAnimations(
+      R.anim.slide_in,
+      R.anim.fade_out,
+      R.anim.fade_in,
+      R.anim.slide_out
+    )
+    transaction.replace(R.id.mainactivity_help_fcv, fragment)
+    if (!supportFragmentManager.isDestroyed) transaction.commit()
+  }
+
   private fun initUI() {
     if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
       if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
@@ -1060,9 +1130,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   @SuppressLint("ClickableViewAccessibility")
-  fun setDecorator(guide: TypeGuides, targetView: View) {
+  fun setDecorator(guide: TypeGuides, targetView: View, rootClass: Any) {
     cancelable_touch_btn.visibility = View.VISIBLE
-    decorator?.showNameGuide(guide, targetView)
+    decorator?.showNameGuide(guide, targetView, rootClass)
   }
   @SuppressLint("ClickableViewAccessibility")
   fun hideDecorator() {
@@ -1928,7 +1998,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     parcel.writeInt(dataSens2)
     parcel.writeInt(state)
   }
-
   override fun describeContents(): Int { return 0 }
 
   companion object CREATOR : Parcelable.Creator<MainActivity> {
@@ -2158,7 +2227,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
   override fun initializeUI() {}
 
-  open fun crcCalc(data: ByteArray): Byte {
+  private fun crcCalc(data: ByteArray): Byte {
     var countLocal = data.size - 1
     val crcTable = byteArrayOf(
             0, 94, 188.toByte(), 226.toByte(), 97, 63, 221.toByte(), 131.toByte(), 194.toByte(), 156.toByte(), 126, 32, 163.toByte(), 253.toByte(), 31, 65,

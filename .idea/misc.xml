@@ -77,9 +77,16 @@
         <entry key="app/src/main/res/layout/dialog_select_scale.xml" value="0.3051449498386248" />
         <entry key="app/src/main/res/layout/dialog_user_profiles.xml" value="0.34342803955078127" />
         <entry key="app/src/main/res/layout/finger_template.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/fragment_charging_the_prosthesis.xml" value="0.38092189500640206" />
+        <entry key="app/src/main/res/layout/fragment_complete_set.xml" value="0.29732055664062507" />
         <entry key="app/src/main/res/layout/fragment_gesture_settings.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/fragment_gripper_settings.xml" value="0.21422101449275363" />
-        <entry key="app/src/main/res/layout/fragment_help.xml" value="0.27596899224806204" />
+        <entry key="app/src/main/res/layout/fragment_help.xml" value="0.34635691657866946" />
+        <entry key="app/src/main/res/layout/fragment_help_mono.xml" value="0.23596014492753623" />
+        <entry key="app/src/main/res/layout/fragment_how_prosthesis_works.xml" value="0.44507598876953125" />
+        <entry key="app/src/main/res/layout/fragment_how_prosthesis_works_mono.xml" value="0.46324501632316606" />
+        <entry key="app/src/main/res/layout/fragment_how_to_put_on_a_prosthesis_socket.xml" value="0.3562854680899318" />
+        <entry key="app/src/main/res/layout/fragment_sensor_settings.xml" value="0.1433389544688027" />
         <entry key="app/src/main/res/layout/fragment_service_settings.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/fragment_service_settings_mono.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/fragment_test.xml" value="0.19384057971014493" />

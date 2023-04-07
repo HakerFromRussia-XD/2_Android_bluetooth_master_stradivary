@@ -6,9 +6,11 @@ fun Fragment.navigator(): Navigator {
 }
 
 interface Navigator {
-    fun showHelpContainerView(show: Boolean)
+    fun showWhiteStatusBar(show: Boolean)
     fun showHelpScreen()
+    fun showSensorsHelpScreen()
     fun showTestScreen()
+    fun showHowProsthesisWorksScreen()
 
     fun goingBack()
 }

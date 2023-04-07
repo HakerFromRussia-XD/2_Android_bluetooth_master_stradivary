@@ -2,7 +2,6 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.Manifest
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
@@ -25,7 +24,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.activity_infinity_settings.view.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_confirm_select_scale.*
 import kotlinx.android.synthetic.main.dialog_info.*
@@ -52,8 +50,10 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.*
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.HelpFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.TestFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.HelpFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.HowProsthesisWorksFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.SensorsFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.TestFragment
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import me.start.motorica.scan.view.ScanActivity
@@ -944,7 +944,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     worker.start()
 
 
-    showHelpContainerView(true)
+    showWhiteStatusBar(true)
     showHelpScreen()
 
 
@@ -1010,30 +1010,28 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
 
 
-  override fun showHelpContainerView(show: Boolean) {
+  override fun showWhiteStatusBar(show: Boolean) {
     if (show) {
-//      mainactivity_help_fcv.visibility = View.VISIBLE
       window.statusBarColor = resources.getColor(R.color.back_help_menu, theme)
       window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
     }
     else {
-//      mainactivity_help_fcv.visibility = View.GONE
-
       window.statusBarColor = resources.getColor(R.color.blue_status_bar, theme)
       window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE
     }
   }
   override fun showHelpScreen() { launchFragment(HelpFragment()) }
+  override fun showSensorsHelpScreen() { launchFragment(SensorsFragment()) }
   override fun showTestScreen() { launchFragment(TestFragment()) }
+  override fun showHowProsthesisWorksScreen() { launchFragment(HowProsthesisWorksFragment()) }
   override fun goingBack() {
     onBackPressed()
-//    showHelpContainerView(false)
   }
   override fun onBackPressed() {
     super.onBackPressed()
     System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
     if (supportFragmentManager.backStackEntryCount == 0) {
-      showHelpContainerView(false)
+      showWhiteStatusBar(false)
     }
   }
 

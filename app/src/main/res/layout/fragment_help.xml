@@ -6,12 +6,80 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <View
+        android:id="@+id/title_click_block_btn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@+id/main_sv"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="-18dp"
+        android:background="@color/back_help_menu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView33"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignStart="@+id/back_btn"
+        android:layout_alignTop="@+id/back_btn"
+        android:layout_alignEnd="@+id/back_btn"
+        android:layout_alignBottom="@+id/back_btn"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/ic_back"
+        app:layout_constraintBottom_toBottomOf="@+id/back_btn"
+        app:layout_constraintEnd_toEndOf="@+id/back_btn"
+        app:layout_constraintStart_toStartOf="@+id/back_btn"
+        app:layout_constraintTop_toTopOf="@+id/back_btn"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/back_btn"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="18dp"
+        android:background="?android:attr/selectableItemBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/help_title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imageView33"
+        android:layout_alignBottom="@+id/imageView33"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_toEndOf="@+id/back_btn"
+        android:fontFamily="@font/font_open_sans_semi_bold"
+        android:text="@string/help"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView33"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageView33"
+        app:layout_constraintTop_toTopOf="@+id/imageView33" />
+
+
     <ScrollView
+        android:id="@+id/main_sv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/imageView33"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="18dp"
         android:layout_marginBottom="0dp"
         android:background="@color/back_help_menu"
         tools:ignore="UselessParent">
@@ -41,57 +109,18 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.5" />
 
-            <ImageView
-                android:id="@+id/imageView3"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:background="@drawable/ic_back"
-                app:layout_constraintBottom_toBottomOf="@+id/back_btn"
-                app:layout_constraintEnd_toEndOf="@+id/back_btn"
-                app:layout_constraintStart_toStartOf="@+id/back_btn"
-                app:layout_constraintTop_toTopOf="@+id/back_btn"
-                tools:ignore="ContentDescription" />
-
-            <View
-                android:id="@+id/back_btn"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginStart="6dp"
-                android:layout_marginTop="18dp"
-                android:background="?android:attr/selectableItemBackground"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/help_title_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:fontFamily="@font/font_open_sans_semi_bold"
-                android:text="@string/help"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                app:layout_constraintBottom_toBottomOf="@+id/imageView3"
-                app:layout_constraintEnd_toStartOf="@+id/endGuideline"
-                app:layout_constraintStart_toEndOf="@+id/imageView3"
-                app:layout_constraintTop_toTopOf="@+id/imageView3" />
-
             <TextView
                 android:id="@+id/app_instruction_title_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="14dp"
                 android:fontFamily="@font/font_open_sans_semi_bold"
                 android:text="@string/app_control"
                 android:textColor="@color/black"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toStartOf="@+id/endGuideline"
                 app:layout_constraintStart_toStartOf="@+id/beginGuideline"
-                app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView1"
@@ -175,7 +204,7 @@
                             android:background="@color/background_scan_list" />
 
                         <View
-                            android:id="@+id/settings_reset_cannule_timer_btn"
+                            android:id="@+id/sensors_settings_btn"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_alignParentStart="true"

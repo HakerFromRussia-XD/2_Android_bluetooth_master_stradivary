@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/title_click_block_btn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@+id/main_sv"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="-18dp"
+        android:background="@color/back_help_menu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView33"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignStart="@+id/back_btn"
+        android:layout_alignTop="@+id/back_btn"
+        android:layout_alignEnd="@+id/back_btn"
+        android:layout_alignBottom="@+id/back_btn"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/ic_arrow_left"
+        app:layout_constraintBottom_toBottomOf="@+id/back_btn"
+        app:layout_constraintEnd_toEndOf="@+id/back_btn"
+        app:layout_constraintStart_toStartOf="@+id/back_btn"
+        app:layout_constraintTop_toTopOf="@+id/back_btn"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/back_btn"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="18dp"
+        android:background="?android:attr/selectableItemBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/help_title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imageView33"
+        android:layout_alignBottom="@+id/imageView33"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="0dp"
+        android:layout_toEndOf="@+id/back_btn"
+        android:fontFamily="@font/font_open_sans_semi_bold"
+        android:lines="2"
+        android:text="Настройка датчиков"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView33"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageView33"
+        app:layout_constraintTop_toTopOf="@+id/imageView33" />
+
+
+    <ScrollView
+        android:id="@+id/main_sv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/imageView33"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="0dp"
+        android:background="@color/back_help_menu"
+        tools:ignore="UselessParent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/beginGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="16dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/endGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="16dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/midGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:layout_constraintEnd_toStartOf="@+id/endGuideline"
+                app:layout_constraintStart_toStartOf="@+id/beginGuideline"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/beginGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="16dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/endGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_end="16dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/topGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_begin="20dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/bottomGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_end="20dp" />
+
+                    <TextView
+                        android:id="@+id/textView16"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="Настройка датчиков"
+                        android:textColor="@color/black"
+                        android:textSize="24sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/topGuideline_2" />
+
+                    <TextView
+                        android:id="@+id/textView17"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Управление протезом при помощи датчиков ЭМГ осуществляется за счет настройки двух показателей - чувствительности и порога."
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView16" />
+
+                    <TextView
+                        android:id="@+id/textView52"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="У кажого датчика свой цвет:"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView17" />
+
+                    <ImageView
+                        android:id="@+id/imageView4"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginTop="16dp"
+                        android:src="@drawable/help_image_7"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView52" />
+
+                    <TextView
+                        android:id="@+id/textView26"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Датчик закрытия"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/imageView4"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/imageView4"
+                        app:layout_constraintTop_toTopOf="@+id/imageView4" />
+
+                    <ImageView
+                        android:id="@+id/imageView5"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginTop="16dp"
+                        android:src="@drawable/help_image_8"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView4" />
+
+                    <TextView
+                        android:id="@+id/textView27"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Датчик открытия"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/imageView5"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toEndOf="@+id/imageView4"
+                        app:layout_constraintTop_toTopOf="@+id/imageView5" />
+
+                    <TextView
+                        android:id="@+id/textView19"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="46dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="За что отвечает чувствительность?"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView5" />
+
+
+                    <TextView
+                        android:id="@+id/textView21"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_sensitivity_determines_how_much_muscle_tension_is_required_for_the_sensor_to_read_the_signal_decrease_the_sensitivity_if_there_is_a_lot_of_background_noise_and_increase_it_if_you_have_to_strain_the_muscle_too_much_when_controlling_the_prosthesis"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView19" />
+
+                    <TextView
+                        android:id="@+id/textView53"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Перетаскивая эти слайдеры, можно менять уровни чувствительности датчиков."
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView21" />
+
+                    <ImageView
+                        android:id="@+id/imageView9"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_9_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView53"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView54"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="За что отвечает порог?"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView9" />
+
+                    <TextView
+                        android:id="@+id/textView55"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Чтобы протез открылся или закрылся, нужно, чтобы сигнал с датчика пересек порог. Но, это произойдет, только если сигналы с датчиков не пересекают свои пороги одновременно друг с другом."
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView54" />
+
+                    <TextView
+                        android:id="@+id/textView56"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Уровени порогов можно изменять перемещая эти ползуинки вверх и вниз."
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView55" />
+
+                    <ImageView
+                        android:id="@+id/imageView10"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_10_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView56"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView57"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="Как настроить правильно?"
+                        android:textColor="@color/black"
+                        android:textSize="24sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView10" />
+
+                    <TextView
+                        android:id="@+id/textView58"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Несколько раз последовательно напрягите мышцы сгибатели/разгибатели, наблюдая за сигналами от датчиков на графике."
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView57" />
+
+                    <TextView
+                        android:id="@+id/textView59"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="Важно! Сигналы не должны накладываться друг на друга "
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView58" />
+
+                    <TextView
+                        android:id="@+id/textView60"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Сигналы без наложения:"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView59" />
+
+                    <ImageView
+                        android:id="@+id/imageView11"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_11"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView60"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView61"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Сигналы с наложением:"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView11" />
+
+                    <ImageView
+                        android:id="@+id/imageView12"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_12"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView61"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView62"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="При выполнении возможны 3 вида ситуаций, наблюдаемых на графиках. Прежде чем изменять уровни чувствительности датчиков вы должны понять, какую ситуацию вы наблюдаете."
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView12" />
+
+                    <TextView
+                        android:id="@+id/textView63"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="При напряжении одной мышцы появляется сигнал от второй"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView62" />
+
+                    <TextView
+                        android:id="@+id/textView64"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Полезный сигнал с датчика открытия и паразитный с датчика закрытия"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView63" />
+
+                    <ImageView
+                        android:id="@+id/imageView13"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_13"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView64"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView65"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="Как это исправить?"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView13" />
+
+                    <TextView
+                        android:id="@+id/textView66"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Уменьшить минимум до пяти единиц чувствительность того датчика, сигнал которого является паразитным (например, при попытке добиться сигнала открытия, паразитным будет сигнал с датчика закрытия) до тех пор пока его уровень не будет стабильно ниже 50."
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView65" />
+
+                    <TextView
+                        android:id="@+id/textView67"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="Сигнал от одной из мышц или от обоих не виден на графиках"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView66" />
+
+                    <TextView
+                        android:id="@+id/textView68"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="Как это исправить?"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView67" />
+
+                    <TextView
+                        android:id="@+id/textView69"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="Увеличить чувствительность датчика, сигнал которого не виден на графике."
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView68" />
+
+                    <TextView
+                        android:id="@+id/textView70"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="Сигнал от обоих мышц чистый от помех и хорошо разделён"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView69" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="В этом случае менять настройки чувствительности датчиков не нужно, датчики настроены корректно."
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toTopOf="@+id/bottomGuideline_2"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView70" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/app_instruction_title_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:fontFamily="@font/font_open_sans_semi_bold"
+                android:text="@string/app_control"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/endGuideline"
+                app:layout_constraintStart_toStartOf="@+id/beginGuideline"
+                app:layout_constraintTop_toBottomOf="@+id/cardView1" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="30dp"
+                app:cardCornerRadius="12dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/endGuideline"
+                app:layout_constraintStart_toStartOf="@+id/beginGuideline"
+                app:layout_constraintTop_toBottomOf="@+id/app_instruction_title_tv">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toStartOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/app_instruction_title_tv">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:orientation="horizontal"
+                            android:weightSum="4"
+                            tools:ignore="DisableBaselineAlignment">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:layout_marginTop="18dp"
+                                    android:layout_marginBottom="18dp"
+                                    android:fontFamily="@font/font_open_sans_semi_bold"
+                                    android:text="@string/sensor_settingss"
+                                    android:textColor="@color/black"
+                                    android:textSize="14sp"
+                                    tools:ignore="RelativeOverlap" />
+
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:background="@color/background_scan_list" />
+
+                        <View
+                            android:id="@+id/sensors_settings_btn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:orientation="horizontal"
+                            android:weightSum="4"
+                            tools:ignore="DisableBaselineAlignment">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:layout_marginTop="18dp"
+                                    android:layout_marginBottom="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/setting_gestures"
+                                    android:textColor="@color/black"
+                                    android:textSize="14sp"
+                                    tools:ignore="RelativeOverlap" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:background="@drawable/ic_navigate_next"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/settindgs_refill_reservoir_btn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:background="?android:attr/selectableItemBackground" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+</RelativeLayout>
+

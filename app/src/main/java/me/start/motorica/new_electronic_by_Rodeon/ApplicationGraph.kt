@@ -16,6 +16,10 @@ package me.start.motorica.new_electronic_by_Rodeon
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.HelpFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.HowProsthesisWorksFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.SensorsFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.TestFragment
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.*
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.MainWaterFragment
@@ -44,4 +48,8 @@ interface ApplicationGraph {
   fun inject(settingsFragment: HelpFragment)
 
   fun inject(testFragment: TestFragment)
+
+  fun inject(howProsthesisWorksFragment: HowProsthesisWorksFragment)
+
+  fun inject(sensorsFragment: SensorsFragment) {}
 }

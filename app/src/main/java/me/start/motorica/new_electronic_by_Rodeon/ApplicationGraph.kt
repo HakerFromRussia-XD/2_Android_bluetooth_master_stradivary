@@ -16,13 +16,9 @@ package me.start.motorica.new_electronic_by_Rodeon
 import me.start.motorica.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.HelpFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.HowProsthesisWorksFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.SensorsFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.TestFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.*
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.*
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.MainWaterFragment
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.AdvancedSettingsFragment
 
 
@@ -32,24 +28,20 @@ interface ApplicationGraph {
   fun inject(target_: MainPresenter)
 
   fun inject(target_: ChartFragment)
-
-  fun inject(target_: MainWaterFragment)
-
   fun inject(target_: AdvancedSettingsFragment)
-
   fun inject(target_: GestureFragment)
-
   fun inject(target_: GripperFragment)
-
   fun inject(target_: GripperScreenPresenter)
-
   fun inject(target_: KibiFragment)
 
   fun inject(settingsFragment: HelpFragment)
-
-  fun inject(testFragment: TestFragment)
+  fun inject(sensorsFragment: SensorsFragment) {}
 
   fun inject(howProsthesisWorksFragment: HowProsthesisWorksFragment)
-
-  fun inject(sensorsFragment: SensorsFragment) {}
+  fun inject(howProsthesisWorksMonoFragment: HowProsthesisWorksMonoFragment) {}
+  fun inject(howToPutOnProsthesisSocketFragment: HowToPutOnProsthesisSocketFragment) {}
+  fun inject(completeSetFragment: CompleteSetFragment) {}
+  fun inject(chargingTheProsthesisFragment: ChargingTheProsthesisFragment) {}
+  fun inject(prosthesisCareFragment: ProsthesisCareFragment) {}
+  fun inject(serviceAndWarrantyFragment: ServiceAndWarrantyFragment) {}
 }

@@ -22,7 +22,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_confirm_select_scale.*
@@ -50,10 +49,8 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
 import me.start.motorica.new_electronic_by_Rodeon.ui.adapters.*
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.*
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.HelpFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.HowProsthesisWorksFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.SensorsFragment
-import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.TestFragment
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.help.*
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import me.start.motorica.scan.view.ScanActivity
@@ -134,8 +131,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var countdownToUpdate = COUNT_ATTEMPTS_TO_UPDATE
   private var debagScreenIsOpen = false
   private var decorator: Decorator? = null
-  private val currentFragment: Fragment
-    get() = supportFragmentManager.findFragmentById(R.id.mainactivity_help_fcv)!!
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -944,8 +939,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     worker.start()
 
 
-    showWhiteStatusBar(true)
-    showHelpScreen()
+//    showWhiteStatusBar(true)
+//    showHelpScreen()
 
 
     initUI()
@@ -1020,13 +1015,17 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE
     }
   }
-  override fun showHelpScreen() { launchFragment(HelpFragment()) }
+  override fun showHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(HelpFragment(chartFragmentClass)) }
+//  override fun showHelpMonoScreen(chartFragmentClass: ChartFragment) { launchFragment(HelpMonoFragment(chartFragmentClass)) }
   override fun showSensorsHelpScreen() { launchFragment(SensorsFragment()) }
-  override fun showTestScreen() { launchFragment(TestFragment()) }
   override fun showHowProsthesisWorksScreen() { launchFragment(HowProsthesisWorksFragment()) }
-  override fun goingBack() {
-    onBackPressed()
-  }
+  override fun showHowProsthesisWorksMonoScreen() { launchFragment(HowProsthesisWorksMonoFragment()) }
+  override fun showHowPutOnTheProthesisSocketScreen() { launchFragment(HowToPutOnProsthesisSocketFragment()) }
+  override fun showCompleteSetScreen() { launchFragment(CompleteSetFragment()) }
+  override fun showChargingTheProthesisScreen() { launchFragment(ChargingTheProsthesisFragment()) }
+  override fun showProsthesisCareScreen() { launchFragment(ProsthesisCareFragment()) }
+  override fun showServiceAndWarrantyScreen() { launchFragment(ServiceAndWarrantyFragment()) }
+  override fun goingBack() { onBackPressed() }
   override fun onBackPressed() {
     super.onBackPressed()
     System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
@@ -1048,17 +1047,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       .addToBackStack(null)
       .replace(R.id.mainactivity_help_fcv, fragment)
       .commit()
-  }
-  private fun launchFragmentWithoutStack(fragment: Fragment) {
-    val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-    transaction.setCustomAnimations(
-      R.anim.slide_in,
-      R.anim.fade_out,
-      R.anim.fade_in,
-      R.anim.slide_out
-    )
-    transaction.replace(R.id.mainactivity_help_fcv, fragment)
-    if (!supportFragmentManager.isDestroyed) transaction.commit()
   }
 
   private fun initUI() {
@@ -1651,8 +1639,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   /**
    * Запуск задачи чтения параметров экрана графиков
    */
-  private fun runStartVM() { getStartVM()?.let { queue.put(it) } }
-  private fun getStartVM(): Runnable? { return Runnable { readStartVM() } }
+  private fun runStartVM() { getStartVM().let { queue.put(it) } }
+  private fun getStartVM(): Runnable { return Runnable { readStartVM() } }
   private fun readStartVM() {
     val info = "-------> displayDataNew  Чтение порогов и версий"
     var count = 0

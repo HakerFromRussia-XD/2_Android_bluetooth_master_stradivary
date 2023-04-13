@@ -45,7 +45,6 @@ class SplashScreen : AppCompatActivity() {
                     Manifest.permission.BLUETOOTH_CONNECT))
                 launchScanActivity()
             }, 300)
-
         }
         else{
 //            System.err.println(" LOLOLOEFWEF --->  askPermissions()  Build.VERSION_CODES.S  false")

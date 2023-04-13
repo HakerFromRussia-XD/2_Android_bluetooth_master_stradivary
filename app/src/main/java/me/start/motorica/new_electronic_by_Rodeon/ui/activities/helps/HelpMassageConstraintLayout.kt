@@ -31,10 +31,10 @@ internal class HelpMassageConstraintLayout(
 ) : ConstraintLayout(context),
     View.OnClickListener {
     private val scale = context.resources.displayMetrics.density
-    private var testInterface: DecoratorChange? = null
+    private var decoratorInterface: DecoratorChange? = null
 
     private fun setRootClass(rootClass: Any) {
-        if (rootClass is ChartFragment) { testInterface = rootClass }
+        if (rootClass is ChartFragment) { decoratorInterface = rootClass }
     }
 
     private fun messageWithRightArrow(targetView: View) {
@@ -420,8 +420,8 @@ internal class HelpMassageConstraintLayout(
     }
 
     override fun onClick(v: View?) {
-//        setRootClass(rootClass)
-//        with(testInterface) { this?.setNextDecorator() }
+        setRootClass(rootClass)
+        decoratorInterface?.setNextDecorator()
         main.hideDecorator()
     }
 }

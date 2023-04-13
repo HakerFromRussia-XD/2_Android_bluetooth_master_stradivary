@@ -25,6 +25,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
@@ -35,6 +36,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.DecoratorChange
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
@@ -44,7 +46,7 @@ import javax.inject.Inject
 
 
 @Suppress("DEPRECATION")
-class ChartFragment : Fragment(), DecoratorChange, OnChartValueSelectedListener {
+class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValueSelectedListener {
 
   @Inject
   lateinit var sqliteManager: SqliteManager
@@ -98,7 +100,6 @@ class ChartFragment : Fragment(), DecoratorChange, OnChartValueSelectedListener 
       }
     return rootView
   }
-
   @Deprecated("Deprecated in Java")
   @SuppressLint("ClickableViewAccessibility", "SetTextI18n", "Recycle")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -505,8 +506,9 @@ class ChartFragment : Fragment(), DecoratorChange, OnChartValueSelectedListener 
     }
 
     help_btn.setOnClickListener {
+      graphThreadFlag = false
       navigator().showWhiteStatusBar(true)
-      navigator().showHelpScreen()
+      navigator().showHelpScreen(this)
     }
     save_profile_btn.setOnClickListener {
       main!!.showToast("save profile btn tup")
@@ -553,7 +555,13 @@ class ChartFragment : Fragment(), DecoratorChange, OnChartValueSelectedListener 
         displayedTypeGuides = TypeGuides.SHOW_DEVICE_NAME_GUIDE
       }
       TypeGuides.SHOW_DEVICE_NAME_GUIDE -> { main!!.hideDecorator() }
+      else -> {}
     }
+  }
+  override fun reactivatedChart() {
+    System.err.println("Test reactivatedChart ChartFragment")
+    graphThreadFlag = true
+    startGraphEnteringDataThread()
   }
 
   @SuppressLint("SetTextI18n")

@@ -2,7 +2,9 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.*
+import android.util.TypedValue
 import android.view.View
 
 class DimWithMask(context: Context?) : View(context) {
@@ -47,6 +49,14 @@ class DimWithMask(context: Context?) : View(context) {
         bottomRect = bottomRect_DP.toFloat()
     }
 
+    private fun convertToDp(unit: Float): Float {
+        val r: Resources = resources
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            unit,
+            r.displayMetrics
+        )
+    }
 
     override fun onDraw(canvas: Canvas) {
         @SuppressLint("DrawAllocation")
@@ -62,13 +72,20 @@ class DimWithMask(context: Context?) : View(context) {
         mPaint.xfermode = pdf
         when (typeDimMasks) {
             TypeDimMasks.CIRCLE -> { canvas.drawCircle(anchorX, anchorY, radius, mPaint) }
+            TypeDimMasks.RECTANGLE -> {
+                canvas.drawRect(leftRect, topRect + convertToDp(20f), rightRect, bottomRect, mPaint)
+                canvas.drawCircle(leftRect - 13f, topRect + 13f, 20f, mPaint)
+                canvas.drawCircle(rightRect + 13f, topRect + 13f, 20f, mPaint)
+                canvas.drawCircle(rightRect + 13f, bottomRect - 13f, 20f, mPaint)
+                canvas.drawCircle(leftRect - 13f, bottomRect - 13f, 20f, mPaint)
+            }
             TypeDimMasks.VERTICAL_RECTANGLE -> {
-                canvas.drawRect(leftRect+120f, topRect+40f, rightRect-120f, bottomRect-40f, mPaint)
-                canvas.drawRect(leftRect+50f, topRect+120f, rightRect-50f, bottomRect-120f, mPaint)
-                canvas.drawCircle(leftRect+120f, topRect+110f, 70f, mPaint)
-                canvas.drawCircle(rightRect-120f, topRect+110f, 70f, mPaint)
-                canvas.drawCircle(rightRect-120f, bottomRect-110f, 70f, mPaint)
-                canvas.drawCircle(leftRect+120f, bottomRect-110f, 70f, mPaint)
+                canvas.drawRect(leftRect+convertToDp(53f), topRect+convertToDp(14f), rightRect-convertToDp(53f), bottomRect-convertToDp(14f), mPaint)
+                canvas.drawRect(leftRect+convertToDp(14f), topRect+convertToDp(53f), rightRect-convertToDp(14f), bottomRect-convertToDp(53f), mPaint)
+                canvas.drawCircle(leftRect+convertToDp(47f), topRect+convertToDp(47f), convertToDp(33f), mPaint)
+                canvas.drawCircle(rightRect-convertToDp(47f), topRect+convertToDp(47f), convertToDp(33f), mPaint)
+                canvas.drawCircle(rightRect-convertToDp(47f), bottomRect-convertToDp(47f), convertToDp(33f), mPaint)
+                canvas.drawCircle(leftRect+convertToDp(47f), bottomRect-convertToDp(47f), convertToDp(33f), mPaint)
             }
             TypeDimMasks.HORISONTAL_RECTANGLE -> {
                 canvas.drawRect(leftRect-13f, topRect, rightRect+13f, bottomRect, mPaint)
@@ -79,12 +96,12 @@ class DimWithMask(context: Context?) : View(context) {
                 canvas.drawCircle(leftRect-13f, bottomRect-13f, 13f, mPaint)
             }
             TypeDimMasks.HORISONTAL_RECTANGLE_ALL_WIDTH -> {
-                canvas.drawRect(leftRect+70f, topRect+3f, rightRect-70f, bottomRect-3f, mPaint)
-                canvas.drawRect(leftRect+33f, topRect+40f, rightRect-33f, bottomRect-40f, mPaint)
-                canvas.drawCircle(leftRect+67f, topRect+40f, 35f, mPaint)
-                canvas.drawCircle(rightRect-67f, topRect+40f, 35f, mPaint)
-                canvas.drawCircle(rightRect-67f, bottomRect-37f, 35f, mPaint)
-                canvas.drawCircle(leftRect+67f, bottomRect-37f, 35f, mPaint)
+                canvas.drawRect(leftRect+convertToDp(16f), topRect+convertToDp(5f), rightRect-convertToDp(16f), bottomRect-convertToDp(5f), mPaint)
+                canvas.drawRect(leftRect+convertToDp(6f), topRect+convertToDp(16f), rightRect-convertToDp(6f), bottomRect-convertToDp(15f), mPaint)
+                canvas.drawCircle(leftRect+convertToDp(17f), topRect+convertToDp(16f), convertToDp(11f), mPaint)
+                canvas.drawCircle(rightRect-convertToDp(17f), topRect+convertToDp(16f), convertToDp(11f), mPaint)
+                canvas.drawCircle(rightRect-convertToDp(17f), bottomRect-convertToDp(16f), convertToDp(11f), mPaint)
+                canvas.drawCircle(leftRect+convertToDp(17f), bottomRect-convertToDp(16f), convertToDp(11f), mPaint)
             }
             TypeDimMasks.HORISONTAL_RECTANGLE_ALL_WIDTH_MOVEMENT_BUTTONS -> {
                 canvas.drawRect(leftRect+70f, topRect+3f, rightRect-70f, bottomRect-3f, mPaint)

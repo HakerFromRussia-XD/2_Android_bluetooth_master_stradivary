@@ -387,12 +387,12 @@ public class BluetoothLeService extends Service {
             }
         }
 //TODO раскомментить после завершения теста с сохранением имён жестов
-        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        if (device == null) {
-            Timber.tag(TAG).w("Device not found.  Unable to connect.");
-            return false;
-        }
-        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
+//        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+//        if (device == null) {
+//            Timber.tag(TAG).w("Device not found.  Unable to connect.");
+//            return false;
+//        }
+//        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
         Timber.d("Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;

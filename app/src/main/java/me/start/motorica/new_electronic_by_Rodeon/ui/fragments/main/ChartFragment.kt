@@ -517,35 +517,36 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
     //TODO тут начинается обучение
 //    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, open_threshold_help_v, this)
+//      main!!.setDecorator(TypeGuides.SHOW_HELP_GUIDE, help_btn, this)
 //    }, 500)
+
 //    Handler().postDelayed({
 //      main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, version_help_v, this)
 //    }, 500)
 //    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_HELP_GUIDE, help_btn, this)
+//      main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE, open_sensors_sensitivity_rl, this)
 //    }, 500)
 //    Handler().postDelayed({
-//      hideDecorator()
-//    }, 1000)
+//      main!!.setDecorator(TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE, open_threshold_help_v, this)
+//    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator(TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE, open_CH_v, this)
+//    }, 500)
+//    Handler().postDelayed({
+//      main!!.setDecorator(TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE, close_CH_v, this)
+//    }, 500)
+
+
+    Handler().postDelayed({
+      main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, movement_buttons_rl, this)
+    }, 500)
 //    Handler().postDelayed({
 //      main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, name_tv,this)
 //    }, 500)
+
 //    Handler().postDelayed({
-//      main!!.setDecorator("showDeviceNameGuide", name_tv)
-//    }, 500)
-//    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, movement_buttons_rl)
-//    }, 500)
-//    Handler().postDelayed({
-//      main!!.setDecorator("showSensorsSensitivityGuide", open_sensors_sensitivity_rl)
+//      hideDecorator()
 //    }, 1000)
-//    Handler().postDelayed({
-//      main!!.setDecorator("showSensorsThresholdLevelsGuide", open_CH_v)
-//    }, 500)
-//    Handler().postDelayed({
-//      main!!.setDecorator("showSensorsThresholdLevelsGuide", close_CH_v)
-//    }, 500)
   }
   override fun setNextDecorator() {
     when(displayedTypeGuides) {

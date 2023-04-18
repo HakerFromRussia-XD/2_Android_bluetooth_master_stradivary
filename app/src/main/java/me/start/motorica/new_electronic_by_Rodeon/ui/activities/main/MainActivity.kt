@@ -1018,6 +1018,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun showHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(HelpFragment(chartFragmentClass)) }
 //  override fun showHelpMonoScreen(chartFragmentClass: ChartFragment) { launchFragment(HelpMonoFragment(chartFragmentClass)) }
   override fun showSensorsHelpScreen() { launchFragment(SensorsFragment()) }
+  override fun showGesturesHelpScreen() { launchFragment(GestureCustomizationFragment()) }
   override fun showHowProsthesisWorksScreen() { launchFragment(HowProsthesisWorksFragment()) }
   override fun showHowProsthesisWorksMonoScreen() { launchFragment(HowProsthesisWorksMonoFragment()) }
   override fun showHowPutOnTheProthesisSocketScreen() { launchFragment(HowToPutOnProsthesisSocketFragment()) }
@@ -1118,7 +1119,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   @SuppressLint("ClickableViewAccessibility")
   fun setDecorator(guide: TypeGuides, targetView: View, rootClass: Any) {
     cancelable_touch_btn.visibility = View.VISIBLE
-    decorator?.showNameGuide(guide, targetView, rootClass)
+    decorator?.showGuide(guide, targetView, rootClass)
   }
   @SuppressLint("ClickableViewAccessibility")
   fun hideDecorator() {

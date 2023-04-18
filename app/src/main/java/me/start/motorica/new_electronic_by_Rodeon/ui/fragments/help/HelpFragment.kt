@@ -82,6 +82,8 @@ class HelpFragment(chartFragmentClass: ChartFragment) : Fragment() {
         }
 
         sensors_settings_btn.setOnClickListener { navigator().showSensorsHelpScreen() }
+        settings_gesture_btn.setOnClickListener { navigator().showGesturesHelpScreen() }
+        advanced_settings_btn.setOnClickListener {  }
         if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
             advanced_settings_rl.visibility = View.VISIBLE
         } else {

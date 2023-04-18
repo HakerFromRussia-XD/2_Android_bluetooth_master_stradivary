@@ -257,11 +257,34 @@
     <string name="all_devices">Все устройства</string>
     <string name="protheses">Протезы</string>
     <string name="need_help">Нужна помощь?</string>
-    <string name="name_connected_device">Имя подключенного устройства</string>
-    <string name="software_versions_and_synchronization">Версии ПО и синхронизация</string>
+
+
+    <string name="help_massage_2_1_title">Версии ПО и синхронизация</string>
+    <string name="help_massage_2_2_title">Управление чувствительностью</string>
+    <string name="help_massage_2_2_1_title">Точная настройка</string>
+    <string name="help_massage_2_3_title">Порог датчика</string>
+    <string name="help_massage_2_4_title">Управление порогом</string>
+    <string name="help_massage_2_4_1_title">Управление другим порогом</string>
+    <string name="help_massage_2_5_title">Перемена местами сенсоров</string>
+    <string name="help_massage_2_6_title">Блокировка</string>
+    <string name="help_massage_2_7_title">Прямое управление протезом</string>
+    <string name="help_massage_2_8_title">Имя подключенного устройства</string>
+
     <string name="help_massage_1">Здесь можно узнать о протезе и работе приложения.</string>
-    <string name="help_massage_2">Здесь отображается имя подключённого устройства. Если нажать на него, то можно отключиться от текущего устройства и выбрать другое.</string>
-    <string name="help_massage_3">Параметры показывают версии программного обеспечения каждой из плат, установленных в кисти. Процент синхронизации показывает то, насколько процентов завершено считывание всех параметров из протеза в приложение.</string>
+
+
+    <string name="help_massage_2_1">Параметры показывают версии программного обеспечения каждой из плат, установленных в кисти. Процент синхронизации показывает то, насколько процентов завершено считывание всех параметров из протеза в приложение.</string>
+    <string name="help_massage_2_2">Перетаскивая этот слайдер, можно менять уровень чувствительности датчика.</string>
+    <string name="help_massage_2_2_1">Для более точного изменения чувствительности необходимо нажать на число.</string>
+    <string name="help_massage_2_3">Цвета порогов соответсвуют цветам сигналов от датчикав на графиках. У порога есть название и уровень, отображаемый числом. При пересечении порога соответсвующим сигналом, протез выполняет действие открытия или закрытия соответственно.</string>
+    <string name="help_massage_2_4">Уровень порога датчика открытия можно изменять касанием любой части выделенной зоны. Для более точной настройки можно сделать долгий свайп.</string>
+    <string name="help_massage_2_4_1">Уровень порога датчика закрытия можно изменять аналогично, касанием любой части выделенной зоны. Также для более точной настройки можно сделать долгий свайп.</string>
+    <string name="help_massage_2_5">Функция для перемены местами датчиков. Необходима в случае, если подписи на порогах и слайдерах управления чувствительностью не соответствуют действительности или датчики в гильзе перепутаны местами.</string>
+    <string name="help_massage_2_6">Функция создана, чтобы не испортить идеально подобранные настройки случайным нажатием во время тренировки управления протезом.</string>
+    <string name="help_massage_2_7">Делают с протезом то, что на них написано. Кнопки чувствительны к времени нажатия.</string>
+    <string name="help_massage_2_8">Здесь отображается имя подключённого устройства. Если нажать на него, то можно отключиться от текущего устройства и выбрать другое.</string>
+
+
     <string name="setup_profiles">Профили настроек</string>
     <string name="you_can_create_your_own_settings_profile_by_saving_a_previously_created_profile_a_new_profile_is_created_by_copying_all_settings_of_the_previous_one_also_in_this_menu_you_will_be_able_to_switch_between_all_previously_created_profiles">Вы можете создать свой собственный профиль настроек, сохранив созданный ранее. Новый профиль создаётся копируя все настройки предыдущего Также в этом меню можно будет переключаться между всеми ранее созданными профилями.</string>
     <string name="app_control">УПРАВЛЕНИЕ В ПРИЛОЖЕНИИ</string>
@@ -377,6 +400,25 @@
     <string name="do_not_use_the_product_for_purposes_other_than_those_for_which_it_is_intended_or_in_cases_that_could_cause_any_damage_to_the_prosthesis">Использовать изделие не по назначению и в случаях, способных причинить любое повреждение протезу.</string>
     <string name="immersion_in_water_and_washing_the_prosthesis_under_water_jets_is_prohibited_the_prosthesis_is_ip_54_which_means_it_can_be_used_in_the_rain">Погружение в воду и мойка протеза под струями воды запрещены. Протез имеет степень защиты IP 54 что подразумевает возможность эксплуатации под дождем.</string>
     <string name="disassemble_and_repair_the_product_yourself">Самостоятельно разбирать и чинить изделие.</string>
+    <string name="is_the_prosthesis_calibrated">Откалиброван ли протез?</string>
+    <string name="by_default_the_prosthesis_comes_calibrated_and_with_the_first_gesture_set_you_can_check_if_the_denture_is_correctly_calibrated_by_pressing_the_open_close_buttons">По умолчанию протез поставляется откалиброванным и с настроенным первым жестом. Проверить правильность калибровки можно нажатием на кнопки «открыть»/«закрыть»</string>
+    <string name="when_the_first_gesture_in_the_gesture_menu_is_selected">при выбранном первом жесте в меню жестов.</string>
+    <string name="if_the_prosthetic_hand_closes_into_a_fist_then_it_is_calibrated_correctly_if_it_does_not_close_in_the_fist_or_does_not_move_you_should_contact_the_service_center_for_consultation">Если протез при этом сжимается в кулак, то он откалиброван правильно. Если же он не закрывается в кулак или не двигается, то необходимо обратиться в сервисный центр, для получения консультации.</string>
+    <string name="configuring_your_first_personal_gesture">Настройка первого собственного жеста</string>
+    <string name="after_checking_that_the_calibration_and_the_first_gesture_are_working_you_can_start_setting_up_your_own_gestures_to_do_this_click_on_the_gear_button_next_to_the_name_of_the_gesture_you_want_to_adjust">После проверки работоспособности калибровки и первого жеста, можно приступить к настройке собственных жестов. Для этого нажмите на кнопку шестерёнки рядом с названием того жеста, который вы хотите настроить.</string>
+    <string name="this_will_open_a_window_in_which_you_will_see_a_3d_model_of_the_prosthetic_hand_in_the_open_state_of_the_customizable_gesture_change_the_grip_by_tapping_any_finger_and_then_swiping_up_or_down_on_the_screen">После этого откроется окно в котором вы увидите макет кисти протеза в открытом состоянии настраиваемого жеста. Изменение схвата происходит путём нажатием на любой палец и дальнейшего свайпа вверх или вниз по экрану.</string>
+    <string name="the_length_of_the_swipe_adjusts_the_angle_of_the_finger_bend">Длина свайпа регулирует угол сгиба пальца.</string>
+    <string name="when_adjusting_the_forefinger_middle_finger_ring_finger_and_pinky_finger_only_the_swipe_in_the_vertical_direction_is_taken_into_consideration_and_two_axes_are_used_simultaneously_to_adjust_the_position_of_the_thumb">При настройке указательного, среднего, безымянного пальцев и мизинца, учитывается свайп только в вертикальном направлении. А для настройки положения большого пальца кисти используются одновременно две оси.</string>
+    <string name="the_vertical_axis_control_the_angle_of_flexion_of_the_thumb_itself_and_the_horizontal_axis_control_the_angle_of_rotation_of_the_thumb">Вертикальная ось регулирует угол сгиба самого большого пальца, а горизонтальная угол поворота его ротации.</string>
+    <string name="swipes_outside_the_hand_rotate_it_in_space">Свайпы вне кисти поворачивают её в пространстве.</string>
+    <string name="at_the_bottom_of_the_screen_there_is_a_button_to_switch_the_grip_of_the_customizable_gesture">В нижней части экрана находится кнопка переключения схвата настраиваемого жеста.</string>
+    <string name="if_the_open_and_closed_positions_of_the_prosthetic_fingers_do_not_match_after_pressing_it_you_will_see_an_animation_of_the_grip_that_will_be_applied_when_using_this_gesture">Если положение пальцев протеза в открытом и закрытом состоянии не совпадают, то после её нажатия вы увидите анимацию схвата, который будет выполняться при использовании этого жеста.</string>
+    <string name="in_real_life_the_prosthetic_will_perform_the_same_finger_movements_as_the_model_on_the_smartphone_screen">В реальной жизни протез выполнит тоже движение пальцами, что и модель на экране смартфона.</string>
+    <string name="by_moving_the_model_s_fingers_when_the_gesture_state_button_is_in_the_closed_state_position_you_will_configure_the_closed_position_of_the_gesture">Перемещая пальцы модели в тот момент, когда кнопка состояния жеста находится в положении «закрытое состояние» вы будете настраивать закрытое положение жеста.</string>
+    <string name="you_can_also_enter_your_own_name_for_the_gesture_by_clicking_on_the_pencil_icon_next_to_the_default_gesture_name">Также можно ввести для жеста своё имя, нажав на значок карандаша, располагающийся рядом с дефолтным именем жеста.</string>
+    <string name="saving_settings_and_using_gestures">Сохранение настроек и использование жестов</string>
+    <string name="after_reaching_the_desired_open_and_closed_position_of_the_gesture_you_must_press_the_save_button_located_at_the_bottom_of_the_screen">После достижения желаемого положения открытого и закрытого состояния жеста, необходимо нажать кнопку «сохранить», располагающуюся в нижней части экрана.</string>
+    <string name="to_use_the_configured_gesture_press_the_button_corresponding_to_the_gesture_it_will_become_white_different_from_all_other_buttons">Для использования настроенного жеста необходимо нажать на кнопку, соответствующую этому жесту. Она станет белого цвета(отличной от всех других кнопок).</string>
 
 
     <string-array name="numbers">

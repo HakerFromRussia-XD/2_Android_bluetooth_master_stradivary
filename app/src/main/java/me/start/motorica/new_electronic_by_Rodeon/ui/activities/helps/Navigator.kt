@@ -10,6 +10,7 @@ interface Navigator {
     fun showWhiteStatusBar(show: Boolean)
     fun showHelpScreen(chartFragmentClass: ChartFragment)
     fun showSensorsHelpScreen()
+    fun showGesturesHelpScreen()
     fun showHowProsthesisWorksScreen()
     fun showHowProsthesisWorksMonoScreen()
     fun showHowPutOnTheProthesisSocketScreen()

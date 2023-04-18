@@ -36,6 +36,7 @@ interface ApplicationGraph {
 
   fun inject(settingsFragment: HelpFragment)
   fun inject(sensorsFragment: SensorsFragment) {}
+  fun inject(gestureCustomizationFragment: GestureCustomizationFragment) {}
 
   fun inject(howProsthesisWorksFragment: HowProsthesisWorksFragment)
   fun inject(howProsthesisWorksMonoFragment: HowProsthesisWorksMonoFragment) {}
@@ -44,4 +45,5 @@ interface ApplicationGraph {
   fun inject(chargingTheProsthesisFragment: ChargingTheProsthesisFragment) {}
   fun inject(prosthesisCareFragment: ProsthesisCareFragment) {}
   fun inject(serviceAndWarrantyFragment: ServiceAndWarrantyFragment) {}
+
 }

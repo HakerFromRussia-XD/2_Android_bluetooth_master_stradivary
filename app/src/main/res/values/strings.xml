@@ -256,11 +256,33 @@
     <string name="all_devices">All devices</string>
     <string name="protheses">Protheses</string>
     <string name="need_help">Need help?</string>
-    <string name="name_connected_device">Name connected device</string>
-    <string name="software_versions_and_synchronization">Software versions and synchronization</string>
+
+    <string name="help_massage_2_1_title">Software versions and synchronization</string>
+    <string name="help_massage_2_2_title">Sensitivity control</string>
+    <string name="help_massage_2_2_1_title">Fine tuning</string>
+    <string name="help_massage_2_3_title">Sensor threshold</string>
+    <string name="help_massage_2_4_title">Threshold control</string>
+    <string name="help_massage_2_4_1_title">Control another threshold</string>
+    <string name="help_massage_2_5_title">Swapping sensor positions</string>
+    <string name="help_massage_2_6_title">Blocking</string>
+    <string name="help_massage_2_7_title">Direct control of the prosthesis</string>
+    <string name="help_massage_2_8_title">Name connected device</string>
+
     <string name="help_massage_1">Here you can find information about the prosthesis and the app.</string>
-    <string name="help_massage_2">The name of the connected device is displayed here. If you click on it, you can disconnect from the current device and select another one.</string>
-    <string name="help_massage_3">Parameters shows the software versions of each of the boards installed in the brush. Percentage of synchronization shows how much percentage is completed reading all parameters from the prosthesis into the application.</string>
+
+
+    <string name="help_massage_2_1">Parameters shows the software versions of each of the boards installed in the brush. Percentage of synchronization shows how much percentage is completed reading all parameters from the prosthesis into the application.</string>
+    <string name="help_massage_2_2">By dragging this slider, you can change the sensitivity level of the sensor.</string>
+    <string name="help_massage_2_2_1">To change the sensitivity more accurately, press the number.</string>
+    <string name="help_massage_2_3">The colors of the thresholds correspond to the colors of the signals from the sensors in the graphs. The threshold has a name and a level displayed by a number. When the threshold is crossed by the corresponding signal, the prosthesis performs an opening or closing action, respectively.</string>
+    <string name="help_massage_2_4">The opening sensor threshold level can be changed by touching any part of the highlighted area. You can make a long swipe for a more accurate tuning.</string>
+    <string name="help_massage_2_4_1">The level of the close sensor threshold can be changed in the same way, by touching any part of the highlighted area. You can also make a long swipe for a more accurate tuning.</string>
+    <string name="help_massage_2_5">Function for swapping the sensors. Necessary if the signatures on the thresholds and sensitivity control sliders do not correspond to reality or the sensors in the sleeve are mixed up.</string>
+    <string name="help_massage_2_6">The function is designed so that the perfectly matched settings are not spoiled by accidental pressing during the practice of controlling the prosthesis.</string>
+    <string name="help_massage_2_7">Does with a prosthetic what it says on it. The buttons are time sensitive.</string>
+    <string name="help_massage_2_8">The name of the connected device is displayed here. If you click on it, you can disconnect from the current device and select another one.</string>
+
+
     <string name="setup_profiles">Setup profiles</string>
     <string name="you_can_create_your_own_settings_profile_by_saving_a_previously_created_profile_a_new_profile_is_created_by_copying_all_settings_of_the_previous_one_also_in_this_menu_you_will_be_able_to_switch_between_all_previously_created_profiles">You can create your own settings profile by saving a previously created profile. A new profile is created by copying all settings of the previous one. Also in this menu you will be able to switch between all previously created profiles.</string>
     <string name="app_control">CONTROLS IN THE APP</string>
@@ -376,6 +398,25 @@
     <string name="do_not_use_the_product_for_purposes_other_than_those_for_which_it_is_intended_or_in_cases_that_could_cause_any_damage_to_the_prosthesis">Do not use the product for purposes other than those for which it is intended or in cases that could cause any damage to the prosthesis.</string>
     <string name="immersion_in_water_and_washing_the_prosthesis_under_water_jets_is_prohibited_the_prosthesis_is_ip_54_which_means_it_can_be_used_in_the_rain">Immersion in water and washing the prosthesis under water jets is prohibited. The prosthesis is IP 54, which means it can be used in the rain.</string>
     <string name="disassemble_and_repair_the_product_yourself">Disassemble and repair the product yourself.</string>
+    <string name="is_the_prosthesis_calibrated">Is the prosthesis calibrated?</string>
+    <string name="by_default_the_prosthesis_comes_calibrated_and_with_the_first_gesture_set_you_can_check_if_the_denture_is_correctly_calibrated_by_pressing_the_open_close_buttons">By default, the prosthesis comes calibrated and with the first gesture set. You can check if the denture is correctly calibrated by pressing the «open»/«close» buttons</string>
+    <string name="when_the_first_gesture_in_the_gesture_menu_is_selected">when the first gesture in the gesture menu is selected.</string>
+    <string name="if_the_prosthetic_hand_closes_into_a_fist_then_it_is_calibrated_correctly_if_it_does_not_close_in_the_fist_or_does_not_move_you_should_contact_the_service_center_for_consultation">If the prosthetic hand closes into a fist, then it is calibrated correctly. If it does not close in the fist or does not move, you should contact the service center for consultation.</string>
+    <string name="configuring_your_first_personal_gesture">Configuring your first personal gesture</string>
+    <string name="after_checking_that_the_calibration_and_the_first_gesture_are_working_you_can_start_setting_up_your_own_gestures_to_do_this_click_on_the_gear_button_next_to_the_name_of_the_gesture_you_want_to_adjust">After checking that the calibration and the first gesture are working, you can start setting up your own gestures. To do this, click on the gear button next to the name of the gesture you want to adjust.</string>
+    <string name="this_will_open_a_window_in_which_you_will_see_a_3d_model_of_the_prosthetic_hand_in_the_open_state_of_the_customizable_gesture_change_the_grip_by_tapping_any_finger_and_then_swiping_up_or_down_on_the_screen">This will open a window in which you will see a 3D model of the prosthetic hand in the open state of the customizable gesture. Change the grip by tapping any finger and then swiping up or down on the screen.</string>
+    <string name="the_length_of_the_swipe_adjusts_the_angle_of_the_finger_bend">The length of the swipe adjusts the angle of the finger bend.</string>
+    <string name="when_adjusting_the_forefinger_middle_finger_ring_finger_and_pinky_finger_only_the_swipe_in_the_vertical_direction_is_taken_into_consideration_and_two_axes_are_used_simultaneously_to_adjust_the_position_of_the_thumb">When adjusting the forefinger, middle finger, ring finger, and pinky finger, only the swipe in the vertical direction is taken into consideration. And two axes are used simultaneously to adjust the position of the thumb.</string>
+    <string name="the_vertical_axis_control_the_angle_of_flexion_of_the_thumb_itself_and_the_horizontal_axis_control_the_angle_of_rotation_of_the_thumb">The vertical axis control the angle of flexion of the thumb itself, and the horizontal axis control the angle of rotation of the thumb.</string>
+    <string name="swipes_outside_the_hand_rotate_it_in_space">Swipes outside the hand rotate it in space.</string>
+    <string name="at_the_bottom_of_the_screen_there_is_a_button_to_switch_the_grip_of_the_customizable_gesture">At the bottom of the screen there is a button to switch the grip of the customizable gesture.</string>
+    <string name="if_the_open_and_closed_positions_of_the_prosthetic_fingers_do_not_match_after_pressing_it_you_will_see_an_animation_of_the_grip_that_will_be_applied_when_using_this_gesture">If the open and closed positions of the prosthetic fingers do not match, after pressing it you will see an animation of the grip that will be applied when using this gesture.</string>
+    <string name="in_real_life_the_prosthetic_will_perform_the_same_finger_movements_as_the_model_on_the_smartphone_screen">In real life, the prosthetic will perform the same finger movements as the model on the smartphone screen.</string>
+    <string name="by_moving_the_model_s_fingers_when_the_gesture_state_button_is_in_the_closed_state_position_you_will_configure_the_closed_position_of_the_gesture">By moving the model\'s fingers when the gesture state button is in the «closed state» position you will configure the closed position of the gesture.</string>
+    <string name="you_can_also_enter_your_own_name_for_the_gesture_by_clicking_on_the_pencil_icon_next_to_the_default_gesture_name">You can also enter your own name for the gesture by clicking on the pencil icon next to the default gesture name.</string>
+    <string name="saving_settings_and_using_gestures">Saving settings and using gestures</string>
+    <string name="after_reaching_the_desired_open_and_closed_position_of_the_gesture_you_must_press_the_save_button_located_at_the_bottom_of_the_screen">After reaching the desired open and closed position of the gesture, you must press the «save» button located at the bottom of the screen.</string>
+    <string name="to_use_the_configured_gesture_press_the_button_corresponding_to_the_gesture_it_will_become_white_different_from_all_other_buttons">To use the configured gesture, press the button corresponding to the gesture. It will become white (different from all other buttons).</string>
 
 
     <string-array name="numbers">

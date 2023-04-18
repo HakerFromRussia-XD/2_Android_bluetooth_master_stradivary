@@ -72,6 +72,7 @@
         <entry key="app/src/main/res/layout/fragment_care_of_prosthetic_hand.xml" value="0.3403906780740489" />
         <entry key="app/src/main/res/layout/fragment_charging_the_prosthesis.xml" value="0.2820569602338241" />
         <entry key="app/src/main/res/layout/fragment_complete_set.xml" value="0.37385701854326575" />
+        <entry key="app/src/main/res/layout/fragment_gesture_customization.xml" value="0.18943011779688" />
         <entry key="app/src/main/res/layout/fragment_gesture_settings.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/fragment_gripper_settings.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/fragment_help.xml" value="0.2730315180549845" />
@@ -79,7 +80,7 @@
         <entry key="app/src/main/res/layout/fragment_how_prosthesis_works.xml" value="0.21875" />
         <entry key="app/src/main/res/layout/fragment_how_prosthesis_works_mono.xml" value="0.21875" />
         <entry key="app/src/main/res/layout/fragment_how_to_put_on_a_prosthesis_socket.xml" value="0.21875" />
-        <entry key="app/src/main/res/layout/fragment_sensor_settings.xml" value="0.2739792394058703" />
+        <entry key="app/src/main/res/layout/fragment_sensor_settings.xml" value="0.4591382283065601" />
         <entry key="app/src/main/res/layout/fragment_sensor_settings_mono.xml" value="0.21677093505859377" />
         <entry key="app/src/main/res/layout/fragment_service_and_warranty.xml" value="0.25158562367864695" />
         <entry key="app/src/main/res/layout/fragment_service_settings.xml" value="0.21422101449275363" />
@@ -92,7 +93,7 @@
         <entry key="app/src/main/res/layout/item_scanlist.xml" value="0.24017003188097769" />
         <entry key="app/src/main/res/layout/layout_advanced_settings.xml" value="0.2666365523000661" />
         <entry key="app/src/main/res/layout/layout_calibrating_le.xml" value="0.21422101449275363" />
-        <entry key="app/src/main/res/layout/layout_chart.xml" value="0.25559466334451836" />
+        <entry key="app/src/main/res/layout/layout_chart.xml" value="0.15217391304347827" />
         <entry key="app/src/main/res/layout/layout_dialog.xml" value="0.15070921985815602" />
         <entry key="app/src/main/res/layout/layout_gestures.xml" value="0.15070921985815602" />
         <entry key="app/src/main/res/layout/layout_gripper_settings_le.xml" value="0.15070921985815602" />

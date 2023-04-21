@@ -25,7 +25,6 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
@@ -80,7 +79,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
   }
   private lateinit var myAppContext: Context
-  private var displayedTypeGuides: TypeGuides? = TypeGuides.SHOW_HELP_GUIDE
+  private var displayedNextTypeGuides: TypeGuides? = TypeGuides.SHOW_HELP_GUIDE
 //  private val number
 
 
@@ -515,47 +514,79 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
 
 
-    //TODO тут начинается обучение
-//    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_HELP_GUIDE, help_btn, this)
-//    }, 500)
+    if (mSettings!!.getInt(PreferenceKeys.SHOW_HELP_ACCENT, 4) == 1) {} else {
+      main!!.saveInt(PreferenceKeys.SHOW_HELP_ACCENT, 1)
+      Handler().postDelayed({
+        main!!.setDecorator(TypeGuides.SHOW_HELP_GUIDE, help_btn, this)
+      }, 500)
+    }
+  }
 
-//    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, version_help_v, this)
-//    }, 500)
-//    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE, open_sensors_sensitivity_rl, this)
-//    }, 500)
-//    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE, open_threshold_help_v, this)
-//    }, 500)
-//    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE, open_CH_v, this)
-//    }, 500)
-//    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE, close_CH_v, this)
-//    }, 500)
-
-
-    Handler().postDelayed({
-      main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, movement_buttons_rl, this)
-    }, 500)
-//    Handler().postDelayed({
-//      main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, name_tv,this)
-//    }, 500)
-
-//    Handler().postDelayed({
-//      hideDecorator()
-//    }, 1000)
+  override fun setStartDecorator() {
+    for(i in 1..navigator().getBackStackEntryCount()){ navigator().goingBack() }
+    main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, version_help_v, this)
+    displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
   }
   override fun setNextDecorator() {
-    when(displayedTypeGuides) {
-      TypeGuides.SHOW_HELP_GUIDE -> {
+    System.err.println("onClick buttonNext displayedNextTypeGuides = $displayedNextTypeGuides")
+    when(displayedNextTypeGuides) {
+      TypeGuides.SHOW_HELP_GUIDE -> { main!!.hideDecorator() }
+      TypeGuides.SHOW_VERSION_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, version_help_v, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
+      }
+      TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE, open_sensors_sensitivity_rl, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE
+      }
+      TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE, correlator_noise_threshold_1_tv, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE
+      }
+      TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE, open_threshold_help_v, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE
+      }
+      TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE, open_CH_v, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE
+      }
+      TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE, close_CH_v, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SWAP_GUIDE
+      }
+      TypeGuides.SHOW_SENSORS_SWAP_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SWAP_GUIDE, swap_sensors_rl, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_BLOCKING_GUIDE
+      }
+      TypeGuides.SHOW_BLOCKING_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_BLOCKING_GUIDE, thresholds_blocking_rl, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE
+      }
+      TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, movement_buttons_rl, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_DEVICE_NAME_GUIDE
+      }
+      TypeGuides.SHOW_DEVICE_NAME_GUIDE -> {
         main!!.hideDecorator()
         main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, name_tv, this)
-        displayedTypeGuides = TypeGuides.SHOW_DEVICE_NAME_GUIDE
+        displayedNextTypeGuides = TypeGuides.END_GUIDE
       }
-      TypeGuides.SHOW_DEVICE_NAME_GUIDE -> { main!!.hideDecorator() }
+      TypeGuides.END_GUIDE -> {
+        main!!.hideDecorator()
+        navigator().showWhiteStatusBar(true)
+        navigator().showHelpScreen(this)
+        navigator().showSensorsHelpScreen(this)
+      }
       else -> {}
     }
   }

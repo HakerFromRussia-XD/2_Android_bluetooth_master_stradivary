@@ -149,7 +149,7 @@
     <string name="swap_sensors">поменять сенсоры</string>
     <string name="swap_button_open_close">поменять кнопки открыть/закрыть</string>
     <string name="single_channel_control">одноканальное управление</string>
-    <string name="reset_to_factory_settings">востановить к заводским настройкам</string>
+    <string name="reset_to_factory_settings">восстановить к заводским настройкам</string>
     <string name="off">нет</string>
     <string name="on">да</string>
     <string name="shutdown_current">ток отсечки</string>
@@ -259,7 +259,7 @@
     <string name="need_help">Нужна помощь?</string>
 
 
-    <string name="help_massage_2_1_title">Версии ПО и синхронизация</string>
+    <string name="help_massage_2_1_title">Версии ПО и \nсинхронизация</string>
     <string name="help_massage_2_2_title">Управление чувствительностью</string>
     <string name="help_massage_2_2_1_title">Точная настройка</string>
     <string name="help_massage_2_3_title">Порог датчика</string>
@@ -279,7 +279,7 @@
     <string name="help_massage_2_3">Цвета порогов соответсвуют цветам сигналов от датчикав на графиках. У порога есть название и уровень, отображаемый числом. При пересечении порога соответсвующим сигналом, протез выполняет действие открытия или закрытия соответственно.</string>
     <string name="help_massage_2_4">Уровень порога датчика открытия можно изменять касанием любой части выделенной зоны. Для более точной настройки можно сделать долгий свайп.</string>
     <string name="help_massage_2_4_1">Уровень порога датчика закрытия можно изменять аналогично, касанием любой части выделенной зоны. Также для более точной настройки можно сделать долгий свайп.</string>
-    <string name="help_massage_2_5">Функция для перемены местами датчиков. Необходима в случае, если подписи на порогах и слайдерах управления чувствительностью не соответствуют действительности или датчики в гильзе перепутаны местами.</string>
+    <string name="help_massage_2_5">Функция для перемены местами датчиков необходима в случае, если подписи на порогах и слайдерах управления чувствительностью не соответствуют действительности или датчики в гильзе перепутаны местами.</string>
     <string name="help_massage_2_6">Функция создана, чтобы не испортить идеально подобранные настройки случайным нажатием во время тренировки управления протезом.</string>
     <string name="help_massage_2_7">Делают с протезом то, что на них написано. Кнопки чувствительны к времени нажатия.</string>
     <string name="help_massage_2_8">Здесь отображается имя подключённого устройства. Если нажать на него, то можно отключиться от текущего устройства и выбрать другое.</string>
@@ -406,7 +406,7 @@
     <string name="if_the_prosthetic_hand_closes_into_a_fist_then_it_is_calibrated_correctly_if_it_does_not_close_in_the_fist_or_does_not_move_you_should_contact_the_service_center_for_consultation">Если протез при этом сжимается в кулак, то он откалиброван правильно. Если же он не закрывается в кулак или не двигается, то необходимо обратиться в сервисный центр, для получения консультации.</string>
     <string name="configuring_your_first_personal_gesture">Настройка первого собственного жеста</string>
     <string name="after_checking_that_the_calibration_and_the_first_gesture_are_working_you_can_start_setting_up_your_own_gestures_to_do_this_click_on_the_gear_button_next_to_the_name_of_the_gesture_you_want_to_adjust">После проверки работоспособности калибровки и первого жеста, можно приступить к настройке собственных жестов. Для этого нажмите на кнопку шестерёнки рядом с названием того жеста, который вы хотите настроить.</string>
-    <string name="this_will_open_a_window_in_which_you_will_see_a_3d_model_of_the_prosthetic_hand_in_the_open_state_of_the_customizable_gesture_change_the_grip_by_tapping_any_finger_and_then_swiping_up_or_down_on_the_screen">После этого откроется окно в котором вы увидите макет кисти протеза в открытом состоянии настраиваемого жеста. Изменение схвата происходит путём нажатием на любой палец и дальнейшего свайпа вверх или вниз по экрану.</string>
+    <string name="this_will_open_a_window_in_which_you_will_see_a_3d_model_of_the_prosthetic_hand_in_the_open_state_of_the_customizable_gesture_change_the_grip_by_tapping_any_finger_and_then_swiping_up_or_down_on_the_screen">После этого откроется окно в котором вы увидите макет кисти протеза в открытом состоянии настраиваемого жеста. Изменение схвата происходит путём нажатия на любой палец и дальнейшего свайпа вверх или вниз по экрану.</string>
     <string name="the_length_of_the_swipe_adjusts_the_angle_of_the_finger_bend">Длина свайпа регулирует угол сгиба пальца.</string>
     <string name="when_adjusting_the_forefinger_middle_finger_ring_finger_and_pinky_finger_only_the_swipe_in_the_vertical_direction_is_taken_into_consideration_and_two_axes_are_used_simultaneously_to_adjust_the_position_of_the_thumb">При настройке указательного, среднего, безымянного пальцев и мизинца, учитывается свайп только в вертикальном направлении. А для настройки положения большого пальца кисти используются одновременно две оси.</string>
     <string name="the_vertical_axis_control_the_angle_of_flexion_of_the_thumb_itself_and_the_horizontal_axis_control_the_angle_of_rotation_of_the_thumb">Вертикальная ось регулирует угол сгиба самого большого пальца, а горизонтальная угол поворота его ротации.</string>
@@ -419,6 +419,45 @@
     <string name="saving_settings_and_using_gestures">Сохранение настроек и использование жестов</string>
     <string name="after_reaching_the_desired_open_and_closed_position_of_the_gesture_you_must_press_the_save_button_located_at_the_bottom_of_the_screen">После достижения желаемого положения открытого и закрытого состояния жеста, необходимо нажать кнопку «сохранить», располагающуюся в нижней части экрана.</string>
     <string name="to_use_the_configured_gesture_press_the_button_corresponding_to_the_gesture_it_will_become_white_different_from_all_other_buttons">Для использования настроенного жеста необходимо нажать на кнопку, соответствующую этому жесту. Она станет белого цвета(отличной от всех других кнопок).</string>
+    <string name="view_interactive_instruction">Интерактивная инструкция</string>
+    <string name="shutdown_currents_per_finger">Токи отсечки на каждый палец</string>
+    <string name="with_these_sliders_you_can_adjust_the_maximum_pressure_of_each_finger_after_encountering_an_objet_in_its_path">С помощью этих слайдеров можно регулировать максимальное давление каждого пальца после встречи с препятствием на траектории его пути.</string>
+    <string name="swapping_the_open_and_close_buttons">Перемена местами кнопок открыть закрыть</string>
+    <string name="with_this_switch_you_can_change_the_functionality_of_the_open_and_close_buttons">При помощи этого свича можно поменять функциональность кнопок открытия и закрытия.</string>
+    <string name="single_channel_function_control">Управление функцией одноканального режима</string>
+    <string name="when_single_channel_mode_is_activated_the_prosthesis_is_controlled_by_a_single_sensor">При активации одноканального режима управления протезом осуществляется одним датчиком.</string>
+    <string name="lock_function_control">Управление функцией блокировки</string>
+    <string name="the_activation_of_the_switch_activates_the_function_of_locking_the_prosthesis_with_the_sensors">Активация свича включает функцию блокировки протеза при помощи датчиков.</string>
+    <string name="minimum_time_to_activate_or_deactivate_the_lock">Минимальное время для активации или деактивации блокировки</string>
+    <string name="the_blocking_is_activated_if_the_signals_to_the_opening_and_closing_sensors_are_applied_simultaneously_longer_than_the_activation_time_of_the_function">Блокировка включается если одновременно подать сигналы на датчики открытия и закрытия дольше чем время активации функции.</string>
+    <string name="sensor_gesture_switching_function_control">Управление функцией переключения жестов сенсорами</string>
+    <string name="activating_this_function_makes_it_possible_to_switch_gestures_by_means_of_signals_given_to_the_sensors">Активация этой функции даёт возможность переключать жесты при помощи сигналов, подаваемых на сенсоры.</string>
+    <string name="slider_to_set_the_timing_of_the_sensor_gesture_switching_function">Слайдер настройки тайминга функции переключения жестов сенсорами</string>
+    <string name="the_slider_adjusts_the_minimum_time_that_the_opening_sensor_signal_must_be_above_the_threshold_level_when_the_prosthesis_reaches_the_open_state">Слайдером настраивается минимальное время, которое сигнал датчика открытия должен находиться выше уровня порога при достижении протезом открытого состояния.</string>
+    <string name="view_for_read_write_the_serial_number_of_the_prosthetic_telemetry">Вью для чтения/установки серийного номера телеметрии протеза</string>
+    <string name="functionality_is_under_development">Функционал находится в разработке.</string>
+    <string name="the_choice_of_trauma_side_swich">Свич выбора стороны травмы</string>
+    <string name="it_is_necessary_to_select_the_side_of_the_prosthesis_for_its_successful_calibration_as_well_as_for_the_correct_display_of_the_model_in_the_gesture_configurator">Необходимо выбрать сторону протеза для успешной его калибровки, а также для правильного отображения модели в конфигураторе жеста.</string>
+    <string name="swich_activates_the_menu_function_to_change_the_start_delays_of_the_fingers">Свич активации меню функции изменения стартовых задержек пальцев</string>
+    <string name="a_button_appears_in_the_gesture_configurator_that_allows_you_to_change_the_start_delay_timings_of_the_fingers_of_the_grip_being_set">В конфигураторе настройки жестов появляется кнопка, позволяющая изменять тайминги стартовых задержек пальцев настраиваемого схвата.</string>
+    <string name="switch_to_deactivate_the_smart_connection_function">Свич деактивации функции «умного подключения»</string>
+    <string name="if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prosthesis_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected_the_feature_should_be_turned_off_for_couples_because_it_is_important_for_them_to_choose_which_prosthesis_to_connect_to_on_their_own_every_time_it_is_also_unnecessary_for_those_who_frequently_connect_to_different_devices">Если функция активна, а активна она «по умолчанию», то при повторном запуске приложения, на экране сканирования производится аналитика всех отсканированных устройств и при нахождении последнего к которому осуществлялось  подключение, осуществляется автоматическое подключение к нему. Это позволяет ускорить (около секунды) и облегчить процесс подключения для большинства пользователей (у кого один протез). Если функция отключена, то пользователь находится на экране выбора устройств до тех пор, пока не выберет конкретное устройство. Функцию нужно отключать для парников, потому что им важно каждый раз делать выбор к какому протезу подключиться самостоятельно. Так же  эта функция не нужна тем, кто часто подключается к разным устройствам.</string>
+    <string name="reset_button_to_factory_default_settings">Кнопка сброса настроек протеза к заводским параметрам</string>
+    <string name="after_pressing_it_all_the_parameters_of_the_prosthesis_return_to_the_by_default_state">После её нажатия все параметры протеза возвращаются к состоянию «по умолчанию».</string>
+    <string name="button_to_start_calibration">Кнопка начала калибровки</string>
+    <string name="pressing_this_button_starts_the_calibration_process_of_the_prosthesis">Нажатие на эту кнопку запускает процесс калибровки протеза.</string>
+    <string name="calibration_status_help">Статус калибровки</string>
+    <string name="pressing_this_button_allows_you_to_find_out_about_errors_that_occurred_during_calibration">Нажатие на эту кнопку позволяет узнать об ошибках, возникших в ходе калибровки.</string>
+    <string name="debugging_screen">Экран отладки</string>
+    <string name="clicking_this_button_opens_a_screen_that_displays_a_brush_model_with_finger_positions_that_correspond_to_brush_encoder_values">Нажатие на эту кнопку открывает экран, на котором отображается модель кисти с положениями пальцев, которые соответствуют значениям энкодеров кисти.</string>
+    <string name="connection_test">Тест связи</string>
+    <string name="pressing_this_button_starts_the_bluetooth_connection_test_an_array_of_data_is_transmitted_in_two_directions_and_the_percentage_of_connection_quality_is_calculated_by_the_number_of_transmission_errors_the_closer_to_100_the_faster_the_commands_will_be_transmitted_from_the_application_to_the_prosthesis">Нажатие на эту кнопку запускает тест bluetooth-соединения. Передаётся массив данных в двух направлениях и по количеству ошибок передачи рассчитывается процент качества соединения. Чем ближе к 100% этот показатель, тем быстрее будут передаваться команды с приложения на протез.</string>
+    <string name="application_version">Версия приложения</string>
+    <string name="the_last_line_in_the_advanced_settings_shows_the_version_of_the_application">Последней строкой в расширенных настройках отображается версия используемого приложения.</string>
+    <string name="shutdown_current_level">Уровень тока отсечки</string>
+    <string name="you_can_use_this_slider_to_change_the_final_compression_force_of_the_prosthesis_on_something_before_it_stops">При помощи этого слайдера можно менять конечную силу сжатия протезом чего-либо перед остановкой.</string>
+    <string name="application_version_and_size">Версия приложения и размер</string>
+    <string name="the_last_line_in_the_advanced_settings_shows_the_version_of_the_application_and_the_selected_size_of_the_prosthesis_the_size_of_the_prosthesis_affects_the_limitation_of_the_maximum_current_so_it_should_be_chosen_consciously_otherwise_there_is_a_risk_of_setting_a_cut_off_current_that_will_damage_the_prosthesis_the_maximum_cut_off_current_of_the_xl_size_prosthesis_will_kill_the_s_size_prosthesis_the_cut_off_simply_doesn_t_work_because_less_powerful_motors_are_used_so_they_get_hot_and_fail_but_if_you_tell_the_s_size_prosthesis_that_it_is_an_s_size_the_maximum_cut_off_current_will_match_that_size_and_not_allow_the_prosthesis_to_break">Последней строкой в расширенных настройках отображается версия используемого приложения. И выбранный размер протеза. Размер протеза влияет на ограничение максимальной силы тока, поэтому его нужно выбирать осознано. Иначе существует риск установить такой ток отсечки, который выведет протез из строя. (максимальный ток отсечки протеза размера XL убивает протез размера S (отсечка просто не срабатывает, потому что используются менее мощные двигатели, поэтому они греются и выходят из строя), но если протезу размера S указать что он протез размера S, то значение максимального тока отсечки будет соответствовать этому размеру и не позволит сломаться протезу)</string>
 
 
     <string-array name="numbers">

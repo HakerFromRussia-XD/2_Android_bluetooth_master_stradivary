@@ -45,5 +45,6 @@ interface ApplicationGraph {
   fun inject(chargingTheProsthesisFragment: ChargingTheProsthesisFragment) {}
   fun inject(prosthesisCareFragment: ProsthesisCareFragment) {}
   fun inject(serviceAndWarrantyFragment: ServiceAndWarrantyFragment) {}
-
+  fun inject(advancedSettingsFragmentMulty: AdvancedSettingsFragmentMulty) {}
+  fun inject(advancedSettingsFragmentMono: AdvancedSettingsFragmentMono) {}
 }

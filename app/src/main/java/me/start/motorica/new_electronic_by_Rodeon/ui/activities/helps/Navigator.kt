@@ -9,8 +9,10 @@ fun Fragment.navigator(): Navigator {
 interface Navigator {
     fun showWhiteStatusBar(show: Boolean)
     fun showHelpScreen(chartFragmentClass: ChartFragment)
-    fun showSensorsHelpScreen()
-    fun showGesturesHelpScreen()
+    fun showSensorsHelpScreen(chartFragmentClass: ChartFragment)
+    fun showGesturesHelpScreen(chartFragmentClass: ChartFragment)
+    fun showHelpMonoAdvancedSettingsScreen(chartFragmentClass: ChartFragment)
+    fun showHelpMultyAdvancedSettingsScreen(chartFragmentClass: ChartFragment)
     fun showHowProsthesisWorksScreen()
     fun showHowProsthesisWorksMonoScreen()
     fun showHowPutOnTheProthesisSocketScreen()
@@ -18,6 +20,8 @@ interface Navigator {
     fun showChargingTheProthesisScreen()
     fun showProsthesisCareScreen()
     fun showServiceAndWarrantyScreen()
+
+    fun getBackStackEntryCount():Int
 
     fun goingBack()
 }

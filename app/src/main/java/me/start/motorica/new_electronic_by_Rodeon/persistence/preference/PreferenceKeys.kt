@@ -88,6 +88,7 @@ object PreferenceKeys {
   const val SELECT_GESTURE_SETTINGS_NUM = "SELECT_GESTURE_SETTINGS_NUM"
   const val RECEIVE_FINGERS_DELAY_BOOL = "RECEIVE_FINGERS_DELAY_BOOL"
 
+  const val SHOW_HELP_ACCENT = "SHOW_HELP_ACCENT"
 
   val ALARM_WEAHTER = Pair("setWeatherAlarm", false)
 }

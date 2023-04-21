@@ -18,14 +18,18 @@ import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.DecoratorChange
+import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 
-class SensorsFragment : Fragment() {
+class SensorsFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
     private var rootView: View? = null
     private var mContext: Context? = null
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
+    private val decoratorChanger: DecoratorChange = chartFragmentClass
     private var multigrib = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -56,8 +60,12 @@ class SensorsFragment : Fragment() {
             imageView10.setImageDrawable(resources.getDrawable(R.drawable.help_image_10_ru))
         }
 
-        settings_gesture_btn.setOnClickListener { navigator().showGesturesHelpScreen() }
-        advanced_settings_btn.setOnClickListener {  }
+        show_interactive_instruction_btn.setOnClickListener { decoratorChanger.setStartDecorator() }
+        settings_gesture_btn.setOnClickListener { navigator().showGesturesHelpScreen(chartFragmentClass) }
+        advanced_settings_btn.setOnClickListener {
+            if (multigrib) { navigator().showHelpMultyAdvancedSettingsScreen(chartFragmentClass) }
+            else { navigator().showHelpMonoAdvancedSettingsScreen(chartFragmentClass) }
+        }
 
         // регуляция показа кнопок из подвала в зависимости от ситуации (односхват/многосхват,
         // расширенные настройки открыты/закрыты)

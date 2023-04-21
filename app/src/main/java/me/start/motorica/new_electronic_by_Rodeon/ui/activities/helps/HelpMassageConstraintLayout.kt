@@ -2,8 +2,10 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Typeface
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -180,7 +182,7 @@ internal class HelpMassageConstraintLayout(
         )
         layoutParamsPointer.startToStart = id
         layoutParamsPointer.topToTop = id
-        layoutParamsPointer.leftMargin = (x + targetView.width/scale).toInt()
+        layoutParamsPointer.leftMargin = (x - 14*scale + targetView.width/2).toInt()
         pointerImage.layoutParams = layoutParamsPointer
 
         val layoutParamsTitle = LayoutParams(
@@ -272,7 +274,7 @@ internal class HelpMassageConstraintLayout(
         )
         layoutParamsPointer.startToStart = id
         layoutParamsPointer.bottomToBottom = id
-        layoutParamsPointer.leftMargin = (x + targetView.width/scale).toInt()
+        layoutParamsPointer.leftMargin = (x - 14*scale + targetView.width/2).toInt()
         pointerImage.layoutParams = layoutParamsPointer
 
         val layoutParamsTitle = LayoutParams(
@@ -373,6 +375,7 @@ internal class HelpMassageConstraintLayout(
         layoutParamsTitle.startToStart = id
         layoutParamsTitle.topToTop = id
         layoutParamsTitle.leftMargin = (24*scale).toInt()
+        layoutParamsTitle.rightMargin = (16*scale).toInt()
         layoutParamsTitle.topMargin = (16*scale).toInt()
         titleTv.layoutParams = layoutParamsTitle
         addView(titleTv)
@@ -422,6 +425,15 @@ internal class HelpMassageConstraintLayout(
     override fun onClick(v: View?) {
         setRootClass(rootClass)
         decoratorInterface?.setNextDecorator()
-        main.hideDecorator()
+//        main.hideDecorator()
     }
+
+//    private fun convertToDp(unit: Float): Float {
+//        val r: Resources = resources
+//        return TypedValue.applyDimension(
+//            TypedValue.COMPLEX_UNIT_DIP,
+//            unit,
+//            r.displayMetrics
+//        )
+//    }
 }

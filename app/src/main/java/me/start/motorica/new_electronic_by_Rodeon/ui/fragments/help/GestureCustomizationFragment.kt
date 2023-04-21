@@ -22,8 +22,9 @@ import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 
-class GestureCustomizationFragment : Fragment() {
+class GestureCustomizationFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
     private var rootView: View? = null
     private var mContext: Context? = null
     private var main: MainActivity? = null
@@ -63,8 +64,8 @@ class GestureCustomizationFragment : Fragment() {
             imageView21.setImageDrawable(resources.getDrawable(R.drawable.help_image_21_ru))
         }
 
-        sensors_settings_btn.setOnClickListener { navigator().showSensorsHelpScreen() }
-        advanced_settings_btn.setOnClickListener {  }
+        sensors_settings_btn.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
+        advanced_settings_btn.setOnClickListener { navigator().showHelpMultyAdvancedSettingsScreen(chartFragmentClass) }
 
         // регуляция показа кнопок из подвала в зависимости от ситуации (односхват/многосхват,
         // расширенные настройки открыты/закрыты)

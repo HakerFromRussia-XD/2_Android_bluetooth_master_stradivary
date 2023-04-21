@@ -33,7 +33,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 
-class HelpFragment(chartFragmentClass: ChartFragment) : Fragment() {
+class HelpFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
     private var rootView: View? = null
     private var mContext: Context? = null
     private var main: MainActivity? = null
@@ -81,9 +81,12 @@ class HelpFragment(chartFragmentClass: ChartFragment) : Fragment() {
             reactivatedInterface.reactivatedChart()
         }
 
-        sensors_settings_btn.setOnClickListener { navigator().showSensorsHelpScreen() }
-        settings_gesture_btn.setOnClickListener { navigator().showGesturesHelpScreen() }
-        advanced_settings_btn.setOnClickListener {  }
+        sensors_settings_btn.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
+        settings_gesture_btn.setOnClickListener { navigator().showGesturesHelpScreen(chartFragmentClass) }
+        advanced_settings_btn.setOnClickListener {
+            if (multigrib) { navigator().showHelpMultyAdvancedSettingsScreen(chartFragmentClass) }
+            else { navigator().showHelpMonoAdvancedSettingsScreen(chartFragmentClass) }
+        }
         if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
             advanced_settings_rl.visibility = View.VISIBLE
         } else {

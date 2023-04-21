@@ -109,13 +109,13 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignStart="@+id/bms_tv"
-                android:layout_alignEnd="@+id/sensor_tv"
+                android:layout_alignEnd="@+id/driver_tv"
                 android:layout_alignBottom="@+id/sync_tv"
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="0dp"
-                android:layout_marginBottom="0dp"/>
+                android:layout_marginBottom="0dp" />
 
             <TextView
                 android:id="@+id/name_tv"
@@ -288,7 +288,7 @@
                     android:layout_alignParentBottom="@+id/subtitle_open_threshold_tv"
                     android:layout_marginStart="0dp"
                     android:layout_marginTop="0dp"
-                    android:layout_marginEnd="0dp"
+                    android:layout_marginEnd="-10dp"
                     android:layout_marginBottom="0dp"
                     android:background="@color/transparent" />
 
@@ -515,11 +515,13 @@
                                 android:layout_marginBottom="0dp"
                                 android:gravity="center"
                                 android:textColor="@color/white"
+                                android:text="50"
                                 android:textStyle="bold"
                                 app:layout_constraintTop_toTopOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent" />
+                                app:layout_constraintEnd_toEndOf="parent"
+                                tools:ignore="HardcodedText" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -624,10 +626,12 @@
                                 android:gravity="center"
                                 android:textColor="@color/white"
                                 android:textStyle="bold"
+                                android:text="50"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:ignore="HardcodedText" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <androidx.constraintlayout.widget.ConstraintLayout

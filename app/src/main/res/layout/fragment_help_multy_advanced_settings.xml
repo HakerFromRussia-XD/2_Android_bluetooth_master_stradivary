@@ -1,0 +1,1085 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/title_click_block_btn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@+id/main_sv"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="-18dp"
+        android:background="@color/back_help_menu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignStart="@+id/back_btn"
+        android:layout_alignTop="@+id/back_btn"
+        android:layout_alignEnd="@+id/back_btn"
+        android:layout_alignBottom="@+id/back_btn"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/ic_arrow_left"
+        app:layout_constraintBottom_toBottomOf="@+id/back_btn"
+        app:layout_constraintEnd_toEndOf="@+id/back_btn"
+        app:layout_constraintStart_toStartOf="@+id/back_btn"
+        app:layout_constraintTop_toTopOf="@+id/back_btn"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:id="@+id/back_btn"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="18dp"
+        android:background="?android:attr/selectableItemBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/help_title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imageView"
+        android:layout_alignBottom="@+id/imageView"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="0dp"
+        android:layout_toEndOf="@+id/back_btn"
+        android:fontFamily="@font/font_open_sans_semi_bold"
+        android:lines="2"
+        android:text="@string/advanced_settings"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toTopOf="@+id/imageView" />
+
+    <ScrollView
+        android:id="@+id/main_sv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/imageView"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="0dp"
+        android:background="@color/back_help_menu"
+        tools:ignore="UselessParent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/beginGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="16dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/endGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="16dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/midGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:layout_constraintEnd_toStartOf="@+id/endGuideline"
+                app:layout_constraintStart_toStartOf="@+id/beginGuideline"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/beginGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_begin="16dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/endGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_end="16dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/topGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_begin="20dp" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/bottomGuideline_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_end="20dp" />
+
+                    <TextView
+                        android:id="@+id/textView16"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/advanced_settings"
+                        android:textColor="@color/black"
+                        android:textSize="24sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toTopOf="@+id/topGuideline_2" />
+
+                    <TextView
+                        android:id="@+id/textView88"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/shutdown_currents_per_finger"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView16" />
+
+                    <TextView
+                        android:id="@+id/textView17"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/with_these_sliders_you_can_adjust_the_maximum_pressure_of_each_finger_after_encountering_an_objet_in_its_path"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView88" />
+
+                    <ImageView
+                        android:id="@+id/imageView22"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_22_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView17"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView881"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/swapping_the_open_and_close_buttons"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView22" />
+
+                    <TextView
+                        android:id="@+id/textView171"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/with_this_switch_you_can_change_the_functionality_of_the_open_and_close_buttons"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView881" />
+
+                    <ImageView
+                        android:id="@+id/imageView23"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_23_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView171"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView8811"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/single_channel_function_control"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView23" />
+
+                    <TextView
+                        android:id="@+id/textView1711"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/when_single_channel_mode_is_activated_the_prosthesis_is_controlled_by_a_single_sensor"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView8811" />
+
+                    <ImageView
+                        android:id="@+id/imageView24"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_24_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView1711"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView88111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/lock_function_control"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView24" />
+
+                    <TextView
+                        android:id="@+id/textView17111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_activation_of_the_switch_activates_the_function_of_locking_the_prosthesis_with_the_sensors"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView88111" />
+
+                    <ImageView
+                        android:id="@+id/imageView25"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_25_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView17111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView881111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/minimum_time_to_activate_or_deactivate_the_lock"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView25" />
+
+                    <TextView
+                        android:id="@+id/textView171111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_blocking_is_activated_if_the_signals_to_the_opening_and_closing_sensors_are_applied_simultaneously_longer_than_the_activation_time_of_the_function"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView881111" />
+
+                    <ImageView
+                        android:id="@+id/imageView26"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_26_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView171111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView8811111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/sensor_gesture_switching_function_control"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView26" />
+
+                    <TextView
+                        android:id="@+id/textView1711111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/activating_this_function_makes_it_possible_to_switch_gestures_by_means_of_signals_given_to_the_sensors"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView8811111" />
+
+                    <ImageView
+                        android:id="@+id/imageView27"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_27_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView1711111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView88111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/slider_to_set_the_timing_of_the_sensor_gesture_switching_function"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView27" />
+
+                    <TextView
+                        android:id="@+id/textView17111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_slider_adjusts_the_minimum_time_that_the_opening_sensor_signal_must_be_above_the_threshold_level_when_the_prosthesis_reaches_the_open_state"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView88111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView28"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_28_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView17111111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView881111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/view_for_read_write_the_serial_number_of_the_prosthetic_telemetry"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView28" />
+
+                    <TextView
+                        android:id="@+id/textView171111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/functionality_is_under_development"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView881111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView29"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_29_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView171111111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView8811111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/the_choice_of_trauma_side_swich"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView29" />
+
+                    <TextView
+                        android:id="@+id/textView1711111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/it_is_necessary_to_select_the_side_of_the_prosthesis_for_its_successful_calibration_as_well_as_for_the_correct_display_of_the_model_in_the_gesture_configurator"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView8811111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView30"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_30_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView1711111111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView88111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/swich_activates_the_menu_function_to_change_the_start_delays_of_the_fingers"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView30" />
+
+                    <TextView
+                        android:id="@+id/textView17111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/a_button_appears_in_the_gesture_configurator_that_allows_you_to_change_the_start_delay_timings_of_the_fingers_of_the_grip_being_set"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView88111111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView31"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_31_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView17111111111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView881111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/switch_to_deactivate_the_smart_connection_function"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView31" />
+
+                    <TextView
+                        android:id="@+id/textView171111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prosthesis_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected_the_feature_should_be_turned_off_for_couples_because_it_is_important_for_them_to_choose_which_prosthesis_to_connect_to_on_their_own_every_time_it_is_also_unnecessary_for_those_who_frequently_connect_to_different_devices"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView881111111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView32"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_32_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView171111111111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView8811111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/reset_button_to_factory_default_settings"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView32" />
+
+                    <TextView
+                        android:id="@+id/textView1711111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/after_pressing_it_all_the_parameters_of_the_prosthesis_return_to_the_by_default_state"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView8811111111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView33"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_33_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView1711111111111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView88111111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/button_to_start_calibration"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView33" />
+
+                    <TextView
+                        android:id="@+id/textView17111111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/pressing_this_button_starts_the_calibration_process_of_the_prosthesis"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView88111111111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView34"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_34_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView17111111111111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView881111111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/calibration_status_help"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView34" />
+
+                    <TextView
+                        android:id="@+id/textView171111111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/pressing_this_button_allows_you_to_find_out_about_errors_that_occurred_during_calibration"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView881111111111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView35"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_35_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView171111111111111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView8811111111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/debugging_screen"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView35" />
+
+                    <TextView
+                        android:id="@+id/textView1711111111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/clicking_this_button_opens_a_screen_that_displays_a_brush_model_with_finger_positions_that_correspond_to_brush_encoder_values"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView8811111111111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView36"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_36_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView1711111111111111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView88111111111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/connection_test"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView36" />
+
+                    <TextView
+                        android:id="@+id/textView17111111111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/pressing_this_button_starts_the_bluetooth_connection_test_an_array_of_data_is_transmitted_in_two_directions_and_the_percentage_of_connection_quality_is_calculated_by_the_number_of_transmission_errors_the_closer_to_100_the_faster_the_commands_will_be_transmitted_from_the_application_to_the_prosthesis"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView88111111111111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView37"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_37_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView17111111111111111"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView881111111111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/application_version"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView37" />
+
+                    <TextView
+                        android:id="@+id/textView171111111111111111"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_last_line_in_the_advanced_settings_shows_the_version_of_the_application"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView881111111111111111" />
+
+                    <ImageView
+                        android:id="@+id/imageView38"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_38_us"
+                        app:layout_constraintBottom_toBottomOf="@id/bottomGuideline_2"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView171111111111111111"
+                        tools:ignore="ContentDescription" />
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="22dp"
+                android:background="@color/transparent"
+                app:layout_constraintTop_toBottomOf="@+id/cardView1" />
+
+            <TextView
+                android:id="@+id/app_instruction_title_2_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:fontFamily="@font/font_open_sans_semi_bold"
+                android:text="@string/app_control"
+                android:textColor="@color/black"
+                android:visibility="visible"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/endGuideline"
+                app:layout_constraintStart_toStartOf="@+id/beginGuideline"
+                app:layout_constraintTop_toBottomOf="@+id/cardView1" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/main_controls_cv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="30dp"
+                android:visibility="visible"
+                app:cardCornerRadius="12dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/endGuideline"
+                app:layout_constraintStart_toStartOf="@+id/beginGuideline"
+                app:layout_constraintTop_toBottomOf="@+id/app_instruction_title_2_tv">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toStartOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/app_instruction_title_tv">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:orientation="horizontal"
+                            android:weightSum="4"
+                            tools:ignore="DisableBaselineAlignment">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:layout_marginTop="18dp"
+                                    android:layout_marginBottom="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/sensor_settingss"
+                                    android:textColor="@color/black"
+                                    android:textSize="14sp"
+                                    tools:ignore="RelativeOverlap" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:background="@drawable/ic_navigate_next"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/sensors_settings_btn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/gesture_customization_rl"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:visibility="visible"
+                        android:background="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:orientation="horizontal"
+                            android:weightSum="4"
+                            tools:ignore="DisableBaselineAlignment">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:layout_marginTop="18dp"
+                                    android:layout_marginBottom="18dp"
+                                    android:fontFamily="@font/font_open_sans_regular"
+                                    android:text="@string/setting_gestures"
+                                    android:textColor="@color/black"
+                                    android:textSize="14sp"
+                                    tools:ignore="RelativeOverlap" />
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginEnd="12dp"
+                                    android:background="@drawable/ic_navigate_next"
+                                    tools:ignore="ContentDescription" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:background="@color/background_scan_list" />
+
+                        <View
+                            android:id="@+id/settings_gesture_btn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:background="?android:attr/selectableItemBackground" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/advanced_settings_rl"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:visibility="visible"
+                        android:background="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:orientation="horizontal"
+                            android:weightSum="4"
+                            tools:ignore="DisableBaselineAlignment">
+
+                            <RelativeLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="4">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="20dp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginStart="18dp"
+                                    android:layout_marginTop="18dp"
+                                    android:layout_marginBottom="18dp"
+                                    android:fontFamily="@font/font_open_sans_semi_bold"
+                                    android:text="@string/advanced_settings"
+                                    android:textColor="@color/black"
+                                    android:textSize="14sp"
+                                    tools:ignore="RelativeOverlap" />
+                            </RelativeLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:background="@color/background_scan_list" />
+
+                        <View
+                            android:id="@+id/advanced_settings_btn"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+</RelativeLayout>
+

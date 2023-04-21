@@ -1016,9 +1016,10 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
   }
   override fun showHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(HelpFragment(chartFragmentClass)) }
-//  override fun showHelpMonoScreen(chartFragmentClass: ChartFragment) { launchFragment(HelpMonoFragment(chartFragmentClass)) }
-  override fun showSensorsHelpScreen() { launchFragment(SensorsFragment()) }
-  override fun showGesturesHelpScreen() { launchFragment(GestureCustomizationFragment()) }
+  override fun showSensorsHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(SensorsFragment(chartFragmentClass)) }
+  override fun showGesturesHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(GestureCustomizationFragment(chartFragmentClass)) }
+  override fun showHelpMonoAdvancedSettingsScreen(chartFragmentClass: ChartFragment) { launchFragment(AdvancedSettingsFragmentMono(chartFragmentClass)) }
+  override fun showHelpMultyAdvancedSettingsScreen(chartFragmentClass: ChartFragment) { launchFragment(AdvancedSettingsFragmentMulty(chartFragmentClass)) }
   override fun showHowProsthesisWorksScreen() { launchFragment(HowProsthesisWorksFragment()) }
   override fun showHowProsthesisWorksMonoScreen() { launchFragment(HowProsthesisWorksMonoFragment()) }
   override fun showHowPutOnTheProthesisSocketScreen() { launchFragment(HowToPutOnProsthesisSocketFragment()) }
@@ -1026,6 +1027,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun showChargingTheProthesisScreen() { launchFragment(ChargingTheProsthesisFragment()) }
   override fun showProsthesisCareScreen() { launchFragment(ProsthesisCareFragment()) }
   override fun showServiceAndWarrantyScreen() { launchFragment(ServiceAndWarrantyFragment()) }
+  override fun getBackStackEntryCount():Int { return supportFragmentManager.backStackEntryCount }
   override fun goingBack() { onBackPressed() }
   override fun onBackPressed() {
     super.onBackPressed()

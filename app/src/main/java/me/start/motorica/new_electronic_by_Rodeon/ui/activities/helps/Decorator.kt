@@ -7,6 +7,7 @@ import android.view.*
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.airbnb.lottie.LottieAnimationView
@@ -64,8 +65,8 @@ class Decorator(private val main: MainActivity,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
         params.topMargin = y
-        params.marginStart = 20
-        params.marginEnd = decorView.width - x + 10
+        params.marginStart = convertToDp(8f)
+        params.marginEnd = decorView.width - x + convertToDp(4f)
         (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
 
 
@@ -109,7 +110,7 @@ class Decorator(private val main: MainActivity,
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT)
         mb!!.setTypeDim(TypeDimMasks.CIRCLE)
-        mb!!.setCircleAccent(x+targetView.height/2, y+targetView.height/2, ((targetView.width/1.4).toInt()))
+        mb!!.setCircleAccent(x + targetView.width/2, y + targetView.height/2, ((targetView.height/1.3).toInt()))
 
 
         myConstraintLayout = HelpMassageConstraintLayout(
@@ -126,15 +127,18 @@ class Decorator(private val main: MainActivity,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
         params.topMargin = y
-        params.marginStart = x + targetView.width + 40
-        params.marginEnd = 20
+        params.marginStart = x + targetView.width + convertToDp(15f)
+        params.marginEnd = convertToDp(8f)
         (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
 
-
+        val scaleIncrement = convertToDp(70f)
         lottieView = LottieAnimationView(context)
-        lottieView!!.layoutParams = LinearLayout.LayoutParams((targetView.width*2.1).toInt(), (targetView.height*2.1).toInt())
-        lottieView!!.x = (x-targetView.width/2).toFloat()
-        lottieView!!.y = (y-targetView.height/1.8).toFloat()
+        lottieView!!.layoutParams = LinearLayout.LayoutParams(
+            targetView.width + scaleIncrement,
+            targetView.height + scaleIncrement
+        )
+        lottieView!!.x = (x - scaleIncrement/2).toFloat()
+        lottieView!!.y = (y - scaleIncrement/2).toFloat()
         lottieView!!.setAnimation(R.raw.help_accent_circle)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
@@ -183,9 +187,9 @@ class Decorator(private val main: MainActivity,
             ConstraintLayout.LayoutParams.MATCH_PARENT,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
-        params.topMargin = y + targetView.height + 20
-        params.marginStart = 20
-        params.marginEnd = 20
+        params.topMargin = y + targetView.height
+        params.marginStart = convertToDp(8f)
+        params.marginEnd = convertToDp(8f)
         (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
 
 
@@ -198,6 +202,68 @@ class Decorator(private val main: MainActivity,
         lottieView!!.y = y.toFloat()
         lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
         lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide)
+        lottieView!!.repeatCount = LottieDrawable.INFINITE
+        lottieView!!.playAnimation()
+
+
+        viewParent = view.parent
+        if (viewParent is FrameLayout) {
+            (viewParent as FrameLayout).addView(mb)
+            (viewParent as FrameLayout).addView(lottieView)
+            (viewParent as FrameLayout).addView(myConstraintLayout)
+        }
+    }
+    private fun showSensorsSensitivityClarificationGuide (targetView: View, rootClass: Any) {
+        scale = context.resources.displayMetrics.density
+        val view: View = decorView
+        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
+        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary_dim_50)
+
+        val locInWindow = IntArray(2)
+        decorView.getLocationInWindow(locInWindow)
+        val topOffset = locInWindow[1]
+        val location = IntArray(2)
+        targetView.getLocationOnScreen(location)
+        val x = location[0]
+        val y = location[1] - topOffset
+
+        mb = DimWithMask(context)
+        mb!!.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT)
+        mb!!.setTypeDim(TypeDimMasks.CIRCLE)
+        mb!!.setCircleAccent(x + targetView.width/2, y + targetView.height/2, ((targetView.height/2).toInt()))
+
+
+        myConstraintLayout = HelpMassageConstraintLayout(
+            rootClass,
+            main,
+            context,
+            targetView,
+            TypeDirectionArrow.TOP,
+            context.resources.getText(R.string.help_massage_2_2_1_title).toString(),
+            context.resources.getText(R.string.help_massage_2_2_1).toString()
+        )
+
+        val params = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.topMargin = y + targetView.height
+        params.marginStart = convertToDp(8f)
+        params.marginEnd = convertToDp(8f)
+        (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
+
+        val scaleIncrement = convertToDp(30f)
+        lottieView = LottieAnimationView(context)
+        lottieView!!.layoutParams = LinearLayout.LayoutParams(
+            targetView.width + scaleIncrement,
+            targetView.height + scaleIncrement
+        )
+        lottieView!!.x = (x - scaleIncrement/2).toFloat()
+        lottieView!!.y = (y - scaleIncrement/2).toFloat()
+//        lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
+        lottieView!!.setAnimation(R.raw.help_accent_circle)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
 
@@ -247,8 +313,8 @@ class Decorator(private val main: MainActivity,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
         params.topMargin = y
-        params.marginStart = x + targetView.width + 40
-        params.marginEnd = 20
+        params.marginStart = x + targetView.width + convertToDp(8f)
+        params.marginEnd = convertToDp(8f)
         (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
 
         val scaleIncrement = convertToDp(40f)
@@ -308,9 +374,9 @@ class Decorator(private val main: MainActivity,
             ConstraintLayout.LayoutParams.MATCH_PARENT,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
-        params.topMargin = y + targetView.height + 20
-        params.marginStart = 20
-        params.marginEnd = 20
+        params.topMargin = y + targetView.height
+        params.marginStart = convertToDp(8f)
+        params.marginEnd = convertToDp(8f)
         (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
 
         lottieView = LottieAnimationView(context)
@@ -382,9 +448,9 @@ class Decorator(private val main: MainActivity,
             ConstraintLayout.LayoutParams.MATCH_PARENT,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
-        params.topMargin = y + targetView.height + 20
-        params.marginStart = 20
-        params.marginEnd = 20
+        params.topMargin = y + targetView.height
+        params.marginStart = convertToDp(8f)
+        params.marginEnd = convertToDp(8f)
         (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
 
         lottieView = LottieAnimationView(context)
@@ -416,6 +482,130 @@ class Decorator(private val main: MainActivity,
             (viewParent as FrameLayout).addView(mb)
             (viewParent as FrameLayout).addView(lottieView)
             (viewParent as FrameLayout).addView(lottieView2)
+            (viewParent as FrameLayout).addView(myConstraintLayout)
+        }
+    }
+    private fun showSensorsSwapGuide (targetView: View, rootClass: Any) {
+        scale = context.resources.displayMetrics.density
+        val view: View = decorView
+        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
+        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary_dim_50)
+
+        val locInWindow = IntArray(2)
+        decorView.getLocationInWindow(locInWindow)
+        val topOffset = locInWindow[1]
+        val location = IntArray(2)
+        targetView.getLocationOnScreen(location)
+        val x = location[0]
+        val y = location[1] - topOffset
+
+        mb = DimWithMask(context)
+        mb!!.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT)
+        mb!!.setTypeDim(TypeDimMasks.HORISONTAL_RECTANGLE_ALL_WIDTH)
+        mb!!.setRectangleAccent(x, y, x+targetView.width, y+targetView.height)
+
+
+        myConstraintLayout = HelpMassageConstraintLayout(
+            rootClass,
+            main,
+            context,
+            targetView,
+            TypeDirectionArrow.TOP,
+            context.resources.getText(R.string.help_massage_2_5_title).toString(),
+            context.resources.getText(R.string.help_massage_2_5).toString()
+        )
+
+        val params = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.topMargin = y + targetView.height
+        params.marginStart = convertToDp(8f)
+        params.marginEnd = convertToDp(8f)
+        (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
+
+
+        lottieView = LottieAnimationView(context)
+        lottieView!!.layoutParams = LinearLayout.LayoutParams(
+            targetView.width,
+            targetView.height
+        )
+        lottieView!!.x = x.toFloat()
+        lottieView!!.y = y.toFloat()
+        lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide)
+        lottieView!!.repeatCount = LottieDrawable.INFINITE
+        lottieView!!.playAnimation()
+
+
+        viewParent = view.parent
+        if (viewParent is FrameLayout) {
+            (viewParent as FrameLayout).addView(mb)
+            (viewParent as FrameLayout).addView(lottieView)
+            (viewParent as FrameLayout).addView(myConstraintLayout)
+        }
+    }
+    private fun showBlockingGuide (targetView: View, rootClass: Any) {
+        scale = context.resources.displayMetrics.density
+        val view: View = decorView
+        window.statusBarColor = ContextCompat.getColor(context, R.color.blue_status_bar_dim_50)
+        window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary_dim_50)
+
+        val locInWindow = IntArray(2)
+        decorView.getLocationInWindow(locInWindow)
+        val topOffset = locInWindow[1]
+        val location = IntArray(2)
+        targetView.getLocationOnScreen(location)
+        val x = location[0]
+        val y = location[1] - topOffset
+
+        mb = DimWithMask(context)
+        mb!!.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT)
+        mb!!.setTypeDim(TypeDimMasks.HORISONTAL_RECTANGLE_ALL_WIDTH)
+        mb!!.setRectangleAccent(x, y, x+targetView.width, y+targetView.height)
+
+
+        myConstraintLayout = HelpMassageConstraintLayout(
+            rootClass,
+            main,
+            context,
+            targetView,
+            TypeDirectionArrow.TOP,
+            context.resources.getText(R.string.help_massage_2_6_title).toString(),
+            context.resources.getText(R.string.help_massage_2_6).toString()
+        )
+
+        val params = ConstraintLayout.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.topMargin = y + targetView.height
+        params.marginStart = convertToDp(8f)
+        params.marginEnd = convertToDp(8f)
+        (myConstraintLayout as HelpMassageConstraintLayout).layoutParams = params
+
+
+        lottieView = LottieAnimationView(context)
+        lottieView!!.layoutParams = LinearLayout.LayoutParams(
+            targetView.width,
+            targetView.height
+        )
+        lottieView!!.x = x.toFloat()
+        lottieView!!.y = y.toFloat()
+        lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
+        lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide)
+        lottieView!!.repeatCount = LottieDrawable.INFINITE
+        lottieView!!.playAnimation()
+
+
+        viewParent = view.parent
+        if (viewParent is FrameLayout) {
+            (viewParent as FrameLayout).addView(mb)
+            (viewParent as FrameLayout).addView(lottieView)
             (viewParent as FrameLayout).addView(myConstraintLayout)
         }
     }
@@ -452,7 +642,6 @@ class Decorator(private val main: MainActivity,
             context.resources.getText(R.string.help_massage_2_7).toString()
         )
 
-
         val params = ConstraintLayout.LayoutParams(
             ConstraintLayout.LayoutParams.MATCH_PARENT,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
@@ -474,7 +663,6 @@ class Decorator(private val main: MainActivity,
         lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal_wide)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
-
 
         viewParent = view.parent
         if (viewParent is FrameLayout) {
@@ -524,13 +712,15 @@ class Decorator(private val main: MainActivity,
 
 
         val scaleIncrement = convertToDp(25f)
+        val scaleIncrementY = convertToDp(6f)
         lottieView = LottieAnimationView(context)
         lottieView!!.layoutParams = LinearLayout.LayoutParams(
             (targetView.width + scaleIncrement),
-            (targetView.height + scaleIncrement)
+            (targetView.height + scaleIncrementY)
         )
         lottieView!!.x = (x - scaleIncrement/2).toFloat()
-        lottieView!!.y = (y - scaleIncrement/2).toFloat()
+        lottieView!!.y = (y - scaleIncrementY/2).toFloat()
+        lottieView!!.scaleType = ImageView.ScaleType.FIT_XY
         lottieView!!.setAnimation(R.raw.help_accent_rectangle_horisontal)
         lottieView!!.repeatCount = LottieDrawable.INFINITE
         lottieView!!.playAnimation()
@@ -557,17 +747,19 @@ class Decorator(private val main: MainActivity,
         window.navigationBarColor = ContextCompat.getColor(context, R.color.color_primary)
     }
 
+
     fun showGuide(nameGuide: TypeGuides, targetView: View, rootClass: Any) {
         when (nameGuide) {
             TypeGuides.SHOW_HELP_GUIDE -> {showHelpGuide(targetView, rootClass)}
 
             TypeGuides.SHOW_VERSION_GUIDE -> {showVersionGuide(targetView, rootClass)}
             TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE -> {showSensorsSensitivityGuide(targetView, rootClass)}
+            TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE -> {showSensorsSensitivityClarificationGuide(targetView, rootClass)}
             TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE -> {showSensorsThresholdLevelGuide(targetView, rootClass)}
             TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE -> {showOpenSensorsThresholdAreaGuide(targetView, rootClass)}
             TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE -> {showCloseSensorsThresholdAreaGuide(targetView, rootClass)}
-
-
+            TypeGuides.SHOW_SENSORS_SWAP_GUIDE -> {showSensorsSwapGuide(targetView, rootClass)}
+            TypeGuides.SHOW_BLOCKING_GUIDE -> {showBlockingGuide(targetView, rootClass)}
             TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE -> {showMovementButtonsGuide(targetView, rootClass)}
             TypeGuides.SHOW_DEVICE_NAME_GUIDE -> {showDeviceNameGuide(targetView, rootClass)}
         }

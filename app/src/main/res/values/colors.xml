@@ -39,5 +39,6 @@
     <color name="open_threshold">#ffab00</color>
     <color name="close_threshold">#ffffff</color>
     <color name="separator_settings">#c6c6c8</color>
+    <color name="rssi_gray">#b6b6b6</color>
     <color name="background_title_fragment">#FFF2F2F7</color>
 </resources>

@@ -48,10 +48,8 @@ public class ScanPresenterImpl implements ScanPresenter{
         positionPairDevice = 0;
         if(interactor.isBluetoothEnabled()){
             startScanning();
-//            pairedDeviceNames = interactor.getPairedDevices(view.getFilteringOursDevices());
             pairedDevices = interactor.getPairedDevicesItem(view.getFilteringOursDevices());
             view.showPairedList(pairedDevices);
-//            view.getMyScanList();
         }
         else{
             interactor.enableBluetooth();

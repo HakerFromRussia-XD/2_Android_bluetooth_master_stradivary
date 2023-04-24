@@ -153,7 +153,7 @@ public class ScanInteractorImpl implements ScanInteractor {
                                 device.getName(),
                                 device.getAddress(),
                                 (position+1),
-                    true));
+                            0));
                 ourGadgets++;
             } else {
 //                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
@@ -162,7 +162,7 @@ public class ScanInteractorImpl implements ScanInteractor {
                                 ".",
                                 ".",
                                 (position+1),
-                                true));
+                                0));
             }
             position++;
         }

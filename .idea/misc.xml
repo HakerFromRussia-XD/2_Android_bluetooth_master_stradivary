@@ -55,18 +55,20 @@
         <entry key="app/src/main/res/layout/activity_infinity_settings.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1793478260869565" />
         <entry key="app/src/main/res/layout/activity_scan.xml" value="0.2462615966796875" />
-        <entry key="app/src/main/res/layout/activity_scan_new.xml" value="0.3105300903320312" />
+        <entry key="app/src/main/res/layout/activity_scan_new.xml" value="0.37736663818359373" />
         <entry key="app/src/main/res/layout/activity_splash_screen.xml" value="0.1" />
         <entry key="app/src/main/res/layout/button.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/dialog_chage_hand_side.xml" value="0.24309203235815602" />
         <entry key="app/src/main/res/layout/dialog_change_value.xml" value="0.2674787826959599" />
         <entry key="app/src/main/res/layout/dialog_confirm_select_scale.xml" value="0.4936708860759494" />
         <entry key="app/src/main/res/layout/dialog_fingers_delay.xml" value="0.2246603029583572" />
+        <entry key="app/src/main/res/layout/dialog_help_start.xml" value="0.12991452991452992" />
         <entry key="app/src/main/res/layout/dialog_info.xml" value="0.45281552089734034" />
         <entry key="app/src/main/res/layout/dialog_progress_communication_test.xml" value="0.3228164672851563" />
         <entry key="app/src/main/res/layout/dialog_refill.xml" value="0.17255434782608695" />
         <entry key="app/src/main/res/layout/dialog_result_communication_test.xml" value="0.2980072463768116" />
         <entry key="app/src/main/res/layout/dialog_select_scale.xml" value="0.3051449498386248" />
+        <entry key="app/src/main/res/layout/dialog_user_profiles.xml" value="0.12991452991452992" />
         <entry key="app/src/main/res/layout/finger_template.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/fragment_care_of_a_prosthetic_hand.xml" value="0.20525185721261163" />
         <entry key="app/src/main/res/layout/fragment_care_of_prosthetic_hand.xml" value="0.3403906780740489" />
@@ -93,7 +95,7 @@
         <entry key="app/src/main/res/layout/intro2.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/intro3.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/intro4.xml" value="0.21422101449275363" />
-        <entry key="app/src/main/res/layout/item_scanlist.xml" value="0.24017003188097769" />
+        <entry key="app/src/main/res/layout/item_scanlist.xml" value="0.5535397828575402" />
         <entry key="app/src/main/res/layout/layout_advanced_settings.xml" value="0.2666365523000661" />
         <entry key="app/src/main/res/layout/layout_calibrating_le.xml" value="0.21422101449275363" />
         <entry key="app/src/main/res/layout/layout_chart.xml" value="0.25060240963855424" />

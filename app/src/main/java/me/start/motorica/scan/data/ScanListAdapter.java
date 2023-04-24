@@ -3,10 +3,12 @@ package me.start.motorica.scan.data;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.start.motorica.R;
+import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
 import me.start.motorica.scan.view.ScanView;
 
 public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanViewHolder> implements ScanView {
@@ -29,7 +32,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     private final boolean firstBind = true;
     private CountDownTimer timer;
     private final long time = 0;
-    private final static int ANIM_DURATION = 10000;
+    private SharedPreferences mSettings = null;
 
     public ScanListAdapter(Context  mCtx, List<ScanItem> mScanList, OnScanMyListener onScanMyListener) {
         this.mCtx = mCtx;
@@ -43,6 +46,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     public ScanViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mCtx);
         @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.item_scanlist, null);
+        mSettings = mCtx.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE);
         return new ScanViewHolder(view, mOnScanMyListener);
     }
 
@@ -51,7 +55,8 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     public void onBindViewHolder(@NonNull ScanViewHolder holder, @SuppressLint("RecyclerView") int position) {
         ScanItem item = mScanList.get(position);
 
-        holder.textViewTitle.setText(item.getTitle()+" "+item.getPosition());
+        holder.textViewTitle.setText(item.getTitle());
+        if (loadBool(PreferenceKeys.ACTIVATE_RSSI_SHOW)) holder.rssi.setText(""+item.getRssi());
     }
 
     @Override
@@ -63,6 +68,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     public static class ScanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView textViewTitle;
+        TextView rssi;
         View divider;
         OnScanMyListener onScanMyListener;
 
@@ -71,6 +77,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
             super(itemView);
 
             textViewTitle = itemView.findViewById(R.id.title_tv);
+            rssi = itemView.findViewById(R.id.rssi_tv);
             divider = itemView.findViewById(R.id.divider_v);
 
             this.onScanMyListener = onScanMyListener;
@@ -120,4 +127,5 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     @Override
     public ArrayList<BluetoothDevice> getLeDevices() { return null; }
 
+    private Boolean loadBool(String key) { return mSettings.getBoolean(key, false); }
 }

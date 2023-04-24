@@ -26,10 +26,26 @@
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
+            android:fontFamily="@font/font_open_sans_bold"
             android:gravity="center"
             android:text="Indy Hand"
-            android:fontFamily="@font/font_open_sans_bold"
             android:textColor="#0C212C"
+            android:textSize="15sp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/rssi_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/font_open_sans_bold"
+            android:gravity="center"
+            android:text=""
+            android:textColor="@color/rssi_gray"
             android:textSize="15sp"
             tools:ignore="HardcodedText" />
 

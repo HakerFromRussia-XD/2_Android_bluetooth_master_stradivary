@@ -809,19 +809,18 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         1
       )).toFloat() / 100 + "v"
       ObjectAnimator.ofFloat(
-        limit_CH1, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
+        limit_CH1, "y", 320 * scale - 5f - ((open_CH_sb?.progress?.times(scale) ?: 22.0f) * 1.04f)
+      ).setDuration(200).start()
+      ObjectAnimator.ofFloat(
+        limit_CH2, "y", 320 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
           ?: 22.0f) * 1.04f)
       ).setDuration(200).start()
       ObjectAnimator.ofFloat(
-        limit_CH2, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
+        open_border, "y", 320 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
           ?: 22.0f) * 1.04f)
       ).setDuration(200).start()
       ObjectAnimator.ofFloat(
-        open_border, "y", 300 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
-          ?: 22.0f) * 1.04f)
-      ).setDuration(200).start()
-      ObjectAnimator.ofFloat(
-        close_border, "y", 300 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
+        close_border, "y", 320 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
           ?: 22.0f) * 1.04f)
       ).setDuration(200).start()
       ObjectAnimator.ofInt(

@@ -13,6 +13,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -232,6 +233,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           }
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpenCH)
         }
+        else {
+          updateAllParameters()
+          main?.showToast(resources.getString(R.string.settings_blocking_massage))
+        }
       }
     })
     val eventYandexMetricaParametersCloseCH = "{\"Screen chart\":\"Change threshold close sensor\"}"
@@ -261,16 +266,36 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           }
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCloseCH)
         }
+        else {
+          updateAllParameters()
+          main?.showToast(resources.getString(R.string.settings_blocking_massage))
+        }
       }
     })
 
 
 
     correlator_noise_threshold_1_tv.setOnClickListener {
-      main!!.openValueChangeDialog(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, callbackFromDialogChangeValue)
+      if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
+        main!!.openValueChangeDialog(
+          PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM,
+          callbackFromDialogChangeValue
+        )
+      } else {
+        updateAllParameters()
+        main?.showToast(resources.getString(R.string.settings_blocking_massage))
+      }
     }
     correlator_noise_threshold_2_tv.setOnClickListener {
-      main!!.openValueChangeDialog(PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, callbackFromDialogChangeValue)
+      if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
+        main!!.openValueChangeDialog(
+          PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM,
+          callbackFromDialogChangeValue
+        )
+      } else {
+        updateAllParameters()
+        main?.showToast(resources.getString(R.string.settings_blocking_massage))
+      }
     }
     val eventYandexMetricaParametersNoiseThresholdOpen = "{\"Screen chart\":\"Change noise threshold open sensor\"}"
     correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -279,7 +304,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-//        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
           System.err.println("test save correlator value" + main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM)
           sendCorrelatorNoiseThreshold1(seekBar.progress)
           if (main?.savingSettingsWhenModified == true) {
@@ -287,7 +312,11 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
           }
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdOpen)
-//        }
+        }
+        else {
+          updateAllParameters()
+          main?.showToast(resources.getString(R.string.settings_blocking_massage))
+        }
       }
     })
     val eventYandexMetricaParametersNoiseThresholdClose = "{\"Screen chart\":\"Change noise threshold close sensor\"}"
@@ -303,6 +332,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
           }
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdClose)
+        }
+        else {
+          updateAllParameters()
+          main?.showToast(resources.getString(R.string.settings_blocking_massage))
         }
       }
     })
@@ -341,6 +374,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 //          main?.setReverseNum = 0
         }
         YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSwapSensors)
+      }
+      else {
+        updateAllParameters()
+        main?.showToast(resources.getString(R.string.settings_blocking_massage))
       }
     }
 

@@ -3,6 +3,7 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
@@ -13,7 +14,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -35,6 +35,7 @@ import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
+import me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.DecoratorChange
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
@@ -800,6 +801,16 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             plotData = false
           }
           addEntry(main!!.getDataSens1(), main!!.getDataSens2())
+
+          //TODO работаем над этой частью кода
+//          var transferIntent = Intent(context, DataTransferToService::class.java)
+//////          var transferIntent: Intent = Intent(DATA_TRANSFER_TO_SERVICE)
+//          transferIntent.putExtra("sensor_level_1", main!!.getDataSens1())
+//          transferIntent.putExtra("sensor_level_2", main!!.getDataSens2())
+//          if (context != null) {
+//            main!!.startService(transferIntent)
+//          }
+
 //        }
         try {
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())

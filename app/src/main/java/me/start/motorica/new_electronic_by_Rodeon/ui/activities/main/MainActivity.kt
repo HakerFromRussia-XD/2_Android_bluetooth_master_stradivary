@@ -43,6 +43,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
+import me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Decorator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Navigator
@@ -84,8 +85,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var mConnected = false
   private var mNotifyCharacteristic: BluetoothGattCharacteristic? = null
   private var mCharacteristic: BluetoothGattCharacteristic? = null
+  private var openChNum = 0x00
+  private var closeChNum = 0x00
   private var dataSens1 = 0x00
+  private var dataSensPrevious1 = 0x00
   private var dataSens2 = 0x00
+  private var dataSensPrevious2 = 0x00
   private var mSettings: SharedPreferences? = null
   private var askAboutUpdate: Boolean = true
   private var progressUpdate: Int = 0
@@ -304,10 +309,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             updateUIChart(4)
           }
           if (castUnsignedCharToInt(data[6]) != mSettings!!.getInt(mDeviceAddress +PreferenceKeys.OPEN_CH_NUM, 0)) {
+            openChNum = castUnsignedCharToInt(data[6])
             saveInt(mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[6]))
             updateUIChart(5)
           }
           if (castUnsignedCharToInt(data[7]) != mSettings!!.getInt(mDeviceAddress +PreferenceKeys.CLOSE_CH_NUM, 0)) {
+            closeChNum = castUnsignedCharToInt(data[7])
             saveInt(mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[7]))
             updateUIChart(6)
           }
@@ -399,6 +406,18 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           runReadData()
         }
       }
+
+      if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
+        dataSensPrevious1 = dataSens1
+        dataSensPrevious2 = dataSens2
+
+        val transferIntent = Intent(this, DataTransferToService::class.java)
+        transferIntent.putExtra("sensor_level_1", dataSens1)
+        transferIntent.putExtra("sensor_level_2", dataSens2)
+        transferIntent.putExtra("open_ch_num", openChNum)
+        transferIntent.putExtra("close_ch_num", closeChNum)
+        startService(transferIntent)
+      }
     }
   }
   private fun displayDataNew(data: ByteArray?) {
@@ -445,6 +464,18 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             }
         }
       }
+
+      if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
+        dataSensPrevious1 = dataSens1
+        dataSensPrevious2 = dataSens2
+
+        //TODO создать сервис и отправить в него данные
+        val transferIntent = Intent(this, DataTransferToService::class.java)
+        transferIntent.putExtra("sensor_level_1", dataSens1)
+        transferIntent.putExtra("sensor_level_2", dataSens2)
+        startService(transferIntent)
+      }
+
       calibrationDialogOpen = false
       savingSettingsWhenModified = true
       lockWriteBeforeFirstRead = false
@@ -459,6 +490,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
   private fun displayDataOpenThresholdNew(data: ByteArray?) {
     if (data != null) {
+      openChNum = castUnsignedCharToInt(data[0])
       saveInt(mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[0]))
       globalSemaphore = true
       updateUIChart(10)
@@ -467,6 +499,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
   private fun displayDataCloseThresholdNew(data: ByteArray?) {
     if (data != null) {
+      closeChNum = castUnsignedCharToInt(data[0])
       saveInt(mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[0]))
       globalSemaphore = true
       updateUIChart(11)

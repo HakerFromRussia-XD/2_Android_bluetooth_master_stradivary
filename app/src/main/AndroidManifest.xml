@@ -92,16 +92,14 @@
                 <action android:name="me.start.motorica.new_electronic_by_Rodeon.services.MyService"/>
             </intent-filter>
         </service>
-<!--        <receiver
-            android:name="me.start.motorica.new_electronic_by_Rodeon.services.receivers.BootCompletedReceiver"
-            android:enabled="true"
+
+        <service
+            android:name="me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService.DO_SOMETHING_1"/>
             </intent-filter>
-        </receiver>-->
+        </service>
     </application>
 
 </manifest>

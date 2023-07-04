@@ -43,6 +43,7 @@ import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.Prefere
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
 import me.start.motorica.new_electronic_by_Rodeon.presenters.MainPresenter
+import me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService
 import me.start.motorica.new_electronic_by_Rodeon.services.MyService
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Decorator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.Navigator
@@ -84,8 +85,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var mConnected = false
   private var mNotifyCharacteristic: BluetoothGattCharacteristic? = null
   private var mCharacteristic: BluetoothGattCharacteristic? = null
+  private var openChNum = 0x00
+  private var closeChNum = 0x00
   private var dataSens1 = 0x00
+  private var dataSensPrevious1 = 0x00
   private var dataSens2 = 0x00
+  private var dataSensPrevious2 = 0x00
   private var mSettings: SharedPreferences? = null
   private var askAboutUpdate: Boolean = true
   private var progressUpdate: Int = 0
@@ -120,7 +125,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private val listName = "NAME"
   private val listUUID = "UUID"
   var firstActivateSetScaleDialog = false
-  private var scaleProsthesis = 5
+  private var scaleProstheses = 5
   private var oldNumGesture = 0
   @Volatile
   private var expectedIdCommand = "not set"
@@ -304,10 +309,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             updateUIChart(4)
           }
           if (castUnsignedCharToInt(data[6]) != mSettings!!.getInt(mDeviceAddress +PreferenceKeys.OPEN_CH_NUM, 0)) {
+            openChNum = castUnsignedCharToInt(data[6])
             saveInt(mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[6]))
             updateUIChart(5)
           }
           if (castUnsignedCharToInt(data[7]) != mSettings!!.getInt(mDeviceAddress +PreferenceKeys.CLOSE_CH_NUM, 0)) {
+            closeChNum = castUnsignedCharToInt(data[7])
             saveInt(mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[7]))
             updateUIChart(6)
           }
@@ -399,6 +406,18 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           runReadData()
         }
       }
+
+      if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
+        dataSensPrevious1 = dataSens1
+        dataSensPrevious2 = dataSens2
+
+        val transferIntent = Intent(this, DataTransferToService::class.java)
+        transferIntent.putExtra("sensor_level_1", dataSens1)
+        transferIntent.putExtra("sensor_level_2", dataSens2)
+        transferIntent.putExtra("open_ch_num", openChNum)
+        transferIntent.putExtra("close_ch_num", closeChNum)
+        startService(transferIntent)
+      }
     }
   }
   private fun displayDataNew(data: ByteArray?) {
@@ -445,6 +464,18 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             }
         }
       }
+
+      if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
+        dataSensPrevious1 = dataSens1
+        dataSensPrevious2 = dataSens2
+
+        //TODO создать сервис и отправить в него данные
+        val transferIntent = Intent(this, DataTransferToService::class.java)
+        transferIntent.putExtra("sensor_level_1", dataSens1)
+        transferIntent.putExtra("sensor_level_2", dataSens2)
+        startService(transferIntent)
+      }
+
       calibrationDialogOpen = false
       savingSettingsWhenModified = true
       lockWriteBeforeFirstRead = false
@@ -459,6 +490,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
   private fun displayDataOpenThresholdNew(data: ByteArray?) {
     if (data != null) {
+      openChNum = castUnsignedCharToInt(data[0])
       saveInt(mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, castUnsignedCharToInt(data[0]))
       globalSemaphore = true
       updateUIChart(10)
@@ -467,6 +499,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
   private fun displayDataCloseThresholdNew(data: ByteArray?) {
     if (data != null) {
+      closeChNum = castUnsignedCharToInt(data[0])
       saveInt(mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, castUnsignedCharToInt(data[0]))
       globalSemaphore = true
       updateUIChart(11)
@@ -1020,12 +1053,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun showGesturesHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(GestureCustomizationFragment(chartFragmentClass)) }
   override fun showHelpMonoAdvancedSettingsScreen(chartFragmentClass: ChartFragment) { launchFragment(AdvancedSettingsFragmentMono(chartFragmentClass)) }
   override fun showHelpMultyAdvancedSettingsScreen(chartFragmentClass: ChartFragment) { launchFragment(AdvancedSettingsFragmentMulty(chartFragmentClass)) }
-  override fun showHowProsthesisWorksScreen() { launchFragment(HowProsthesisWorksFragment()) }
-  override fun showHowProsthesisWorksMonoScreen() { launchFragment(HowProsthesisWorksMonoFragment()) }
-  override fun showHowPutOnTheProthesisSocketScreen() { launchFragment(HowToPutOnProsthesisSocketFragment()) }
+  override fun showHowProsthesesWorksScreen() { launchFragment(HowProsthesesWorksFragment()) }
+  override fun showHowProsthesesWorksMonoScreen() { launchFragment(HowProsthesesWorksMonoFragment()) }
+  override fun showHowPutOnTheProsthesesSocketScreen() { launchFragment(HowToPutOnProsthesesSocketFragment()) }
   override fun showCompleteSetScreen() { launchFragment(CompleteSetFragment()) }
-  override fun showChargingTheProthesisScreen() { launchFragment(ChargingTheProsthesisFragment()) }
-  override fun showProsthesisCareScreen() { launchFragment(ProsthesisCareFragment()) }
+  override fun showChargingTheProsthesesScreen() { launchFragment(ChargingTheProsthesesFragment()) }
+  override fun showProsthesesCareScreen() { launchFragment(ProsthesesCareFragment()) }
   override fun showServiceAndWarrantyScreen() { launchFragment(ServiceAndWarrantyFragment()) }
   override fun getBackStackEntryCount():Int { return supportFragmentManager.backStackEntryCount }
   override fun goingBack() { onBackPressed() }
@@ -2137,20 +2170,20 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     myDialog.show()
 
     myDialog.dialog_select_scale_sw.setOnSwitchListener { position, _ ->
-      System.err.println("scaleProsthesis = ${myDialog.dialog_select_scale_sw.selectedTab}")
+      System.err.println("scaleProstheses = ${myDialog.dialog_select_scale_sw.selectedTab}")
       when (position) {
-        0 -> { scaleProsthesis = 0 }
-        1 -> { scaleProsthesis = 1 }
-        2 -> { scaleProsthesis = 2 }
-        3 -> { scaleProsthesis = 3 }
+        0 -> { scaleProstheses = 0 }
+        1 -> { scaleProstheses = 1 }
+        2 -> { scaleProstheses = 2 }
+        3 -> { scaleProstheses = 3 }
       }
     }
 
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_select_scale_confirm)
     yesBtn.setOnClickListener {
-      scaleProsthesis = myDialog.dialog_select_scale_sw.selectedTab
-      System.err.println("scaleProsthesis = $scaleProsthesis")
+      scaleProstheses = myDialog.dialog_select_scale_sw.selectedTab
+      System.err.println("scaleProstheses = $scaleProstheses")
       showConfirmChangeSideDialog()
       myDialog.dismiss()
     }
@@ -2165,17 +2198,17 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     myDialog.show()
 
     myDialog.dialog_confirm_select_scale_message_tv.text =
-      when (scaleProsthesis) {
-        0 -> getString(R.string.the_size_of_your_prosthesis) + " \"S\" ?"
-        1 -> getString(R.string.the_size_of_your_prosthesis) + " \"M\" ?"
-        2 -> getString(R.string.the_size_of_your_prosthesis) + " \"L\" ?"
-        3 -> getString(R.string.the_size_of_your_prosthesis) + " \"XL\" ?"
-        else -> {getString(R.string.the_size_of_your_prosthesis) +" \"S\" ?"}
+      when (scaleProstheses) {
+        0 -> getString(R.string.the_size_of_your_prostheses) + " \"S\" ?"
+        1 -> getString(R.string.the_size_of_your_prostheses) + " \"M\" ?"
+        2 -> getString(R.string.the_size_of_your_prostheses) + " \"L\" ?"
+        3 -> getString(R.string.the_size_of_your_prostheses) + " \"XL\" ?"
+        else -> {getString(R.string.the_size_of_your_prostheses) +" \"S\" ?"}
       }
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_confirm_select_scale_confirm)
     yesBtn.setOnClickListener {
-      bleCommand(byteArrayOf(scaleProsthesis.toByte()), SET_SELECT_SCALE, WRITE)
+      bleCommand(byteArrayOf(scaleProstheses.toByte()), SET_SELECT_SCALE, WRITE)
       myDialog.dismiss()
     }
 

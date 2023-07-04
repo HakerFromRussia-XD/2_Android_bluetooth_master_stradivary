@@ -38,12 +38,12 @@ interface ApplicationGraph {
   fun inject(sensorsFragment: SensorsFragment) {}
   fun inject(gestureCustomizationFragment: GestureCustomizationFragment) {}
 
-  fun inject(howProsthesisWorksFragment: HowProsthesisWorksFragment)
-  fun inject(howProsthesisWorksMonoFragment: HowProsthesisWorksMonoFragment) {}
-  fun inject(howToPutOnProsthesisSocketFragment: HowToPutOnProsthesisSocketFragment) {}
+  fun inject(howProsthesesWorksFragment: HowProsthesesWorksFragment)
+  fun inject(howProsthesesWorksMonoFragment: HowProsthesesWorksMonoFragment) {}
+  fun inject(howToPutOnProsthesesSocketFragment: HowToPutOnProsthesesSocketFragment) {}
   fun inject(completeSetFragment: CompleteSetFragment) {}
-  fun inject(chargingTheProsthesisFragment: ChargingTheProsthesisFragment) {}
-  fun inject(prosthesisCareFragment: ProsthesisCareFragment) {}
+  fun inject(chargingTheProsthesesFragment: ChargingTheProsthesesFragment) {}
+  fun inject(prosthesesCareFragment: ProsthesesCareFragment) {}
   fun inject(serviceAndWarrantyFragment: ServiceAndWarrantyFragment) {}
   fun inject(advancedSettingsFragmentMulty: AdvancedSettingsFragmentMulty) {}
   fun inject(advancedSettingsFragmentMono: AdvancedSettingsFragmentMono) {}

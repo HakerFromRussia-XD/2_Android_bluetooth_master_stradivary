@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:gravity="center"
-            android:text="@string/prosthesis_update_ready_for_installation"
+            android:text="@string/prostheses_update_ready_for_installation"
             android:textAlignment="center"
             android:textColor="#000"
             android:textSize="18sp"

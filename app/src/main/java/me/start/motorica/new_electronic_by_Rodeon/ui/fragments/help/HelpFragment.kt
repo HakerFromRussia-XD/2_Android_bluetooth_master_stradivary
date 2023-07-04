@@ -15,10 +15,8 @@ import kotlinx.android.synthetic.main.fragment_help.*
 import kotlinx.android.synthetic.main.fragment_help.back_btn
 import kotlinx.android.synthetic.main.fragment_help.complectation_btn
 import kotlinx.android.synthetic.main.fragment_help.contact_support_btn
-import kotlinx.android.synthetic.main.fragment_help.how_prosthesis_works_btn
-import kotlinx.android.synthetic.main.fragment_help.how_to_put_on_a_prosthesis_socket_btn
-import kotlinx.android.synthetic.main.fragment_help.prosthesis_care_btn
-import kotlinx.android.synthetic.main.fragment_help.prosthesis_charge_btn
+import kotlinx.android.synthetic.main.fragment_help.prostheses_care_btn
+import kotlinx.android.synthetic.main.fragment_help.prostheses_charge_btn
 import kotlinx.android.synthetic.main.fragment_help.sensors_settings_btn
 import kotlinx.android.synthetic.main.fragment_help.service_and_warranty_btn
 import kotlinx.android.synthetic.main.fragment_help.telegramm_btn
@@ -96,14 +94,14 @@ class HelpFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
         else { gesture_customization_rl.visibility =View.GONE }
 
 
-        how_prosthesis_works_btn.setOnClickListener {
-            if (multigrib) { navigator().showHowProsthesisWorksScreen() }
-            else { navigator().showHowProsthesisWorksMonoScreen() }
+        how_prostheses_works_btn.setOnClickListener {
+            if (multigrib) { navigator().showHowProsthesesWorksScreen() }
+            else { navigator().showHowProsthesesWorksMonoScreen() }
         }
-        how_to_put_on_a_prosthesis_socket_btn.setOnClickListener { navigator().showHowPutOnTheProthesisSocketScreen() }
+        how_to_put_on_a_prostheses_socket_btn.setOnClickListener { navigator().showHowPutOnTheProsthesesSocketScreen() }
         complectation_btn.setOnClickListener { navigator().showCompleteSetScreen() }
-        prosthesis_charge_btn.setOnClickListener { navigator().showChargingTheProthesisScreen() }
-        prosthesis_care_btn.setOnClickListener { navigator().showProsthesisCareScreen() }
+        prostheses_charge_btn.setOnClickListener { navigator().showChargingTheProsthesesScreen() }
+        prostheses_care_btn.setOnClickListener { navigator().showProsthesesCareScreen() }
         service_and_warranty_btn.setOnClickListener { navigator().showServiceAndWarrantyScreen() }
 
         contact_support_btn.setOnClickListener {

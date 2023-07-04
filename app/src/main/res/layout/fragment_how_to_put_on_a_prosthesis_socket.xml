@@ -67,7 +67,7 @@
         android:layout_toEndOf="@+id/back_btn"
         android:fontFamily="@font/font_open_sans_semi_bold"
         android:lines="2"
-        android:text="@string/how_to_put_on_a_prosthesis_socket"
+        android:text="@string/how_to_put_on_a_prostheses_socket"
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView33"
@@ -153,7 +153,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/font_inter_semi_bold"
-                        android:text="@string/how_to_put_on_a_prosthesis_socket_"
+                        android:text="@string/how_to_put_on_a_prostheses_socket_"
                         android:textColor="@color/black"
                         android:textSize="24sp"
                         app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
@@ -166,7 +166,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
                         android:fontFamily="@font/font_open_sans_regular"
-                        android:text="@string/the_prosthesis_is_fixed_and_held_in_place_by_the_anatomical_construction_of_the_socket_and_shoulder_brace"
+                        android:text="@string/the_prostheses_is_fixed_and_held_in_place_by_the_anatomical_construction_of_the_socket_and_shoulder_brace"
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
@@ -180,7 +180,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:fontFamily="@font/font_inter_semi_bold"
-                        android:text="@string/important_the_prosthesis_must_be_turned_off_when_you_put_it_on"
+                        android:text="@string/important_the_prostheses_must_be_turned_off_when_you_put_it_on"
                         android:textColor="@color/black"
                         android:textSize="18sp"
                         app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
@@ -205,7 +205,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:fontFamily="@font/font_open_sans_regular"
-                        android:text="@string/check_that_the_residual_limb_is_comfortably_positioned_in_the_socket_and_that_it_is_securely_fastened_once_it_is_securely_in_place_turn_on_the_prosthesis"
+                        android:text="@string/check_that_the_residual_limb_is_comfortably_positioned_in_the_socket_and_that_it_is_securely_fastened_once_it_is_securely_in_place_turn_on_the_prostheses"
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
@@ -249,12 +249,12 @@
             </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/app_prosthesis_use_title_tv"
+                android:id="@+id/app_prostheses_use_title_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="22dp"
                 android:fontFamily="@font/font_open_sans_semi_bold"
-                android:text="@string/prosthesis_use"
+                android:text="@string/prostheses_use"
                 android:textColor="@color/black"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toStartOf="@+id/endGuideline"
@@ -271,7 +271,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/endGuideline"
                 app:layout_constraintStart_toStartOf="@+id/beginGuideline"
-                app:layout_constraintTop_toBottomOf="@+id/app_prosthesis_use_title_tv">
+                app:layout_constraintTop_toBottomOf="@+id/app_prostheses_use_title_tv">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -318,7 +318,7 @@
                                     android:layout_marginTop="18dp"
                                     android:layout_marginBottom="18dp"
                                     android:fontFamily="@font/font_open_sans_regular"
-                                    android:text="@string/how_prosthesis_works"
+                                    android:text="@string/how_prostheses_works"
                                     android:textColor="@color/black"
                                     android:textSize="14sp"
                                     tools:ignore="RelativeOverlap" />
@@ -346,7 +346,7 @@
                             android:background="@color/background_scan_list" />
 
                         <View
-                            android:id="@+id/how_prosthesis_works_btn"
+                            android:id="@+id/how_prostheses_works_btn"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_alignParentStart="true"
@@ -398,7 +398,7 @@
                                     android:layout_marginTop="18dp"
                                     android:layout_marginBottom="18dp"
                                     android:fontFamily="@font/font_open_sans_semi_bold"
-                                    android:text="@string/how_to_put_on_a_prosthesis_socket"
+                                    android:text="@string/how_to_put_on_a_prostheses_socket"
                                     android:textColor="@color/black"
                                     android:textSize="14sp"
                                     tools:ignore="RelativeOverlap" />
@@ -417,7 +417,7 @@
                             android:background="@color/background_scan_list" />
 
                         <View
-                            android:id="@+id/how_to_put_on_a_prosthesis_socket_btn"
+                            android:id="@+id/how_to_put_on_a_prostheses_socket_btn"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_alignParentStart="true"
@@ -548,7 +548,7 @@
                                     android:layout_marginTop="18dp"
                                     android:layout_marginBottom="18dp"
                                     android:fontFamily="@font/font_open_sans_regular"
-                                    android:text="@string/prosthesis_charge"
+                                    android:text="@string/prostheses_charge"
                                     android:textColor="@color/black"
                                     android:textSize="14sp"
                                     tools:ignore="RelativeOverlap" />
@@ -576,7 +576,7 @@
                             android:background="@color/background_scan_list" />
 
                         <View
-                            android:id="@+id/prosthesis_charge_btn"
+                            android:id="@+id/prostheses_charge_btn"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_alignParentStart="true"
@@ -627,7 +627,7 @@
                                     android:layout_marginTop="18dp"
                                     android:layout_marginBottom="18dp"
                                     android:fontFamily="@font/font_open_sans_regular"
-                                    android:text="@string/prosthesis_care"
+                                    android:text="@string/prostheses_care"
                                     android:textColor="@color/black"
                                     android:textSize="14sp"
                                     tools:ignore="RelativeOverlap" />
@@ -655,7 +655,7 @@
                             android:background="@color/background_scan_list" />
 
                         <View
-                            android:id="@+id/prosthesis_care_btn"
+                            android:id="@+id/prostheses_care_btn"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_alignParentStart="true"

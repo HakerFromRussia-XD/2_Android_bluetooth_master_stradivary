@@ -75,7 +75,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     RecyclerView scanDeviceList;
     TextView state;
     LottieAnimationView progress;
-    View prothesesButtonFilter;
+    View prosthesesButtonFilter;
     View allDevicesButtonFilter;
     View scanButton;
     View rssiButton;
@@ -84,7 +84,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     ImageView rescanImage;
     ImageView rssiOnImage;
     ImageView rssiOffImage;
-    TextView prothesesText;
+    TextView prosthesesText;
     TextView allDevicesText;
     TextSwitcher scanningTextSwitcher;
     private int filterWidth = 0;
@@ -152,9 +152,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         rescanImage = findViewById(R.id.rescan_iv);
         rssiOnImage = findViewById(R.id.rssi_on_iv);
         rssiOffImage = findViewById(R.id.rssi_off_iv);
-        prothesesText = findViewById(R.id.protheses_tv);
+        prosthesesText = findViewById(R.id.prostheses_tv);
         allDevicesText = findViewById(R.id.all_devices_tv);
-        prothesesButtonFilter = findViewById(R.id.protheses_select_btn);
+        prosthesesButtonFilter = findViewById(R.id.prostheses_select_btn);
         allDevicesButtonFilter = findViewById(R.id.all_devices_select_btn);
         selectView = findViewById(R.id.select_v);
         filterView = findViewById(R.id.filter_v);
@@ -170,7 +170,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         initUI();
         buildPairedListView();
         buildScanListView();
-        onProthesesFilterClick();
+        onProsthesesFilterClick();
         onAllDevicesFilterClick();
         scanButton.setOnClickListener(v -> {
             mLeDevices.clear();
@@ -456,8 +456,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     public boolean isFirstStart() {
         return firstStart;
     }
-    private void onProthesesFilterClick() {
-        prothesesButtonFilter.setOnClickListener(v -> {
+    private void onProsthesesFilterClick() {
+        prosthesesButtonFilter.setOnClickListener(v -> {
             filteringOursDevices = true;
             saveBool(PreferenceKeys.FILTERING_OUR_DEVISES, true);
             moveFilterSelection(1);
@@ -476,7 +476,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         switch (position) {
             case(1):
                 ObjectAnimator.ofFloat(selectView, "x", (18 * displayMetrics.density)).setDuration(ANIMATION_DURATION).start();//53
-                ObjectAnimator colorAnim = ObjectAnimator.ofInt(prothesesText, "textColor",
+                ObjectAnimator colorAnim = ObjectAnimator.ofInt(prosthesesText, "textColor",
                         getColor(R.color.unselected_filter), getColor(R.color.selected_filter));
                         colorAnim.setEvaluator(new ArgbEvaluator());
                         colorAnim.start();
@@ -487,7 +487,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 break;
             case(2):
                 ObjectAnimator.ofFloat(selectView, "x", ((filterWidth/2)+18) * displayMetrics.density).setDuration(ANIMATION_DURATION).start();//546
-                ObjectAnimator colorAnim2 = ObjectAnimator.ofInt(prothesesText, "textColor",
+                ObjectAnimator colorAnim2 = ObjectAnimator.ofInt(prosthesesText, "textColor",
                         getColor(R.color.selected_filter), getColor(R.color.unselected_filter));
                         colorAnim2.setEvaluator(new ArgbEvaluator());
                         colorAnim2.start();

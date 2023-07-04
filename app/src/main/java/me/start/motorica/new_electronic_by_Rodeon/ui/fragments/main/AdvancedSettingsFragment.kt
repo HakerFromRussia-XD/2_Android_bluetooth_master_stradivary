@@ -62,7 +62,7 @@ class AdvancedSettingsFragment : Fragment() {
   private var scale = 0F
   private var mode: Byte = 0x00
   private var sensorGestureSwitching: Byte = 0x00
-  private var lockProsthesis: Byte = 0x00
+  private var lockProstheses: Byte = 0x00
 
   private var current = 0
   private var current1 = 0
@@ -132,7 +132,7 @@ class AdvancedSettingsFragment : Fragment() {
     shutdown_current_6_text_tv?.textSize = 11f
     version_app_tv?.textSize = 11f
     scale_tv?.textSize = 11f
-    on_off_prosthesis_blocking_text_tv?.textSize = 11f
+    on_off_prostheses_blocking_text_tv?.textSize = 11f
     hold_to_lock_time_text_tv?.textSize = 10f
 
     if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
@@ -466,30 +466,30 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
 
-    on_off_prosthesis_blocking_sw?.setOnClickListener {
+    on_off_prostheses_blocking_sw?.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
-        if (on_off_prosthesis_blocking_sw?.isChecked!!) {
-          on_off_prosthesis_blocking_tv?.text = "1"
-          lockProsthesis = 0x01
+        if (on_off_prostheses_blocking_sw?.isChecked!!) {
+          on_off_prostheses_blocking_tv?.text = "1"
+          lockProstheses = 0x01
           hold_to_lock_time_rl?.visibility = View.VISIBLE
           main?.stage = "advanced activity"
           main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
             0.toByte(),
             peak_time_vm_sb?.progress?.toByte()!!,
             0.toByte(),
-            lockProsthesis,
+            lockProstheses,
             (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, 50)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, true)
         } else {
-          on_off_prosthesis_blocking_tv?.text = "0"
-          lockProsthesis = 0x00
+          on_off_prostheses_blocking_tv?.text = "0"
+          lockProstheses = 0x00
           hold_to_lock_time_rl?.visibility = View.GONE
           main?.stage = "advanced activity"
           main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
             0.toByte(),
             peak_time_vm_sb?.progress?.toByte()!!,
-            0.toByte(), lockProsthesis,
+            0.toByte(), lockProstheses,
             (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, 50)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)
@@ -520,7 +520,7 @@ class AdvancedSettingsFragment : Fragment() {
             0.toByte(),
             peak_time_vm_sb?.progress?.toByte()!!,
             0.toByte(),
-            lockProsthesis,
+            lockProstheses,
             (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, 50)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           saveInt(main?.mDeviceAddress + PreferenceKeys.HOLD_TO_LOCK_TIME_NUM, seekBar.progress)
@@ -547,7 +547,7 @@ class AdvancedSettingsFragment : Fragment() {
               0.toByte(),
               peak_time_vm_sb?.progress?.toByte()!!,
               0.toByte(),
-              lockProsthesis,
+              lockProstheses,
               (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, 50)
             RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           } else {
@@ -574,7 +574,7 @@ class AdvancedSettingsFragment : Fragment() {
               0.toByte(),
               peak_time_vm_sb?.progress?.toByte()!!,
               0.toByte(),
-              lockProsthesis,
+              lockProstheses,
               (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, 50)
             RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           } else {
@@ -702,7 +702,7 @@ class AdvancedSettingsFragment : Fragment() {
             0.toByte(),
             peak_time_vm_sb?.progress?.toByte()!!,
             0.toByte(),
-            lockProsthesis,
+            lockProstheses,
             (hold_to_lock_time_sb?.progress!!).toByte()), ROTATION_GESTURE_NEW_VM, 50)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
 
@@ -1000,7 +1000,7 @@ class AdvancedSettingsFragment : Fragment() {
     when {
         main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X) -> {
           telemetry_rl?.visibility = View.VISIBLE
-          on_off_prosthesis_blocking_rl?.visibility = View.VISIBLE
+          on_off_prostheses_blocking_rl?.visibility = View.VISIBLE
           test_connection_rl?.visibility = View.VISIBLE
           scale_tv?.visibility = View.GONE
         }
@@ -1141,14 +1141,14 @@ class AdvancedSettingsFragment : Fragment() {
 
 
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)) {
-      on_off_prosthesis_blocking_sw?.isChecked = true
-      on_off_prosthesis_blocking_tv?.text = "1"
+      on_off_prostheses_blocking_sw?.isChecked = true
+      on_off_prostheses_blocking_tv?.text = "1"
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
         hold_to_lock_time_rl?.visibility = View.VISIBLE
       }
     } else {
-      on_off_prosthesis_blocking_sw?.isChecked = false
-      on_off_prosthesis_blocking_tv?.text = "0"
+      on_off_prostheses_blocking_sw?.isChecked = false
+      on_off_prostheses_blocking_tv?.text = "0"
       hold_to_lock_time_rl?.visibility = View.GONE
     }
 

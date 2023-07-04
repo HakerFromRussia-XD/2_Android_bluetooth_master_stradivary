@@ -13,12 +13,12 @@ interface Navigator {
     fun showGesturesHelpScreen(chartFragmentClass: ChartFragment)
     fun showHelpMonoAdvancedSettingsScreen(chartFragmentClass: ChartFragment)
     fun showHelpMultyAdvancedSettingsScreen(chartFragmentClass: ChartFragment)
-    fun showHowProsthesisWorksScreen()
-    fun showHowProsthesisWorksMonoScreen()
-    fun showHowPutOnTheProthesisSocketScreen()
+    fun showHowProsthesesWorksScreen()
+    fun showHowProsthesesWorksMonoScreen()
+    fun showHowPutOnTheProsthesesSocketScreen()
     fun showCompleteSetScreen()
-    fun showChargingTheProthesisScreen()
-    fun showProsthesisCareScreen()
+    fun showChargingTheProsthesesScreen()
+    fun showProsthesesCareScreen()
     fun showServiceAndWarrantyScreen()
 
     fun getBackStackEntryCount():Int

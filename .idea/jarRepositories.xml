@@ -27,8 +27,8 @@
       <option name="url" value="https://dl.google.com/dl/android/maven2/" />
     </remote-repository>
     <remote-repository>
-      <option name="id" value="maven3" />
-      <option name="name" value="maven3" />
+      <option name="id" value="maven2" />
+      <option name="name" value="maven2" />
       <option name="url" value="https://dl.bintray.com/shabankamel/android" />
     </remote-repository>
   </component>

@@ -67,7 +67,7 @@
         android:layout_toEndOf="@+id/back_btn"
         android:fontFamily="@font/font_open_sans_semi_bold"
         android:lines="2"
-        android:text="@string/prosthesis_care"
+        android:text="@string/prostheses_care"
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView33"
@@ -153,7 +153,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/font_inter_semi_bold"
-                        android:text="@string/prosthesis_care"
+                        android:text="@string/prostheses_care"
                         android:textSize="24sp"
                         android:textColor="@color/black"
                         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
@@ -166,7 +166,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:fontFamily="@font/font_open_sans_regular"
-                        android:text="@string/check_the_technical_condition_of_your_prosthesis_at_regular_intervals_if_you_find_faults_cracks_or_other_malfunctions_contact_the_service_center_or_your_dentist"
+                        android:text="@string/check_the_technical_condition_of_your_prostheses_at_regular_intervals_if_you_find_faults_cracks_or_other_malfunctions_contact_the_service_center_or_your_dentist"
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
@@ -179,7 +179,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:fontFamily="@font/font_open_sans_regular"
-                        android:text="@string/regular_maintenance_of_the_prosthesis_is_required_refer_to_service_and_warranty_for_service_intervals"
+                        android:text="@string/regular_maintenance_of_the_prostheses_is_required_refer_to_service_and_warranty_for_service_intervals"
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
@@ -194,7 +194,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:fontFamily="@font/font_open_sans_regular"
-                        android:text="@string/it_is_recommended_to_clean_the_arm_prosthesis_regularly_use_a_squeezed_cotton_swab_soaked_in_3_hydrogen_peroxide_solution_or_moist_alcohol_wipes_for_this_purpose"
+                        android:text="@string/it_is_recommended_to_clean_the_arm_prostheses_regularly_use_a_squeezed_cotton_swab_soaked_in_3_hydrogen_peroxide_solution_or_moist_alcohol_wipes_for_this_purpose"
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
@@ -245,12 +245,12 @@
             </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/app_prosthesis_use_title_tv"
+                android:id="@+id/app_prostheses_use_title_tv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="22dp"
                 android:fontFamily="@font/font_open_sans_semi_bold"
-                android:text="@string/prosthesis_use"
+                android:text="@string/prostheses_use"
                 android:textColor="@color/black"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toStartOf="@+id/endGuideline"
@@ -267,7 +267,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/endGuideline"
                 app:layout_constraintStart_toStartOf="@+id/beginGuideline"
-                app:layout_constraintTop_toBottomOf="@+id/app_prosthesis_use_title_tv">
+                app:layout_constraintTop_toBottomOf="@+id/app_prostheses_use_title_tv">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -314,7 +314,7 @@
                                     android:layout_marginTop="18dp"
                                     android:layout_marginBottom="18dp"
                                     android:fontFamily="@font/font_open_sans_regular"
-                                    android:text="@string/how_prosthesis_works"
+                                    android:text="@string/how_prostheses_works"
                                     android:textColor="@color/black"
                                     android:textSize="14sp"
                                     tools:ignore="RelativeOverlap" />
@@ -342,7 +342,7 @@
                             android:background="@color/background_scan_list" />
 
                         <View
-                            android:id="@+id/how_prosthesis_works_btn"
+                            android:id="@+id/how_prostheses_works_btn"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_alignParentStart="true"
@@ -394,7 +394,7 @@
                                     android:layout_marginTop="18dp"
                                     android:layout_marginBottom="18dp"
                                     android:fontFamily="@font/font_open_sans_regular"
-                                    android:text="@string/how_to_put_on_a_prosthesis_socket"
+                                    android:text="@string/how_to_put_on_a_prostheses_socket"
                                     android:textColor="@color/black"
                                     android:textSize="14sp"
                                     tools:ignore="RelativeOverlap" />
@@ -422,7 +422,7 @@
                             android:background="@color/background_scan_list" />
 
                         <View
-                            android:id="@+id/how_to_put_on_a_prosthesis_socket_btn"
+                            android:id="@+id/how_to_put_on_a_prostheses_socket_btn"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_alignParentStart="true"
@@ -553,7 +553,7 @@
                                     android:layout_marginTop="18dp"
                                     android:layout_marginBottom="18dp"
                                     android:fontFamily="@font/font_open_sans_regular"
-                                    android:text="@string/prosthesis_charge"
+                                    android:text="@string/prostheses_charge"
                                     android:textColor="@color/black"
                                     android:textSize="14sp"
                                     tools:ignore="RelativeOverlap" />
@@ -581,7 +581,7 @@
                             android:background="@color/background_scan_list" />
 
                         <View
-                            android:id="@+id/prosthesis_charge_btn"
+                            android:id="@+id/prostheses_charge_btn"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_alignParentStart="true"
@@ -632,7 +632,7 @@
                                     android:layout_marginTop="18dp"
                                     android:layout_marginBottom="18dp"
                                     android:fontFamily="@font/font_open_sans_semi_bold"
-                                    android:text="@string/prosthesis_care"
+                                    android:text="@string/prostheses_care"
                                     android:textColor="@color/black"
                                     android:textSize="14sp"
                                     tools:ignore="RelativeOverlap" />
@@ -652,7 +652,7 @@
                             android:background="@color/background_scan_list" />
 
                         <View
-                            android:id="@+id/prosthesis_care_btn"
+                            android:id="@+id/prostheses_care_btn"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_alignParentStart="true"

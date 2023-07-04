@@ -37,22 +37,22 @@ class CompleteSetFragment: Fragment() {
         title_click_block_btn.setOnClickListener {  }
 
 
-        how_prosthesis_works_btn.setOnClickListener {
+        how_prostheses_works_btn.setOnClickListener {
             if (main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A)
                 || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_BT05)
                 || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_MY_IPHONE)
                 || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)
                 || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X))
             {
-                navigator().showHowProsthesisWorksScreen()
+                navigator().showHowProsthesesWorksScreen()
             } else {
-                navigator().showHowProsthesisWorksMonoScreen()
+                navigator().showHowProsthesesWorksMonoScreen()
             }
         }
-        how_to_put_on_a_prosthesis_socket_btn.setOnClickListener { navigator().showHowPutOnTheProthesisSocketScreen() }
+        how_to_put_on_a_prostheses_socket_btn.setOnClickListener { navigator().showHowPutOnTheProsthesesSocketScreen() }
         complectation_btn.setOnClickListener { navigator().showCompleteSetScreen() }
-        prosthesis_charge_btn.setOnClickListener { navigator().showChargingTheProthesisScreen() }
-        prosthesis_care_btn.setOnClickListener { navigator().showProsthesisCareScreen() }
+        prostheses_charge_btn.setOnClickListener { navigator().showChargingTheProsthesesScreen() }
+        prostheses_care_btn.setOnClickListener { navigator().showProsthesesCareScreen() }
         service_and_warranty_btn.setOnClickListener { navigator().showServiceAndWarrantyScreen() }
 
         back_btn.setOnClickListener { navigator().goingBack() }

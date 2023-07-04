@@ -690,7 +690,7 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/on_off_prosthesis_blocking_rl"
+                android:id="@+id/on_off_prostheses_blocking_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -712,7 +712,7 @@
                         android:layout_weight="2">
 
                         <TextView
-                            android:id="@+id/on_off_prosthesis_blocking_text_tv"
+                            android:id="@+id/on_off_prostheses_blocking_text_tv"
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -721,7 +721,7 @@
                             android:gravity="center_vertical"
                             android:lines="2"
                             android:textColor="@color/white"
-                            android:text="@string/prosthesis_blocking"
+                            android:text="@string/prostheses_blocking"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
@@ -732,7 +732,7 @@
                         tools:ignore="TooManyViews">
 
                         <TextView
-                            android:id="@+id/on_off_prosthesis_blocking_tv"
+                            android:id="@+id/on_off_prostheses_blocking_tv"
                             style="@style/Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -749,7 +749,7 @@
                         android:layout_weight="1">
 
                         <Switch
-                            android:id="@+id/on_off_prosthesis_blocking_sw"
+                            android:id="@+id/on_off_prostheses_blocking_sw"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:layout_alignParentStart="true"

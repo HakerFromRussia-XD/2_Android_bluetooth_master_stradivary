@@ -14,6 +14,7 @@ public interface ConstantManager {
     String DEVICE_TYPE_FEST_X = "FEST-X";
     String DEVICE_TYPE_FEST_TEST = "TEST";
 
+
     int REQUEST_ENABLE_BT = 1;
 
     byte[] READ_REGISTER = {0x00}; // просто заглушка для того чтобы функция отправки команды при чтении смотрелась красиво

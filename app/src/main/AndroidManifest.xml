@@ -91,6 +91,7 @@
             android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
+        <activity android:name="com.unity3d.player.UnityPlayerActivity"/>
 
         <service android:name="me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService" android:enabled="true"/>
         <service

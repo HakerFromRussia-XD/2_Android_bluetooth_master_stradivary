@@ -460,6 +460,7 @@
     <string name="application_version_and_size">Версия приложения и размер</string>
     <string name="the_last_line_in_the_advanced_settings_shows_the_version_of_the_application_and_the_selected_size_of_the_prostheses_the_size_of_the_prostheses_affects_the_limitation_of_the_maximum_current_so_it_should_be_chosen_consciously_otherwise_there_is_a_risk_of_setting_a_cut_off_current_that_will_damage_the_prostheses_the_maximum_cut_off_current_of_the_xl_size_prostheses_will_kill_the_s_size_prostheses_the_cut_off_simply_doesn_t_work_because_less_powerful_motors_are_used_so_they_get_hot_and_fail_but_if_you_tell_the_s_size_prostheses_that_it_is_an_s_size_the_maximum_cut_off_current_will_match_that_size_and_not_allow_the_prostheses_to_break">Последней строкой в расширенных настройках отображается версия используемого приложения. И выбранный размер протеза. Размер протеза влияет на ограничение максимальной силы тока, поэтому его нужно выбирать осознано. Иначе существует риск установить такой ток отсечки, который выведет протез из строя. (максимальный ток отсечки протеза размера XL убивает протез размера S (отсечка просто не срабатывает, потому что используются менее мощные двигатели, поэтому они греются и выходят из строя), но если протезу размера S указать что он протез размера S, то значение максимального тока отсечки будет соответствовать этому размеру и не позволит сломаться протезу)</string>
     <string name="start_game">запустить игру</string>
+    <string name="game_view_content_description">Game view</string>
 
 
     <string-array name="numbers">

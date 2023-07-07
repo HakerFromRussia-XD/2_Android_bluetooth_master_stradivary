@@ -74,7 +74,7 @@
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
                 app:lottie_rawRes="@raw/loader_spinner"
-                android:visibility="gone"/>
+                android:visibility="visible"/>
 
             <Button
                 android:id="@+id/activity_scan_button"

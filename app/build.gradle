@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.Romans.motorica"
-        minSdk 23
+        minSdk 24
         targetSdk 33
         versionCode 45
         versionName "2.4.586"
@@ -37,7 +37,6 @@ android {
 }
 
 repositories {
-//    maven { url 'https://jitpack.io' }
     maven { url "https://dl.bintray.com/shabankamel/android" }
 }
 

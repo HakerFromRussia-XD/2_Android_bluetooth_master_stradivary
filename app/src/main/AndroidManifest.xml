@@ -93,13 +93,7 @@
             </intent-filter>
         </service>
 
-        <service
-            android:name="me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService.DO_SOMETHING_1"/>
-            </intent-filter>
-        </service>
+        <service android:name="me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService"/>
     </application>
 
 </manifest>

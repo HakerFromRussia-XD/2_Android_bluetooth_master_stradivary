@@ -24,7 +24,6 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
-import com.unity3d.player.UnityPlayerActivity
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_chart.*
@@ -36,7 +35,6 @@ import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
-import me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.DecoratorChange
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
@@ -44,6 +42,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.ChartFragmentCallback
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
+import me.start.myunitylibrary.PluginActivity
 import javax.inject.Inject
 
 
@@ -424,9 +423,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
     game_btn?.setOnClickListener {
       System.err.println("вызов игры тык")
-      val i = Intent(context, UnityPlayerActivity::class.java)
+      val i = Intent(activity, PluginActivity::class.java)//UnityPlayerActivity::class.java)
       startActivity(i)
-//      finish()
+      graphThreadFlag = false
     }
 
     val eventYandexMetricaParametersClose = "{\"Screen chart\":\"Tup close button\"}"

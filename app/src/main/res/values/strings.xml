@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">Motorica Start</string>
+    <string name="app_name">Ballista shooter</string>
     <string name="helloWorld">open</string>
     <string name="helloWorld2">close</string>
     <string name="helloWorld3">stop</string>

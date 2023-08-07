@@ -24,6 +24,7 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
+import com.unity3d.player.UnityPlayerActivity
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_chart.*
@@ -423,8 +424,8 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
     game_btn?.setOnClickListener {
       System.err.println("вызов игры тык")
-//      val i = Intent(this, UnityPlayerActivity::class.java)
-//      startActivity(i)
+      val i = Intent(context, UnityPlayerActivity::class.java)
+      startActivity(i)
 //      finish()
     }
 

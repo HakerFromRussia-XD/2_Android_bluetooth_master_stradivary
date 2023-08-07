@@ -10,7 +10,7 @@ android {
     buildToolsVersion '32.0.0'
 
     defaultConfig {
-        applicationId "com.Romans.motorica"
+        applicationId "me.start.motorica"
         minSdk 24
         targetSdk 33
         versionCode 45
@@ -34,7 +34,6 @@ android {
     }
     lint { checkReleaseBuilds false }
     kotlinOptions { jvmTarget = '1.8'}
-//    viewBinding { enabled true }
 }
 
 repositories {

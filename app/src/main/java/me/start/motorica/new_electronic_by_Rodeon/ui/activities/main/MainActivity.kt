@@ -473,6 +473,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         val transferIntent = Intent(this, DataTransferToService::class.java)
         transferIntent.putExtra("sensor_level_1", dataSens1)
         transferIntent.putExtra("sensor_level_2", dataSens2)
+        transferIntent.putExtra("open_ch_num", openChNum)
+        transferIntent.putExtra("close_ch_num", closeChNum)
         startService(transferIntent)
       }
 
@@ -1086,6 +1088,10 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   private fun initUI() {
+    openChNum = mSettings!!.getInt(mDeviceAddress +PreferenceKeys.OPEN_CH_NUM, 0)
+    System.err.println("DataTransferToService считываем из "+mDeviceAddress + PreferenceKeys.OPEN_CH_NUM +" число: "+openChNum)
+
+    closeChNum = mSettings!!.getInt(mDeviceAddress +PreferenceKeys.CLOSE_CH_NUM, 0)
     if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
       if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
         val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)

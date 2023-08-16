@@ -212,7 +212,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         init3D();
 
         //TODO закомментить быстрый вход после завершения экспериментов
-//        testNavigate();
+        testNavigate();
     }
     public void onWindowFocusChanged(boolean hasFocus){
         super.onWindowFocusChanged(hasFocus);
@@ -444,7 +444,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "FEST-X");
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, "lol");
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, "INDY");//FEST-X
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, "FEST-X");//FEST-X INDY
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;

@@ -36,8 +36,11 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="0dp"
                     android:background="@drawable/custom_button_le"
+                    android:gravity="center_vertical|left"
                     android:text="@string/gesture_1_btn"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
+                    android:paddingStart="16dp"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
 
@@ -53,6 +56,16 @@
                     android:visibility="gone"
                     tools:ignore="MissingConstraints" />
 
+                <ImageView
+                    android:id="@+id/gesture_loop_1_iv"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/gesture_loop"
+                    android:layout_alignEnd="@+id/gesture_1_btn"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:elevation="4dp"
+                    android:backgroundTint="@android:color/white"/>
             </RelativeLayout>
 
             <RelativeLayout
@@ -73,21 +86,36 @@
                     android:paddingStart="16dp"
                     android:text="@string/gesture_2_btn"
                     android:textSize="12sp"
+                    android:textColor="@color/white"
                     android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-                <Button
+                <ImageView
                     android:id="@+id/gesture_settings_2_btn"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_alignEnd="@+id/gesture_2_btn"
+                    android:elevation="4dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/ic_baseline_settings_24"
                     android:backgroundTint="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/gesture_loop_2_iv"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/gesture_loop"
+                    android:layout_alignEnd="@+id/gesture_2_btn"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:elevation="4dp"
+                    android:backgroundTint="@android:color/white"/>
+
+
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>
@@ -124,18 +152,31 @@
                     android:textSize="12sp"
                     android:paddingStart="16dp"
                     android:text="@string/gesture_3_btn"
+                    android:textColor="@color/white"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-                <Button
+                <ImageView
                     android:id="@+id/gesture_settings_3_btn"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_alignEnd="@+id/gesture_3_btn"
+                    android:elevation="4dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/ic_baseline_settings_24"
                     android:backgroundTint="@android:color/white"
                     tools:ignore="MissingConstraints" />
+
+                <ImageView
+                    android:id="@+id/gesture_loop_3_iv"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/gesture_loop"
+                    android:layout_alignEnd="@+id/gesture_3_btn"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:elevation="4dp"
+                    android:backgroundTint="@android:color/white"/>
 
             </RelativeLayout>
 
@@ -156,6 +197,7 @@
                     android:gravity="center_vertical|left"
                     android:paddingStart="16dp"
                     android:text="@string/gesture_4_btn"
+                    android:textColor="@color/white"
                     android:visibility="visible"
                     android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -163,15 +205,27 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-                <Button
+                <ImageView
                     android:id="@+id/gesture_settings_4_btn"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_alignEnd="@+id/gesture_4_btn"
+                    android:elevation="4dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/ic_baseline_settings_24"
                     android:backgroundTint="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/gesture_loop_4_iv"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/gesture_loop"
+                    android:layout_alignEnd="@+id/gesture_4_btn"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:elevation="4dp"
+                    android:backgroundTint="@android:color/white"/>
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>
@@ -206,21 +260,34 @@
                     android:gravity="center_vertical|left"
                     android:includeFontPadding="true"
                     android:paddingStart="16dp"
+                    android:elevation="4dp"
                     android:text="@string/gesture_5_btn"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-                <Button
+                <ImageView
                     android:id="@+id/gesture_settings_5_btn"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_alignEnd="@+id/gesture_5_btn"
+                    android:elevation="4dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/ic_baseline_settings_24"
                     android:backgroundTint="@android:color/white"
                     tools:ignore="MissingConstraints" />
 
+                <ImageView
+                    android:id="@+id/gesture_loop_5_iv"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/gesture_loop"
+                    android:layout_alignEnd="@+id/gesture_5_btn"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:elevation="4dp"
+                    android:backgroundTint="@android:color/white"/>
             </RelativeLayout>
 
             <RelativeLayout
@@ -240,6 +307,7 @@
                     android:gravity="center_vertical|left"
                     android:paddingStart="16dp"
                     android:text="@string/gesture_6_btn"
+                    android:textColor="@color/white"
                     android:visibility="visible"
                     android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -247,15 +315,27 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-                <Button
+                <ImageView
                     android:id="@+id/gesture_settings_6_btn"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_alignEnd="@+id/gesture_6_btn"
+                    android:elevation="4dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/ic_baseline_settings_24"
                     android:backgroundTint="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/gesture_loop_6_iv"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/gesture_loop"
+                    android:layout_alignEnd="@+id/gesture_6_btn"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:elevation="4dp"
+                    android:backgroundTint="@android:color/white"/>
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>
@@ -291,19 +371,32 @@
                     android:includeFontPadding="true"
                     android:paddingStart="16dp"
                     android:text="@string/gesture_7_btn"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-                <Button
+                <ImageView
                     android:id="@+id/gesture_settings_7_btn"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_alignEnd="@+id/gesture_7_btn"
+                    android:elevation="4dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/ic_baseline_settings_24"
                     android:backgroundTint="@android:color/white"
                     tools:ignore="MissingConstraints" />
+
+                <ImageView
+                    android:id="@+id/gesture_loop_7_iv"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/gesture_loop"
+                    android:layout_alignEnd="@+id/gesture_7_btn"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:elevation="4dp"
+                    android:backgroundTint="@android:color/white"/>
 
             </RelativeLayout>
 
@@ -324,6 +417,7 @@
                     android:gravity="center_vertical|left"
                     android:paddingStart="16dp"
                     android:text="@string/gesture_8_btn"
+                    android:textColor="@color/white"
                     android:visibility="visible"
                     android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -331,15 +425,27 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-                <Button
+                <ImageView
                     android:id="@+id/gesture_settings_8_btn"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_alignEnd="@+id/gesture_8_btn"
+                    android:elevation="4dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/ic_baseline_settings_24"
                     android:backgroundTint="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/gesture_loop_8_iv"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/gesture_loop"
+                    android:layout_alignEnd="@+id/gesture_8_btn"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:elevation="4dp"
+                    android:backgroundTint="@android:color/white"/>
             </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>

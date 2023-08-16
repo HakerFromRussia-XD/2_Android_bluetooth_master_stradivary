@@ -186,6 +186,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         gesture_settings_6_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         gesture_settings_7_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         gesture_settings_8_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_loop_1_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_loop_2_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_loop_3_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_loop_4_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_loop_5_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_loop_6_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_loop_7_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        gesture_loop_8_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
     }
     private fun loadNameGestures() {
         myLoadGesturesList()
@@ -204,28 +212,36 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         when (active) {
             1 -> { gesture_1_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
                    gesture_1_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_1_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+                   gesture_settings_1_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                   gesture_loop_1_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
             2 -> { gesture_2_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
                    gesture_2_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_2_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+                   gesture_settings_2_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                   gesture_loop_2_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
             3 -> { gesture_3_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
                    gesture_3_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_3_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+                   gesture_settings_3_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                   gesture_loop_3_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
             4 -> { gesture_4_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
                    gesture_4_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_4_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+                   gesture_settings_4_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                   gesture_loop_4_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
             5 -> { gesture_5_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
                    gesture_5_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_5_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+                   gesture_settings_5_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                   gesture_loop_5_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
             6 -> { gesture_6_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
                    gesture_6_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_6_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+                   gesture_settings_6_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                   gesture_loop_6_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
             7 -> { gesture_7_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
                    gesture_7_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_7_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+                   gesture_settings_7_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                   gesture_loop_7_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
             8 -> { gesture_8_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
                    gesture_8_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_8_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+                   gesture_settings_8_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                   gesture_loop_8_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
         }
         main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, active)
     }

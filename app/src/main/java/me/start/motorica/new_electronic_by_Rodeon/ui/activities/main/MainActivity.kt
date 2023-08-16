@@ -473,6 +473,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         val transferIntent = Intent(this, DataTransferToService::class.java)
         transferIntent.putExtra("sensor_level_1", dataSens1)
         transferIntent.putExtra("sensor_level_2", dataSens2)
+        transferIntent.putExtra("open_ch_num", openChNum)
+        transferIntent.putExtra("close_ch_num", closeChNum)
         startService(transferIntent)
       }
 

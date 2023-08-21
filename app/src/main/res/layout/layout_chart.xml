@@ -412,23 +412,23 @@
             </RelativeLayout>
         </RelativeLayout>
 
-        <!-- Bottom Layout -->
         <RelativeLayout
+            android:id="@+id/middle_relative_2"
             android:layout_width="match_parent"
-            android:layout_height="330dp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/middle_relative"
             android:layout_marginTop="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:weightSum="6.5">
+                android:weightSum="2">
 
                 <RelativeLayout
                     android:id="@+id/open_sensors_sensitivity_rl"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_height="56dp"
                     android:layout_weight="1">
 
                     <View
@@ -550,7 +550,7 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_height="56dp"
                     android:layout_weight="1">
 
                     <View
@@ -658,16 +658,32 @@
                     </LinearLayout>
                 </RelativeLayout>
 
+            </LinearLayout>
+        </RelativeLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_above="@+id/movement_buttons_rl"
+            android:layout_below="@+id/middle_relative_2"
+            android:layout_marginBottom="0dp"
+            tools:ignore="SpeakableTextPresentCheck">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
                 <RelativeLayout
                     android:id="@+id/swap_sensors_rl"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
+                    android:layout_height="56dp"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <LinearLayout
                         android:id="@+id/swap_sensors_ll"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
                         android:orientation="horizontal"
                         android:paddingLeft="16dp"
                         android:paddingRight="16dp"
@@ -729,17 +745,93 @@
                         </RelativeLayout>
                     </LinearLayout>
                 </RelativeLayout>
+                <RelativeLayout
+                    android:id="@+id/on_off_sensor_gesture_switching_rl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:layout_constraintTop_toBottomOf="@+id/swap_sensors_rl"
+                    android:paddingTop="8dp">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:orientation="horizontal"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:weightSum="4"
+                        tools:ignore="DisableBaselineAlignment">
+
+                        <RelativeLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="2">
+
+                            <TextView
+                                android:id="@+id/on_off_sensor_gesture_switching_text_tv"
+                                style="@style/Text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentStart="true"
+                                android:layout_centerVertical="true"
+                                android:gravity="center_vertical"
+                                android:lines="2"
+                                android:text="@string/gesture_switching_by_sensors"
+                                android:textColor="@color/white"
+                                android:textStyle="bold" />
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.5"
+                            tools:ignore="TooManyViews">
+
+                            <TextView
+                                android:id="@+id/on_off_sensor_gesture_switching_tv"
+                                style="@style/Text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:text="0"
+                                android:textStyle="bold"
+                                android:textColor="@color/white"
+                                tools:ignore="HardcodedText,TooManyViews" />
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5">
+
+                            <Switch
+                                android:id="@+id/on_off_sensor_gesture_switching_sw"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_alignParentStart="true"
+                                android:layout_alignParentEnd="true"
+                                android:layout_marginEnd="0dp"
+                                android:ellipsize="middle"
+                                android:paddingStart="16dp"
+                                android:scrollbarSize="48dp"
+                                android:thumb="@drawable/switch_le_thumb"
+                                android:track="@drawable/switch_le_truck"
+                                tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
+                        </RelativeLayout>
+                    </LinearLayout>
+                </RelativeLayout>
                 <RelativeLayout
                     android:id="@+id/thresholds_blocking_rl"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
+                    android:layout_height="56dp"
+                    app:layout_constraintTop_toBottomOf="@+id/on_off_sensor_gesture_switching_rl">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:layout_centerVertical="true"
                         android:paddingLeft="16dp"
                         android:paddingRight="16dp"
                         android:weightSum="4"
@@ -799,64 +891,11 @@
                         </RelativeLayout>
                     </LinearLayout>
                 </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/movement_buttons_rl"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingLeft="16dp"
-                        android:paddingRight="16dp"
-                        android:weightSum="2"
-                        tools:ignore="DisableBaselineAlignment">
-
-                        <RelativeLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1">
-
-                            <Button
-                                android:id="@+id/open_btn"
-                                style="@style/Text"
-                                android:layout_width="match_parent"
-                                android:layout_height="42dp"
-                                android:layout_marginTop="4dp"
-                                android:layout_marginEnd="8dp"
-                                android:background="@drawable/custom_button_le"
-                                android:text="@string/open_btn"
-                                android:textColor="@color/white"
-                                android:visibility="visible" />
-                        </RelativeLayout>
-
-                        <RelativeLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1">
-
-                            <Button
-                                android:id="@+id/close_btn"
-                                style="@style/Text"
-                                android:layout_width="match_parent"
-                                android:layout_height="42dp"
-                                android:layout_marginStart="8dp"
-                                android:layout_marginTop="4dp"
-                                android:background="@drawable/custom_button_le"
-                                android:text="@string/close_btn"
-                                android:textColor="@color/white"
-                                android:visibility="visible" />
-                        </RelativeLayout>
-                    </LinearLayout>
-                </RelativeLayout>
                 <RelativeLayout
                     android:id="@+id/chart_calibration_rl"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
+                    android:layout_height="56dp"
+                    app:layout_constraintTop_toBottomOf="@+id/thresholds_blocking_rl">
 
                     <Button
                         android:id="@+id/calibration_btn"
@@ -874,9 +913,9 @@
                 <RelativeLayout
                     android:id="@+id/game_rl"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:visibility="gone">
+                    android:layout_height="56dp"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@+id/chart_calibration_rl">
 
                     <Button
                         android:id="@+id/game_btn"
@@ -891,8 +930,67 @@
                         android:textColor="@color/white"
                         android:text="@string/start_game" />
                 </RelativeLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
+
+        </ScrollView>
+
+
+
+        <RelativeLayout
+            android:id="@+id/movement_buttons_rl"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:weightSum="2"
+                tools:ignore="DisableBaselineAlignment">
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <Button
+                        android:id="@+id/open_btn"
+                        style="@style/Text"
+                        android:layout_width="match_parent"
+                        android:layout_height="42dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/custom_button_le"
+                        android:text="@string/open_btn"
+                        android:textColor="@color/white"
+                        android:visibility="visible" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <Button
+                        android:id="@+id/close_btn"
+                        style="@style/Text"
+                        android:layout_width="match_parent"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/custom_button_le"
+                        android:text="@string/close_btn"
+                        android:textColor="@color/white"
+                        android:visibility="visible" />
+                </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
+
+
     </RelativeLayout>
 </RelativeLayout>

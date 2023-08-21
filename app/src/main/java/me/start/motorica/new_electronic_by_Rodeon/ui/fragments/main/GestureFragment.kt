@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.gtomato.android.ui.transformer.FlatMerryGoRoundTransformer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
@@ -30,6 +31,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivit
 import org.jetbrains.anko.backgroundDrawable
 import org.jetbrains.anko.textColor
 import javax.inject.Inject
+
 
 @Suppress("DEPRECATION")
 class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickListener {
@@ -69,6 +71,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         }, 500)
 
 
+//        carousel.transformer = FlatMerryGoRoundTransformer()
+//        carousel.adapter = MyDataAdapter()
 
         gesture_settings_1_btn.setOnClickListener(this)
         gesture_settings_2_btn.setOnClickListener(this)

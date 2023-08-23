@@ -7,15 +7,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_gesture_customization.*
-import kotlinx.android.synthetic.main.fragment_gesture_customization.advanced_settings_btn
-import kotlinx.android.synthetic.main.fragment_gesture_customization.gesture_customization_rl
-import kotlinx.android.synthetic.main.fragment_gesture_customization.sensors_settings_btn
-import kotlinx.android.synthetic.main.fragment_help.*
-import kotlinx.android.synthetic.main.fragment_sensor_settings.advanced_settings_rl
-import kotlinx.android.synthetic.main.fragment_sensor_settings.back_btn
-import kotlinx.android.synthetic.main.fragment_sensor_settings.title_click_block_btn
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
@@ -53,33 +50,33 @@ class GestureCustomizationFragment(private val chartFragmentClass: ChartFragment
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun initializeUI() {
-        title_click_block_btn.setOnClickListener {  }
+        rootView?.findViewById<Button>(R.id.title_click_block_btn)?.setOnClickListener {  }
         if (main?.locate?.contains("ru")!!) {
-            imageView14.setImageDrawable(resources.getDrawable(R.drawable.help_image_14_ru))
-            imageView15.setImageDrawable(resources.getDrawable(R.drawable.help_image_15_ru))
-            imageView16.setImageDrawable(resources.getDrawable(R.drawable.help_image_16_ru))
-            imageView18.setImageDrawable(resources.getDrawable(R.drawable.help_image_18_ru))
-            imageView19.setImageDrawable(resources.getDrawable(R.drawable.help_image_19_ru))
-            imageView20.setImageDrawable(resources.getDrawable(R.drawable.help_image_20_ru))
-            imageView21.setImageDrawable(resources.getDrawable(R.drawable.help_image_21_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView14)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_14_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView15)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_15_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView16)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_16_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView18)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_18_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView19)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_19_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView20)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_20_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView21)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_21_ru))
         }
 
-        sensors_settings_btn.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
-        advanced_settings_btn.setOnClickListener { navigator().showHelpMultyAdvancedSettingsScreen(chartFragmentClass) }
+        rootView?.findViewById<Button>(R.id.sensors_settings_btn)?.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
+        rootView?.findViewById<Button>(R.id.advanced_settings_btn)?.setOnClickListener { navigator().showHelpMultyAdvancedSettingsScreen(chartFragmentClass) }
 
         // регуляция показа кнопок из подвала в зависимости от ситуации (односхват/многосхват,
         // расширенные настройки открыты/закрыты)
         if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-            app_instruction_title_2_tv.visibility = View.VISIBLE
-            main_controls_cv.visibility = View.VISIBLE
-            advanced_settings_rl.visibility = View.VISIBLE
+            rootView?.findViewById<TextView>(R.id.app_instruction_title_2_tv)?.visibility = View.VISIBLE
+            rootView?.findViewById<CardView>(R.id.main_controls_cv)?.visibility = View.VISIBLE
+            rootView?.findViewById<RelativeLayout>(R.id.advanced_settings_rl)?.visibility = View.VISIBLE
         }
         if (multigrib) {
-            app_instruction_title_2_tv.visibility = View.VISIBLE
-            main_controls_cv.visibility = View.VISIBLE
-            gesture_customization_rl.visibility =View.VISIBLE
+            rootView?.findViewById<TextView>(R.id.app_instruction_title_2_tv)?.visibility = View.VISIBLE
+            rootView?.findViewById<CardView>(R.id.main_controls_cv)?.visibility = View.VISIBLE
+            rootView?.findViewById<RelativeLayout>(R.id.gesture_customization_rl)?.visibility =View.VISIBLE
         }
 
-        back_btn.setOnClickListener { navigator().goingBack() }
+        rootView?.findViewById<Button>(R.id.back_btn)?.setOnClickListener { navigator().goingBack() }
     }
 }

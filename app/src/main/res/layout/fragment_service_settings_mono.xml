@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".old_electronic_by_Misha.ui.chat.view.service_settings.FragmentServiceSettingsMono">
+    tools:context=".old_electronic_by_Misha.ui.chat.view.service_settings.FragmentServiceSettingsMono"
+    tools:viewBindingIgnore="true">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainLayout"
         android:layout_width="match_parent"

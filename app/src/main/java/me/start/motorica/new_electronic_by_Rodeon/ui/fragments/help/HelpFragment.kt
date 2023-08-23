@@ -9,19 +9,10 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.RelativeLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import kotlinx.android.synthetic.main.fragment_help.*
-import kotlinx.android.synthetic.main.fragment_help.back_btn
-import kotlinx.android.synthetic.main.fragment_help.complectation_btn
-import kotlinx.android.synthetic.main.fragment_help.contact_support_btn
-import kotlinx.android.synthetic.main.fragment_help.prostheses_care_btn
-import kotlinx.android.synthetic.main.fragment_help.prostheses_charge_btn
-import kotlinx.android.synthetic.main.fragment_help.sensors_settings_btn
-import kotlinx.android.synthetic.main.fragment_help.service_and_warranty_btn
-import kotlinx.android.synthetic.main.fragment_help.telegramm_btn
-import kotlinx.android.synthetic.main.fragment_help.title_click_block_btn
-import kotlinx.android.synthetic.main.fragment_help.vk_btn
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
@@ -72,53 +63,53 @@ class HelpFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
 
 
     private fun initializeUI() {
-        title_click_block_btn.setOnClickListener {  }
+        rootView?.findViewById<Button>(R.id.title_click_block_btn)?.setOnClickListener {  }
 
-        back_btn.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.back_btn)?.setOnClickListener {
             navigator().goingBack()
             reactivatedInterface.reactivatedChart()
         }
 
-        sensors_settings_btn.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
-        settings_gesture_btn.setOnClickListener { navigator().showGesturesHelpScreen(chartFragmentClass) }
-        advanced_settings_btn.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.sensors_settings_btn)?.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
+        rootView?.findViewById<Button>(R.id.settings_gesture_btn)?.setOnClickListener { navigator().showGesturesHelpScreen(chartFragmentClass) }
+        rootView?.findViewById<Button>(R.id.advanced_settings_btn)?.setOnClickListener {
             if (multigrib) { navigator().showHelpMultyAdvancedSettingsScreen(chartFragmentClass) }
             else { navigator().showHelpMonoAdvancedSettingsScreen(chartFragmentClass) }
         }
         if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-            advanced_settings_rl.visibility = View.VISIBLE
+            rootView?.findViewById<RelativeLayout>(R.id.advanced_settings_rl)?.visibility = View.VISIBLE
         } else {
-            advanced_settings_rl.visibility = View.GONE
+            rootView?.findViewById<RelativeLayout>(R.id.advanced_settings_rl)?.visibility = View.GONE
         }
-        if (multigrib) { gesture_customization_rl.visibility =View.VISIBLE }
-        else { gesture_customization_rl.visibility =View.GONE }
+        if (multigrib) {  rootView?.findViewById<RelativeLayout>(R.id.gesture_customization_rl)?.visibility =View.VISIBLE }
+        else {  rootView?.findViewById<RelativeLayout>(R.id.gesture_customization_rl)?.visibility =View.GONE }
 
 
-        how_prostheses_works_btn.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.how_prostheses_works_btn)?.setOnClickListener {
             if (multigrib) { navigator().showHowProsthesesWorksScreen() }
             else { navigator().showHowProsthesesWorksMonoScreen() }
         }
-        how_to_put_on_a_prostheses_socket_btn.setOnClickListener { navigator().showHowPutOnTheProsthesesSocketScreen() }
-        complectation_btn.setOnClickListener { navigator().showCompleteSetScreen() }
-        prostheses_charge_btn.setOnClickListener { navigator().showChargingTheProsthesesScreen() }
-        prostheses_care_btn.setOnClickListener { navigator().showProsthesesCareScreen() }
-        service_and_warranty_btn.setOnClickListener { navigator().showServiceAndWarrantyScreen() }
+        rootView?.findViewById<Button>(R.id.how_to_put_on_a_prostheses_socket_btn)?.setOnClickListener { navigator().showHowPutOnTheProsthesesSocketScreen() }
+        rootView?.findViewById<Button>(R.id.complectation_btn)?.setOnClickListener { navigator().showCompleteSetScreen() }
+        rootView?.findViewById<Button>(R.id.prostheses_charge_btn)?.setOnClickListener { navigator().showChargingTheProsthesesScreen() }
+        rootView?.findViewById<Button>(R.id.prostheses_care_btn)?.setOnClickListener { navigator().showProsthesesCareScreen() }
+        rootView?.findViewById<Button>(R.id.service_and_warranty_btn)?.setOnClickListener { navigator().showServiceAndWarrantyScreen() }
 
-        contact_support_btn.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.contact_support_btn)?.setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:88007077197"))
             if (intent.resolveActivity( main!!.packageManager ) != null) {
                 startActivity(intent)
             }
         }
 
-        vk_btn.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.vk_btn)?.setOnClickListener {
             val url = "https://vk.com/motorica"
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse(url)
             if (intent.resolveActivity( main!!.packageManager ) != null) {}
             startActivity(intent)
         }
-        telegramm_btn.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.telegramm_btn)?.setOnClickListener {
             val url = "https://t.me/motoricans"
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse(url)

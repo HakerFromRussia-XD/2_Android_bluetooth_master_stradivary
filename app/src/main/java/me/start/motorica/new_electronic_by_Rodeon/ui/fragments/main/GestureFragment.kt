@@ -14,42 +14,42 @@ import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.gtomato.android.ui.transformer.FlatMerryGoRoundTransformer
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.layout_gestures.*
 import me.start.motorica.R
 import me.start.motorica.R.drawable.*
-import me.start.motorica.new_electronic_by_Rodeon.WDApplication
+import me.start.motorica.databinding.LayoutGesturesBinding
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
-import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import org.jetbrains.anko.backgroundDrawable
 import org.jetbrains.anko.textColor
-import javax.inject.Inject
 
 
 @Suppress("DEPRECATION")
 class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickListener {
-    @Inject
-    lateinit var preferenceManager: PreferenceManager
+//    @Inject
+//    lateinit var preferenceManager: PreferenceManager
 
-    private var rootView: View? = null
+//    private var rootView: View? = null
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
     private var gestureNameList =  ArrayList<String>()
     private var testThreadFlag = true
     private var updatingUIThread: Thread? = null
 
+    private lateinit var binding: LayoutGesturesBinding
+
     @SuppressLint("CheckResult")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.layout_gestures, container, false)
-        WDApplication.component.inject(this)
-        this.rootView = rootView
+        binding = LayoutGesturesBinding.inflate(layoutInflater)
+
+//        val rootView = inflater.inflate(R.layout.layout_gestures, container, false)
+//        WDApplication.component.inject(this)
+//        this.rootView = rootView
         if (activity != null) { main = activity as MainActivity? }
 
         RxUpdateMainEvent.getInstance().uiGestures
@@ -58,8 +58,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             .subscribe {
                 selectActiveGesture(it)
             }
-        return rootView
+        return binding.root
     }
+    @Deprecated("Deprecated in Java")
     @SuppressLint("ClickableViewAccessibility", "UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -74,57 +75,57 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 //        carousel.transformer = FlatMerryGoRoundTransformer()
 //        carousel.adapter = MyDataAdapter()
 
-        gesture_settings_1_btn.setOnClickListener(this)
-        gesture_settings_2_btn.setOnClickListener(this)
-        gesture_settings_3_btn.setOnClickListener(this)
-        gesture_settings_4_btn.setOnClickListener(this)
-        gesture_settings_5_btn.setOnClickListener(this)
-        gesture_settings_6_btn.setOnClickListener(this)
-        gesture_settings_7_btn.setOnClickListener(this)
-        gesture_settings_8_btn.setOnClickListener(this)
-        gesture_1_btn.setOnClickListener {
+        binding.gestureSettings1Btn.setOnClickListener(this)
+        binding.gestureSettings2Btn.setOnClickListener(this)
+        binding.gestureSettings3Btn.setOnClickListener(this)
+        binding.gestureSettings4Btn.setOnClickListener(this)
+        binding.gestureSettings5Btn.setOnClickListener(this)
+        binding.gestureSettings6Btn.setOnClickListener(this)
+        binding.gestureSettings7Btn.setOnClickListener(this)
+        binding.gestureSettings8Btn.setOnClickListener(this)
+        binding.gesture1Btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 selectActiveGesture(1)
                 compileBLEMassage (0)
             }
         }
-        gesture_2_btn.setOnClickListener {
+        binding.gesture2Btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 selectActiveGesture(2)
                 compileBLEMassage (1)
             }
         }
-        gesture_3_btn.setOnClickListener {
+        binding.gesture3Btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 selectActiveGesture(3)
                 compileBLEMassage (2)
             }
         }
-        gesture_4_btn.setOnClickListener {
+        binding.gesture4Btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 selectActiveGesture(4)
                 compileBLEMassage (3)
             }
         }
-        gesture_5_btn.setOnClickListener {
+        binding.gesture5Btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 selectActiveGesture(5)
                 compileBLEMassage (4)
             }
         }
-        gesture_6_btn.setOnClickListener {
+        binding.gesture6Btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 selectActiveGesture(6)
                 compileBLEMassage (5)
             }
         }
-        gesture_7_btn.setOnClickListener {
+        binding.gesture7Btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 selectActiveGesture(7)
                 compileBLEMassage (6)
             }
         }
-        gesture_8_btn.setOnClickListener {
+        binding.gesture8Btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 selectActiveGesture(8)
                 compileBLEMassage (7)
@@ -166,86 +167,86 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     }
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
     fun resetStateButtons() {
-        gesture_1_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_2_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_3_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_4_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_5_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_6_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_7_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_8_btn?.backgroundDrawable = resources.getDrawable(custom_button_le)
-        gesture_1_btn?.textColor = WHITE
-        gesture_2_btn?.textColor = WHITE
-        gesture_3_btn?.textColor = WHITE
-        gesture_4_btn?.textColor = WHITE
-        gesture_5_btn?.textColor = WHITE
-        gesture_6_btn?.textColor = WHITE
-        gesture_7_btn?.textColor = WHITE
-        gesture_8_btn?.textColor = WHITE
-        gesture_settings_1_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_2_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_3_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_4_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_5_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_6_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_7_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_settings_8_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_loop_1_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_loop_2_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_loop_3_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_loop_4_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_loop_5_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_loop_6_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_loop_7_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
-        gesture_loop_8_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gesture1Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
+        binding.gesture2Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
+        binding.gesture3Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
+        binding.gesture4Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
+        binding.gesture5Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
+        binding.gesture6Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
+        binding.gesture7Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
+        binding.gesture8Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
+        binding.gesture1Btn.textColor = WHITE
+        binding.gesture2Btn.textColor = WHITE
+        binding.gesture3Btn.textColor = WHITE
+        binding.gesture4Btn.textColor = WHITE
+        binding.gesture5Btn.textColor = WHITE
+        binding.gesture6Btn.textColor = WHITE
+        binding.gesture7Btn.textColor = WHITE
+        binding.gesture8Btn.textColor = WHITE
+        binding.gestureSettings1Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings2Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings3Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings4Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings5Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings6Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings7Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings8Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop1Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop2Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop3Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop4Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop5Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop6Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop7Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop8Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
     }
     private fun loadNameGestures() {
         myLoadGesturesList()
-        gesture_1_btn?.text = gestureNameList[0]
-        gesture_2_btn?.text = gestureNameList[1]
-        gesture_3_btn?.text = gestureNameList[2]
-        gesture_4_btn?.text = gestureNameList[3]
-        gesture_5_btn?.text = gestureNameList[4]
-        gesture_6_btn?.text = gestureNameList[5]
-        gesture_7_btn?.text = gestureNameList[6]
-        gesture_8_btn?.text = gestureNameList[7]
+        binding.gesture1Btn.text = gestureNameList[0]
+        binding.gesture2Btn.text = gestureNameList[1]
+        binding.gesture3Btn.text = gestureNameList[2]
+        binding.gesture4Btn.text = gestureNameList[3]
+        binding.gesture5Btn.text = gestureNameList[4]
+        binding.gesture6Btn.text = gestureNameList[5]
+        binding.gesture7Btn.text = gestureNameList[6]
+        binding.gesture8Btn.text = gestureNameList[7]
     }
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
     private fun selectActiveGesture(active: Int) {
         resetStateButtons()
         when (active) {
-            1 -> { gesture_1_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_1_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_1_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
-                   gesture_loop_1_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            2 -> { gesture_2_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_2_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_2_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
-                   gesture_loop_2_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            3 -> { gesture_3_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_3_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_3_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
-                   gesture_loop_3_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            4 -> { gesture_4_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_4_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_4_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
-                   gesture_loop_4_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            5 -> { gesture_5_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_5_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_5_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
-                   gesture_loop_5_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            6 -> { gesture_6_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_6_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_6_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
-                   gesture_loop_6_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            7 -> { gesture_7_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_7_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_7_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
-                   gesture_loop_7_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            8 -> { gesture_8_btn?.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                   gesture_8_btn?.textColor = resources.getColor(R.color.orange)
-                   gesture_settings_8_btn?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
-                   gesture_loop_8_iv?.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            1 -> { binding.gesture1Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture1Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings1Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop1Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            2 -> { binding.gesture2Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture2Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings2Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop2Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            3 -> { binding.gesture3Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture3Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings3Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop3Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            4 -> { binding.gesture4Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture4Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings4Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop4Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            5 -> { binding.gesture5Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture5Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings5Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop5Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            6 -> { binding.gesture6Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture6Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings6Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop6Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            7 -> { binding.gesture7Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture7Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings7Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop7Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            8 -> { binding.gesture8Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture8Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings8Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop8Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
         }
         main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, active)
     }

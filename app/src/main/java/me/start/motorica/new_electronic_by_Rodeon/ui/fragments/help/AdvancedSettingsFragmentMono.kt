@@ -7,14 +7,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_help_mono_advanced_settings.*
-import kotlinx.android.synthetic.main.fragment_sensor_settings.back_btn
-import kotlinx.android.synthetic.main.fragment_sensor_settings.title_click_block_btn
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
-import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.DecoratorChange
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
@@ -42,19 +40,19 @@ class AdvancedSettingsFragmentMono(private val chartFragmentClass: ChartFragment
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun initializeUI() {
-        title_click_block_btn.setOnClickListener {  }
+        rootView?.findViewById<Button>(R.id.title_click_block_btn)?.setOnClickListener {  }
         if (main?.locate?.contains("ru")!!) {
-            imageView39.setImageDrawable(resources.getDrawable(R.drawable.help_image_39_ru))
-            imageView40.setImageDrawable(resources.getDrawable(R.drawable.help_image_40_ru))
-            imageView41.setImageDrawable(resources.getDrawable(R.drawable.help_image_41_ru))
-            imageView42.setImageDrawable(resources.getDrawable(R.drawable.help_image_42_ru))
-            imageView43.setImageDrawable(resources.getDrawable(R.drawable.help_image_43_ru))
-            imageView44.setImageDrawable(resources.getDrawable(R.drawable.help_image_44_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView39)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_39_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView40)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_40_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView41)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_41_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView42)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_42_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView43)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_43_ru))
+            rootView?.findViewById<ImageView>(R.id.imageView44)?.setImageDrawable(resources.getDrawable(R.drawable.help_image_44_ru))
         }
 
-        sensors_settings_btn.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
+        rootView?.findViewById<Button>(R.id.sensors_settings_btn)?.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
 
 
-        back_btn.setOnClickListener { navigator().goingBack() }
+        rootView?.findViewById<Button>(R.id.back_btn)?.setOnClickListener { navigator().goingBack() }
     }
 }

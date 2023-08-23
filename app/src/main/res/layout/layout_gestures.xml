@@ -161,13 +161,33 @@
                         android:elevation="4dp"
                         tools:ignore="ContentDescription,ImageContrastCheck" />
 
-                    <Button
+                    <com.skydoves.powerspinner.PowerSpinnerView
                         android:id="@+id/gesture_loop_1_btn"
                         android:layout_width="match_parent"
                         android:layout_height="42dp"
                         android:layout_alignParentEnd="true"
                         android:layout_marginEnd="0dp"
-                        android:background="@drawable/custom_button_le"/>
+                        android:background="@color/orange"
+                        android:hint="Question 1"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/black"
+                        android:textSize="14.5sp"
+                        app:spinner_divider_color="@color/back_help_menu"
+                        app:spinner_divider_show="true"
+                        app:spinner_divider_size="0.4dp"
+                        app:spinner_item_array="@array/gesture_loop"
+                        app:spinner_item_height="46dp"
+                        app:spinner_popup_animation="dropdown"
+                        app:spinner_popup_background="@color/blue_accent"
+                        app:spinner_popup_elevation="14dp" />
+
+<!--                    <Button-->
+<!--                        android:id="@+id/gesture_loop_1_btn"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="42dp"-->
+<!--                        android:layout_alignParentEnd="true"-->
+<!--                        android:layout_marginEnd="0dp"-->
+<!--                        android:background="@drawable/custom_button_le"/>-->
 
                     <TextView
                         android:layout_width="match_parent"

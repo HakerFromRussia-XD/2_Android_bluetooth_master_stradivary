@@ -11,8 +11,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import kotlinx.android.synthetic.main.layout_updating_le.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
@@ -38,13 +39,14 @@ class CustomInfoUpdateDialogFragment: DialogFragment() {
     }
 
 
+    @Deprecated("Deprecated in Java")
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n", "MissingSuperCall")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
         dialog!!.setCanceledOnTouchOutside(false)
-        pb_update.progressTintList = ColorStateList.valueOf(this.resources.getColor(R.color.dark_orange))
+        rootView?.findViewById<ProgressBar>(R.id.pb_update)?.progressTintList = ColorStateList.valueOf(this.resources.getColor(R.color.dark_orange))
         startUpdatingUIThread()
     }
 
@@ -54,11 +56,11 @@ class CustomInfoUpdateDialogFragment: DialogFragment() {
         updatingUIThread = Thread {
             while (updateThreadFlag) {
                 if (main?.getProgressUpdate() == 100) updateThreadFlag = false
-                tv_update_dialog_layout_title2.text = tv_update_dialog_layout_title2.text.split(" ")[0] + "  " + main?.getProgressUpdate()!! + "%"
+                rootView?.findViewById<TextView>(R.id.tv_update_dialog_layout_title2)?.text = rootView?.findViewById<TextView>(R.id.tv_update_dialog_layout_title2)!!.text.split(" ")[0] + "  " + main?.getProgressUpdate()!! + "%"
                 count++
                 if (count >= 10) {
                     main?.runOnUiThread {
-                        ObjectAnimator.ofInt(pb_update, "progress", main?.getProgressUpdate()!!).setDuration(1000).start()
+                        ObjectAnimator.ofInt(rootView?.findViewById<ProgressBar>(R.id.pb_update), "progress", main?.getProgressUpdate()!!).setDuration(1000).start()
                     }
                     count = 0
                 }

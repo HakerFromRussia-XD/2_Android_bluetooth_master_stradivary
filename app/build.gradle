@@ -1,7 +1,9 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+}
+
 
 android {
     namespace 'me.start.motorica'
@@ -12,7 +14,7 @@ android {
         applicationId "com.Romans.motorica"
         minSdk 23
         targetSdk 33
-        versionCode 45
+        versionCode 48
         versionName "2.4.586"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -27,20 +29,23 @@ android {
         }
     }
 
+    lint { checkReleaseBuilds false }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
-    lint { checkReleaseBuilds false }
     kotlinOptions { jvmTarget = '1.8'}
-//    viewBinding { enabled true }
+    buildFeatures {
+        viewBinding = true
+    }
+    kapt {
+        generateStubs = true
+    }
 }
 
 repositories {
-//    maven { url 'https://jitpack.io' }
     maven { url "https://dl.bintray.com/shabankamel/android" }
 }
-
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -61,9 +66,9 @@ dependencies {
     implementation 'com.yandex.android:mobmetricalib:4.2.0'
 
     // dagger
-    implementation "com.google.dagger:dagger:2.30.1"
-    kapt "com.google.dagger:dagger-compiler:2.30.1"
-    kapt "com.google.dagger:dagger-android-processor:2.30.1"
+    implementation "com.google.dagger:dagger:2.47"
+    kapt "com.google.dagger:dagger-compiler:2.47"
+    kapt "com.google.dagger:dagger-android-processor:2.47"
 
     // rxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.17'
@@ -83,14 +88,14 @@ dependencies {
     implementation "com.github.skydoves:elasticviews:2.0.3"
     implementation "com.github.skydoves:colorpickerview:2.1.3"
     implementation 'com.github.shchurov:horizontalwheelview:0.9.5'
-    implementation 'com.gtomato.android.library:carouselview:2.0.1'
+    implementation "com.github.skydoves:powerspinner:1.2.7"
 
     // new
     implementation 'lib.kingja.switchbutton:switchbutton:1.1.8'
 
     // butter knife
     implementation 'com.jakewharton:butterknife:10.2.3'
-    kapt 'com.jakewharton:butterknife-compiler:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'//kapt
 
     // BLE connection
     implementation "com.android.support:cardview-v7:33.0.0"

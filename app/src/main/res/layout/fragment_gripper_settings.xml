@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".old_electronic_by_Misha.ui.chat.view.gripper_settings.FragmentGripperSettings">
+    tools:context=".old_electronic_by_Misha.ui.chat.view.gripper_settings.FragmentGripperSettings"
+    tools:viewBindingIgnore="true">
 
     <me.start.motorica.old_electronic_by_Misha.ui.chat.view.gripper_settings.GripperSettingsGLSurfaceView
         android:id="@+id/gl_surface_view"

@@ -9,8 +9,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import kotlinx.android.synthetic.main.dialog_result_communication_test.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
@@ -35,25 +36,25 @@ class CustomDialogResultTestCommunication(private val percentageCommunicationQua
         return view
     }
 
+    @Deprecated("Deprecated in Java")
     @SuppressLint("SetTextI18n")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         @Suppress("DEPRECATION")
         super.onActivityCreated(savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
-
-        tv_result_test_communication_dialog_percent.text = "$percentageCommunicationQuality%"
+        rootView?.findViewById<TextView>(R.id.tv_result_test_communication_dialog_percent)?.text = "$percentageCommunicationQuality%"
         when(percentageCommunicationQuality) {
-            0 -> { tv_result_test_communication_dialog_title2.text = getString(R.string.no_link) }
-            in 1..20 -> { tv_result_test_communication_dialog_title2.text = getString(R.string.terrible_quality) }
-            in 20..40 -> { tv_result_test_communication_dialog_title2.text = getString(R.string.poor_quality) }
-            in 40..60 -> { tv_result_test_communication_dialog_title2.text = getString(R.string.satisfactory_quality) }
-            in 60..80 -> { tv_result_test_communication_dialog_title2.text = getString(R.string.high_quality) }
-            in 80..100 -> { tv_result_test_communication_dialog_title2.text = getString(R.string.excellent_quality) }
+            0 -> { rootView?.findViewById<TextView>(R.id.tv_result_test_communication_dialog_title2)?.text = getString(R.string.no_link) }
+            in 1..20 -> { rootView?.findViewById<TextView>(R.id.tv_result_test_communication_dialog_title2)?.text = getString(R.string.terrible_quality) }
+            in 20..40 -> { rootView?.findViewById<TextView>(R.id.tv_result_test_communication_dialog_title2)?.text = getString(R.string.poor_quality) }
+            in 40..60 -> { rootView?.findViewById<TextView>(R.id.tv_result_test_communication_dialog_title2)?.text = getString(R.string.satisfactory_quality) }
+            in 60..80 -> { rootView?.findViewById<TextView>(R.id.tv_result_test_communication_dialog_title2)?.text = getString(R.string.high_quality) }
+            in 80..100 -> { rootView?.findViewById<TextView>(R.id.tv_result_test_communication_dialog_title2)?.text = getString(R.string.excellent_quality) }
         }
 
 
-        dialog_result_test_communication_cancel.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.dialog_result_test_communication_cancel)?.setOnClickListener {
             dismiss()
         }
     }

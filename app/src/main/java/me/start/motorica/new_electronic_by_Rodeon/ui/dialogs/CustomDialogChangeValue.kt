@@ -10,10 +10,11 @@ import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.SeekBar
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import kotlinx.android.synthetic.main.dialog_change_value.*
-import kotlinx.android.synthetic.main.dialog_change_value.view.*
+import com.github.shchurov.horizontalwheelview.HorizontalWheelView
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
@@ -39,6 +40,7 @@ class CustomDialogChangeValue(private var keyValue: String, private val callback
         return view
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         @Suppress("DEPRECATION")
         super.onActivityCreated(savedInstanceState)
@@ -46,23 +48,22 @@ class CustomDialogChangeValue(private var keyValue: String, private val callback
         loadOldState()
 
 
-        rootView?.plus_btn?.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.plus_btn)?.setOnClickListener {
             changingValue += 1
             changingValue = checkRange(changingValue)
-            rootView?.my_wheel_hwv?.degreesAngle = ((changingValue*coefficient)-359)
+            rootView?.findViewById<HorizontalWheelView>(R.id.my_wheel_hwv)?.degreesAngle = ((changingValue*coefficient)-359)
             System.err.println("lol plus_btn " + ((changingValue*coefficient)-359) + "  changingValue= "+changingValue)
         }
 
-
-        rootView?.minus_btn?.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.minus_btn)?.setOnClickListener {
             changingValue -= 1
             changingValue = checkRange(changingValue)
-            rootView?.my_wheel_hwv?.degreesAngle = ((changingValue*coefficient)-359)
+            rootView?.findViewById<HorizontalWheelView>(R.id.my_wheel_hwv)?.degreesAngle = ((changingValue*coefficient)-359)
             System.err.println("lol minus_btn " + ((changingValue*coefficient)-359) + "  changingValue= "+changingValue)
         }
 
 
-        rootView?.dialog_confirm_change_value_confirm?.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.dialog_confirm_change_value_confirm)?.setOnClickListener {
             if (callbackChartFragment != null) {
                 changeValue(keyValue, callbackChartFragment)
             }
@@ -72,7 +73,7 @@ class CustomDialogChangeValue(private var keyValue: String, private val callback
         }
 
 
-        rootView?.dialog_confirm_change_value_cancel?.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.dialog_confirm_change_value_cancel)?.setOnClickListener {
             timerChangeValue?.cancel()
             dismiss()
         }
@@ -80,19 +81,18 @@ class CustomDialogChangeValue(private var keyValue: String, private val callback
 
         timerChangeValue = object : CountDownTimer(5000000, 10) {
             override fun onTick(millisUntilFinished: Long) {
-                val wheelValue: Double = rootView?.my_wheel_hwv?.degreesAngle ?: 0.0
+                val wheelValue: Double = rootView?.findViewById<HorizontalWheelView>(R.id.my_wheel_hwv)?.degreesAngle ?: 0.0
                 val convertedResult: Int = ((wheelValue + 359) / coefficient).toBigDecimal().setScale(1, RoundingMode.HALF_UP).toInt()//((wheelValue + 359) / coefficient).toInt()
                 changingValue = convertedResult
-                rootView?.value_tv?.text =  convertedResult.toString()
+                rootView?.findViewById<TextView>(R.id.value_tv)?.text =  convertedResult.toString()
             }
 
             override fun onFinish() {}
         }.start()
 
-
-        rootView?.value_invisible_sb?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+        rootView?.findViewById<SeekBar>(R.id.value_invisible_sb)?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                rootView?.my_wheel_hwv?.degreesAngle = ((progress*coefficient)-359)
+                rootView?.findViewById<HorizontalWheelView>(R.id.my_wheel_hwv)?.degreesAngle = ((progress*coefficient)-359)
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -117,7 +117,7 @@ class CustomDialogChangeValue(private var keyValue: String, private val callback
     }
     private fun animatedWheel(position: Int, timeMs: Int) {
         ObjectAnimator.ofInt(
-            value_invisible_sb,
+            rootView?.findViewById<SeekBar>(R.id.value_invisible_sb),
             "progress",
             position
         ).setDuration(timeMs.toLong()).start()

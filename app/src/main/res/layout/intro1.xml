@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:layout_weight="10"
     android:background="#2d334e"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:viewBindingIgnore="true">
 
     <Space
         android:layout_width="match_parent"

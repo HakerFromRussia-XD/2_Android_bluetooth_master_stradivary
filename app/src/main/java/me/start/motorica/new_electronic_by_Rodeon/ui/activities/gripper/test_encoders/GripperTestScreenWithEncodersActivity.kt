@@ -7,18 +7,23 @@ import android.content.SharedPreferences
 import android.graphics.PixelFormat
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.annotation.NonNull
+import androidx.annotation.Nullable
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.fingers_delay_btn
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gesture_name_et
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gesture_name_tv
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.seekBarSpeedFingerLE
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.textSpeedFingerLE
-import kotlinx.android.synthetic.main.layout_gripper_test_settings_le_with_encoders.*
+//import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.fingers_delay_btn
+//import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gesture_name_et
+//import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gesture_name_tv
+//import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.seekBarSpeedFingerLE
+//import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.textSpeedFingerLE
+//import kotlinx.android.synthetic.main.layout_gripper_test_settings_le_with_encoders.*
 import me.start.motorica.R
+import me.start.motorica.databinding.ActivitySplashScreenBinding
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
@@ -55,6 +60,7 @@ class GripperTestScreenWithEncodersActivity
     private var gestureNameList =  ArrayList<String>()
     private var editMode: Boolean = false
 
+
     @SuppressLint("CheckResult", "ResourceAsColor", "StringFormatInvalid")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,9 +90,11 @@ class GripperTestScreenWithEncodersActivity
         setTimeDelayOfFingers = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
                                 + PreferenceKeys.SET_FINGERS_DELAY, 0) == 1
         if (setTimeDelayOfFingers) {
-            fingers_delay_btn?.visibility = View.VISIBLE
+            //переезжаемнаbinding
+//            fingers_delay_btn?.visibility = View.VISIBLE
         } else {
-            fingers_delay_btn?.visibility = View.GONE
+            //переезжаемнаbinding
+//            fingers_delay_btn?.visibility = View.GONE
         }
 
 
@@ -103,13 +111,15 @@ class GripperTestScreenWithEncodersActivity
         RxUpdateMainEvent.getInstance().encodersError
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                gesture_name_tv.text = getString(R.string.error_code, it)
+                //переезжаемнаbinding
+//                gesture_name_tv.text = getString(R.string.error_code, it)
             }
         RxView.clicks(findViewById(R.id.gripper_use_le))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     if (editMode) {
-                        gestureNameList[(gestureNumber - 1)] = gesture_name_et.text.toString()
+                        //переезжаемнаbinding
+//                        gestureNameList[(gestureNumber - 1)] = gesture_name_et.text.toString()
                         val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
                         System.err.println("5 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
@@ -119,21 +129,22 @@ class GripperTestScreenWithEncodersActivity
                     finish()
                 }
 
-        seekBarSpeedFingerLE.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            @SuppressLint("SetTextI18n")
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                if (seekBarSpeedFingerLE.progress < 10) {
-                    textSpeedFingerLE.text = "0" + seekBarSpeedFingerLE.progress
-                } else {
-                    textSpeedFingerLE.text = "" + seekBarSpeedFingerLE.progress
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                RxUpdateMainEvent.getInstance().updateFingerSpeed(seekBarSpeedFingerLE.progress)
-            }
-        })
+        //переезжаемнаbinding
+//        seekBarSpeedFingerLE.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+//            @SuppressLint("SetTextI18n")
+//            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+//                if (seekBarSpeedFingerLE.progress < 10) {
+//                    textSpeedFingerLE.text = "0" + seekBarSpeedFingerLE.progress
+//                } else {
+//                    textSpeedFingerLE.text = "" + seekBarSpeedFingerLE.progress
+//                }
+//            }
+//
+//            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+//            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+//                RxUpdateMainEvent.getInstance().updateFingerSpeed(seekBarSpeedFingerLE.progress)
+//            }
+//        })
     }
 
     override fun initializeUI() {
@@ -142,17 +153,19 @@ class GripperTestScreenWithEncodersActivity
         val supportsEs2 = configurationInfo.reqGlEsVersion >= 0x00020000
 
         if (supportsEs2) {
-            gl_test_surface_view_le_with_encoders.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
-            gl_test_surface_view_le_with_encoders.holder.setFormat(PixelFormat.TRANSLUCENT)
-            gl_test_surface_view_le_with_encoders.setBackgroundResource(R.drawable.gradient_background)
-            gl_test_surface_view_le_with_encoders.setZOrderOnTop(true)
-
-            gl_test_surface_view_le_with_encoders.setEGLContextClientVersion(2)
+            //переезжаемнаbinding
+//            gl_test_surface_view_le_with_encoders.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
+//            gl_test_surface_view_le_with_encoders.holder.setFormat(PixelFormat.TRANSLUCENT)
+//            gl_test_surface_view_le_with_encoders.setBackgroundResource(R.drawable.gradient_background)
+//            gl_test_surface_view_le_with_encoders.setZOrderOnTop(true)
+//
+//            gl_test_surface_view_le_with_encoders.setEGLContextClientVersion(2)
 
             val displayMetrics = DisplayMetrics()
             this.windowManager.defaultDisplay.getMetrics(displayMetrics)
-            testWithEncodersRenderer = GripperTestSettingsWithEncodersRenderer(this, gl_test_surface_view_le_with_encoders)
-            gl_test_surface_view_le_with_encoders.setRenderer(testWithEncodersRenderer, displayMetrics.density)
+            //переезжаемнаbinding
+//            testWithEncodersRenderer = GripperTestSettingsWithEncodersRenderer(this, gl_test_surface_view_le_with_encoders)
+//            gl_test_surface_view_le_with_encoders.setRenderer(testWithEncodersRenderer, displayMetrics.density)
         }
     }
 

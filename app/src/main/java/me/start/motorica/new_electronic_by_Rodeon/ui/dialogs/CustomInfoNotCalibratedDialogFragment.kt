@@ -9,8 +9,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import kotlinx.android.synthetic.main.layout_not_calibrating_le.view.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
@@ -34,6 +35,7 @@ class CustomInfoNotCalibratedDialogFragment: DialogFragment()  {
         return view
     }
 
+    @Deprecated("Deprecated in Java")
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -41,7 +43,7 @@ class CustomInfoNotCalibratedDialogFragment: DialogFragment()  {
 
         dialog!!.setCanceledOnTouchOutside(false)
 
-        rootView?.v_andex_alert_dialog_layout_confirm_not_calibrated?.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.v_andex_alert_dialog_layout_confirm_not_calibrated)?.setOnClickListener {
             dismiss()
         }
     }

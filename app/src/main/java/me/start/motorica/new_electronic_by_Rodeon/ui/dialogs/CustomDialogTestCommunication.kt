@@ -11,9 +11,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ProgressBar
 import androidx.fragment.app.DialogFragment
+import com.airbnb.lottie.LottieAnimationView
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.dialog_progress_communication_test.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -76,16 +78,17 @@ class CustomDialogTestCommunication: DialogFragment() {
         return view
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         @Suppress("DEPRECATION")
         super.onActivityCreated(savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-        pb_test_communication?.progressTintList = ColorStateList.valueOf(this.resources.getColor(R.color.dark_orange))
+        rootView?.findViewById<ProgressBar>(R.id.pb_test_communication)?.progressTintList = ColorStateList.valueOf(this.resources.getColor(R.color.dark_orange))
         changeLoader(100)
 
-        test_communication_animation_view.setAnimation(R.raw.test_communication_animation)
+        rootView?.findViewById<LottieAnimationView>(R.id.test_communication_animation_view)?.setAnimation(R.raw.test_communication_animation)
 
-        dialog_test_communication_cancel.setOnClickListener {
+        rootView?.findViewById<Button>(R.id.dialog_test_communication_cancel)?.setOnClickListener {
             countReceivedCommandToCommunicationTest = 0
             percentageCommunicationQuality = 0
             main?.testingConnection = false
@@ -96,7 +99,7 @@ class CustomDialogTestCommunication: DialogFragment() {
 
     private fun changeLoader(value: Int) {
         main?.runOnUiThread {
-            ObjectAnimator.ofInt(pb_test_communication, "progress", value).setDuration(1000).start()
+            ObjectAnimator.ofInt(rootView?.findViewById<ProgressBar>(R.id.pb_test_communication), "progress", value).setDuration(1000).start()
         }
     }
 }

@@ -22,16 +22,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import com.airbnb.lottie.LottieAnimationView
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.dialog_confirm_select_scale.*
-import kotlinx.android.synthetic.main.dialog_info.*
-import kotlinx.android.synthetic.main.dialog_select_scale.*
-import kotlinx.android.synthetic.main.layout_advanced_settings.*
-import kotlinx.android.synthetic.main.layout_chart.*
-import kotlinx.android.synthetic.main.layout_gestures.*
-import kotlinx.android.synthetic.main.layout_kibi.*
+import lib.kingja.switchbutton.SwitchMultiButton
 import me.start.motorica.R
+import me.start.motorica.databinding.ActivityMainBinding
 import me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
@@ -137,6 +132,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var debagScreenIsOpen = false
   private var decorator: Decorator? = null
 
+  private lateinit var binding: ActivityMainBinding
+
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
     override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
@@ -155,7 +152,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X))
       {} else {
-        mainactivity_navi.visibility = View.GONE
+        binding.mainactivityNavi.visibility = View.GONE
       }
     }
 
@@ -702,6 +699,220 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       globalSemaphore = true
     }
   }
+  @SuppressLint("CheckResult", "NewApi")
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    val view = binding.root
+    setContentView(view)
+    initBaseView(this)
+    //changing statusbar
+    val window = this.window
+    decorator = Decorator( this, window, this, binding.myMainLl)
+    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+    window.navigationBarColor = resources.getColor(R.color.color_primary)
+    window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
+    mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+
+
+    // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
+    // BluetoothAdapter through BluetoothManager.
+    val bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+    mBluetoothAdapter = bluetoothManager.adapter
+    val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
+    bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
+    registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+
+    locate = Locale.getDefault().toString()
+
+    val intent = intent
+    mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
+    mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS)
+    presenter.preferenceManager.putString(PreferenceKeys.DEVICE_NAME, mDeviceName.toString())
+    presenter.preferenceManager.putString(PreferenceKeys.DEVICE_ADDR, mDeviceAddress.toString())
+    saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
+    mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE_FEST_A)
+    System.err.println("mDeviceAddress: $mDeviceAddress")
+    saveText(PreferenceKeys.LAST_CONNECTION_MAC, mDeviceAddress)
+
+
+
+    // Sets up UI references.
+    mGattServicesList = findViewById(R.id.gatt_services_list)
+    mConnectView = findViewById(R.id.connect_view)
+    mDisconnectView = findViewById(R.id.disconnect_view)
+
+    RxUpdateMainEvent.getInstance().gestureStateObservable
+      .compose(bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe { parameters ->
+        bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE, WRITE, 12)
+      }
+    RxUpdateMainEvent.getInstance().gestureStateWithEncodersObservable
+      .compose(bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe { parameters ->
+        System.err.println("GripperSettingsRender--------> gestureStateWithEncodersObservable "+
+                "withChangeGesture = " +parameters.withChangeGesture + "    state = " + parameters.state)
+        System.err.println("Prishedshie parametri: ${parameters.openStage1.toByte()}")
+        if (parameters.onlyNumberGesture) {
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+            stage = "main activity"
+            runSendCommand(
+              byteArrayOf((parameters.gestureNumber).toByte()),
+              CHANGE_GESTURE_NEW_VM, 50)
+          } else {
+            runWriteData(
+              byteArrayOf((parameters.gestureNumber).toByte()),
+              CHANGE_GESTURE_NEW_VM, WRITE)
+          }
+        } else {
+          if (parameters.state == 1) {
+            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              stage = "main activity"
+              runSendCommand(byteArrayOf(
+                parameters.openStage1.toByte(),
+                parameters.openStage2.toByte(),
+                parameters.openStage3.toByte(),
+                parameters.openStage4.toByte(),
+                parameters.openStage5.toByte(),
+                parameters.openStage6.toByte()
+              ), MOVE_ALL_FINGERS_NEW_VM, 50)
+            } else {
+              runWriteData(
+                byteArrayOf(
+                  parameters.openStage1.toByte(),
+                  parameters.openStage2.toByte(),
+                  parameters.openStage3.toByte(),
+                  parameters.openStage4.toByte(),
+                  parameters.openStage5.toByte(),
+                  parameters.openStage6.toByte()
+                ), MOVE_ALL_FINGERS_NEW, WRITE
+              )
+            }
+          } else {
+            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              stage = "main activity"
+              runSendCommand(byteArrayOf(
+                parameters.closeStage1.toByte(),
+                parameters.closeStage2.toByte(),
+                parameters.closeStage3.toByte(),
+                parameters.closeStage4.toByte(),
+                parameters.closeStage5.toByte(),
+                parameters.closeStage6.toByte()
+              ), MOVE_ALL_FINGERS_NEW_VM, 50)
+            } else {
+              runWriteData(
+                byteArrayOf(
+                  parameters.closeStage1.toByte(),
+                  parameters.closeStage2.toByte(),
+                  parameters.closeStage3.toByte(),
+                  parameters.closeStage4.toByte(),
+                  parameters.closeStage5.toByte(),
+                  parameters.closeStage6.toByte()
+                ), MOVE_ALL_FINGERS_NEW, WRITE
+              )
+            }
+          }
+          if (parameters.withChangeGesture) {
+            System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage1: ${parameters.openStage1}    closeStage1: ${parameters.closeStage1}")
+            System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage2: ${parameters.openStage2}    closeStage2: ${parameters.closeStage2}")
+            System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage3: ${parameters.openStage3}    closeStage3: ${parameters.closeStage3}")
+            System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage4: ${parameters.openStage4}    closeStage4: ${parameters.closeStage4}")
+            System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage5: ${parameters.openStage5}    closeStage5: ${parameters.closeStage5}")
+            System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage6: ${parameters.openStage6}    closeStage6: ${parameters.closeStage6}")
+
+
+            if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              stage = "main activity"
+              runSendCommand(byteArrayOf(
+                (parameters.gestureNumber).toByte(),
+                parameters.openStage1.toByte(),
+                parameters.openStage2.toByte(),
+                parameters.openStage3.toByte(),
+                parameters.openStage4.toByte(),
+                parameters.openStage5.toByte(),
+                parameters.openStage6.toByte(),
+                parameters.closeStage1.toByte(),
+                parameters.closeStage2.toByte(),
+                parameters.closeStage3.toByte(),
+                parameters.closeStage4.toByte(),
+                parameters.closeStage5.toByte(),
+                parameters.closeStage6.toByte(),
+                parameters.openStageDelay1.toByte(),
+                parameters.openStageDelay2.toByte(),
+                parameters.openStageDelay3.toByte(),
+                parameters.openStageDelay4.toByte(),
+                parameters.openStageDelay5.toByte(),
+                parameters.openStageDelay6.toByte(),
+                parameters.closeStageDelay1.toByte(),
+                parameters.closeStageDelay2.toByte(),
+                parameters.closeStageDelay3.toByte(),
+                parameters.closeStageDelay4.toByte(),
+                parameters.closeStageDelay5.toByte(),
+                parameters.closeStageDelay6.toByte()
+              ), CHANGE_GESTURE_NEW_VM, 50)
+            } else {
+              runWriteData(
+                byteArrayOf(
+                  (parameters.gestureNumber).toByte(),
+                  parameters.openStage1.toByte(),
+                  parameters.openStage2.toByte(),
+                  parameters.openStage3.toByte(),
+                  parameters.openStage4.toByte(),
+                  parameters.openStage5.toByte(),
+                  parameters.openStage6.toByte(),
+                  parameters.closeStage1.toByte(),
+                  parameters.closeStage2.toByte(),
+                  parameters.closeStage3.toByte(),
+                  parameters.closeStage4.toByte(),
+                  parameters.closeStage5.toByte(),
+                  parameters.closeStage6.toByte()
+                ), CHANGE_GESTURE_NEW, WRITE
+              )
+            }
+          }
+        }
+      }
+
+    RxUpdateMainEvent.getInstance().readCharacteristicBLEObservable
+      .compose(bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe {
+        runReadDataAllCharacteristics(it)
+      }
+
+    RxUpdateMainEvent.getInstance().fingerSpeedObservable
+      .compose(bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe { speed ->
+        System.err.println(" MainActivity -----> change gripper. fingerSpeed = $speed")
+        speedFinger = speed
+      }
+    RxUpdateMainEvent.getInstance().calibratingStatusObservable
+      .compose(bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe {
+        openFragmentInfoCalibration()
+      }
+
+    val worker = Thread {
+      while (true) {
+        val task: Runnable = queue.get()
+        task.run()
+      }
+    }
+    worker.start()
+
+
+//    showWhiteStatusBar(true)
+//    showHelpScreen()
+
+
+    initUI()
+  }
   @SuppressLint("SetTextI18n")
   private fun displayDataDriverVersionNew(data: ByteArray?) {
     if (data != null) {
@@ -713,7 +924,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
 
       driverVersionS = driverVersion
-      driver_tv?.text = resources.getString(R.string.driver) +driverVersion + "v"
+      //переезжаемнаbinding
+//      binding.driverTv.text = resources.getString(R.string.driver) +driverVersion + "v"
+
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
     }
@@ -768,218 +981,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
   }
 
-  @SuppressLint("CheckResult", "NewApi")
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
-    initBaseView(this)
-    //changing statusbar
-    val window = this.window
-    decorator = Decorator( this, window, this, my_main_ll)
-    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-    window.navigationBarColor = resources.getColor(R.color.color_primary)
-    window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
-    mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
-
-    // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
-    // BluetoothAdapter through BluetoothManager.
-    val bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
-    mBluetoothAdapter = bluetoothManager.adapter
-    val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
-    bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-    registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-
-    locate = Locale.getDefault().toString()
-
-    val intent = intent
-    mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
-    mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS)
-    presenter.preferenceManager.putString(PreferenceKeys.DEVICE_NAME, mDeviceName.toString())
-    presenter.preferenceManager.putString(PreferenceKeys.DEVICE_ADDR, mDeviceAddress.toString())
-    saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
-    mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE_FEST_A)
-    System.err.println("mDeviceAddress: $mDeviceAddress")
-    saveText(PreferenceKeys.LAST_CONNECTION_MAC, mDeviceAddress)
-
-
-
-    // Sets up UI references.
-    mGattServicesList = findViewById(R.id.gatt_services_list)
-    mConnectView = findViewById(R.id.connect_view)
-    mDisconnectView = findViewById(R.id.disconnect_view)
-
-    RxUpdateMainEvent.getInstance().gestureStateObservable
-            .compose(bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { parameters ->
-              bleCommandConnector(byteArrayOf((parameters.gestureNumber).toByte(), parameters.openStage.toByte(), parameters.closeStage.toByte(), parameters.state.toByte()), ADD_GESTURE, WRITE, 12)
-            }
-    RxUpdateMainEvent.getInstance().gestureStateWithEncodersObservable
-            .compose(bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { parameters ->
-              System.err.println("GripperSettingsRender--------> gestureStateWithEncodersObservable "+
-              "withChangeGesture = " +parameters.withChangeGesture + "    state = " + parameters.state)
-              System.err.println("Prishedshie parametri: ${parameters.openStage1.toByte()}")
-              if (parameters.onlyNumberGesture) {
-                if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-                  stage = "main activity"
-                  runSendCommand(
-                    byteArrayOf((parameters.gestureNumber).toByte()),
-                    CHANGE_GESTURE_NEW_VM, 50)
-                } else {
-                  runWriteData(
-                    byteArrayOf((parameters.gestureNumber).toByte()),
-                    CHANGE_GESTURE_NEW_VM, WRITE)
-                }
-              } else {
-                if (parameters.state == 1) {
-                  if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-                    stage = "main activity"
-                    runSendCommand(byteArrayOf(
-                      parameters.openStage1.toByte(),
-                      parameters.openStage2.toByte(),
-                      parameters.openStage3.toByte(),
-                      parameters.openStage4.toByte(),
-                      parameters.openStage5.toByte(),
-                      parameters.openStage6.toByte()
-                    ), MOVE_ALL_FINGERS_NEW_VM, 50)
-                  } else {
-                    runWriteData(
-                      byteArrayOf(
-                        parameters.openStage1.toByte(),
-                        parameters.openStage2.toByte(),
-                        parameters.openStage3.toByte(),
-                        parameters.openStage4.toByte(),
-                        parameters.openStage5.toByte(),
-                        parameters.openStage6.toByte()
-                      ), MOVE_ALL_FINGERS_NEW, WRITE
-                    )
-                  }
-                } else {
-                  if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-                    stage = "main activity"
-                    runSendCommand(byteArrayOf(
-                      parameters.closeStage1.toByte(),
-                      parameters.closeStage2.toByte(),
-                      parameters.closeStage3.toByte(),
-                      parameters.closeStage4.toByte(),
-                      parameters.closeStage5.toByte(),
-                      parameters.closeStage6.toByte()
-                      ), MOVE_ALL_FINGERS_NEW_VM, 50)
-                  } else {
-                    runWriteData(
-                      byteArrayOf(
-                        parameters.closeStage1.toByte(),
-                        parameters.closeStage2.toByte(),
-                        parameters.closeStage3.toByte(),
-                        parameters.closeStage4.toByte(),
-                        parameters.closeStage5.toByte(),
-                        parameters.closeStage6.toByte()
-                      ), MOVE_ALL_FINGERS_NEW, WRITE
-                    )
-                  }
-                }
-                if (parameters.withChangeGesture) {
-                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage1: ${parameters.openStage1}    closeStage1: ${parameters.closeStage1}")
-                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage2: ${parameters.openStage2}    closeStage2: ${parameters.closeStage2}")
-                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage3: ${parameters.openStage3}    closeStage3: ${parameters.closeStage3}")
-                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage4: ${parameters.openStage4}    closeStage4: ${parameters.closeStage4}")
-                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage5: ${parameters.openStage5}    closeStage5: ${parameters.closeStage5}")
-                  System.err.println("Prishedshie s izmeneniem gesta v pamiati openStage6: ${parameters.openStage6}    closeStage6: ${parameters.closeStage6}")
-
-
-                  if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-                    stage = "main activity"
-                    runSendCommand(byteArrayOf(
-                      (parameters.gestureNumber).toByte(),
-                      parameters.openStage1.toByte(),
-                      parameters.openStage2.toByte(),
-                      parameters.openStage3.toByte(),
-                      parameters.openStage4.toByte(),
-                      parameters.openStage5.toByte(),
-                      parameters.openStage6.toByte(),
-                      parameters.closeStage1.toByte(),
-                      parameters.closeStage2.toByte(),
-                      parameters.closeStage3.toByte(),
-                      parameters.closeStage4.toByte(),
-                      parameters.closeStage5.toByte(),
-                      parameters.closeStage6.toByte(),
-                      parameters.openStageDelay1.toByte(),
-                      parameters.openStageDelay2.toByte(),
-                      parameters.openStageDelay3.toByte(),
-                      parameters.openStageDelay4.toByte(),
-                      parameters.openStageDelay5.toByte(),
-                      parameters.openStageDelay6.toByte(),
-                      parameters.closeStageDelay1.toByte(),
-                      parameters.closeStageDelay2.toByte(),
-                      parameters.closeStageDelay3.toByte(),
-                      parameters.closeStageDelay4.toByte(),
-                      parameters.closeStageDelay5.toByte(),
-                      parameters.closeStageDelay6.toByte()
-                    ), CHANGE_GESTURE_NEW_VM, 50)
-                  } else {
-                    runWriteData(
-                      byteArrayOf(
-                        (parameters.gestureNumber).toByte(),
-                        parameters.openStage1.toByte(),
-                        parameters.openStage2.toByte(),
-                        parameters.openStage3.toByte(),
-                        parameters.openStage4.toByte(),
-                        parameters.openStage5.toByte(),
-                        parameters.openStage6.toByte(),
-                        parameters.closeStage1.toByte(),
-                        parameters.closeStage2.toByte(),
-                        parameters.closeStage3.toByte(),
-                        parameters.closeStage4.toByte(),
-                        parameters.closeStage5.toByte(),
-                        parameters.closeStage6.toByte()
-                      ), CHANGE_GESTURE_NEW, WRITE
-                    )
-                  }
-                }
-              }
-            }
-
-    RxUpdateMainEvent.getInstance().readCharacteristicBLEObservable
-            .compose(bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-              runReadDataAllCharacteristics(it)
-            }
-
-    RxUpdateMainEvent.getInstance().fingerSpeedObservable
-            .compose(bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { speed ->
-              System.err.println(" MainActivity -----> change gripper. fingerSpeed = $speed")
-              speedFinger = speed
-            }
-    RxUpdateMainEvent.getInstance().calibratingStatusObservable
-            .compose(bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-              openFragmentInfoCalibration()
-            }
-
-    val worker = Thread {
-      while (true) {
-        val task: Runnable = queue.get()
-        task.run()
-      }
-    }
-    worker.start()
-
-
-//    showWhiteStatusBar(true)
-//    showHelpScreen()
-
-
-    initUI()
-}
   override fun onResume() {
     super.onResume()
     System.err.println("Check life cycle onResume()")
@@ -1073,6 +1075,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
 
+  @SuppressLint("CommitTransaction")
   private fun launchFragment(fragment: Fragment) {
     supportFragmentManager
       .beginTransaction()
@@ -1091,8 +1094,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
       if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
         val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+        binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
 
         val myIntent = Intent(this, MyService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -1108,21 +1111,21 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
         ) {
           val mSectionsPagerAdapter = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
-          mainactivity_viewpager.adapter = mSectionsPagerAdapter
-          mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
+          binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
         } else {
           val mSectionsPagerAdapter =
             SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
-          mainactivity_viewpager.adapter = mSectionsPagerAdapter
-          mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+          binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
         }
       }
       NavigationUtils.showAdvancedSettings = true
     } else {
       if (mDeviceType?.contains(DEVICE_TYPE_FEST_TEST) == true) {
         val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+        binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
 
         val myIntent = Intent(this, MyService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -1138,30 +1141,31 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           || mDeviceType?.contains(DEVICE_TYPE_FEST_X) == true
         ) {
           val mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
-          mainactivity_viewpager.adapter = mSectionsPagerAdapter
-          mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
+          binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
         } else {
           val mSectionsPagerAdapter = SectionsPagerAdapterMonograb(supportFragmentManager)
-          mainactivity_viewpager.adapter = mSectionsPagerAdapter
+          binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
           //здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-          mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
         }
       }
     }
 
-    mainactivity_viewpager.offscreenPageLimit = 3
-    NavigationUtils.setComponents(baseContext, mainactivity_navi)
+
+    binding.mainactivityViewpager.offscreenPageLimit = 3
+    NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)
   }
 
   @SuppressLint("ClickableViewAccessibility")
   fun setDecorator(guide: TypeGuides, targetView: View, rootClass: Any) {
-    cancelable_touch_btn.visibility = View.VISIBLE
+    binding.cancelableTouchBtn.visibility = View.VISIBLE
     decorator?.showGuide(guide, targetView, rootClass)
   }
   @SuppressLint("ClickableViewAccessibility")
   fun hideDecorator() {
     decorator?.hideDecorator()
-    cancelable_touch_btn.visibility = View.GONE
+    binding.cancelableTouchBtn.visibility = View.GONE
   }
 
   // Demonstrates how to iterate through the supported GATT Services/Characteristics.
@@ -1215,17 +1219,19 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
   private fun enableInterface(enabled: Boolean) {
     if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) {
-      set_kibi_btn?.isEnabled = enabled
+      //переезжаемнаbinding
+//      set_kibi_btn?.isEnabled = enabled
     } else {
       enableInterfaceStatus = enabled
-      close_btn?.isEnabled = enabled
-      open_btn?.isEnabled = enabled
-      calibration_btn?.isEnabled = enabled
-      thresholds_blocking_sw?.isEnabled = enabled
-      correlator_noise_threshold_1_sb?.isEnabled = enabled
-      correlator_noise_threshold_2_sb?.isEnabled = enabled
-      correlator_noise_threshold_1_tv?.isEnabled = enabled
-      correlator_noise_threshold_2_tv?.isEnabled = enabled
+      //переезжаемнаbinding
+//      close_btn?.isEnabled = enabled
+//      open_btn?.isEnabled = enabled
+//      calibration_btn?.isEnabled = enabled
+//      thresholds_blocking_sw?.isEnabled = enabled
+//      correlator_noise_threshold_1_sb?.isEnabled = enabled
+//      correlator_noise_threshold_2_sb?.isEnabled = enabled
+//      correlator_noise_threshold_1_tv?.isEnabled = enabled
+//      correlator_noise_threshold_2_tv?.isEnabled = enabled
       if (enabled) {
         if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
           || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
@@ -1233,30 +1239,31 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
           || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
         ) {
-          gesture_1_btn?.isEnabled = enabled
-          gesture_2_btn?.isEnabled = enabled
-          gesture_3_btn?.isEnabled = enabled
-          gesture_4_btn?.isEnabled = enabled
-          gesture_5_btn?.isEnabled = enabled
-          gesture_6_btn?.isEnabled = enabled
-          gesture_7_btn?.isEnabled = enabled
-          gesture_8_btn?.isEnabled = enabled
-          gesture_settings_2_btn?.isEnabled = enabled
-          gesture_settings_3_btn?.isEnabled = enabled
-          gesture_settings_4_btn?.isEnabled = enabled
-          gesture_settings_5_btn?.isEnabled = enabled
-          gesture_settings_6_btn?.isEnabled = enabled
-          gesture_settings_7_btn?.isEnabled = enabled
-          gesture_settings_8_btn?.isEnabled = enabled
+          //переезжаемнаbinding
+//          gesture_1_btn?.isEnabled = enabled
+//          gesture_2_btn?.isEnabled = enabled
+//          gesture_3_btn?.isEnabled = enabled
+//          gesture_4_btn?.isEnabled = enabled
+//          gesture_5_btn?.isEnabled = enabled
+//          gesture_6_btn?.isEnabled = enabled
+//          gesture_7_btn?.isEnabled = enabled
+//          gesture_8_btn?.isEnabled = enabled
+//          gesture_settings_2_btn?.isEnabled = enabled
+//          gesture_settings_3_btn?.isEnabled = enabled
+//          gesture_settings_4_btn?.isEnabled = enabled
+//          gesture_settings_5_btn?.isEnabled = enabled
+//          gesture_settings_6_btn?.isEnabled = enabled
+//          gesture_settings_7_btn?.isEnabled = enabled
+//          gesture_settings_8_btn?.isEnabled = enabled
           if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-            swap_sensors_sw?.isEnabled = enabled
-            swap_open_close_sw?.isEnabled = enabled
-            single_channel_control_sw?.isEnabled = enabled
-            reset_to_factory_settings_btn?.isEnabled = enabled
-//          calibration_btn?.isEnabled = enabled
-            get_setup_btn?.isEnabled = enabled
-            set_setup_btn?.isEnabled = enabled
-            shutdown_current_sb?.isEnabled = enabled
+            //переезжаемнаbinding
+//            swap_sensors_sw?.isEnabled = enabled
+//            swap_open_close_sw?.isEnabled = enabled
+//            single_channel_control_sw?.isEnabled = enabled
+//            reset_to_factory_settings_btn?.isEnabled = enabled
+//            get_setup_btn?.isEnabled = enabled
+//            set_setup_btn?.isEnabled = enabled
+//            shutdown_current_sb?.isEnabled = enabled
           }
         }
       }
@@ -2067,7 +2074,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
 
 
-    mainactivity_viewpager.isSaveFromParentEnabled = false
+    binding.mainactivityViewpager.isSaveFromParentEnabled = false
     if (showAdvancedSettings) {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
@@ -2075,12 +2082,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)
+        binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
       } else {
         val mSectionsPagerAdapter =  SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)
+        binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
       }
     } else {
       if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
@@ -2089,19 +2096,19 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+        binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
       } else {
         val mSectionsPagerAdapter =  SectionsPagerAdapterMonograb(supportFragmentManager)
-        mainactivity_viewpager.adapter = mSectionsPagerAdapter
-        mainactivity_navi.setViewPager(mainactivity_viewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+        binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
       }
     }
 
     Toast.makeText(this, "Advanced settings: $showAdvancedSettings", Toast.LENGTH_SHORT).show()
 
-    mainactivity_viewpager.offscreenPageLimit = 3
-    NavigationUtils.setComponents(baseContext, mainactivity_navi)
+    binding.mainactivityViewpager.offscreenPageLimit = 3
+    NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)
     updateUIChart(40)
   }
   @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")
@@ -2113,41 +2120,43 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     myDialog.show()
 
-    myDialog.dialog_info_title_tv.text = getString(R.string.calibration_status)
+
+    myDialog.findViewById<TextView>(R.id.dialog_info_title_tv).text = getString(R.string.calibration_status)
 
 
     if (statusFinger.isNotEmpty()) {
-      myDialog.dialog_first_in_queue_tv.text =
+
+      myDialog.findViewById<TextView>(R.id.dialog_first_in_queue_tv).text =
         getString(R.string.pre_status_finger, 1) + " " + statusFinger[0] + getString(
           R.string.status_finger,
           statusEncoderFingers[0],
           statusCurrentFingers[0]
         )
-      myDialog.dialog_second_in_queue_tv.text =
+      myDialog.findViewById<TextView>(R.id.dialog_second_in_queue_tv).text =
         getString(R.string.pre_status_finger, 2) + " " + statusFinger[1] + getString(
           R.string.status_finger,
           statusEncoderFingers[1],
           statusCurrentFingers[1]
         )
-      myDialog.dialog_third_in_queue_tv.text =
+      myDialog.findViewById<TextView>(R.id.dialog_third_in_queue_tv).text =
         getString(R.string.pre_status_finger, 3) + " " + statusFinger[2] + getString(
           R.string.status_finger,
           statusEncoderFingers[2],
           statusCurrentFingers[2]
         )
-      myDialog.dialog_fourth_in_queue_tv.text =
+      myDialog.findViewById<TextView>(R.id.dialog_fourth_in_queue_tv).text =
         getString(R.string.pre_status_finger, 4) + " " + statusFinger[3] + getString(
           R.string.status_finger,
           statusEncoderFingers[3],
           statusCurrentFingers[3]
         )
-      myDialog.dialog_fifth_in_queue_tv.text =
+      myDialog.findViewById<TextView>(R.id.dialog_fifth_in_queue_tv).text =
         getString(R.string.pre_status_finger, 5) + " " + statusFinger[4] + getString(
           R.string.status_finger,
           statusEncoderFingers[4],
           statusCurrentFingers[4]
         )
-      myDialog.dialog_sixth_in_queue_tv.text =
+      myDialog.findViewById<TextView>(R.id.dialog_sixth_in_queue_tv).text =
         getString(R.string.pre_status_finger, 6) + " " + statusFinger[5] + getString(
           R.string.status_finger,
           statusEncoderFingers[5],
@@ -2155,7 +2164,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         )
     }
 
-    myDialog.info_animation_view.setAnimation(R.raw.loader_calibrating)
+    myDialog.findViewById<LottieAnimationView>(R.id.info_animation_view).setAnimation(R.raw.loader_calibrating)
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_info_confirm)
     yesBtn.setOnClickListener {
@@ -2171,8 +2180,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     myDialog.show()
 
-    myDialog.dialog_select_scale_sw.setOnSwitchListener { position, _ ->
-      System.err.println("scaleProstheses = ${myDialog.dialog_select_scale_sw.selectedTab}")
+
+    myDialog.findViewById<SwitchMultiButton>(R.id.dialog_select_scale_sw).setOnSwitchListener { position, _ ->
+      System.err.println("scaleProstheses = ${myDialog.findViewById<SwitchMultiButton>(R.id.dialog_select_scale_sw).selectedTab}")
       when (position) {
         0 -> { scaleProstheses = 0 }
         1 -> { scaleProstheses = 1 }
@@ -2184,7 +2194,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_select_scale_confirm)
     yesBtn.setOnClickListener {
-      scaleProstheses = myDialog.dialog_select_scale_sw.selectedTab
+      scaleProstheses = myDialog.findViewById<SwitchMultiButton>(R.id.dialog_select_scale_sw).selectedTab
       System.err.println("scaleProstheses = $scaleProstheses")
       showConfirmChangeSideDialog()
       myDialog.dismiss()
@@ -2199,7 +2209,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     myDialog.show()
 
-    myDialog.dialog_confirm_select_scale_message_tv.text =
+    myDialog.findViewById<TextView>(R.id.dialog_confirm_select_scale_message_tv).text =
       when (scaleProstheses) {
         0 -> getString(R.string.the_size_of_your_prostheses) + " \"S\" ?"
         1 -> getString(R.string.the_size_of_your_prostheses) + " \"M\" ?"
@@ -2430,31 +2440,33 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     System.err.println("countCommand.get().inc() counter: ${countCommand.get()}")
   }
   fun offGesturesUIBeforeConnection () {
-    gesture_1_btn?.isEnabled = false
-    gesture_2_btn?.isEnabled = false
-    gesture_3_btn?.isEnabled = false
-    gesture_4_btn?.isEnabled = false
-    gesture_5_btn?.isEnabled = false
-    gesture_6_btn?.isEnabled = false
-    gesture_7_btn?.isEnabled = false
-    gesture_8_btn?.isEnabled = false
-    gesture_settings_2_btn?.isEnabled = false
-    gesture_settings_3_btn?.isEnabled = false
-    gesture_settings_4_btn?.isEnabled = false
-    gesture_settings_5_btn?.isEnabled = false
-    gesture_settings_6_btn?.isEnabled = false
-    gesture_settings_7_btn?.isEnabled = false
-    gesture_settings_8_btn?.isEnabled = false
+    //переезжаемнаbinding
+//    gesture_1_btn?.isEnabled = false
+//    gesture_2_btn?.isEnabled = false
+//    gesture_3_btn?.isEnabled = false
+//    gesture_4_btn?.isEnabled = false
+//    gesture_5_btn?.isEnabled = false
+//    gesture_6_btn?.isEnabled = false
+//    gesture_7_btn?.isEnabled = false
+//    gesture_8_btn?.isEnabled = false
+//    gesture_settings_2_btn?.isEnabled = false
+//    gesture_settings_3_btn?.isEnabled = false
+//    gesture_settings_4_btn?.isEnabled = false
+//    gesture_settings_5_btn?.isEnabled = false
+//    gesture_settings_6_btn?.isEnabled = false
+//    gesture_settings_7_btn?.isEnabled = false
+//    gesture_settings_8_btn?.isEnabled = false
   }
   fun offSensorsUIBeforeConnection () {
-    close_btn?.isEnabled = false
-    open_btn?.isEnabled = false
-    calibration_btn.isEnabled = false
-    thresholds_blocking_sw?.isEnabled = false
-    correlator_noise_threshold_1_sb?.isEnabled = false
-    correlator_noise_threshold_2_sb?.isEnabled = false
-    correlator_noise_threshold_1_tv?.isEnabled = false
-    correlator_noise_threshold_2_tv?.isEnabled = false
+    //переезжаемнаbinding
+//    close_btn?.isEnabled = false
+//    open_btn?.isEnabled = false
+//    calibration_btn.isEnabled = false
+//    thresholds_blocking_sw?.isEnabled = false
+//    correlator_noise_threshold_1_sb?.isEnabled = false
+//    correlator_noise_threshold_2_sb?.isEnabled = false
+//    correlator_noise_threshold_1_tv?.isEnabled = false
+//    correlator_noise_threshold_2_tv?.isEnabled = false
   }
 
 

@@ -19,11 +19,12 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.airbnb.lottie.LottieAnimationView
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.dialog_fingers_delay.*
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
 import me.start.motorica.R
+import me.start.motorica.databinding.LayoutGripperSettingsLeWithEncodersBinding
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
@@ -109,10 +110,13 @@ class GripperScreenWithEncodersActivity
     private var editMode: Boolean = false
     private var mDeviceType: String? = null
 
+    private lateinit var binding: LayoutGripperSettingsLeWithEncodersBinding
+
     @SuppressLint("CheckResult", "ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.layout_gripper_settings_le_with_encoders)
+        binding = LayoutGripperSettingsLeWithEncodersBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         initBaseView(this)
         window.navigationBarColor = resources.getColor(R.color.color_primary_dark)
         window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
@@ -137,15 +141,15 @@ class GripperScreenWithEncodersActivity
         setTimeDelayOfFingers = mSettings!!.getInt(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
                                 + PreferenceKeys.SET_FINGERS_DELAY, 0) == 1
         if (setTimeDelayOfFingers) {
-            fingers_delay_btn?.visibility = View.VISIBLE
+            binding.fingersDelayBtn.visibility = View.VISIBLE
         } else {
-            fingers_delay_btn?.visibility = View.GONE
+            binding.fingersDelayBtn.visibility = View.GONE
         }
 
 
         loadOldState()
         myLoadGesturesList()
-        gesture_name_tv.text = gestureNameList[gestureNumber - 1]
+        binding.gestureNameTv.text = gestureNameList[gestureNumber - 1]
 
 
         RxView.clicks(findViewById(R.id.edit_gesture_name_btn))
@@ -153,12 +157,12 @@ class GripperScreenWithEncodersActivity
                 .subscribe {
                     val imm = this.getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
                     if (editMode) {
-                        edit_gesture_name_btn.setImageResource(R.drawable.ic_edit_24)
-                        gesture_name_tv.visibility = View.VISIBLE
+                        binding.editGestureNameBtn.setImageResource(R.drawable.ic_edit_24)
+                        binding.gestureNameTv.visibility = View.VISIBLE
                         imm.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
-                        gesture_name_tv.text = gesture_name_et.text
-                        gesture_name_et.visibility = View.GONE
-                        gestureNameList[(gestureNumber - 1)] = gesture_name_tv.text.toString()
+                        binding.gestureNameTv.text = binding.gestureNameEt.text
+                        binding.gestureNameEt.visibility = View.GONE
+                        gestureNameList[(gestureNumber - 1)] = binding.gestureNameTv.text.toString()
                         val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
                         System.err.println("6 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
@@ -166,15 +170,15 @@ class GripperScreenWithEncodersActivity
                         }
                         editMode = false
                     } else {
-                        edit_gesture_name_btn.setImageResource(R.drawable.ic_ok_24)
-                        gesture_name_et.visibility = View.VISIBLE
-//                        gesture_name_et.background.setColorFilter(resources.getColor(R.color.darkOrange), PorterDuff.Mode.SRC_ATOP)
-                        gesture_name_et.setText(gesture_name_tv.text, TextView.BufferType.EDITABLE)
-                        gesture_name_tv.visibility = View.GONE
-                        gesture_name_et.requestFocus()
-                        imm.hideSoftInputFromWindow(gesture_name_et.windowToken, 0)
-                        imm.showSoftInput(gesture_name_et, 0)
-                        gesture_name_et.isFocusableInTouchMode = true
+                        //переезжаемнаbinding
+                        binding.editGestureNameBtn.setImageResource(R.drawable.ic_ok_24)
+                        binding.gestureNameEt.visibility = View.VISIBLE
+                        binding.gestureNameEt.setText(binding.gestureNameTv.text, TextView.BufferType.EDITABLE)
+                        binding.gestureNameTv.visibility = View.GONE
+                        binding.gestureNameEt.requestFocus()
+                        imm.hideSoftInputFromWindow(binding.gestureNameEt.windowToken, 0)
+                        imm.showSoftInput(binding.gestureNameEt, 0)
+                        binding.gestureNameEt.isFocusableInTouchMode = true
                         editMode = true
                     }
                 }
@@ -224,11 +228,11 @@ class GripperScreenWithEncodersActivity
                     animateFinger6 ()
                     if (gestureState == 0 ) {
                         gestureState = 1
-                        gripper_state_le.text = getString(R.string.gesture_state_open)
+                        binding.gripperStateLe.text = getString(R.string.gesture_state_open)
                         } else
                     {
                         gestureState = 0
-                        gripper_state_le.text = getString(R.string.gesture_state_close)
+                        binding.gripperStateLe.text = getString(R.string.gesture_state_close)
                     }
                     compileBLEMassage (withChangeGesture = false, onlyNumberGesture = false)
                 }
@@ -236,7 +240,8 @@ class GripperScreenWithEncodersActivity
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     if (editMode) {
-                        gestureNameList[(gestureNumber - 1)] = gesture_name_et.text.toString()
+                        //переезжаемнаbinding
+                        gestureNameList[(gestureNumber - 1)] = binding.gestureNameEt.text.toString()
                         val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
                         System.err.println("1 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
@@ -245,24 +250,24 @@ class GripperScreenWithEncodersActivity
                     }
                     finish()
                 }
-
-        fingers_delay_btn.setOnClickListener {
+//переезжаемнаbinding
+        binding.fingersDelayBtn.setOnClickListener {
             showFingersDelayDialog()
         }
 
-        seekBarSpeedFingerLE.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+        binding.seekBarSpeedFingerLE.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             @SuppressLint("SetTextI18n")
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                if (seekBarSpeedFingerLE.progress < 10) {
-                    textSpeedFingerLE.text = "0" + seekBarSpeedFingerLE.progress
+                if (binding.seekBarSpeedFingerLE.progress < 10) {
+                    binding.textSpeedFingerLE.text = "0" + binding.seekBarSpeedFingerLE.progress
                 } else {
-                    textSpeedFingerLE.text = "" + seekBarSpeedFingerLE.progress
+                    binding.textSpeedFingerLE.text = "" + binding.seekBarSpeedFingerLE.progress
                 }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                RxUpdateMainEvent.getInstance().updateFingerSpeed(seekBarSpeedFingerLE.progress)
+                RxUpdateMainEvent.getInstance().updateFingerSpeed(binding.seekBarSpeedFingerLE.progress)
             }
         })
     }
@@ -273,17 +278,18 @@ class GripperScreenWithEncodersActivity
         val supportsEs2 = configurationInfo.reqGlEsVersion >= 0x00020000
 
         if (supportsEs2) {
-            gl_surface_view_le_with_encoders.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
-            gl_surface_view_le_with_encoders.holder.setFormat(PixelFormat.TRANSLUCENT)
-            gl_surface_view_le_with_encoders.setBackgroundResource(R.drawable.gradient_background)
-            gl_surface_view_le_with_encoders.setZOrderOnTop(true)
+            binding.glSurfaceViewLeWithEncoders.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
+            binding.glSurfaceViewLeWithEncoders.holder.setFormat(PixelFormat.TRANSLUCENT)
+            binding.glSurfaceViewLeWithEncoders.setBackgroundResource(R.drawable.gradient_background)
+            binding.glSurfaceViewLeWithEncoders.setZOrderOnTop(true)
 
-            gl_surface_view_le_with_encoders.setEGLContextClientVersion(2)
+            binding.glSurfaceViewLeWithEncoders.setEGLContextClientVersion(2)
 
             val displayMetrics = DisplayMetrics()
             this.windowManager.defaultDisplay.getMetrics(displayMetrics)
-            withEncodersRenderer = GripperSettingsWithEncodersRenderer(this, gl_surface_view_le_with_encoders)
-            gl_surface_view_le_with_encoders.setRenderer(withEncodersRenderer, displayMetrics.density)
+            //переезжаемнаbinding
+            withEncodersRenderer = GripperSettingsWithEncodersRenderer(this, binding.glSurfaceViewLeWithEncoders)
+            binding.glSurfaceViewLeWithEncoders.setRenderer(withEncodersRenderer, displayMetrics.density)
         }
     }
 
@@ -691,7 +697,7 @@ class GripperScreenWithEncodersActivity
         myDialog.setCancelable(false)
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         myDialog.show()
-        myDialog.delay_fingers_animation_view.setAnimation(R.raw.loader_calibrating)
+        myDialog.findViewById<LottieAnimationView>(R.id.delay_fingers_animation_view).setAnimation(R.raw.loader_calibrating)
 
 
         timerCheckReceivingData = object : CountDownTimer(5000000, 500) {
@@ -706,59 +712,61 @@ class GripperScreenWithEncodersActivity
                         compileBLERead(SampleGattAttributes.CHANGE_GESTURE_NEW_VM)
                         firstRequest = false
                     }
-                    myDialog.delay_fingers_animation_view.visibility = View.VISIBLE
+                    myDialog.findViewById<LottieAnimationView>(R.id.delay_fingers_animation_view).visibility = View.VISIBLE
 
-                    myDialog.first_cl.visibility = View.GONE
-                    myDialog.second_cl.visibility = View.GONE
-                    myDialog.third_cl.visibility = View.GONE
-                    myDialog.fourth_cl.visibility = View.GONE
-                    myDialog.fifth_cl.visibility = View.GONE
-                    myDialog.sixth_cl.visibility = View.GONE
+                    myDialog.findViewById<ConstraintLayout>(R.id.first_cl).visibility = View.GONE
+                    myDialog.findViewById<ConstraintLayout>(R.id.second_cl).visibility = View.GONE
+                    myDialog.findViewById<ConstraintLayout>(R.id.third_cl).visibility = View.GONE
+                    myDialog.findViewById<ConstraintLayout>(R.id.fourth_cl).visibility = View.GONE
+                    myDialog.findViewById<ConstraintLayout>(R.id.fifth_cl).visibility = View.GONE
+                    myDialog.findViewById<ConstraintLayout>(R.id.sixth_cl).visibility = View.GONE
 
                     System.err.println("compileBLERead тык $countTick")
                     countTick++
                 }
             }
 
+            @SuppressLint("CutPasteId")
             override fun onFinish() {
-                myDialog.delay_fingers_animation_view.visibility = View.GONE
+                myDialog.findViewById<LottieAnimationView>(R.id.delay_fingers_animation_view).visibility = View.GONE
 
-                myDialog.first_cl.visibility = View.VISIBLE
-                myDialog.second_cl.visibility = View.VISIBLE
-                myDialog.third_cl.visibility = View.VISIBLE
-                myDialog.fourth_cl.visibility = View.VISIBLE
-                myDialog.fifth_cl.visibility = View.VISIBLE
-                myDialog.sixth_cl.visibility = View.VISIBLE
+                myDialog.findViewById<ConstraintLayout>(R.id.first_cl).visibility = View.VISIBLE
+                myDialog.findViewById<ConstraintLayout>(R.id.second_cl).visibility = View.VISIBLE
+                myDialog.findViewById<ConstraintLayout>(R.id.third_cl).visibility = View.VISIBLE
+                myDialog.findViewById<ConstraintLayout>(R.id.fourth_cl).visibility = View.VISIBLE
+                myDialog.findViewById<ConstraintLayout>(R.id.fifth_cl).visibility = View.VISIBLE
+                myDialog.findViewById<ConstraintLayout>(R.id.sixth_cl).visibility = View.VISIBLE
 
                 loadFingersDelay()
                 if (gestureState == 1) {
-                    myDialog.dialog_fingers_delay_title_tv.text = getString(R.string.delay_state_open)
-                    myDialog.dialog_fingers_delay_1_sb.progress = fingerOpenStateDelay1
-                    myDialog.dialog_fingers_delay_2_sb.progress = fingerOpenStateDelay2
-                    myDialog.dialog_fingers_delay_3_sb.progress = fingerOpenStateDelay3
-                    myDialog.dialog_fingers_delay_4_sb.progress = fingerOpenStateDelay4
-                    myDialog.dialog_fingers_delay_5_sb.progress = fingerOpenStateDelay5
-                    myDialog.dialog_fingers_delay_6_sb.progress = fingerOpenStateDelay6
+                    myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_title_tv).text = getString(R.string.delay_state_open)
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_1_sb).progress = fingerOpenStateDelay1
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_2_sb).progress = fingerOpenStateDelay2
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_3_sb).progress = fingerOpenStateDelay3
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_4_sb).progress = fingerOpenStateDelay4
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_5_sb).progress = fingerOpenStateDelay5
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_6_sb).progress = fingerOpenStateDelay6
                 } else {
-                    myDialog.dialog_fingers_delay_title_tv.text = getString(R.string.delay_state_close)
-                    myDialog.dialog_fingers_delay_1_sb.progress = fingerCloseStateDelay1
-                    myDialog.dialog_fingers_delay_2_sb.progress = fingerCloseStateDelay2
-                    myDialog.dialog_fingers_delay_3_sb.progress = fingerCloseStateDelay3
-                    myDialog.dialog_fingers_delay_4_sb.progress = fingerCloseStateDelay4
-                    myDialog.dialog_fingers_delay_5_sb.progress = fingerCloseStateDelay5
-                    myDialog.dialog_fingers_delay_6_sb.progress = fingerCloseStateDelay6
+                    myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_title_tv).text = getString(R.string.delay_state_close)
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_1_sb).progress = fingerCloseStateDelay1
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_2_sb).progress = fingerCloseStateDelay2
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_3_sb).progress = fingerCloseStateDelay3
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_4_sb).progress = fingerCloseStateDelay4
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_5_sb).progress = fingerCloseStateDelay5
+                    myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_6_sb).progress = fingerCloseStateDelay6
                 }
 
-                myDialog.dialog_fingers_delay_first_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_1_sb.progress*10)
-                myDialog.dialog_fingers_delay_second_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_2_sb.progress*10)
-                myDialog.dialog_fingers_delay_third_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_3_sb.progress*10)
-                myDialog.dialog_fingers_delay_fourth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_4_sb.progress*10)
-                myDialog.dialog_fingers_delay_fifth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_5_sb.progress*10)
-                myDialog.dialog_fingers_delay_sixth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_6_sb.progress*10)
 
-                myDialog.dialog_fingers_delay_1_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_first_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_1_sb).progress*10)
+                myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_second_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_2_sb).progress*10)
+                myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_third_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_3_sb).progress*10)
+                myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_fourth_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_4_sb).progress*10)
+                myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_fifth_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_5_sb).progress*10)
+                myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_sixth_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_6_sb).progress*10)
+
+                myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_1_sb).setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                        myDialog.dialog_fingers_delay_first_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_1_sb.progress*10)
+                        myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_first_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_1_sb).progress*10)
                     }
                     override fun onStartTrackingTouch(seekBar: SeekBar?) {}
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {
@@ -773,9 +781,9 @@ class GripperScreenWithEncodersActivity
                         }
                     }
                 })
-                myDialog.dialog_fingers_delay_2_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_2_sb).setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                        myDialog.dialog_fingers_delay_second_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_2_sb.progress*10)
+                        myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_second_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_2_sb).progress*10)
                     }
                     override fun onStartTrackingTouch(seekBar: SeekBar?) {}
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {
@@ -790,9 +798,9 @@ class GripperScreenWithEncodersActivity
                         }
                     }
                 })
-                myDialog.dialog_fingers_delay_3_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_3_sb).setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                        myDialog.dialog_fingers_delay_third_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_3_sb.progress*10)
+                        myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_third_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_3_sb).progress*10)
                     }
                     override fun onStartTrackingTouch(seekBar: SeekBar?) {}
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {
@@ -807,9 +815,9 @@ class GripperScreenWithEncodersActivity
                         }
                     }
                 })
-                myDialog.dialog_fingers_delay_4_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_4_sb).setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                        myDialog.dialog_fingers_delay_fourth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_4_sb.progress*10)
+                        myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_fourth_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_4_sb).progress*10)
                     }
                     override fun onStartTrackingTouch(seekBar: SeekBar?) {}
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {
@@ -824,9 +832,9 @@ class GripperScreenWithEncodersActivity
                         }
                     }
                 })
-                myDialog.dialog_fingers_delay_5_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_5_sb).setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                        myDialog.dialog_fingers_delay_fifth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_5_sb.progress*10)
+                        myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_fifth_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_5_sb).progress*10)
                     }
                     override fun onStartTrackingTouch(seekBar: SeekBar?) {}
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {
@@ -841,9 +849,9 @@ class GripperScreenWithEncodersActivity
                         }
                     }
                 })
-                myDialog.dialog_fingers_delay_6_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_6_sb).setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                        myDialog.dialog_fingers_delay_sixth_2_tv.text = getString(R.string.delay_finger_ms, myDialog.dialog_fingers_delay_6_sb.progress*10)
+                        myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_sixth_2_tv).text = getString(R.string.delay_finger_ms, myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_6_sb).progress*10)
                     }
                     override fun onStartTrackingTouch(seekBar: SeekBar?) {}
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {

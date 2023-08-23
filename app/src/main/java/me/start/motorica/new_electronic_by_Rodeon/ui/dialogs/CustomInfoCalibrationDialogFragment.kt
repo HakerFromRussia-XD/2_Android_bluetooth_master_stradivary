@@ -10,8 +10,9 @@ import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import kotlinx.android.synthetic.main.layout_calibrating_le.*
 import me.start.motorica.R
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
@@ -45,15 +46,15 @@ class CustomInfoCalibrationDialogFragment: DialogFragment() {
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         if (main?.locate?.contains("ru")!!) {
             if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-                tv_update_dialog_layout_title?.text = "Калибровка правой руки"
+                rootView?.findViewById<TextView>(R.id.tv_update_dialog_layout_title)?.text = "Калибровка правой руки"
             } else {
-                tv_update_dialog_layout_title?.text = "Калибровка левой руки"
+                rootView?.findViewById<TextView>(R.id.tv_update_dialog_layout_title)?.text = "Калибровка левой руки"
             }
         } else {
             if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-                tv_update_dialog_layout_title?.text = "Calibrating right hand"
+                rootView?.findViewById<TextView>(R.id.tv_update_dialog_layout_title)?.text = "Calibrating right hand"
             } else {
-                tv_update_dialog_layout_title?.text = "Calibrating left hand"
+                rootView?.findViewById<TextView>(R.id.tv_update_dialog_layout_title)?.text = "Calibrating left hand"
             }
         }
 

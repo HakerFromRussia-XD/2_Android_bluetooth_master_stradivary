@@ -7,7 +7,6 @@ import android.view.*
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.airbnb.lottie.LottieAnimationView
@@ -232,7 +231,7 @@ class Decorator(private val main: MainActivity,
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT)
         mb!!.setTypeDim(TypeDimMasks.CIRCLE)
-        mb!!.setCircleAccent(x + targetView.width/2, y + targetView.height/2, ((targetView.height/2).toInt()))
+        mb!!.setCircleAccent(x + targetView.width/2, y + targetView.height/2, ((targetView.height/2)))
 
 
         myConstraintLayout = HelpMassageConstraintLayout(
@@ -762,6 +761,7 @@ class Decorator(private val main: MainActivity,
             TypeGuides.SHOW_BLOCKING_GUIDE -> {showBlockingGuide(targetView, rootClass)}
             TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE -> {showMovementButtonsGuide(targetView, rootClass)}
             TypeGuides.SHOW_DEVICE_NAME_GUIDE -> {showDeviceNameGuide(targetView, rootClass)}
+            TypeGuides.END_GUIDE -> TODO()
         }
     }
 

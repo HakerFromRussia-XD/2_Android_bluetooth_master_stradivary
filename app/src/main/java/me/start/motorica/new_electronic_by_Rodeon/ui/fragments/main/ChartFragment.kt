@@ -3,7 +3,6 @@ package me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
@@ -26,16 +25,14 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.layout_chart.*
 import me.start.motorica.R
+import me.start.motorica.databinding.LayoutChartBinding
 import me.start.motorica.new_electronic_by_Rodeon.WDApplication
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import me.start.motorica.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
-import me.start.motorica.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
-import me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.DecoratorChange
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
@@ -50,11 +47,8 @@ import javax.inject.Inject
 class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValueSelectedListener {
 
   @Inject
-  lateinit var sqliteManager: SqliteManager
-  @Inject
   lateinit var preferenceManager: PreferenceManager
 
-  private var rootView: View? = null
   private var main: MainActivity? = null
   private var graphThread: Thread? = null
   private var graphThreadFlag = false
@@ -82,16 +76,16 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   }
   private lateinit var myAppContext: Context
   private var displayedNextTypeGuides: TypeGuides? = TypeGuides.SHOW_HELP_GUIDE
-//  private val number
 
+  private lateinit var binding: LayoutChartBinding
 
   @SuppressLint("CheckResult")
-  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-    val rootView = inflater.inflate(R.layout.layout_chart, container, false)
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+
+    binding = LayoutChartBinding.inflate(layoutInflater)
     WDApplication.component.inject(this)
-    this.rootView = rootView
     if (activity != null) { main = activity as MainActivity? }
-//    decorator = Decorator(this)
+
     myAppContext = activity?.applicationContext!!
     RxUpdateMainEvent.getInstance().uiChart
       .compose(main?.bindToLifecycle())
@@ -99,18 +93,18 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       .subscribe {
         updateAllParameters()
       }
-    return rootView
+    return binding.root
   }
   @Deprecated("Deprecated in Java")
   @SuppressLint("ClickableViewAccessibility", "SetTextI18n", "Recycle")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     if (main?.locate?.contains("ru")!!) {
-      opening_sensor_sensitivity_tv?.textSize = 8f
-      closing_sensor_sensitivity_tv?.textSize = 8f
-      swap_sensors_text_tv?.textSize = 11f
-      settings_blocking_tv?.textSize = 11f
-      calibration_btn?.textSize = 12f
+      binding.openingSensorSensitivityTv.textSize = 8f
+      binding.closingSensorSensitivityTv.textSize = 8f
+      binding.swapSensorsTextTv.textSize = 11f
+      binding.settingsBlockingTv.textSize = 11f
+      binding.calibrationBtn.textSize = 12f
     }
     initializedSensorGraph()
     initializedUI()
@@ -121,13 +115,13 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     main?.setSwapOpenCloseButton(preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))
     scale = resources.displayMetrics.density
 
-    name_tv.text = main?.mDeviceName
-    name_tv.setOnClickListener {
+    binding.nameTv.text = main?.mDeviceName
+    binding.nameTv.setOnClickListener {
 //      main?.disconnect()
       main?.showDisconnectDialog()
     }
 
-    driver_tv.setOnLongClickListener {
+    binding.driverTv.setOnLongClickListener {
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
         Handler().postDelayed({
@@ -143,7 +137,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       false
     }
-    bms_tv.setOnLongClickListener {
+    binding.bmsTv.setOnLongClickListener {
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
         Handler().postDelayed({
@@ -159,7 +153,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       false
     }
-    sensor_tv.setOnLongClickListener {
+    binding.sensorTv.setOnLongClickListener {
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
         Handler().postDelayed({
@@ -175,7 +169,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       false
     }
-    sync_tv.setOnLongClickListener {
+    binding.syncTv.setOnLongClickListener {
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
         Handler().postDelayed({
@@ -191,12 +185,12 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       false
     }
-    sync_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+    binding.syncSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         if (main?.locate?.contains("ru")!!) {
-          sync_tv?.text = "снхро "+seekBar.progress.toString()+"%"
+          binding.syncTv.text = "снхро "+seekBar.progress.toString()+"%"
         } else {
-          sync_tv?.text = "sync "+seekBar.progress.toString()+"%"
+          binding.syncTv.text = "sync "+seekBar.progress.toString()+"%"
         }
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -205,13 +199,14 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     val eventYandexMetricaParametersOpenCH = "{\"Screen chart\":\"Change threshold open sensor\"}"
-    open_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+    binding.openCHSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH1 = $progress")
-        ObjectAnimator.ofFloat(limit_CH1, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
-        ObjectAnimator.ofFloat(open_border, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+        ObjectAnimator.ofFloat(binding.limitCH1, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+        ObjectAnimator.ofFloat(binding.openBorder, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
 
-        open_threshold_tv.text = progress.toString()
+        binding.openThresholdTv.text = progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -241,12 +236,12 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
     })
     val eventYandexMetricaParametersCloseCH = "{\"Screen chart\":\"Change threshold close sensor\"}"
-    close_CH_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+    binding.closeCHSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH2 = $progress")
-        ObjectAnimator.ofFloat(limit_CH2, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()
-        ObjectAnimator.ofFloat(close_border, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
-        close_threshold_tv.text = progress.toString()
+        ObjectAnimator.ofFloat(binding.limitCH2, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()
+        ObjectAnimator.ofFloat(binding.closeBorder, "y", 320 * scale - 5f - (progress * scale * 1.04f)).setDuration(200).start()//  10f -> 60f
+        binding.closeThresholdTv.text = progress.toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -276,7 +271,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
 
-    correlator_noise_threshold_1_tv.setOnClickListener {
+    binding.correlatorNoiseThreshold1Tv.setOnClickListener {
       if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
         main!!.openValueChangeDialog(
           PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM,
@@ -287,7 +282,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         main?.showToast(resources.getString(R.string.settings_blocking_massage))
       }
     }
-    correlator_noise_threshold_2_tv.setOnClickListener {
+    binding.correlatorNoiseThreshold2Tv.setOnClickListener {
       if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
         main!!.openValueChangeDialog(
           PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM,
@@ -299,9 +294,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
     }
     val eventYandexMetricaParametersNoiseThresholdOpen = "{\"Screen chart\":\"Change noise threshold open sensor\"}"
-    correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+    binding.correlatorNoiseThreshold1Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        correlator_noise_threshold_1_tv.text = progress.toString()
+        binding.correlatorNoiseThreshold1Tv.text = progress.toString()
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -321,9 +316,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
     })
     val eventYandexMetricaParametersNoiseThresholdClose = "{\"Screen chart\":\"Change noise threshold close sensor\"}"
-    correlator_noise_threshold_2_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+    binding.correlatorNoiseThreshold2Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        correlator_noise_threshold_2_tv.text = seekBar.progress.toString()
+        binding.correlatorNoiseThreshold2Tv.text = seekBar.progress.toString()
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -343,10 +338,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     val eventYandexMetricaParametersSwapSensors = "{\"Screen chart\":\"Tup swap sensors switch\"}"
-    swap_sensors_sw.setOnClickListener {
+    binding.swapSensorsSw.setOnClickListener {
       if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
-        if (swap_sensors_sw.isChecked) {
-          swap_sensors_tv.text = 1.toString()
+        if (binding.swapSensorsSw.isChecked) {
+          binding.swapSensorsTv.text = 1.toString()
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "chart activity"
             main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, 50)
@@ -360,7 +355,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
 //          main?.setReverseNum = 1
         } else {
-          swap_sensors_tv.text = 0.toString()
+          binding.swapSensorsTv.text = 0.toString()
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "chart activity"
             main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, 50)
@@ -384,12 +379,12 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     val eventYandexMetricaParametersThresholdsBlocking = "{\"Screen chart\":\"Tup settings blocking switch\"}"
-    thresholds_blocking_sw.setOnClickListener{
-      if (thresholds_blocking_sw.isChecked) {
-        thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
+    binding.thresholdsBlockingSw.setOnClickListener{
+      if (binding.thresholdsBlockingSw.isChecked) {
+        binding.thresholdsBlockingTv.text = Html.fromHtml(getString(R.string.on))
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
       } else {
-        thresholds_blocking_tv.text = resources.getString(R.string.off)
+        binding.thresholdsBlockingTv.text = resources.getString(R.string.off)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersThresholdsBlocking)
@@ -397,7 +392,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     val eventYandexMetricaParametersCalibration = "{\"Screen chart\":\"Tup calibration button\"}"
-    calibration_btn?.setOnClickListener {
+    binding.calibrationBtn.setOnClickListener {
       System.err.println("запись глобальной калибровки тык")
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
         if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
@@ -421,7 +416,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibration)
     }
-    game_btn?.setOnClickListener {
+    binding.gameBtn.setOnClickListener {
       System.err.println("вызов игры тык")
 //      val i = Intent(this, UnityPlayerActivity::class.java)
 //      startActivity(i)
@@ -430,7 +425,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
     val eventYandexMetricaParametersClose = "{\"Screen chart\":\"Tup close button\"}"
     val eventYandexMetricaParametersOpen = "{\"Screen chart\":\"Tup open button\"}"
-    close_btn.setOnTouchListener { _, event ->
+    binding.closeBtn.setOnTouchListener { _, event ->
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersClose)
@@ -488,7 +483,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       false
     }
-    open_btn.setOnTouchListener { _, event ->
+    binding.openBtn.setOnTouchListener { _, event ->
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpen)
@@ -547,12 +542,12 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       false
     }
 
-    help_btn.setOnClickListener {
+    binding.helpBtn.setOnClickListener {
       graphThreadFlag = false
       navigator().showWhiteStatusBar(true)
       navigator().showHelpScreen(this)
     }
-    save_profile_btn.setOnClickListener {
+    binding.saveProfileBtn.setOnClickListener {
       main!!.showToast("save profile btn tup")
     }
 
@@ -560,14 +555,14 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     if (mSettings!!.getInt(PreferenceKeys.SHOW_HELP_ACCENT, 4) == 1) {} else {
       main!!.saveInt(PreferenceKeys.SHOW_HELP_ACCENT, 1)
       Handler().postDelayed({
-        main!!.setDecorator(TypeGuides.SHOW_HELP_GUIDE, help_btn, this)
+        main!!.setDecorator(TypeGuides.SHOW_HELP_GUIDE, binding.helpBtn, this)
       }, 500)
     }
   }
 
   override fun setStartDecorator() {
     for(i in 1..navigator().getBackStackEntryCount()){ navigator().goingBack() }
-    main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, version_help_v, this)
+    main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
     displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
   }
   override fun setNextDecorator() {
@@ -576,52 +571,52 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       TypeGuides.SHOW_HELP_GUIDE -> { main!!.hideDecorator() }
       TypeGuides.SHOW_VERSION_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, version_help_v, this)
+        main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
         displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
       }
       TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE, open_sensors_sensitivity_rl, this)
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE, binding.openSensorsSensitivityRl, this)
         displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE
       }
       TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE, correlator_noise_threshold_1_tv, this)
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE, binding.correlatorNoiseThreshold1Tv, this)
         displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE
       }
       TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE, open_threshold_help_v, this)
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE, binding.openThresholdHelpV, this)
         displayedNextTypeGuides = TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE
       }
       TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE, open_CH_v, this)
+        main!!.setDecorator(TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE, binding.openCHV, this)
         displayedNextTypeGuides = TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE
       }
       TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE, close_CH_v, this)
+        main!!.setDecorator(TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE, binding.closeCHV, this)
         displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SWAP_GUIDE
       }
       TypeGuides.SHOW_SENSORS_SWAP_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SWAP_GUIDE, swap_sensors_rl, this)
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SWAP_GUIDE, binding.swapSensorsRl, this)
         displayedNextTypeGuides = TypeGuides.SHOW_BLOCKING_GUIDE
       }
       TypeGuides.SHOW_BLOCKING_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_BLOCKING_GUIDE, thresholds_blocking_rl, this)
+        main!!.setDecorator(TypeGuides.SHOW_BLOCKING_GUIDE, binding.thresholdsBlockingRl, this)
         displayedNextTypeGuides = TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE
       }
       TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, movement_buttons_rl, this)
+        main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, binding.movementButtonsRl, this)
         displayedNextTypeGuides = TypeGuides.SHOW_DEVICE_NAME_GUIDE
       }
       TypeGuides.SHOW_DEVICE_NAME_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, name_tv, this)
+        main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, binding.nameTv, this)
         displayedNextTypeGuides = TypeGuides.END_GUIDE
       }
       TypeGuides.END_GUIDE -> {
@@ -641,11 +636,11 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
   @SuppressLint("SetTextI18n")
   private fun initializedUI() {
-    thresholds_blocking_sw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) thresholds_blocking_tv.text = Html.fromHtml(getString(R.string.on))
+    binding.thresholdsBlockingSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = Html.fromHtml(getString(R.string.on))
     main?.offSensorsUIBeforeConnection()
     if (main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false) {
-      chart_calibration_rl.visibility = View.GONE
+      binding.chartCalibrationRl.visibility = View.GONE
     }
   }
   override fun onResume() {
@@ -708,7 +703,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     return set3
   }
   private fun addEntry(sens1: Int, sens2: Int) {
-    val data: LineData = chart_mainchart?.data!!
+    val data: LineData = binding.chartMainchart.data!!
     var set = data.getDataSetByIndex(0)
     var set2 = data.getDataSetByIndex(1)
     val set3: ILineDataSet
@@ -740,38 +735,38 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       data.addEntry(Entry(count.toFloat(), sens2.toFloat()), 1)
       data.notifyDataChanged()
 
-      chart_mainchart.notifyDataSetChanged()
-      chart_mainchart.setVisibleXRangeMaximum(200f)
-      chart_mainchart.moveViewToX(set.entryCount - 200.toFloat())
+      binding.chartMainchart.notifyDataSetChanged()
+      binding.chartMainchart.setVisibleXRangeMaximum(200f)
+      binding.chartMainchart.moveViewToX(set.entryCount - 200.toFloat())
     }
     count += 1
   }
   private fun initializedSensorGraph() {
-    chart_mainchart.contentDescription
-    chart_mainchart.setTouchEnabled(false)
-    chart_mainchart.isDragEnabled = false
-    chart_mainchart.isDragDecelerationEnabled = false
-    chart_mainchart.setScaleEnabled(false)
-    chart_mainchart.setDrawGridBackground(false)
-    chart_mainchart.setPinchZoom(false)
-    chart_mainchart.setBackgroundColor(Color.TRANSPARENT)
-    chart_mainchart.getHighlightByTouchPoint(1f, 1f)
+    binding.chartMainchart.contentDescription
+    binding.chartMainchart.setTouchEnabled(false)
+    binding.chartMainchart.isDragEnabled = false
+    binding.chartMainchart.isDragDecelerationEnabled = false
+    binding.chartMainchart.setScaleEnabled(false)
+    binding.chartMainchart.setDrawGridBackground(false)
+    binding.chartMainchart.setPinchZoom(false)
+    binding.chartMainchart.setBackgroundColor(Color.TRANSPARENT)
+    binding.chartMainchart.getHighlightByTouchPoint(1f, 1f)
     val data = LineData()
     val data2 = LineData()
-    chart_mainchart.data = data
-    chart_mainchart.data = data2
-    chart_mainchart.legend.isEnabled = false
-    chart_mainchart.description.textColor = Color.TRANSPARENT
-    chart_mainchart.animateY(2000)
+    binding.chartMainchart.data = data
+    binding.chartMainchart.data = data2
+    binding.chartMainchart.legend.isEnabled = false
+    binding.chartMainchart.description.textColor = Color.TRANSPARENT
+    binding.chartMainchart.animateY(2000)
 
-    val x: XAxis = chart_mainchart.xAxis
+    val x: XAxis = binding.chartMainchart.xAxis
     x.textColor = Color.TRANSPARENT
     x.setDrawGridLines(false)
     x.axisMaximum = 4000000f
     x.setAvoidFirstLastClipping(true)
     x.position = XAxis.XAxisPosition.BOTTOM
 
-    val y: YAxis = chart_mainchart.axisLeft
+    val y: YAxis = binding.chartMainchart.axisLeft
     y.textColor = Color.WHITE
     y.mAxisMaximum = 255f
     y.mAxisMinimum = 255f
@@ -781,9 +776,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     y.setDrawAxisLine(false)
     y.setStartAtZero(true)
     y.gridColor = Color.WHITE
-    chart_mainchart.axisRight.gridColor = Color.TRANSPARENT
-    chart_mainchart.axisRight.axisLineColor = Color.TRANSPARENT
-    chart_mainchart.axisRight.textColor = Color.TRANSPARENT
+    binding.chartMainchart.axisRight.gridColor = Color.TRANSPARENT
+    binding.chartMainchart.axisRight.axisLineColor = Color.TRANSPARENT
+    binding.chartMainchart.axisRight.textColor = Color.TRANSPARENT
   }
 
   private fun startGraphEnteringDataThread() {
@@ -833,51 +828,48 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   @SuppressLint("SetTextI18n", "Recycle")
   private fun updateAllParameters() {
     activity?.runOnUiThread  {
-      open_CH_sb.progress =
+      binding.openCHSb.progress =
         mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
-      close_CH_sb.progress =
+      binding.closeCHSb.progress =
         mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 30)
-      swap_sensors_sw?.isChecked =
+      binding.swapSensorsSw.isChecked =
         mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
       if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) {
-        swap_sensors_tv?.text = 1.toString()
+        binding.swapSensorsTv.text = 1.toString()
       } else {
-        swap_sensors_tv?.text = 0.toString()
+        binding.swapSensorsTv.text = 0.toString()
       }
       if (!(main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) ||
                 main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) ||
                 main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A))
       ) {
-        driver_tv?.text = resources.getString(R.string.driver) + (mSettings!!.getInt(
+        binding.driverTv.text = resources.getString(R.string.driver) + (mSettings!!.getInt(
           main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
           1
         )).toFloat() / 100 + "v"
       }
-      bms_tv?.text = resources.getString(R.string.bms) + (mSettings!!.getInt(
+      binding.bmsTv.text = resources.getString(R.string.bms) + (mSettings!!.getInt(
         main?.mDeviceAddress + PreferenceKeys.BMS_NUM,
         1
       )).toFloat() / 100 + "v"
-      sensor_tv?.text = resources.getString(R.string.sens) + (mSettings!!.getInt(
+      binding.sensorTv.text = resources.getString(R.string.sens) + (mSettings!!.getInt(
         main?.mDeviceAddress + PreferenceKeys.SENS_NUM,
         1
       )).toFloat() / 100 + "v"
       ObjectAnimator.ofFloat(
-        limit_CH1, "y", 320 * scale - 5f - ((open_CH_sb?.progress?.times(scale) ?: 22.0f) * 1.04f)
+        binding.limitCH1, "y", 320 * scale - 5f - (binding.openCHSb.progress.times(scale) * 1.04f)
       ).setDuration(200).start()
       ObjectAnimator.ofFloat(
-        limit_CH2, "y", 320 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
-          ?: 22.0f) * 1.04f)
+        binding.limitCH2, "y", 320 * scale - 5f - (binding.closeCHSb.progress.times(scale) * 1.04f)
       ).setDuration(200).start()
       ObjectAnimator.ofFloat(
-        open_border, "y", 320 * scale - 5f - ((open_CH_sb?.progress?.times(scale)
-          ?: 22.0f) * 1.04f)
+        binding.openBorder, "y", 320 * scale - 5f - (binding.openCHSb.progress.times(scale) * 1.04f)
       ).setDuration(200).start()
       ObjectAnimator.ofFloat(
-        close_border, "y", 320 * scale - 5f - ((close_CH_sb?.progress?.times(scale)
-          ?: 22.0f) * 1.04f)
+        binding.closeBorder, "y", 320 * scale - 5f - (binding.closeCHSb.progress.times(scale) * 1.04f)
       ).setDuration(200).start()
       ObjectAnimator.ofInt(
-        correlator_noise_threshold_1_sb,
+        binding.correlatorNoiseThreshold1Sb,
         "progress",
         255 - (mSettings!!.getInt(
           main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM,
@@ -885,7 +877,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         ))
       ).setDuration(200).start()
       ObjectAnimator.ofInt(
-        correlator_noise_threshold_2_sb,
+        binding.correlatorNoiseThreshold2Sb,
         "progress",
         255 - (mSettings!!.getInt(
           main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM,
@@ -893,7 +885,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         ))
       ).setDuration(200).start()
       if (oldStateSync != main?.percentSynchronize!!) {
-        ObjectAnimator.ofInt(sync_sb, "progress", oldStateSync, main?.percentSynchronize!!)
+        ObjectAnimator.ofInt(binding.syncSb, "progress", oldStateSync, main?.percentSynchronize!!)
           .setDuration(1000).start()
         oldStateSync = main?.percentSynchronize!!
       }
@@ -904,7 +896,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       main?.stage = "chart activity"
       main?.runSendCommand(byteArrayOf(
         (255 - value).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
-        64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+        64, (255 - binding.correlatorNoiseThreshold2Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
         44, 52, 64, 72, 0x40, 5, 64
       ), SENS_OPTIONS_NEW_VM, 50)
     } else {
@@ -912,7 +904,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         main?.runWriteData(
           byteArrayOf(
             (255 - value).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
-            64, (255 - correlator_noise_threshold_2_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+            64, (255 - binding.correlatorNoiseThreshold2Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
             44, 52, 64, 72, 0x40, 5, 64
           ), SENS_OPTIONS_NEW, WRITE
         )
@@ -930,7 +922,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
       main?.stage = "chart activity"
       main?.runSendCommand(byteArrayOf(
-        (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+        (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
         44, 52, 64, 72, 0x40, 5, 64, (255 - value).toByte(), 6, 1, 0x10, 36,
         18, 44, 52, 64, 72, 0x40, 5, 64
       ), SENS_OPTIONS_NEW_VM, 50)
@@ -938,7 +930,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         main?.runWriteData(
           byteArrayOf(
-            (255 - correlator_noise_threshold_1_sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+            (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
             44, 52, 64, 72, 0x40, 5, 64, (255 - value).toByte(), 6, 1, 0x10, 36,
             18, 44, 52, 64, 72, 0x40, 5, 64
           ), SENS_OPTIONS_NEW, WRITE

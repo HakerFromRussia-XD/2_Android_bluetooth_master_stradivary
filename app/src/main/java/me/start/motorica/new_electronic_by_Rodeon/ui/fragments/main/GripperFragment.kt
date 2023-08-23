@@ -26,6 +26,12 @@ class GripperFragment: Fragment(), OnChartValueSelectedListener {
         return rootView
     }
 
+
+    @Deprecated("Deprecated in Java", ReplaceWith(
+        "super.onActivityCreated(savedInstanceState)",
+        "androidx.fragment.app.Fragment"
+    )
+    )
     @SuppressLint("ClickableViewAccessibility")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)

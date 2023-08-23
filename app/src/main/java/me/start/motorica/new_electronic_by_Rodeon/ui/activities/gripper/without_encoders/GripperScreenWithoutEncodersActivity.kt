@@ -15,11 +15,8 @@ import android.widget.LinearLayout.LayoutParams
 import android.widget.TextView
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.*
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoders.*
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoders.gesture_state_rl
-import kotlinx.android.synthetic.main.layout_gripper_settings_le_without_encoders.gripper_state_le
 import me.start.motorica.R
+import me.start.motorica.databinding.LayoutGripperSettingsLeWithoutEncodersBinding
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
 import me.start.motorica.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import me.start.motorica.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
@@ -69,10 +66,13 @@ class GripperScreenWithoutEncodersActivity
     private var gestureNameList =  ArrayList<String>()
     private var editMode: Boolean = false
 
+    private lateinit var binding: LayoutGripperSettingsLeWithoutEncodersBinding
+
     @SuppressLint("CheckResult", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.layout_gripper_settings_le_without_encoders)
+        binding = LayoutGripperSettingsLeWithoutEncodersBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         initBaseView(this)
         window.navigationBarColor = resources.getColor(R.color.color_primary_dark)
         window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
@@ -87,19 +87,19 @@ class GripperScreenWithoutEncodersActivity
 
         loadOldState()
         myLoadGesturesList()
-        gesture_name_w_tv.text = gestureNameList[gestureNumber - 1]
+        binding.gestureNameWTv.text = gestureNameList[gestureNumber - 1]
 
         RxView.clicks(findViewById(R.id.edit_gesture_name_w_btn))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     val imm = this.getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
                     if (editMode) {
-                        edit_gesture_name_w_btn.setImageResource(R.drawable.ic_edit_24)
-                        gesture_name_w_tv.visibility = View.VISIBLE
+                        binding.editGestureNameWBtn.setImageResource(R.drawable.ic_edit_24)
+                        binding.gestureNameWTv.visibility = View.VISIBLE
                         imm.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
-                        gesture_name_w_tv.text = gesture_name_w_et.text
-                        gesture_name_w_et.visibility = View.GONE
-                        gestureNameList[(gestureNumber - 1)] = gesture_name_w_tv.text.toString()
+                        binding.gestureNameWTv.text = binding.gestureNameWEt.text
+                        binding.gestureNameWEt.visibility = View.GONE
+                        gestureNameList[(gestureNumber - 1)] = binding.gestureNameWTv.text.toString()
                         val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
                         System.err.println("2 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
@@ -107,14 +107,14 @@ class GripperScreenWithoutEncodersActivity
                         }
                         editMode = false
                     } else {
-                        edit_gesture_name_w_btn.setImageResource(R.drawable.ic_ok_24)
-                        gesture_name_w_et.visibility = View.VISIBLE
-                        gesture_name_w_et.setText(gesture_name_w_tv.text, TextView.BufferType.EDITABLE)
-                        gesture_name_w_tv.visibility = View.GONE
-                        gesture_name_w_et.requestFocus()
-                        imm.hideSoftInputFromWindow(gesture_name_w_et.windowToken, 0)
-                        imm.showSoftInput(gesture_name_w_et, 0)
-                        gesture_name_w_et.isFocusableInTouchMode = true
+                        binding.editGestureNameWBtn.setImageResource(R.drawable.ic_ok_24)
+                        binding.gestureNameWEt.visibility = View.VISIBLE
+                        binding.gestureNameWEt.setText(binding.gestureNameWTv.text, TextView.BufferType.EDITABLE)
+                        binding.gestureNameWTv.visibility = View.GONE
+                        binding.gestureNameWEt.requestFocus()
+                        imm.hideSoftInputFromWindow(binding.gestureNameWEt.windowToken, 0)
+                        imm.showSoftInput(binding.gestureNameWEt, 0)
+                        binding.gestureNameWEt.isFocusableInTouchMode = true
                         editMode = true
                     }
                 }
@@ -155,7 +155,7 @@ class GripperScreenWithoutEncodersActivity
                 .subscribe {
                     if (gestureState == 0 ) {
                         gestureState = 1
-                        gripper_state_le.text = getString(R.string.gesture_state_open)
+                        binding.gripperStateLe.text = getString(R.string.gesture_state_open)
                         if (openStage shr 0 and 0b00000001 != fingerState1) { animateFinger1 () }
                         if (openStage shr 1 and 0b00000001 != fingerState2) { animateFinger2 () }
                         if (openStage shr 2 and 0b00000001 != fingerState3) { animateFinger3 () }
@@ -165,7 +165,7 @@ class GripperScreenWithoutEncodersActivity
                     } else
                     {
                         gestureState = 0
-                        gripper_state_le.text = getString(R.string.gesture_state_close)
+                        binding.gripperStateLe.text = getString(R.string.gesture_state_close)
                         if (closeStage shr 0 and 0b00000001 != fingerState1) { animateFinger1 () }
                         if (closeStage shr 1 and 0b00000001 != fingerState2) { animateFinger2 () }
                         if (closeStage shr 2 and 0b00000001 != fingerState3) { animateFinger3 () }
@@ -192,7 +192,9 @@ class GripperScreenWithoutEncodersActivity
                     val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
                     System.err.println("3 LAST_CONNECTION_MAC: $macKey")
                     if (editMode) {
-                        gestureNameList[(gestureNumber - 1)] = gesture_name_et.text.toString()
+                        binding.gestureNameWEt
+                        //переезжаемнаbinding
+//                        gestureNameList[(gestureNumber - 1)] = gesture_name_et.text.toString()
                         for (i in 0 until gestureNameList.size) {
                             mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
                         }
@@ -206,17 +208,17 @@ class GripperScreenWithoutEncodersActivity
         val supportsEs2 = configurationInfo.reqGlEsVersion >= 0x00020000
 
         if (supportsEs2) {
-            gl_surface_view_le_without_encoders.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
-            gl_surface_view_le_without_encoders.holder.setFormat(PixelFormat.TRANSLUCENT)
-            gl_surface_view_le_without_encoders.setBackgroundResource(R.drawable.gradient_background)
-            gl_surface_view_le_without_encoders.setZOrderOnTop(true)
+            binding.glSurfaceViewLeWithoutEncoders.setEGLConfigChooser(8, 8, 8, 8, 16, 0)
+            binding.glSurfaceViewLeWithoutEncoders.holder.setFormat(PixelFormat.TRANSLUCENT)
+            binding.glSurfaceViewLeWithoutEncoders.setBackgroundResource(R.drawable.gradient_background)
+            binding.glSurfaceViewLeWithoutEncoders.setZOrderOnTop(true)
 
-            gl_surface_view_le_without_encoders.setEGLContextClientVersion(2)
+            binding.glSurfaceViewLeWithoutEncoders.setEGLContextClientVersion(2)
 
             val displayMetrics = DisplayMetrics()
             this.windowManager.defaultDisplay.getMetrics(displayMetrics)
-            withoutEncodersRenderer = GripperSettingsWithoutEncodersRenderer(this, gl_surface_view_le_without_encoders)
-            gl_surface_view_le_without_encoders.setRenderer(withoutEncodersRenderer, displayMetrics.density)
+            withoutEncodersRenderer = GripperSettingsWithoutEncodersRenderer(this, binding.glSurfaceViewLeWithoutEncoders)
+            binding.glSurfaceViewLeWithoutEncoders.setRenderer(withoutEncodersRenderer, displayMetrics.density)
         }
     }
 
@@ -513,7 +515,7 @@ class GripperScreenWithoutEncodersActivity
                     score6 = anim6.animatedValue as Int
                 }
                 anim6.start()
-                gripper_position_finger_le.text = getString(R.string.rotation_state_open)
+                binding.gripperPositionFingerLe.text = getString(R.string.rotation_state_open)
                 fingerState6 = 1
                 if (gestureState == 1) {
                     openStage = openStage or 0b00100000
@@ -533,7 +535,7 @@ class GripperScreenWithoutEncodersActivity
                     score6 = anim6.animatedValue as Int
                 }
                 anim6.start()
-                gripper_position_finger_le.text = getString(R.string.rotation_state_close)
+                binding.gripperPositionFingerLe.text = getString(R.string.rotation_state_close)
                 fingerState6 = 0
                 if (gestureState == 1) {
                     openStage = openStage and 0b11011111
@@ -546,29 +548,28 @@ class GripperScreenWithoutEncodersActivity
         }
     }
     private fun openRotation() {
-        if ((gesture_state_rl.layoutParams as LayoutParams).weight == 2.0f) {
-            val lParams = gesture_state_rl.layoutParams as LayoutParams
+        if ((binding.gestureStateRl.layoutParams as LayoutParams).weight == 2.0f) {
+            val lParams = binding.gestureStateRl.layoutParams as LayoutParams
             val anim7 = ValueAnimator.ofFloat(2.0f, 1.0f)
             anim7.duration = (250).toLong()
             anim7.addUpdateListener {
                 lParams.weight = anim7.animatedValue as Float
-                gesture_state_rl.layoutParams = lParams
+                binding.gestureStateRl.layoutParams = lParams
             }
             anim7.start()
         }
     }
     private fun closeRotation() {
-        if ((gesture_state_rl.layoutParams as LayoutParams).weight == 1.0f) {
-            val lParams = gesture_state_rl.layoutParams as LayoutParams
+        if ((binding.gestureStateRl.layoutParams as LayoutParams).weight == 1.0f) {
+            val lParams = binding.gestureStateRl.layoutParams as LayoutParams
             val anim8 = ValueAnimator.ofFloat(1.0f, 2.0f)
             anim8.duration = (250).toLong()
             anim8.addUpdateListener {
                 lParams.weight = anim8.animatedValue as Float
-                gesture_state_rl.layoutParams = lParams
+                binding.gestureStateRl.layoutParams = lParams
             }
             anim8.start()
         }
-
     }
     private fun compileBLEMassage () {
         if (gestureState == 1) {

@@ -12,6 +12,22 @@
         <item>одновременное</item>
         <item>в упоре</item>
     </string-array>
+    <string-array name="gesture_loop">
+        <item>gesture №1</item>
+        <item>gesture №2</item>
+        <item>gesture №3</item>
+        <item>gesture №4</item>
+        <item>gesture №5</item>
+        <item>gesture №6</item>
+        <item>gesture №7</item>
+        <item>gesture №8</item>
+        <item>gesture №9</item>
+        <item>gesture №10</item>
+        <item>gesture №11</item>
+        <item>gesture №12</item>
+        <item>gesture №13</item>
+        <item>gesture №14</item>
+    </string-array>
 
     <string-array name="switch_tabs_scale">
         <item>S</item>

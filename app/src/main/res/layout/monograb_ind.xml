@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".old_electronic_by_Misha.ui.chat.view.ChartActivity">
+    tools:context=".old_electronic_by_Misha.ui.chat.view.ChartActivity"
+    tools:viewBindingIgnore="true">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"

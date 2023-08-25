@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color.*
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +13,9 @@ import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.skydoves.powerspinner.IconSpinnerAdapter
+import com.skydoves.powerspinner.IconSpinnerItem
+import com.skydoves.powerspinner.OnSpinnerItemSelectedListener
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.start.motorica.R
 import me.start.motorica.R.drawable.*
@@ -31,33 +33,18 @@ import org.jetbrains.anko.textColor
 
 @Suppress("DEPRECATION")
 class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickListener {
-//    @Inject
-//    lateinit var preferenceManager: PreferenceManager
 
-//    private var rootView: View? = null
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
     private var gestureNameList =  ArrayList<String>()
     private var testThreadFlag = true
-    private var updatingUIThread: Thread? = null
 
     private lateinit var binding: LayoutGesturesBinding
 
-    @SuppressLint("CheckResult")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = LayoutGesturesBinding.inflate(layoutInflater)
-
-//        val rootView = inflater.inflate(R.layout.layout_gestures, container, false)
-//        WDApplication.component.inject(this)
-//        this.rootView = rootView
         if (activity != null) { main = activity as MainActivity? }
 
-        RxUpdateMainEvent.getInstance().uiGestures
-            .compose(main?.bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                selectActiveGesture(it)
-            }
         return binding.root
     }
     @Deprecated("Deprecated in Java")
@@ -67,13 +54,65 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         main?.offGesturesUIBeforeConnection()
-        Handler().postDelayed({
-            startUpdatingUIThread()
-        }, 500)
 
 
-//        carousel.transformer = FlatMerryGoRoundTransformer()
-//        carousel.adapter = MyDataAdapter()
+        binding.gestureLoop1Psv.apply {
+            setSpinnerAdapter(IconSpinnerAdapter(this))
+            setItems(
+                arrayListOf(
+                    IconSpinnerItem(text = "Item1", iconRes = hand_palm_1, gravity = 100),//iconRes = hand_palm_1,iconPadding= 1,
+                    IconSpinnerItem(text = "Item21", iconRes = hand_palm_2, gravity = 100),
+                    IconSpinnerItem(text = "Item321", iconRes = hand_palm_3, gravity = 100),
+                    IconSpinnerItem(text = "Item4321", iconRes = hand_palm_4, gravity = 100),
+                    IconSpinnerItem(text = "Item54321", iconRes = hand_palm_5, gravity = 100),
+                    IconSpinnerItem(text = "Item654321", iconRes = hand_palm_6, gravity = 100),
+                    IconSpinnerItem(text = "Item6654321", iconRes = hand_palm_7, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_8, gravity = 100),
+                    IconSpinnerItem(text = "Item687654321", iconRes = hand_palm_9, gravity = 100),
+                    IconSpinnerItem(text = "Item6987654321", iconRes = hand_palm_10, gravity = 100),
+                    IconSpinnerItem(text = "Item60987654321", iconRes = hand_palm_11, gravity = 100),
+                    IconSpinnerItem(text = "Item6-0987654321", iconRes = hand_palm_12, gravity = 100),
+                    IconSpinnerItem(text = "Item7=-0987654321", iconRes = hand_palm_13, gravity = 100),
+                    IconSpinnerItem(text = "Item8==-0987654321", iconRes = hand_palm_14, gravity = 100)))
+
+            showDivider = true
+            dividerSize = 2
+            selectItemByIndex(7)
+            lifecycleOwner = this@GestureFragment
+        }
+        binding.gestureLoop1Psv.setOnSpinnerItemSelectedListener(
+            OnSpinnerItemSelectedListener<IconSpinnerItem?> { oldIndex, _, newIndex, _ ->
+                System.err.println("1 Psv    $newIndex selected!") })
+
+        binding.gestureLoop2Psv.apply {
+            setSpinnerAdapter(IconSpinnerAdapter(this))
+            setItems(
+                arrayListOf(
+                    IconSpinnerItem(text = "Item1", iconRes = hand_palm_1, gravity = 100),//iconRes = hand_palm_1,iconPadding= 1,
+                    IconSpinnerItem(text = "Item21", iconRes = hand_palm_2, gravity = 100),
+                    IconSpinnerItem(text = "Item321", iconRes = hand_palm_3, gravity = 100),
+                    IconSpinnerItem(text = "Item4321", iconRes = hand_palm_4, gravity = 100),
+                    IconSpinnerItem(text = "Item54321", iconRes = hand_palm_5, gravity = 100),
+                    IconSpinnerItem(text = "Item654321", iconRes = hand_palm_6, gravity = 100),
+                    IconSpinnerItem(text = "Item6654321", iconRes = hand_palm_7, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_8, gravity = 100),
+                    IconSpinnerItem(text = "Item687654321", iconRes = hand_palm_9, gravity = 100),
+                    IconSpinnerItem(text = "Item6987654321", iconRes = hand_palm_10, gravity = 100),
+                    IconSpinnerItem(text = "Item60987654321", iconRes = hand_palm_11, gravity = 100),
+                    IconSpinnerItem(text = "Item6-0987654321", iconRes = hand_palm_12, gravity = 100),
+                    IconSpinnerItem(text = "Item7=-0987654321", iconRes = hand_palm_13, gravity = 100),
+                    IconSpinnerItem(text = "Item8==-0987654321", iconRes = hand_palm_14, gravity = 100)))
+
+            showDivider = true
+            dividerSize = 2
+            selectItemByIndex(9)
+            lifecycleOwner = this@GestureFragment
+        }
+        binding.gestureLoop2Psv.setOnSpinnerItemSelectedListener(
+            OnSpinnerItemSelectedListener<IconSpinnerItem?> { oldIndex, _, newIndex, _ ->
+                System.err.println("2 Psv    $newIndex selected!") })
+
+
 
         binding.gestureSettings1Btn.setOnClickListener(this)
         binding.gestureSettings2Btn.setOnClickListener(this)
@@ -131,13 +170,19 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 compileBLEMassage (7)
             }
         }
-
     }
+    @SuppressLint("CheckResult")
     override fun onResume() {
         super.onResume()
         gestureNameList.clear()
         loadNameGestures()
         testThreadFlag = true
+        RxUpdateMainEvent.getInstance().uiGestures
+            .compose(main?.bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                selectActiveGesture(it)
+            }
 
         //включение работы протеза от датчиков
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
@@ -307,22 +352,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             System.err.println("9 LAST_CONNECTION_MAC: "+PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
             gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, text).toString())
         }
-    }
-
-    private fun startUpdatingUIThread() {
-        updatingUIThread =  Thread {
-            while (testThreadFlag) {
-                main?.runOnUiThread {
-                    resetStateButtons()
-                    selectActiveGesture(mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1))
-//                    testThreadFlag = false //выключаем поток повторного запроса информации после её получения и обновления на экране
-                }
-                try {
-                    Thread.sleep(1000)
-                } catch (ignored: Exception) { }
-            }
-        }
-        updatingUIThread?.start()
     }
 }
 

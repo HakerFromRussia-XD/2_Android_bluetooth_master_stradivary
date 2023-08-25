@@ -145,60 +145,61 @@
                     android:layout_width="0dp"
                     android:layout_height="42dp"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="22dp"
+                    android:layout_marginTop="14dp"
                     android:layout_weight="1">
 
                     <ImageView
                         android:id="@+id/hand_palm_1_iv"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:layout_alignStart="@+id/gesture_loop_1_btn"
+                        android:layout_alignStart="@+id/gesture_loop_1_psv"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="8dp"
-                        android:background="@drawable/hand_palm_1"
                         android:backgroundTint="@android:color/white"
                         android:elevation="4dp"
+                        android:visibility="visible"
                         tools:ignore="ContentDescription,ImageContrastCheck" />
 
                     <com.skydoves.powerspinner.PowerSpinnerView
-                        android:id="@+id/gesture_loop_1_btn"
+                        android:id="@+id/gesture_loop_1_psv"
+                        style="@style/Text"
                         android:layout_width="match_parent"
                         android:layout_height="42dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginStart="0dp"
+                        android:layout_marginTop="0dp"
                         android:layout_marginEnd="0dp"
-                        android:background="@color/orange"
-                        android:hint="Question 1"
+                        android:layout_marginBottom="0dp"
+                        android:background="@drawable/custom_button_le"
+                        android:gravity="center"
+                        app:spinner_arrow_show="false"
+                        android:lines="1"
                         android:textColor="@color/white"
-                        android:textColorHint="@color/black"
-                        android:textSize="14.5sp"
-                        app:spinner_divider_color="@color/back_help_menu"
-                        app:spinner_divider_show="true"
-                        app:spinner_divider_size="0.4dp"
+                        android:textSize="12sp"
                         app:spinner_item_array="@array/gesture_loop"
-                        app:spinner_item_height="46dp"
                         app:spinner_popup_animation="dropdown"
-                        app:spinner_popup_background="@color/blue_accent"
-                        app:spinner_popup_elevation="14dp" />
-
-<!--                    <Button-->
-<!--                        android:id="@+id/gesture_loop_1_btn"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="42dp"-->
-<!--                        android:layout_alignParentEnd="true"-->
-<!--                        android:layout_marginEnd="0dp"-->
-<!--                        android:background="@drawable/custom_button_le"/>-->
+                        app:spinner_popup_background="@drawable/custom_divider_spinner_back"
+                        app:spinner_selected_item_background="@drawable/custom_divider_spinner_back"
+                        app:spinner_popup_top_padding="2dp"
+                        app:spinner_popup_bottom_padding="2dp"
+                        app:spinner_popup_start_padding="22dp"
+                        app:spinner_popup_end_padding="22dp"
+                        app:spinner_popup_max_height="500dp"
+                        app:spinner_popup_width="300dp" />
 
                     <TextView
+                        style="@style/Text"
                         android:layout_width="match_parent"
                         android:layout_height="42dp"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentBottom="true"
-                        android:lines="1"
-                        android:layout_marginStart="8dp"
+                        android:layout_marginStart="0dp"
                         android:layout_marginTop="0dp"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginEnd="28dp"
                         android:layout_marginBottom="0dp"
                         android:layout_toEndOf="@+id/hand_palm_1_iv"
                         android:autoSizeMaxTextSize="12sp"
@@ -206,22 +207,24 @@
                         android:autoSizeStepGranularity="1sp"
                         android:autoSizeTextType="uniform"
                         android:elevation="4dp"
+                        android:gravity="center_vertical"
+                        android:lines="1"
                         android:text="@string/gesture_1_btn"
                         android:textColor="@color/white"
-                        style="@style/Text"
-                        android:gravity="center_vertical"/>
+                        android:visibility="gone" />
                 </RelativeLayout>
 
                 <ImageView
-                    android:layout_width="24dp"
+                    android:layout_width="20dp"
                     android:layout_height="42dp"
                     android:layout_gravity="bottom"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
                     android:src="@drawable/gesture_loop" />
 
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="42dp"
-                    android:layout_marginStart="22dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1">
@@ -231,30 +234,50 @@
                         android:id="@+id/hand_palm_2_iv"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:layout_alignStart="@+id/gesture_loop_2_btn"
+                        android:layout_alignStart="@+id/gesture_loop_2_psv"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="8dp"
-                        android:background="@drawable/hand_palm_2"
                         android:backgroundTint="@android:color/white"
                         android:elevation="4dp"
                         tools:ignore="ContentDescription,ImageContrastCheck" />
 
-                    <Button
-                        android:id="@+id/gesture_loop_2_btn"
+                    <com.skydoves.powerspinner.PowerSpinnerView
+                        android:id="@+id/gesture_loop_2_psv"
+                        style="@style/Text"
                         android:layout_width="match_parent"
                         android:layout_height="42dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginStart="0dp"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginEnd="0dp"
+                        android:layout_marginBottom="0dp"
                         android:background="@drawable/custom_button_le"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"/>
+                        android:gravity="center"
+                        app:spinner_arrow_show="false"
+                        android:lines="1"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        app:spinner_item_array="@array/gesture_loop"
+                        app:spinner_popup_animation="dropdown"
+                        app:spinner_popup_background="@drawable/custom_divider_spinner_back"
+                        app:spinner_selected_item_background="@drawable/custom_divider_spinner_back"
+                        app:spinner_popup_top_padding="2dp"
+                        app:spinner_popup_bottom_padding="2dp"
+                        app:spinner_popup_start_padding="22dp"
+                        app:spinner_popup_end_padding="22dp"
+                        app:spinner_popup_max_height="500dp"
+                        app:spinner_popup_width="300dp" />
 
                     <TextView
+                        style="@style/Text"
                         android:layout_width="match_parent"
                         android:layout_height="42dp"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentBottom="true"
-                        android:lines="1"
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="0dp"
                         android:layout_marginEnd="8dp"
@@ -265,10 +288,11 @@
                         android:autoSizeStepGranularity="1sp"
                         android:autoSizeTextType="uniform"
                         android:elevation="4dp"
+                        android:gravity="center_vertical"
+                        android:lines="1"
                         android:text="@string/gesture_2_btn"
                         android:textColor="@color/white"
-                        style="@style/Text"
-                        android:gravity="center_vertical"/>
+                        android:visibility="gone"/>
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>

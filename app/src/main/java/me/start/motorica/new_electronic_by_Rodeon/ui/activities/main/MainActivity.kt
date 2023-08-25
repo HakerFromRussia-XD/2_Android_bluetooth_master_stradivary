@@ -1112,7 +1112,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         ) {
           val mSectionsPagerAdapter = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
           binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)//1
         } else {
           val mSectionsPagerAdapter =
             SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
@@ -1142,12 +1142,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         ) {
           val mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
           binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)//1
         } else {
           val mSectionsPagerAdapter = SectionsPagerAdapterMonograb(supportFragmentManager)
           binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
           //здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
         }
       }
     }

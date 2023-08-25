@@ -67,21 +67,12 @@ class AdvancedSettingsFragment : Fragment() {
   private var current6 = 0
 
   private lateinit var binding: LayoutAdvancedSettingsBinding
-
-  @SuppressLint("CheckResult")
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
     binding = LayoutAdvancedSettingsBinding.inflate(layoutInflater)
     WDApplication.component.inject(this)
     if (activity != null) { main = activity as MainActivity? }
     this.mContext = context
     scale = resources.displayMetrics.density
-
-    RxUpdateMainEvent.getInstance().uiAdvancedSettings
-      .compose(main?.bindToLifecycle())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe {
-        updateAllParameters()
-      }
     return binding.root
   }
 
@@ -91,9 +82,16 @@ class AdvancedSettingsFragment : Fragment() {
     updateAllParameters()
   }
 
+  @SuppressLint("CheckResult")
   override fun onResume() {
     super.onResume()
     main!!.setDebagScreenIsOpen(false)
+    RxUpdateMainEvent.getInstance().uiAdvancedSettings
+      .compose(main?.bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe {
+        updateAllParameters()
+      }
   }
 
 

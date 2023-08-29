@@ -136,13 +136,19 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="58dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="0dp"
                 android:orientation="horizontal"
                 android:weightSum="2"
                 tools:ignore="DisableBaselineAlignment,UselessParent">
 
                 <RelativeLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="42dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="14dp"
@@ -168,27 +174,25 @@
                         android:layout_alignParentStart="true"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_alignParentBottom="true"
                         android:layout_marginStart="0dp"
                         android:layout_marginTop="0dp"
                         android:layout_marginEnd="0dp"
-                        android:layout_marginBottom="0dp"
                         android:background="@drawable/custom_button_le"
                         android:gravity="center"
-                        app:spinner_arrow_show="false"
                         android:lines="1"
                         android:textColor="@color/white"
                         android:textSize="12sp"
+                        app:spinner_arrow_show="false"
                         app:spinner_item_array="@array/gesture_loop"
                         app:spinner_popup_animation="dropdown"
                         app:spinner_popup_background="@drawable/custom_divider_spinner_back"
-                        app:spinner_selected_item_background="@drawable/custom_divider_spinner_back"
-                        app:spinner_popup_top_padding="2dp"
                         app:spinner_popup_bottom_padding="2dp"
-                        app:spinner_popup_start_padding="22dp"
                         app:spinner_popup_end_padding="22dp"
                         app:spinner_popup_max_height="500dp"
-                        app:spinner_popup_width="300dp" />
+                        app:spinner_popup_start_padding="22dp"
+                        app:spinner_popup_top_padding="2dp"
+                        app:spinner_popup_width="300dp"
+                        app:spinner_selected_item_background="@drawable/custom_divider_spinner_back" />
 
                     <TextView
                         style="@style/Text"
@@ -223,7 +227,7 @@
                     android:src="@drawable/gesture_loop" />
 
                 <RelativeLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="42dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="8dp"
@@ -256,20 +260,20 @@
                         android:layout_marginBottom="0dp"
                         android:background="@drawable/custom_button_le"
                         android:gravity="center"
-                        app:spinner_arrow_show="false"
                         android:lines="1"
                         android:textColor="@color/white"
                         android:textSize="12sp"
+                        app:spinner_arrow_show="false"
                         app:spinner_item_array="@array/gesture_loop"
                         app:spinner_popup_animation="dropdown"
                         app:spinner_popup_background="@drawable/custom_divider_spinner_back"
-                        app:spinner_selected_item_background="@drawable/custom_divider_spinner_back"
-                        app:spinner_popup_top_padding="2dp"
                         app:spinner_popup_bottom_padding="2dp"
-                        app:spinner_popup_start_padding="22dp"
                         app:spinner_popup_end_padding="22dp"
                         app:spinner_popup_max_height="500dp"
-                        app:spinner_popup_width="300dp" />
+                        app:spinner_popup_start_padding="22dp"
+                        app:spinner_popup_top_padding="2dp"
+                        app:spinner_popup_width="300dp"
+                        app:spinner_selected_item_background="@drawable/custom_divider_spinner_back" />
 
                     <TextView
                         style="@style/Text"
@@ -292,7 +296,7 @@
                         android:lines="1"
                         android:text="@string/gesture_2_btn"
                         android:textColor="@color/white"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>

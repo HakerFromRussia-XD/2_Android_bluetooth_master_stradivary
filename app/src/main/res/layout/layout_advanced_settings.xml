@@ -1283,6 +1283,11 @@
                                 android:paddingTop="0dp"
                                 android:textColor="@color/white"
                                 android:textColorHint="@color/white"
+                                android:textColorHighlight="@color/white"
+                                android:shadowColor="@color/white"
+                                android:textColorLink="@color/white"
+                                android:outlineSpotShadowColor="@color/white"
+                                android:outlineAmbientShadowColor="@color/white"
                                 android:textSize="14sp"
                                 tools:ignore="Autofill,TextFields,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
                         </com.google.android.material.textfield.TextInputLayout>

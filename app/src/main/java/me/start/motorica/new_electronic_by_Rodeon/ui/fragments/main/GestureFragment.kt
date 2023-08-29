@@ -55,29 +55,30 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         main?.offGesturesUIBeforeConnection()
 
+        val startGesture = 6
 
         binding.gestureLoop1Psv.apply {
             setSpinnerAdapter(IconSpinnerAdapter(this))
             setItems(
                 arrayListOf(
-                    IconSpinnerItem(text = "Item1", iconRes = hand_palm_1, gravity = 100),//iconRes = hand_palm_1,iconPadding= 1,
-                    IconSpinnerItem(text = "Item21", iconRes = hand_palm_2, gravity = 100),
-                    IconSpinnerItem(text = "Item321", iconRes = hand_palm_3, gravity = 100),
-                    IconSpinnerItem(text = "Item4321", iconRes = hand_palm_4, gravity = 100),
-                    IconSpinnerItem(text = "Item54321", iconRes = hand_palm_5, gravity = 100),
-                    IconSpinnerItem(text = "Item654321", iconRes = hand_palm_6, gravity = 100),
-                    IconSpinnerItem(text = "Item6654321", iconRes = hand_palm_7, gravity = 100),
+                    IconSpinnerItem(text = "It1", iconRes = hand_palm_1, gravity = 100),//iconRes = hand_palm_1,iconPadding= 1,
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_2, gravity = 100),
+                    IconSpinnerItem(text = "It21", iconRes = hand_palm_3, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_4, gravity = 100),
+                    IconSpinnerItem(text = "It321", iconRes = hand_palm_5, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_6, gravity = 100),
+                    IconSpinnerItem(text = "I", iconRes = hand_palm_7, gravity = 100),
                     IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_8, gravity = 100),
-                    IconSpinnerItem(text = "Item687654321", iconRes = hand_palm_9, gravity = 100),
-                    IconSpinnerItem(text = "Item6987654321", iconRes = hand_palm_10, gravity = 100),
-                    IconSpinnerItem(text = "Item60987654321", iconRes = hand_palm_11, gravity = 100),
-                    IconSpinnerItem(text = "Item6-0987654321", iconRes = hand_palm_12, gravity = 100),
-                    IconSpinnerItem(text = "Item7=-0987654321", iconRes = hand_palm_13, gravity = 100),
-                    IconSpinnerItem(text = "Item8==-0987654321", iconRes = hand_palm_14, gravity = 100)))
+                    IconSpinnerItem(text = "It54321", iconRes = hand_palm_9, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_10, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_11, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_12, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_13, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_14, gravity = 100)))
 
             showDivider = true
             dividerSize = 2
-            selectItemByIndex(7)
+            selectItemByIndex(startGesture)
             lifecycleOwner = this@GestureFragment
         }
         binding.gestureLoop1Psv.setOnSpinnerItemSelectedListener(
@@ -88,24 +89,24 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             setSpinnerAdapter(IconSpinnerAdapter(this))
             setItems(
                 arrayListOf(
-                    IconSpinnerItem(text = "Item1", iconRes = hand_palm_1, gravity = 100),//iconRes = hand_palm_1,iconPadding= 1,
-                    IconSpinnerItem(text = "Item21", iconRes = hand_palm_2, gravity = 100),
-                    IconSpinnerItem(text = "Item321", iconRes = hand_palm_3, gravity = 100),
-                    IconSpinnerItem(text = "Item4321", iconRes = hand_palm_4, gravity = 100),
-                    IconSpinnerItem(text = "Item54321", iconRes = hand_palm_5, gravity = 100),
-                    IconSpinnerItem(text = "Item654321", iconRes = hand_palm_6, gravity = 100),
-                    IconSpinnerItem(text = "Item6654321", iconRes = hand_palm_7, gravity = 100),
+                    IconSpinnerItem(text = "It1", iconRes = hand_palm_1, gravity = 100),//iconRes = hand_palm_1,iconPadding= 1,
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_2, gravity = 100),
+                    IconSpinnerItem(text = "It21", iconRes = hand_palm_3, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_4, gravity = 100),
+                    IconSpinnerItem(text = "It321", iconRes = hand_palm_5, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_6, gravity = 100),
+                    IconSpinnerItem(text = "It4321", iconRes = hand_palm_7, gravity = 100),
                     IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_8, gravity = 100),
-                    IconSpinnerItem(text = "Item687654321", iconRes = hand_palm_9, gravity = 100),
-                    IconSpinnerItem(text = "Item6987654321", iconRes = hand_palm_10, gravity = 100),
-                    IconSpinnerItem(text = "Item60987654321", iconRes = hand_palm_11, gravity = 100),
-                    IconSpinnerItem(text = "Item6-0987654321", iconRes = hand_palm_12, gravity = 100),
-                    IconSpinnerItem(text = "Item7=-0987654321", iconRes = hand_palm_13, gravity = 100),
-                    IconSpinnerItem(text = "Item8==-0987654321", iconRes = hand_palm_14, gravity = 100)))
+                    IconSpinnerItem(text = "It54321", iconRes = hand_palm_9, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_10, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_11, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_12, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_13, gravity = 100),
+                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_14, gravity = 100)))
 
             showDivider = true
             dividerSize = 2
-            selectItemByIndex(9)
+            selectItemByIndex(startGesture+4)
             lifecycleOwner = this@GestureFragment
         }
         binding.gestureLoop2Psv.setOnSpinnerItemSelectedListener(

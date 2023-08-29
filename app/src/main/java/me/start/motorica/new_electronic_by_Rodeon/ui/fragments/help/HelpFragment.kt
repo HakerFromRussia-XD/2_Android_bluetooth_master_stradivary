@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -63,16 +64,16 @@ class HelpFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
 
 
     private fun initializeUI() {
-        rootView?.findViewById<Button>(R.id.title_click_block_btn)?.setOnClickListener {  }
+        rootView?.findViewById<View>(R.id.title_click_block_btn)?.setOnClickListener {  }
 
-        rootView?.findViewById<Button>(R.id.back_btn)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.back_btn)?.setOnClickListener {
             navigator().goingBack()
             reactivatedInterface.reactivatedChart()
         }
 
-        rootView?.findViewById<Button>(R.id.sensors_settings_btn)?.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
-        rootView?.findViewById<Button>(R.id.settings_gesture_btn)?.setOnClickListener { navigator().showGesturesHelpScreen(chartFragmentClass) }
-        rootView?.findViewById<Button>(R.id.advanced_settings_btn)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.sensors_settings_btn)?.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
+        rootView?.findViewById<View>(R.id.settings_gesture_btn)?.setOnClickListener { navigator().showGesturesHelpScreen(chartFragmentClass) }
+        rootView?.findViewById<View>(R.id.advanced_settings_btn)?.setOnClickListener {
             if (multigrib) { navigator().showHelpMultyAdvancedSettingsScreen(chartFragmentClass) }
             else { navigator().showHelpMonoAdvancedSettingsScreen(chartFragmentClass) }
         }
@@ -85,31 +86,31 @@ class HelpFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
         else {  rootView?.findViewById<RelativeLayout>(R.id.gesture_customization_rl)?.visibility =View.GONE }
 
 
-        rootView?.findViewById<Button>(R.id.how_prostheses_works_btn)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.how_prostheses_works_btn)?.setOnClickListener {
             if (multigrib) { navigator().showHowProsthesesWorksScreen() }
             else { navigator().showHowProsthesesWorksMonoScreen() }
         }
-        rootView?.findViewById<Button>(R.id.how_to_put_on_a_prostheses_socket_btn)?.setOnClickListener { navigator().showHowPutOnTheProsthesesSocketScreen() }
-        rootView?.findViewById<Button>(R.id.complectation_btn)?.setOnClickListener { navigator().showCompleteSetScreen() }
-        rootView?.findViewById<Button>(R.id.prostheses_charge_btn)?.setOnClickListener { navigator().showChargingTheProsthesesScreen() }
-        rootView?.findViewById<Button>(R.id.prostheses_care_btn)?.setOnClickListener { navigator().showProsthesesCareScreen() }
-        rootView?.findViewById<Button>(R.id.service_and_warranty_btn)?.setOnClickListener { navigator().showServiceAndWarrantyScreen() }
+        rootView?.findViewById<View>(R.id.how_to_put_on_a_prostheses_socket_btn)?.setOnClickListener { navigator().showHowPutOnTheProsthesesSocketScreen() }
+        rootView?.findViewById<View>(R.id.complectation_btn)?.setOnClickListener { navigator().showCompleteSetScreen() }
+        rootView?.findViewById<View>(R.id.prostheses_charge_btn)?.setOnClickListener { navigator().showChargingTheProsthesesScreen() }
+        rootView?.findViewById<View>(R.id.prostheses_care_btn)?.setOnClickListener { navigator().showProsthesesCareScreen() }
+        rootView?.findViewById<View>(R.id.service_and_warranty_btn)?.setOnClickListener { navigator().showServiceAndWarrantyScreen() }
 
-        rootView?.findViewById<Button>(R.id.contact_support_btn)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.contact_support_btn)?.setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:88007077197"))
             if (intent.resolveActivity( main!!.packageManager ) != null) {
                 startActivity(intent)
             }
         }
 
-        rootView?.findViewById<Button>(R.id.vk_btn)?.setOnClickListener {
+        rootView?.findViewById<ImageView>(R.id.vk_btn)?.setOnClickListener {
             val url = "https://vk.com/motorica"
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse(url)
             if (intent.resolveActivity( main!!.packageManager ) != null) {}
             startActivity(intent)
         }
-        rootView?.findViewById<Button>(R.id.telegramm_btn)?.setOnClickListener {
+        rootView?.findViewById<ImageView>(R.id.telegramm_btn)?.setOnClickListener {
             val url = "https://t.me/motoricans"
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse(url)

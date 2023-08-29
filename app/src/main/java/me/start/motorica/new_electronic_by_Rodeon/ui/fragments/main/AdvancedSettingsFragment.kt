@@ -103,7 +103,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.shutdownCurrentTextTv.textSize = 11f
     binding.swapButtonOpenCloseTv.textSize = 11f
     binding.singleChannelControlTextTv.textSize = 11f
-    binding.onOffSensorGestureSwitchingTv.textSize = 11f
+    binding.onOffSensorGestureSwitchingTextTv.textSize = 11f
     binding.modeTextTv.textSize = 11f
     binding.peakTimeTextTv.textSize = 11f
     binding.peakTimeVmTextTv.textSize = 11f
@@ -128,6 +128,10 @@ class AdvancedSettingsFragment : Fragment() {
     binding.scaleTv.textSize = 11f
     binding.onOffProsthesesBlockingTextTv.textSize = 11f
     binding.holdToLockTimeTextTv.textSize = 10f
+//    binding.telemetryNumberEt.currentHintTextColor = Color.WHITE
+    binding.telemetryNumberEt.highlightColor = Color.WHITE
+
+
 
     if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
       binding.leftRightSideSwapSw.isChecked = true
@@ -156,7 +160,7 @@ class AdvancedSettingsFragment : Fragment() {
         binding.calibrationStartButtonLl.layoutParams as LinearLayout.LayoutParams
       calibrationStartParams.weight = 1f
       val calibrationStatusParams: LinearLayout.LayoutParams =
-        binding.calibrationStartButtonLl.layoutParams as LinearLayout.LayoutParams
+        binding.calibrationStatusButtonLl.layoutParams as LinearLayout.LayoutParams
       calibrationStatusParams.weight = 1f
     } else {
       binding.timeDelayOfFingersRl.visibility = View.GONE

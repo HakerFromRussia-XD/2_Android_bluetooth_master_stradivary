@@ -634,11 +634,21 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     startGraphEnteringDataThread()
   }
 
+  private fun offSensorsUIBeforeConnection () {
+    binding.closeBtn.isEnabled = false
+    binding.openBtn.isEnabled = false
+    binding.calibrationBtn.isEnabled = false
+    binding.thresholdsBlockingSw.isEnabled = false
+    binding.correlatorNoiseThreshold1Sb.isEnabled = false
+    binding.correlatorNoiseThreshold2Sb.isEnabled = false
+    binding.correlatorNoiseThreshold1Tv.isEnabled = false
+    binding.correlatorNoiseThreshold2Tv.isEnabled = false
+  }
   @SuppressLint("SetTextI18n")
   private fun initializedUI() {
     binding.thresholdsBlockingSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = Html.fromHtml(getString(R.string.on))
-    main?.offSensorsUIBeforeConnection()
+    offSensorsUIBeforeConnection()
     if (main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false) {
       binding.chartCalibrationRl.visibility = View.GONE
     }

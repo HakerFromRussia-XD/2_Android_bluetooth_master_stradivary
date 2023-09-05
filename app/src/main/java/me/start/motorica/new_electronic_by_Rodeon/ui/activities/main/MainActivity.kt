@@ -693,6 +693,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           }
           saveInt(mDeviceAddress + PreferenceKeys.HOLD_TO_LOCK_TIME_NUM, castUnsignedCharToInt(data[5]))
         }
+
+        if (data.size >= 8) {
+          saveInt(mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, castUnsignedCharToInt(data[6]))
+          saveInt(mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, castUnsignedCharToInt(data[7]))
+        }
       }
 
       RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
@@ -2438,35 +2443,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private fun incrementCountCommand() {
     countCommand.get().inc() //++
     System.err.println("countCommand.get().inc() counter: ${countCommand.get()}")
-  }
-  fun offGesturesUIBeforeConnection () {
-    //переезжаемнаbinding
-//    gesture_1_btn?.isEnabled = false
-//    gesture_2_btn?.isEnabled = false
-//    gesture_3_btn?.isEnabled = false
-//    gesture_4_btn?.isEnabled = false
-//    gesture_5_btn?.isEnabled = false
-//    gesture_6_btn?.isEnabled = false
-//    gesture_7_btn?.isEnabled = false
-//    gesture_8_btn?.isEnabled = false
-//    gesture_settings_2_btn?.isEnabled = false
-//    gesture_settings_3_btn?.isEnabled = false
-//    gesture_settings_4_btn?.isEnabled = false
-//    gesture_settings_5_btn?.isEnabled = false
-//    gesture_settings_6_btn?.isEnabled = false
-//    gesture_settings_7_btn?.isEnabled = false
-//    gesture_settings_8_btn?.isEnabled = false
-  }
-  fun offSensorsUIBeforeConnection () {
-    //переезжаемнаbinding
-//    close_btn?.isEnabled = false
-//    open_btn?.isEnabled = false
-//    calibration_btn.isEnabled = false
-//    thresholds_blocking_sw?.isEnabled = false
-//    correlator_noise_threshold_1_sb?.isEnabled = false
-//    correlator_noise_threshold_2_sb?.isEnabled = false
-//    correlator_noise_threshold_1_tv?.isEnabled = false
-//    correlator_noise_threshold_2_tv?.isEnabled = false
   }
 
 

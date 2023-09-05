@@ -391,7 +391,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                         R.drawable.gesture1,
                         "bla bla bla",
                         getString(R.string.click_to_edit_start_and_end_states),
-                        getString(R.string.gesture_1),
+                        getString(R.string.gesture_1_btn),
                         2,
                         600000));
 
@@ -401,7 +401,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                         R.drawable.gesture2,
                         "bla bla bla",
                         getString(R.string.click_to_edit_start_and_end_states),
-                        getString(R.string.gesture_2),
+                        getString(R.string.gesture_2_btn),
                         2,
                         60000));
 
@@ -411,7 +411,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
                         R.drawable.gesture3,
                         "bla bla bla",
                         getString(R.string.click_to_edit_start_and_end_states),
-                        getString(R.string.gesture_3),
+                        getString(R.string.gesture_3_btn),
                         2,
                         60000));
 

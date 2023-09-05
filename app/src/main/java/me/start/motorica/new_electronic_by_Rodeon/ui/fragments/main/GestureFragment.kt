@@ -38,6 +38,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     private var mSettings: SharedPreferences? = null
     private var gestureNameList =  ArrayList<String>()
     private var testThreadFlag = true
+    private var startGestureInLoop = 0
+    private var endGestureInLoop = 0
 
     private lateinit var binding: LayoutGesturesBinding
 
@@ -53,67 +55,24 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         super.onActivityCreated(savedInstanceState)
 
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-        main?.offGesturesUIBeforeConnection()
 
-        val startGesture = 6
 
-        binding.gestureLoop1Psv.apply {
-            setSpinnerAdapter(IconSpinnerAdapter(this))
-            setItems(
-                arrayListOf(
-                    IconSpinnerItem(text = "It1", iconRes = hand_palm_1, gravity = 100),//iconRes = hand_palm_1,iconPadding= 1,
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_2, gravity = 100),
-                    IconSpinnerItem(text = "It21", iconRes = hand_palm_3, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_4, gravity = 100),
-                    IconSpinnerItem(text = "It321", iconRes = hand_palm_5, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_6, gravity = 100),
-                    IconSpinnerItem(text = "I", iconRes = hand_palm_7, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_8, gravity = 100),
-                    IconSpinnerItem(text = "It54321", iconRes = hand_palm_9, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_10, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_11, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_12, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_13, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_14, gravity = 100)))
-
-            showDivider = true
-            dividerSize = 2
-            selectItemByIndex(startGesture)
-            lifecycleOwner = this@GestureFragment
+        offGesturesUIBeforeConnection()
+        binding.onOffSensorGestureSwitchingSw.setOnClickListener {
+            if (binding.onOffSensorGestureSwitchingSw.isChecked) {
+                binding.onOffSensorGestureSwitchingTv.text = "1"
+                binding.toggleGestureClasterRl.animate().alpha(1.0f).duration = 300
+                binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
+                binding.dividerV.animate().translationY(0F).duration = 300
+                binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
+            } else {
+                binding.onOffSensorGestureSwitchingTv.text = "0"
+                binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
+                binding.peakTimeVmRl.animate().alpha(0.0f).duration = 300
+                binding.dividerV.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
+                binding.gesturesButtonsSv.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
+            }
         }
-        binding.gestureLoop1Psv.setOnSpinnerItemSelectedListener(
-            OnSpinnerItemSelectedListener<IconSpinnerItem?> { oldIndex, _, newIndex, _ ->
-                System.err.println("1 Psv    $newIndex selected!") })
-
-        binding.gestureLoop2Psv.apply {
-            setSpinnerAdapter(IconSpinnerAdapter(this))
-            setItems(
-                arrayListOf(
-                    IconSpinnerItem(text = "It1", iconRes = hand_palm_1, gravity = 100),//iconRes = hand_palm_1,iconPadding= 1,
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_2, gravity = 100),
-                    IconSpinnerItem(text = "It21", iconRes = hand_palm_3, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_4, gravity = 100),
-                    IconSpinnerItem(text = "It321", iconRes = hand_palm_5, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_6, gravity = 100),
-                    IconSpinnerItem(text = "It4321", iconRes = hand_palm_7, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_8, gravity = 100),
-                    IconSpinnerItem(text = "It54321", iconRes = hand_palm_9, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_10, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_11, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_12, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_13, gravity = 100),
-                    IconSpinnerItem(text = "Item67654321", iconRes = hand_palm_14, gravity = 100)))
-
-            showDivider = true
-            dividerSize = 2
-            selectItemByIndex(startGesture+4)
-            lifecycleOwner = this@GestureFragment
-        }
-        binding.gestureLoop2Psv.setOnSpinnerItemSelectedListener(
-            OnSpinnerItemSelectedListener<IconSpinnerItem?> { oldIndex, _, newIndex, _ ->
-                System.err.println("2 Psv    $newIndex selected!") })
-
-
 
         binding.gestureSettings1Btn.setOnClickListener(this)
         binding.gestureSettings2Btn.setOnClickListener(this)
@@ -199,6 +158,35 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         testThreadFlag = false
     }
 
+    private fun offGesturesUIBeforeConnection () {
+        binding.gesture1Btn.isEnabled = false
+        binding.gesture2Btn.isEnabled = false
+        binding.gesture3Btn.isEnabled = false
+        binding.gesture4Btn.isEnabled = false
+        binding.gesture5Btn.isEnabled = false
+        binding.gesture6Btn.isEnabled = false
+        binding.gesture7Btn.isEnabled = false
+        binding.gesture8Btn.isEnabled = false
+        binding.gesture9Btn.isEnabled = false
+        binding.gesture10Btn.isEnabled = false
+        binding.gesture11Btn.isEnabled = false
+        binding.gesture12Btn.isEnabled = false
+        binding.gesture13Btn.isEnabled = false
+        binding.gesture14Btn.isEnabled = false
+        binding.gestureSettings2Btn.isEnabled = false
+        binding.gestureSettings3Btn.isEnabled = false
+        binding.gestureSettings4Btn.isEnabled = false
+        binding.gestureSettings5Btn.isEnabled = false
+        binding.gestureSettings6Btn.isEnabled = false
+        binding.gestureSettings7Btn.isEnabled = false
+        binding.gestureSettings8Btn.isEnabled = false
+        binding.gestureSettings9Btn.isEnabled = false
+        binding.gestureSettings10Btn.isEnabled = false
+        binding.gestureSettings11Btn.isEnabled = false
+        binding.gestureSettings12Btn.isEnabled = false
+        binding.gestureSettings13Btn.isEnabled = false
+        binding.gestureSettings14Btn.isEnabled = false
+    }
     private fun compileBLEMassage (useGesture: Int) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "gesture activity 2"
@@ -256,6 +244,74 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gesture6Btn.text = gestureNameList[5]
         binding.gesture7Btn.text = gestureNameList[6]
         binding.gesture8Btn.text = gestureNameList[7]
+        binding.gesture9Btn.text = gestureNameList[8]
+        binding.gesture10Btn.text = gestureNameList[9]
+        binding.gesture11Btn.text = gestureNameList[10]
+        binding.gesture12Btn.text = gestureNameList[11]
+        binding.gesture13Btn.text = gestureNameList[12]
+        binding.gesture14Btn.text = gestureNameList[13]
+        binding.gestureLoop1Psv.apply {
+            setSpinnerAdapter(IconSpinnerAdapter(this))
+            setOnSpinnerItemSelectedListener(
+                OnSpinnerItemSelectedListener<IconSpinnerItem?> {
+                        oldIndex, _, newIndex, _ ->
+                    startGestureInLoop = newIndex
+                    selectRotationGroup(startGestureInLoop, endGestureInLoop, true)
+                    if (oldIndex != newIndex) {
+                        binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoop)
+                    }
+                })
+            setItems(
+                arrayListOf(
+                    IconSpinnerItem(text = gestureNameList[0], iconRes = hand_palm_1, gravity = 100),//iconRes = hand_palm_1,iconPadding= 1,
+                    IconSpinnerItem(text = gestureNameList[1], iconRes = hand_palm_2, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[2], iconRes = hand_palm_3, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[3], iconRes = hand_palm_4, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[4], iconRes = hand_palm_5, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[5], iconRes = hand_palm_6, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[6], iconRes = hand_palm_7, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[7], iconRes = hand_palm_8, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[8], iconRes = hand_palm_9, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[9], iconRes = hand_palm_10, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[10], iconRes = hand_palm_11, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[11], iconRes = hand_palm_12, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[12], iconRes = hand_palm_13, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[13], iconRes = hand_palm_14, gravity = 100)))
+            showDivider = true
+            dividerSize = 2
+            lifecycleOwner = this@GestureFragment
+        }
+        binding.gestureLoop2Psv.apply {
+            setSpinnerAdapter(IconSpinnerAdapter(this))
+            setOnSpinnerItemSelectedListener(
+                OnSpinnerItemSelectedListener<IconSpinnerItem?> {
+                        oldIndex, _, newIndex, _ ->
+                    endGestureInLoop = newIndex
+                    selectRotationGroup(startGestureInLoop, endGestureInLoop, false)
+                    if (oldIndex != newIndex) {
+                        binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoop)
+                    }
+                })
+            setItems(
+                arrayListOf(
+                    IconSpinnerItem(text = gestureNameList[0], iconRes = hand_palm_1, gravity = 100),//iconRes = hand_palm_1,iconPadding= 1,
+                    IconSpinnerItem(text = gestureNameList[1], iconRes = hand_palm_2, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[2], iconRes = hand_palm_3, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[3], iconRes = hand_palm_4, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[4], iconRes = hand_palm_5, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[5], iconRes = hand_palm_6, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[6], iconRes = hand_palm_7, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[7], iconRes = hand_palm_8, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[8], iconRes = hand_palm_9, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[9], iconRes = hand_palm_10, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[10], iconRes = hand_palm_11, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[11], iconRes = hand_palm_12, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[12], iconRes = hand_palm_13, gravity = 100),
+                    IconSpinnerItem(text = gestureNameList[13], iconRes = hand_palm_14, gravity = 100)))
+            showDivider = true
+            dividerSize = 2
+            lifecycleOwner = this@GestureFragment
+        }
     }
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
     private fun selectActiveGesture(active: Int) {
@@ -293,8 +349,78 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.gesture8Btn.textColor = resources.getColor(R.color.orange)
                 binding.gestureSettings8Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop8Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            9 -> { binding.gesture9Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture9Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings9Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop9Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            10 -> { binding.gesture10Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture10Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings10Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop10Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            11 -> { binding.gesture11Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture11Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings11Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop11Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            12 -> { binding.gesture12Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture12Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings12Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop12Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            13 -> { binding.gesture13Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture13Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings13Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop13Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
+            14 -> { binding.gesture14Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
+                binding.gesture14Btn.textColor = resources.getColor(R.color.orange)
+                binding.gestureSettings14Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
+                binding.gestureLoop14Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
         }
         main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, active)
+    }
+    private fun selectRotationGroup(startGestureInLoop: Int, endGestureInLoop: Int, changeStartGestureInLoop: Boolean){
+        //блок проверки количества жестов в цикле ротации и подгонка верхней или нижней границы
+        if (endGestureInLoop - startGestureInLoop > 3) {
+            main?.showToast(
+                context?.resources?.getText(R.string.the_number_of_gestures_per_cycle_should_not_exceed_4)
+                    .toString()
+            )
+            if (changeStartGestureInLoop) {
+                this.endGestureInLoop = startGestureInLoop + 3
+                main?.showToast(
+                    context?.resources?.getText(R.string.the_ending_gesture_of_the_cycle_was_changed_to)
+                        .toString() + " " + gestureNameList[this.startGestureInLoop]
+                )
+            } else {
+                this.startGestureInLoop = endGestureInLoop - 3
+                main?.showToast(
+                    context?.resources?.getText(R.string.the_starting_gesture_of_the_cycle_was_changed_to)
+                        .toString() + " " + gestureNameList[this.startGestureInLoop]
+                )
+            }
+        }
+
+
+        //блок отрисовки картинок цикла на нужных кнопках
+        val indicatorGestureLoop = arrayOf(
+            binding.gestureLoop1Iv,
+            binding.gestureLoop2Iv,
+            binding.gestureLoop3Iv,
+            binding.gestureLoop4Iv,
+            binding.gestureLoop5Iv,
+            binding.gestureLoop6Iv,
+            binding.gestureLoop7Iv,
+            binding.gestureLoop8Iv,
+            binding.gestureLoop9Iv,
+            binding.gestureLoop10Iv,
+            binding.gestureLoop11Iv,
+            binding.gestureLoop12Iv,
+            binding.gestureLoop13Iv,
+            binding.gestureLoop14Iv)
+        for (i in 0 until 14) {
+            indicatorGestureLoop[i].visibility = View.GONE
+        }
+        for (i in startGestureInLoop until endGestureInLoop+1) {
+            indicatorGestureLoop[i].visibility = View.VISIBLE
+        }
     }
 
     override fun onClick(v: View?) {
@@ -330,6 +456,24 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             }
             R.id.gesture_settings_8_btn -> {
                 main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
+            }
+            R.id.gesture_settings_9_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 9)
+            }
+            R.id.gesture_settings_10_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 10)
+            }
+            R.id.gesture_settings_11_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 11)
+            }
+            R.id.gesture_settings_12_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 12)
+            }
+            R.id.gesture_settings_13_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 13)
+            }
+            R.id.gesture_settings_14_btn -> {
+                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 14)
             }
         }
 

@@ -66,6 +66,9 @@ class AdvancedSettingsFragment : Fragment() {
   private var current5 = 0
   private var current6 = 0
 
+  private var startGestureInLoop = 0
+  private var endGestureInLoop = 0
+
   private lateinit var binding: LayoutAdvancedSettingsBinding
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
     binding = LayoutAdvancedSettingsBinding.inflate(layoutInflater)
@@ -128,7 +131,6 @@ class AdvancedSettingsFragment : Fragment() {
     binding.scaleTv.textSize = 11f
     binding.onOffProsthesesBlockingTextTv.textSize = 11f
     binding.holdToLockTimeTextTv.textSize = 10f
-//    binding.telemetryNumberEt.currentHintTextColor = Color.WHITE
     binding.telemetryNumberEt.highlightColor = Color.WHITE
 
 
@@ -478,7 +480,10 @@ class AdvancedSettingsFragment : Fragment() {
             binding.peakTimeVmSb.progress.toByte(),
             0.toByte(),
             lockProstheses,
-            (binding.holdToLockTimeSb.progress).toByte()), ROTATION_GESTURE_NEW_VM, 50)
+            (binding.holdToLockTimeSb.progress).toByte(),
+            startGestureInLoop.toByte(),
+            endGestureInLoop.toByte()
+          ), ROTATION_GESTURE_NEW_VM, 50)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, true)
         } else {
@@ -490,7 +495,10 @@ class AdvancedSettingsFragment : Fragment() {
             0.toByte(),
             binding.peakTimeVmSb.progress.toByte(),
             0.toByte(), lockProstheses,
-            (binding.holdToLockTimeSb.progress).toByte()), ROTATION_GESTURE_NEW_VM, 50)
+            (binding.holdToLockTimeSb.progress).toByte(),
+            startGestureInLoop.toByte(),
+            endGestureInLoop.toByte()
+          ), ROTATION_GESTURE_NEW_VM, 50)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)
         }
@@ -520,7 +528,10 @@ class AdvancedSettingsFragment : Fragment() {
             binding.peakTimeVmSb.progress.toByte(),
             0.toByte(),
             lockProstheses,
-            (binding.holdToLockTimeSb.progress).toByte()), ROTATION_GESTURE_NEW_VM, 50)
+            (binding.holdToLockTimeSb.progress).toByte(),
+            startGestureInLoop.toByte(),
+            endGestureInLoop.toByte()
+          ), ROTATION_GESTURE_NEW_VM, 50)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           saveInt(main?.mDeviceAddress + PreferenceKeys.HOLD_TO_LOCK_TIME_NUM, seekBar.progress)
         }
@@ -547,7 +558,10 @@ class AdvancedSettingsFragment : Fragment() {
               binding.peakTimeVmSb.progress.toByte(),
               0.toByte(),
               lockProstheses,
-              (binding.holdToLockTimeSb.progress).toByte()), ROTATION_GESTURE_NEW_VM, 50)
+              (binding.holdToLockTimeSb.progress).toByte(),
+              startGestureInLoop.toByte(),
+              endGestureInLoop.toByte()
+            ), ROTATION_GESTURE_NEW_VM, 50)
             RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
@@ -574,7 +588,10 @@ class AdvancedSettingsFragment : Fragment() {
               binding.peakTimeVmSb.progress.toByte(),
               0.toByte(),
               lockProstheses,
-              (binding.holdToLockTimeSb.progress).toByte()), ROTATION_GESTURE_NEW_VM, 50)
+              (binding.holdToLockTimeSb.progress).toByte(),
+              startGestureInLoop.toByte(),
+              endGestureInLoop.toByte()
+            ), ROTATION_GESTURE_NEW_VM, 50)
             RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
@@ -703,7 +720,10 @@ class AdvancedSettingsFragment : Fragment() {
             binding.peakTimeVmSb.progress.toByte(),
             0.toByte(),
             lockProstheses,
-            (binding.holdToLockTimeSb.progress).toByte()), ROTATION_GESTURE_NEW_VM, 50)
+            (binding.holdToLockTimeSb.progress).toByte(),
+            startGestureInLoop.toByte(),
+            endGestureInLoop.toByte()
+          ), ROTATION_GESTURE_NEW_VM, 50)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
 
           saveInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, seekBar.progress)
@@ -1112,6 +1132,9 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
       binding.holdToLockTimeTv.text = time
+
+      startGestureInLoop = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
+      endGestureInLoop = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
     }
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
       var time: String = when {

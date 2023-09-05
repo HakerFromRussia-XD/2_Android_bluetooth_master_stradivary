@@ -100,14 +100,6 @@
     <string name="not_the_right_password">password not right</string>
     <string name="select_channel">"select channel "</string>
     <string name="admission_of_inquiry_of_updating">admission of inquiry of updating</string>
-    <string name="gesture_1">Gesture №1</string>
-    <string name="gesture_2">Gesture №2</string>
-    <string name="gesture_3">Gesture №3</string>
-    <string name="gesture_4">Gesture №4</string>
-    <string name="gesture_5">Gesture №5</string>
-    <string name="gesture_6">Gesture №6</string>
-    <string name="gesture_7">Gesture №7</string>
-    <string name="gesture_8">Gesture №8</string>
     <string name="click_to_edit_start_and_end_states">Click to edit start and end states</string>
     <string name="control_of_an_open_state">Control of an open state</string>
     <string name="control_of_the_closed_state">Control of the closed state</string>
@@ -127,6 +119,12 @@
     <string name="gesture_6_btn">gesture №6</string>
     <string name="gesture_7_btn">gesture №7</string>
     <string name="gesture_8_btn">gesture №8</string>
+    <string name="gesture_9_btn">gesture №9</string>
+    <string name="gesture_10_btn">gesture №10</string>
+    <string name="gesture_11_btn">gesture №11</string>
+    <string name="gesture_12_btn">gesture №12</string>
+    <string name="gesture_13_btn">gesture №13</string>
+    <string name="gesture_14_btn">gesture №14</string>
     <string name="test">test</string>
     <string name="setting_up_gestures">setting up gestures</string>
     <string name="sensor_settings">sensor settings</string>
@@ -435,9 +433,9 @@
     <string name="the_slider_adjusts_the_minimum_time_that_the_opening_sensor_signal_must_be_above_the_threshold_level_when_the_prostheses_reaches_the_open_state">The slider adjusts the minimum time that the opening sensor signal must be above the threshold level when the prostheses reaches the open state.</string>
     <string name="view_for_read_write_the_serial_number_of_the_prosthetic_telemetry">View for read/write the serial number of the prosthetic telemetry</string>
     <string name="functionality_is_under_development">Functionality is under development.</string>
-    <string name="the_choice_of_trauma_side_swich">The choice of trauma side swich</string>
+    <string name="the_choice_of_trauma_side_switch">The choice of trauma side switch</string>
     <string name="it_is_necessary_to_select_the_side_of_the_prostheses_for_its_successful_calibration_as_well_as_for_the_correct_display_of_the_model_in_the_gesture_configurator">It is necessary to select the side of the prostheses for its successful calibration, as well as for the correct display of the model in the gesture configurator.</string>
-    <string name="swich_activates_the_menu_function_to_change_the_start_delays_of_the_fingers">Swich activates the menu function to change the start delays of the fingers</string>
+    <string name="switch_activates_the_menu_function_to_change_the_start_delays_of_the_fingers">Switch activates the menu function to change the start delays of the fingers</string>
     <string name="a_button_appears_in_the_gesture_configurator_that_allows_you_to_change_the_start_delay_timings_of_the_fingers_of_the_grip_being_set">A button appears in the Gesture Configurator that allows you to change the start delay timings of the fingers of the grip being set.</string>
     <string name="switch_to_deactivate_the_smart_connection_function">Switch to deactivate the «smart connection» function</string>
     <string name="if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prostheses_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected_the_feature_should_be_turned_off_for_couples_because_it_is_important_for_them_to_choose_which_prostheses_to_connect_to_on_their_own_every_time_it_is_also_unnecessary_for_those_who_frequently_connect_to_different_devices">If the function is active, and it is active «by default», then when you run the application again, the scanning screen analyzes all the scanned devices and when the last device to which the connection was made is found, it automatically connects to it. This makes the connection process faster (about a second) and easier for most users (those with a single prostheses). If the function is disabled, the user is on the device selection screen until a specific device is selected. The feature should be turned off for couples because it is important for them to choose which prostheses to connect to on their own every time. It is also unnecessary for those who frequently connect to different devices.</string>
@@ -459,6 +457,9 @@
     <string name="the_last_line_in_the_advanced_settings_shows_the_version_of_the_application_and_the_selected_size_of_the_prostheses_the_size_of_the_prostheses_affects_the_limitation_of_the_maximum_current_so_it_should_be_chosen_consciously_otherwise_there_is_a_risk_of_setting_a_cut_off_current_that_will_damage_the_prostheses_the_maximum_cut_off_current_of_the_xl_size_prostheses_will_kill_the_s_size_prostheses_the_cut_off_simply_doesn_t_work_because_less_powerful_motors_are_used_so_they_get_hot_and_fail_but_if_you_tell_the_s_size_prostheses_that_it_is_an_s_size_the_maximum_cut_off_current_will_match_that_size_and_not_allow_the_prostheses_to_break">The last line in the advanced settings shows the version of the application. And the selected size of the prostheses. The size of the prostheses affects the limitation of the maximum current, so it should be chosen consciously. Otherwise there is a risk of setting a cut-off current that will damage the prostheses. (the maximum cut-off current of the XL size prostheses will kill the S size prostheses (the cut-off simply doesn\'t work because less powerful motors are used, so they get hot and fail), but if you tell the S size prostheses that it is an S size, the maximum cut-off current will match that size and not allow the prostheses to break)</string>
     <string name="start_game">start game</string>
     <string name="toggle_gesture_cluster">toggle gesture cluster</string>
+    <string name="the_number_of_gestures_per_cycle_should_not_exceed_4">The number of gestures per cycle should not exceed 4</string>
+    <string name="the_starting_gesture_of_the_cycle_was_changed_to">The starting gesture of the cycle was changed to</string>
+    <string name="the_ending_gesture_of_the_cycle_was_changed_to">The ending gesture of the cycle was changed to</string>
 
 
     <string-array name="numbers">

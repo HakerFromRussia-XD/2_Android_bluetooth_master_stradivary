@@ -88,7 +88,7 @@ class AdvancedSettingsFragment : Fragment() {
   @SuppressLint("CheckResult")
   override fun onResume() {
     super.onResume()
-    main!!.setDebagScreenIsOpen(false)
+    main!!.setDebugScreenIsOpen(false)
     RxUpdateMainEvent.getInstance().uiAdvancedSettings
       .compose(main?.bindToLifecycle())
       .observeOn(AndroidSchedulers.mainThread())
@@ -990,7 +990,7 @@ class AdvancedSettingsFragment : Fragment() {
 
     binding.debugScreenBtn.setOnClickListener {
       val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)
-      main!!.setDebagScreenIsOpen(true)
+      main!!.setDebugScreenIsOpen(true)
       startActivity(intent)
     }
 
@@ -1168,12 +1168,14 @@ class AdvancedSettingsFragment : Fragment() {
 
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)) {
       binding.onOffProsthesesBlockingSw.isChecked = true
+      lockProstheses = 0x01
       binding.onOffProsthesesBlockingTv.text = "1"
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
         binding.holdToLockTimeRl.visibility = View.VISIBLE
       }
     } else {
       binding.onOffProsthesesBlockingSw.isChecked = false
+      lockProstheses = 0x00
       binding.onOffProsthesesBlockingTv.text = "0"
       binding.holdToLockTimeRl.visibility = View.GONE
     }

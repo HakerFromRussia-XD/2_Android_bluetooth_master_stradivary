@@ -71,7 +71,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var mDeviceName: String? = null
   var mDeviceAddress: String? = null
   var mDeviceType: String? = null
-  private var driverVersionS: String? = null
+  var driverVersionS: String? = null
   private var mBluetoothLeService: BluetoothLeService? = null
   private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
   private var mGattServicesList: ExpandableListView? = null
@@ -701,6 +701,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
 
       RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
+      RxUpdateMainEvent.getInstance().updateUIGestures(100)
       globalSemaphore = true
     }
   }
@@ -929,9 +930,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
 
       driverVersionS = driverVersion
-      //переезжаемнаbinding
-//      binding.driverTv.text = resources.getString(R.string.driver) +driverVersion + "v"
-
+      RxUpdateMainEvent.getInstance().updateUIChart(true)
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
     }
@@ -975,7 +974,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           override fun onTick(millisUntilFinished: Long) {}
 
           override fun onFinish() {
-            RxUpdateMainEvent.getInstance().updateUIChart(false)
+            RxUpdateMainEvent.getInstance().updateUIChart(true)
             System.err.println("updateAllParameters updateUIChart($source) 4")
           }
         }.start()
@@ -1228,15 +1227,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 //      set_kibi_btn?.isEnabled = enabled
     } else {
       enableInterfaceStatus = enabled
-      //переезжаемнаbinding
-//      close_btn?.isEnabled = enabled
-//      open_btn?.isEnabled = enabled
-//      calibration_btn?.isEnabled = enabled
-//      thresholds_blocking_sw?.isEnabled = enabled
-//      correlator_noise_threshold_1_sb?.isEnabled = enabled
-//      correlator_noise_threshold_2_sb?.isEnabled = enabled
-//      correlator_noise_threshold_1_tv?.isEnabled = enabled
-//      correlator_noise_threshold_2_tv?.isEnabled = enabled
+      RxUpdateMainEvent.getInstance().updateUIChart(enabled)
       if (enabled) {
         if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
           || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
@@ -1244,22 +1235,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
           || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
         ) {
-          //переезжаемнаbinding
-//          gesture_1_btn?.isEnabled = enabled
-//          gesture_2_btn?.isEnabled = enabled
-//          gesture_3_btn?.isEnabled = enabled
-//          gesture_4_btn?.isEnabled = enabled
-//          gesture_5_btn?.isEnabled = enabled
-//          gesture_6_btn?.isEnabled = enabled
-//          gesture_7_btn?.isEnabled = enabled
-//          gesture_8_btn?.isEnabled = enabled
-//          gesture_settings_2_btn?.isEnabled = enabled
-//          gesture_settings_3_btn?.isEnabled = enabled
-//          gesture_settings_4_btn?.isEnabled = enabled
-//          gesture_settings_5_btn?.isEnabled = enabled
-//          gesture_settings_6_btn?.isEnabled = enabled
-//          gesture_settings_7_btn?.isEnabled = enabled
-//          gesture_settings_8_btn?.isEnabled = enabled
+          if (enabled) {
+            RxUpdateMainEvent.getInstance().updateUIGestures(100)
+          } else {
+            RxUpdateMainEvent.getInstance().updateUIGestures(101)
+          }
           if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
             //переезжаемнаbinding
 //            swap_sensors_sw?.isEnabled = enabled
@@ -2017,7 +1997,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   fun getDataSens2(): Int { return dataSens2 }
   fun getMNumberGesture(): Int { return mNumberGesture }
   fun setSensorsDataThreadFlag(value: Boolean){ sensorsDataThreadFlag = value }
-  fun setDebagScreenIsOpen(value: Boolean) { debagScreenIsOpen = value }
+  fun setDebugScreenIsOpen(value: Boolean) { debagScreenIsOpen = value }
   override fun writeToParcel(parcel: Parcel, flags: Int) {
     parcel.writeByte(if (sensorsDataThreadFlag) 1 else 0)
     parcel.writeString(mDeviceName)

@@ -466,6 +466,7 @@
                             android:layout_marginEnd="16dp"
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
+                            android:visibility="gone"
                             android:elevation="4dp"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
                     </RelativeLayout>
@@ -517,6 +518,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
 
 
@@ -582,6 +584,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
 
                     </RelativeLayout>
@@ -633,6 +636,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
                     </RelativeLayout>
                 </LinearLayout>
@@ -697,6 +701,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
                     </RelativeLayout>
 
@@ -747,6 +752,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
                     </RelativeLayout>
                 </LinearLayout>
@@ -810,6 +816,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
 
                     </RelativeLayout>
@@ -861,6 +868,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
                     </RelativeLayout>
 
@@ -925,6 +933,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
 
                     </RelativeLayout>
@@ -976,6 +985,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
                     </RelativeLayout>
 
@@ -1040,6 +1050,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
 
                     </RelativeLayout>
@@ -1091,6 +1102,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
                     </RelativeLayout>
 
@@ -1155,6 +1167,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
 
                     </RelativeLayout>
@@ -1206,6 +1219,7 @@
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
                     </RelativeLayout>
 

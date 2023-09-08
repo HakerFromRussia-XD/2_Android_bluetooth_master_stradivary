@@ -276,21 +276,31 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             .compose(main?.bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                if (it < 100)  { selectActiveGesture(it) }
-                if (it == 100) {
-                    loadAllVariables()
-                    selectRotationGroup(startGestureInLoop, endGestureInLoop, true)
-                    setPeakTimeVmNum(peakTimeVmNum)
-                    onOffUIAll(true)
-                }
-                if (it == 101) { onOffUIAll(false) }
-
-                //скрываем интерфейс управления группами ротации
-                if (main?.driverVersionS != null) {
-                    val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-                    if (driverNum.toInt() < 237) {
-                        hideUIRotationGroup()
+                if (context != null) {
+                    if (it < 100) {
+                        selectActiveGesture(it)
                     }
+                    if (it == 100) {
+                        loadAllVariables()
+                        System.err.println("RxUpdateMainEvent selectRotationGroup startGestureInLoop=$startGestureInLoop  endGestureInLoop=$endGestureInLoop")
+                        selectRotationGroup(startGestureInLoop, endGestureInLoop, true)
+                        setPeakTimeVmNum(peakTimeVmNum)
+                        onOffUIAll(true)
+                    }
+                    if (it == 101) {
+                        onOffUIAll(false)
+                    }
+
+                    //скрываем интерфейс управления группами ротации
+                    if (main?.driverVersionS != null) {
+                        val driverNum =
+                            main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+                        if (driverNum.toInt() < 237) {
+                            hideUIRotationGroup()
+                        }
+                    }
+                } else {
+                    System.err.println("context GestureFragment NULL!")
                 }
             }
 
@@ -343,6 +353,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings14Btn.isEnabled = enabled
     }
     private fun hideUIRotationGroup () {
+        offAllRotationImage()
         binding.toggleGestureClasterRl.visibility = View.GONE
         binding.peakTimeVmRl.visibility = View.GONE
         binding.onOffSensorGestureSwitchingRl.visibility = View.GONE
@@ -453,6 +464,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 OnSpinnerItemSelectedListener<IconSpinnerItem?> {
                         oldIndex, _, newIndex, _ ->
                     startGestureInLoop = newIndex
+                    System.err.println("gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoop  endGestureInLoop=$endGestureInLoop")
                     selectRotationGroup(startGestureInLoop, endGestureInLoop, true)
                     if (oldIndex != newIndex) {
                         binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoop)// - startGestureInLoop - 1
@@ -484,6 +496,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 OnSpinnerItemSelectedListener<IconSpinnerItem?> {
                         oldIndex, _, newIndex, _ ->
                     endGestureInLoop = newIndex
+                    System.err.println("gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoop  endGestureInLoop=$endGestureInLoop")
                     selectRotationGroup(startGestureInLoop, endGestureInLoop, false)
                     if (oldIndex != newIndex) {
                         binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoop)

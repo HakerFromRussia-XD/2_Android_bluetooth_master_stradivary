@@ -698,10 +698,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 //      for (i in data.indices) {
 //        System.err.println("Принятые данные состояния переключения жестов: " + data[i])
 //      }
-      System.err.println("Принятые данные состояния переключения жестов активация: " + data[0])
-      System.err.println("Принятые данные состояния переключения жестов время: " + data[2])
-      System.err.println("Принятые данные состояния переключения жестов стартовй жест: " + data[6])
-      System.err.println("Принятые данные состояния переключения жестов конечный жест: " + data[7])
+      if (data.size >= 8) {
+        System.err.println("Принятые данные состояния переключения жестов активация: " + data[0])
+        System.err.println("Принятые данные состояния переключения жестов время: " + data[2])
+        System.err.println("Принятые данные состояния переключения жестов стартовй жест: " + data[6])
+        System.err.println("Принятые данные состояния переключения жестов конечный жест: " + data[7])
+      }
 
       if (data.size >= 4) {
         if (castUnsignedCharToInt(data[0]) == 1) {
@@ -1250,15 +1252,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mGattServicesList!!.setAdapter(gattServiceAdapter)
     if (mScanning) { scanLeDevice(false) }
     readStartData(true)
-    if (!mDeviceName!!.contains(DEVICE_TYPE_FEST_X)) { //TODO непонятный иф описать когда поймём зачем он был
+    if (!mDeviceName!!.contains(DEVICE_TYPE_FEST_X)) {
       enableInterface(true)
     }
   }
   private fun enableInterface(enabled: Boolean) {
-    if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) {
-      //переезжаемнаbinding
-//      set_kibi_btn?.isEnabled = enabled
-    } else {
+    if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) { } else {
       enableInterfaceStatus = enabled
       RxUpdateMainEvent.getInstance().updateUIChart(enabled)
       if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)

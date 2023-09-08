@@ -94,8 +94,12 @@ class AdvancedSettingsFragment : Fragment() {
       .compose(main?.bindToLifecycle())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe {
-        updateAllParameters()
-        enableInterface(it)
+        if (context != null) {
+          updateAllParameters()
+          enableInterface(it)
+        } else {
+          System.err.println("context AdvancedSettingsFragment NULL!")
+        }
       }
   }
 

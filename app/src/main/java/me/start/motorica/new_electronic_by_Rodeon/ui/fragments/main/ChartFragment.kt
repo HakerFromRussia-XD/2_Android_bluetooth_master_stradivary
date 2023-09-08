@@ -91,8 +91,21 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       .compose(main?.bindToLifecycle())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe {
-        updateAllParameters()
-        enabledSensorsUIBeforeConnection(it)
+        if (context != null) {
+          updateAllParameters()
+          enabledSensorsUIBeforeConnection(it)
+
+          //скрываем интерфейс управления группами ротации
+          if (main?.driverVersionS != null) {
+            val driverNum =
+              main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+            if (driverNum.toInt() < 237) {
+              hideUIRotationGroup()
+            }
+          }
+        } else {
+          System.err.println("context ChartFragment NULL!")
+        }
       }
     return binding.root
   }
@@ -645,6 +658,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     startGraphEnteringDataThread()
   }
 
+  private fun hideUIRotationGroup() {
+    binding.loopGesturesLl.visibility = View.GONE
+  }
   private fun enabledSensorsUIBeforeConnection (enabled: Boolean) {
     binding.swapSensorsSw.isEnabled = enabled
     binding.closeBtn.isEnabled = enabled
@@ -661,7 +677,8 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.thresholdsBlockingSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = Html.fromHtml(getString(R.string.on))
     enabledSensorsUIBeforeConnection(false)
-    if (main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false) {
+    //скрываем кнопку калибровки для всех моделей кроме FEST_H и FEST_X
+    if ((main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false && main?.mDeviceType?.contains(DEVICE_TYPE_FEST_X) == false)) {
       binding.chartCalibrationRl.visibility = View.GONE
     }
   }
@@ -806,34 +823,19 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   private fun startGraphEnteringDataThread() {
     graphThread = Thread {
       while (graphThreadFlag) {
-//        main?.runOnUiThread {
           if (plotData) {
             addEntry(10, 255)
-//            addEntry(115, 150)
             addEntry(10, 255)
             addEntry(115, 150)
-//            addEntry(10, 255)
             addEntry(115, 150)
             addEntry(10, 255)
-//            addEntry(115, 150)
             addEntry(10, 255)
             addEntry(115, 150)
-//            addEntry(10, 255)
             addEntry(115, 150)
             plotData = false
           }
           addEntry(main!!.getDataSens1(), main!!.getDataSens2())
 
-          //TODO работаем над этой частью кода
-//          var transferIntent = Intent(context, DataTransferToService::class.java)
-//////          var transferIntent: Intent = Intent(DATA_TRANSFER_TO_SERVICE)
-//          transferIntent.putExtra("sensor_level_1", main!!.getDataSens1())
-//          transferIntent.putExtra("sensor_level_2", main!!.getDataSens2())
-//          if (context != null) {
-//            main!!.startService(transferIntent)
-//          }
-
-//        }
         try {
           Thread.sleep(GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) {

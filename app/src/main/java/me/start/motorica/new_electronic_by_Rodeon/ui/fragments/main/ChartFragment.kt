@@ -123,6 +123,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
 
     binding.driverTv.setOnLongClickListener {
+      main?.readStartData(true)
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
         Handler().postDelayed({
@@ -139,6 +140,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       false
     }
     binding.bmsTv.setOnLongClickListener {
+      main?.readStartData(true)
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
         Handler().postDelayed({
@@ -155,6 +157,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       false
     }
     binding.sensorTv.setOnLongClickListener {
+      main?.readStartData(true)
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
         Handler().postDelayed({
@@ -171,6 +174,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       false
     }
     binding.syncTv.setOnLongClickListener {
+      main?.readStartData(true)
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
         Handler().postDelayed({
@@ -485,12 +489,15 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       false
     }
     binding.openBtn.setOnTouchListener { _, event ->
+      System.err.println("openBtn 0")
       if (!main?.lockWriteBeforeFirstRead!!) {
+        System.err.println("openBtn 1")
         if (!main?.getSwapOpenCloseButton()!!) {
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpen)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
+              System.err.println("openBtn 2 1")
               main?.runSendCommand(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -503,6 +510,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
+              System.err.println("openBtn 2 2")
               main?.runSendCommand(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -517,6 +525,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
+              System.err.println("openBtn 2 3")
               main?.runSendCommand(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -529,6 +538,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
+              System.err.println("openBtn 2 4")
               main?.runSendCommand(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, 3)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -636,6 +646,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   }
 
   private fun enabledSensorsUIBeforeConnection (enabled: Boolean) {
+    binding.swapSensorsSw.isEnabled = enabled
     binding.closeBtn.isEnabled = enabled
     binding.openBtn.isEnabled = enabled
     binding.calibrationBtn.isEnabled = enabled

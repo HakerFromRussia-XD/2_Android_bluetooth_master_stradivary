@@ -58,7 +58,7 @@ class AdvancedSettingsFragment : Fragment() {
   private var sensorGestureSwitching: Byte = 0x00
   private var lockProstheses: Byte = 0x00
 
-  private var current = 0
+  private var current  = 0
   private var current1 = 0
   private var current2 = 0
   private var current3 = 0
@@ -83,6 +83,7 @@ class AdvancedSettingsFragment : Fragment() {
     super.onViewCreated(view, savedInstanceState)
     initializeUI()
     updateAllParameters()
+    enableInterface(false)
   }
 
   @SuppressLint("CheckResult")
@@ -94,6 +95,7 @@ class AdvancedSettingsFragment : Fragment() {
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe {
         updateAllParameters()
+        enableInterface(it)
       }
   }
 
@@ -1072,6 +1074,36 @@ class AdvancedSettingsFragment : Fragment() {
     binding.versionAppTv.text = (mContext?.resources?.getString(R.string.version_app) ?: "lol: ") + " " + versionName
   }
 
+  private fun enableInterface (enabled: Boolean) {
+    binding.swapOpenCloseSw.isEnabled = enabled
+    binding.singleChannelControlSw.isEnabled = enabled
+    binding.resetToFactorySettingsBtn.isEnabled = enabled
+    binding.getSetupBtn.isEnabled = enabled
+    binding.setSetupBtn.isEnabled = enabled
+    binding.shutdownCurrentSb.isEnabled = enabled
+    binding.shutdownCurrent1Sb.isEnabled = enabled
+    binding.shutdownCurrent2Sb.isEnabled = enabled
+    binding.shutdownCurrent3Sb.isEnabled = enabled
+    binding.shutdownCurrent4Sb.isEnabled = enabled
+    binding.shutdownCurrent5Sb.isEnabled = enabled
+    binding.shutdownCurrent6Sb.isEnabled = enabled
+    binding.swapOpenCloseSw.isEnabled = enabled
+    binding.singleChannelControlSw.isEnabled = enabled
+    binding.onOffSensorGestureSwitchingSw.isEnabled = enabled
+    binding.onOffProsthesesBlockingSw.isEnabled = enabled
+    binding.holdToLockTimeSb.isEnabled = enabled
+    binding.peakTimeVmSb.isEnabled = enabled
+    binding.getSetupBtn.isEnabled = enabled
+    binding.setSetupBtn.isEnabled = enabled
+    binding.leftRightSideSwapSw.isEnabled = enabled
+    binding.timeDelayOfFingersSwapSw.isEnabled = enabled
+    binding.smartConnectionSwapSw.isEnabled = enabled
+    binding.resetToFactorySettingsBtn.isEnabled = enabled
+    binding.calibrationAdvBtn.isEnabled = enabled
+    binding.calibrationStatusAdvBtn.isEnabled = enabled
+    binding.debugScreenBtn.isEnabled = enabled
+    binding.testConnectionBtn.isEnabled = enabled
+  }
   @SuppressLint("Recycle", "SetTextI18n")
   private fun updateAllParameters() {
     main?.runOnUiThread {

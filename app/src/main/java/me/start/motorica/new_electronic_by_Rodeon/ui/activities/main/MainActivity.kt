@@ -129,7 +129,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var stage = "not set"
   var testingConnection = false
   private var countdownToUpdate = COUNT_ATTEMPTS_TO_UPDATE
-  private var debagScreenIsOpen = false
+  private var debugScreenIsOpen = false
   private var decorator: Decorator? = null
 
   private lateinit var binding: ActivityMainBinding
@@ -163,6 +163,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   private var gestureTable: Array<Array<Array<Int>>> = Array(7) { Array(2) { Array(6) { 0 } } }
+  private var gestureTableBig: Array<Array<Array<Int>>> = Array(13) { Array(2) { Array(6) { 0 } } }
   private var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
   var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   var telemetryNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
@@ -339,7 +340,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
                   mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM,
                   castUnsignedCharToInt(data[10])
                 )
-                RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
+                RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
               }
 
               if (((castUnsignedCharToInt(data[11]) shr 0 and 0b00000001) == 1) != mSettings!!.getBoolean(
@@ -363,7 +364,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
                   mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM,
                   ((castUnsignedCharToInt(data[11]) shr 1 and 0b00000001) == 1)
                 )
-                RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
+                RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
               }
 
               if ((castUnsignedCharToInt(data[11]) shr 7 and 0b00000001) != 1) {
@@ -434,7 +435,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
           // оптимизация для уменьшения лагов на маломощных телефонах
           // (просчёт этой части только при открытом отладочном окне)
-          if (debagScreenIsOpen) {
+          if (debugScreenIsOpen) {
             if (data.size >= 10) {
               val fingersEncoderValue = FingersEncoderValue(
                 castUnsignedCharToInt(data[3]),
@@ -452,7 +453,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
           if (data.size >= 12) {
               val receiveIdCommand = "%02x".format(castUnsignedCharToInt(data[11])) + "%02x".format(castUnsignedCharToInt(data[10]))
-              System.err.println("данные IdCommand: $receiveIdCommand")
+//              System.err.println("данные IdCommand: $receiveIdCommand")
               if (expectedIdCommand == receiveIdCommand) {
                 System.err.println("startSendCommand id $receiveIdCommand  receive")
                 expectedReceiveConfirmation = 2
@@ -531,6 +532,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private fun displayDataAddGestureNew(data: ByteArray?) {
     if (data != null) {
       System.err.println("Данные data.size = " + data.size)
+      //обработка для 8 жестов
       if (data.size == 87) {
         for (i in 0 until 7) {
           for (j in 0 until 2) {
@@ -547,22 +549,41 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           }
         }
         byteEnabledGesture = castUnsignedCharToInt(data[84]).toByte()
-//        byteActiveGesture = castUnsignedCharToInt(data[85]).toByte()
 
         saveGestureState()
       }
 
-      for (i in 0 until 7) {
-        System.err.println("Данные жеста №$i")
+      //обработка для 14 жестов
+      if (data.size == 159) {
+        for (i in 0 until 13) {
+          for (j in 0 until 2) {
+            for (k in 0 until 6) {
+              if (data[i * 12 + j * 6 + k] < 0) { data[i * 12 + j * 6 + k] = 0}
+              if (data[i * 12 + j * 6 + k] > 100) { data[i * 12 + j * 6 + k] = 100}
+              gestureTableBig[i][j][k] = castUnsignedCharToInt(data[i * 12 + j * 6 + k])
+              if(k == 4) {
+                if (data[i * 12 + j * 6 + k] < 5) { data[i * 12 + j * 6 + k] = 5}
+                gestureTableBig[i][j][k] = ((88 - castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*91).toInt()-52
+              }
+              if(k == 5) { gestureTableBig[i][j][k] = (( castUnsignedCharToInt(data[i * 12 + j * 6 + k])).toFloat()/100*90).toInt() }
+            }
+          }
+        }
+
+        saveBigGestureState()
+      }
+
+
+      for (i in 0 until 13) {
+        System.err.println("Данные жеста №$i  данные жестов")
         for (j in 0 until 2) {
-          System.err.println("Данные схвата №$j")
+          System.err.println("Данные схвата №$j данные жестов")
           for (k in 0 until 6) {
-            System.err.println("Данные пальца №$k   Данные:" + gestureTable[i][j][k])
+            System.err.println("Данные пальца №$k   Данные:" + gestureTableBig[i][j][k] + " данные жестов ")
           }
         }
       }
       System.err.println("Данные byteEnabledGesture   Данные:$byteEnabledGesture")
-//      System.err.println("Данные byteActiveGesture   Данные:$byteActiveGesture")
       globalSemaphore = true
     }
   }
@@ -667,15 +688,20 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         System.err.println("Принятые данные состояния токов: " + data[i] + "  " + mDeviceAddress + "SHUTDOWN_CURRENT_NUM_${i+1}")
         saveInt(mDeviceAddress + "SHUTDOWN_CURRENT_NUM_" + (i + 1), castUnsignedCharToInt(data[i]))
       }
-      RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
+      RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
       globalSemaphore = true
     }
   }
   private fun displayDataRotationGesture(data: ByteArray?) {
     if (data != null) {
-      for (i in data.indices) {
-        System.err.println("Принятые данные состояния переключения жестов: " + data[i])
-      }
+      System.err.println("Принятые данные состояния переключения жестов==================================")
+//      for (i in data.indices) {
+//        System.err.println("Принятые данные состояния переключения жестов: " + data[i])
+//      }
+      System.err.println("Принятые данные состояния переключения жестов активация: " + data[0])
+      System.err.println("Принятые данные состояния переключения жестов время: " + data[2])
+      System.err.println("Принятые данные состояния переключения жестов стартовй жест: " + data[6])
+      System.err.println("Принятые данные состояния переключения жестов конечный жест: " + data[7])
 
       if (data.size >= 4) {
         if (castUnsignedCharToInt(data[0]) == 1) {
@@ -695,13 +721,20 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         }
 
         if (data.size >= 8) {
-          saveInt(mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, castUnsignedCharToInt(data[6]))
-          saveInt(mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, castUnsignedCharToInt(data[7]))
+          if (castUnsignedCharToInt(data[6]) >= 14) { showToast("ошибка протеза start gesture "+castUnsignedCharToInt(data[6])) }
+          else { saveInt(mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, castUnsignedCharToInt(data[6])) }
+          if (castUnsignedCharToInt(data[7]) >= 14) { showToast("ошибка протеза end gesture "+castUnsignedCharToInt(data[6])) }
+          else { saveInt(mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, castUnsignedCharToInt(data[7])) }
         }
       }
 
-      RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(false)
-      RxUpdateMainEvent.getInstance().updateUIGestures(100)
+      RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
+      if (enableInterfaceStatus) {
+        RxUpdateMainEvent.getInstance().updateUIGestures(100)
+      } else {
+        RxUpdateMainEvent.getInstance().updateUIGestures(101)
+      }
+
       globalSemaphore = true
     }
   }
@@ -913,10 +946,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     worker.start()
 
 
-//    showWhiteStatusBar(true)
-//    showHelpScreen()
-
-
     initUI()
   }
   @SuppressLint("SetTextI18n")
@@ -930,7 +959,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
 
       driverVersionS = driverVersion
-      RxUpdateMainEvent.getInstance().updateUIChart(true)
+      RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
     }
@@ -974,7 +1003,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           override fun onTick(millisUntilFinished: Long) {}
 
           override fun onFinish() {
-            RxUpdateMainEvent.getInstance().updateUIChart(true)
+            RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
+            //TODO добавить сюда отключение активности для остальных экранов
+
             System.err.println("updateAllParameters updateUIChart($source) 4")
           }
         }.start()
@@ -1116,7 +1147,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         ) {
           val mSectionsPagerAdapter = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
           binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)//1
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)//1//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
         } else {
           val mSectionsPagerAdapter =
             SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
@@ -1219,7 +1250,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mGattServicesList!!.setAdapter(gattServiceAdapter)
     if (mScanning) { scanLeDevice(false) }
     readStartData(true)
-    if (!mDeviceName!!.contains(DEVICE_TYPE_FEST_X)) { enableInterface (true)}
+    if (!mDeviceName!!.contains(DEVICE_TYPE_FEST_X)) { //TODO непонятный иф описать когда поймём зачем он был
+      enableInterface(true)
+    }
   }
   private fun enableInterface(enabled: Boolean) {
     if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) {
@@ -1228,33 +1261,24 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     } else {
       enableInterfaceStatus = enabled
       RxUpdateMainEvent.getInstance().updateUIChart(enabled)
-      if (enabled) {
-        if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
-          || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
-          || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
-        ) {
-          if (enabled) {
-            RxUpdateMainEvent.getInstance().updateUIGestures(100)
-          } else {
-            RxUpdateMainEvent.getInstance().updateUIGestures(101)
-          }
-          if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-            //переезжаемнаbinding
-//            swap_sensors_sw?.isEnabled = enabled
-//            swap_open_close_sw?.isEnabled = enabled
-//            single_channel_control_sw?.isEnabled = enabled
-//            reset_to_factory_settings_btn?.isEnabled = enabled
-//            get_setup_btn?.isEnabled = enabled
-//            set_setup_btn?.isEnabled = enabled
-//            shutdown_current_sb?.isEnabled = enabled
-          }
+      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+        || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
+      ) {
+        if (enabled) {
+          RxUpdateMainEvent.getInstance().updateUIGestures(100)
+        } else {
+          RxUpdateMainEvent.getInstance().updateUIGestures(101)
+        }
+        if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+          RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enabled)
         }
       }
     }
   }
-  private fun readStartData(enabled: Boolean) {
+  fun readStartData(enabled: Boolean) {
     sensorsDataThreadFlag = enabled
     if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
       || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
@@ -1997,7 +2021,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   fun getDataSens2(): Int { return dataSens2 }
   fun getMNumberGesture(): Int { return mNumberGesture }
   fun setSensorsDataThreadFlag(value: Boolean){ sensorsDataThreadFlag = value }
-  fun setDebugScreenIsOpen(value: Boolean) { debagScreenIsOpen = value }
+  fun setDebugScreenIsOpen(value: Boolean) { debugScreenIsOpen = value }
   override fun writeToParcel(parcel: Parcel, flags: Int) {
     parcel.writeByte(if (sensorsDataThreadFlag) 1 else 0)
     parcel.writeString(mDeviceName)
@@ -2284,6 +2308,59 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     return cast
   }
 
+  private fun saveBigGestureState() {
+    for (i in 0 until 13) {
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2), // проверить тут + 1
+        gestureTableBig[i][0][0]
+      )
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 2),
+        gestureTableBig[i][0][1]
+      )
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 2),
+        gestureTableBig[i][0][2]
+      )
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 2),
+        gestureTableBig[i][0][3]
+      )
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 2),
+        gestureTableBig[i][0][4]
+      )
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 2),
+        gestureTableBig[i][0][5]
+      )
+
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 2),
+        gestureTableBig[i][1][0]
+      )
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 2),
+        gestureTableBig[i][1][1]
+      )
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 2),
+        gestureTableBig[i][1][2]
+      )
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 2),
+        gestureTableBig[i][1][3]
+      )
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 2),
+        gestureTableBig[i][1][4]
+      )
+      saveInt(
+        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 2),
+        gestureTableBig[i][1][5]
+      )
+    }
+  }
   private fun saveGestureState() {
     if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
       for (i in 0 until 7) {

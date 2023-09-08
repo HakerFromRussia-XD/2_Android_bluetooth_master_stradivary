@@ -123,7 +123,7 @@ class GripperTestScreenWithEncodersActivity
                         val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
                         System.err.println("5 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i])
+                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i-1])
                         }
                     }
                     finish()

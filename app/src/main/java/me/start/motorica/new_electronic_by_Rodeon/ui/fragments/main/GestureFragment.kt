@@ -57,8 +57,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         hand_palm_14
     )
     private var testThreadFlag = true
-    private var startGestureInLoop = 0
-    private var endGestureInLoop = 0
+    private var startGestureInLoopNum = 0
+    private var endGestureInLoopNum = 0
     private var peakTimeVmNum = 0
 
     private var sensorGestureSwitching = 0
@@ -86,15 +86,15 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.onOffSensorGestureSwitchingSw.setOnClickListener {
             if (binding.onOffSensorGestureSwitchingSw.isChecked) {
                 sensorGestureSwitching = 0x01
-                binding.onOffSensorGestureSwitchingTv.text = "1"
+                binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.on_sw)
                 binding.toggleGestureClasterRl.animate().alpha(1.0f).duration = 300
                 binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
                 binding.dividerV.animate().translationY(0F).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
-                selectRotationGroup(startGestureInLoop, endGestureInLoop, true)
+                selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
             } else {
                 sensorGestureSwitching = 0x00
-                binding.onOffSensorGestureSwitchingTv.text = "0"
+                binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
                 binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
                 binding.peakTimeVmRl.animate().alpha(0.0f).duration = 300
                 binding.dividerV.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
@@ -108,11 +108,12 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 0.toByte(),
                 lockProstheses.toByte(),
                 holdToLockTimeSb.toByte(),
-                startGestureInLoop.toByte(),
-                endGestureInLoop.toByte()
+                startGestureInLoopNum.toByte(),
+                endGestureInLoopNum.toByte()
             ), ROTATION_GESTURE_NEW_VM, 50)
             main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, binding.onOffSensorGestureSwitchingSw.isChecked)
             RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
+            RxUpdateMainEvent.getInstance().updateUIChart(true)
         }
         binding.peakTimeVmSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -152,8 +153,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     0.toByte(),
                     lockProstheses.toByte(),
                     holdToLockTimeSb.toByte(),
-                    startGestureInLoop.toByte(),
-                    endGestureInLoop.toByte()
+                    startGestureInLoopNum.toByte(),
+                    endGestureInLoopNum.toByte()
                 ), ROTATION_GESTURE_NEW_VM, 50)
                 RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
 
@@ -282,8 +283,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     }
                     if (it == 100) {
                         loadAllVariables()
-                        System.err.println("RxUpdateMainEvent selectRotationGroup startGestureInLoop=$startGestureInLoop  endGestureInLoop=$endGestureInLoop")
-                        selectRotationGroup(startGestureInLoop, endGestureInLoop, true)
+                        System.err.println("RxUpdateMainEvent selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
+                        selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
                         setPeakTimeVmNum(peakTimeVmNum)
                         onOffUIAll(true)
                     }
@@ -463,11 +464,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             setOnSpinnerItemSelectedListener(
                 OnSpinnerItemSelectedListener<IconSpinnerItem?> {
                         oldIndex, _, newIndex, _ ->
-                    startGestureInLoop = newIndex
-                    System.err.println("gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoop  endGestureInLoop=$endGestureInLoop")
-                    selectRotationGroup(startGestureInLoop, endGestureInLoop, true)
+                    startGestureInLoopNum = newIndex
+                    System.err.println("gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
+                    selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
                     if (oldIndex != newIndex) {
-                        binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoop)// - startGestureInLoop - 1
+                        binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
                     }
 
                     main?.runSendCommand(byteArrayOf(
@@ -477,9 +478,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                         0.toByte(),
                         lockProstheses.toByte(),
                         holdToLockTimeSb.toByte(),
-                        startGestureInLoop.toByte(),
-                        endGestureInLoop.toByte()
+                        startGestureInLoopNum.toByte(),
+                        endGestureInLoopNum.toByte()
                     ), ROTATION_GESTURE_NEW_VM, 50)
+                    main?.saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+                    RxUpdateMainEvent.getInstance().updateUIChart(true)
                 })
             val list: MutableList<IconSpinnerItem> = ArrayList()
             for (i in 0 until PreferenceKeys.NUM_GESTURES) {
@@ -495,11 +498,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             setOnSpinnerItemSelectedListener(
                 OnSpinnerItemSelectedListener<IconSpinnerItem?> {
                         oldIndex, _, newIndex, _ ->
-                    endGestureInLoop = newIndex
-                    System.err.println("gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoop  endGestureInLoop=$endGestureInLoop")
-                    selectRotationGroup(startGestureInLoop, endGestureInLoop, false)
+                    endGestureInLoopNum = newIndex
+                    System.err.println("gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
+                    selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, false)
                     if (oldIndex != newIndex) {
-                        binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoop)
+                        binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
                     }
 
                     main?.runSendCommand(byteArrayOf(
@@ -509,9 +512,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                         0.toByte(),
                         lockProstheses.toByte(),
                         holdToLockTimeSb.toByte(),
-                        startGestureInLoop.toByte(),
-                        endGestureInLoop.toByte()
+                        startGestureInLoopNum.toByte(),
+                        endGestureInLoopNum.toByte()
                     ), ROTATION_GESTURE_NEW_VM, 50)
+                    main?.saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
+                    RxUpdateMainEvent.getInstance().updateUIChart(true)
                 })
             val list: MutableList<IconSpinnerItem> = ArrayList()
             for (i in 0 until PreferenceKeys.NUM_GESTURES) {
@@ -606,30 +611,30 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             indicatorGestureLoop[i].visibility = View.GONE
         }
     }
-    private fun selectRotationGroup(startGestureInLoop: Int, endGestureInLoop: Int, changeStartGestureInLoop: Boolean){
+    private fun selectRotationGroup(startGestureInLoopNum: Int, endGestureInLoopNum: Int, changeStartGestureInLoop: Boolean){
         //блок ограничения жестов для группы ротации
-        if (startGestureInLoop > endGestureInLoop) {
-            this.endGestureInLoop = startGestureInLoop
-            this.startGestureInLoop = endGestureInLoop
+        if (startGestureInLoopNum > endGestureInLoopNum) {
+            this.endGestureInLoopNum = startGestureInLoopNum
+            this.startGestureInLoopNum = endGestureInLoopNum
         }
 
         //блок проверки количества жестов в цикле ротации и подгонка верхней или нижней границы
-        if (endGestureInLoop - startGestureInLoop > 3) {
+        if (endGestureInLoopNum - startGestureInLoopNum > 3) {
             main?.showToast(
                 context?.resources?.getText(R.string.the_number_of_gestures_per_cycle_should_not_exceed_4)
                     .toString()
             )
             if (changeStartGestureInLoop) {
-                this.endGestureInLoop = startGestureInLoop + 3
+                this.endGestureInLoopNum = startGestureInLoopNum + 3
                 main?.showToast(
                     context?.resources?.getText(R.string.the_ending_gesture_of_the_cycle_was_changed_to)
-                        .toString() + " " + gestureNameList[this.startGestureInLoop]
+                        .toString() + " " + gestureNameList[this.startGestureInLoopNum]
                 )
             } else {
-                this.startGestureInLoop = endGestureInLoop - 3
+                this.startGestureInLoopNum = endGestureInLoopNum - 3
                 main?.showToast(
                     context?.resources?.getText(R.string.the_starting_gesture_of_the_cycle_was_changed_to)
-                        .toString() + " " + gestureNameList[this.startGestureInLoop]
+                        .toString() + " " + gestureNameList[this.startGestureInLoopNum]
                 )
             }
         }
@@ -656,7 +661,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             for (i in 0 until 14) {
                 indicatorGestureLoop[i].visibility = View.GONE
             }
-            for (i in startGestureInLoop until endGestureInLoop + 1) {
+            for (i in startGestureInLoopNum until endGestureInLoopNum + 1) {
                 indicatorGestureLoop[i].visibility = View.VISIBLE
             }
         }
@@ -758,14 +763,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 
         if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
             binding.onOffSensorGestureSwitchingSw.isChecked = true
-            binding.onOffSensorGestureSwitchingTv.text = "1"
+            binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.on_sw)
             binding.toggleGestureClasterRl.animate().alpha(1.0f).duration = 300
             binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
             binding.dividerV.animate().translationY(0F).duration = 300
             binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
         } else {
             binding.onOffSensorGestureSwitchingSw.isChecked = false
-            binding.onOffSensorGestureSwitchingTv.text = "0"
+            binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
             binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
             binding.peakTimeVmRl.animate().alpha(0.0f).duration = 300
             binding.dividerV.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
@@ -774,10 +779,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         }
 
 
-        startGestureInLoop = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
-        binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoop)
-        endGestureInLoop = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
-        binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoop)// - startGestureInLoop - 1
+        startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
+        endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
+        binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
+        binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
         peakTimeVmNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, 15)
 
         //данные необходимые для формирования правильных блютуз команд, но не изменяемые на этом фрагменте
@@ -794,7 +799,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             if (sensorGestureSwitching != 0x01 && firstStart) {
                 firstStart = false
                 System.err.println("translationY 1 !!!!!")
-                binding.onOffSensorGestureSwitchingTv.text = "0"
+                binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
                 binding.toggleGestureClasterRl.alpha = 0.0f
                 binding.peakTimeVmRl.alpha = 0.0f
                 Handler().postDelayed({

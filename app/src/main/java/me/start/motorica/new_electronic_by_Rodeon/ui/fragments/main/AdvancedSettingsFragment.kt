@@ -109,58 +109,58 @@ class AdvancedSettingsFragment : Fragment() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
 
-    binding.shutdownCurrentTextTv.textSize = 11f
-    binding.swapButtonOpenCloseTv.textSize = 11f
-    binding.singleChannelControlTextTv.textSize = 11f
-    binding.onOffSensorGestureSwitchingTextTv.textSize = 11f
-    binding.modeTextTv.textSize = 11f
-    binding.peakTimeTextTv.textSize = 11f
-    binding.peakTimeVmTextTv.textSize = 11f
-    binding.downtimeTextTv.textSize = 11f
-    binding.modeTv.textSize = 11f
-    binding.resetToFactorySettingsBtn.textSize = 10f
-    binding.calibrationAdvBtn.textSize = 10f
-    binding.calibrationStatusAdvBtn.textSize = 10f
-    binding.debugScreenBtn.textSize = 10f
-    binding.testConnectionBtn.textSize = 10f
-    binding.sideTextTv.textSize = 11f
-    binding.timeDelayOfFingersTv.textSize = 11f
-    binding.smartConnectionTv.textSize = 11f
-    binding.leftRightSideSwapTv.textSize = 11f
-    binding.shutdownCurrent1TextTv.textSize = 11f
-    binding.shutdownCurrent2TextTv.textSize = 11f
-    binding.shutdownCurrent3TextTv.textSize = 11f
-    binding.shutdownCurrent4TextTv.textSize = 11f
-    binding.shutdownCurrent5TextTv.textSize = 11f
-    binding.shutdownCurrent6TextTv.textSize = 11f
-    binding.versionAppTv.textSize = 11f
-    binding.scaleTv.textSize = 11f
-    binding.onOffProsthesesBlockingTextTv.textSize = 11f
-    binding.holdToLockTimeTextTv.textSize = 10f
-    binding.telemetryNumberEt.highlightColor = Color.WHITE
+//    binding.shutdownCurrentTextTv.textSize = 11f
+//    binding.swapButtonOpenCloseTv.textSize = 11f
+//    binding.singleChannelControlTextTv.textSize = 11f
+//    binding.onOffSensorGestureSwitchingTextTv.textSize = 11f
+//    binding.modeTextTv.textSize = 11f
+//    binding.peakTimeTextTv.textSize = 11f
+//    binding.peakTimeVmTextTv.textSize = 11f
+//    binding.downtimeTextTv.textSize = 11f
+//    binding.modeTv.textSize = 11f
+//    binding.resetToFactorySettingsBtn.textSize = 10f
+//    binding.calibrationAdvBtn.textSize = 10f
+//    binding.calibrationStatusAdvBtn.textSize = 10f
+//    binding.debugScreenBtn.textSize = 10f
+//    binding.testConnectionBtn.textSize = 10f
+//    binding.sideTextTv.textSize = 11f
+//    binding.timeDelayOfFingersTv.textSize = 11f
+//    binding.smartConnectionTv.textSize = 11f
+////    binding.leftRightSideSwapTv.textSize = 11f
+//    binding.shutdownCurrent1TextTv.textSize = 11f
+//    binding.shutdownCurrent2TextTv.textSize = 11f
+//    binding.shutdownCurrent3TextTv.textSize = 11f
+//    binding.shutdownCurrent4TextTv.textSize = 11f
+//    binding.shutdownCurrent5TextTv.textSize = 11f
+//    binding.shutdownCurrent6TextTv.textSize = 11f
+//    binding.versionAppTv.textSize = 11f
+//    binding.scaleTv.textSize = 11f
+//    binding.onOffProsthesesBlockingTextTv.textSize = 11f
+//    binding.holdToLockTimeTextTv.textSize = 10f
+//    binding.telemetryNumberEt.highlightColor = Color.WHITE
 
 
 
     if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
       binding.leftRightSideSwapSw.isChecked = true
-      binding.leftRightSideSwapTv.text = Html.fromHtml(getString(R.string.right))
+      binding.leftRightSideSwapTv.text = resources.getString(R.string.right)
     } else {
       binding.leftRightSideSwapSw.isChecked = false
       binding.leftRightSideSwapTv.text = resources.getString(R.string.left)
     }
     if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SET_FINGERS_DELAY, 0) == 1){
       binding.timeDelayOfFingersSwapSw.isChecked = true
-      binding.timeDelayOfFingersSwapTv.text = "1"
+      binding.timeDelayOfFingersSwapTv.text = resources.getString(R.string.on_sw)
     } else {
       binding.timeDelayOfFingersSwapSw.isChecked = false
-      binding.timeDelayOfFingersSwapTv.text = "0"
+      binding.timeDelayOfFingersSwapTv.text = resources.getString(R.string.off_sw)
     }
     if (mSettings!!.getBoolean(PreferenceKeys.SET_MODE_SMART_CONNECTION, false)) {
       binding.smartConnectionSwapSw.isChecked = true
-      binding.smartConnectionSwapTv.text = "1"
+      binding.smartConnectionSwapTv.text = resources.getString(R.string.on_sw)
     } else {
       binding.smartConnectionSwapSw.isChecked = false
-      binding.smartConnectionSwapTv.text = "0"
+      binding.smartConnectionSwapTv.text = resources.getString(R.string.off_sw)
     }
 
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
@@ -423,11 +423,11 @@ class AdvancedSettingsFragment : Fragment() {
     val eventYandexMetricaParametersSwapOpenCloseButton = "{\"Screen advanced settings\":\"Tup swap open close button\"}"
     binding.swapOpenCloseSw.setOnClickListener {
       if (binding.swapOpenCloseSw.isChecked) {
-        binding.swapOpenCloseTv.text = "1"
+        binding.swapOpenCloseTv.text = resources.getString(R.string.on_sw)
         main?.setSwapOpenCloseButton(true)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, true)
       } else {
-        binding.swapOpenCloseTv.text = "0"
+        binding.swapOpenCloseTv.text = resources.getString(R.string.off_sw)
         main?.setSwapOpenCloseButton(false)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
       }
@@ -439,7 +439,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.singleChannelControlSw.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (binding.singleChannelControlSw.isChecked) {
-          binding.singleChannelControlTv.text = "1"
+          binding.singleChannelControlTv.text = resources.getString(R.string.on_sw)
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW_VM, 50)
@@ -454,7 +454,7 @@ class AdvancedSettingsFragment : Fragment() {
 //          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
-          binding.singleChannelControlTv.text = "0"
+          binding.singleChannelControlTv.text = resources.getString(R.string.off_sw)
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW_VM, 50)
@@ -477,7 +477,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.onOffProsthesesBlockingSw.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (binding.onOffProsthesesBlockingSw.isChecked) {
-          binding.onOffProsthesesBlockingTv.text = "1"
+          binding.onOffProsthesesBlockingTv.text = resources.getString(R.string.on_sw)
           lockProstheses = 0x01
           binding.holdToLockTimeRl.visibility = View.VISIBLE
           main?.stage = "advanced activity"
@@ -493,7 +493,7 @@ class AdvancedSettingsFragment : Fragment() {
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, true)
         } else {
-          binding.onOffProsthesesBlockingTv.text = "0"
+          binding.onOffProsthesesBlockingTv.text = resources.getString(R.string.off_sw)
           lockProstheses = 0x00
           binding.holdToLockTimeRl.visibility = View.GONE
           main?.stage = "advanced activity"
@@ -549,7 +549,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.onOffSensorGestureSwitchingSw.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (binding.onOffSensorGestureSwitchingSw.isChecked) {
-          binding.onOffSensorGestureSwitchingTv.text = "1"
+          binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.on_sw)
           sensorGestureSwitching = 0x01
           binding.peakTimeRl.visibility = View.VISIBLE
           if (mode.toInt() == 0) binding.downtimeRl.visibility = View.VISIBLE
@@ -581,7 +581,7 @@ class AdvancedSettingsFragment : Fragment() {
           }
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, true)
         } else {
-          binding.onOffSensorGestureSwitchingTv.text = "0"
+          binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
           sensorGestureSwitching = 0x00
           binding.peakTimeRl.visibility = View.GONE
           binding.downtimeRl.visibility = View.GONE
@@ -894,11 +894,11 @@ class AdvancedSettingsFragment : Fragment() {
     binding.timeDelayOfFingersSwapSw.setOnClickListener {
       if (binding.timeDelayOfFingersSwapSw.isChecked) {
         System.err.println("time_delay_of_fingers_swap_sw 1")
-        binding.timeDelayOfFingersSwapTv.text = "1"
+        binding.timeDelayOfFingersSwapTv.text = resources.getString(R.string.on_sw)
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_FINGERS_DELAY, 1)
       } else {
         System.err.println("time_delay_of_fingers_swap_sw 0")
-        binding.timeDelayOfFingersSwapTv.text = "0"
+        binding.timeDelayOfFingersSwapTv.text = resources.getString(R.string.off_sw)
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_FINGERS_DELAY, 0)
       }
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersFingersDelay)
@@ -906,10 +906,10 @@ class AdvancedSettingsFragment : Fragment() {
 
     binding.smartConnectionSwapSw.setOnClickListener {
       if (binding.smartConnectionSwapSw.isChecked) {
-        binding.smartConnectionSwapTv.text = "1"
+        binding.smartConnectionSwapTv.text = resources.getString(R.string.on_sw)
         saveBool(PreferenceKeys.SET_MODE_SMART_CONNECTION, true)
       } else {
-        binding.smartConnectionSwapTv.text = "0"
+        binding.smartConnectionSwapTv.text = resources.getString(R.string.off_sw)
         saveBool(PreferenceKeys.SET_MODE_SMART_CONNECTION, false)
       }
     }
@@ -932,26 +932,25 @@ class AdvancedSettingsFragment : Fragment() {
 
 
 
-        binding.swapOpenCloseTv.text = "0"
         main?.setSwapOpenCloseButton(false)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
 
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
 
         binding.swapOpenCloseSw.isChecked = false
-        binding.swapOpenCloseTv.text = "0"
+        binding.swapOpenCloseTv.text = resources.getString(R.string.off_sw)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
 
         preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
         ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
 
         binding.singleChannelControlSw.isChecked = false
-        binding.singleChannelControlTv.text = "0"
+        binding.singleChannelControlTv.text = resources.getString(R.string.off_sw)
 //        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
         saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
 
         binding.onOffSensorGestureSwitchingSw.isChecked = false
-        binding.onOffSensorGestureSwitchingTv.text = "0"
+        binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
         sensorGestureSwitching = 0x00
         binding.modeRl.visibility = View.GONE
         binding.peakTimeRl.visibility = View.GONE
@@ -1061,8 +1060,8 @@ class AdvancedSettingsFragment : Fragment() {
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     }
     binding.modeSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) binding.swapOpenCloseTv.text = "1"
-    if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) binding.singleChannelControlTv.text = "1"
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)) binding.swapOpenCloseTv.text = resources.getString(R.string.on_sw)
+    if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) binding.singleChannelControlTv.text = resources.getString(R.string.on_sw)
 
 
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)) {
@@ -1205,14 +1204,14 @@ class AdvancedSettingsFragment : Fragment() {
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)) {
       binding.onOffProsthesesBlockingSw.isChecked = true
       lockProstheses = 0x01
-      binding.onOffProsthesesBlockingTv.text = "1"
+      binding.onOffProsthesesBlockingTv.text = resources.getString(R.string.on_sw)
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
         binding.holdToLockTimeRl.visibility = View.VISIBLE
       }
     } else {
       binding.onOffProsthesesBlockingSw.isChecked = false
       lockProstheses = 0x00
-      binding.onOffProsthesesBlockingTv.text = "0"
+      binding.onOffProsthesesBlockingTv.text = resources.getString(R.string.off_sw)
       binding.holdToLockTimeRl.visibility = View.GONE
     }
 
@@ -1225,7 +1224,7 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     binding.singleChannelControlSw.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
-    if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) { binding.singleChannelControlTv.text = "1" } else { binding.singleChannelControlTv.text = "0" }
+    if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)) { binding.singleChannelControlTv.text = resources.getString(R.string.on_sw) } else { binding.singleChannelControlTv.text = resources.getString(R.string.off_sw) }
 
     binding.onOffSensorGestureSwitchingSw.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
@@ -1243,10 +1242,10 @@ class AdvancedSettingsFragment : Fragment() {
         }
 
       }
-      binding.onOffSensorGestureSwitchingTv.text = "1"
+      binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.on_sw)
       sensorGestureSwitching = 0x01
     } else {
-      binding.onOffSensorGestureSwitchingTv.text = "0"
+      binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
       sensorGestureSwitching = 0x00
       binding.modeRl.visibility = View.GONE
       binding.peakTimeVmRl.visibility = View.GONE
@@ -1267,7 +1266,7 @@ class AdvancedSettingsFragment : Fragment() {
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_change_hand_side_confirm)
     yesBtn.setOnClickListener {
       if (binding.leftRightSideSwapSw.isChecked) {
-        binding.leftRightSideSwapTv.text = Html.fromHtml(getString(R.string.right))
+        binding.leftRightSideSwapTv.text = resources.getString(R.string.right)
         saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1)
       } else {
         binding.leftRightSideSwapTv.text = resources.getString(R.string.left)

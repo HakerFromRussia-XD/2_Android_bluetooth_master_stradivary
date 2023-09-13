@@ -29,7 +29,7 @@
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="2">
+                android:layout_weight="2.5">
 
                 <TextView
                     android:id="@+id/on_off_sensor_gesture_switching_text_tv"
@@ -40,9 +40,9 @@
                     android:layout_centerVertical="true"
                     android:gravity="center_vertical"
                     android:lines="2"
-                    android:textSize="12sp"
                     android:text="@string/gesture_switching_by_sensors"
                     android:textColor="@color/white"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
             </RelativeLayout>
 
@@ -58,16 +58,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:text="0"
+                    android:text="@string/off_sw"
                     android:textColor="@color/white"
                     android:textStyle="bold"
+                    android:textSize="11sp"
                     tools:ignore="HardcodedText,TooManyViews" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.5">
+                android:layout_weight="1">
 
                 <Switch
                     android:id="@+id/on_off_sensor_gesture_switching_sw"
@@ -112,7 +113,7 @@
             android:layout_marginTop="0dp"
             android:gravity="center_vertical"
             android:lines="2"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:text="@string/toggle_gesture_cluster"
             android:textColor="@color/white"
             android:textStyle="bold" />
@@ -334,7 +335,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="0dp"
                     android:text="@string/time_at_rest"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     tools:ignore="RtlHardcoded" />
@@ -355,6 +356,7 @@
                     android:text="1,00c"
                     android:textColor="@color/white"
                     android:textStyle="bold"
+                    android:textSize="11sp"
                     tools:ignore="HardcodedText" />
             </RelativeLayout>
 

@@ -151,6 +151,8 @@
     <string name="reset_to_factory_settings">восстановить к заводским настройкам</string>
     <string name="off">нет</string>
     <string name="on">да</string>
+    <string name="off_sw">выкл</string>
+    <string name="on_sw">вкл</string>
     <string name="shutdown_current">ток отсечки</string>
     <string name="rotation_thumb">ротация</string>
     <string name="thumb">большой палец</string>
@@ -440,7 +442,7 @@
     <string name="switch_activates_the_menu_function_to_change_the_start_delays_of_the_fingers">Свич активации меню функции изменения стартовых задержек пальцев</string>
     <string name="a_button_appears_in_the_gesture_configurator_that_allows_you_to_change_the_start_delay_timings_of_the_fingers_of_the_grip_being_set">В конфигураторе настройки жестов появляется кнопка, позволяющая изменять тайминги стартовых задержек пальцев настраиваемого схвата.</string>
     <string name="switch_to_deactivate_the_smart_connection_function">Свич деактивации функции «умного подключения»</string>
-    <string name="if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prostheses_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected_the_feature_should_be_turned_off_for_couples_because_it_is_important_for_them_to_choose_which_prostheses_to_connect_to_on_their_own_every_time_it_is_also_unnecessary_for_those_who_frequently_connect_to_different_devices">Если функция активна, а активна она «по умолчанию», то при повторном запуске приложения, на экране сканирования производится аналитика всех отсканированных устройств и при нахождении последнего к которому осуществлялось  подключение, осуществляется автоматическое подключение к нему. Это позволяет ускорить (около секунды) и облегчить процесс подключения для большинства пользователей (у кого один протез). Если функция отключена, то пользователь находится на экране выбора устройств до тех пор, пока не выберет конкретное устройство. Функцию нужно отключать для парников, потому что им важно каждый раз делать выбор к какому протезу подключиться самостоятельно. Так же  эта функция не нужна тем, кто часто подключается к разным устройствам.</string>
+    <string name="if_the_function_is_active_and_it_is_active_by_default_then_when_you_run_the_application_again_the_scanning_screen_analyzes_all_the_scanned_devices_and_when_the_last_device_to_which_the_connection_was_made_is_found_it_automatically_connects_to_it_this_makes_the_connection_process_faster_about_a_second_and_easier_for_most_users_those_with_a_single_prostheses_if_the_function_is_disabled_the_user_is_on_the_device_selection_screen_until_a_specific_device_is_selected_the_feature_should_be_turned_off_for_couples_because_it_is_important_for_them_to_choose_which_prostheses_to_connect_to_on_their_own_every_time_it_is_also_unnecessary_for_those_who_frequently_connect_to_different_devices">Если функция активна, а активна она «по умолчанию», то при повторном запуске приложения, на экране сканирования производится аналитика всех отсканированных устройств и при нахождении последнего к которому осуществлялось  подключение, осуществляется автоматическое подключение к нему. Это позволяет ускорить (около секунды) и облегчить процесс подключения для большинства пользователей (у кого один протез). Если функция отключена, то пользователь находится на экране выбора устройств до тех пор, пока не выберет конкретное устройство. Функцию нужно отключать для парников, потому что им важно каждый раз самостоятельно делать выбор к какому протезу подключиться. Так же  эта функция не нужна тем, кто часто подключается к разным устройствам.</string>
     <string name="reset_button_to_factory_default_settings">Кнопка сброса настроек протеза к заводским параметрам</string>
     <string name="after_pressing_it_all_the_parameters_of_the_prostheses_return_to_the_by_default_state">После её нажатия все параметры протеза возвращаются к состоянию «по умолчанию».</string>
     <string name="button_to_start_calibration">Кнопка начала калибровки</string>
@@ -462,6 +464,7 @@
     <string name="the_number_of_gestures_per_cycle_should_not_exceed_4">Количество жестов в цикле не должно превышать 4</string>
     <string name="the_starting_gesture_of_the_cycle_was_changed_to">Стартовый жест цикла был изменён на</string>
     <string name="the_ending_gesture_of_the_cycle_was_changed_to">Конечный жест цикла был изменён на</string>
+    <string name="emg_mode">режим ЕМГ</string>
 
 
     <string-array name="numbers">

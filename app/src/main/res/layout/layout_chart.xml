@@ -139,6 +139,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="0dp"
                 android:weightSum="3"
+                android:visibility="visible"
                 tools:ignore="DisableBaselineAlignment">
 
                 <RelativeLayout
@@ -146,11 +147,23 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1">
                     <ImageView
-                        android:id="@+id/start_loop_gesture_iv"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/hand_palm_1"
+                        android:src="@drawable/hand_palm"
                         tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/start_loop_gesture_tv"
+                        style="@style/Text"
+                        android:layout_width="20dp"
+                        android:layout_height="10dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="1dp"
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="5sp"
+                        tools:ignore="SmallSp" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="0dp"
@@ -168,11 +181,24 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1">
                     <ImageView
-                        android:id="@+id/end_loop_gesture_iv"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/hand_palm_4"
+                        android:src="@drawable/hand_palm"
                         tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/end_loop_gesture_tv"
+                        style="@style/Text"
+                        android:layout_width="20dp"
+                        android:layout_height="10dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="1dp"
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="5sp"
+                        tools:ignore="SmallSp" />
+
                 </RelativeLayout>
             </LinearLayout>
 
@@ -198,7 +224,8 @@
                 android:layout_marginBottom="1dp"
                 android:layout_toStartOf="@+id/save_profile_btn"
                 android:background="@drawable/help"
-                android:padding="5dp" />
+                android:padding="5dp"
+                tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
             <androidx.appcompat.widget.AppCompatSeekBar
                 android:id="@+id/sync_sb"
@@ -534,7 +561,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/opening_sensor_sensitivity"
                                 android:textColor="@color/white"
-                                android:textSize="9sp"
+                                android:textSize="8sp"
                                 android:textStyle="bold"
                                 tools:ignore="SmallSp"
                                 app:layout_constraintTop_toTopOf="parent"
@@ -645,7 +672,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/closing_sensor_sensitivity"
                                 android:textColor="@color/white"
-                                android:textSize="9sp"
+                                android:textSize="8sp"
                                 android:textStyle="bold"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
@@ -739,7 +766,7 @@
                         <RelativeLayout
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="2">
+                            android:layout_weight="2.5">
 
                             <TextView
                                 android:id="@+id/swap_sensors_text_tv"
@@ -750,6 +777,7 @@
                                 android:layout_centerVertical="true"
                                 android:text="@string/swap_sensors"
                                 android:textColor="@color/white"
+                                android:textSize="11sp"
                                 android:textStyle="bold" />
                         </RelativeLayout>
 
@@ -764,16 +792,17 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
-                                android:text="0"
+                                android:text="@string/off_sw"
                                 android:textColor="@color/white"
                                 android:textStyle="bold"
+                                android:textSize="11sp"
                                 tools:ignore="HardcodedText" />
                         </RelativeLayout>
 
                         <RelativeLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1.5">
+                            android:layout_weight="1">
 
                             <Switch
                                 android:id="@+id/swap_sensors_sw"
@@ -809,7 +838,7 @@
                         <RelativeLayout
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="2">
+                            android:layout_weight="2.5">
 
                             <TextView
                                 android:id="@+id/settings_blocking_tv"
@@ -820,13 +849,15 @@
                                 android:layout_centerVertical="true"
                                 android:text="@string/settings_blocking"
                                 android:textColor="@color/white"
+                                android:textSize="11sp"
                                 android:textStyle="bold" />
                         </RelativeLayout>
 
                         <RelativeLayout
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="0.5">
+                            android:layout_weight="0.5"
+                            tools:ignore="TooManyViews">
 
                             <TextView
                                 android:id="@+id/thresholds_blocking_tv"
@@ -834,21 +865,21 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
-                                android:text="@string/off"
+                                android:text="@string/off_sw"
                                 android:textColor="@color/white"
+                                android:textSize="11sp"
                                 android:textStyle="bold" />
                         </RelativeLayout>
 
                         <RelativeLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1.5">
+                            android:layout_weight="1">
 
                             <Switch
                                 android:id="@+id/thresholds_blocking_sw"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
-                                android:layout_alignParentStart="true"
                                 android:layout_alignParentEnd="true"
                                 android:layout_marginEnd="0dp"
                                 android:ellipsize="middle"
@@ -870,14 +901,16 @@
                         android:id="@+id/calibration_btn"
                         style="@style/Text"
                         android:layout_width="match_parent"
-                        android:layout_height="42dp"
+                        android:layout_height="34dp"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="0dp"
                         android:layout_marginEnd="16dp"
                         android:layout_marginBottom="3dp"
                         android:background="@drawable/custom_button_le"
+                        android:text="@string/start_calibration"
                         android:textColor="@color/white"
-                        android:text="@string/start_calibration" />
+                        android:textSize="9sp"
+                        tools:ignore="SmallSp" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:id="@+id/game_rl"
@@ -905,7 +938,7 @@
         <RelativeLayout
             android:id="@+id/movement_buttons_rl"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="48dp"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="0dp">
 
@@ -927,13 +960,15 @@
                         android:id="@+id/open_btn"
                         style="@style/Text"
                         android:layout_width="match_parent"
-                        android:layout_height="42dp"
+                        android:layout_height="34dp"
                         android:layout_marginTop="4dp"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginEnd="16dp"
                         android:background="@drawable/custom_button_le"
                         android:text="@string/open_btn"
                         android:textColor="@color/white"
-                        android:visibility="visible" />
+                        android:textSize="9sp"
+                        android:visibility="visible"
+                        tools:ignore="SmallSp,TouchTargetSizeCheck" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -945,13 +980,15 @@
                         android:id="@+id/close_btn"
                         style="@style/Text"
                         android:layout_width="match_parent"
-                        android:layout_height="42dp"
-                        android:layout_marginStart="8dp"
+                        android:layout_height="34dp"
+                        android:layout_marginStart="16dp"
                         android:layout_marginTop="4dp"
                         android:background="@drawable/custom_button_le"
                         android:text="@string/close_btn"
                         android:textColor="@color/white"
-                        android:visibility="visible" />
+                        android:textSize="9sp"
+                        android:visibility="visible"
+                        tools:ignore="SmallSp,TouchTargetSizeCheck" />
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>

@@ -150,6 +150,8 @@
     <string name="reset_to_factory_settings">reset to factory settings</string>
     <string name="off">off</string>
     <string name="on">on</string>
+    <string name="off_sw">off</string>
+    <string name="on_sw">on</string>
     <string name="shutdown_current">shutdown current</string>
     <string name="rotation_thumb">rotation thumb</string>
     <string name="thumb">thumb</string>
@@ -460,6 +462,7 @@
     <string name="the_number_of_gestures_per_cycle_should_not_exceed_4">The number of gestures per cycle should not exceed 4</string>
     <string name="the_starting_gesture_of_the_cycle_was_changed_to">The starting gesture of the cycle was changed to</string>
     <string name="the_ending_gesture_of_the_cycle_was_changed_to">The ending gesture of the cycle was changed to</string>
+    <string name="emg_mode">EMG mode</string>
 
 
     <string-array name="numbers">

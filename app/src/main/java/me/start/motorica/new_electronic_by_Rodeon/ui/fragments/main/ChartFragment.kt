@@ -95,12 +95,12 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           updateAllParameters()
           enabledSensorsUIBeforeConnection(it)
 
-          //скрываем интерфейс управления группами ротации
+          //показываем индикацию выбранной группы ротации
           if (main?.driverVersionS != null) {
             val driverNum =
               main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-            if (driverNum.toInt() < 237) {
-              hideUIRotationGroup()
+            if (driverNum.toInt() >= 237) {
+              showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
             }
           }
         } else {
@@ -114,24 +114,24 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     if (main?.locate?.contains("ru")!!) {
-      binding.openingSensorSensitivityTv.textSize = 8f
-      binding.closingSensorSensitivityTv.textSize = 8f
-      binding.swapSensorsTextTv.textSize = 11f
-      binding.settingsBlockingTv.textSize = 11f
-      binding.calibrationBtn.textSize = 12f
+//      binding.openingSensorSensitivityTv.textSize = 8f
+//      binding.closingSensorSensitivityTv.textSize = 8f
+//      binding.swapSensorsTextTv.textSize = 11f
+//      binding.settingsBlockingTv.textSize = 11f
+//      binding.calibrationBtn.textSize = 12f
     }
-    initializedSensorGraph()
-    initializedUI()
-    showAdvancedSettings = NavigationUtils.showAdvancedSettings
-
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-
+    showAdvancedSettings = NavigationUtils.showAdvancedSettings
     main?.setSwapOpenCloseButton(preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))
     scale = resources.displayMetrics.density
 
+
+    initializedSensorGraph()
+    initializedUI()
+
+
     binding.nameTv.text = main?.mDeviceName
     binding.nameTv.setOnClickListener {
-//      main?.disconnect()
       main?.showDisconnectDialog()
     }
 
@@ -359,7 +359,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.swapSensorsSw.setOnClickListener {
       if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
         if (binding.swapSensorsSw.isChecked) {
-          binding.swapSensorsTv.text = 1.toString()
+          binding.swapSensorsTv.text = resources.getString(R.string.on_sw)
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "chart activity"
             main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, 50)
@@ -373,7 +373,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
 //          main?.setReverseNum = 1
         } else {
-          binding.swapSensorsTv.text = 0.toString()
+          binding.swapSensorsTv.text = resources.getString(R.string.off_sw)
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "chart activity"
             main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, 50)
@@ -399,10 +399,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     val eventYandexMetricaParametersThresholdsBlocking = "{\"Screen chart\":\"Tup settings blocking switch\"}"
     binding.thresholdsBlockingSw.setOnClickListener{
       if (binding.thresholdsBlockingSw.isChecked) {
-        binding.thresholdsBlockingTv.text = Html.fromHtml(getString(R.string.on))
+        binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
       } else {
-        binding.thresholdsBlockingTv.text = resources.getString(R.string.off)
+        binding.thresholdsBlockingTv.text = resources.getString(R.string.off_sw)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersThresholdsBlocking)
@@ -658,9 +658,14 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     startGraphEnteringDataThread()
   }
 
-  private fun hideUIRotationGroup() {
-    binding.loopGesturesLl.visibility = View.GONE
+  private fun showUIRotationGroup(enabled: Boolean) {
+    if (enabled) {
+      binding.loopGesturesLl.visibility = View.VISIBLE
+    } else {
+      binding.loopGesturesLl.visibility = View.GONE
+    }
   }
+  @SuppressLint("SetTextI18n")
   private fun enabledSensorsUIBeforeConnection (enabled: Boolean) {
     binding.swapSensorsSw.isEnabled = enabled
     binding.closeBtn.isEnabled = enabled
@@ -671,11 +676,17 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.correlatorNoiseThreshold2Sb.isEnabled = enabled
     binding.correlatorNoiseThreshold1Tv.isEnabled = enabled
     binding.correlatorNoiseThreshold2Tv.isEnabled = enabled
+
+    val startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
+    val endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
+    binding.startLoopGestureTv.text = (startGestureInLoopNum + 1).toString()
+    binding.endLoopGestureTv.text = (endGestureInLoopNum + 1).toString()
+    showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
   }
   @SuppressLint("SetTextI18n")
   private fun initializedUI() {
     binding.thresholdsBlockingSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = Html.fromHtml(getString(R.string.on))
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
     enabledSensorsUIBeforeConnection(false)
     //скрываем кнопку калибровки для всех моделей кроме FEST_H и FEST_X
     if ((main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false && main?.mDeviceType?.contains(DEVICE_TYPE_FEST_X) == false)) {
@@ -859,9 +870,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       binding.swapSensorsSw.isChecked =
         mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
       if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) {
-        binding.swapSensorsTv.text = 1.toString()
+        binding.swapSensorsTv.text = resources.getString(R.string.on_sw)
       } else {
-        binding.swapSensorsTv.text = 0.toString()
+        binding.swapSensorsTv.text = resources.getString(R.string.off_sw)
       }
       if (!(main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) ||
                 main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) ||

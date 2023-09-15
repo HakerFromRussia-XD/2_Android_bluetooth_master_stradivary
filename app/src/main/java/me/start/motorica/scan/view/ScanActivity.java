@@ -89,6 +89,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     TextSwitcher scanningTextSwitcher;
     private int filterWidth = 0;
     private boolean firstStart = true;
+    private boolean firstNavigateToActivity = true;
     private boolean filteringOursDevices = true;
     private boolean acteveteRssiShow = false;
     // 3D
@@ -409,27 +410,30 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     @SuppressLint("MissingPermission")
     @Override
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) {
-        mHandler.postDelayed(() -> {
-            for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
-                final int finalK = k;
-                System.err.println("Запуск загрузки: " + finalK);
-                threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
-                threadFunction[k].start();
+        if (firstNavigateToActivity) {
+            firstNavigateToActivity = false;
+            mHandler.postDelayed(() -> {
+                for (int k = 0; k < MAX_NUMBER_DETAILS; k++) {
+                    final int finalK = k;
+                    System.err.println("Запуск загрузки: " + finalK);
+                    threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
+                    threadFunction[k].start();
+                }
+            }, 500);
+
+
+            if (extraDevice == null) return;
+            Intent intent = new Intent(ScanActivity.this, StartActivity.class);
+            intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, extraDevice.getName());
+            intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
+            intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, extraDevice.getName());
+            if (mScanning) {
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                mScanning = false;
             }
-        }, 500);
-
-
-        if (extraDevice == null) return;
-        Intent intent = new Intent(ScanActivity.this, StartActivity.class);
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, extraDevice.getName());
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, extraDevice.getName());
-        if (mScanning) {
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            mScanning = false;
+            startActivity(intent);
+            finish();
         }
-        startActivity(intent);
-        finish();
     }
     private void testNavigate() {
         mHandler.postDelayed(() -> {

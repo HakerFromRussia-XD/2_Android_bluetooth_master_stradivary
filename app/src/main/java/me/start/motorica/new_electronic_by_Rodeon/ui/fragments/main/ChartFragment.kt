@@ -99,6 +99,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           if (main?.driverVersionS != null) {
             val driverNum =
               main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+            System.err.println("context ChartFragment NULL!")
             if (driverNum.toInt() >= 237) {
               showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
             }
@@ -113,13 +114,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   @SuppressLint("ClickableViewAccessibility", "SetTextI18n", "Recycle")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-    if (main?.locate?.contains("ru")!!) {
-//      binding.openingSensorSensitivityTv.textSize = 8f
-//      binding.closingSensorSensitivityTv.textSize = 8f
-//      binding.swapSensorsTextTv.textSize = 11f
-//      binding.settingsBlockingTv.textSize = 11f
-//      binding.calibrationBtn.textSize = 12f
-    }
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
     showAdvancedSettings = NavigationUtils.showAdvancedSettings
     main?.setSwapOpenCloseButton(preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false))

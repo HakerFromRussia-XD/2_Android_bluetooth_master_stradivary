@@ -817,7 +817,7 @@
                                 android:scrollbarSize="48dp"
                                 android:thumb="@drawable/switch_le_thumb"
                                 android:track="@drawable/switch_le_truck"
-                                tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+                                tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
                         </RelativeLayout>
                     </LinearLayout>
                 </RelativeLayout>
@@ -888,7 +888,7 @@
                                 android:scrollbarSize="48dp"
                                 android:thumb="@drawable/switch_le_thumb"
                                 android:track="@drawable/switch_le_truck"
-                                tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml" />
+                                tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
                         </RelativeLayout>
                     </LinearLayout>
                 </RelativeLayout>
@@ -902,7 +902,7 @@
                         android:id="@+id/calibration_btn"
                         style="@style/Text"
                         android:layout_width="match_parent"
-                        android:layout_height="42dp"
+                        android:layout_height="48dp"
                         android:layout_alignParentTop="true"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="8dp"
@@ -912,7 +912,7 @@
                         android:text="@string/start_calibration"
                         android:textColor="@color/white"
                         android:textSize="9sp"
-                        tools:ignore="SmallSp" />
+                        tools:ignore="SmallSp,TouchTargetSizeCheck" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:id="@+id/game_rl"

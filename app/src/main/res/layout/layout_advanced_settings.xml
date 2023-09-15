@@ -1021,7 +1021,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingTop="8dp"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <lib.kingja.switchbutton.SwitchMultiButton
                     android:id="@+id/mode_new_sw"
@@ -1713,9 +1713,9 @@
                 android:id="@+id/calibration_rl"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:layout_weight="1"
-                android:paddingTop="8dp"
+                android:paddingTop="4dp"
                 android:visibility="visible">
 
                 <LinearLayout

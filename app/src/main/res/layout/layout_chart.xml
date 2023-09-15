@@ -749,7 +749,8 @@
                 <RelativeLayout
                     android:id="@+id/swap_sensors_rl"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="8dp"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <LinearLayout
@@ -823,7 +824,7 @@
                 <RelativeLayout
                     android:id="@+id/thresholds_blocking_rl"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="42dp"
                     app:layout_constraintTop_toBottomOf="@+id/swap_sensors_rl">
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -901,9 +902,10 @@
                         android:id="@+id/calibration_btn"
                         style="@style/Text"
                         android:layout_width="match_parent"
-                        android:layout_height="34dp"
+                        android:layout_height="42dp"
+                        android:layout_alignParentTop="true"
                         android:layout_marginStart="16dp"
-                        android:layout_marginTop="0dp"
+                        android:layout_marginTop="8dp"
                         android:layout_marginEnd="16dp"
                         android:layout_marginBottom="3dp"
                         android:background="@drawable/custom_button_le"
@@ -960,7 +962,7 @@
                         android:id="@+id/open_btn"
                         style="@style/Text"
                         android:layout_width="match_parent"
-                        android:layout_height="34dp"
+                        android:layout_height="42dp"
                         android:layout_marginTop="4dp"
                         android:layout_marginEnd="16dp"
                         android:background="@drawable/custom_button_le"
@@ -980,7 +982,7 @@
                         android:id="@+id/close_btn"
                         style="@style/Text"
                         android:layout_width="match_parent"
-                        android:layout_height="34dp"
+                        android:layout_height="42dp"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="4dp"
                         android:background="@drawable/custom_button_le"

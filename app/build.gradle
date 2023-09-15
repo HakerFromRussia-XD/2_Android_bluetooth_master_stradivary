@@ -6,6 +6,20 @@ plugins {
 
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/Users/motoricallc/Keystore.jks')
+            storePassword '89157719183'
+            keyAlias 'key0'
+            keyPassword '89157719183'
+        }
+        release {
+        storeFile file('/Users/motoricallc/Keystore.jks')
+            storePassword '89157719183'
+            keyAlias 'key0'
+            keyPassword '89157719183'
+        }
+    }
     namespace 'me.start.motorica'
     compileSdk 33
     buildToolsVersion '32.0.0'
@@ -19,6 +33,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+        signingConfig signingConfigs.release
     }
 
     buildTypes {

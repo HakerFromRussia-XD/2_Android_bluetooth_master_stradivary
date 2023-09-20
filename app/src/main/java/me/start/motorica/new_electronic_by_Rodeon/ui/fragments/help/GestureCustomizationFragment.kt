@@ -56,6 +56,30 @@ class GestureCustomizationFragment(private val chartFragmentClass: ChartFragment
             binding.imageView19.setImageDrawable(resources.getDrawable(R.drawable.help_image_19_ru))
             binding.imageView20.setImageDrawable(resources.getDrawable(R.drawable.help_image_20_ru))
             binding.imageView21.setImageDrawable(resources.getDrawable(R.drawable.help_image_21_ru))
+            binding.imageView22.setImageDrawable(resources.getDrawable(R.drawable.help_image_45_ru))
+            binding.imageView23.setImageDrawable(resources.getDrawable(R.drawable.help_image_46_ru))
+            binding.imageView24.setImageDrawable(resources.getDrawable(R.drawable.help_image_47_ru))
+            binding.imageView25.setImageDrawable(resources.getDrawable(R.drawable.help_image_48_ru))
+        }
+
+        //скрываем управление группой ротации для версий 2.37 и выше
+        goneExtraView()
+        System.err.println("driverVersionS GestureCustomFragment ${main?.driverVersionS}")
+        if (main?.driverVersionS != null) {
+            val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+            if (driverNum.toInt() >= 237) {
+                binding.textView87.visibility = View.VISIBLE
+                binding.textView85223.visibility = View.VISIBLE
+                binding.imageView22.visibility = View.VISIBLE
+                binding.textView85234.visibility = View.VISIBLE
+                binding.imageView23.visibility = View.VISIBLE
+                binding.textView852341.visibility = View.VISIBLE
+                binding.textView8523412.visibility = View.VISIBLE
+                binding.imageView24.visibility = View.VISIBLE
+                binding.textView85234123.visibility = View.VISIBLE
+                binding.imageView25.visibility = View.VISIBLE
+                binding.textView852341234.visibility = View.VISIBLE
+            }
         }
 
         binding.sensorsSettingsBtn.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
@@ -75,5 +99,18 @@ class GestureCustomizationFragment(private val chartFragmentClass: ChartFragment
         }
 
         binding.backBtn.setOnClickListener { navigator().goingBack() }
+    }
+    private fun goneExtraView() {
+        binding.textView87.visibility = View.GONE
+        binding.textView85223.visibility = View.GONE
+        binding.imageView22.visibility = View.GONE
+        binding.textView85234.visibility = View.GONE
+        binding.imageView23.visibility = View.GONE
+        binding.textView852341.visibility = View.GONE
+        binding.textView8523412.visibility = View.GONE
+        binding.imageView24.visibility = View.GONE
+        binding.textView85234123.visibility = View.GONE
+        binding.imageView25.visibility = View.GONE
+        binding.textView852341234.visibility = View.GONE
     }
 }

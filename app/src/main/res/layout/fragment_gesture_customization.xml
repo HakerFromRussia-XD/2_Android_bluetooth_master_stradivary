@@ -450,6 +450,7 @@
                         app:layout_constraintTop_toBottomOf="@+id/textView852"
                         tools:ignore="ContentDescription" />
 
+
                     <TextView
                         android:id="@+id/textView86"
                         android:layout_width="0dp"
@@ -462,7 +463,6 @@
                         app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
                         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
                         app:layout_constraintTop_toBottomOf="@+id/imageView19" />
-
 
                     <TextView
                         android:id="@+id/textView8522"
@@ -517,6 +517,155 @@
                         app:layout_constraintTop_toBottomOf="@+id/textView8523"
                         app:layout_constraintVertical_bias="0.0"
                         tools:ignore="ContentDescription" />
+
+
+
+
+                    <TextView
+                        android:id="@+id/textView87"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/configuring_a_gesture_group_for_sensor_switching"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView21" />
+
+                    <TextView
+                        android:id="@+id/textView85223"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/to_make_the_rotation_group_setting_available_you_must_activate_the_gesture_switching_function_of_the_sensors"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView87" />
+
+                    <ImageView
+                        android:id="@+id/imageView22"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_45_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView85223"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView85234"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/by_pressing_these_buttons_from_the_drop_down_list_you_can_select_the_numbers_of_the_start_and_end_gesture_in_the_rotation_group_respectively"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView22" />
+
+                    <ImageView
+                        android:id="@+id/imageView23"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_46_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView85234"
+                        app:layout_constraintVertical_bias="0.0"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView852341"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/in_this_example_the_first_gesture_is_selected_as_the_starting_gesture_and_the_fourth_as_the_ending_gesture_the_maximum_number_of_gestures_in_a_group_is_4_if_the_start_gesture_is_set_larger_than_the_end_gesture_the_system_will_swap_them_if_a_range_larger_than_the_allowed_range_is_selected_the_system_will_reduce_it_to_4"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView23"/>
+
+                    <TextView
+                        android:id="@+id/textView8523412"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/arrow_icons_will_appear_on_the_buttons_in_the_rotation_group"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView852341" />
+
+                    <ImageView
+                        android:id="@+id/imageView24"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_47_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView8523412"
+                        app:layout_constraintVertical_bias="0.0"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView85234123"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/the_switching_is_performed_according_to_the_following_logic_the_user_opens_the_prosthesis_as_far_as_it_will_go_and_triggers_the_opening_signal_again_when_the_signal_lasts_longer_than_the_time_set_in_the_peak_length_parameter_the_gesture_is_switched"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView24"/>
+
+                    <ImageView
+                        android:id="@+id/imageView25"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_48_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView85234123"
+                        app:layout_constraintVertical_bias="0.0"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/textView852341234"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/if_a_gesture_from_outside_the_rotation_group_was_set_the_first_gesture_of_the_rotation_group_will_be_activated_if_a_gesture_that_is_part_of_a_group_has_been_set_the_next_gesture_of_the_group_will_be_switched_to_the_next_gesture_of_the_group_when_the_final_gesture_of_the_group_is_reached_the_first_gesture_of_the_group_will_be_enabled_again_the_user_can_select_any_gesture_from_the_available_gestures_by_tapping_on_the_screen_regardless_of_how_the_rotation_group_is_set_up"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView25"
+                        app:layout_constraintBottom_toBottomOf="@id/bottomGuideline_2"/>
 
 
                 </androidx.constraintlayout.widget.ConstraintLayout>

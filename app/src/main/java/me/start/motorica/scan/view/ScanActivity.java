@@ -318,16 +318,18 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanList.clear();
         filteringLeDevices.clear();
         for (int i = 0; i < items.size(); i++) {
-            if (checkOurLEName(items.get(i).getName())) {
-                scanList.add(new ScanItem(
-                        items.get(i).getName(),
-                        items.get(i).getAddress(),
-                        i,
-                        rssis.get(i)
-                ));
-                filteringLeDevices.add(items.get(i));
-                System.err.println("--> scanList: "+scanList.size());
-                animateScanList(scanList.size());
+            if (items.get(i).getName() != null) {
+                if (checkOurLEName(items.get(i).getName())) {
+                    scanList.add(new ScanItem(
+                            items.get(i).getName(),
+                            items.get(i).getAddress(),
+                            i,
+                            rssis.get(i)
+                    ));
+                    filteringLeDevices.add(items.get(i));
+                    System.err.println("--> scanList: " + scanList.size());
+                    animateScanList(scanList.size());
+                }
             }
         }
     }

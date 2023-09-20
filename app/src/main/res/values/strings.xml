@@ -220,7 +220,7 @@
     <string name="_4_finger_delay">little finger delay</string>
     <string name="_5_finger_delay">big finger delay</string>
     <string name="_6_finger_delay">rotation delay</string>
-    <string name="time_at_rest">time at rest</string>
+    <string name="time_at_rest">peak length</string>
     <string name="recalibration_required_to_complete_prostheses_side_change">Recalibration required to complete prostheses side change.</string>
     <string name="do_you_want_to_start_calibration_now">Do you want to start calibration now?</string>
     <string name="version_app">version app:</string>
@@ -463,6 +463,15 @@
     <string name="the_starting_gesture_of_the_cycle_was_changed_to">The starting gesture of the cycle was changed to</string>
     <string name="the_ending_gesture_of_the_cycle_was_changed_to">The ending gesture of the cycle was changed to</string>
     <string name="emg_mode">EMG mode</string>
+    <string name="configuring_a_gesture_group_for_sensor_switching">Configuring a gesture group for sensor switching</string>
+    <string name="to_make_the_rotation_group_setting_available_you_must_activate_the_gesture_switching_function_of_the_sensors">To make the rotation group setting available, you must activate the gesture switching function of the sensors.</string>
+    <string name="by_pressing_these_buttons_from_the_drop_down_list_you_can_select_the_numbers_of_the_start_and_end_gesture_in_the_rotation_group_respectively">By pressing these buttons from the drop-down list you can select the numbers of the start and end gesture in the rotation group respectively.</string>
+    <string name="in_this_example_the_first_gesture_is_selected_as_the_starting_gesture_and_the_fourth_as_the_ending_gesture_the_maximum_number_of_gestures_in_a_group_is_4_if_the_start_gesture_is_set_larger_than_the_end_gesture_the_system_will_swap_them_if_a_range_larger_than_the_allowed_range_is_selected_the_system_will_reduce_it_to_4">In this example, the first gesture is selected as the starting gesture and the fourth as the ending gesture. The maximum number of gestures in a group is 4. If the start gesture is set larger than the end gesture, the system will swap them. If a range larger than the allowed range is selected, the system will reduce it to 4.</string>
+    <string name="arrow_icons_will_appear_on_the_buttons_in_the_rotation_group">Arrow icons will appear on the buttons in the rotation group.</string>
+    <string name="the_switching_is_performed_according_to_the_following_logic_the_user_opens_the_prosthesis_as_far_as_it_will_go_and_triggers_the_opening_signal_again_when_the_signal_lasts_longer_than_the_time_set_in_the_peak_length_parameter_the_gesture_is_switched">The switching is performed according to the following logic. The user opens the prosthesis as far as it will go and triggers the opening signal again. When the signal lasts longer than the time set in the «peak length» parameter, the gesture is switched.</string>
+    <string name="if_a_gesture_from_outside_the_rotation_group_was_set_the_first_gesture_of_the_rotation_group_will_be_activated_if_a_gesture_that_is_part_of_a_group_has_been_set_the_next_gesture_of_the_group_will_be_switched_to_the_next_gesture_of_the_group_when_the_final_gesture_of_the_group_is_reached_the_first_gesture_of_the_group_will_be_enabled_again_the_user_can_select_any_gesture_from_the_available_gestures_by_tapping_on_the_screen_regardless_of_how_the_rotation_group_is_set_up">If a gesture from outside the rotation group was set, the first gesture of the rotation group will be activated. If a gesture that is part of a group has been set, the next gesture of the group will be switched to the next gesture of the group. When the final gesture of the group is reached, the first gesture of the group will be enabled again. The user can select any gesture from the available gestures by tapping on the screen, regardless of how the rotation group is set up.</string>
+    <string name="emg_sensor_mode_selection">EMG sensor mode selection</string>
+    <string name="normal_sensitive_mode_reduces_false_signals_but_is_slower_to_respond_to_muscle_tension_while_increased_sensitive_mode_responds_faster_to_muscle_signals_with_less_noise_immunity">Normal sensitive mode reduces false signals but is slower to respond to muscle tension, while «increased sensitive» mode responds faster to muscle signals with less noise immunity.</string>
 
 
     <string-array name="numbers">

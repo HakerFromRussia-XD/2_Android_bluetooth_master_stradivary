@@ -582,6 +582,47 @@
                         app:layout_constraintTop_toBottomOf="@+id/textView171111111111"
                         tools:ignore="ContentDescription" />
 
+
+                    <TextView
+                        android:id="@+id/textView8811111111112"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:fontFamily="@font/font_inter_semi_bold"
+                        android:text="@string/emg_sensor_mode_selection"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/imageView32" />
+
+                    <TextView
+                        android:id="@+id/textView1711111111112"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/normal_sensitive_mode_reduces_false_signals_but_is_slower_to_respond_to_muscle_tension_while_increased_sensitive_mode_responds_faster_to_muscle_signals_with_less_noise_immunity"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView8811111111112" />
+
+                    <ImageView
+                        android:id="@+id/imageView39"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/help_image_49_us"
+                        app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
+                        app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView1711111111112"
+                        tools:ignore="ContentDescription" />
+
+
+
                     <TextView
                         android:id="@+id/textView8811111111111"
                         android:layout_width="0dp"
@@ -593,7 +634,7 @@
                         android:textSize="18sp"
                         app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
                         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
-                        app:layout_constraintTop_toBottomOf="@+id/imageView32" />
+                        app:layout_constraintTop_toBottomOf="@+id/imageView39" />
 
                     <TextView
                         android:id="@+id/textView1711111111111"

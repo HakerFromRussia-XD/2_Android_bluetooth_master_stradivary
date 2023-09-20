@@ -29,6 +29,9 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import com.skydoves.powerspinner.IconSpinnerAdapter
+import com.skydoves.powerspinner.IconSpinnerItem
+import com.skydoves.powerspinner.OnSpinnerItemSelectedListener
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.start.motorica.BuildConfig
@@ -65,6 +68,10 @@ class AdvancedSettingsFragment : Fragment() {
   private var current4 = 0
   private var current5 = 0
   private var current6 = 0
+
+  private var correlatorNoiseThreshold1 = 0
+  private var correlatorNoiseThreshold2 = 0
+  private var modeEMGSend = 0
 
   private var startGestureInLoop = 0
   private var endGestureInLoop = 0
@@ -108,37 +115,29 @@ class AdvancedSettingsFragment : Fragment() {
   private fun initializeUI() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
+    binding.EMGModeSwapPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
+      modeEMGSend = when (newIndex) {
+          0 -> {
+            saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 9)
+            9
+          }
+          1 -> {
+            saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 7)
+            7
+          }
+          else -> {
+            saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 9)
+            9
+          }
+      }
+      sendEMGMode(modeEMGSend)
+    }
 
-//    binding.shutdownCurrentTextTv.textSize = 11f
-//    binding.swapButtonOpenCloseTv.textSize = 11f
-//    binding.singleChannelControlTextTv.textSize = 11f
-//    binding.onOffSensorGestureSwitchingTextTv.textSize = 11f
-//    binding.modeTextTv.textSize = 11f
-//    binding.peakTimeTextTv.textSize = 11f
-//    binding.peakTimeVmTextTv.textSize = 11f
-//    binding.downtimeTextTv.textSize = 11f
-//    binding.modeTv.textSize = 11f
-//    binding.resetToFactorySettingsBtn.textSize = 10f
-//    binding.calibrationAdvBtn.textSize = 10f
-//    binding.calibrationStatusAdvBtn.textSize = 10f
-//    binding.debugScreenBtn.textSize = 10f
-//    binding.testConnectionBtn.textSize = 10f
-//    binding.sideTextTv.textSize = 11f
-//    binding.timeDelayOfFingersTv.textSize = 11f
-//    binding.smartConnectionTv.textSize = 11f
-////    binding.leftRightSideSwapTv.textSize = 11f
-//    binding.shutdownCurrent1TextTv.textSize = 11f
-//    binding.shutdownCurrent2TextTv.textSize = 11f
-//    binding.shutdownCurrent3TextTv.textSize = 11f
-//    binding.shutdownCurrent4TextTv.textSize = 11f
-//    binding.shutdownCurrent5TextTv.textSize = 11f
-//    binding.shutdownCurrent6TextTv.textSize = 11f
-//    binding.versionAppTv.textSize = 11f
-//    binding.scaleTv.textSize = 11f
-//    binding.onOffProsthesesBlockingTextTv.textSize = 11f
-//    binding.holdToLockTimeTextTv.textSize = 10f
-//    binding.telemetryNumberEt.highlightColor = Color.WHITE
-
+    if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9) == 9) {
+      binding.EMGModeSwapPsv.selectItemByIndex(0)
+    } else {
+      binding.EMGModeSwapPsv.selectItemByIndex(1)
+    }
 
 
     if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
@@ -1031,13 +1030,16 @@ class AdvancedSettingsFragment : Fragment() {
           binding.onOffProsthesesBlockingRl.visibility = View.VISIBLE
           binding.testConnectionRl.visibility = View.VISIBLE
           binding.scaleTv.visibility = View.GONE
+          binding.EMGModeRl.visibility = View.GONE
         }
         main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) -> {
+          binding.EMGModeRl.visibility = View.GONE
           binding.telemetryRl.visibility = View.VISIBLE
           binding.debugScreenRl.visibility = View.GONE
           binding.scaleTv.visibility = View.GONE
         }
         else -> {
+          binding.EMGModeRl.visibility = View.GONE
           binding.debugScreenRl.visibility = View.GONE
           binding.telemetryRl.visibility = View.GONE
           binding.calibrationRl.visibility = View.GONE
@@ -1076,8 +1078,8 @@ class AdvancedSettingsFragment : Fragment() {
     val versionName = BuildConfig.VERSION_NAME
     binding.versionAppTv.text = (mContext?.resources?.getString(R.string.version_app) ?: "lol: ") + " " + versionName
   }
-
   private fun enableInterface (enabled: Boolean) {
+    binding.EMGModeSwapPsv.isEnabled = enabled
     binding.swapOpenCloseSw.isEnabled = enabled
     binding.singleChannelControlSw.isEnabled = enabled
     binding.resetToFactorySettingsBtn.isEnabled = enabled
@@ -1106,6 +1108,10 @@ class AdvancedSettingsFragment : Fragment() {
     binding.calibrationStatusAdvBtn.isEnabled = enabled
     binding.debugScreenBtn.isEnabled = enabled
     binding.testConnectionBtn.isEnabled = enabled
+    if (main?.driverVersionS != null) {
+      val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+      if (driverNum.toInt() >= 237) { binding.EMGModeRl.visibility = View.VISIBLE }
+    }
   }
   @SuppressLint("Recycle", "SetTextI18n")
   private fun updateAllParameters() {
@@ -1298,7 +1304,18 @@ class AdvancedSettingsFragment : Fragment() {
       myDialog.dismiss()
     }
   }
+  private fun sendEMGMode(value: Int) {
+    correlatorNoiseThreshold1 =
+      mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM,16)
+    correlatorNoiseThreshold2 =
+      mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM,16)
 
+    main?.runSendCommand(byteArrayOf(
+      (correlatorNoiseThreshold1).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+      64, (correlatorNoiseThreshold2).toByte(), 6, 1, 0x10, 36, 18,
+      44, 52, 64, 72, 0x40, 5, 64, value.toByte()
+    ), SENS_OPTIONS_NEW_VM, 50)
+  }
 
   internal fun saveInt(key: String, variable: Int) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()

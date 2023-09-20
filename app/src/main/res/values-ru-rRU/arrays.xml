@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="gesture_loop">
+        <item>жест №1</item>
+        <item>жест №2</item>
+        <item>жест №3</item>
+        <item>жест №4</item>
+        <item>жест №5</item>
+        <item>жест №6</item>
+        <item>жест №7</item>
+        <item>жест №8</item>
+        <item>жест №9</item>
+        <item>жест №10</item>
+        <item>жест №11</item>
+        <item>жест №12</item>
+        <item>жест №13</item>
+        <item>жест №14</item>
+    </string-array>
+    <string-array name="emg_modes">
+        <item>нормальный</item>
+        <item>чувствительный</item>
+    </string-array>
+</resources>

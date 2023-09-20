@@ -59,12 +59,29 @@ class AdvancedSettingsFragmentMulty(private val chartFragmentClass: ChartFragmen
             binding.imageView36.setImageDrawable(resources.getDrawable(R.drawable.help_image_36_ru))
             binding.imageView37.setImageDrawable(resources.getDrawable(R.drawable.help_image_37_ru))
             binding.imageView38.setImageDrawable(resources.getDrawable(R.drawable.help_image_38_ru))
+            binding.imageView39.setImageDrawable(resources.getDrawable(R.drawable.help_image_49_ru))
+        }
 
+        //скрываем переключатель режимов ЕМГ для версий 2.37 и выше
+        goneExtraView()
+        System.err.println("driverVersionS AdvancedSettingsFragmentMulty ${main?.driverVersionS}")
+        if (main?.driverVersionS != null) {
+            val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+            if (driverNum.toInt() >= 237) {
+                binding.textView8811111111112.visibility = View.VISIBLE
+                binding.textView1711111111112.visibility = View.VISIBLE
+                binding.imageView39.visibility = View.VISIBLE
+            }
         }
 
         binding.sensorsSettingsBtn.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
         binding.settingsGestureBtn.setOnClickListener { navigator().showGesturesHelpScreen(chartFragmentClass) }
 
         binding.backBtn.setOnClickListener { navigator().goingBack() }
+    }
+    private fun goneExtraView() {
+        binding.textView8811111111112.visibility = View.GONE
+        binding.textView1711111111112.visibility = View.GONE
+        binding.imageView39.visibility = View.GONE
     }
 }

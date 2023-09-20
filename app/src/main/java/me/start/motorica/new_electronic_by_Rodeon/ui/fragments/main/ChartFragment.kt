@@ -76,6 +76,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   }
   private lateinit var myAppContext: Context
   private var displayedNextTypeGuides: TypeGuides? = TypeGuides.SHOW_HELP_GUIDE
+  private var modeEMGSend = 0
 
   private lateinit var binding: LayoutChartBinding
 
@@ -97,8 +98,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
           //показываем индикацию выбранной группы ротации
           if (main?.driverVersionS != null) {
-            val driverNum =
-              main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+            val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
             System.err.println("context ChartFragment NULL!")
             if (driverNum.toInt() >= 237) {
               showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
@@ -921,6 +921,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         oldStateSync = main?.percentSynchronize!!
       }
     }
+    modeEMGSend = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)
   }
   private fun sendCorrelatorNoiseThreshold1(value: Int) {
     if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
@@ -928,7 +929,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       main?.runSendCommand(byteArrayOf(
         (255 - value).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
         64, (255 - binding.correlatorNoiseThreshold2Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-        44, 52, 64, 72, 0x40, 5, 64
+        44, 52, 64, 72, 0x40, 5, 64, modeEMGSend.toByte()
       ), SENS_OPTIONS_NEW_VM, 50)
     } else {
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -955,7 +956,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       main?.runSendCommand(byteArrayOf(
         (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
         44, 52, 64, 72, 0x40, 5, 64, (255 - value).toByte(), 6, 1, 0x10, 36,
-        18, 44, 52, 64, 72, 0x40, 5, 64
+        18, 44, 52, 64, 72, 0x40, 5, 64, modeEMGSend.toByte()
       ), SENS_OPTIONS_NEW_VM, 50)
     } else {
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {

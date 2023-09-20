@@ -4,8 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_sensamount"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/dark">
+    android:layout_height="match_parent">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -1637,14 +1636,14 @@
                             android:id="@+id/EMG_mode_tv"
                             style="@style/Text"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="17dp"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
                             android:gravity="center_vertical"
                             android:lines="2"
                             android:text="@string/emg_mode"
-                            android:textSize="11sp"
                             android:textColor="@color/white"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
@@ -1671,16 +1670,19 @@
                             android:lines="1"
                             android:textColor="@color/white"
                             android:textSize="12sp"
-                            app:spinner_arrow_show="false"
-                            app:spinner_item_array="@array/gesture_loop"
+                            app:spinner_arrow_show="true"
+                            app:spinner_item_array="@array/emg_modes"
                             app:spinner_popup_animation="dropdown"
                             app:spinner_popup_background="@drawable/custom_divider_spinner_back"
+                            app:spinner_popup_top_padding="1dp"
                             app:spinner_popup_bottom_padding="2dp"
-                            app:spinner_popup_end_padding="22dp"
-                            app:spinner_popup_max_height="500dp"
-                            app:spinner_popup_start_padding="22dp"
-                            app:spinner_popup_top_padding="2dp"
-                            app:spinner_selected_item_background="@drawable/custom_divider_spinner_back" />
+                            app:spinner_popup_start_padding="2dp"
+                            app:spinner_popup_end_padding="2dp"
+                            app:spinner_popup_width="200dp"
+                            app:spinner_divider_show="true"
+                            app:spinner_divider_size="1dp"
+                            app:spinner_item_height="42dp"
+                            app:spinner_popup_height="88dp"/>
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>

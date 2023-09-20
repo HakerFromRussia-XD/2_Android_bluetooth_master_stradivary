@@ -1924,7 +1924,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
     System.err.println("$info = $state  driverNum:$driverNum")
     var useNewSystemSendCommand = false
-    if (driverVersionS?.substring(0, 1) != null && driverVersionS?.substring(2, 4) != null) {
+    if (driverVersionS != null) {
       useNewSystemSendCommand = driverNum.toInt() > 233
     }
 

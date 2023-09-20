@@ -48,10 +48,24 @@ class AdvancedSettingsFragmentMono(private val chartFragmentClass: ChartFragment
             binding.imageView42.setImageDrawable(resources.getDrawable(R.drawable.help_image_42_ru))
             binding.imageView43.setImageDrawable(resources.getDrawable(R.drawable.help_image_43_ru))
             binding.imageView44.setImageDrawable(resources.getDrawable(R.drawable.help_image_44_ru))
+            binding.imageView45.setImageDrawable(resources.getDrawable(R.drawable.help_image_49_ru))
+        }
+
+        //скрываем переключатель режимов ЕМГ для версий 2.37 и выше
+        goneExtraView()
+        if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM, 1) >= 237) {
+            binding.textView8811111111112.visibility = View.VISIBLE
+            binding.textView1711111111112.visibility = View.VISIBLE
+            binding.imageView45.visibility = View.VISIBLE
         }
 
         binding.sensorsSettingsBtn.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }
 
         binding.backBtn.setOnClickListener { navigator().goingBack() }
+    }
+    private fun goneExtraView() {
+        binding.textView8811111111112.visibility = View.GONE
+        binding.textView1711111111112.visibility = View.GONE
+        binding.imageView39.visibility = View.GONE
     }
 }

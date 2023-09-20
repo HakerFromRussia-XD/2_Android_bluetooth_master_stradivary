@@ -223,27 +223,32 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW, WRITE
-              )
+        if ((!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
+          if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
+              main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, 50)
             } else {
-              main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4
-              )
+              if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+                main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW, WRITE
+                )
+              } else {
+                main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE, 4
+                )
+              }
             }
+            if (main?.savingSettingsWhenModified == true) {
+              main?.saveInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
+            }
+            YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpenCH)
+          } else {
+            updateAllParameters()
+            main?.showToast(resources.getString(R.string.settings_blocking_massage))
           }
-          if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
-          }
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpenCH)
         }
         else {
           updateAllParameters()
-          main?.showToast(resources.getString(R.string.settings_blocking_massage))
+          main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
         }
       }
     })
@@ -258,25 +263,30 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW, WRITE)
+        if ((!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
+          if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
+              main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW_VM, 50)
             } else {
-              main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
+              if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+                main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW, WRITE)
+              } else {
+                main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE, 5)
+              }
             }
+            if (main?.savingSettingsWhenModified == true) {
+              main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
+            }
+            YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCloseCH)
+          } else {
+            updateAllParameters()
+            main?.showToast(resources.getString(R.string.settings_blocking_massage))
           }
-          if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
-          }
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCloseCH)
         }
         else {
           updateAllParameters()
-          main?.showToast(resources.getString(R.string.settings_blocking_massage))
+          main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
         }
       }
     })
@@ -284,25 +294,35 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     binding.correlatorNoiseThreshold1Tv.setOnClickListener {
-      if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
-        main!!.openValueChangeDialog(
-          PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM,
-          callbackFromDialogChangeValue
-        )
+      if ( (!main?.lockWriteBeforeFirstRead!!)) {
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+          main!!.openValueChangeDialog(
+            PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM,
+            callbackFromDialogChangeValue
+          )
+        } else {
+          updateAllParameters()
+          main?.showToast(resources.getString(R.string.settings_blocking_massage))
+        }
       } else {
         updateAllParameters()
-        main?.showToast(resources.getString(R.string.settings_blocking_massage))
+        main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
       }
     }
     binding.correlatorNoiseThreshold2Tv.setOnClickListener {
-      if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
-        main!!.openValueChangeDialog(
-          PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM,
-          callbackFromDialogChangeValue
-        )
+      if ( (!main?.lockWriteBeforeFirstRead!!)) {
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+          main!!.openValueChangeDialog(
+            PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM,
+            callbackFromDialogChangeValue
+          )
+        } else {
+          updateAllParameters()
+          main?.showToast(resources.getString(R.string.settings_blocking_massage))
+        }
       } else {
         updateAllParameters()
-        main?.showToast(resources.getString(R.string.settings_blocking_massage))
+        main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
       }
     }
     val eventYandexMetricaParametersNoiseThresholdOpen = "{\"Screen chart\":\"Change noise threshold open sensor\"}"
@@ -312,18 +332,22 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          System.err.println("test save correlator value" + main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM)
-          sendCorrelatorNoiseThreshold1(seekBar.progress)
-          if (main?.savingSettingsWhenModified == true) {
+        if ( (!main?.lockWriteBeforeFirstRead!!)) {
+          if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
             System.err.println("test save correlator value" + main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM)
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
+            sendCorrelatorNoiseThreshold1(seekBar.progress)
+            if (main?.savingSettingsWhenModified == true) {
+              System.err.println("test save correlator value" + main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM)
+              main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
+            }
+            YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdOpen)
+          } else {
+            updateAllParameters()
+            main?.showToast(resources.getString(R.string.settings_blocking_massage))
           }
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdOpen)
-        }
-        else {
+        } else {
           updateAllParameters()
-          main?.showToast(resources.getString(R.string.settings_blocking_massage))
+          main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
         }
       }
     })
@@ -334,16 +358,20 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          sendCorrelatorNoiseThreshold2(seekBar.progress)
-          if (main?.savingSettingsWhenModified == true) {
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
+        if ( (!main?.lockWriteBeforeFirstRead!!)) {
+          if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+            sendCorrelatorNoiseThreshold2(seekBar.progress)
+            if (main?.savingSettingsWhenModified == true) {
+              main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
+            }
+            YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdClose)
+          } else {
+            updateAllParameters()
+            main?.showToast(resources.getString(R.string.settings_blocking_massage))
           }
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdClose)
-        }
-        else {
+        } else {
           updateAllParameters()
-          main?.showToast(resources.getString(R.string.settings_blocking_massage))
+          main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
         }
       }
     })
@@ -351,41 +379,45 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
     val eventYandexMetricaParametersSwapSensors = "{\"Screen chart\":\"Tup swap sensors switch\"}"
     binding.swapSensorsSw.setOnClickListener {
-      if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false) && (!main?.lockWriteBeforeFirstRead!!)) {
-        if (binding.swapSensorsSw.isChecked) {
-          binding.swapSensorsTv.text = resources.getString(R.string.on_sw)
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, 50)
-          } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW, WRITE)
+      if ( (!main?.lockWriteBeforeFirstRead!!)) {
+        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+          if (binding.swapSensorsSw.isChecked) {
+            binding.swapSensorsTv.text = resources.getString(R.string.on_sw)
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
+              main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, 50)
             } else {
-              main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
+              if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+                main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW, WRITE)
+              } else {
+                main?.bleCommandConnector(byteArrayOf(0x01), SET_REVERSE, WRITE, 14)
+              }
             }
-          }
-          main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
+            main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, true)
 //          main?.setReverseNum = 1
-        } else {
-          binding.swapSensorsTv.text = resources.getString(R.string.off_sw)
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-            main?.stage = "chart activity"
-            main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, 50)
           } else {
-            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-              main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW, WRITE)
+            binding.swapSensorsTv.text = resources.getString(R.string.off_sw)
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              main?.stage = "chart activity"
+              main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, 50)
             } else {
-              main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
+              if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+                main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW, WRITE)
+              } else {
+                main?.bleCommandConnector(byteArrayOf(0x00), SET_REVERSE, WRITE, 14)
+              }
             }
-          }
-          main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+            main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
 //          main?.setReverseNum = 0
+          }
+          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSwapSensors)
+        } else {
+          updateAllParameters()
+          main?.showToast(resources.getString(R.string.settings_blocking_massage))
         }
-        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSwapSensors)
-      }
-      else {
+      } else {
         updateAllParameters()
-        main?.showToast(resources.getString(R.string.settings_blocking_massage))
+        main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
       }
     }
 

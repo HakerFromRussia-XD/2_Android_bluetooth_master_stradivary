@@ -142,6 +142,7 @@
     <string name="closing_sensor_sensitivity">closing sensor sensitivity</string>
     <string name="settings_blocking">settings blocking</string>
     <string name="settings_blocking_massage">first disable the lockout</string>
+    <string name="waiting_for_data_transfer_from_the_prosthesis">waiting for data transfer from the prosthesis</string>
     <string name="close_btn">close</string>
     <string name="open_btn">open</string>
     <string name="swap_sensors">swap sensors</string>

@@ -143,6 +143,7 @@
     <string name="closing_sensor_sensitivity">чувствительность датчика закрытия</string>
     <string name="settings_blocking">блокировка настроек</string>
     <string name="settings_blocking_massage">сначала отключите блокировку</string>
+    <string name="waiting_for_data_transfer_from_the_prosthesis">ожидание передачи данных с протеза</string>
     <string name="close_btn">закрыть</string>
     <string name="open_btn">открыть</string>
     <string name="swap_sensors">поменять сенсоры</string>

@@ -18,6 +18,7 @@ public class RxUpdateMainEvent {
   private final PublishSubject<Boolean> calibrating;
   private final PublishSubject<String> characteristics;
   private final PublishSubject<Boolean> updateUIAdvancedSettings;
+  private final PublishSubject<Boolean> updateResetAdvancedSettings;
   private final PublishSubject<Integer> updateCommunicationTestResult;
   private final PublishSubject<Boolean> updateUIChart;
   private final PublishSubject<Integer> updateUIGestures;
@@ -36,6 +37,7 @@ public class RxUpdateMainEvent {
     calibrating = PublishSubject.create();
     characteristics = PublishSubject.create();
     updateUIAdvancedSettings = PublishSubject.create();
+    updateResetAdvancedSettings = PublishSubject.create();
     updateCommunicationTestResult = PublishSubject.create();
     updateUIChart = PublishSubject.create();
     updateUIGestures = PublishSubject.create();
@@ -57,6 +59,7 @@ public class RxUpdateMainEvent {
   public void updateCalibrationStatus(Boolean status) { calibrating.onNext(status); }
   public void updateReadCharacteristicBLE(String characteristic) { characteristics.onNext(characteristic); }
   public void updateUIAdvancedSettings(Boolean state) { updateUIAdvancedSettings.onNext(state); }
+  public void updateResetAdvancedSettings(Boolean state) { updateResetAdvancedSettings.onNext(state); }
   public void updateCommunicationTestResult(Integer attempt) { updateCommunicationTestResult.onNext(attempt); }
   public void updateUIChart(Boolean state) { updateUIChart.onNext(state); }
   public void updateUIGestures(Integer number) { updateUIGestures.onNext(number); }
@@ -74,6 +77,7 @@ public class RxUpdateMainEvent {
   public Observable<String> getReadCharacteristicBLEObservable() { return characteristics; }
   public Observable<Boolean> getUIChart() { return updateUIChart; }
   public Observable<Boolean> getUIAdvancedSettings() { return updateUIAdvancedSettings; }
+  public Observable<Boolean> getResetAdvancedSettings() { return updateResetAdvancedSettings; }
   public Observable<Integer> getCommunicationTestResult() { return updateCommunicationTestResult; }
   public Observable<Integer> getUIGestures() { return updateUIGestures; }
   public Observable<Integer> getEncodersError() { return updateEncodersError; }

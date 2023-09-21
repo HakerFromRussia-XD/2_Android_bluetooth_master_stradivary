@@ -189,7 +189,7 @@
     <string name="prostheses_calibrating">Prostheses calibrating</string>
     <string name="waiting">waiting…</string>
     <string name="get">get</string>
-    <string name="telemetry_serial">telemetry serial</string>
+    <string name="telemetry_serial">prosthesis serial</string>
     <string name="shutdown_current_1">shutdown current 1</string>
     <string name="shutdown_current_2">shutdown current 2</string>
     <string name="shutdown_current_3">shutdown current 3</string>
@@ -473,6 +473,12 @@
     <string name="if_a_gesture_from_outside_the_rotation_group_was_set_the_first_gesture_of_the_rotation_group_will_be_activated_if_a_gesture_that_is_part_of_a_group_has_been_set_the_next_gesture_of_the_group_will_be_switched_to_the_next_gesture_of_the_group_when_the_final_gesture_of_the_group_is_reached_the_first_gesture_of_the_group_will_be_enabled_again_the_user_can_select_any_gesture_from_the_available_gestures_by_tapping_on_the_screen_regardless_of_how_the_rotation_group_is_set_up">If a gesture from outside the rotation group was set, the first gesture of the rotation group will be activated. If a gesture that is part of a group has been set, the next gesture of the group will be switched to the next gesture of the group. When the final gesture of the group is reached, the first gesture of the group will be enabled again. The user can select any gesture from the available gestures by tapping on the screen, regardless of how the rotation group is set up.</string>
     <string name="emg_sensor_mode_selection">EMG sensor mode selection</string>
     <string name="normal_sensitive_mode_reduces_false_signals_but_is_slower_to_respond_to_muscle_tension_while_increased_sensitive_mode_responds_faster_to_muscle_signals_with_less_noise_immunity">Normal sensitive mode reduces false signals but is slower to respond to muscle tension, while «increased sensitive» mode responds faster to muscle signals with less noise immunity.</string>
+    <string name="factory_reset">Factory reset</string>
+    <string name="do_you_really_want_to_reset_your_prosthesis_to_factory_settings">Do you really want to reset your prosthesis to factory settings?</string>
+    <string name="calibration_of_the_prosthesis">Calibration of the prosthesis</string>
+    <string name="calibration_will_take_approximately_15_seconds_do_you_really_want_to_continue">Calibration will take approximately 15 seconds. Do you really want to continue?</string>
+    <string name="setting_the_serial_number_of_the_prosthesis">Setting the serial number of the prosthesis</string>
+    <string name="a_reboot_of_the_prosthesis_will_be_required_for_the_changes_to_take_effect_you_will_be_redirected_to_the_device_scan_screen_would_you_like_to_continue">A reboot of the prosthesis will be required for the changes to take effect. You will be redirected to the device scan screen. Would you like to continue?</string>
 
 
     <string-array name="numbers">

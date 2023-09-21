@@ -435,36 +435,14 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
 
 
-    val eventYandexMetricaParametersCalibration = "{\"Screen chart\":\"Tup calibration button\"}"
+
     binding.calibrationBtn.setOnClickListener {
       System.err.println("запись глобальной калибровки тык")
-      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-          main?.stage = "chart activity"
-          main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
-        } else {
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-            main?.runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
-          }
-        }
-      } else {
-        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-          main?.stage = "chart activity"
-          main?.runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
-        } else {
-          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-            main?.runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
-          }
-        }
-      }
-      main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibration)
+      main?.showCalibrationDialog()
     }
+
     binding.gameBtn.setOnClickListener {
       System.err.println("вызов игры тык")
-//      val i = Intent(this, UnityPlayerActivity::class.java)
-//      startActivity(i)
-//      finish()
     }
 
     val eventYandexMetricaParametersClose = "{\"Screen chart\":\"Tup close button\"}"

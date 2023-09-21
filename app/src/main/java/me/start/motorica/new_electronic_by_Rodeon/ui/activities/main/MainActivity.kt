@@ -2,6 +2,7 @@
 package me.start.motorica.new_electronic_by_Rodeon.ui.activities.main
 
 import android.Manifest
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
@@ -23,11 +24,13 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.airbnb.lottie.LottieAnimationView
+import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
 import lib.kingja.switchbutton.SwitchMultiButton
 import me.start.motorica.R
 import me.start.motorica.databinding.ActivityMainBinding
 import me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService
+import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager
 import me.start.motorica.new_electronic_by_Rodeon.ble.ConstantManager.*
 import me.start.motorica.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import me.start.motorica.new_electronic_by_Rodeon.compose.BaseActivity
@@ -144,7 +147,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         finish()
       }
       // Automatically connects to the device upon successful start-up initialization.
-//TODO раскомментить после завершения теста с сохранением имён жестов
       mBluetoothLeService?.connect(mDeviceAddress)
       if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
@@ -467,7 +469,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         dataSensPrevious1 = dataSens1
         dataSensPrevious2 = dataSens2
 
-        //TODO создать сервис и отправить в него данные
         val transferIntent = Intent(this, DataTransferToService::class.java)
         transferIntent.putExtra("sensor_level_1", dataSens1)
         transferIntent.putExtra("sensor_level_2", dataSens2)
@@ -1006,7 +1007,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
           override fun onFinish() {
             RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
-            //TODO добавить сюда отключение активности для остальных экранов
 
             System.err.println("updateAllParameters updateUIChart($source) 4")
           }
@@ -2253,6 +2253,101 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       myDialog.dismiss()
     }
     val noBtn = dialogBinding.findViewById<View>(R.id.dialog_disconnection_cancel)
+    noBtn.setOnClickListener {
+      myDialog.dismiss()
+    }
+  }
+  @SuppressLint("InflateParams")
+  fun showResetDialog() {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_confirm_reset, null)
+    val myDialog = Dialog(this)
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_confirm)
+    yesBtn.setOnClickListener {
+      RxUpdateMainEvent.getInstance().updateResetAdvancedSettings(true)
+      myDialog.dismiss()
+    }
+    val noBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_cancel)
+    noBtn.setOnClickListener {
+      myDialog.dismiss()
+    }
+  }
+  @SuppressLint("InflateParams")
+  fun showCalibrationDialog() {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_confirm_calibration, null)
+    val myDialog = Dialog(this)
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_calibration_confirm)
+    yesBtn.setOnClickListener {
+      if (mSettings!!.getInt(mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
+        if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+          stage = "main activity"
+          runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
+        } else {
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+            runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
+          }
+        }
+      } else {
+        if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+          stage = "main activity"
+          runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
+        } else {
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+            runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
+          }
+        }
+      }
+      saveInt(mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
+      val eventYandexMetricaParametersCalibration = "{\"Screen chart\":\"Tup calibration button\"}"
+      YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersCalibration)
+      myDialog.dismiss()
+    }
+    val noBtn = dialogBinding.findViewById<View>(R.id.dialog_calibration_cancel)
+    noBtn.setOnClickListener {
+      myDialog.dismiss()
+    }
+  }
+  @SuppressLint("InflateParams")
+  fun showSetSerialNumberDialog(serialNumber: String) {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_set_serial_numder, null)
+    val myDialog = Dialog(this)
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_set_serial_number_confirm)
+    yesBtn.setOnClickListener {
+      val eventYandexMetricaParametersSetTelemetryNumber = "{\"Screen advanced settings\":\"Tup set telemetry number button\"}"
+      if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+        bleCommandConnector(
+          serialNumber.toByteArray(Charsets.UTF_8),
+          TELEMETRY_NUMBER_NEW,
+          WRITE,
+          17
+        )
+      }
+      if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+        runSendCommand(serialNumber.toByteArray(Charsets.UTF_8),
+          TELEMETRY_NUMBER_NEW_VM, 50)
+      }
+      YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersSetTelemetryNumber)
+
+      Handler().postDelayed({
+        disconnect()
+      }, 1000)
+      myDialog.dismiss()
+    }
+    val noBtn = dialogBinding.findViewById<View>(R.id.dialog_set_serial_number_cancel)
     noBtn.setOnClickListener {
       myDialog.dismiss()
     }

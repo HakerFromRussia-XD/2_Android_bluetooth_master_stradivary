@@ -65,6 +65,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     private var lockProstheses = 0
     private var holdToLockTimeSb = 0
     private var firstStart = true
+    private val countRestart = 1//TODO поставить по больше после отладки (50)
 
     private lateinit var binding: LayoutGesturesBinding
 
@@ -110,7 +111,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 holdToLockTimeSb.toByte(),
                 startGestureInLoopNum.toByte(),
                 endGestureInLoopNum.toByte()
-            ), ROTATION_GESTURE_NEW_VM, 50)
+            ), ROTATION_GESTURE_NEW_VM, countRestart)
             main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, binding.onOffSensorGestureSwitchingSw.isChecked)
             RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
             RxUpdateMainEvent.getInstance().updateUIChart(true)
@@ -155,7 +156,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     holdToLockTimeSb.toByte(),
                     startGestureInLoopNum.toByte(),
                     endGestureInLoopNum.toByte()
-                ), ROTATION_GESTURE_NEW_VM, 50)
+                ), ROTATION_GESTURE_NEW_VM, countRestart)
                 RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
 
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, seekBar.progress)
@@ -480,7 +481,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                         holdToLockTimeSb.toByte(),
                         startGestureInLoopNum.toByte(),
                         endGestureInLoopNum.toByte()
-                    ), ROTATION_GESTURE_NEW_VM, 50)
+                    ), ROTATION_GESTURE_NEW_VM, countRestart)
                     main?.saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
                     RxUpdateMainEvent.getInstance().updateUIChart(true)
                 })
@@ -514,7 +515,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                         holdToLockTimeSb.toByte(),
                         startGestureInLoopNum.toByte(),
                         endGestureInLoopNum.toByte()
-                    ), ROTATION_GESTURE_NEW_VM, 50)
+                    ), ROTATION_GESTURE_NEW_VM, countRestart)
                     main?.saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
                     RxUpdateMainEvent.getInstance().updateUIChart(true)
                 })

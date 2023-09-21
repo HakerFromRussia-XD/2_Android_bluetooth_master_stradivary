@@ -108,6 +108,69 @@ class AdvancedSettingsFragment : Fragment() {
           System.err.println("context AdvancedSettingsFragment NULL!")
         }
       }
+
+    RxUpdateMainEvent.getInstance().resetAdvancedSettings
+      .compose(main?.bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe {
+        resetUI()
+      }
+  }
+
+  @SuppressLint("SetTextI18n")
+  private fun resetUI() {
+    val eventYandexMetricaParametersReset = "{\"Screen advanced settings\":\"Tup reset to factory settings button\"}"
+    if (!main?.lockWriteBeforeFirstRead!!) {
+      System.err.println("tuk reset_to_factory_settings_btn")
+      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+        main?.stage = "advanced activity"
+        main?.runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
+      } else {
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
+        } else {
+          main?.firstActivateSetScaleDialog = false
+          main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
+        }
+      }
+
+
+
+      main?.setSwapOpenCloseButton(false)
+      preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
+
+      preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
+
+      binding.swapOpenCloseSw.isChecked = false
+      binding.swapOpenCloseTv.text = resources.getString(R.string.off_sw)
+      preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
+
+      preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
+      ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+
+      binding.singleChannelControlSw.isChecked = false
+      binding.singleChannelControlTv.text = resources.getString(R.string.off_sw)
+      saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
+
+      binding.onOffSensorGestureSwitchingSw.isChecked = false
+      binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
+      sensorGestureSwitching = 0x00
+      binding.modeRl.visibility = View.GONE
+      binding.peakTimeRl.visibility = View.GONE
+      binding.downtimeRl.visibility = View.GONE
+      saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
+
+
+      binding.modeTv.text = "одним\nдатчиком"
+      mode = 0x00
+      preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
+
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersReset)
+      RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
+    } else {
+      updateAllParameters()
+      main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
+    }
   }
 
 
@@ -853,30 +916,9 @@ class AdvancedSettingsFragment : Fragment() {
       main?.lockChangeTelemetryNumber = true
       YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersGetTelemetryNumber)
     }
-    val eventYandexMetricaParametersSetTelemetryNumber = "{\"Screen advanced settings\":\"Tup set telemetry number button\"}"
+
     binding.setSetupBtn.setOnClickListener {
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-        main?.bleCommandConnector(
-          binding.telemetryNumberEt.text.toString().toByteArray(Charsets.UTF_8),
-          TELEMETRY_NUMBER_NEW,
-          WRITE,
-          17
-        )
-      }
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-        main?.stage = "advanced activity"
-        main?.runSendCommand(binding.telemetryNumberEt.text.toString().toByteArray(Charsets.UTF_8),
-          TELEMETRY_NUMBER_NEW_VM, 50)
-
-
-        val dataset256 = "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345"
-        System.err.println("dataset_256:" + dataset256.length)
-
-        main?.runWriteData(dataset256.toByteArray(Charsets.UTF_8),
-          TELEMETRY_NUMBER_NEW_VM,
-          WRITE)
-      }
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSetTelemetryNumber)
+      main?.showSetSerialNumberDialog(binding.telemetryNumberEt.text.toString())
     }
     main?.telemetryNumber = binding.telemetryNumberEt.text.toString()
 
@@ -913,72 +955,9 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
 
-    val eventYandexMetricaParametersReset = "{\"Screen advanced settings\":\"Tup reset to factory settings button\"}"
-    binding.resetToFactorySettingsBtn.setOnClickListener {
-      if (!main?.lockWriteBeforeFirstRead!!) {
-        System.err.println("tuk reset_to_factory_settings_btn")
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-          main?.stage = "advanced activity"
-          main?.runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
-        } else {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-            main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
-          } else {
-            main?.firstActivateSetScaleDialog = false
-            main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
-          }
-        }
 
-
-
-        main?.setSwapOpenCloseButton(false)
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
-
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
-
-        binding.swapOpenCloseSw.isChecked = false
-        binding.swapOpenCloseTv.text = resources.getString(R.string.off_sw)
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
-
-        preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
-        ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
-
-        binding.singleChannelControlSw.isChecked = false
-        binding.singleChannelControlTv.text = resources.getString(R.string.off_sw)
-//        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
-        saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
-
-        binding.onOffSensorGestureSwitchingSw.isChecked = false
-        binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
-        sensorGestureSwitching = 0x00
-        binding.modeRl.visibility = View.GONE
-        binding.peakTimeRl.visibility = View.GONE
-        binding.downtimeRl.visibility = View.GONE
-        saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
-
-
-        binding.modeTv.text = "одним\nдатчиком"
-        mode = 0x00
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
-
-        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersReset)
-        RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
-      }
-    }
-
-
-    val eventYandexMetricaParametersCalibrationAdv = "{\"Screen advanced settings\":\"Tup calibration button\"}"
-    binding.calibrationAdvBtn.setOnClickListener {
-      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
-        main?.stage = "advanced activity"
-        main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
-      } else {
-        main?.stage = "advanced activity"
-        main?.runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
-      }
-      saveInt(main?.mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibrationAdv)
-    }
+    binding.resetToFactorySettingsBtn.setOnClickListener { main?.showResetDialog() }
+    binding.calibrationAdvBtn.setOnClickListener { main?.showCalibrationDialog() }
     val eventYandexMetricaParametersCalibrationStatusAdv = "{\"Screen advanced settings\":\"Tup calibration status button\"}"
     binding.calibrationStatusAdvBtn.setOnClickListener {
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {

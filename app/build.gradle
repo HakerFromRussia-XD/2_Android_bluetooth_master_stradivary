@@ -29,7 +29,7 @@ android {
         minSdk 23
         targetSdk 33
         versionCode 49
-        versionName "2.4.628"
+        versionName "2.4.629"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

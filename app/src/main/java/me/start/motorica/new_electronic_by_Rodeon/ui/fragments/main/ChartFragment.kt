@@ -124,7 +124,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     initializedUI()
 
 
-    binding.nameTv.text = main?.mDeviceName
     binding.nameTv.setOnClickListener {
       main?.showDisconnectDialog()
     }
@@ -867,6 +866,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   @SuppressLint("SetTextI18n", "Recycle")
   private fun updateAllParameters() {
     activity?.runOnUiThread  {
+      binding.nameTv.text = main?.mDeviceName
       binding.openCHSb.progress =
         mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)
       binding.closeCHSb.progress =

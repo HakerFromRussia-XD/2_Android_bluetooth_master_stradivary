@@ -2335,16 +2335,20 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           WRITE,
           17
         )
+        mDeviceName = "$DEVICE_TYPE_FEST_H $serialNumber"
       }
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         runSendCommand(serialNumber.toByteArray(Charsets.UTF_8),
           TELEMETRY_NUMBER_NEW_VM, 50)
+        mDeviceName = "$DEVICE_TYPE_FEST_X $serialNumber"
+        System.err.println("DEVICE_TYPE_FEST_X serialNumber=$serialNumber")
+      } else {
+        System.err.println("DEVICE_TYPE_FEST_X else serialNumber=$serialNumber")
       }
+      RxUpdateMainEvent.getInstance().updateUIChart(true)
       YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersSetTelemetryNumber)
 
-      Handler().postDelayed({
-        disconnect()
-      }, 1000)
+
       myDialog.dismiss()
     }
     val noBtn = dialogBinding.findViewById<View>(R.id.dialog_set_serial_number_cancel)

@@ -478,7 +478,7 @@
     <string name="calibration_of_the_prosthesis">Calibration of the prosthesis</string>
     <string name="calibration_will_take_approximately_15_seconds_do_you_really_want_to_continue">Calibration will take approximately 15 seconds. Do you really want to continue?</string>
     <string name="setting_the_serial_number_of_the_prosthesis">Setting the serial number of the prosthesis</string>
-    <string name="a_reboot_of_the_prosthesis_will_be_required_for_the_changes_to_take_effect_you_will_be_redirected_to_the_device_scan_screen_would_you_like_to_continue">A reboot of the prosthesis will be required for the changes to take effect. You will be redirected to the device scan screen. Would you like to continue?</string>
+    <string name="a_reboot_of_the_prosthesis_will_be_required_for_the_changes_to_take_effect_you_will_be_redirected_to_the_device_scan_screen_would_you_like_to_continue">You will need to reset the prosthesis yourself for the changes to take effect after sending the new serial number. Do you want to send a new serial number?</string>
 
 
     <string-array name="numbers">

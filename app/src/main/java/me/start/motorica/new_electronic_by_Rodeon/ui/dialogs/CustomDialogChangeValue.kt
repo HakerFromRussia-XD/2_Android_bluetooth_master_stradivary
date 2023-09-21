@@ -48,14 +48,14 @@ class CustomDialogChangeValue(private var keyValue: String, private val callback
         loadOldState()
 
 
-        rootView?.findViewById<Button>(R.id.plus_btn)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.plus_btn)?.setOnClickListener {
             changingValue += 1
             changingValue = checkRange(changingValue)
             rootView?.findViewById<HorizontalWheelView>(R.id.my_wheel_hwv)?.degreesAngle = ((changingValue*coefficient)-359)
             System.err.println("lol plus_btn " + ((changingValue*coefficient)-359) + "  changingValue= "+changingValue)
         }
 
-        rootView?.findViewById<Button>(R.id.minus_btn)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.minus_btn)?.setOnClickListener {
             changingValue -= 1
             changingValue = checkRange(changingValue)
             rootView?.findViewById<HorizontalWheelView>(R.id.my_wheel_hwv)?.degreesAngle = ((changingValue*coefficient)-359)
@@ -63,7 +63,7 @@ class CustomDialogChangeValue(private var keyValue: String, private val callback
         }
 
 
-        rootView?.findViewById<Button>(R.id.dialog_confirm_change_value_confirm)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.dialog_confirm_change_value_confirm)?.setOnClickListener {
             if (callbackChartFragment != null) {
                 changeValue(keyValue, callbackChartFragment)
             }
@@ -73,7 +73,7 @@ class CustomDialogChangeValue(private var keyValue: String, private val callback
         }
 
 
-        rootView?.findViewById<Button>(R.id.dialog_confirm_change_value_cancel)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.dialog_confirm_change_value_cancel)?.setOnClickListener {
             timerChangeValue?.cancel()
             dismiss()
         }

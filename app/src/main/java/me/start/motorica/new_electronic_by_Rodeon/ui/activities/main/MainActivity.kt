@@ -407,17 +407,17 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         }
       }
 
-      if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
-        dataSensPrevious1 = dataSens1
-        dataSensPrevious2 = dataSens2
-
-        val transferIntent = Intent(this, DataTransferToService::class.java)
-        transferIntent.putExtra("sensor_level_1", dataSens1)
-        transferIntent.putExtra("sensor_level_2", dataSens2)
-        transferIntent.putExtra("open_ch_num", openChNum)
-        transferIntent.putExtra("close_ch_num", closeChNum)
-        startService(transferIntent)
-      }
+//      if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
+//        dataSensPrevious1 = dataSens1
+//        dataSensPrevious2 = dataSens2
+//
+//        val transferIntent = Intent(this, DataTransferToService::class.java)
+//        transferIntent.putExtra("sensor_level_1", dataSens1)
+//        transferIntent.putExtra("sensor_level_2", dataSens2)
+//        transferIntent.putExtra("open_ch_num", openChNum)
+//        transferIntent.putExtra("close_ch_num", closeChNum)
+//        startService(transferIntent)
+//      }
     }
   }
   private fun displayDataNew(data: ByteArray?) {
@@ -465,17 +465,17 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         }
       }
 
-      if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
-        dataSensPrevious1 = dataSens1
-        dataSensPrevious2 = dataSens2
-
-        val transferIntent = Intent(this, DataTransferToService::class.java)
-        transferIntent.putExtra("sensor_level_1", dataSens1)
-        transferIntent.putExtra("sensor_level_2", dataSens2)
-        transferIntent.putExtra("open_ch_num", openChNum)
-        transferIntent.putExtra("close_ch_num", closeChNum)
-        startService(transferIntent)
-      }
+//      if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
+//        dataSensPrevious1 = dataSens1
+//        dataSensPrevious2 = dataSens2
+//
+//        val transferIntent = Intent(this, DataTransferToService::class.java)
+//        transferIntent.putExtra("sensor_level_1", dataSens1)
+//        transferIntent.putExtra("sensor_level_2", dataSens2)
+//        transferIntent.putExtra("open_ch_num", openChNum)
+//        transferIntent.putExtra("close_ch_num", closeChNum)
+//        startService(transferIntent)
+//      }
 
       calibrationDialogOpen = false
       savingSettingsWhenModified = true
@@ -1271,9 +1271,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         } else {
           RxUpdateMainEvent.getInstance().updateUIGestures(101)
         }
-        if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
-          RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enabled)
-        }
+      }
+      if (mSettings!!.getInt(PreferenceKeys.ADVANCED_SETTINGS, 4) == 1) {
+        RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enabled)
       }
     }
   }

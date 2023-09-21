@@ -43,13 +43,14 @@ class CustomUpdateDialogFragment: DialogFragment() {
 
 
 
-        rootView?.findViewById<Button>(R.id.v_andex_alert_dialog_layout_confirm)?.setOnClickListener {
+        //TODO первое падение на INDY
+        rootView?.findViewById<View>(R.id.v_andex_alert_dialog_layout_confirm)?.setOnClickListener {
             System.err.println("ok")
             main?.bleCommandConnector(byteArrayOf(0x01), SampleGattAttributes.SET_START_UPDATE, SampleGattAttributes.WRITE, 18)
             main?.openFragmentInfoUpdate()
             dismiss()
         }
-        rootView?.findViewById<Button>(R.id.v_andex_alert_dialog_layout_cancel)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.v_andex_alert_dialog_layout_cancel)?.setOnClickListener {
             System.err.println("Ne ok")
             dismiss()
         }

@@ -19,6 +19,7 @@ public class DataTransferToService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        //TODO второе падение на INDY
         int sensor_level_1 = intent.getIntExtra("sensor_level_1", 0);
         int sensor_level_2 = intent.getIntExtra("sensor_level_2", 0);
         int open_ch_num = intent.getIntExtra("open_ch_num", 0);

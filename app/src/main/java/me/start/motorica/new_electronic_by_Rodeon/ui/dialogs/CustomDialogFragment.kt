@@ -208,6 +208,8 @@ class CustomDialogFragment: DialogFragment() {
                 main?.bleCommandConnector(byteArrayOf((main?.getMNumberGesture()!! - 1).toByte(), oldOpenStage.toByte(), oldCloseStage.toByte(), openState), ADD_GESTURE, WRITE, 12)
                 dismiss()
             }
+        } else {
+            main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
         }
     }
 

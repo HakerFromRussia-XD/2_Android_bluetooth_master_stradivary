@@ -121,20 +121,6 @@ class AdvancedSettingsFragment : Fragment() {
   private fun resetUI() {
     val eventYandexMetricaParametersReset = "{\"Screen advanced settings\":\"Tup reset to factory settings button\"}"
     if (!main?.lockWriteBeforeFirstRead!!) {
-      System.err.println("tuk reset_to_factory_settings_btn")
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-        main?.stage = "advanced activity"
-        main?.runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
-      } else {
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-          main?.runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
-        } else {
-          main?.firstActivateSetScaleDialog = false
-          main?.bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
-        }
-      }
-
-
 
       main?.setSwapOpenCloseButton(false)
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
@@ -172,7 +158,6 @@ class AdvancedSettingsFragment : Fragment() {
       main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
     }
   }
-
 
   @SuppressLint("SetTextI18n", "CheckResult", "Recycle")
   private fun initializeUI() {

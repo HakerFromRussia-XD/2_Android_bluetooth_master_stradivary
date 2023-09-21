@@ -53,6 +53,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.fragments.main.ChartFragmen
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
 import me.start.motorica.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import me.start.motorica.scan.view.ScanActivity
+import org.jetbrains.anko.toast
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -1700,6 +1701,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     var state = 0 // переключается здесь в потоке
     endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
     globalSemaphore = true // меняется по приходу ответа от подключаемого уст-ва
+    System.err.println()
 
     while (!endFlag) {
       if (globalSemaphore) {
@@ -2268,7 +2270,26 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_confirm)
     yesBtn.setOnClickListener {
+      if (lockWriteBeforeFirstRead) {
+        if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+          runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
+        } else {
+          if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
+          } else {
+            firstActivateSetScaleDialog = false
+            bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
+          }
+        }
+      } else {
+        showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
+      }
       RxUpdateMainEvent.getInstance().updateResetAdvancedSettings(true)
+
+      Handler().postDelayed({
+        readStartData(true)
+        System.err.println("-------> displayDataNew showCalibrationDialog runStartVM")
+      }, 1000)
       myDialog.dismiss()
     }
     val noBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_cancel)
@@ -2309,6 +2330,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       saveInt(mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
       val eventYandexMetricaParametersCalibration = "{\"Screen chart\":\"Tup calibration button\"}"
       YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersCalibration)
+
       myDialog.dismiss()
     }
     val noBtn = dialogBinding.findViewById<View>(R.id.dialog_calibration_cancel)

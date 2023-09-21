@@ -619,26 +619,26 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             this.startGestureInLoopNum = endGestureInLoopNum
         }
 
-        //блок проверки количества жестов в цикле ротации и подгонка верхней или нижней границы
-        if (endGestureInLoopNum - startGestureInLoopNum > 3) {
-            main?.showToast(
-                context?.resources?.getText(R.string.the_number_of_gestures_per_cycle_should_not_exceed_4)
-                    .toString()
-            )
-            if (changeStartGestureInLoop) {
-                this.endGestureInLoopNum = startGestureInLoopNum + 3
-                main?.showToast(
-                    context?.resources?.getText(R.string.the_ending_gesture_of_the_cycle_was_changed_to)
-                        .toString() + " " + gestureNameList[this.startGestureInLoopNum]
-                )
-            } else {
-                this.startGestureInLoopNum = endGestureInLoopNum - 3
-                main?.showToast(
-                    context?.resources?.getText(R.string.the_starting_gesture_of_the_cycle_was_changed_to)
-                        .toString() + " " + gestureNameList[this.startGestureInLoopNum]
-                )
-            }
-        }
+        //блок проверки количества жестов в цикле ротации и подгонка верхней или нижней границы (отключено для тестов)
+//        if (endGestureInLoopNum - startGestureInLoopNum > 3) {
+//            main?.showToast(
+//                context?.resources?.getText(R.string.the_number_of_gestures_per_cycle_should_not_exceed_4)
+//                    .toString()
+//            )
+//            if (changeStartGestureInLoop) {
+//                this.endGestureInLoopNum = startGestureInLoopNum + 3
+//                main?.showToast(
+//                    context?.resources?.getText(R.string.the_ending_gesture_of_the_cycle_was_changed_to)
+//                        .toString() + " " + gestureNameList[this.startGestureInLoopNum]
+//                )
+//            } else {
+//                this.startGestureInLoopNum = endGestureInLoopNum - 3
+//                main?.showToast(
+//                    context?.resources?.getText(R.string.the_starting_gesture_of_the_cycle_was_changed_to)
+//                        .toString() + " " + gestureNameList[this.startGestureInLoopNum]
+//                )
+//            }
+//        }
 
 
         //блок отрисовки картинок цикла на нужных кнопках

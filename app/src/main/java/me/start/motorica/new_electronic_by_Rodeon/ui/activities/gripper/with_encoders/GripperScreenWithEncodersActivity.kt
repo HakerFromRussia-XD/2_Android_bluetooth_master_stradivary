@@ -880,7 +880,7 @@ class GripperScreenWithEncodersActivity
     private fun compileBLEMassage (withChangeGesture: Boolean, onlyNumberGesture: Boolean) {
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             System.err.println("GripperSettingsRender--------> compileBLEMassage FEST_H withChangeGesture =$withChangeGesture")
-            val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
+            val gestureStateModel = GestureStateWithEncoders(gestureNumber,
                 fingerOpenState1, fingerOpenState2, fingerOpenState3,
                 fingerOpenState4, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
                 fingerCloseState1, fingerCloseState2, fingerCloseState3,
@@ -894,7 +894,7 @@ class GripperScreenWithEncodersActivity
 //            System.err.println("GSR--------> compileBLEMassage FEST_X")
 //            System.err.println("GSR--------> fingerOpenStateDelay1: $fingerOpenStateDelay1  fingerOpenStateDelay2: $fingerOpenStateDelay2 fingerOpenStateDelay3: $fingerOpenStateDelay3 fingerOpenStateDelay4: $fingerOpenStateDelay4    fingerOpenStateDelay5: $fingerOpenStateDelay5 fingerOpenStateDelay6: $fingerOpenStateDelay6")
 //            System.err.println("GSR--------> fingerCloseStateDelay1: $fingerCloseStateDelay1  fingerCloseStateDelay2: $fingerCloseStateDelay2  fingerCloseStateDelay3: $fingerCloseStateDelay3   fingerCloseStateDelay4: $fingerCloseStateDelay4   fingerCloseStateDelay5: $fingerCloseStateDelay5   fingerCloseStateDelay6: $fingerCloseStateDelay6")
-            val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1 , // проверить тут -2
+            val gestureStateModel = GestureStateWithEncoders(gestureNumber, // проверить тут -2
                 fingerOpenState4, fingerOpenState3, fingerOpenState2,
                 fingerOpenState1, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
                 fingerCloseState4, fingerCloseState3, fingerCloseState2,

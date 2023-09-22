@@ -869,6 +869,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
 
             if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+              System.err.println("Prishedshie s izmeneniem gesta v pamiati ++========")
               stage = "main activity"
               runSendCommand(byteArrayOf(
                 (parameters.gestureNumber).toByte(),
@@ -963,7 +964,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
 
       driverVersionS = driverVersion
-      RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
+      RxUpdateMainEvent.getInstance().updateUIChart(true)
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
     }
@@ -1007,7 +1008,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           override fun onTick(millisUntilFinished: Long) {}
 
           override fun onFinish() {
-            RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
+            RxUpdateMainEvent.getInstance().updateUIChart(true)
 
             System.err.println("updateAllParameters updateUIChart($source) 4")
           }
@@ -2270,11 +2271,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_confirm)
     yesBtn.setOnClickListener {
-      if (lockWriteBeforeFirstRead) {
+      if (!lockWriteBeforeFirstRead) {
         if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
           runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
         } else {
-          if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
           } else {
             firstActivateSetScaleDialog = false

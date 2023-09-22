@@ -83,7 +83,8 @@
             android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity"
             android:screenOrientation="portrait"/>
 
-        <service android:name="me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService" android:enabled="true"/>
+        <service android:name="me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService"
+            android:enabled="true"/>
         <service
             android:name="me.start.motorica.new_electronic_by_Rodeon.services.MyService"
             android:exported="false">

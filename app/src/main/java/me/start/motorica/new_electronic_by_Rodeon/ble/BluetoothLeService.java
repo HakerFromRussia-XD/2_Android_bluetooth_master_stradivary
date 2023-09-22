@@ -128,6 +128,7 @@ public class BluetoothLeService extends Service {
 //            }
             if (state.equals(WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
+//                System.err.println("MIO_DATA_NEW from service data=" + data[0]);
                 intent.putExtra(MIO_DATA, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
             }
@@ -192,6 +193,7 @@ public class BluetoothLeService extends Service {
                 if (state.equals(READ)) { intent.putExtra(DRIVER_VERSION_NEW_DATA, data); }
             }
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT_NEW_VM)) {
+                System.err.println("MIO_DATA_NEW from service data=" + data[0]);
                 intent.putExtra(MIO_DATA_NEW, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
             }

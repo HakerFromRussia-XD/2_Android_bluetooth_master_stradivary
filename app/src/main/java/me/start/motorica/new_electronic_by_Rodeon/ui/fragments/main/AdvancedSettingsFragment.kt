@@ -121,12 +121,9 @@ class AdvancedSettingsFragment : Fragment() {
   private fun resetUI() {
     val eventYandexMetricaParametersReset = "{\"Screen advanced settings\":\"Tup reset to factory settings button\"}"
     if (!main?.lockWriteBeforeFirstRead!!) {
-
-      main?.setSwapOpenCloseButton(false)
-      preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
-
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
 
+      main?.setSwapOpenCloseButton(false)
       binding.swapOpenCloseSw.isChecked = false
       binding.swapOpenCloseTv.text = resources.getString(R.string.off_sw)
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)

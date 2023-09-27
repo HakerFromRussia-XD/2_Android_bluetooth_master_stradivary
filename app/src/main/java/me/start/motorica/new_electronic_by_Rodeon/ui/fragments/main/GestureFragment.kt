@@ -372,7 +372,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings12Btn.visibility = View.GONE
         binding.gestureSettings13Btn.visibility = View.GONE
         binding.gestureSettings14Btn.visibility = View.GONE
-        binding.gesturesButtonsSv.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + binding.onOffSensorGestureSwitchingRl.height + 16).toFloat()
+        if (firstStart){
+            firstStart = false
+            binding.gesturesButtonsSv.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + binding.onOffSensorGestureSwitchingRl.height + 16).toFloat()
+        }
     }
     private fun compileBLEMassage (useGesture: Int) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {

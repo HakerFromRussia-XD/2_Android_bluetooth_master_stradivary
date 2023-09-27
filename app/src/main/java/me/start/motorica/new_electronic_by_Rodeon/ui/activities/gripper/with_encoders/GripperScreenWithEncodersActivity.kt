@@ -106,6 +106,7 @@ class GripperScreenWithEncodersActivity
     private var countTick = 0
     private var mSettings: SharedPreferences? = null
     private var gestureNumber: Int = 0
+    private var driverVersionS: String? = null
     private var gestureNameList =  ArrayList<String>()
     private var editMode: Boolean = false
     private var mDeviceType: String? = null
@@ -122,6 +123,8 @@ class GripperScreenWithEncodersActivity
         window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
         mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         gestureNumber = mSettings!!.getInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 0)
+        driverVersionS = mSettings!!.getString(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                         + PreferenceKeys.DRIVER_VERSION_STRING, "1234")
         angleFinger1 = 0
         angleFinger2 = 0
         angleFinger3 = 0
@@ -880,7 +883,7 @@ class GripperScreenWithEncodersActivity
     private fun compileBLEMassage (withChangeGesture: Boolean, onlyNumberGesture: Boolean) {
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             System.err.println("GripperSettingsRender--------> compileBLEMassage FEST_H withChangeGesture =$withChangeGesture")
-            val gestureStateModel = GestureStateWithEncoders(gestureNumber,
+            val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
                 fingerOpenState1, fingerOpenState2, fingerOpenState3,
                 fingerOpenState4, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
                 fingerCloseState1, fingerCloseState2, fingerCloseState3,
@@ -894,7 +897,16 @@ class GripperScreenWithEncodersActivity
 //            System.err.println("GSR--------> compileBLEMassage FEST_X")
 //            System.err.println("GSR--------> fingerOpenStateDelay1: $fingerOpenStateDelay1  fingerOpenStateDelay2: $fingerOpenStateDelay2 fingerOpenStateDelay3: $fingerOpenStateDelay3 fingerOpenStateDelay4: $fingerOpenStateDelay4    fingerOpenStateDelay5: $fingerOpenStateDelay5 fingerOpenStateDelay6: $fingerOpenStateDelay6")
 //            System.err.println("GSR--------> fingerCloseStateDelay1: $fingerCloseStateDelay1  fingerCloseStateDelay2: $fingerCloseStateDelay2  fingerCloseStateDelay3: $fingerCloseStateDelay3   fingerCloseStateDelay4: $fingerCloseStateDelay4   fingerCloseStateDelay5: $fingerCloseStateDelay5   fingerCloseStateDelay6: $fingerCloseStateDelay6")
-            val gestureStateModel = GestureStateWithEncoders(gestureNumber, // проверить тут -2
+            //TODO прокинуть сюда версию драйвера или переменную синхронизации с версией 2.37
+
+            var version237 = false
+            if (driverVersionS != null) {
+                val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
+                version237 = driverNum.toInt() >= 237
+            }
+            val sendGestureNumber = if (version237) { gestureNumber
+            } else { gestureNumber - 1 }
+            val gestureStateModel = GestureStateWithEncoders(sendGestureNumber, // проверить тут -2
                 fingerOpenState4, fingerOpenState3, fingerOpenState2,
                 fingerOpenState1, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
                 fingerCloseState4, fingerCloseState3, fingerCloseState2,

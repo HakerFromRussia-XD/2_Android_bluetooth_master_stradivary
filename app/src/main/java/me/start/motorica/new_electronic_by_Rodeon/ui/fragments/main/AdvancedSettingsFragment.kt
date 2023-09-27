@@ -495,7 +495,6 @@ class AdvancedSettingsFragment : Fragment() {
             }
           }
           main?.setOneChannelNum = 1
-//          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
           binding.singleChannelControlTv.text = resources.getString(R.string.off_sw)
@@ -510,7 +509,6 @@ class AdvancedSettingsFragment : Fragment() {
             }
           }
           main?.setOneChannelNum = 0
-//          preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
         }
         YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSingleChannel)
@@ -524,34 +522,14 @@ class AdvancedSettingsFragment : Fragment() {
           binding.onOffProsthesesBlockingTv.text = resources.getString(R.string.on_sw)
           lockProstheses = 0x01
           binding.holdToLockTimeRl.visibility = View.VISIBLE
-          main?.stage = "advanced activity"
-          main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
-            0.toByte(),
-            binding.peakTimeVmSb.progress.toByte(),
-            0.toByte(),
-            lockProstheses,
-            (binding.holdToLockTimeSb.progress).toByte(),
-            startGestureInLoop.toByte(),
-            endGestureInLoop.toByte()
-          ), ROTATION_GESTURE_NEW_VM, 50)
-          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
-          saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, true)
+          sendGestureRotation()
         } else {
           binding.onOffProsthesesBlockingTv.text = resources.getString(R.string.off_sw)
           lockProstheses = 0x00
           binding.holdToLockTimeRl.visibility = View.GONE
-          main?.stage = "advanced activity"
-          main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
-            0.toByte(),
-            binding.peakTimeVmSb.progress.toByte(),
-            0.toByte(), lockProstheses,
-            (binding.holdToLockTimeSb.progress).toByte(),
-            startGestureInLoop.toByte(),
-            endGestureInLoop.toByte()
-          ), ROTATION_GESTURE_NEW_VM, 50)
-          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
-          saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)
+          sendGestureRotation()
         }
+        saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, binding.onOffProsthesesBlockingSw.isChecked)
       }
     }
     binding.holdToLockTimeSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -573,16 +551,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.stage = "advanced activity"
-          main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
-            0.toByte(),
-            binding.peakTimeVmSb.progress.toByte(),
-            0.toByte(),
-            lockProstheses,
-            (binding.holdToLockTimeSb.progress).toByte(),
-            startGestureInLoop.toByte(),
-            endGestureInLoop.toByte()
-          ), ROTATION_GESTURE_NEW_VM, 50)
-          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
+          sendGestureRotation()
           saveInt(main?.mDeviceAddress + PreferenceKeys.HOLD_TO_LOCK_TIME_NUM, seekBar.progress)
         }
       }
@@ -602,17 +571,7 @@ class AdvancedSettingsFragment : Fragment() {
             binding.peakTimeRl.visibility = View.GONE
             binding.modeNewRl.visibility = View.GONE
             binding.peakTimeVmRl.visibility = View.VISIBLE
-            main?.stage = "advanced activity"
-            main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
-              0.toByte(),
-              binding.peakTimeVmSb.progress.toByte(),
-              0.toByte(),
-              lockProstheses,
-              (binding.holdToLockTimeSb.progress).toByte(),
-              startGestureInLoop.toByte(),
-              endGestureInLoop.toByte()
-            ), ROTATION_GESTURE_NEW_VM, 50)
-            RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
+            sendGestureRotation()
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
               binding.modeNewRl.visibility = View.VISIBLE
@@ -632,17 +591,7 @@ class AdvancedSettingsFragment : Fragment() {
           if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             binding.modeNewRl.visibility = View.GONE
             binding.peakTimeVmRl.visibility = View.GONE
-            main?.stage = "advanced activity"
-            main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
-              0.toByte(),
-              binding.peakTimeVmSb.progress.toByte(),
-              0.toByte(),
-              lockProstheses,
-              (binding.holdToLockTimeSb.progress).toByte(),
-              startGestureInLoop.toByte(),
-              endGestureInLoop.toByte()
-            ), ROTATION_GESTURE_NEW_VM, 50)
-            RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
+            sendGestureRotation()
           } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
               binding.modeNewRl.visibility = View.GONE
@@ -764,18 +713,7 @@ class AdvancedSettingsFragment : Fragment() {
         }
         binding.peakTimeVmTv.text = time
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.stage = "advanced activity"
-          main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
-            0.toByte(),
-            binding.peakTimeVmSb.progress.toByte(),
-            0.toByte(),
-            lockProstheses,
-            (binding.holdToLockTimeSb.progress).toByte(),
-            startGestureInLoop.toByte(),
-            endGestureInLoop.toByte()
-          ), ROTATION_GESTURE_NEW_VM, 50)
-          RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
-
+          sendGestureRotation()
           saveInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, seekBar.progress)
           YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersPeakTimeVM)
         }
@@ -1276,6 +1214,35 @@ class AdvancedSettingsFragment : Fragment() {
       64, (correlatorNoiseThreshold2).toByte(), 6, 1, 0x10, 36, 18,
       44, 52, 64, 72, 0x40, 5, 64, value.toByte()
     ), SENS_OPTIONS_NEW_VM, 50)
+  }
+  private fun sendGestureRotation () {
+    main?.stage = "advanced activity"
+    if (main?.driverVersionS != null) {
+      val driverNum =
+        main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+      if (driverNum.toInt() >= 237) {
+        System.err.println("sendGestureRotation true")
+        main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
+          0.toByte(),
+          binding.peakTimeVmSb.progress.toByte(),
+          0.toByte(),
+          lockProstheses,
+          (binding.holdToLockTimeSb.progress).toByte(),
+          startGestureInLoop.toByte(),
+          endGestureInLoop.toByte()
+        ), ROTATION_GESTURE_NEW_VM, 50)
+      } else {
+        System.err.println("sendGestureRotation else")
+        main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
+          0.toByte(),
+          binding.peakTimeVmSb.progress.toByte(),
+          0.toByte(),
+          lockProstheses,
+          (binding.holdToLockTimeSb.progress).toByte()
+        ), ROTATION_GESTURE_NEW_VM, 50)
+      }
+    }
+    RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
   }
 
   internal fun saveInt(key: String, variable: Int) {

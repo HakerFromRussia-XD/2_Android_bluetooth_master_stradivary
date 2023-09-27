@@ -80,34 +80,12 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
   private lateinit var binding: LayoutChartBinding
 
-  @SuppressLint("CheckResult")
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-
     binding = LayoutChartBinding.inflate(layoutInflater)
     WDApplication.component.inject(this)
     if (activity != null) { main = activity as MainActivity? }
 
     myAppContext = activity?.applicationContext!!
-    RxUpdateMainEvent.getInstance().uiChart
-      .compose(main?.bindToLifecycle())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe {
-        if (context != null) {
-          updateAllParameters()
-          enabledSensorsUIBeforeConnection(it)
-
-          //показываем индикацию выбранной группы ротации
-          if (main?.driverVersionS != null) {
-            val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-            System.err.println("context ChartFragment NULL!")
-            if (driverNum.toInt() >= 237) {
-              showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
-            }
-          }
-        } else {
-          System.err.println("context ChartFragment NULL!")
-        }
-      }
     return binding.root
   }
   @Deprecated("Deprecated in Java")
@@ -684,7 +662,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     val endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
     binding.startLoopGestureTv.text = (startGestureInLoopNum + 1).toString()
     binding.endLoopGestureTv.text = (endGestureInLoopNum + 1).toString()
-    showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
+//    showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
   }
   @SuppressLint("SetTextI18n")
   private fun initializedUI() {
@@ -696,12 +674,37 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       binding.chartCalibrationRl.visibility = View.GONE
     }
   }
+  @SuppressLint("CheckResult")
   override fun onResume() {
     super.onResume()
     System.err.println("ChartFragment onResume")
     graphThreadFlag = true
     testThreadFlag = true
     startGraphEnteringDataThread()
+    RxUpdateMainEvent.getInstance().uiChart
+      .compose(main?.bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe {
+        if (context != null) {
+          updateAllParameters()
+          enabledSensorsUIBeforeConnection(it)
+
+          //показываем индикацию выбранной группы ротации
+          if (main?.driverVersionS != null) {
+            val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+            System.err.println("context ChartFragment NULL!")
+            if (driverNum.toInt() >= 237) {
+              showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
+            } else {
+              showUIRotationGroup(false)
+            }
+          }else {
+            showUIRotationGroup(false)
+          }
+        } else {
+          System.err.println("context ChartFragment NULL!")
+        }
+      }
   }
   override fun onPause() {
     super.onPause()

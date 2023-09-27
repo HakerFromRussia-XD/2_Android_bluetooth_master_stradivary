@@ -87,8 +87,6 @@
         </LinearLayout>
     </RelativeLayout>
 
-
-
     <RelativeLayout
         android:id="@+id/toggle_gesture_claster_rl"
         android:layout_width="match_parent"

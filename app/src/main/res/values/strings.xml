@@ -211,6 +211,7 @@
     <string name="pre_status_4_finger">motor scrolls</string>
     <string name="pre_status_5_finger">screw pulled</string>
     <string name="pre_status_6_finger">calibrated</string>
+    <string name="pre_status_num">status</string>
     <string name="status_finger">\nencoder steps: %d \ncurrent: %d mA</string>
     <string name="serial_number">set serial number</string>
     <string name="changing_the_finger_delay_time">changing the finger delay time</string>

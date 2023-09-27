@@ -81,11 +81,6 @@ public class BluetoothLeService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
-    private int mConnectionState = STATE_DISCONNECTED;
-
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
 
     public final static String ACTION_GATT_CONNECTED = "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
     public final static String ACTION_STATE = "com.example.bluetooth.le.ACTION_STATE";
@@ -123,9 +118,6 @@ public class BluetoothLeService extends Service {
         final byte[] data = characteristic.getValue();
 
         if (data != null && data.length > 0) {
-//            for(byte byteChar : data){
-//                if(SHOW_EVERYONE_RECEIVE_BYTE) System.err.println("BluetoothLeService-------------> append massage: " + String.format("%02X ", byteChar));
-//            }
             if (state.equals(WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
 //                System.err.println("MIO_DATA_NEW from service data=" + data[0]);
@@ -193,7 +185,7 @@ public class BluetoothLeService extends Service {
                 if (state.equals(READ)) { intent.putExtra(DRIVER_VERSION_NEW_DATA, data); }
             }
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT_NEW_VM)) {
-                System.err.println("MIO_DATA_NEW from service data=" + data[0]);
+//                System.err.println("MIO_DATA_NEW from service data=" + data[0]);
                 intent.putExtra(MIO_DATA_NEW, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
             }
@@ -256,7 +248,6 @@ public class BluetoothLeService extends Service {
             String intentAction;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 intentAction = ACTION_GATT_CONNECTED;
-                mConnectionState = STATE_CONNECTED;
                 broadcastUpdate(intentAction);
                 Timber.tag(TAG).i("Connected to GATT server.");
                 // Attempts to discover services after successful connection.
@@ -264,7 +255,6 @@ public class BluetoothLeService extends Service {
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 intentAction = ACTION_GATT_DISCONNECTED;
-                mConnectionState = STATE_DISCONNECTED;
                 Timber.i("Disconnected from GATT server.");
                 broadcastUpdate(intentAction);
             }
@@ -381,12 +371,7 @@ public class BluetoothLeService extends Service {
         if (address.equals(mBluetoothDeviceAddress)
                 && mBluetoothGatt != null) {
             Timber.d("Trying to use an existing mBluetoothGatt for connection.");
-            if (mBluetoothGatt.connect()) {
-                mConnectionState = STATE_CONNECTING;
-                return true;
-            } else {
-                return false;
-            }
+            return mBluetoothGatt.connect();
         }
 //TODO раскомментить после завершения теста с сохранением имён жестов
 
@@ -398,7 +383,6 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
         Timber.d("Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
-        mConnectionState = STATE_CONNECTING;
         return true;
     }
 

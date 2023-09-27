@@ -212,6 +212,7 @@
     <string name="pre_status_4_finger">мотор прокручивается</string>
     <string name="pre_status_5_finger">перетянут винт</string>
     <string name="pre_status_6_finger">откалиброван</string>
+    <string name="pre_status_num">статус</string>
     <string name="status_finger">\nколичество шагов энкодера: %d \nток: %d мА</string>
     <string name="serial_number">установить серийный номер</string>
     <string name="changing_the_finger_delay_time">изменение времени задержки пальцев</string>

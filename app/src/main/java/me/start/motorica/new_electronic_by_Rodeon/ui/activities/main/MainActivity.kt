@@ -630,13 +630,13 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         val statusCurrentFingers = mutableListOf<Int>()
         for (i in 0..5) {
           println("------> statusCalibration: statusFingers   i : $i")
-          if (data[36+i].toInt() == 6) statusFingers.add(getString(R.string.pre_status_6_finger))
-          if (data[36+i].toInt() == 5) statusFingers.add(getString(R.string.pre_status_5_finger))
-          if (data[36+i].toInt() == 4) statusFingers.add(getString(R.string.pre_status_4_finger))
-          if (data[36+i].toInt() == 3) statusFingers.add(getString(R.string.pre_status_3_finger))
-          if (data[36+i].toInt() == 2) statusFingers.add(getString(R.string.pre_status_2_finger))
-          if (data[36+i].toInt() == 1) statusFingers.add(getString(R.string.pre_status_1_finger))
-          if (data[36+i].toInt() == 0) statusFingers.add(getString(R.string.pre_status_0_finger))
+          if (data[36+i].toInt() == 6) statusFingers.add(getString(R.string.pre_status_num) + " 6")
+          if (data[36+i].toInt() == 5) statusFingers.add(getString(R.string.pre_status_num) + " 5")
+          if (data[36+i].toInt() == 4) statusFingers.add(getString(R.string.pre_status_num) + " 4")
+          if (data[36+i].toInt() == 3) statusFingers.add(getString(R.string.pre_status_num) + " 3")
+          if (data[36+i].toInt() == 2) statusFingers.add(getString(R.string.pre_status_num) + " 2")
+          if (data[36+i].toInt() == 1) statusFingers.add(getString(R.string.pre_status_num) + " 1")
+          if (data[36+i].toInt() == 0) statusFingers.add(getString(R.string.pre_status_num) + " 0")
         }
 
         for (i in 0..5) {
@@ -964,7 +964,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
 
       driverVersionS = driverVersion
-      RxUpdateMainEvent.getInstance().updateUIChart(true)
+      saveText(mDeviceAddress + PreferenceKeys.DRIVER_VERSION_STRING, driverVersionS)
+      RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
     }
@@ -1008,7 +1009,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           override fun onTick(millisUntilFinished: Long) {}
 
           override fun onFinish() {
-            RxUpdateMainEvent.getInstance().updateUIChart(true)
+            RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
 
             System.err.println("updateAllParameters updateUIChart($source) 4")
           }
@@ -1924,11 +1925,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private fun sendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) {
     val idCommand = uuidCommand.substring(4).substringBefore('-')
     val info = "startSendCommand id $idCommand   state"
-    val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
-    System.err.println("$info = $state  driverNum:$driverNum")
+
     var useNewSystemSendCommand = false
     if (driverVersionS != null) {
+      val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
       useNewSystemSendCommand = driverNum.toInt() > 233
+      System.err.println("$info = $state  driverNum:$driverNum")
     }
 
     expectedIdCommand = idCommand
@@ -2368,7 +2370,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       } else {
         System.err.println("DEVICE_TYPE_FEST_X else serialNumber=$serialNumber")
       }
-      RxUpdateMainEvent.getInstance().updateUIChart(true)
+      RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
       YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersSetTelemetryNumber)
 
 

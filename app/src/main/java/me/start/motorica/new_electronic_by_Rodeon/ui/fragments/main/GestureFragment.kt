@@ -91,6 +91,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.toggleGestureClasterRl.animate().alpha(1.0f).duration = 300
                 binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
                 binding.dividerV.animate().translationY(0F).duration = 300
+                System.err.println("my translationY 0 вниз")
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
             } else {
@@ -99,6 +100,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
                 binding.peakTimeVmRl.animate().alpha(0.0f).duration = 300
                 binding.dividerV.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
+                System.err.println("my translationY 0 вверх")
                 binding.gesturesButtonsSv.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
                 offAllRotationImage()
             }
@@ -264,7 +266,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 
         //скрываем интерфейс управления группами ротации
         if (!main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            hideUIRotationGroup()
+            hideUIRotationGroup(false)
         }
     }
     @SuppressLint("CheckResult")
@@ -280,9 +282,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             .subscribe {
                 if (context != null) {
                     if (it < 100) {
+                        //передаёт номер активного жеста
                         selectActiveGesture(it)
                     }
                     if (it == 100) {
+                        //активирует интерфейс
                         loadAllVariables()
                         System.err.println("RxUpdateMainEvent selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
                         selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
@@ -290,17 +294,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                         onOffUIAll(true)
                     }
                     if (it == 101) {
+                        //деактивирует интерфейс
                         onOffUIAll(false)
                     }
 
                     //скрываем интерфейс управления группами ротации
-                    if (main?.driverVersionS != null) {
-                        val driverNum =
-                            main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-                        if (driverNum.toInt() < 237) {
-                            hideUIRotationGroup()
-                        }
-                    }
+
+                    System.err.println("my checkDriverVersionGreaterThan237 = ${checkDriverVersionGreaterThan237()}")
+                    hideUIRotationGroup(checkDriverVersionGreaterThan237())
                 } else {
                     System.err.println("context GestureFragment NULL!")
                 }
@@ -354,28 +355,48 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings13Btn.isEnabled = enabled
         binding.gestureSettings14Btn.isEnabled = enabled
     }
-    private fun hideUIRotationGroup () {
+    private fun hideUIRotationGroup (enabled: Boolean) {
         offAllRotationImage()
-        binding.toggleGestureClasterRl.visibility = View.GONE
-        binding.peakTimeVmRl.visibility = View.GONE
-        binding.onOffSensorGestureSwitchingRl.visibility = View.GONE
-        binding.dividerV.visibility = View.GONE
-        binding.gesture9Btn.visibility = View.GONE
-        binding.gesture10Btn.visibility = View.GONE
-        binding.gesture11Btn.visibility = View.GONE
-        binding.gesture12Btn.visibility = View.GONE
-        binding.gesture13Btn.visibility = View.GONE
-        binding.gesture14Btn.visibility = View.GONE
-        binding.gestureSettings9Btn.visibility = View.GONE
-        binding.gestureSettings10Btn.visibility = View.GONE
-        binding.gestureSettings11Btn.visibility = View.GONE
-        binding.gestureSettings12Btn.visibility = View.GONE
-        binding.gestureSettings13Btn.visibility = View.GONE
-        binding.gestureSettings14Btn.visibility = View.GONE
-        if (firstStart){
-            firstStart = false
-            binding.gesturesButtonsSv.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + binding.onOffSensorGestureSwitchingRl.height + 16).toFloat()
+        if (enabled) {
+            binding.toggleGestureClasterRl.visibility = View.VISIBLE
+            binding.peakTimeVmRl.visibility = View.VISIBLE
+            binding.onOffSensorGestureSwitchingRl.visibility = View.VISIBLE
+            binding.dividerV.visibility = View.VISIBLE
+            binding.gesture9Btn.visibility = View.VISIBLE
+            binding.gesture10Btn.visibility = View.VISIBLE
+            binding.gesture11Btn.visibility = View.VISIBLE
+            binding.gesture12Btn.visibility = View.VISIBLE
+            binding.gesture13Btn.visibility = View.VISIBLE
+            binding.gesture14Btn.visibility = View.VISIBLE
+            binding.gestureSettings9Btn.visibility = View.VISIBLE
+            binding.gestureSettings10Btn.visibility = View.VISIBLE
+            binding.gestureSettings11Btn.visibility = View.VISIBLE
+            binding.gestureSettings12Btn.visibility = View.VISIBLE
+            binding.gestureSettings13Btn.visibility = View.VISIBLE
+            binding.gestureSettings14Btn.visibility = View.VISIBLE
+        } else {
+            binding.toggleGestureClasterRl.visibility = View.GONE
+            binding.peakTimeVmRl.visibility = View.GONE
+            binding.onOffSensorGestureSwitchingRl.visibility = View.GONE
+            binding.dividerV.visibility = View.GONE
+            binding.gesture9Btn.visibility = View.GONE
+            binding.gesture10Btn.visibility = View.GONE
+            binding.gesture11Btn.visibility = View.GONE
+            binding.gesture12Btn.visibility = View.GONE
+            binding.gesture13Btn.visibility = View.GONE
+            binding.gesture14Btn.visibility = View.GONE
+            binding.gestureSettings9Btn.visibility = View.GONE
+            binding.gestureSettings10Btn.visibility = View.GONE
+            binding.gestureSettings11Btn.visibility = View.GONE
+            binding.gestureSettings12Btn.visibility = View.GONE
+            binding.gestureSettings13Btn.visibility = View.GONE
+            binding.gestureSettings14Btn.visibility = View.GONE
         }
+//        if (firstStart){
+//            firstStart = false
+//            System.err.println("my translationY 1 вверх")
+//            binding.gesturesButtonsSv.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + binding.onOffSensorGestureSwitchingRl.height + 16).toFloat()
+//        }
     }
     private fun compileBLEMassage (useGesture: Int) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
@@ -702,45 +723,89 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)
             startActivity(intent)
         }
-        when (v?.id) {
-            R.id.gesture_settings_2_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 1)
+        if (checkDriverVersionGreaterThan237()) {
+            when (v?.id) {
+                R.id.gesture_settings_2_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 1)
+                }
+
+                R.id.gesture_settings_3_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
+                }
+
+                R.id.gesture_settings_4_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 3)
+                }
+
+                R.id.gesture_settings_5_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
+                }
+
+                R.id.gesture_settings_6_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
+                }
+
+                R.id.gesture_settings_7_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
+                }
+
+                R.id.gesture_settings_8_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
+                }
+
+                R.id.gesture_settings_9_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
+                }
+
+                R.id.gesture_settings_10_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 9)
+                }
+
+                R.id.gesture_settings_11_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 10)
+                }
+
+                R.id.gesture_settings_12_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 11)
+                }
+
+                R.id.gesture_settings_13_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 12)
+                }
+
+                R.id.gesture_settings_14_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 13)
+                }
             }
-            R.id.gesture_settings_3_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
-            }
-            R.id.gesture_settings_4_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 3)
-            }
-            R.id.gesture_settings_5_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
-            }
-            R.id.gesture_settings_6_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
-            }
-            R.id.gesture_settings_7_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
-            }
-            R.id.gesture_settings_8_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
-            }
-            R.id.gesture_settings_9_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
-            }
-            R.id.gesture_settings_10_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 9)
-            }
-            R.id.gesture_settings_11_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 10)
-            }
-            R.id.gesture_settings_12_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 11)
-            }
-            R.id.gesture_settings_13_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 12)
-            }
-            R.id.gesture_settings_14_btn -> {
-                main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 13)
+        } else {
+            when (v?.id) {
+                R.id.gesture_settings_2_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
+                }
+
+                R.id.gesture_settings_3_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 3)
+                }
+
+                R.id.gesture_settings_4_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
+                }
+
+                R.id.gesture_settings_5_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
+                }
+
+                R.id.gesture_settings_6_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
+                }
+
+                R.id.gesture_settings_7_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
+                }
+
+                R.id.gesture_settings_8_btn -> {
+                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
+                }
             }
         }
 
@@ -765,21 +830,33 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, text).toString())
         }
 
-        if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
-            binding.onOffSensorGestureSwitchingSw.isChecked = true
-            binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.on_sw)
-            binding.toggleGestureClasterRl.animate().alpha(1.0f).duration = 300
-            binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
-            binding.dividerV.animate().translationY(0F).duration = 300
-            binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
-        } else {
-            binding.onOffSensorGestureSwitchingSw.isChecked = false
-            binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
-            binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
-            binding.peakTimeVmRl.animate().alpha(0.0f).duration = 300
-            binding.dividerV.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
-            binding.gesturesButtonsSv.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
-            offAllRotationImage()
+        if (checkDriverVersionGreaterThan237()) {
+            if (mSettings!!.getBoolean(
+                    main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM,
+                    false
+                )
+            ) {
+                binding.onOffSensorGestureSwitchingSw.isChecked = true
+                binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.on_sw)
+                binding.toggleGestureClasterRl.animate().alpha(1.0f).duration = 300
+                binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
+                binding.dividerV.animate().translationY(0F).duration = 300
+                System.err.println("my translationY 2 вниз")
+                binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
+            } else {
+                binding.onOffSensorGestureSwitchingSw.isChecked = false
+                binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
+                binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
+                binding.peakTimeVmRl.animate().alpha(0.0f).duration = 300
+                binding.dividerV.animate()
+                    .translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration =
+                    300
+                System.err.println("my translationY 2 вверх")
+                binding.gesturesButtonsSv.animate()
+                    .translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration =
+                    300
+                offAllRotationImage()
+            }
         }
 
 
@@ -799,19 +876,25 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 "progress",
                 mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, 15)
             ).setDuration(200).start()
-            System.err.println("translationY 0 !!!!!")
             if (sensorGestureSwitching != 0x01 && firstStart) {
                 firstStart = false
-                System.err.println("translationY 1 !!!!!")
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
                 binding.toggleGestureClasterRl.alpha = 0.0f
                 binding.peakTimeVmRl.alpha = 0.0f
-                Handler().postDelayed({
-                    System.err.println("translationY 2 !!!!!")
-                    binding.dividerV.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()
-                    binding.gesturesButtonsSv.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()
-                }, 1000)
+//                Handler().postDelayed({
+//                    binding.dividerV.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()
+//                    System.err.println("my translationY 3 вверх")
+//                    binding.gesturesButtonsSv.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()
+//                }, 1000)
             }
+        }
+    }
+    private fun checkDriverVersionGreaterThan237():Boolean {
+        return if (main?.driverVersionS != null) {
+            val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+            driverNum.toInt() >= 237
+        } else {
+            false
         }
     }
 }

@@ -152,7 +152,12 @@ class GripperScreenWithEncodersActivity
 
         loadOldState()
         myLoadGesturesList()
-        binding.gestureNameTv.text = gestureNameList[gestureNumber]
+        if (checkDriverVersionGreaterThan237()) {
+            binding.gestureNameTv.text = gestureNameList[gestureNumber]
+        } else {
+            binding.gestureNameTv.text = gestureNameList[gestureNumber - 1]
+        }
+
 
 
         RxView.clicks(findViewById(R.id.edit_gesture_name_btn))
@@ -165,7 +170,11 @@ class GripperScreenWithEncodersActivity
                         imm.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
                         binding.gestureNameTv.text = binding.gestureNameEt.text
                         binding.gestureNameEt.visibility = View.GONE
-                        gestureNameList[(gestureNumber - 1)] = binding.gestureNameTv.text.toString()
+                        if (checkDriverVersionGreaterThan237()) {
+                            gestureNameList[(gestureNumber)] = binding.gestureNameTv.text.toString()
+                        } else {
+                            gestureNameList[(gestureNumber - 1)] = binding.gestureNameTv.text.toString()
+                        }
                         val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
                         System.err.println("6 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
@@ -894,17 +903,7 @@ class GripperScreenWithEncodersActivity
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         }
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-//            System.err.println("GSR--------> compileBLEMassage FEST_X")
-//            System.err.println("GSR--------> fingerOpenStateDelay1: $fingerOpenStateDelay1  fingerOpenStateDelay2: $fingerOpenStateDelay2 fingerOpenStateDelay3: $fingerOpenStateDelay3 fingerOpenStateDelay4: $fingerOpenStateDelay4    fingerOpenStateDelay5: $fingerOpenStateDelay5 fingerOpenStateDelay6: $fingerOpenStateDelay6")
-//            System.err.println("GSR--------> fingerCloseStateDelay1: $fingerCloseStateDelay1  fingerCloseStateDelay2: $fingerCloseStateDelay2  fingerCloseStateDelay3: $fingerCloseStateDelay3   fingerCloseStateDelay4: $fingerCloseStateDelay4   fingerCloseStateDelay5: $fingerCloseStateDelay5   fingerCloseStateDelay6: $fingerCloseStateDelay6")
-            //TODO прокинуть сюда версию драйвера или переменную синхронизации с версией 2.37
-
-            var version237 = false
-            if (driverVersionS != null) {
-                val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
-                version237 = driverNum.toInt() >= 237
-            }
-            val sendGestureNumber = if (version237) { gestureNumber
+            val sendGestureNumber = if (checkDriverVersionGreaterThan237()) { gestureNumber
             } else { gestureNumber - 1 }
             val gestureStateModel = GestureStateWithEncoders(sendGestureNumber, // проверить тут -2
                 fingerOpenState4, fingerOpenState3, fingerOpenState2,
@@ -915,6 +914,14 @@ class GripperScreenWithEncodersActivity
                 fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6,
                 gestureState, withChangeGesture, onlyNumberGesture)
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
+        }
+    }
+    private fun checkDriverVersionGreaterThan237():Boolean {
+        return if (driverVersionS != null) {
+            val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
+            driverNum.toInt() >= 237
+        } else {
+            false
         }
     }
     private fun compileBLERead (characteristic: String) {

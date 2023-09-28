@@ -1007,10 +1007,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.calibrationStatusAdvBtn.isEnabled = enabled
     binding.debugScreenBtn.isEnabled = enabled
     binding.testConnectionBtn.isEnabled = enabled
-    if (main?.driverVersionS != null) {
-      val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-      if (driverNum.toInt() >= 237) { binding.EMGModeRl.visibility = View.VISIBLE }
-    }
+    if (checkDriverVersionGreaterThan237()) { binding.EMGModeRl.visibility = View.VISIBLE }
   }
   @SuppressLint("Recycle", "SetTextI18n")
   private fun updateAllParameters() {
@@ -1217,30 +1214,26 @@ class AdvancedSettingsFragment : Fragment() {
   }
   private fun sendGestureRotation () {
     main?.stage = "advanced activity"
-    if (main?.driverVersionS != null) {
-      val driverNum =
-        main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-      if (driverNum.toInt() >= 237) {
-        System.err.println("sendGestureRotation true")
-        main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
-          0.toByte(),
-          binding.peakTimeVmSb.progress.toByte(),
-          0.toByte(),
-          lockProstheses,
-          (binding.holdToLockTimeSb.progress).toByte(),
-          startGestureInLoop.toByte(),
-          endGestureInLoop.toByte()
-        ), ROTATION_GESTURE_NEW_VM, 50)
-      } else {
-        System.err.println("sendGestureRotation else")
-        main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
-          0.toByte(),
-          binding.peakTimeVmSb.progress.toByte(),
-          0.toByte(),
-          lockProstheses,
-          (binding.holdToLockTimeSb.progress).toByte()
-        ), ROTATION_GESTURE_NEW_VM, 50)
-      }
+    if (checkDriverVersionGreaterThan237()) {
+      System.err.println("sendGestureRotation true")
+      main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
+        0.toByte(),
+        binding.peakTimeVmSb.progress.toByte(),
+        0.toByte(),
+        lockProstheses,
+        (binding.holdToLockTimeSb.progress).toByte(),
+        startGestureInLoop.toByte(),
+        endGestureInLoop.toByte()
+      ), ROTATION_GESTURE_NEW_VM, 50)
+    } else {
+      System.err.println("sendGestureRotation else")
+      main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
+        0.toByte(),
+        binding.peakTimeVmSb.progress.toByte(),
+        0.toByte(),
+        lockProstheses,
+        (binding.holdToLockTimeSb.progress).toByte()
+      ), ROTATION_GESTURE_NEW_VM, 50)
     }
     RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
   }
@@ -1254,5 +1247,14 @@ class AdvancedSettingsFragment : Fragment() {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putBoolean(key, variable)
     editor.apply()
+  }
+  private fun checkDriverVersionGreaterThan237():Boolean {
+    if (main?.driverVersionS != null) {
+      val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+      if (driverNum.toInt() >= 237) {
+        return true
+      }
+    }
+    return false
   }
 }

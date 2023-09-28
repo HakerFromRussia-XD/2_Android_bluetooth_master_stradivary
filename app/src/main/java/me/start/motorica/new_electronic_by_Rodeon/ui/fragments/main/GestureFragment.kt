@@ -91,7 +91,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.toggleGestureClasterRl.animate().alpha(1.0f).duration = 300
                 binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
                 binding.dividerV.animate().translationY(0F).duration = 300
-                System.err.println("my translationY 0 вниз")
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
             } else {
@@ -100,7 +99,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
                 binding.peakTimeVmRl.animate().alpha(0.0f).duration = 300
                 binding.dividerV.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
-                System.err.println("my translationY 0 вверх")
                 binding.gesturesButtonsSv.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
                 offAllRotationImage()
             }
@@ -284,6 +282,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     if (it < 100) {
                         //передаёт номер активного жеста
                         selectActiveGesture(it)
+                        selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
                     }
                     if (it == 100) {
                         //активирует интерфейс
@@ -299,7 +298,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     }
 
                     //скрываем интерфейс управления группами ротации
-
                     System.err.println("my checkDriverVersionGreaterThan237 = ${checkDriverVersionGreaterThan237()}")
                     hideUIRotationGroup(checkDriverVersionGreaterThan237())
                 } else {
@@ -356,7 +354,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings14Btn.isEnabled = enabled
     }
     private fun hideUIRotationGroup (enabled: Boolean) {
-        offAllRotationImage()
         if (enabled) {
             binding.toggleGestureClasterRl.visibility = View.VISIBLE
             binding.peakTimeVmRl.visibility = View.VISIBLE
@@ -375,6 +372,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             binding.gestureSettings13Btn.visibility = View.VISIBLE
             binding.gestureSettings14Btn.visibility = View.VISIBLE
         } else {
+            offAllRotationImage()
             binding.toggleGestureClasterRl.visibility = View.GONE
             binding.peakTimeVmRl.visibility = View.GONE
             binding.onOffSensorGestureSwitchingRl.visibility = View.GONE
@@ -392,11 +390,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             binding.gestureSettings13Btn.visibility = View.GONE
             binding.gestureSettings14Btn.visibility = View.GONE
         }
-//        if (firstStart){
-//            firstStart = false
-//            System.err.println("my translationY 1 вверх")
-//            binding.gesturesButtonsSv.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + binding.onOffSensorGestureSwitchingRl.height + 16).toFloat()
-//        }
     }
     private fun compileBLEMassage (useGesture: Int) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
@@ -666,7 +659,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 
 
         //блок отрисовки картинок цикла на нужных кнопках
+//        System.err.println("my блок отрисовки картинок цикла на нужных кнопках 1")
         if (binding.onOffSensorGestureSwitchingSw.isChecked) {
+//            System.err.println("my блок отрисовки картинок цикла на нужных кнопках 2 true")
             val indicatorGestureLoop = arrayOf(
                 binding.gestureLoop1Iv,
                 binding.gestureLoop2Iv,
@@ -687,8 +682,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 indicatorGestureLoop[i].visibility = View.GONE
             }
             for (i in startGestureInLoopNum until endGestureInLoopNum + 1) {
+                System.err.println("my цикл отрисовки картинок цикла на нужных кнопках 2.2 i=$i")
                 indicatorGestureLoop[i].visibility = View.VISIBLE
             }
+        } else {
+            System.err.println("my блок отрисовки картинок цикла на нужных кнопках 3 false")
         }
     }
     private fun setPeakTimeVmNum(peakTimeVmNum: Int) {
@@ -809,6 +807,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             }
         }
 
+
         //выключение работы протеза от датчиков
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW, WRITE)
@@ -841,7 +840,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.toggleGestureClasterRl.animate().alpha(1.0f).duration = 300
                 binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
                 binding.dividerV.animate().translationY(0F).duration = 300
-                System.err.println("my translationY 2 вниз")
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
             } else {
                 binding.onOffSensorGestureSwitchingSw.isChecked = false
@@ -851,7 +849,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.dividerV.animate()
                     .translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration =
                     300
-                System.err.println("my translationY 2 вверх")
                 binding.gesturesButtonsSv.animate()
                     .translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration =
                     300
@@ -876,17 +873,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 "progress",
                 mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, 15)
             ).setDuration(200).start()
-            if (sensorGestureSwitching != 0x01 && firstStart) {
-                firstStart = false
-                binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
-                binding.toggleGestureClasterRl.alpha = 0.0f
-                binding.peakTimeVmRl.alpha = 0.0f
-//                Handler().postDelayed({
-//                    binding.dividerV.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()
-//                    System.err.println("my translationY 3 вверх")
-//                    binding.gesturesButtonsSv.translationY = -(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()
-//                }, 1000)
-            }
         }
     }
     private fun checkDriverVersionGreaterThan237():Boolean {

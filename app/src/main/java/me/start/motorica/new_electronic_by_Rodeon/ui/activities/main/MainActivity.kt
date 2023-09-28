@@ -432,6 +432,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           dataSens2 = castUnsignedCharToInt(data[1])
           if (oldNumGesture != castUnsignedCharToInt(data[2])+1) {
             RxUpdateMainEvent.getInstance().updateUIGestures(castUnsignedCharToInt(data[2])+1)
+            saveInt(mDeviceAddress+PreferenceKeys.ACTIVE_GESTURE_NUM, castUnsignedCharToInt(data[2])+1)
+            RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
             oldNumGesture = castUnsignedCharToInt(data[2])+1
             System.err.println("displayDataNew номер жеста ${castUnsignedCharToInt(data[2])+1}")
           }

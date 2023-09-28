@@ -869,6 +869,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   @SuppressLint("SetTextI18n", "Recycle")
   private fun updateAllParameters() {
     activity?.runOnUiThread  {
+      binding.activeGestureTv.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.ACTIVE_GESTURE_NUM, 0).toString()
       binding.nameTv.text = main?.mDeviceName
       binding.openCHSb.progress =
         mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 30)

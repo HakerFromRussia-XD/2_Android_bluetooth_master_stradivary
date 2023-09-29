@@ -49,7 +49,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         hand_palm_7,
         hand_palm_8,
         hand_palm_9,
-        hand_palm,
+        hand_palm_10,
         hand_palm_11,
         hand_palm_12,
         hand_palm_13,

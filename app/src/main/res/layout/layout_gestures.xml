@@ -239,7 +239,7 @@
                         android:layout_height="32dp"
                         android:layout_alignStart="@+id/gesture_loop_2_psv"
                         android:layout_centerVertical="true"
-                        android:layout_marginStart="8dp"
+                        android:layout_marginStart="16dp"
                         android:backgroundTint="@android:color/white"
                         android:elevation="4dp"
                         tools:ignore="ContentDescription,ImageContrastCheck" />
@@ -262,6 +262,8 @@
                         android:lines="1"
                         android:textColor="@color/white"
                         android:textSize="12sp"
+                        android:paddingStart="8dp"
+                        android:drawableStart="@color/black"
                         app:spinner_arrow_show="false"
                         app:spinner_item_array="@array/gesture_loop"
                         app:spinner_popup_animation="dropdown"
@@ -449,7 +451,7 @@
                             android:paddingStart="16dp"
                             android:text="@string/gesture_1_btn"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
 
 
@@ -497,7 +499,7 @@
                             android:paddingStart="16dp"
                             android:text="@string/gesture_2_btn"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             android:visibility="visible"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -567,7 +569,7 @@
                             android:paddingStart="16dp"
                             android:text="@string/gesture_3_btn"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
 
                         <ImageView
@@ -615,7 +617,7 @@
                             android:paddingStart="16dp"
                             android:text="@string/gesture_4_btn"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             android:visibility="visible"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -684,7 +686,7 @@
                             android:paddingStart="16dp"
                             android:text="@string/gesture_5_btn"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
 
                         <ImageView
@@ -731,7 +733,7 @@
                             android:paddingStart="16dp"
                             android:text="@string/gesture_6_btn"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             android:visibility="visible"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -799,7 +801,7 @@
                             android:paddingStart="16dp"
                             android:text="@string/gesture_7_btn"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,DuplicateSpeakableTextCheck,TextContrastCheck,VisualLintButtonSize" />
 
                         <ImageView
@@ -847,7 +849,7 @@
                             android:paddingStart="16dp"
                             android:text="@string/gesture_8_btn"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             android:visibility="visible"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -916,7 +918,7 @@
                             android:paddingStart="16dp"
                             android:text="gesture №9"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
@@ -964,7 +966,7 @@
                             android:paddingStart="16dp"
                             android:text="gesture №10"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             android:visibility="visible"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -1033,7 +1035,7 @@
                             android:paddingStart="16dp"
                             android:text="gesture №11"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
@@ -1081,7 +1083,7 @@
                             android:paddingStart="16dp"
                             android:text="gesture №12"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             android:visibility="visible"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -1150,7 +1152,7 @@
                             android:paddingStart="16dp"
                             android:text="gesture №13"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
@@ -1198,7 +1200,7 @@
                             android:paddingStart="16dp"
                             android:text="gesture №14"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="9sp"
                             android:visibility="visible"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"

@@ -3,6 +3,11 @@
   <component name="WizardSettings">
     <option name="children">
       <map>
+        <entry key="imageWizard">
+          <value>
+            <PersistentState />
+          </value>
+        </entry>
         <entry key="vectorWizard">
           <value>
             <PersistentState>
@@ -14,9 +19,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="autoMirrored" value="true" />
-                            <entry key="outputName" value="hand_palm" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/../../Icon/HandPalm_14.svg" />
+                            <entry key="outputName" value="hand_palm_14" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/../../Icon/Group-12.svg" />
                           </map>
                         </option>
                       </PersistentState>

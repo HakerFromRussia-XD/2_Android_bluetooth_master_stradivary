@@ -132,23 +132,26 @@
 
             <LinearLayout
                 android:id="@+id/loop_gestures_ll"
-                android:layout_width="60dp"
-                android:layout_height="20dp"
-                android:orientation="horizontal"
+                android:layout_width="72dp"
+                android:layout_height="0dp"
                 android:layout_below="@+id/name_tv"
+                android:layout_alignBottom="@+id/version_help_v"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="0dp"
-                android:weightSum="3"
+                android:layout_marginBottom="0dp"
+                android:orientation="horizontal"
                 android:visibility="visible"
+                android:weightSum="2.6"
                 tools:ignore="DisableBaselineAlignment">
 
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
+
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:src="@drawable/hand_palm"
                         tools:ignore="ContentDescription" />
 
@@ -156,50 +159,50 @@
                         android:id="@+id/start_loop_gesture_tv"
                         style="@style/Text"
                         android:layout_width="20dp"
-                        android:layout_height="10dp"
+                        android:layout_height="11dp"
                         android:layout_alignParentBottom="true"
                         android:layout_centerHorizontal="true"
-                        android:layout_marginBottom="1dp"
+                        android:layout_marginBottom="5dp"
                         android:textAlignment="center"
                         android:textColor="@color/white"
-                        android:textSize="6sp"
+                        android:textSize="9sp"
+                        android:text="14"
                         tools:ignore="SmallSp" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_weight="0.6">
+
                     <ImageView
                         android:id="@+id/rotate_iv"
-                        android:layout_width="20dp"
-                        android:layout_height="10dp"
-                        android:src="@drawable/gesture_loop"
+                        android:layout_width="30dp"
+                        android:layout_height="15dp"
                         android:layout_centerVertical="true"
+                        android:src="@drawable/gesture_loop"
                         tools:ignore="ContentDescription" />
 
                     <TextView
                         android:id="@+id/active_gesture_tv"
                         style="@style/Text"
-                        android:layout_width="20dp"
-                        android:layout_height="10dp"
-                        android:layout_alignTop="@+id/rotate_iv"
-                        android:layout_alignBottom="@+id/rotate_iv"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginTop="0dp"
-                        android:layout_marginBottom="0dp"
-                        android:textAlignment="center"
-                        android:text="5"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="14"
+                        android:gravity="center"
                         android:textColor="@color/white"
-                        android:textSize="6sp"
+                        android:textSize="9sp"
                         tools:ignore="SmallSp" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
+
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:src="@drawable/hand_palm"
                         tools:ignore="ContentDescription" />
 
@@ -207,13 +210,14 @@
                         android:id="@+id/end_loop_gesture_tv"
                         style="@style/Text"
                         android:layout_width="20dp"
-                        android:layout_height="10dp"
+                        android:layout_height="11dp"
                         android:layout_alignParentBottom="true"
                         android:layout_centerHorizontal="true"
-                        android:layout_marginBottom="1dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="10"
                         android:textAlignment="center"
                         android:textColor="@color/white"
-                        android:textSize="6sp"
+                        android:textSize="9sp"
                         tools:ignore="SmallSp" />
 
                 </RelativeLayout>

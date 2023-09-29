@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color.*
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,7 +49,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         hand_palm_7,
         hand_palm_8,
         hand_palm_9,
-        hand_palm_10,
+        hand_palm,
         hand_palm_11,
         hand_palm_12,
         hand_palm_13,
@@ -77,7 +76,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     }
     @Deprecated("Deprecated in Java")
     @SuppressLint("ClickableViewAccessibility", "UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
@@ -477,53 +476,69 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gesture12Btn.text = gestureNameList[11]
         binding.gesture13Btn.text = gestureNameList[12]
         binding.gesture14Btn.text = gestureNameList[13]
-        binding.gestureLoop1Psv.apply {
-            setSpinnerAdapter(IconSpinnerAdapter(this))
-            setOnSpinnerItemSelectedListener(
-                OnSpinnerItemSelectedListener<IconSpinnerItem?> {
-                        oldIndex, _, newIndex, _ ->
-                    startGestureInLoopNum = newIndex
-                    System.err.println("gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
-                    selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
-                    if (oldIndex != newIndex) {
-                        binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
-                    }
-
-                    main?.runSendCommand(byteArrayOf(
-                        sensorGestureSwitching.toByte(),
-                        0.toByte(),
-                        binding.peakTimeVmSb.progress.toByte(),
-                        0.toByte(),
-                        lockProstheses.toByte(),
-                        holdToLockTimeSb.toByte(),
-                        startGestureInLoopNum.toByte(),
-                        endGestureInLoopNum.toByte()
-                    ), ROTATION_GESTURE_NEW_VM, countRestart)
-                    main?.saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
-                    RxUpdateMainEvent.getInstance().updateUIChart(true)
-                })
-            val list: MutableList<IconSpinnerItem> = ArrayList()
-            for (i in 0 until PreferenceKeys.NUM_GESTURES) {
-                list.add(IconSpinnerItem(text = gestureNameList[i], iconRes = handPalms[i], gravity = 100))
+        binding.gestureLoop1Psv.let {
+            it.apply {
+                setSpinnerAdapter(IconSpinnerAdapter(this))
+                val list: MutableList<IconSpinnerItem> = ArrayList()
+                for (i in 0 until PreferenceKeys.NUM_GESTURES) {
+                    list.add(IconSpinnerItem(text = gestureNameList[i], iconRes = handPalms[i], gravity = 100))
+                }
+                setItems(list)
+                showDivider = true
+                dividerSize = 2
+                lifecycleOwner = this@GestureFragment
             }
-            setItems(list)
-            showDivider = true
-            dividerSize = 2
-            lifecycleOwner = this@GestureFragment
+            it.setOnSpinnerItemSelectedListener<IconSpinnerItem> { oldIndex, _, newIndex, _ ->
+                startGestureInLoopNum = newIndex
+                System.err.println("gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
+                selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
+                if (oldIndex != newIndex) {
+                    binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
+                }
+
+                main?.runSendCommand(byteArrayOf(
+                    sensorGestureSwitching.toByte(),
+                    0.toByte(),
+                    binding.peakTimeVmSb.progress.toByte(),
+                    0.toByte(),
+                    lockProstheses.toByte(),
+                    holdToLockTimeSb.toByte(),
+                    startGestureInLoopNum.toByte(),
+                    endGestureInLoopNum.toByte()
+                ), ROTATION_GESTURE_NEW_VM, countRestart)
+                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+                RxUpdateMainEvent.getInstance().updateUIChart(true)
+            }
         }
-        binding.gestureLoop2Psv.apply {
-            setSpinnerAdapter(IconSpinnerAdapter(this))
-            setOnSpinnerItemSelectedListener(
-                OnSpinnerItemSelectedListener<IconSpinnerItem?> {
-                        oldIndex, _, newIndex, _ ->
-                    endGestureInLoopNum = newIndex
-                    System.err.println("gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
-                    selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, false)
-                    if (oldIndex != newIndex) {
-                        binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
-                    }
+        binding.gestureLoop2Psv.let {
+            it.apply {
+                setSpinnerAdapter(IconSpinnerAdapter(this))
+                val list: MutableList<IconSpinnerItem> = ArrayList()
+                for (i in 0 until PreferenceKeys.NUM_GESTURES) {
+                    list.add(
+                        IconSpinnerItem(
+                            text = gestureNameList[i],
+                            iconRes = handPalms[i],
+                            gravity = 100
+                        )
+                    )
+                }
+                setItems(list)
+                showDivider = true
+                dividerSize = 2
+                lifecycleOwner = this@GestureFragment
+            }
+            it.setOnSpinnerItemSelectedListener<IconSpinnerItem> {
+                    oldIndex, _, newIndex, _ ->
+                endGestureInLoopNum = newIndex
+                System.err.println("gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
+                selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, false)
+                if (oldIndex != newIndex) {
+                    binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
+                }
 
-                    main?.runSendCommand(byteArrayOf(
+                main?.runSendCommand(
+                    byteArrayOf(
                         sensorGestureSwitching.toByte(),
                         0.toByte(),
                         binding.peakTimeVmSb.progress.toByte(),
@@ -532,18 +547,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                         holdToLockTimeSb.toByte(),
                         startGestureInLoopNum.toByte(),
                         endGestureInLoopNum.toByte()
-                    ), ROTATION_GESTURE_NEW_VM, countRestart)
-                    main?.saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
-                    RxUpdateMainEvent.getInstance().updateUIChart(true)
-                })
-            val list: MutableList<IconSpinnerItem> = ArrayList()
-            for (i in 0 until PreferenceKeys.NUM_GESTURES) {
-                list.add(IconSpinnerItem(text = gestureNameList[i], iconRes = handPalms[i], gravity = 100))
+                    ), ROTATION_GESTURE_NEW_VM, countRestart
+                )
+                main?.saveInt(
+                    main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP,
+                    endGestureInLoopNum
+                )
+                RxUpdateMainEvent.getInstance().updateUIChart(true)
             }
-            setItems(list)
-            showDivider = true
-            dividerSize = 2
-            lifecycleOwner = this@GestureFragment
         }
     }
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")

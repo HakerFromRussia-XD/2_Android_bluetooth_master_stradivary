@@ -188,6 +188,9 @@
                         app:spinner_popup_start_padding="22dp"
                         app:spinner_popup_top_padding="2dp"
                         app:spinner_popup_width="300dp"
+                        app:spinner_divider_show="true"
+                        app:spinner_divider_size="1dp"
+                        app:spinner_item_height="42dp"
                         app:spinner_selected_item_background="@drawable/custom_divider_spinner_back" />
 
                     <TextView
@@ -269,6 +272,9 @@
                         app:spinner_popup_start_padding="22dp"
                         app:spinner_popup_top_padding="2dp"
                         app:spinner_popup_width="300dp"
+                        app:spinner_divider_show="true"
+                        app:spinner_divider_size="1dp"
+                        app:spinner_item_height="42dp"
                         app:spinner_selected_item_background="@drawable/custom_divider_spinner_back" />
 
                     <TextView

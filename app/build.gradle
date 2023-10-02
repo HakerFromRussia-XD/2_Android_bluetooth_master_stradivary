@@ -22,14 +22,14 @@ android {
     }
     namespace 'me.start.motorica'
     compileSdk 33
-    buildToolsVersion '32.0.0'
+//    buildToolsVersion '32.0.0'
 
     defaultConfig {
         applicationId "com.Romans.motorica"
         minSdk 23
         targetSdk 33
         versionCode 49
-        versionName "2.4.635"
+        versionName "2.4.638"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

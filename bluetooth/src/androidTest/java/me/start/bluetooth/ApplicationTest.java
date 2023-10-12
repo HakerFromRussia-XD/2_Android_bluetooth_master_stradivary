@@ -1,4 +1,4 @@
-package me.start.bluetooth;
+package com.bailout.bluetooth;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

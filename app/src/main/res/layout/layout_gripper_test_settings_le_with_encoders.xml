@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestSettingsWithEncodersGLSurfaceView
+    <com.bailout.stick.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestSettingsWithEncodersGLSurfaceView
         android:id="@+id/gl_test_surface_view_le_with_encoders"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

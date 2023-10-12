@@ -26,7 +26,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
-        android:name="me.start.motorica.new_electronic_by_Rodeon.WDApplication"
+        android:name="com.bailout.stick.new_electronic_by_Rodeon.WDApplication"
         android:installLocation="internalOnly"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
@@ -35,7 +35,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.SplashScreen"
+        <activity android:name="com.bailout.stick.new_electronic_by_Rodeon.ui.activities.intro.SplashScreen"
             android:exported="true"
             tools:node="merge">
             <intent-filter>
@@ -44,20 +44,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="me.start.motorica.scan.view.ScanActivity"
+            android:name="com.bailout.stick.scan.view.ScanActivity"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name="me.start.motorica.old_electronic_by_Misha.ui.chat.view.ChartActivity"
+            android:name="com.bailout.stick.old_electronic_by_Misha.ui.chat.view.ChartActivity"
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name="me.start.motorica.old_electronic_by_Misha.ui.chat.view.NemoStandActivity"
+            android:name="com.bailout.stick.old_electronic_by_Misha.ui.chat.view.NemoStandActivity"
             android:screenOrientation="portrait">
         </activity>
 
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity"
+            android:name="com.bailout.stick.new_electronic_by_Rodeon.ui.activities.main.MainActivity"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"
             android:exported="true">
@@ -69,35 +69,35 @@
         </activity>
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.intro.StartActivity" />
+            android:name="com.bailout.stick.new_electronic_by_Rodeon.ui.activities.intro.StartActivity" />
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity"
+            android:name="com.bailout.stick.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity"
+            android:name="com.bailout.stick.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name="me.start.motorica.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity"
+            android:name="com.bailout.stick.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity"
             android:screenOrientation="portrait"/>
 
-        <service android:name="me.start.motorica.new_electronic_by_Rodeon.ble.BluetoothLeService"
+        <service android:name="com.bailout.stick.new_electronic_by_Rodeon.ble.BluetoothLeService"
             android:enabled="true"/>
         <service
-            android:name="me.start.motorica.new_electronic_by_Rodeon.services.MyService"
+            android:name="com.bailout.stick.new_electronic_by_Rodeon.services.MyService"
             android:exported="false">
             <intent-filter>
-                <action android:name="me.start.motorica.new_electronic_by_Rodeon.services.MyService"/>
+                <action android:name="com.bailout.stick.new_electronic_by_Rodeon.services.MyService"/>
             </intent-filter>
         </service>
 
         <service
-            android:name="me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService"
+            android:name="com.bailout.stick.new_electronic_by_Rodeon.services.DataTransferToService"
             android:exported="true">
             <intent-filter>
-                <action android:name="me.start.motorica.new_electronic_by_Rodeon.services.DataTransferToService.DO_SOMETHING_1"/>
+                <action android:name="com.bailout.stick.new_electronic_by_Rodeon.services.DataTransferToService.DO_SOMETHING_1"/>
             </intent-filter>
         </service>
     </application>

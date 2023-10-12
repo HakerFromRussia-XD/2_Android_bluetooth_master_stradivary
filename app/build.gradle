@@ -20,16 +20,16 @@ android {
             keyPassword '89157719183'
         }
     }
-    namespace 'me.start.motorica'
+    namespace 'com.bailout.stick'
     compileSdk 33
 //    buildToolsVersion '32.0.0'
 
     defaultConfig {
-        applicationId "com.Romans.motorica"
+        applicationId "com.bailout.stick"
         minSdk 23
         targetSdk 33
-        versionCode 49
-        versionName "2.4.638"
+        versionCode 1
+        versionName "2.4.639"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -66,7 +66,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     compileOnly 'com.github.pengrad:jdk9-deps:1.0'
     //noinspection GradleDependency
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'com.google.android.material:material:1.6.1'
 
     // kotlin

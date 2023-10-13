@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name="android.hardware.bluetooth"    android:required="true"/>
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+<!--    <uses-feature-->
+<!--        android:name="android.hardware.telephony"-->
+<!--        android:required="false" />-->
 
     <uses-permission android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30" />
@@ -16,14 +19,14 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <uses-permission android:name="android.permission.CALL_PHONE" />
+<!--    <uses-permission android:name="android.permission.CALL_PHONE" />-->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.QUICKBOOT_POWERON" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+<!--    <uses-permission android:name="android.permission.VIBRATE" />-->
+<!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
+<!--    <uses-permission android:name="android.permission.QUICKBOOT_POWERON" />-->
+<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>-->
 
     <application
         android:name="com.bailout.stick.new_electronic_by_Rodeon.WDApplication"
@@ -85,21 +88,21 @@
 
         <service android:name="com.bailout.stick.new_electronic_by_Rodeon.ble.BluetoothLeService"
             android:enabled="true"/>
-        <service
-            android:name="com.bailout.stick.new_electronic_by_Rodeon.services.MyService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.bailout.stick.new_electronic_by_Rodeon.services.MyService"/>
-            </intent-filter>
-        </service>
+<!--        <service-->
+<!--            android:name="com.bailout.stick.new_electronic_by_Rodeon.services.MyService"-->
+<!--            android:exported="false">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.bailout.stick.new_electronic_by_Rodeon.services.MyService"/>-->
+<!--            </intent-filter>-->
+<!--        </service>-->
 
-        <service
-            android:name="com.bailout.stick.new_electronic_by_Rodeon.services.DataTransferToService"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.bailout.stick.new_electronic_by_Rodeon.services.DataTransferToService.DO_SOMETHING_1"/>
-            </intent-filter>
-        </service>
+<!--        <service-->
+<!--            android:name="com.bailout.stick.new_electronic_by_Rodeon.services.DataTransferToService"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.bailout.stick.new_electronic_by_Rodeon.services.DataTransferToService.DO_SOMETHING_1"/>-->
+<!--            </intent-filter>-->
+<!--        </service>-->
     </application>
 
 </manifest>

@@ -262,7 +262,7 @@ class GripperScreenWithEncodersActivity
                     }
                     finish()
                 }
-//переезжаемнаbinding
+
         binding.fingersDelayBtn.setOnClickListener {
             showFingersDelayDialog()
         }

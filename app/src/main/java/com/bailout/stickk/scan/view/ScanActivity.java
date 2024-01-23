@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -240,10 +241,17 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "bluetooth нет на телефоне", Toast.LENGTH_SHORT).show();
-            if(!mBluetoothAdapter.isMultipleAdvertisementSupported()){
-                Toast.makeText(this, "bluetooth low energy нет на телефоне", Toast.LENGTH_SHORT).show();
+
+            try {
+                if(!mBluetoothAdapter.isMultipleAdvertisementSupported()){
+                    Toast.makeText(this, "bluetooth low energy нет на телефоне", Toast.LENGTH_SHORT).show();
+                }
+                finish();
+            } catch (IllegalStateException e) {
+                // This can only happen on 4.1+, when we don't have a parent or a result set.
+                // In that case we should just finish().
+                finish();
             }
-            finish();
         }
 
         checkLocationPermission();

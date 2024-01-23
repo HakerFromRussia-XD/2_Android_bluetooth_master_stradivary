@@ -53,6 +53,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <TextView
         android:id="@+id/help_title_tv"
         android:layout_width="wrap_content"
@@ -60,9 +61,9 @@
         android:layout_alignTop="@+id/imageView33"
         android:layout_alignBottom="@+id/imageView33"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="0dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="15dp"
         android:layout_marginBottom="0dp"
         android:layout_toEndOf="@+id/back_btn"
         android:fontFamily="@font/font_open_sans_semi_bold"
@@ -74,7 +75,6 @@
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView33"
         app:layout_constraintTop_toTopOf="@+id/imageView33" />
-
 
     <ScrollView
         android:id="@+id/main_sv"

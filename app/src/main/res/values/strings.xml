@@ -389,7 +389,7 @@
     <string name="the_presence_of_traces_of_exposure_to_corrosive_substances">The presence of traces of exposure to corrosive substances.</string>
     <string name="presence_of_traces_of_damage_to_the_product_by_the_user_and_or_third_parties_chips_dents_falling_from_a_height_of_more_than_1_m_on_a_hard_surface_etc">Presence of traces of damage to the product by the user and/or third parties (chips, dents, falling from a height of more than 1 m on a hard surface, etc.).</string>
     <string name="any_damage_caused_by_foreign_particles_and_water_entering_the_hand_module_the_sensor_or_the_battery_pack">Any damage caused by foreign particles and water entering the hand module, the sensor, or the battery pack.</string>
-    <string name="the_presence_of_damage_caused_by_fire_natural_disasters_and_other_force_majeure_circumstances">The presence of damage caused by fire, natural disasters and other force majeure circumstances.</string>
+    <string name="the_presence_of_damage_caused_by_fire_natural_disasters_and_other_force_majeure_circumstances">The presence of damage caused by fire, natural disasters and other force measure circumstances.</string>
     <string name="self_detaching_the_hand_module_from_the_elbow_module">Self-detaching the hand module from the elbow module.</string>
     <string name="not_allowed">Not allowed:</string>
     <string name="connect_the_product_to_damaged_electrical_power_or_source_not_specified_by_the_manufacturer">Connect the product to damaged electrical power or source not specified by the manufacturer.</string>
@@ -435,6 +435,8 @@
     <string name="activating_this_function_makes_it_possible_to_switch_gestures_by_means_of_signals_given_to_the_sensors">Activating this function makes it possible to switch gestures by means of signals given to the sensors.</string>
     <string name="slider_to_set_the_timing_of_the_sensor_gesture_switching_function">Slider to set the timing of the sensor gesture switching function</string>
     <string name="the_slider_adjusts_the_minimum_time_that_the_opening_sensor_signal_must_be_above_the_threshold_level_when_the_prostheses_reaches_the_open_state">The slider adjusts the minimum time that the opening sensor signal must be above the threshold level when the prostheses reaches the open state.</string>
+    <string name="view_for_read_write_the_serial_number_of_the_prosthetic_telemetry">View to read/set prosthetic telemetry serial number</string>
+    <string name="functionality_is_under_development">The functionality is in development.</string>
     <string name="the_choice_of_trauma_side_switch">The choice of trauma side switch</string>
     <string name="it_is_necessary_to_select_the_side_of_the_prostheses_for_its_successful_calibration_as_well_as_for_the_correct_display_of_the_model_in_the_gesture_configurator">It is necessary to select the side of the prostheses for its successful calibration, as well as for the correct display of the model in the gesture configurator.</string>
     <string name="switch_activates_the_menu_function_to_change_the_start_delays_of_the_fingers">Switch activates the menu function to change the start delays of the fingers</string>

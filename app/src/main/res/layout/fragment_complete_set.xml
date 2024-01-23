@@ -178,19 +178,6 @@
                         tools:ignore="HardcodedText" />
 
                     <TextView
-                        android:id="@+id/textView21"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:fontFamily="@font/font_open_sans_regular"
-                        android:text="@string/hand_module"
-                        android:textColor="@color/unselected_filter"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toStartOf="@+id/textView29"
-                        app:layout_constraintStart_toEndOf="@+id/textView20"
-                        app:layout_constraintTop_toBottomOf="@+id/textView16" />
-
-                    <TextView
                         android:id="@+id/textView29"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -224,8 +211,23 @@
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toStartOf="@+id/textView33"
+                        app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toEndOf="@+id/textView43"
                         app:layout_constraintTop_toBottomOf="@+id/textView21" />
+
+                    <TextView
+                        android:id="@+id/textView21"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:fontFamily="@font/font_open_sans_regular"
+                        android:text="@string/hand_module"
+                        android:textColor="@color/unselected_filter"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toStartOf="@+id/textView29"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toEndOf="@+id/textView20"
+                        app:layout_constraintTop_toBottomOf="@+id/textView16" />
 
                     <TextView
                         android:id="@+id/textView33"

@@ -20,7 +20,8 @@ object PreferenceKeys {
   val NEWBE = Pair("NEWBE", true)
   const val DEVICE_NAME = "DEVICE_NAME"
   const val DEVICE_ADDR = "DEVICE_ADDR"
-  const val NUM_GESTURES = 14
+  const val NUM_GESTURES = 14 //максимальное количество жестов для формирования массивов данных
+  const val NUM_ACTIVE_GESTURES = 8 //максимальное количество жестов для отрисовки в UI (ограничение для России 8)
   const val APP_PREFERENCES = "APP_PREFERENCES"
   const val DEVICE_ADDRESS_CONNECTED = "DEVICE_ADDRESS_CONNECTED"
   const val THRESHOLDS_BLOCKING = "THRESHOLDS_BLOCKING"
@@ -68,7 +69,6 @@ object PreferenceKeys {
   const val FILTERING_OUR_DEVISES = "FILTERING_OUR_DEVISES"
   const val ACTIVATE_RSSI_SHOW = "ACTIVATE_RSSI_SHOW"
   const val LOCK_SERIAL_NUMBER = "LOCK_SERIAL_NUMBER"
-  const val MAX_GESTURES = "MAX_GESTURES"
   const val MAX_STAND_CYCLES = "MAX_STAND_CYCLES"
 
 

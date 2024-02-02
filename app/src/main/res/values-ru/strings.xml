@@ -485,6 +485,7 @@
     <string name="view_to_record_the_serial_number_of_the_prosthesis">Вью для записи серийного номера протеза</string>
     <string name="allows_you_to_add_a_16_character_suffix_to_be_added_to_the_prosthesis_name_after_the_prosthesis_type_fest_x">Позволяет присвоить протезу серийный номер.</string>
     <string name="enter_settings_pin">Введите пинкод</string>
+    <string name="number_of_active_gestures">количество активных жестов</string>
 
 
     <string-array name="numbers">

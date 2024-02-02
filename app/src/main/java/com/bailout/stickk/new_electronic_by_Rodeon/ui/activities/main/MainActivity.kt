@@ -528,13 +528,16 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (data != null) {
       saveBool(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, ((castUnsignedCharToInt(data[0]) and 0b00000001) ==  1))
 
+//      System.err.println("test active gestures      data.size=${data.size}")
       if (data.size >= 5 ) {
-        saveInt(mDeviceAddress + PreferenceKeys.MAX_GESTURES, castUnsignedCharToInt(data[1]))
+        System.err.println("test active gestures      data.size=${data.size}   NUM_ACTIVE_GESTURES=${castUnsignedCharToInt(data[1])}")
+        saveInt(mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, castUnsignedCharToInt(data[1]))
         saveInt(mDeviceAddress + PreferenceKeys.SET_MODE_PROSTHESIS, castUnsignedCharToInt(data[2]))
         saveInt(mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES, (256*castUnsignedCharToInt(data[3]) + castUnsignedCharToInt(data[4])))
       }
 
 
+      RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
       globalSemaphore = true
       updateUIChart(12)
     }

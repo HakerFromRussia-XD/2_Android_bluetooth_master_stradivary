@@ -203,6 +203,13 @@ class AdvancedSettingsFragment : Fragment() {
       binding.smartConnectionSwapSw.isChecked = false
       binding.smartConnectionSwapTv.text = resources.getString(R.string.off_sw)
     }
+    if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8) == 14) {
+      binding.activeGesturesSwapSw.isChecked = true
+      binding.activeGesturesSwapTv.text = "14"
+    } else {
+      binding.activeGesturesSwapSw.isChecked = false
+      binding.activeGesturesSwapTv.text = "8"
+    }
 
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
       val calibrationStartParams: LinearLayout.LayoutParams =
@@ -877,6 +884,16 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
 
+    binding.activeGesturesSwapSw.setOnClickListener {
+      if (binding.activeGesturesSwapSw.isChecked) {
+        binding.activeGesturesSwapTv.text = "14"
+        saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 14)
+      } else {
+        binding.activeGesturesSwapTv.text = "8"
+        saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)
+      }
+    }
+
 
     binding.resetToFactorySettingsBtn.setOnClickListener { main?.showResetDialog() }
     binding.calibrationAdvBtn.setOnClickListener { main?.showCalibrationDialog() }
@@ -1004,6 +1021,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.leftRightSideSwapSw.isEnabled = enabled
     binding.timeDelayOfFingersSwapSw.isEnabled = enabled
     binding.smartConnectionSwapSw.isEnabled = enabled
+    binding.activeGesturesSwapSw.isEnabled = enabled
     binding.resetToFactorySettingsBtn.isEnabled = enabled
     binding.calibrationAdvBtn.isEnabled = enabled
     binding.calibrationStatusAdvBtn.isEnabled = enabled
@@ -1074,6 +1092,13 @@ class AdvancedSettingsFragment : Fragment() {
 
       startGestureInLoop = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
       endGestureInLoop = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
+      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8) == 14) {
+        binding.activeGesturesSwapTv.text = "14"
+        binding.activeGesturesSwapSw.isChecked = true
+      } else {
+        binding.activeGesturesSwapTv.text = "8"
+        binding.activeGesturesSwapSw.isChecked = false
+      }
     }
     if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
       var time: String = when {

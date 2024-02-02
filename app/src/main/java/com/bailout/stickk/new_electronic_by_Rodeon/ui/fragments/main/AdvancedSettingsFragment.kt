@@ -835,7 +835,12 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     binding.setSetupBtn.setOnClickListener {
-      main?.showSetSerialNumberDialog(binding.telemetryNumberEt.text.toString())
+      if (!mSettings!!.getBoolean(PreferenceKeys.LOCK_SERIAL_NUMBER, false)) {
+        main?.showPinCodeDialog(binding.telemetryNumberEt.text.toString())
+      } else {
+        main?.showSetSerialNumberDialog(binding.telemetryNumberEt.text.toString())
+      }
+
     }
     main?.telemetryNumber = binding.telemetryNumberEt.text.toString()
 

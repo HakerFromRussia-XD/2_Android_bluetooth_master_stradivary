@@ -729,6 +729,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     set.fillColor = ColorTemplate.getHoloBlue()
     set.highLightColor = Color.rgb(244, 117, 177)
     set.valueTextColor = Color.TRANSPARENT
+
     return set
   }
   private fun createSet2(): LineDataSet {

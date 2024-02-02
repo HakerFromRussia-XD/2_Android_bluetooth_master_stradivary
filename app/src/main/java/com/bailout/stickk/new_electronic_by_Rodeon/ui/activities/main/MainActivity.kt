@@ -17,6 +17,7 @@ import android.nfc.NfcAdapter
 import android.os.*
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -50,6 +51,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragme
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
+import online.devliving.passcodeview.PasscodeView
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -525,6 +527,14 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private fun displayDataSetReverseNew(data: ByteArray?) {
     if (data != null) {
       saveBool(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, ((castUnsignedCharToInt(data[0]) and 0b00000001) ==  1))
+
+      if (data.size >= 5 ) {
+        saveInt(mDeviceAddress + PreferenceKeys.MAX_GESTURES, castUnsignedCharToInt(data[1]))
+        saveInt(mDeviceAddress + PreferenceKeys.SET_MODE_PROSTHESIS, castUnsignedCharToInt(data[2]))
+        saveInt(mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES, (256*castUnsignedCharToInt(data[3]) + castUnsignedCharToInt(data[4])))
+      }
+
+
       globalSemaphore = true
       updateUIChart(12)
     }
@@ -2378,6 +2388,49 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     noBtn.setOnClickListener {
       myDialog.dismiss()
     }
+  }
+  @SuppressLint("InflateParams")
+  @Suppress("DEPRECATION")
+  fun showPinCodeDialog(serialNumber: String) {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_enter_pin, null)
+    val myDialog = Dialog(this)
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    val pin = myDialog.findViewById<PasscodeView>(R.id.pincode_settings_view)
+    pin.requestToShowKeyboard()
+    Handler().postDelayed({
+      pin.showKeyboard()
+    }, 200)
+
+    pin.setPasscodeEntryListener { passcode ->
+
+        if (passcode == "1234") {
+          showSetSerialNumberDialog(serialNumber)
+          saveBool(PreferenceKeys.LOCK_SERIAL_NUMBER, true)
+          Toast.makeText(this, "Угадал: $passcode", Toast.LENGTH_SHORT).show()
+        } else {
+          Toast.makeText(this, "Не угадал: $passcode", Toast.LENGTH_SHORT).show()
+        }
+        hideKeyboard(pin)
+        myDialog.dismiss()
+    }
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_settings_pin_confirm)
+    yesBtn.setOnClickListener {
+      hideKeyboard(pin)
+      myDialog.dismiss()
+    }
+  }
+  private fun View.showKeyboard() {
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+  }
+  private fun hideKeyboard(view: View) {
+    val imm = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(view.windowToken, 0)
   }
 
 

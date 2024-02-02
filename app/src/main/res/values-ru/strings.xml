@@ -483,7 +483,8 @@
     <string name="setting_the_serial_number_of_the_prosthesis">Установка серийного номера протеза</string>
     <string name="a_reboot_of_the_prosthesis_will_be_required_for_the_changes_to_take_effect_you_will_be_redirected_to_the_device_scan_screen_would_you_like_to_continue">Для вступления в силу изменений после отправки нового серийного номера нужно будет самостоятельно перезагрузить протез. Хотите отправить новый серийный номер?</string>
     <string name="view_to_record_the_serial_number_of_the_prosthesis">Вью для записи серийного номера протеза</string>
-    <string name="allows_you_to_add_a_16_character_suffix_to_be_added_to_the_prosthesis_name_after_the_prosthesis_type_fest_x">Позволяет добавить суффикс из 16 символов, который будет добавлен в имя протеза после типа протеза (FEST-X).</string>
+    <string name="allows_you_to_add_a_16_character_suffix_to_be_added_to_the_prosthesis_name_after_the_prosthesis_type_fest_x">Позволяет присвоить протезу серийный номер.</string>
+    <string name="enter_settings_pin">Введите пинкод</string>
 
 
     <string-array name="numbers">

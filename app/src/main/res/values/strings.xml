@@ -481,7 +481,8 @@
     <string name="setting_the_serial_number_of_the_prosthesis">Setting the serial number of the prosthesis</string>
     <string name="a_reboot_of_the_prosthesis_will_be_required_for_the_changes_to_take_effect_you_will_be_redirected_to_the_device_scan_screen_would_you_like_to_continue">You will need to reset the prosthesis yourself for the changes to take effect after sending the new serial number. Do you want to send a new serial number?</string>
     <string name="view_to_record_the_serial_number_of_the_prosthesis">View to record the serial number of the prosthesis</string>
-    <string name="allows_you_to_add_a_16_character_suffix_to_be_added_to_the_prosthesis_name_after_the_prosthesis_type_fest_x">Allows you to add a 16-character suffix to be added to the prosthesis name after the prosthesis type (FEST-X).</string>
+    <string name="allows_you_to_add_a_16_character_suffix_to_be_added_to_the_prosthesis_name_after_the_prosthesis_type_fest_x">Allows you to assign a serial number to the prosthesis.</string>
+    <string name="enter_settings_pin">Enter pin code</string>
 
 
     <string-array name="numbers">

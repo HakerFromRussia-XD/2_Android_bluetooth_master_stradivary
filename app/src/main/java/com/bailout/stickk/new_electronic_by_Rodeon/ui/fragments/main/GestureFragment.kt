@@ -55,6 +55,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         hand_palm_14
     )
     private var testThreadFlag = true
+    private var activeGestures = 8  //  NUM_ACTIVE_GESTURES
     private var startGestureInLoopNum = 0
     private var endGestureInLoopNum = 0
     private var peakTimeVmNum = 0
@@ -63,7 +64,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     private var lockProstheses = 0
     private var holdToLockTimeSb = 0
     private var firstStart = true
-    private val countRestart = 1//TODO поставить по больше после отладки (50)
+    private val countRestart = 5//TODO поставить по больше после отладки (50)
 
     private lateinit var binding: LayoutGesturesBinding
 
@@ -270,15 +271,18 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         super.onResume()
         gestureNameList.clear()
         loadAllVariables()
-        setNameGesturesAndRotationGroup()
+        setNameGesturesAndRotationGroup(activeGestures)
         testThreadFlag = true
         RxUpdateMainEvent.getInstance().uiGestures
             .compose(main?.bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 if (context != null) {
+                    //скрываем интерфейс управления группами ротации
+                    hideUIRotationGroup(checkDriverVersionGreaterThan237())
                     if (it < 100) {
                         //передаёт номер активного жеста
+                        loadAllVariables()
                         selectActiveGesture(it)
                         selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
                     }
@@ -294,10 +298,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                         //деактивирует интерфейс
                         onOffUIAll(false)
                     }
-
-                    //скрываем интерфейс управления группами ротации
-                    System.err.println("my checkDriverVersionGreaterThan237 = ${checkDriverVersionGreaterThan237()}")
-                    hideUIRotationGroup(checkDriverVersionGreaterThan237())
                 } else {
                     System.err.println("context GestureFragment NULL!")
                 }
@@ -389,6 +389,37 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             binding.gestureSettings14Btn.visibility = View.GONE
         }
     }
+    private fun setNumActiveGestures(activeGestures: Int) {
+        System.err.println("my setNumActiveGestures activeGestures = $activeGestures")
+        if (activeGestures == 8) {
+            binding.gesture9Btn.visibility = View.GONE
+            binding.gesture10Btn.visibility = View.GONE
+            binding.gesture11Btn.visibility = View.GONE
+            binding.gesture12Btn.visibility = View.GONE
+            binding.gesture13Btn.visibility = View.GONE
+            binding.gesture14Btn.visibility = View.GONE
+            binding.gestureSettings9Btn.visibility = View.GONE
+            binding.gestureSettings10Btn.visibility = View.GONE
+            binding.gestureSettings11Btn.visibility = View.GONE
+            binding.gestureSettings12Btn.visibility = View.GONE
+            binding.gestureSettings13Btn.visibility = View.GONE
+            binding.gestureSettings14Btn.visibility = View.GONE
+        } else {
+            binding.gesture9Btn.visibility = View.VISIBLE
+            binding.gesture10Btn.visibility = View.VISIBLE
+            binding.gesture11Btn.visibility = View.VISIBLE
+            binding.gesture12Btn.visibility = View.VISIBLE
+            binding.gesture13Btn.visibility = View.VISIBLE
+            binding.gesture14Btn.visibility = View.VISIBLE
+            binding.gestureSettings9Btn.visibility = View.VISIBLE
+            binding.gestureSettings10Btn.visibility = View.VISIBLE
+            binding.gestureSettings11Btn.visibility = View.VISIBLE
+            binding.gestureSettings12Btn.visibility = View.VISIBLE
+            binding.gestureSettings13Btn.visibility = View.VISIBLE
+            binding.gestureSettings14Btn.visibility = View.VISIBLE
+        }
+        setNameGesturesAndRotationGroup(activeGestures)
+    }
     private fun compileBLEMassage (useGesture: Int) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "gesture activity 2"
@@ -460,7 +491,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureLoop13Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop14Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
     }
-    private fun setNameGesturesAndRotationGroup() {
+    private fun setNameGesturesAndRotationGroup(activeGestures: Int) {
         binding.gesture1Btn.text = gestureNameList[0]
         binding.gesture2Btn.text = gestureNameList[1]
         binding.gesture3Btn.text = gestureNameList[2]
@@ -479,7 +510,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             it.apply {
                 setSpinnerAdapter(IconSpinnerAdapter(this))
                 val list: MutableList<IconSpinnerItem> = ArrayList()
-                for (i in 0 until PreferenceKeys.NUM_GESTURES) {
+                for (i in 0 until activeGestures) {
                     list.add(IconSpinnerItem(text = gestureNameList[i], iconRes = handPalms[i], gravity = 100))
                 }
                 setItems(list)
@@ -491,6 +522,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 startGestureInLoopNum = newIndex
                 System.err.println("gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
+
                 if (oldIndex != newIndex) {
                     binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
                 }
@@ -513,7 +545,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             it.apply {
                 setSpinnerAdapter(IconSpinnerAdapter(this))
                 val list: MutableList<IconSpinnerItem> = ArrayList()
-                for (i in 0 until PreferenceKeys.NUM_GESTURES) {
+                for (i in 0 until activeGestures) {
                     list.add(
                         IconSpinnerItem(
                             text = gestureNameList[i],
@@ -640,6 +672,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         }
     }
     private fun selectRotationGroup(startGestureInLoopNum: Int, endGestureInLoopNum: Int, changeStartGestureInLoop: Boolean){
+        //проверка чтобы границы группы ротации не были больше числа активных жестов
+        if (startGestureInLoopNum >= activeGestures) {
+           this.startGestureInLoopNum = activeGestures - 1
+        }
+        if (endGestureInLoopNum >= activeGestures) {
+            this.endGestureInLoopNum = activeGestures - 1
+        }
+
         //блок ограничения жестов для группы ротации
         if (startGestureInLoopNum > endGestureInLoopNum) {
             this.endGestureInLoopNum = startGestureInLoopNum
@@ -671,11 +711,11 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 indicatorGestureLoop[i].visibility = View.GONE
             }
             for (i in startGestureInLoopNum until endGestureInLoopNum + 1) {
-                System.err.println("my цикл отрисовки картинок цикла на нужных кнопках 2.2 i=$i")
+//                System.err.println("my цикл отрисовки картинок цикла на нужных кнопках 2.2 i=$i")
                 indicatorGestureLoop[i].visibility = View.VISIBLE
             }
         } else {
-            System.err.println("my блок отрисовки картинок цикла на нужных кнопках 3 false")
+//            System.err.println("my блок отрисовки картинок цикла на нужных кнопках 3 false")
         }
     }
     private fun setPeakTimeVmNum(peakTimeVmNum: Int) {
@@ -845,6 +885,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             }
         }
 
+
+        activeGestures = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)
+        setNumActiveGestures(activeGestures)
 
         startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
         endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)

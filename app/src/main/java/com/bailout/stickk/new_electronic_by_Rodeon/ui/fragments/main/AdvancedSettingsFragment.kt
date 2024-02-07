@@ -70,8 +70,8 @@ class AdvancedSettingsFragment : Fragment() {
   private var correlatorNoiseThreshold2 = 0
   private var modeEMGSend = 0
 
-  private var startGestureInLoop = 0
-  private var endGestureInLoop = 0
+  private var startGestureInLoopNum = 0
+  private var endGestureInLoopNum = 0
 
   private lateinit var binding: LayoutAdvancedSettingsBinding
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -884,14 +884,44 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
 
+
+
     binding.activeGesturesSwapSw.setOnClickListener {
+      var activeGestures = 8
       if (binding.activeGesturesSwapSw.isChecked) {
-        binding.activeGesturesSwapTv.text = "14"
-        saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 14)
+        activeGestures = 14
+        binding.activeGesturesSwapTv.text = activeGestures.toString()
+        saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, activeGestures)
+
+        RxUpdateMainEvent.getInstance().updateUIGestures(100)
       } else {
-        binding.activeGesturesSwapTv.text = "8"
-        saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)
+        binding.activeGesturesSwapTv.text = activeGestures.toString()
+        saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, activeGestures)
+
+
+        //ограничиваем диапазон старт/стопа ргуппы ротации
+        if (startGestureInLoopNum >= activeGestures) {
+          startGestureInLoopNum = (activeGestures - 1)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, (activeGestures - 1))
+        }
+
+        System.err.println("gestureLoop1Psv endGestureInLoopNum=$endGestureInLoopNum  activeGestures - 1 =${(activeGestures - 1)}")
+        if (endGestureInLoopNum >= activeGestures) {
+          endGestureInLoopNum = (activeGestures - 1)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, (activeGestures - 1))
+        }
+
+
+        //если активный жест больше 8 то он устанавливается на 8
+        val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
+        if (activeGesture >= activeGestures) {
+          RxUpdateMainEvent.getInstance().updateUIGestures(activeGestures)
+        } else {
+          RxUpdateMainEvent.getInstance().updateUIGestures(100)
+        }
       }
+      sendGestureRotation()
+      sendActiveGestures(activeGestures)
     }
 
 
@@ -1090,8 +1120,8 @@ class AdvancedSettingsFragment : Fragment() {
       }
       binding.holdToLockTimeTv.text = time
 
-      startGestureInLoop = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
-      endGestureInLoop = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
+      startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
+      endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8) == 14) {
         binding.activeGesturesSwapTv.text = "14"
         binding.activeGesturesSwapSw.isChecked = true
@@ -1249,8 +1279,8 @@ class AdvancedSettingsFragment : Fragment() {
         0.toByte(),
         lockProstheses,
         (binding.holdToLockTimeSb.progress).toByte(),
-        startGestureInLoop.toByte(),
-        endGestureInLoop.toByte()
+        startGestureInLoopNum.toByte(),
+        endGestureInLoopNum.toByte()
       ), ROTATION_GESTURE_NEW_VM, 50)
     } else {
       System.err.println("sendGestureRotation else")
@@ -1263,6 +1293,9 @@ class AdvancedSettingsFragment : Fragment() {
       ), ROTATION_GESTURE_NEW_VM, 50)
     }
     RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
+  }
+  private fun sendActiveGestures(activeGestures: Int) {
+    main?.runSendCommand(byteArrayOf((activeGestures-1).toByte()), SET_GESTURE_NEW_VM, 50)
   }
 
   internal fun saveInt(key: String, variable: Int) {

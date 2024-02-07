@@ -859,7 +859,6 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
 
-
     val eventYandexMetricaParametersFingersDelay = "{\"Screen advanced settings\":\"Tup  time delay fingers swap switch\"}"
     binding.timeDelayOfFingersSwapSw.setOnClickListener {
       if (binding.timeDelayOfFingersSwapSw.isChecked) {
@@ -944,6 +943,8 @@ class AdvancedSettingsFragment : Fragment() {
       val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)
       main!!.setDebugScreenIsOpen(true)
       startActivity(intent)
+
+      //TODO тут вход в секретное меню
     }
 
     binding.testConnectionBtn.setOnClickListener{

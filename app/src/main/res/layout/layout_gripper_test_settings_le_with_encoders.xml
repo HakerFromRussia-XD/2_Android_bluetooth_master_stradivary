@@ -82,6 +82,19 @@
         android:visibility="visible"
         android:text="@string/error_code" />
 
+    <ImageButton
+        android:id="@+id/secret_settings_btn"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="47dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        android:src="@drawable/ic_setting"
+        android:scaleType="fitXY"
+        android:textColor="#FFFFFFFF"
+        android:textStyle="bold"
+        app:tint="@color/white" />
+
     <EditText
         android:id="@+id/gesture_name_et"
         android:layout_width="120dp"

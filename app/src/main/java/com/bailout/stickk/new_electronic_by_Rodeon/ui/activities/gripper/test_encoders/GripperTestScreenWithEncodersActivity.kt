@@ -2,29 +2,31 @@ package com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_e
 
 import android.annotation.SuppressLint
 import android.app.ActivityManager
+import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
 import android.util.DisplayMetrics
-import com.jakewharton.rxbinding2.view.RxView
-import io.reactivex.android.schedulers.AndroidSchedulers
-//import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.fingers_delay_btn
-//import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gesture_name_et
-//import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.gesture_name_tv
-//import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.seekBarSpeedFingerLE
-//import kotlinx.android.synthetic.main.layout_gripper_settings_le_with_encoders.textSpeedFingerLE
-//import kotlinx.android.synthetic.main.layout_gripper_test_settings_le_with_encoders.*
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import com.bailout.stickk.R
-import com.bailout.stickk.databinding.LayoutAdvancedSettingsBinding
-import com.bailout.stickk.databinding.LayoutGripperSettingsLeWithEncodersBinding
 import com.bailout.stickk.databinding.LayoutGripperTestSettingsLeWithEncodersBinding
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.SECRET_PIN
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
+import com.jakewharton.rxbinding2.view.RxView
+import io.reactivex.android.schedulers.AndroidSchedulers
+import online.devliving.passcodeview.PasscodeView
 import kotlin.properties.Delegates
 
 
@@ -57,6 +59,7 @@ class GripperTestScreenWithEncodersActivity
 
     private lateinit var binding: LayoutGripperTestSettingsLeWithEncodersBinding
     @SuppressLint("CheckResult", "ResourceAsColor", "StringFormatInvalid")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = LayoutGripperTestSettingsLeWithEncodersBinding.inflate(layoutInflater)
@@ -103,19 +106,30 @@ class GripperTestScreenWithEncodersActivity
                 binding.gestureNameTv.text = getString(R.string.error_code, it)
             }
         RxView.clicks(findViewById(R.id.gripper_use_le))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (editMode) {
-                        gestureNameList[(gestureNumber - 1)] = binding.gestureNameEt.text.toString()
-                        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
-                        System.err.println("5 LAST_CONNECTION_MAC: $macKey")
-                        for (i in 0 until gestureNameList.size) {
-                            mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i-1])
-                        }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                if (editMode) {
+                    gestureNameList[(gestureNumber - 1)] = binding.gestureNameEt.text.toString()
+                    val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
+                    System.err.println("5 LAST_CONNECTION_MAC: $macKey")
+                    for (i in 0 until gestureNameList.size) {
+                        mySaveText(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, gestureNameList[i-1])
                     }
-                    finish()
                 }
+                finish()
+            }
+        RxView.clicks(findViewById(R.id.secret_settings_btn))
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
+                    showPinCodeDialog()
+                } else {
+                    System.err.println("my secret settings")
+                    showSecretSettings()
+                }
+            }
     }
+
 
     override fun initializeUI() {
         val activityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -136,10 +150,61 @@ class GripperTestScreenWithEncodersActivity
             binding.glTestSurfaceViewLeWithEncoders.setRenderer(testWithEncodersRenderer, displayMetrics.density)
         }
     }
-
+    private fun showSecretSettings() {
+        saveBool(PreferenceKeys.SHOW_SECRET_SETTINGS, true)
+        finish()
+    }
     private fun mySaveText(key: String, text: String) {
         val editor: SharedPreferences.Editor = mSettings!!.edit()
         editor.putString(key, text)
+        editor.apply()
+    }
+    @SuppressLint("InflateParams")
+    @Suppress("DEPRECATION")
+    fun showPinCodeDialog() {
+        val dialogBinding = layoutInflater.inflate(R.layout.dialog_enter_pin, null)
+        val myDialog = Dialog(this)
+        myDialog.setContentView(dialogBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+
+        val pin = myDialog.findViewById<PasscodeView>(R.id.pincode_settings_view)
+        pin.requestToShowKeyboard()
+        Handler().postDelayed({
+            pin.showKeyboard()
+        }, 200)
+
+        pin.setPasscodeEntryListener { passcode ->
+
+            if (passcode == SECRET_PIN) {
+                saveBool(PreferenceKeys.ENTER_SECRET_PIN, true)
+                showSecretSettings()
+                Toast.makeText(this, "Угадал: $passcode", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Не угадал: $passcode", Toast.LENGTH_SHORT).show()
+            }
+            hideKeyboard(pin)
+            myDialog.dismiss()
+        }
+
+        val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_settings_pin_confirm)
+        yesBtn.setOnClickListener {
+            hideKeyboard(pin)
+            myDialog.dismiss()
+        }
+    }
+    private fun View.showKeyboard() {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+    }
+    private fun hideKeyboard(view: View) {
+        val imm = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+    private fun saveBool(key: String, variable: Boolean) {
+        val editor: SharedPreferences.Editor = mSettings!!.edit()
+        editor.putBoolean(key, variable)
         editor.apply()
     }
 }

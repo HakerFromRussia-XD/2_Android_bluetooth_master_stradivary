@@ -85,6 +85,16 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     if (activity != null) { main = activity as MainActivity? }
 
     myAppContext = activity?.applicationContext!!
+
+
+
+
+    //TODO выключить быстрое открытие после завершения тестов
+    navigator().showSecretSettingsScreen()
+
+
+
+
     return binding.root
   }
   @Deprecated("Deprecated in Java")
@@ -691,7 +701,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           //показываем индикацию выбранной группы ротации
           if (main?.driverVersionS != null) {
             val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-            System.err.println("context ChartFragment NULL!")
+            System.err.println("context ChartFragment NULL! ${mSettings!!.getBoolean(PreferenceKeys.SHOW_SECRET_SETTINGS, false)}")
             if (driverNum.toInt() >= 237) {
               showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
             } else {
@@ -702,6 +712,12 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           }
         } else {
           System.err.println("context ChartFragment NULL!")
+        }
+
+
+        if (mSettings!!.getBoolean(PreferenceKeys.SHOW_SECRET_SETTINGS, false)) {
+          navigator().showSecretSettingsScreen()
+          main?.saveBool(PreferenceKeys.SHOW_SECRET_SETTINGS, false)
         }
       }
   }

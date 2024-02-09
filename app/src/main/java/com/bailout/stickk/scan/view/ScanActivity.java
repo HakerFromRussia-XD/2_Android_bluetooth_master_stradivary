@@ -130,15 +130,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //    }
 
 
-
-
-
-
-
-
-
-
-
     @Inject
     ScanPresenter presenter;
 
@@ -362,7 +353,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private void updateScanList(List<BluetoothDevice> items, List<Integer> rssis) {
         scanList.clear();
         filteringLeDevices.clear();
+        System.err.println("--> my updateScanList ============= ");
         for (int i = 0; i < items.size(); i++) {
+            System.err.println("--> my updateScanList проверяем " + items.get(i).getName() +"  "+checkOurLEName(items.get(i).getName()));
             if (items.get(i).getName() != null) {
                 if (checkOurLEName(items.get(i).getName())) {
                     scanList.add(new ScanItem(
@@ -372,13 +365,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                             rssis.get(i)
                     ));
                     filteringLeDevices.add(items.get(i));
-                    System.err.println("--> scanList: " + scanList.size());
-                    for (i=0; i<scanList.size(); i++) {
-                        System.err.println("--> scanList "+i+" Title: " + scanList.get(i).getTitle() +" Address: " + scanList.get(i).getAddress() );
-
-                    }
                     animateScanList(scanList.size());
+                } else {
+//                    System.err.println("--> scanList не прошёл по фильтру имени");
                 }
+            } else {
+//                System.err.println("--> scanList не прошёл по ненулёвости имени");
             }
         }
     }
@@ -392,11 +384,17 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
 
         //здесь мы принимаем решение добавлять ли новое устройство в список отсканированных
+
         if (canAdd) {
+//            System.err.println("--> my addLEDeviceToLeDevicesList name = "+device.getName() + " Address: " + device.getAddress());
             mLeDevices.add(device);
             mRssisList.add(rssi);
             showScanList(mLeDevices, mRssisList);
             scrollToEndList(scanDeviceList);
+//            System.err.println("--> my addLEDeviceToLeDevicesList ============= "+device.getName());
+//            for (int i = 0; i<mLeDevices.size(); i++) {
+//                System.err.println("--> my addLEDeviceToLeDevicesList name = "+mLeDevices.get(i).getName());
+//            }
         }
         smartConnection(device);
     }
@@ -575,7 +573,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
     }
     private void animateScanList(int countItems) {
-        System.err.println("--> animateScanList: countItems "+countItems);
+//        System.err.println("--> animateScanList: countItems "+countItems);
         if (countItems == 1) {
             scanDeviceList.animate()
                     .translationY(0)
@@ -647,6 +645,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 deviceName.contains("BT05") ||
                 deviceName.contains("FEST") ||
                 !filteringOursDevices;
+    }
+    private int getProtokolType(@NotNull String deviceName) {
+
+        return 0;
     }
     private void initUI() {
         filteringOursDevices = loadBool(PreferenceKeys.FILTERING_OUR_DEVISES);

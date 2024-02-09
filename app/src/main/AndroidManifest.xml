@@ -45,14 +45,17 @@
         </activity>
         <activity
             android:name="com.bailout.stickk.scan.view.ScanActivity"
-            android:screenOrientation="fullSensor" />
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name="com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.ChartActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
         </activity>
         <activity
             android:name="com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.NemoStandActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
         </activity>
 
         <activity
@@ -60,7 +63,8 @@
             android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -69,19 +73,24 @@
         </activity>
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.StartActivity" />
+            android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.StartActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:theme="@style/AppTheme.NoActionBar"
             android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:theme="@style/AppTheme.NoActionBar"
             android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:theme="@style/AppTheme.NoActionBar"
             android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
 
         <service android:name="com.bailout.stickk.new_electronic_by_Rodeon.ble.BluetoothLeService"
             android:enabled="true"/>

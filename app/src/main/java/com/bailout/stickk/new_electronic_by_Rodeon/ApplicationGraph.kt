@@ -15,6 +15,7 @@ package com.bailout.stickk.new_electronic_by_Rodeon
 
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.StartActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.*
@@ -47,4 +48,5 @@ interface ApplicationGraph {
   fun inject(serviceAndWarrantyFragment: ServiceAndWarrantyFragment) {}
   fun inject(advancedSettingsFragmentMulty: AdvancedSettingsFragmentMulty) {}
   fun inject(advancedSettingsFragmentMono: AdvancedSettingsFragmentMono) {}
+  fun inject(gripperTestScreenWithEncodersActivity: GripperTestScreenWithEncodersActivity) {}
 }

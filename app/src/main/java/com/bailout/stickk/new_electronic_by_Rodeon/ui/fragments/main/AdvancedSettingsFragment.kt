@@ -41,6 +41,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import javax.inject.Inject
 
@@ -842,7 +843,7 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     binding.setSetupBtn.setOnClickListener {
-      if (!mSettings!!.getBoolean(PreferenceKeys.LOCK_SERIAL_NUMBER, false)) {
+      if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
         main?.showPinCodeDialog(binding.telemetryNumberEt.text.toString())
       } else {
         main?.showSetSerialNumberDialog(binding.telemetryNumberEt.text.toString())
@@ -940,7 +941,7 @@ class AdvancedSettingsFragment : Fragment() {
 
 
     binding.debugScreenBtn.setOnClickListener {
-      val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)
+      val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)//context
       main!!.setDebugScreenIsOpen(true)
       startActivity(intent)
 

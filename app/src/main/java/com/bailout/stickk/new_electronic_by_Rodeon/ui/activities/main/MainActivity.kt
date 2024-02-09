@@ -48,6 +48,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.SecretSettingsFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
@@ -488,6 +489,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       saveInt(mDeviceAddress + PreferenceKeys.SENS_NUM, castUnsignedCharToInt(data[0]))
       saveInt(mDeviceAddress + PreferenceKeys.BMS_NUM, 100)
       globalSemaphore = true
+      System.err.println("---> Принятые данные SensAndBMSVersion" + data[0])
     }
   }
   private fun displayDataOpenThresholdNew(data: ByteArray?) {
@@ -1103,6 +1105,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE
     }
   }
+  override fun showSecretSettingsScreen() { launchFragment(SecretSettingsFragment()) }
   override fun showHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(HelpFragment(chartFragmentClass)) }
   override fun showSensorsHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(SensorsFragment(chartFragmentClass)) }
   override fun showGesturesHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(GestureCustomizationFragment(chartFragmentClass)) }
@@ -2410,9 +2413,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     pin.setPasscodeEntryListener { passcode ->
 
-        if (passcode == "1234") {
+        if (passcode == SECRET_PIN) {
           showSetSerialNumberDialog(serialNumber)
-          saveBool(PreferenceKeys.LOCK_SERIAL_NUMBER, true)
+          saveBool(PreferenceKeys.ENTER_SECRET_PIN, true)
           Toast.makeText(this, "Угадал: $passcode", Toast.LENGTH_SHORT).show()
         } else {
           Toast.makeText(this, "Не угадал: $passcode", Toast.LENGTH_SHORT).show()

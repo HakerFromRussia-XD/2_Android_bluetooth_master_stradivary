@@ -32,6 +32,11 @@
         <item>normal sensitive</item>
         <item>increased sensitive</item>
     </string-array>
+    <string-array name="prosthesis_modes">
+        <item>standard mode</item>
+        <item>stand mode</item>
+        <item>demo mode</item>
+    </string-array>
 
 
     <string-array name="switch_tabs_scale">

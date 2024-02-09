@@ -484,6 +484,10 @@
     <string name="allows_you_to_add_a_16_character_suffix_to_be_added_to_the_prosthesis_name_after_the_prosthesis_type_fest_x">Allows you to assign a serial number to the prosthesis.</string>
     <string name="enter_settings_pin">Enter pin code</string>
     <string name="number_of_active_gestures">number of active gestures</string>
+    <string name="autocalibration">autocalibration</string>
+    <string name="prosthesis_mode">prosthesis mode</string>
+    <string name="number_of_cycles">number of cycles</string>
+    <string name="blocking_secret_settings">blocking secret settings</string>
 
 
     <string-array name="numbers">

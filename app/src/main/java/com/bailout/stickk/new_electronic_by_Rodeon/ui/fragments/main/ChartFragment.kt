@@ -90,7 +90,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     //TODO выключить быстрое открытие после завершения тестов
-    navigator().showSecretSettingsScreen()
+//    navigator().showSecretSettingsScreen()
 
 
 
@@ -900,7 +900,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       if (!(main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) ||
                 main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A))
+                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_A))
       ) {
         binding.driverTv.text = resources.getString(R.string.driver) + (mSettings!!.getInt(
           main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,

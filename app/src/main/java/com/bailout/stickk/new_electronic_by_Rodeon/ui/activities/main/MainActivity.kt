@@ -148,9 +148,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
-      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+      if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X))
       {} else {
@@ -211,9 +211,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           }
         }
         BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-          if ((mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A))
-            || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05))
-            || (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))) { // новая схема обработки данных
+          if ((mDeviceType!!.contains(DEVICE_TYPE_FEST_A))
+            || (mDeviceType!!.contains(DEVICE_TYPE_BT05))
+            || (mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE))) { // новая схема обработки данных
             displayData(intent.getByteArrayExtra(BluetoothLeService.FESTO_A_DATA))
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
           } else {
@@ -372,7 +372,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
               if ((castUnsignedCharToInt(data[11]) shr 7 and 0b00000001) != 1) {
                 if (!firstActivateSetScaleDialog) {
 //                  System.err.println("BluetoothLeService-------------> ПОКАЗЫВАЕМ ДИАЛОГ ВЫБОРА РАЗМЕРА ПРОТЕЗА")
-                  if (mDeviceName != EXTRAS_DEVICE_TYPE_BT05) {
+                  if (mDeviceName != DEVICE_TYPE_BT05) {
                     showChangeSizeDialog()
                     firstActivateSetScaleDialog = true
                   }
@@ -789,7 +789,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     presenter.preferenceManager.putString(PreferenceKeys.DEVICE_NAME, mDeviceName.toString())
     presenter.preferenceManager.putString(PreferenceKeys.DEVICE_ADDR, mDeviceAddress.toString())
     saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
-    mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE_FEST_A)
+    mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE)
     System.err.println("mDeviceAddress: $mDeviceAddress")
     saveText(PreferenceKeys.LAST_CONNECTION_MAC, mDeviceAddress)
 
@@ -1158,9 +1158,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           startService(myIntent)
         }
       } else {
-        if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-          || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
+          || mDeviceType!!.contains(DEVICE_TYPE_BT05)
+          || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
           || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
           || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
         ) {
@@ -1188,9 +1188,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           startService(myIntent)
         }
       } else {
-        if (mDeviceType?.contains(EXTRAS_DEVICE_TYPE_FEST_A) == true
-          || mDeviceType?.contains(EXTRAS_DEVICE_TYPE_BT05) == true
-          || mDeviceType?.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE) == true
+        if (mDeviceType?.contains(DEVICE_TYPE_FEST_A) == true
+          || mDeviceType?.contains(DEVICE_TYPE_BT05) == true
+          || mDeviceType?.contains(DEVICE_TYPE_MY_IPHONE) == true
           || mDeviceType?.contains(DEVICE_TYPE_FEST_H) == true
           || mDeviceType?.contains(DEVICE_TYPE_FEST_X) == true
         ) {
@@ -1277,9 +1277,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) { } else {
       enableInterfaceStatus = enabled
       RxUpdateMainEvent.getInstance().updateUIChart(enabled)
-      if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+      if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)
       ) {
@@ -1296,9 +1296,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
   fun readStartData(enabled: Boolean) {
     sensorsDataThreadFlag = enabled
-    if (mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-      || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-      || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+    if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
+      || mDeviceType!!.contains(DEVICE_TYPE_BT05)
+      || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
     ) {
       runReadData()
     } else {
@@ -1315,9 +1315,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   fun bleCommandConnector(byteArray: ByteArray?, Command: String, typeCommand: String, register: Int) {
-    if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-      || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-      || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE))  {
+    if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
+      || mDeviceType!!.contains(DEVICE_TYPE_BT05)
+      || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE))  {
       val length = byteArray!!.size + 2
       val sendByteMassive = ByteArray(length + 3)
       sendByteMassive[0] = 0xAA.toByte()
@@ -2103,9 +2103,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     binding.mainactivityViewpager.isSaveFromParentEnabled = false
     if (showAdvancedSettings) {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+      if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
@@ -2117,9 +2117,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
       }
     } else {
-      if ( mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_FEST_A)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_BT05)
-        || mDeviceType!!.contains(EXTRAS_DEVICE_TYPE_MY_IPHONE)
+      if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
+        || mDeviceType!!.contains(DEVICE_TYPE_BT05)
+        || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)

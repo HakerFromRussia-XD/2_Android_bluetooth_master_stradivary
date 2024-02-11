@@ -1,5 +1,7 @@
 package com.bailout.stickk.scan.view;
 
+import static androidx.core.content.SharedPreferencesKt.edit;
+
 import android.Manifest;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
@@ -35,7 +37,6 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -248,6 +249,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         checkLocationPermission();
         init3D();
 
+        System.err.println("Test getCleanName():"+getCleanName("FEST-X"));
+        System.err.println("Test getCleanName():"+getCleanName("FEST-X "));
+        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTFS11111"));
+        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTHS22222"));
+        System.err.println("Test getCleanName():"+getCleanName("FEST-XEIAS33333"));
+        System.err.println("Test getCleanName():"+getCleanName("FEST-XEFAS44444"));
         //TODO закомментить быстрый вход после завершения экспериментов
 //        testNavigate();
     }
@@ -359,7 +366,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             if (items.get(i).getName() != null) {
                 if (checkOurLEName(items.get(i).getName())) {
                     scanList.add(new ScanItem(
-                            items.get(i).getName(),
+                            getProtocolType(items.get(i).getName()),
+                            getCleanName(items.get(i).getName()),
                             items.get(i).getAddress(),
                             i,
                             rssis.get(i)
@@ -473,9 +481,13 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
             if (extraDevice == null) return;
             Intent intent = new Intent(ScanActivity.this, StartActivity.class);
-            intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, extraDevice.getName());
+            intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, getCleanName(extraDevice.getName()));
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
-            intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, extraDevice.getName());
+            intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, getProtocolType(extraDevice.getName()));
+
+
+            //TODO тут передавать уже профильтрованную цифру типа протокола
+            System.err.println("my testNavigate "+getProtocolType(extraDevice.getName()));
             if (mScanning) {
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 mScanning = false;
@@ -497,7 +509,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "FEST-X");
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, "lol");
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A, "FEST-X");//FEST-X INDY
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, "FEST-X");//FEST-X INDY
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
@@ -611,6 +623,38 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     public boolean getFilteringOursDevices () {
         return filteringOursDevices;
     }
+
+    private String getProtocolType(@NotNull String deviceName) {
+        if (deviceName.contains(ConstantManager.DEVICE_TYPE_FEST_A)
+            || deviceName.contains(ConstantManager.DEVICE_TYPE_BT05)
+            || deviceName.contains(ConstantManager.DEVICE_TYPE_MY_IPHONE)) {
+            return ConstantManager.DEVICE_TYPE_FEST_A;
+        } else {
+            if (deviceName.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                return ConstantManager.DEVICE_TYPE_FEST_H;
+            } else {
+                if (deviceName.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                    return ConstantManager.DEVICE_TYPE_FEST_X;
+                } else {
+                    return ConstantManager.DEVICE_TYPE_INDY;
+                }
+            }
+        }
+    }
+    private String getCleanName(@NotNull String deviceName) {
+        if (deviceName.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            if (deviceName.length() > 6) {
+                String nameWithoutFestX = deviceName.substring(6, deviceName.length());
+//                nameWithoutFestX.substring(5, deviceName.length());
+
+                //TODO дописать функцию очистки имени после тестов передачи типов протоколов
+//                if ()
+                return nameWithoutFestX;
+            };
+        }
+        return deviceName;
+    }
+
     public ArrayList<BluetoothDevice> getLeDevices() {
         if (filteringOursDevices) { return filteringLeDevices; }
         else { return mLeDevices; }
@@ -646,10 +690,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 deviceName.contains("FEST") ||
                 !filteringOursDevices;
     }
-    private int getProtokolType(@NotNull String deviceName) {
 
-        return 0;
-    }
+
     private void initUI() {
         filteringOursDevices = loadBool(PreferenceKeys.FILTERING_OUR_DEVISES);
         acteveteRssiShow = loadBool(PreferenceKeys.ACTIVATE_RSSI_SHOW);
@@ -723,6 +765,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         editor.apply();
     }
     private Boolean loadBool(String key) { return mSettings.getBoolean(key, false); }
+    private void mySaveText(String key, String text) {
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putString(key, text);
+        editor.apply();
+    }
     private String loadString(String key) { return mSettings.getString(key, "null"); }
 
     private void checkLocationPermission() {

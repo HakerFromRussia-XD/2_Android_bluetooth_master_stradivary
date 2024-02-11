@@ -22,7 +22,6 @@ public interface ScanInteractor {
     void pair(int position);
     void onStart(BluetoothCallback bluetoothCallback, Activity activity);
     void onStop();
-    void checkAvailableDevice(BluetoothDevice device, DeviceCallback callback);
     void disconnect();
     int getOurGadgets();
 }

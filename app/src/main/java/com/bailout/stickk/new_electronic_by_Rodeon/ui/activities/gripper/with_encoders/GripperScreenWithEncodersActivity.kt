@@ -945,7 +945,7 @@ class GripperScreenWithEncodersActivity
     }
     private fun loadOldState() {
         val text = "load not work"
-        mDeviceType = mSettings!!.getString((ConstantManager.EXTRAS_DEVICE_ADDRESS),text).toString()
+        mDeviceType = mSettings!!.getString((ConstantManager.EXTRAS_DEVICE_TYPE),text).toString()
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             fingerOpenState1 = mSettings!!.getInt(
                 mSettings!!.getString(
@@ -1127,7 +1127,7 @@ class GripperScreenWithEncodersActivity
     }
     private fun loadFingersDelay() {
         val text = "load not work"
-        mDeviceType = mSettings!!.getString((ConstantManager.EXTRAS_DEVICE_ADDRESS),text).toString()
+        mDeviceType = mSettings!!.getString((ConstantManager.EXTRAS_DEVICE_TYPE),text).toString()
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             fingerOpenStateDelay1 = mSettings!!.getInt(
                 PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 1, 0)

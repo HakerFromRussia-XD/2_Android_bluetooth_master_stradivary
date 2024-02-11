@@ -7,11 +7,13 @@ public interface ConstantManager {
     String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
     String DEVICE_NAME = "";
-    String EXTRAS_DEVICE_TYPE_FEST_A = "FEST-A";
-    String EXTRAS_DEVICE_TYPE_BT05 = "BT05";
-    String EXTRAS_DEVICE_TYPE_MY_IPHONE = "BLE_test_services—•";
+    String EXTRAS_DEVICE_TYPE = "EXTRAS_DEVICE_TYPE";
+    String DEVICE_TYPE_FEST_A = "FEST-A";
+    String DEVICE_TYPE_BT05 = "BT05";
+    String DEVICE_TYPE_MY_IPHONE = "FEST-A";
     String DEVICE_TYPE_FEST_H = "FEST-H";
     String DEVICE_TYPE_FEST_X = "FEST-X";
+    String DEVICE_TYPE_INDY = "INDY";
     String DEVICE_TYPE_FEST_TEST = "TEST";
 
 

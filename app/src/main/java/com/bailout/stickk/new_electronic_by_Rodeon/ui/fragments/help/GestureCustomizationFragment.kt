@@ -31,9 +31,9 @@ class GestureCustomizationFragment(private val chartFragmentClass: ChartFragment
         WDApplication.component.inject(this)
         if (activity != null) { main = activity as MainActivity? }
         this.mContext = context
-        multigrib = (main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A)
-                || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_BT05)
-                || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_MY_IPHONE)
+        multigrib = (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_A)
+                || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_BT05)
+                || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_MY_IPHONE)
                 || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)
                 || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X))
         return binding.root

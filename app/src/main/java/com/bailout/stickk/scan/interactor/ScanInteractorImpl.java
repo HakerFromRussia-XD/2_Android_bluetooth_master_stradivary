@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.bailout.bluetooth.Bluetooth;
 import com.bailout.bluetooth.BluetoothCallback;
-import com.bailout.bluetooth.DeviceCallback;
 import com.bailout.bluetooth.DiscoveryCallback;
 import com.bailout.stickk.scan.data.ScanItem;
 
@@ -66,12 +65,6 @@ public class ScanInteractorImpl implements ScanInteractor {
     @Override
     public void onStop() {
         this.bluetooth.onStop();
-    }
-
-    @Override
-    public void checkAvailableDevice(BluetoothDevice device, DeviceCallback callback) {
-        bluetooth.setDeviceCallback(callback);
-        bluetooth.checkConnectToDevice(device);
     }
 
     @Override
@@ -147,9 +140,10 @@ public class ScanInteractorImpl implements ScanInteractor {
                     device.getName().contains("FEST") ||
                     !filteringOursDevices
             ){
-//                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
+//                System.err.println("ScanInteractorImpl--------------> getPairedDevicesItem"+device+" "+device.getName()+":"+(position+1));
                 items.add(position,
                         new ScanItem(
+                                "не важно какой",
                                 device.getName(),
                                 device.getAddress(),
                                 (position+1),
@@ -159,6 +153,7 @@ public class ScanInteractorImpl implements ScanInteractor {
 //                System.err.println("ScanInteractorImpl--------------> "+device+" "+device.getName()+":"+(position+1));
                 items.add(position,
                         new ScanItem(
+                                ".",
                                 ".",
                                 ".",
                                 (position+1),

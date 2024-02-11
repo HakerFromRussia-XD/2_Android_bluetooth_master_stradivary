@@ -966,9 +966,9 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     //Скрывает настройки, которые не актуальны для многосхватной бионики
-    if ( main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_FEST_A)
-      || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_BT05)
-      || main?.mDeviceType!!.contains(ConstantManager.EXTRAS_DEVICE_TYPE_MY_IPHONE)
+    if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_A)
+      || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_BT05)
+      || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_MY_IPHONE)
       || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)
       || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
       binding.shutdownCurrentRl.visibility = View.GONE

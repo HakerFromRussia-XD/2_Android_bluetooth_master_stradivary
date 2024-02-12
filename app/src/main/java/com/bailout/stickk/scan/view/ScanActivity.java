@@ -69,6 +69,10 @@ import com.bailout.stickk.scan.data.ScanModule;
 import com.bailout.stickk.scan.presenter.ScanPresenter;
 
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.MAX_NUMBER_DETAILS;
+import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_F;
+import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_F_O;
+import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_H;
+import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_H_O;
 
 
 @SuppressWarnings("ALL")
@@ -251,8 +255,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
         System.err.println("Test getCleanName():"+getCleanName("FEST-X"));
         System.err.println("Test getCleanName():"+getCleanName("FEST-X "));
+        System.err.println("Test getCleanName():"+getCleanName("FEST-X FEST-XXXXXX"));
         System.err.println("Test getCleanName():"+getCleanName("FEST-XFTFS11111"));
+        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTFO11112"));
         System.err.println("Test getCleanName():"+getCleanName("FEST-XFTHS22222"));
+        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTHO22223"));
         System.err.println("Test getCleanName():"+getCleanName("FEST-XEIAS33333"));
         System.err.println("Test getCleanName():"+getCleanName("FEST-XEFAS44444"));
         //TODO закомментить быстрый вход после завершения экспериментов
@@ -644,12 +651,36 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private String getCleanName(@NotNull String deviceName) {
         if (deviceName.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             if (deviceName.length() > 6) {
-                String nameWithoutFestX = deviceName.substring(6, deviceName.length());
-//                nameWithoutFestX.substring(5, deviceName.length());
+                if (deviceName.contains(" ")) {  return deviceName; }
+                String newName = "";
+                String namePrefix = deviceName.substring(6, 10);
+                String nameCode = deviceName.substring(10, deviceName.length());
+                System.err.println("Test getCleanName() namePrefix: "+namePrefix);
+                switch (namePrefix) {
+                    case NEW_DEVICE_TYPE_FEST_F: {
+                        newName = "FEST-F " + nameCode;
+                        break;
+                    }
+                    case NEW_DEVICE_TYPE_FEST_H: {
+                        newName = "FEST-H " + nameCode;
+                        break;
+                    }
+                    case NEW_DEVICE_TYPE_FEST_F_O: {
+                        newName = "FEST-FO " + nameCode;
+                        break;
+                    }
+                    case NEW_DEVICE_TYPE_FEST_H_O: {
+                        newName = "FEST-HO " + nameCode;
+                        break;
+                    }
+                    default: {
+                        newName = namePrefix + " " +nameCode;
+                        break;
+                    }
+                }
 
-                //TODO дописать функцию очистки имени после тестов передачи типов протоколов
-//                if ()
-                return nameWithoutFestX;
+
+                return newName;
             };
         }
         return deviceName;

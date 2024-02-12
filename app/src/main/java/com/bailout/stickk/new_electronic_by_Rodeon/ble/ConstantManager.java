@@ -15,6 +15,10 @@ public interface ConstantManager {
     String DEVICE_TYPE_FEST_X = "FEST-X";
     String DEVICE_TYPE_INDY = "INDY";
     String DEVICE_TYPE_FEST_TEST = "TEST";
+    String NEW_DEVICE_TYPE_FEST_F = "FTFS"; //FEST-F без оптики
+    String NEW_DEVICE_TYPE_FEST_F_O = "FTFO"; //FEST-F с оптикой
+    String NEW_DEVICE_TYPE_FEST_H = "FTHS"; //FEST-H без оптики
+    String NEW_DEVICE_TYPE_FEST_H_O = "FTHO"; //FEST-H с оптикой
 
 
     int REQUEST_ENABLE_BT = 1;

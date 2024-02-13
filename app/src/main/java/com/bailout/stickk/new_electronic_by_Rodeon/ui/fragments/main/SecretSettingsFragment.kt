@@ -81,8 +81,7 @@ class SecretSettingsFragment: Fragment(){
         }
 
         binding.autocalibrationBtn.setOnClickListener {
-            //TODO отправка команды на автокалибровку
-
+            sendAutocalibration()
         }
     }
 
@@ -117,6 +116,17 @@ class SecretSettingsFragment: Fragment(){
             (numberOfCyclesStand/256).toByte(),
             numberOfCyclesStand.toByte()
             ), SET_REVERSE_NEW_VM, countRestart)
+    }
+    private fun sendAutocalibration() {
+        val correlatorNoiseThreshold1 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, 16)
+        val correlatorNoiseThreshold2 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, 16)
+        val modeEMG = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)
+
+        main?.runSendCommand(byteArrayOf(
+            correlatorNoiseThreshold1.toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+            64, correlatorNoiseThreshold2.toByte(), 6, 1, 0x10, 36, 18,
+            44, 52, 64, 72, 0x40, 5, 64, modeEMG.toByte(), 0x01
+        ), SENS_OPTIONS_NEW_VM, countRestart)
     }
 }
 

@@ -57,6 +57,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
+import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil;
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.ChartActivity;
 import com.bailout.stickk.R;
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.Load3DModel;
@@ -253,15 +254,17 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         checkLocationPermission();
         init3D();
 
-        System.err.println("Test getCleanName():"+getCleanName("FEST-X"));
-        System.err.println("Test getCleanName():"+getCleanName("FEST-X "));
-        System.err.println("Test getCleanName():"+getCleanName("FEST-X FEST-XXXXXX"));
-        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTFS11111"));
-        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTFO11112"));
-        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTHS22222"));
-        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTHO22223"));
-        System.err.println("Test getCleanName():"+getCleanName("FEST-XEIAS33333"));
-        System.err.println("Test getCleanName():"+getCleanName("FEST-XEFAS44444"));
+//        System.err.println("Test getCleanName():"+getCleanName("FEST-X"));
+//        System.err.println("Test getCleanName():"+getCleanName("FEST-X "));
+//        System.err.println("Test getCleanName():"+getCleanName("FEST-X FEST-XXXXXX"));
+//        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTFS11111"));
+//        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTFO11112"));
+//        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTHS22222"));
+//        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTHO22223"));
+//        System.err.println("Test getCleanName():"+getCleanName("FEST-XEIAS33333"));
+//        System.err.println("Test getCleanName():"+getCleanName("FEST-XEFAS44444"));
+
+
         //TODO закомментить быстрый вход после завершения экспериментов
 //        testNavigate();
     }
@@ -374,7 +377,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 if (checkOurLEName(items.get(i).getName())) {
                     scanList.add(new ScanItem(
                             getProtocolType(items.get(i).getName()),
-                            getCleanName(items.get(i).getName()),
+                            NameUtil.INSTANCE.getCleanName(items.get(i).getName()),
                             items.get(i).getAddress(),
                             i,
                             rssis.get(i)
@@ -488,13 +491,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
             if (extraDevice == null) return;
             Intent intent = new Intent(ScanActivity.this, StartActivity.class);
-            intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, getCleanName(extraDevice.getName()));
+            intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, NameUtil.INSTANCE.getCleanName(extraDevice.getName()));
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, getProtocolType(extraDevice.getName()));
 
 
-            //TODO тут передавать уже профильтрованную цифру типа протокола
-            System.err.println("my testNavigate "+getProtocolType(extraDevice.getName()));
             if (mScanning) {
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 mScanning = false;
@@ -632,58 +633,25 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     }
 
     private String getProtocolType(@NotNull String deviceName) {
-        if (deviceName.contains(ConstantManager.DEVICE_TYPE_FEST_A)
-            || deviceName.contains(ConstantManager.DEVICE_TYPE_BT05)
-            || deviceName.contains(ConstantManager.DEVICE_TYPE_MY_IPHONE)) {
+        String protocolType = "";
+        if (deviceName.length() >= 6) {
+            protocolType = deviceName.substring(0, 6);
+        } // FEST-X
+        if (protocolType.contains(ConstantManager.DEVICE_TYPE_FEST_A)
+            || protocolType.contains(ConstantManager.DEVICE_TYPE_BT05)
+            || protocolType.contains(ConstantManager.DEVICE_TYPE_MY_IPHONE)) {
             return ConstantManager.DEVICE_TYPE_FEST_A;
         } else {
-            if (deviceName.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (protocolType.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 return ConstantManager.DEVICE_TYPE_FEST_H;
             } else {
-                if (deviceName.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                if (protocolType.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
                     return ConstantManager.DEVICE_TYPE_FEST_X;
                 } else {
                     return ConstantManager.DEVICE_TYPE_INDY;
                 }
             }
         }
-    }
-    private String getCleanName(@NotNull String deviceName) {
-        if (deviceName.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            if (deviceName.length() > 6) {
-                if (deviceName.contains(" ")) {  return deviceName; }
-                String newName = "";
-                String namePrefix = deviceName.substring(6, 10);
-                String nameCode = deviceName.substring(10, deviceName.length());
-                System.err.println("Test getCleanName() namePrefix: "+namePrefix);
-                switch (namePrefix) {
-                    case NEW_DEVICE_TYPE_FEST_F: {
-                        newName = "FEST-F " + nameCode;
-                        break;
-                    }
-                    case NEW_DEVICE_TYPE_FEST_H: {
-                        newName = "FEST-H " + nameCode;
-                        break;
-                    }
-                    case NEW_DEVICE_TYPE_FEST_F_O: {
-                        newName = "FEST-FO " + nameCode;
-                        break;
-                    }
-                    case NEW_DEVICE_TYPE_FEST_H_O: {
-                        newName = "FEST-HO " + nameCode;
-                        break;
-                    }
-                    default: {
-                        newName = namePrefix + " " +nameCode;
-                        break;
-                    }
-                }
-
-
-                return newName;
-            };
-        }
-        return deviceName;
     }
 
     public ArrayList<BluetoothDevice> getLeDevices() {

@@ -29,19 +29,24 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
-import com.yandex.metrica.YandexMetrica
-import io.reactivex.android.schedulers.AndroidSchedulers
 import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.LayoutAdvancedSettingsBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_F
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_H
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_X
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_F
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_H
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import com.yandex.metrica.YandexMetrica
+import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 @Suppress("DEPRECATION", "UNNECESSARY_SAFE_CALL")
@@ -57,6 +62,7 @@ class AdvancedSettingsFragment : Fragment() {
   private var mode: Byte = 0x00
   private var sensorGestureSwitching: Byte = 0x00
   private var lockProstheses: Byte = 0x00
+  private var validationError = ""
 
   private var current  = 0
   private var current1 = 0
@@ -88,6 +94,48 @@ class AdvancedSettingsFragment : Fragment() {
     initializeUI()
     updateAllParameters()
     enableInterface(false)
+
+
+//    if (validationAndConversionSerialNumber("FEST-F-1111a").contains("false")) {
+//      System.err.println("validationError: $validationError  serialNumber")
+//      main?.showToast(validationError)
+//    }
+//    if (validationAndConversionSerialNumber("FEST-F-s111a").contains("false")) {
+//      System.err.println("validationError: $validationError  serialNumber")
+//      main?.showToast(validationError)
+//    }
+//    if (validationAndConversionSerialNumber("FEST-D-11111").contains("false")) {
+//      System.err.println("validationError: $validationError  serialNumber")
+//      main?.showToast(validationError)
+//    }
+//    if (validationAndConversionSerialNumber("FEST-F-111112").contains("false")) {
+//      System.err.println("validationError: $validationError  serialNumber")
+//      main?.showToast(validationError)
+//    }
+//    if (validationAndConversionSerialNumber("FEST-F-1111").contains("false")) {
+//      System.err.println("validationError: $validationError  serialNumber")
+//      main?.showToast(validationError)
+//    }
+//    if (validationAndConversionSerialNumber("FEST-F-11111").contains("false")) {
+//      System.err.println("validationError: $validationError  serialNumber")
+//      main?.showToast(validationError)
+//    }
+//    if (validationAndConversionSerialNumber("FIST-F-11111").contains("false")) {
+//      System.err.println("validationError: $validationError  serialNumber")
+//      main?.showToast(validationError)
+//    }
+//    if (validationAndConversionSerialNumber("FEEST-F-11111").contains("false")) {
+//      System.err.println("validationError: $validationError  serialNumber")
+//      main?.showToast(validationError)
+//    }
+//    if (validationAndConversionSerialNumber("FEST-H-22222").contains("false")) {
+//      System.err.println("validationError: $validationError  serialNumber")
+//      main?.showToast(validationError)
+//    }
+//    if (validationAndConversionSerialNumber("CYBI-F-04813").contains("false")) {
+//      System.err.println("validationError: $validationError  serialNumber")
+//      main?.showToast(validationError)
+//    }
   }
 
   @SuppressLint("CheckResult")
@@ -842,12 +890,14 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     binding.setSetupBtn.setOnClickListener {
-      if (validationAndСonversionSerialNumber(binding.serialNumberEt.text.toString()) == "false") {
+      if (validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()) != "false") {
         if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
-          main?.showPinCodeDialog(binding.serialNumberEt.text.toString())
+          main?.showPinCodeDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
         } else {
-          main?.showSetSerialNumberDialog(binding.serialNumberEt.text.toString())
+          main?.showSetSerialNumberDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
         }
+      } else {
+        main?.showToast(validationError)
       }
     }
     main?.serialNumber = binding.serialNumberEt.text.toString()
@@ -1319,8 +1369,57 @@ class AdvancedSettingsFragment : Fragment() {
     }
     return false
   }
-  private fun validationAndСonversionSerialNumber(serialNumber: String): String {
-    serialNumber
+  private fun validationAndConversionSerialNumber(serialNumber: String): String {
+    System.err.println("serialNumber: $serialNumber")//"FEST-F-11111"
+
+    if (serialNumber.length < 12) {
+      //TODO
+      validationError = "Вы ввели слишком короткий серийный номер"
+      return "false"
+    } else {
+      if (serialNumber.length > 12) {
+        validationError = "Вы ввели слишком длинный серийный номер"
+        return "false"
+      }
+    }
+
+    val namePrefix = serialNumber.substring(0, 6)
+    when (namePrefix) {
+      DEVICE_TYPE_FEST_F -> { }
+      DEVICE_TYPE_FEST_H -> { }
+      else -> {
+        validationError = "В нашей линейке продуктов нет: $namePrefix"
+        return "false"
+      }
+    }
+
+    val nameBridge: String = serialNumber.substring(6,7)
+    if (nameBridge != "-") {
+      validationError = "Буквенную и числовую части должен разделять дефис"
+      return "false"
+    }
+
+    val nameCode: String = serialNumber.substring(7, serialNumber.length)
+    try {
+      nameCode.toInt()
+    } catch (e: Exception) {
+      validationError = "Вторая часть серийного номера не число: $nameCode"
+      return "false"
+    }
+
+    when (namePrefix) {
+      DEVICE_TYPE_FEST_F -> {
+        System.err.println("new serialNumber: ${DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_F+nameCode}")
+        main?.showToast(DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_F+nameCode)
+        return DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_F+nameCode
+      }
+      DEVICE_TYPE_FEST_H -> {
+        System.err.println("new serialNumber: ${DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_H+nameCode}")
+        main?.showToast(DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_H+nameCode)
+        return DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_H+nameCode
+      }
+    }
+
     return "false"
   }
 }

@@ -24,9 +24,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.airbnb.lottie.LottieAnimationView
-import com.yandex.metrica.YandexMetrica
-import io.reactivex.android.schedulers.AndroidSchedulers
-import lib.kingja.switchbutton.SwitchMultiButton
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.BluetoothLeService
@@ -49,9 +46,13 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.SecretSettingsFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
+import com.yandex.metrica.YandexMetrica
+import io.reactivex.android.schedulers.AndroidSchedulers
+import lib.kingja.switchbutton.SwitchMultiButton
 import online.devliving.passcodeview.PasscodeView
 import timber.log.Timber
 import java.util.*
@@ -2374,12 +2375,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           WRITE,
           17
         )
-        mDeviceName = serialNumber
+        mDeviceName = NameUtil.getCleanName(serialNumber)
       }
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         runSendCommand(serialNumber.toByteArray(Charsets.UTF_8),
           SERIAL_NUMBER_NEW_VM, 50)
-        mDeviceName = serialNumber
+        mDeviceName = NameUtil.getCleanName(serialNumber)
         System.err.println("DEVICE_TYPE_FEST_X serialNumber=$serialNumber")
       } else {
         System.err.println("DEVICE_TYPE_FEST_X else serialNumber=$serialNumber")

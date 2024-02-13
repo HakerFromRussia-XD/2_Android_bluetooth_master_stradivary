@@ -79,6 +79,11 @@ class SecretSettingsFragment: Fragment(){
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES, numberOfCyclesStand)
             sendProsthesisMode()
         }
+
+        binding.autocalibrationBtn.setOnClickListener {
+            //TODO отправка команды на автокалибровку
+
+        }
     }
 
     private fun initializeUI() {

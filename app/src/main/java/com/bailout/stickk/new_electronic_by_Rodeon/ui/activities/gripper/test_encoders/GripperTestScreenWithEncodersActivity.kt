@@ -180,9 +180,9 @@ class GripperTestScreenWithEncodersActivity
             if (passcode == SECRET_PIN) {
                 saveBool(PreferenceKeys.ENTER_SECRET_PIN, true)
                 showSecretSettings()
-                Toast.makeText(this, "Угадал: $passcode", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Секретные настройки разблокированны!", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Не угадал: $passcode", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Неверный пинкод", Toast.LENGTH_SHORT).show()
             }
             hideKeyboard(pin)
             myDialog.dismiss()

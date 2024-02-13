@@ -2417,9 +2417,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         if (passcode == SECRET_PIN) {
           showSetSerialNumberDialog(serialNumber)
           saveBool(PreferenceKeys.ENTER_SECRET_PIN, true)
-          Toast.makeText(this, "Угадал: $passcode", Toast.LENGTH_SHORT).show()
+          Toast.makeText(this, "Верный пинкод!", Toast.LENGTH_SHORT).show()
         } else {
-          Toast.makeText(this, "Не угадал: $passcode", Toast.LENGTH_SHORT).show()
+          Toast.makeText(this, "Неверный пинкод", Toast.LENGTH_SHORT).show()
         }
         hideKeyboard(pin)
         myDialog.dismiss()

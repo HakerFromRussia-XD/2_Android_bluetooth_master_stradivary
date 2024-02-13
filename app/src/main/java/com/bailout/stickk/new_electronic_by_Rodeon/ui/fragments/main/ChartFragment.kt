@@ -61,15 +61,15 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   private var callbackFromDialogChangeValue: ChartFragmentCallback = object: ChartFragmentCallback {
     override fun changeCorrelatorNoiseThreshold1(value: Int) {
       System.err.println("lol sendCommandToBLE CORRELATOR_NOISE_THRESHOLD_1_NUM TestCallback from ChartFragment!!!!")
-      sendCorrelatorNoiseThreshold1(value)
       main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - value))
+      sendCorrelatorNoiseThreshold(1)
       updateAllParameters()
     }
 
     override fun changeCorrelatorNoiseThreshold2(value: Int) {
       System.err.println("lol sendCommandToBLE CORRELATOR_NOISE_THRESHOLD_2_NUM TestCallback from ChartFragment!!!!")
-      sendCorrelatorNoiseThreshold2(value)
       main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - value))
+      sendCorrelatorNoiseThreshold(2)
       updateAllParameters()
     }
   }
@@ -321,11 +321,11 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         if ( (!main?.lockWriteBeforeFirstRead!!)) {
           if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
             System.err.println("test save correlator value" + main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM)
-            sendCorrelatorNoiseThreshold1(seekBar.progress)
             if (main?.savingSettingsWhenModified == true) {
               System.err.println("test save correlator value" + main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM)
               main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
             }
+            sendCorrelatorNoiseThreshold(1)
             YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdOpen)
           } else {
             updateAllParameters()
@@ -346,10 +346,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if ( (!main?.lockWriteBeforeFirstRead!!)) {
           if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
-            sendCorrelatorNoiseThreshold2(seekBar.progress)
             if (main?.savingSettingsWhenModified == true) {
               main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
             }
+            sendCorrelatorNoiseThreshold(2)
             YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdClose)
           } else {
             updateAllParameters()
@@ -953,11 +953,11 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
     modeEMGSend = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)
   }
-  private fun sendCorrelatorNoiseThreshold1(value: Int) {
+  private fun sendCorrelatorNoiseThreshold(value: Int) {
     if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
       main?.stage = "chart activity"
       main?.runSendCommand(byteArrayOf(
-        (255 - value).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+        (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
         64, (255 - binding.correlatorNoiseThreshold2Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
         44, 52, 64, 72, 0x40, 5, 64, modeEMGSend.toByte()
       ), SENS_OPTIONS_NEW_VM, 50)
@@ -965,45 +965,28 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         main?.runWriteData(
           byteArrayOf(
-            (255 - value).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+            (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
             64, (255 - binding.correlatorNoiseThreshold2Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
             44, 52, 64, 72, 0x40, 5, 64
           ), SENS_OPTIONS_NEW, WRITE
         )
       } else {
-        main?.bleCommandConnector(
-          byteArrayOf(0x01, (255 - value).toByte(), 0x01),
-          SENS_OPTIONS,
-          WRITE,
-          11
-        )
-      }
-    }
-  }
-  private fun sendCorrelatorNoiseThreshold2(value: Int) {
-    if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-      main?.stage = "chart activity"
-      main?.runSendCommand(byteArrayOf(
-        (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-        44, 52, 64, 72, 0x40, 5, 64, (255 - value).toByte(), 6, 1, 0x10, 36,
-        18, 44, 52, 64, 72, 0x40, 5, 64, modeEMGSend.toByte()
-      ), SENS_OPTIONS_NEW_VM, 50)
-    } else {
-      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
-        main?.runWriteData(
-          byteArrayOf(
-            (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
-            44, 52, 64, 72, 0x40, 5, 64, (255 - value).toByte(), 6, 1, 0x10, 36,
-            18, 44, 52, 64, 72, 0x40, 5, 64
-          ), SENS_OPTIONS_NEW, WRITE
-        )
-      } else {
-        main?.bleCommandConnector(
-          byteArrayOf(0x01, (255 - value).toByte(), 0x02),
-          SENS_OPTIONS,
-          WRITE,
-          11
-        )
+        if (value == 1) {
+          main?.bleCommandConnector(
+            byteArrayOf(0x01, (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 0x01),
+            SENS_OPTIONS,
+            WRITE,
+            11
+          )
+        }
+        if (value == 2) {
+          main?.bleCommandConnector(
+            byteArrayOf(0x01, (255 - binding.correlatorNoiseThreshold2Sb.progress).toByte(), 0x02),
+            SENS_OPTIONS,
+            WRITE,
+            11
+          )
+        }
       }
     }
   }

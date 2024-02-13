@@ -94,48 +94,6 @@ class AdvancedSettingsFragment : Fragment() {
     initializeUI()
     updateAllParameters()
     enableInterface(false)
-
-
-//    if (validationAndConversionSerialNumber("FEST-F-1111a").contains("false")) {
-//      System.err.println("validationError: $validationError  serialNumber")
-//      main?.showToast(validationError)
-//    }
-//    if (validationAndConversionSerialNumber("FEST-F-s111a").contains("false")) {
-//      System.err.println("validationError: $validationError  serialNumber")
-//      main?.showToast(validationError)
-//    }
-//    if (validationAndConversionSerialNumber("FEST-D-11111").contains("false")) {
-//      System.err.println("validationError: $validationError  serialNumber")
-//      main?.showToast(validationError)
-//    }
-//    if (validationAndConversionSerialNumber("FEST-F-111112").contains("false")) {
-//      System.err.println("validationError: $validationError  serialNumber")
-//      main?.showToast(validationError)
-//    }
-//    if (validationAndConversionSerialNumber("FEST-F-1111").contains("false")) {
-//      System.err.println("validationError: $validationError  serialNumber")
-//      main?.showToast(validationError)
-//    }
-//    if (validationAndConversionSerialNumber("FEST-F-11111").contains("false")) {
-//      System.err.println("validationError: $validationError  serialNumber")
-//      main?.showToast(validationError)
-//    }
-//    if (validationAndConversionSerialNumber("FIST-F-11111").contains("false")) {
-//      System.err.println("validationError: $validationError  serialNumber")
-//      main?.showToast(validationError)
-//    }
-//    if (validationAndConversionSerialNumber("FEEST-F-11111").contains("false")) {
-//      System.err.println("validationError: $validationError  serialNumber")
-//      main?.showToast(validationError)
-//    }
-//    if (validationAndConversionSerialNumber("FEST-H-22222").contains("false")) {
-//      System.err.println("validationError: $validationError  serialNumber")
-//      main?.showToast(validationError)
-//    }
-//    if (validationAndConversionSerialNumber("CYBI-F-04813").contains("false")) {
-//      System.err.println("validationError: $validationError  serialNumber")
-//      main?.showToast(validationError)
-//    }
   }
 
   @SuppressLint("CheckResult")
@@ -1373,7 +1331,6 @@ class AdvancedSettingsFragment : Fragment() {
     System.err.println("serialNumber: $serialNumber")//"FEST-F-11111"
 
     if (serialNumber.length < 12) {
-      //TODO
       validationError = "Вы ввели слишком короткий серийный номер"
       return "false"
     } else {
@@ -1409,13 +1366,9 @@ class AdvancedSettingsFragment : Fragment() {
 
     when (namePrefix) {
       DEVICE_TYPE_FEST_F -> {
-        System.err.println("new serialNumber: ${DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_F+nameCode}")
-        main?.showToast(DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_F+nameCode)
         return DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_F+nameCode
       }
       DEVICE_TYPE_FEST_H -> {
-        System.err.println("new serialNumber: ${DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_H+nameCode}")
-        main?.showToast(DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_H+nameCode)
         return DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_H+nameCode
       }
     }

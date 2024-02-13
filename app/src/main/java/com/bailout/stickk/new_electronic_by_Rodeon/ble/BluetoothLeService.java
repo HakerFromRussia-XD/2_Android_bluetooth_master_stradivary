@@ -13,28 +13,6 @@
 
 package com.bailout.stickk.new_electronic_by_Rodeon.ble;
 
-import android.annotation.SuppressLint;
-import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.Build;
-import android.os.IBinder;
-
-import java.util.List;
-import java.util.UUID;
-
-import timber.log.Timber;
-
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW;
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW_VM;
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW;
@@ -59,6 +37,8 @@ import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttribut
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW_VM;
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW;
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW_VM;
+import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SERIAL_NUMBER_NEW;
+import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SERIAL_NUMBER_NEW_VM;
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW;
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW_VM;
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_ONE_CHANNEL_NEW;
@@ -69,9 +49,29 @@ import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttribut
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SHUTDOWN_CURRENT_NEW_VM;
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.STATUS_CALIBRATION_NEW;
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.STATUS_CALIBRATION_NEW_VM;
-import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.TELEMETRY_NUMBER_NEW;
-import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.TELEMETRY_NUMBER_NEW_VM;
 import static com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE;
+
+import android.annotation.SuppressLint;
+import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.Build;
+import android.os.IBinder;
+
+import java.util.List;
+import java.util.UUID;
+
+import timber.log.Timber;
 
 @SuppressLint("MissingPermission")
 public class BluetoothLeService extends Service {
@@ -107,7 +107,7 @@ public class BluetoothLeService extends Service {
     public final static String SET_ONE_CHANNEL_NEW_DATA = "com.example.bluetooth.le.SET_ONE_CHANNEL_NEW_DATA";
     public final static String STATUS_CALIBRATION_NEW_DATA = "com.example.bluetooth.le.STATUS_CALIBRATION_NEW_DATA";
     public final static String CHANGE_GESTURE_NEW_DATA = "com.example.bluetooth.le.CHANGE_GESTURE_NEW_DATA";
-    public final static String TELEMETRY_NUMBER_NEW_DATA = "com.example.bluetooth.le.TELEMETRY_NUMBER_NEW_DATA";
+    public final static String SERIAL_NUMBER_NEW_DATA = "com.example.bluetooth.le.SERIAL_NUMBER_NEW_DATA";
     public final static String SHUTDOWN_CURRENT_NEW_DATA = "com.example.bluetooth.le.SHUTDOWN_CURRENT_NEW_DATA";
     public final static String ROTATION_GESTURE_NEW_VM_DATA = "com.example.bluetooth.le.ROTATION_GESTURE_NEW_VM_DATA";
     public final static String DRIVER_VERSION_NEW_DATA = "com.example.bluetooth.le.DRIVER_VERSION_NEW_DATA";
@@ -169,8 +169,8 @@ public class BluetoothLeService extends Service {
                 if (state.equals(READ)) { intent.putExtra(CALIBRATION_NEW_DATA, data); intent.putExtra(ACTION_STATE, READ);}
                 if (state.equals(WRITE)){ intent.putExtra(CALIBRATION_NEW_DATA, data); intent.putExtra(ACTION_STATE, WRITE);}
             }
-            if (String.valueOf(characteristic.getUuid()).equals(TELEMETRY_NUMBER_NEW)) {
-                if (state.equals(READ)) { intent.putExtra(TELEMETRY_NUMBER_NEW_DATA, data); }
+            if (String.valueOf(characteristic.getUuid()).equals(SERIAL_NUMBER_NEW)) {
+                if (state.equals(READ)) { intent.putExtra(SERIAL_NUMBER_NEW_DATA, data); }
             }
             if (String.valueOf(characteristic.getUuid()).equals(SHUTDOWN_CURRENT_NEW)) {
                 if (state.equals(READ)) { intent.putExtra(SHUTDOWN_CURRENT_NEW_DATA, data); }
@@ -223,8 +223,8 @@ public class BluetoothLeService extends Service {
                 if (state.equals(READ)) { intent.putExtra(CALIBRATION_NEW_DATA, data); intent.putExtra(ACTION_STATE, READ);}
                 if (state.equals(WRITE)){ intent.putExtra(CALIBRATION_NEW_DATA, data); intent.putExtra(ACTION_STATE, WRITE);}
             }
-            if (String.valueOf(characteristic.getUuid()).equals(TELEMETRY_NUMBER_NEW_VM)) {
-                if (state.equals(READ)) { intent.putExtra(TELEMETRY_NUMBER_NEW_DATA, data); }
+            if (String.valueOf(characteristic.getUuid()).equals(SERIAL_NUMBER_NEW_VM)) {
+                if (state.equals(READ)) { intent.putExtra(SERIAL_NUMBER_NEW_DATA, data); }
             }
             if (String.valueOf(characteristic.getUuid()).equals(SHUTDOWN_CURRENT_NEW_VM)) {
                 if (state.equals(READ)) { intent.putExtra(SHUTDOWN_CURRENT_NEW_DATA, data); }

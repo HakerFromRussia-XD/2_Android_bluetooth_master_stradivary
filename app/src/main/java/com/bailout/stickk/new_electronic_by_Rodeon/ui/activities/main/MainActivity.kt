@@ -115,7 +115,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var actionState = READ
   var savingSettingsWhenModified = false//продакшн false
   var lockWriteBeforeFirstRead = true //продакшн true    переменная, необходимая для ожидания первого пришедшего ответа от устройства на
-  var lockChangeTelemetryNumber = true //продакшн true    переменная, для разового изменения серийника телеметрии
+  var lockChangeSerialNumber = true //продакшн true    переменная, для разового изменения серийника телеметрии
   private var enableInterfaceStatus: Boolean = false
   // отправленный запрос чтения. Если не ожидать её, то поток чтения не перезамускается
   internal var locate = ""
@@ -168,7 +168,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var gestureTableBig: Array<Array<Array<Int>>> = Array(13) { Array(2) { Array(6) { 0 } } }
   private var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
   var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
-  var telemetryNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
+  var serialNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   private lateinit var dialog: DialogFragment
   private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -227,7 +227,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
               if(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA) != null) displayDataSetGestureNew(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA) != null) displayDataSetReverseNew(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA) != null) displayDataAddGestureNew(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.TELEMETRY_NUMBER_NEW_DATA) != null) displayDataTelemetryNumberNew(intent.getByteArrayExtra(BluetoothLeService.TELEMETRY_NUMBER_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SERIAL_NUMBER_NEW_DATA) != null) displayDataSerialNumberNew(intent.getByteArrayExtra(BluetoothLeService.SERIAL_NUMBER_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA) != null) {
                 intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
                 displayDataCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA))
@@ -602,13 +602,13 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       globalSemaphore = true
     }
   }
-  private fun displayDataTelemetryNumberNew(data: ByteArray?) {
+  private fun displayDataSerialNumberNew(data: ByteArray?) {
     if (data != null) {
-      telemetryNumber = ""
+      serialNumber = ""
       for (i in data.indices) {
-        telemetryNumber += data[i].toChar()
+        serialNumber += data[i].toChar()
       }
-      System.err.println("Принятые данные телеметрии: $telemetryNumber")
+      System.err.println("Принятые данные телеметрии: $serialNumber")
       globalSemaphore = true
     }
   }
@@ -2366,26 +2366,26 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_set_serial_number_confirm)
     yesBtn.setOnClickListener {
-      val eventYandexMetricaParametersSetTelemetryNumber = "{\"Screen advanced settings\":\"Tup set telemetry number button\"}"
+      val eventYandexMetricaParametersSetSerialNumber = "{\"Screen advanced settings\":\"Tup set serial number button\"}"
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         bleCommandConnector(
           serialNumber.toByteArray(Charsets.UTF_8),
-          TELEMETRY_NUMBER_NEW,
+          SERIAL_NUMBER_NEW,
           WRITE,
           17
         )
-        mDeviceName = "$DEVICE_TYPE_FEST_H $serialNumber"
+        mDeviceName = serialNumber
       }
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         runSendCommand(serialNumber.toByteArray(Charsets.UTF_8),
-          TELEMETRY_NUMBER_NEW_VM, 50)
-        mDeviceName = "$DEVICE_TYPE_FEST_X-$serialNumber"
+          SERIAL_NUMBER_NEW_VM, 50)
+        mDeviceName = serialNumber
         System.err.println("DEVICE_TYPE_FEST_X serialNumber=$serialNumber")
       } else {
         System.err.println("DEVICE_TYPE_FEST_X else serialNumber=$serialNumber")
       }
       RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
-      YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersSetTelemetryNumber)
+      YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersSetSerialNumber)
 
 
       myDialog.dismiss()

@@ -189,7 +189,7 @@
     <string name="prostheses_calibrating">Prostheses calibrating</string>
     <string name="waiting">waiting…</string>
     <string name="get">get</string>
-    <string name="telemetry_serial">prosthesis serial</string>
+    <string name="serial">prosthesis serial</string>
     <string name="shutdown_current_1">shutdown current 1</string>
     <string name="shutdown_current_2">shutdown current 2</string>
     <string name="shutdown_current_3">shutdown current 3</string>
@@ -435,7 +435,7 @@
     <string name="activating_this_function_makes_it_possible_to_switch_gestures_by_means_of_signals_given_to_the_sensors">Activating this function makes it possible to switch gestures by means of signals given to the sensors.</string>
     <string name="slider_to_set_the_timing_of_the_sensor_gesture_switching_function">Slider to set the timing of the sensor gesture switching function</string>
     <string name="the_slider_adjusts_the_minimum_time_that_the_opening_sensor_signal_must_be_above_the_threshold_level_when_the_prostheses_reaches_the_open_state">The slider adjusts the minimum time that the opening sensor signal must be above the threshold level when the prostheses reaches the open state.</string>
-    <string name="view_for_read_write_the_serial_number_of_the_prosthetic_telemetry">View to read/set prosthetic telemetry serial number</string>
+    <string name="view_for_read_write_the_serial_number_of_the_prosthetic_serial">View to read/set prosthetic telemetry serial number</string>
     <string name="functionality_is_under_development">The functionality is in development.</string>
     <string name="the_choice_of_trauma_side_switch">The choice of trauma side switch</string>
     <string name="it_is_necessary_to_select_the_side_of_the_prostheses_for_its_successful_calibration_as_well_as_for_the_correct_display_of_the_model_in_the_gesture_configurator">It is necessary to select the side of the prostheses for its successful calibration, as well as for the correct display of the model in the gesture configurator.</string>

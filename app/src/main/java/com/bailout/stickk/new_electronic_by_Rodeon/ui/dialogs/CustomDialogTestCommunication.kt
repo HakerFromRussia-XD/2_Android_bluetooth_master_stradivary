@@ -88,7 +88,7 @@ class CustomDialogTestCommunication: DialogFragment() {
 
         rootView?.findViewById<LottieAnimationView>(R.id.test_communication_animation_view)?.setAnimation(R.raw.test_communication_animation)
 
-        rootView?.findViewById<Button>(R.id.dialog_test_communication_cancel)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.dialog_test_communication_cancel)?.setOnClickListener {
             countReceivedCommandToCommunicationTest = 0
             percentageCommunicationQuality = 0
             main?.testingConnection = false

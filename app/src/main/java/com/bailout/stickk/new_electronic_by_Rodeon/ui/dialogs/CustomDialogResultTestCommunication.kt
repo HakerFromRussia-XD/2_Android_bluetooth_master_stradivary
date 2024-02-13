@@ -54,7 +54,7 @@ class CustomDialogResultTestCommunication(private val percentageCommunicationQua
         }
 
 
-        rootView?.findViewById<Button>(R.id.dialog_result_test_communication_cancel)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.dialog_result_test_communication_cancel)?.setOnClickListener {
             dismiss()
         }
     }

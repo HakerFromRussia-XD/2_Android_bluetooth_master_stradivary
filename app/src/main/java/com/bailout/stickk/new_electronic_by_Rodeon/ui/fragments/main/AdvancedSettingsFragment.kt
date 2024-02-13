@@ -41,7 +41,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import javax.inject.Inject
 
@@ -830,27 +829,28 @@ class AdvancedSettingsFragment : Fragment() {
     })
 
 
-    val eventYandexMetricaParametersGetTelemetryNumber = "{\"Screen advanced settings\":\"Tup get telemetry number button\"}"
+    val eventYandexMetricaParametersGetSerialNumber = "{\"Screen advanced settings\":\"Tup get serial number button\"}"
     binding.getSetupBtn.setOnClickListener {
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-        main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW, READ, 17)
+        main?.bleCommandConnector(byteArrayOf(0x00), SERIAL_NUMBER_NEW, READ, 17)
       }
       if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-        main?.bleCommandConnector(byteArrayOf(0x00), TELEMETRY_NUMBER_NEW_VM, READ, 17)
+        main?.bleCommandConnector(byteArrayOf(0x00), SERIAL_NUMBER_NEW_VM, READ, 17)
       }
-      main?.lockChangeTelemetryNumber = true
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersGetTelemetryNumber)
+      main?.lockChangeSerialNumber = true
+      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersGetSerialNumber)
     }
 
     binding.setSetupBtn.setOnClickListener {
-      if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
-        main?.showPinCodeDialog(binding.telemetryNumberEt.text.toString())
-      } else {
-        main?.showSetSerialNumberDialog(binding.telemetryNumberEt.text.toString())
+      if (validationAndСonversionSerialNumber(binding.serialNumberEt.text.toString()) == "false") {
+        if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
+          main?.showPinCodeDialog(binding.serialNumberEt.text.toString())
+        } else {
+          main?.showSetSerialNumberDialog(binding.serialNumberEt.text.toString())
+        }
       }
-
     }
-    main?.telemetryNumber = binding.telemetryNumberEt.text.toString()
+    main?.serialNumber = binding.serialNumberEt.text.toString()
 
     val eventYandexMetricaParametersLeftRight = "{\"Screen advanced settings\":\"Tup left right side swap switch\"}"
     binding.leftRightSideSwapSw.setOnClickListener{
@@ -976,7 +976,7 @@ class AdvancedSettingsFragment : Fragment() {
     //Скрывает настройки, которые не актуальны для бионик кроме FEST-H и FEST-X
     when {
         main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X) -> {
-          binding.telemetryRl.visibility = View.VISIBLE
+          binding.serialRl.visibility = View.VISIBLE
           binding.onOffProsthesesBlockingRl.visibility = View.VISIBLE
           binding.testConnectionRl.visibility = View.VISIBLE
           binding.scaleTv.visibility = View.GONE
@@ -984,14 +984,14 @@ class AdvancedSettingsFragment : Fragment() {
         }
         main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) -> {
           binding.EMGModeRl.visibility = View.GONE
-          binding.telemetryRl.visibility = View.VISIBLE
+          binding.serialRl.visibility = View.VISIBLE
           binding.debugScreenRl.visibility = View.GONE
           binding.scaleTv.visibility = View.GONE
         }
         else -> {
           binding.EMGModeRl.visibility = View.GONE
           binding.debugScreenRl.visibility = View.GONE
-          binding.telemetryRl.visibility = View.GONE
+          binding.serialRl.visibility = View.GONE
           binding.calibrationRl.visibility = View.GONE
           binding.shutdownCurrent1Rl.visibility = View.GONE
           binding.shutdownCurrent2Rl.visibility = View.GONE
@@ -1318,5 +1318,9 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
     return false
+  }
+  private fun validationAndСonversionSerialNumber(serialNumber: String): String {
+    serialNumber
+    return "false"
   }
 }

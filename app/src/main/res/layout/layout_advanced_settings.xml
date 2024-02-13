@@ -1276,7 +1276,7 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/telemetry_rl"
+                android:id="@+id/serial_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -1306,11 +1306,11 @@
                             android:layout_marginEnd="0dp">
 
                             <EditText
-                                android:id="@+id/telemetry_number_et"
+                                android:id="@+id/serial_number_et"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
-                                android:hint="@string/telemetry_serial"
+                                android:hint="@string/serial"
                                 android:inputType="textVisiblePassword"
                                 android:maxLength="16"
                                 android:paddingTop="0dp"

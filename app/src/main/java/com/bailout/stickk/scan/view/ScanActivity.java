@@ -491,9 +491,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
             if (extraDevice == null) return;
             Intent intent = new Intent(ScanActivity.this, StartActivity.class);
-            intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, NameUtil.INSTANCE.getCleanName(extraDevice.getName()));
+            intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, NameUtil.INSTANCE.getCleanName(extraDevice.getName()));//NameUtil.INSTANCE.getCleanName(
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
-            intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, getProtocolType(extraDevice.getName()));
+            intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, getProtocolType(extraDevice.getName()));//getProtocolType()
 
 
             if (mScanning) {

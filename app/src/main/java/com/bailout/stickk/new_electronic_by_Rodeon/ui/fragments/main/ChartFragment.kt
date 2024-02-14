@@ -657,6 +657,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   }
   @SuppressLint("SetTextI18n")
   private fun enabledSensorsUIBeforeConnection (enabled: Boolean) {
+//    System.err.println("gonka enabledSensorsUIBeforeConnection $enabled")
     binding.swapSensorsSw.isEnabled = enabled
     binding.closeBtn.isEnabled = enabled
     binding.openBtn.isEnabled = enabled
@@ -677,6 +678,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   private fun initializedUI() {
     binding.thresholdsBlockingSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
+//    System.err.println("gonka initializedUI false")
     enabledSensorsUIBeforeConnection(false)
     //скрываем кнопку калибровки для всех моделей кроме FEST_H и FEST_X
     if ((main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false && main?.mDeviceType?.contains(DEVICE_TYPE_FEST_X) == false)) {

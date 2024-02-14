@@ -107,6 +107,7 @@ class AdvancedSettingsFragment : Fragment() {
         if (context != null) {
           updateAllParameters()
           enableInterface(it)
+//          System.err.println("gonka enabledAdvancedUIBeforeConnection $it")
         } else {
           System.err.println("context AdvancedSettingsFragment NULL!")
         }

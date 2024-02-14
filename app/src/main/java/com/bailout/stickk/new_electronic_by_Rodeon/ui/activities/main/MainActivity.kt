@@ -454,6 +454,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           if (oldNumGesture != castUnsignedCharToInt(data[2])+1) {
             RxUpdateMainEvent.getInstance().updateUIGestures(castUnsignedCharToInt(data[2])+1)
             saveInt(mDeviceAddress+PreferenceKeys.ACTIVE_GESTURE_NUM, castUnsignedCharToInt(data[2])+1)
+//            System.err.println("gonka main displayDataNew $enableInterfaceStatus")
             RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
             oldNumGesture = castUnsignedCharToInt(data[2])+1
             System.err.println("displayDataNew номер жеста ${castUnsignedCharToInt(data[2])+1}")
@@ -1000,6 +1001,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
       driverVersionS = driverVersion
       saveText(mDeviceAddress + PreferenceKeys.DRIVER_VERSION_STRING, driverVersionS)
+//      System.err.println("gonka main displayDataDriverVersionNew $enableInterfaceStatus")
       RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
@@ -1044,6 +1046,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           override fun onTick(millisUntilFinished: Long) {}
 
           override fun onFinish() {
+            System.err.println("gonka main updateUIChart $enableInterfaceStatus  source:$source  $mDeviceType")
             RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
 
             System.err.println("updateAllParameters updateUIChart($source) 4")
@@ -1298,6 +1301,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private fun enableInterface(enabled: Boolean) {
     if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) { } else {
       enableInterfaceStatus = enabled
+//      System.err.println("gonka main enableInterface $enabled")
       RxUpdateMainEvent.getInstance().updateUIChart(enabled)
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(DEVICE_TYPE_BT05)
@@ -1317,6 +1321,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
   }
   fun readStartData(enabled: Boolean) {
+//    System.err.println("gonka readStartData $enabled")
     sensorsDataThreadFlag = enabled
     if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
       || mDeviceType!!.contains(DEVICE_TYPE_BT05)
@@ -1716,7 +1721,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         count = 0
       } else {
         count++
-        if (count == 100000) {
+        if (count == 100) {
+          if (state != 0) { runStart() } //перезапускаем функцию если споткнулись
           endFlag = mConnected
           state = 0
           count = 0
@@ -1903,7 +1909,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         count = 0
       } else {
         count++
-        if (count == 1000) {
+        if (count == 100) {
+          if (state != 0) { runStartVM() } //перезапускаем функцию если споткнулись
           endFlag = mConnected
           state = 0
           count = 0
@@ -2407,6 +2414,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       } else {
         System.err.println("DEVICE_TYPE_FEST_X else serialNumber=$serialNumber")
       }
+//      System.err.println("gonka main showSetSerialNumberDialog $enableInterfaceStatus")
       RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
       YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersSetSerialNumber)
 

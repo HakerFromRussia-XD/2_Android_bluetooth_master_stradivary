@@ -113,6 +113,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             ), ROTATION_GESTURE_NEW_VM, countRestart)
             main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, binding.onOffSensorGestureSwitchingSw.isChecked)
             RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
+//            System.err.println("gonka gesture 1 onViewCreated true")
             RxUpdateMainEvent.getInstance().updateUIChart(true)
         }
         binding.peakTimeVmSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -293,10 +294,12 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                         selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
                         setPeakTimeVmNum(peakTimeVmNum)
                         onOffUIAll(true)
+//                        System.err.println("gonka enabledGestureUIBeforeConnection true")
                     }
                     if (it == 101) {
                         //деактивирует интерфейс
                         onOffUIAll(false)
+//                        System.err.println("gonka enabledGestureUIBeforeConnection false")
                     }
                 } else {
                     System.err.println("context GestureFragment NULL!")
@@ -538,6 +541,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     endGestureInLoopNum.toByte()
                 ), ROTATION_GESTURE_NEW_VM, countRestart)
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+//                System.err.println("gonka gesture 2 onViewCreated true")
                 RxUpdateMainEvent.getInstance().updateUIChart(true)
             }
         }
@@ -584,6 +588,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP,
                     endGestureInLoopNum
                 )
+//                System.err.println("gonka gesture 3 onViewCreated true")
                 RxUpdateMainEvent.getInstance().updateUIChart(true)
             }
         }

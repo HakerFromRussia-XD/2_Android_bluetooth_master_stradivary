@@ -640,14 +640,18 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         if (protocolType.contains(ConstantManager.DEVICE_TYPE_FEST_A)
             || protocolType.contains(ConstantManager.DEVICE_TYPE_BT05)
             || protocolType.contains(ConstantManager.DEVICE_TYPE_MY_IPHONE)) {
+            showToast("getProtocolType:"+ConstantManager.DEVICE_TYPE_FEST_A+".");
             return ConstantManager.DEVICE_TYPE_FEST_A;
         } else {
             if (protocolType.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                showToast("getProtocolType: "+ConstantManager.DEVICE_TYPE_FEST_H+".");
                 return ConstantManager.DEVICE_TYPE_FEST_H;
             } else {
                 if (protocolType.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+                    showToast("getProtocolType: "+ConstantManager.DEVICE_TYPE_FEST_X+".");
                     return ConstantManager.DEVICE_TYPE_FEST_X;
                 } else {
+                    showToast("getProtocolType: "+ConstantManager.DEVICE_TYPE_INDY+".");
                     return ConstantManager.DEVICE_TYPE_INDY;
                 }
             }

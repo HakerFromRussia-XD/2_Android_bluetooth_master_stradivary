@@ -41,7 +41,6 @@ class SecretSettingsFragment: Fragment(){
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         initializeUI()
 
-
         binding.lockSecretSettingsBtn.setOnClickListener {
             if (mSettings?.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false) == true) {
                 main?.saveBool(PreferenceKeys.ENTER_SECRET_PIN, false)
@@ -113,8 +112,8 @@ class SecretSettingsFragment: Fragment(){
             setReverse.toByte(),
             numActiveGestures.toByte(),
             prosthesisMode.toByte(),
+            numberOfCyclesStand.toByte(),
             (numberOfCyclesStand/256).toByte(),
-            numberOfCyclesStand.toByte()
             ), SET_REVERSE_NEW_VM, countRestart)
     }
     private fun sendAutocalibration() {

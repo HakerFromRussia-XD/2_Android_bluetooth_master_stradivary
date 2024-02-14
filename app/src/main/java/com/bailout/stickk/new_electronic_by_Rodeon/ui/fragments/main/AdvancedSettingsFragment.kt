@@ -895,41 +895,41 @@ class AdvancedSettingsFragment : Fragment() {
 
 
     binding.activeGesturesSwapSw.setOnClickListener {
-      var activeGestures = 8
+      var numActiveGestures = 8
       if (binding.activeGesturesSwapSw.isChecked) {
-        activeGestures = 14
-        binding.activeGesturesSwapTv.text = activeGestures.toString()
-        saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, activeGestures)
+        numActiveGestures = 14
+        binding.activeGesturesSwapTv.text = numActiveGestures.toString()
+        saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
 
         RxUpdateMainEvent.getInstance().updateUIGestures(100)
       } else {
-        binding.activeGesturesSwapTv.text = activeGestures.toString()
-        saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, activeGestures)
+        binding.activeGesturesSwapTv.text = numActiveGestures.toString()
+        saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
 
 
         //ограничиваем диапазон старт/стопа ргуппы ротации
-        if (startGestureInLoopNum >= activeGestures) {
-          startGestureInLoopNum = (activeGestures - 1)
-          saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, (activeGestures - 1))
+        if (startGestureInLoopNum >= numActiveGestures) {
+          startGestureInLoopNum = (numActiveGestures - 1)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, (numActiveGestures - 1))
         }
 
-        System.err.println("gestureLoop1Psv endGestureInLoopNum=$endGestureInLoopNum  activeGestures - 1 =${(activeGestures - 1)}")
-        if (endGestureInLoopNum >= activeGestures) {
-          endGestureInLoopNum = (activeGestures - 1)
-          saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, (activeGestures - 1))
+        System.err.println("gestureLoop1Psv endGestureInLoopNum=$endGestureInLoopNum  activeGestures - 1 =${(numActiveGestures - 1)}")
+        if (endGestureInLoopNum >= numActiveGestures) {
+          endGestureInLoopNum = (numActiveGestures - 1)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, (numActiveGestures - 1))
         }
 
 
         //если активный жест больше 8 то он устанавливается на 8
         val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
-        if (activeGesture >= activeGestures) {
-          RxUpdateMainEvent.getInstance().updateUIGestures(activeGestures)
+        if (activeGesture >= numActiveGestures) {
+          RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
         } else {
           RxUpdateMainEvent.getInstance().updateUIGestures(100)
         }
       }
       sendGestureRotation()
-      sendActiveGestures(activeGestures)
+      sendActiveGestures(numActiveGestures)
     }
 
 
@@ -1304,8 +1304,20 @@ class AdvancedSettingsFragment : Fragment() {
     }
     RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
   }
-  private fun sendActiveGestures(activeGestures: Int) {
-    main?.runSendCommand(byteArrayOf((activeGestures-1).toByte()), SET_GESTURE_NEW_VM, 50)
+
+  private fun sendActiveGestures(numActiveGestures: Int) {
+    System.err.println("sendActiveGestures")
+    val setReverse = if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) { 1 } else { 0 }
+    val prosthesisMode = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_PROSTHESIS, 0)
+    val numberOfCyclesStand = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES, 0)
+
+    main?.runSendCommand(byteArrayOf(
+      setReverse.toByte(),
+      numActiveGestures.toByte(),
+      prosthesisMode.toByte(),
+      numberOfCyclesStand.toByte(),
+      (numberOfCyclesStand/256).toByte()),
+      SET_REVERSE_NEW_VM, 50)
   }
 
   internal fun saveInt(key: String, variable: Int) {

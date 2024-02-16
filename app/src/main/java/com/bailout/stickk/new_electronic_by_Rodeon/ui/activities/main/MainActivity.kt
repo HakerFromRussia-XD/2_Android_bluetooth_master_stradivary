@@ -61,7 +61,7 @@ import kotlin.experimental.xor
 
 
 @SuppressLint("MissingPermission")
-@Suppress("SameParameterValue", "SameParameterValue", "DEPRECATION")
+@Suppress("SameParameterValue", "SameParameterValue", "DEPRECATION", "SENSELESS_COMPARISON")
 @RequirePresenter(MainPresenter::class)
 class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable,
   Navigator {
@@ -70,6 +70,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var reconnectThreadFlag: Boolean = false
   private var reconnectThread: Thread? = null
   private var mScanning = false
+  private var mDisconnected = false
   private var mBluetoothAdapter: BluetoothAdapter? = null
 
   var mDeviceName: String? = null
@@ -139,7 +140,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private lateinit var binding: ActivityMainBinding
 
   // Code to manage Service lifecycle.
-  private val mServiceConnection: ServiceConnection = object : ServiceConnection {
+  private var mServiceConnection: ServiceConnection = object : ServiceConnection {
     override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
       System.err.println("Check ServiceConnection onServiceConnected()")
       mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
@@ -147,9 +148,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         Timber.e("Unable to initialize Bluetooth")
         finish()
       }
+
       // Automatically connects to the device upon successful start-up initialization.
       mBluetoothLeService?.connect(mDeviceAddress)
-//      System.err.println("mDeviceType onServiceConnected:$mDeviceType.")
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(DEVICE_TYPE_BT05)
         || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
@@ -172,13 +173,13 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   var serialNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
   private lateinit var dialog: DialogFragment
-  private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+  private var mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
       val action = intent.action
       when {
         BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
           System.err.println("Check BroadcastReceiver() ACTION_GATT_CONNECTED")
-          System.err.println("DeviceControlActivity------->   момент индикации коннекта")
+          System.err.println("DeviceControlActivity-------> $mDeviceAddress   момент индикации коннекта ${this.hashCode()}")
           reconnectThreadFlag = false
           invalidateOptionsMenu()
         }
@@ -189,22 +190,22 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           endFlag = true
           mConnectView!!.visibility = View.GONE
           mDisconnectView!!.visibility = View.VISIBLE
-          System.err.println("DeviceControlActivity------->   момент индикации дисконнекта")
+          System.err.println("DeviceControlActivity-------> $mDeviceAddress  момент индикации дисконнекта ${this.hashCode()}")
           invalidateOptionsMenu()
           clearUI()
           percentSynchronize = 0
           updateUIChart(1)
 
-          if(!reconnectThreadFlag && !mScanning){
+          if(!reconnectThreadFlag && !mScanning && !mDisconnected){
             reconnectThreadFlag = true
             reconnectThread()
-            System.err.println("scanLeDevice------->  запуск сканирования из ACTION_GATT_DISCONNECTED")
+            System.err.println("DeviceControlActivity------->  запуск сканирования из ACTION_GATT_DISCONNECTED")
           }
         }
         BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
           System.err.println("Check BroadcastReceiver() ACTION_GATT_SERVICES_DISCOVERED")
           Toast.makeText(context, "подключение установлено к $mDeviceName:$mDeviceAddress", Toast.LENGTH_SHORT).show()
-          System.err.println("DeviceControlActivity------->   ACTION_GATT_SERVICES_DISCOVERED")
+          System.err.println("DeviceControlActivity-------> $mDeviceAddress  ACTION_GATT_SERVICES_DISCOVERED ${this.hashCode()}")
           mConnected = true
           mConnectView!!.visibility = View.VISIBLE
           mDisconnectView!!.visibility = View.GONE
@@ -804,6 +805,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
     registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
 
+
     locate = Locale.getDefault().toString()
 
     val intent = intent
@@ -1104,7 +1106,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (mBluetoothLeService != null) {
       unbindService(mServiceConnection)
       mBluetoothLeService = null
+    }
+    try {
+      System.err.println("DeviceControlActivity-------> onDestroy() unregisterReceiver")
       unregisterReceiver(mGattUpdateReceiver)
+    } catch (e: IllegalArgumentException) {
+      showToast("Receiver не был зарегистрирован" )
     }
     readDataFlag = false
 //    sensorsDataThreadFlag = false
@@ -1146,8 +1153,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun getBackStackEntryCount():Int { return supportFragmentManager.backStackEntryCount }
   override fun goingBack() { onBackPressed() }
   override fun onBackPressed() {
-    super.onBackPressed()
     System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
+    //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи
+    if (supportFragmentManager.backStackEntryCount != 0) {
+      super.onBackPressed()
+    }
     if (supportFragmentManager.backStackEntryCount == 0) {
       showWhiteStatusBar(false)
     }
@@ -1251,7 +1261,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   // In this sample, we populate the data structure that is bound to the ExpandableListView
   // on the UI.
   private fun displayGattServices(gattServices: List<BluetoothGattService>?) {
-    System.err.println("DeviceControlActivity------->   момент начала выстраивания списка параметров")
+    System.err.println("DeviceControlActivity-------> $mDeviceAddress  момент начала выстраивания списка параметров ${mGattUpdateReceiver.hashCode()}")
     if (gattServices == null) return
     var uuid: String?
     val unknownServiceString = ("unknown_service")
@@ -1493,18 +1503,18 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
   }
   private fun reconnectThread() {
-    System.err.println("reconnectThread started")
+    System.err.println("DeviceControlActivity-------> $mDeviceAddress reconnectThread started")
     var j = 1
     reconnectThread = Thread {
       while (reconnectThreadFlag) {
         runOnUiThread {
-          if(j % 5 == 0) {
+          if(j % 2 == 0) {
             reconnectThreadFlag = false
             scanLeDevice(true)
-            System.err.println("DeviceControlActivity------->   Переподключение cо сканированием №$j")
+            System.err.println("DeviceControlActivity-------> $mDeviceAddress  Переподключение cо сканированием №$j")
           } else {
             reconnect()
-            System.err.println("DeviceControlActivity------->   Переподключение без сканирования №$j")
+            System.err.println("DeviceControlActivity-------> $mDeviceAddress  Переподключение без сканирования №$j")
           }
           j++
         }
@@ -1722,7 +1732,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       } else {
         count++
         if (count == 100) {
-          if (state != 0) { runStart() } //перезапускаем функцию если споткнулись
+//          if (state != 0) { runStart() } //перезапускаем функцию если споткнулись
           endFlag = mConnected
           state = 0
           count = 0
@@ -1741,7 +1751,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private fun runStartVM() { getStartVM().let { queue.put(it) } }
   private fun getStartVM(): Runnable { return Runnable { readStartVM() } }
   private fun readStartVM() {
-    val info = "-------> displayDataNew  Чтение порогов и версий"
+    val info = "DeviceControlActivity-------> $mDeviceAddress  Чтение порогов и версий"
     var count = 0
     var state = 0 // переключается здесь в потоке
     endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
@@ -1910,7 +1920,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       } else {
         count++
         if (count == 100) {
-          if (state != 0) { runStartVM() } //перезапускаем функцию если споткнулись
+
+          if (state != 0) { runStartVM() } //перезапускаем функцию если споткнулись, но
           endFlag = mConnected
           state = 0
           count = 0
@@ -2726,6 +2737,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
   fun disconnect () {
     System.err.println("Check disconnect()")
+    mDisconnected = true
     if (mBluetoothLeService != null) {
       println("--> дисконнектим всё к хуям и анбайндим")
       mBluetoothLeService!!.disconnect()
@@ -2747,18 +2759,18 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     //полное завершение сеанса связи и создание нового в onResume
     System.err.println("Check reconnect()")
     if (mBluetoothLeService != null) {
+      System.err.println("DeviceControlActivity-------> reconnect() $mDeviceAddress  unbindService")
       unbindService(mServiceConnection)
       mBluetoothLeService = null
+      mBluetoothAdapter = null
     }
 
+    val bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+    mBluetoothAdapter = bluetoothManager.adapter
     val gattServiceIntent = Intent(this, BluetoothLeService::class.java)
-    bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
 
-    //BLE
-    registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-    if (mBluetoothLeService != null) {
-      mBluetoothLeService!!.connect(mDeviceAddress)
-    }
+    System.err.println("DeviceControlActivity-------> reconnect() $mDeviceAddress  bindService")
+    bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
   }
   /**
    * Запуск/остановка сканирования эфира на наличие BLE устройств
@@ -2770,11 +2782,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (enable) {
       mScanning = true
       mBluetoothAdapter!!.startLeScan(mLeScanCallback)
-      System.err.println("DeviceControlActivity------->   startLeScan")
+      System.err.println("DeviceControlActivity-------> $mDeviceAddress  startLeScan")
     } else {
       mScanning = false
       mBluetoothAdapter!!.stopLeScan(mLeScanCallback)
-      System.err.println("DeviceControlActivity------->   stopLeScan")
+      System.err.println("DeviceControlActivity-------> $mDeviceAddress  stopLeScan")
     }
   }
 

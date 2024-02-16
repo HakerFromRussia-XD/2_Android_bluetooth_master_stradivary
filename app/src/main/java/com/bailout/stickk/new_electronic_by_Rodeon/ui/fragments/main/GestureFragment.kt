@@ -523,7 +523,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             }
             it.setOnSpinnerItemSelectedListener<IconSpinnerItem> { oldIndex, _, newIndex, _ ->
                 startGestureInLoopNum = newIndex
-                System.err.println("gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
+                System.err.println("test gestures in loop    GF gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
 
                 if (oldIndex != newIndex) {
@@ -566,7 +566,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             it.setOnSpinnerItemSelectedListener<IconSpinnerItem> {
                     oldIndex, _, newIndex, _ ->
                 endGestureInLoopNum = newIndex
-                System.err.println("gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
+                System.err.println("test gestures in loop  GF gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, false)
                 if (oldIndex != newIndex) {
                     binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
@@ -896,8 +896,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 
         startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
         endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
-        binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
-        binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
+        try {
+            binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
+            binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)
+        } catch (e : Exception) {
+            binding.gestureLoop1Psv.selectItemByIndex(activeGestures - 1 )
+            binding.gestureLoop2Psv.selectItemByIndex(activeGestures - 1 )
+        }
+
         peakTimeVmNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, 15)
 
         //данные необходимые для формирования правильных блютуз команд, но не изменяемые на этом фрагменте

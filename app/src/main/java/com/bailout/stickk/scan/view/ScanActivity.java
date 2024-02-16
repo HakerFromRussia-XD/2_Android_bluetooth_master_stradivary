@@ -640,18 +640,18 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         if (protocolType.contains(ConstantManager.DEVICE_TYPE_FEST_A)
             || protocolType.contains(ConstantManager.DEVICE_TYPE_BT05)
             || protocolType.contains(ConstantManager.DEVICE_TYPE_MY_IPHONE)) {
-            showToast("getProtocolType:"+ConstantManager.DEVICE_TYPE_FEST_A+".");
+//            showToast("getProtocolType:"+ConstantManager.DEVICE_TYPE_FEST_A+".");
             return ConstantManager.DEVICE_TYPE_FEST_A;
         } else {
             if (protocolType.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-                showToast("getProtocolType: "+ConstantManager.DEVICE_TYPE_FEST_H+".");
+//                showToast("getProtocolType: "+ConstantManager.DEVICE_TYPE_FEST_H+".");
                 return ConstantManager.DEVICE_TYPE_FEST_H;
             } else {
                 if (protocolType.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                    showToast("getProtocolType: "+ConstantManager.DEVICE_TYPE_FEST_X+".");
+//                    showToast("getProtocolType: "+ConstantManager.DEVICE_TYPE_FEST_X+".");
                     return ConstantManager.DEVICE_TYPE_FEST_X;
                 } else {
-                    showToast("getProtocolType: "+ConstantManager.DEVICE_TYPE_INDY+".");
+//                    showToast("getProtocolType: "+ConstantManager.DEVICE_TYPE_INDY+".");
                     return ConstantManager.DEVICE_TYPE_INDY;
                 }
             }
@@ -675,23 +675,27 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanDeviceList.setLayoutManager(new LinearLayoutManager(this));
         mScanListAdapter = new ScanListAdapter(this, scanList, this);
     }
-    private boolean checkOurLEName (@NotNull String deviceName){
-        return deviceName.contains("HRSTM") ||
-                deviceName.contains("BLE_test_service") ||
-                deviceName.contains("MLT") ||
-                deviceName.contains("FNG") ||
-                deviceName.contains("FNS") ||
-                deviceName.contains("MLX") ||
-                deviceName.contains("FNX") ||
-                deviceName.contains("STR") ||
-                deviceName.contains("CBY") ||
-                deviceName.contains("IND") ||
-                deviceName.contains("HND") ||
-                deviceName.contains("NEMO") ||
-                deviceName.contains("STAND") ||
-                deviceName.contains("BT05") ||
-                deviceName.contains("FEST") ||
-                !filteringOursDevices;
+    private boolean checkOurLEName (String deviceName){
+        if (deviceName != null) {
+            return deviceName.contains("HRSTM") ||
+                    deviceName.contains("BLE_test_service") ||
+                    deviceName.contains("MLT") ||
+                    deviceName.contains("FNG") ||
+                    deviceName.contains("FNS") ||
+                    deviceName.contains("MLX") ||
+                    deviceName.contains("FNX") ||
+                    deviceName.contains("STR") ||
+                    deviceName.contains("CBY") ||
+                    deviceName.contains("IND") ||
+                    deviceName.contains("HND") ||
+                    deviceName.contains("NEMO") ||
+                    deviceName.contains("STAND") ||
+                    deviceName.contains("BT05") ||
+                    deviceName.contains("FEST") ||
+                    !filteringOursDevices;
+        } else {
+            return false;
+        }
     }
 
 

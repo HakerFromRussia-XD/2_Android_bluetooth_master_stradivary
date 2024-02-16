@@ -2,7 +2,9 @@ package com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -18,10 +20,13 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.bailout.stickk.R
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.scan.view.ScanActivity
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreen : AppCompatActivity() {
+    private var mSettings: SharedPreferences? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
@@ -33,6 +38,7 @@ class SplashScreen : AppCompatActivity() {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.navigationBarColor = this.resources.getColor(R.color.color_primary, theme)
         window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
+
 
         askPermissions()
     }
@@ -105,5 +111,10 @@ class SplashScreen : AppCompatActivity() {
 //        permissions.entries.forEach {
 //            System.err.println("LOLOLOEFWEF --->  ${it.key} = ${it.value}")
 //        }
+    }
+    private fun saveBool(key: String, variable: Boolean) {
+        val editor: SharedPreferences.Editor = mSettings!!.edit()
+        editor.putBoolean(key, variable)
+        editor.apply()
     }
 }

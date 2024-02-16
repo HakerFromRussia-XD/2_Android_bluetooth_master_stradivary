@@ -166,26 +166,30 @@ class AdvancedSettingsFragment : Fragment() {
 
     binding.EMGModeSwapPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
       modeEMGSend = when (newIndex) {
-          0 -> {
-            saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 9)
-            9
-          }
-          1 -> {
-            saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 7)
-            7
-          }
-          else -> {
-            saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 9)
-            9
-          }
+        0 -> {
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 9)
+          9
+        }
+        1 -> {
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 7)
+          7
+        }
+        2 -> {
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 10)
+          10
+        }
+        else -> {
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 9)
+          9
+        }
       }
       sendEMGMode(modeEMGSend)
     }
 
-    if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9) == 9) {
-      binding.EMGModeSwapPsv.selectItemByIndex(0)
-    } else {
-      binding.EMGModeSwapPsv.selectItemByIndex(1)
+    when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)) {
+      9 -> { binding.EMGModeSwapPsv.selectItemByIndex(0) }
+      7 -> { binding.EMGModeSwapPsv.selectItemByIndex(1) }
+      10 -> { binding.EMGModeSwapPsv.selectItemByIndex(2) }
     }
 
 
@@ -909,16 +913,19 @@ class AdvancedSettingsFragment : Fragment() {
 
 
         //ограничиваем диапазон старт/стопа ргуппы ротации
+        System.err.println("test gestures in loop  ASF startGestureInLoopNum=$startGestureInLoopNum  activeGestures - 1 =${(numActiveGestures - 1)}")
         if (startGestureInLoopNum >= numActiveGestures) {
           startGestureInLoopNum = (numActiveGestures - 1)
           saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, (numActiveGestures - 1))
         }
 
-        System.err.println("gestureLoop1Psv endGestureInLoopNum=$endGestureInLoopNum  activeGestures - 1 =${(numActiveGestures - 1)}")
+        System.err.println("test gestures in loop  ASF endGestureInLoopNum=$endGestureInLoopNum  activeGestures - 1 =${(numActiveGestures - 1)}")
         if (endGestureInLoopNum >= numActiveGestures) {
           endGestureInLoopNum = (numActiveGestures - 1)
           saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, (numActiveGestures - 1))
         }
+
+
 
 
         //если активный жест больше 8 то он устанавливается на 8
@@ -1282,9 +1289,15 @@ class AdvancedSettingsFragment : Fragment() {
   }
   private fun sendGestureRotation () {
     main?.stage = "advanced activity"
+    sensorGestureSwitching = if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) { 1 } else { 0 }
+    lockProstheses = if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)) { 1 } else { 0 }
+    startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
+    endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
+
     if (checkDriverVersionGreaterThan237()) {
-      System.err.println("sendGestureRotation true")
-      main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
+      System.err.println("sendGestureRotation   startGestureInLoopNum:$startGestureInLoopNum   endGestureInLoopNum:$endGestureInLoopNum")
+      main?.runSendCommand(byteArrayOf(
+        sensorGestureSwitching,
         0.toByte(),
         binding.peakTimeVmSb.progress.toByte(),
         0.toByte(),
@@ -1295,7 +1308,8 @@ class AdvancedSettingsFragment : Fragment() {
       ), ROTATION_GESTURE_NEW_VM, 50)
     } else {
       System.err.println("sendGestureRotation else")
-      main?.runSendCommand(byteArrayOf(sensorGestureSwitching,
+      main?.runSendCommand(byteArrayOf(
+        sensorGestureSwitching,
         0.toByte(),
         binding.peakTimeVmSb.progress.toByte(),
         0.toByte(),

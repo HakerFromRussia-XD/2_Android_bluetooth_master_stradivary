@@ -49,4 +49,5 @@ interface ApplicationGraph {
   fun inject(advancedSettingsFragmentMulty: AdvancedSettingsFragmentMulty) {}
   fun inject(advancedSettingsFragmentMono: AdvancedSettingsFragmentMono) {}
   fun inject(gripperTestScreenWithEncodersActivity: GripperTestScreenWithEncodersActivity) {}
+  fun inject(neuralFragment: NeuralFragment) {}
 }

@@ -45,6 +45,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.NeuralFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.SecretSettingsFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
@@ -554,9 +555,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (data != null) {
       saveBool(mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, ((castUnsignedCharToInt(data[0]) and 0b00000001) ==  1))
       if (data.size >= 5 ) {
-        System.err.println("test active gestures      data.size=${data.size}   NUM_ACTIVE_GESTURES=${castUnsignedCharToInt(data[1])}")
-        System.err.println("test active gestures      data.size=${data.size}   SET_MODE_PROSTHESIS=${castUnsignedCharToInt(data[2])}")
-        System.err.println("test active gestures      data.size=${data.size}   MAX_STAND_CYCLES=${(castUnsignedCharToInt(data[3]) + 256*castUnsignedCharToInt(data[4]))}")
+        System.err.println("Принятые данные состояния переключения жестов      data.size=${data.size}   NUM_ACTIVE_GESTURES=${castUnsignedCharToInt(data[1])}")
+        System.err.println("Принятые данные состояния переключения жестов      data.size=${data.size}   SET_MODE_PROSTHESIS=${castUnsignedCharToInt(data[2])}")
+        System.err.println("Принятые данные состояния переключения жестов      data.size=${data.size}   MAX_STAND_CYCLES=${(castUnsignedCharToInt(data[3]) + 256*castUnsignedCharToInt(data[4]))}")
         saveInt(mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, castUnsignedCharToInt(data[1]))
         saveInt(mDeviceAddress + PreferenceKeys.SET_MODE_PROSTHESIS, castUnsignedCharToInt(data[2]))
         saveInt(mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES, (castUnsignedCharToInt(data[3]) + 256*castUnsignedCharToInt(data[4])))
@@ -1150,6 +1151,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun showChargingTheProsthesesScreen() { launchFragment(ChargingTheProsthesesFragment()) }
   override fun showProsthesesCareScreen() { launchFragment(ProsthesesCareFragment()) }
   override fun showServiceAndWarrantyScreen() { launchFragment(ServiceAndWarrantyFragment()) }
+  override fun showNeuralScreen() { launchFragment(NeuralFragment()) }
   override fun getBackStackEntryCount():Int { return supportFragmentManager.backStackEntryCount }
   override fun goingBack() { onBackPressed() }
   override fun onBackPressed() {

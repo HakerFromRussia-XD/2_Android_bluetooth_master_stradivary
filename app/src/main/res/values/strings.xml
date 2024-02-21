@@ -488,6 +488,7 @@
     <string name="prosthesis_mode">prosthesis mode</string>
     <string name="number_of_cycles">number of cycles</string>
     <string name="blocking_secret_settings">blocking secret settings</string>
+    <string name="neurointerface">Neurointerface</string>
 
 
     <string-array name="numbers">

@@ -148,7 +148,7 @@
     <string name="swap_sensors">swap sensors</string>
     <string name="swap_button_open_close">swap button open/close</string>
     <string name="single_channel_control">single channel control</string>
-    <string name="reset_to_factory_settings">reset to factory settings</string>
+    <string name="reset_to_factory_settings">soft reset to factory settings</string>
     <string name="off">off</string>
     <string name="on">on</string>
     <string name="off_sw">off</string>
@@ -475,7 +475,9 @@
     <string name="emg_sensor_mode_selection">EMG sensor mode selection</string>
     <string name="normal_sensitive_mode_reduces_false_signals_but_is_slower_to_respond_to_muscle_tension_while_increased_sensitive_mode_responds_faster_to_muscle_signals_with_less_noise_immunity">Normal sensitive mode reduces false signals but is slower to respond to muscle tension, while «increased sensitive» mode responds faster to muscle signals with less noise immunity.</string>
     <string name="factory_reset">Factory reset</string>
-    <string name="do_you_really_want_to_reset_your_prosthesis_to_factory_settings">Do you really want to reset your prosthesis to factory settings?</string>
+    <string name="do_you_really_want_to_soft_reset_your_prosthesis_to_factory_settings">Do you really want to reset your prosthetic settings back to factory defaults? (gesture states and prosthetic name will not be changed)</string>
+    <string name="do_you_really_want_to_hard_reset_your_prosthesis_to_factory_settings">Do you really want to reset all your prosthetic settings back to factory defaults?</string>
+    <string name="do_you_really_want_to_gesture_reset_your_prosthesis_to_factory_settings">Do you really want to reset all your gestures back to factory defaults?</string>
     <string name="calibration_of_the_prosthesis">Calibration of the prosthesis</string>
     <string name="calibration_will_take_approximately_15_seconds_do_you_really_want_to_continue">Calibration will take approximately 15 seconds. Do you really want to continue?</string>
     <string name="setting_the_serial_number_of_the_prosthesis">Setting the serial number of the prosthesis</string>
@@ -489,6 +491,9 @@
     <string name="number_of_cycles">number of cycles</string>
     <string name="blocking_secret_settings">blocking secret settings</string>
     <string name="neurointerface">Neurointerface</string>
+    <string name="full_reset">full reset</string>
+    <string name="soft_factory_reset">Soft factory reset</string>
+    <string name="gestures_reset">Gestures reset</string>
 
 
     <string-array name="numbers">

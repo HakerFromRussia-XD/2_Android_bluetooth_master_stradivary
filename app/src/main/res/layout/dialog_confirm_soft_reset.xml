@@ -59,7 +59,7 @@
             android:gravity="center"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
-            android:text="@string/factory_reset"
+            android:text="@string/soft_factory_reset"
             android:textAlignment="center"
             android:textColor="#000"
             android:textSize="18sp"
@@ -75,7 +75,7 @@
             android:fontFamily="@font/sf_pro_display_light"
             android:gravity="center"
             android:padding="10dp"
-            android:text="@string/do_you_really_want_to_reset_your_prosthesis_to_factory_settings"
+            android:text="@string/do_you_really_want_to_soft_reset_your_prosthesis_to_factory_settings"
             android:textColor="#99000000"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -124,7 +124,7 @@
             app:layout_constraintStart_toEndOf="@+id/v_andex_alert_dialog_layout_button_divider"
             app:layout_constraintTop_toBottomOf="@+id/view4" />
         <View
-            android:id="@+id/dialog_reset_confirm"
+            android:id="@+id/dialog_reset_soft_confirm"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="?android:attr/selectableItemBackground"
@@ -149,7 +149,7 @@
             app:layout_constraintTop_toBottomOf="@+id/view4"
             tools:ignore="TextContrastCheck" />
         <View
-            android:id="@+id/dialog_reset_cancel"
+            android:id="@+id/dialog_reset_soft_cancel"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="?android:attr/selectableItemBackground"

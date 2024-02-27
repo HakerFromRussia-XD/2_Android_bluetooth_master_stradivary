@@ -5,16 +5,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color.*
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.bailout.stickk.R
 import com.bailout.stickk.R.drawable.*
 import com.bailout.stickk.databinding.LayoutSecretSettingsBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
@@ -77,6 +73,11 @@ class SecretSettingsFragment: Fragment(){
 
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES, numberOfCyclesStand)
             sendProsthesisMode()
+        }
+
+        binding.fullResetBtn.setOnClickListener {
+//            main?.goingBack()
+            main?.showHardResetDialog()
         }
 
         binding.autocalibrationBtn.setOnClickListener {

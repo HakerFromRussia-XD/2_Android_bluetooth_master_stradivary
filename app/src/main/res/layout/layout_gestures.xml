@@ -214,7 +214,8 @@
                         android:lines="1"
                         android:text="@string/gesture_1_btn"
                         android:textColor="@color/white"
-                        android:visibility="gone" />
+                        android:visibility="gone"
+                        tools:ignore="UnusedAttribute" />
                 </RelativeLayout>
 
                 <ImageView
@@ -223,7 +224,8 @@
                     android:layout_gravity="bottom"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="4dp"
-                    android:src="@drawable/gesture_loop" />
+                    android:src="@drawable/gesture_loop"
+                    tools:ignore="ContentDescription" />
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -277,7 +279,8 @@
                         app:spinner_divider_show="true"
                         app:spinner_divider_size="1dp"
                         app:spinner_item_height="42dp"
-                        app:spinner_selected_item_background="@drawable/custom_divider_spinner_back" />
+                        app:spinner_selected_item_background="@drawable/custom_divider_spinner_back"
+                        tools:ignore="RtlSymmetry" />
 
                     <TextView
                         style="@style/Text"
@@ -300,7 +303,8 @@
                         android:lines="1"
                         android:text="@string/gesture_2_btn"
                         android:textColor="@color/white"
-                        android:visibility="gone" />
+                        android:visibility="gone"
+                        tools:ignore="UnusedAttribute" />
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
@@ -324,7 +328,7 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:weightSum="4"
-            tools:ignore="DisableBaselineAlignment">
+            tools:ignore="DisableBaselineAlignment,UselessParent">
 
             <RelativeLayout
                 android:layout_width="0dp"
@@ -405,9 +409,8 @@
         android:id="@+id/gestures_buttons_sv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="0dp"
         android:layout_alignParentTop="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/relativeLayout8"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider_v">
@@ -452,7 +455,7 @@
                             android:text="@string/gesture_1_btn"
                             android:textColor="@color/white"
                             android:textSize="9sp"
-                            tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+                            tools:ignore="RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
 
                         <Button
@@ -476,8 +479,8 @@
                             android:layout_marginEnd="16dp"
                             android:background="@drawable/gesture_loop"
                             android:backgroundTint="@android:color/white"
-                            android:visibility="gone"
                             android:elevation="40dp"
+                            android:visibility="gone"
                             tools:ignore="ContentDescription,ImageContrastCheck" />
                     </RelativeLayout>
 
@@ -504,7 +507,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,VisualLintButtonSize,TextContrastCheck" />
+                            tools:ignore="RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_2_btn"
@@ -570,7 +573,7 @@
                             android:text="@string/gesture_3_btn"
                             android:textColor="@color/white"
                             android:textSize="9sp"
-                            tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+                            tools:ignore="RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_3_btn"
@@ -622,7 +625,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+                            tools:ignore="RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_4_btn"
@@ -687,7 +690,7 @@
                             android:text="@string/gesture_5_btn"
                             android:textColor="@color/white"
                             android:textSize="9sp"
-                            tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+                            tools:ignore="RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_5_btn"
@@ -738,7 +741,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,TextContrastCheck,VisualLintButtonSize" />
+                            tools:ignore="RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_6_btn"
@@ -802,7 +805,7 @@
                             android:text="@string/gesture_7_btn"
                             android:textColor="@color/white"
                             android:textSize="9sp"
-                            tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,DuplicateSpeakableTextCheck,TextContrastCheck,VisualLintButtonSize" />
+                            tools:ignore="DuplicateSpeakableTextCheck,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_7_btn"
@@ -854,7 +857,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            tools:ignore="RtlHardcoded,RtlSymmetry,TouchTargetSizeCheck,DuplicateSpeakableTextCheck,TextContrastCheck,VisualLintButtonSize" />
+                            tools:ignore="DuplicateSpeakableTextCheck,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_8_btn"
@@ -919,7 +922,7 @@
                             android:text="gesture №9"
                             android:textColor="@color/white"
                             android:textSize="9sp"
-                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_9_btn"
@@ -954,7 +957,8 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        tools:ignore="TooManyViews">
 
                         <Button
                             android:id="@+id/gesture_10_btn"
@@ -971,7 +975,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_10_btn"
@@ -1036,7 +1040,7 @@
                             android:text="gesture №11"
                             android:textColor="@color/white"
                             android:textSize="9sp"
-                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_11_btn"
@@ -1088,7 +1092,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,TextContrastCheck,TooManyViews,TouchTargetSizeCheck,VisualLintButtonSize" />
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TooManyViews,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_12_btn"
@@ -1153,7 +1157,7 @@
                             android:text="gesture №13"
                             android:textColor="@color/white"
                             android:textSize="9sp"
-                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_13_btn"
@@ -1205,7 +1209,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
                         <ImageView
                             android:id="@+id/gesture_settings_14_btn"
@@ -1236,8 +1240,47 @@
                 </LinearLayout>
             </RelativeLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            tools:ignore="DisableBaselineAlignment,UselessParent">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/gestures_reset_btn"
+                    style="@style/Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:background="@drawable/custom_button_le"
+                    android:paddingStart="16dp"
+                    android:text="@string/gestures_reset"
+                    android:textColor="@color/white"
+                    android:textSize="9sp"
+                    tools:ignore="RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

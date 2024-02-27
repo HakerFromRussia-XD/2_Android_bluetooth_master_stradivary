@@ -261,6 +261,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 compileBLEMassage (13)
             }
         }
+        binding.gesturesResetBtn.setOnClickListener { main?.showGestureResetDialog() }
 
         //скрываем интерфейс управления группами ротации
         if (!main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
@@ -353,6 +354,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings12Btn.isEnabled = enabled
         binding.gestureSettings13Btn.isEnabled = enabled
         binding.gestureSettings14Btn.isEnabled = enabled
+        binding.gesturesResetBtn.isEnabled = enabled
     }
     private fun hideUIRotationGroup (enabled: Boolean) {
         if (enabled) {

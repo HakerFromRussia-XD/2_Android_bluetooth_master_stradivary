@@ -2319,20 +2319,20 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       myDialog.dismiss()
     }
   }
-  @SuppressLint("InflateParams")
-  fun showResetDialog() {
-    val dialogBinding = layoutInflater.inflate(R.layout.dialog_confirm_reset, null)
+  @SuppressLint("InflateParams", "MissingInflatedId")
+  fun showSoftResetDialog() {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_confirm_soft_reset, null)
     val myDialog = Dialog(this)
     myDialog.setContentView(dialogBinding)
     myDialog.setCancelable(false)
     myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     myDialog.show()
 
-    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_confirm)
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_soft_confirm)
     yesBtn.setOnClickListener {
       if (!lockWriteBeforeFirstRead) {
         if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-          runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
+          runSendCommand(byteArrayOf(0x02), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
         } else {
           if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
@@ -2352,7 +2352,66 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }, 1000)
       myDialog.dismiss()
     }
-    val noBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_cancel)
+
+    val noBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_soft_cancel)
+    noBtn.setOnClickListener {
+      myDialog.dismiss()
+    }
+  }
+
+  @SuppressLint("InflateParams", "MissingInflatedId")
+  fun showHardResetDialog() {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_confirm_hard_reset, null)
+    val myDialog = Dialog(this)
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_hard_confirm)
+    yesBtn.setOnClickListener {
+      runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
+
+      RxUpdateMainEvent.getInstance().updateResetAdvancedSettings(true)
+
+      Handler().postDelayed({
+        readStartData(true)
+        System.err.println("-------> displayDataNew showCalibrationDialog runStartVM")
+      }, 1000)
+      myDialog.dismiss()
+    }
+
+    val noBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_hard_cancel)
+    noBtn.setOnClickListener {
+      myDialog.dismiss()
+    }
+  }
+  @SuppressLint("InflateParams", "MissingInflatedId")
+  fun showGestureResetDialog() {
+    System.err.println("showGestureResetDialog")
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_confirm_gesture_reset, null)
+    val myDialog = Dialog(this)
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_gestures_confirm)
+    yesBtn.setOnClickListener {
+      runSendCommand(byteArrayOf(0x03), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
+
+      RxUpdateMainEvent.getInstance().updateResetAdvancedSettings(true)
+
+      Handler().postDelayed({
+        readStartData(true)
+        System.err.println("-------> displayDataNew showCalibrationDialog runStartVM")
+      }, 1000)
+      myDialog.dismiss()
+    }
+
+
+
+    val noBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_gestures_cancel)
     noBtn.setOnClickListener {
       myDialog.dismiss()
     }

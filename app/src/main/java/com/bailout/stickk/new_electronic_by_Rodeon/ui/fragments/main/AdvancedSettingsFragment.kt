@@ -222,7 +222,7 @@ class AdvancedSettingsFragment : Fragment() {
       binding.activeGesturesSwapTv.text = "8"
     }
 
-    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+    if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
       val calibrationStartParams: LinearLayout.LayoutParams =
         binding.calibrationStartButtonLl.layoutParams as LinearLayout.LayoutParams
       calibrationStartParams.weight = 1f
@@ -260,7 +260,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               binding.shutdownCurrent1Sb.progress.toByte(),
@@ -271,7 +271,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent6Sb.progress.toByte()),
               SHUTDOWN_CURRENT_NEW_VM, 50)
           }
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(byteArrayOf(
               binding.shutdownCurrent1Sb.progress.toByte(),
               binding.shutdownCurrent2Sb.progress.toByte(),
@@ -296,7 +296,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               binding.shutdownCurrent1Sb.progress.toByte(),
@@ -307,7 +307,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent6Sb.progress.toByte()),
               SHUTDOWN_CURRENT_NEW_VM, 50)
           }
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(
               byteArrayOf(
                 binding.shutdownCurrent1Sb.progress.toByte(),
@@ -334,7 +334,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               binding.shutdownCurrent1Sb.progress.toByte(),
@@ -345,7 +345,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent6Sb.progress.toByte()),
               SHUTDOWN_CURRENT_NEW_VM, 50)
           }
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(
               byteArrayOf(
                 binding.shutdownCurrent1Sb.progress.toByte(),
@@ -372,7 +372,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               binding.shutdownCurrent1Sb.progress.toByte(),
@@ -383,7 +383,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent6Sb.progress.toByte()),
               SHUTDOWN_CURRENT_NEW_VM, 50)
           }
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(
               byteArrayOf(
                 binding.shutdownCurrent1Sb.progress.toByte(),
@@ -410,7 +410,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               binding.shutdownCurrent1Sb.progress.toByte(),
@@ -421,7 +421,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent6Sb.progress.toByte()),
               SHUTDOWN_CURRENT_NEW_VM, 50)
           }
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(
               byteArrayOf(
                 binding.shutdownCurrent1Sb.progress.toByte(),
@@ -448,7 +448,7 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(
               binding.shutdownCurrent1Sb.progress.toByte(),
@@ -459,7 +459,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent6Sb.progress.toByte()),
               SHUTDOWN_CURRENT_NEW_VM, 50)
           }
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(
               byteArrayOf(
                 binding.shutdownCurrent1Sb.progress.toByte(),
@@ -499,11 +499,11 @@ class AdvancedSettingsFragment : Fragment() {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (binding.singleChannelControlSw.isChecked) {
           binding.singleChannelControlTv.text = resources.getString(R.string.on_sw)
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW_VM, 50)
           } else {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x01), SET_ONE_CHANNEL, WRITE, 16)
@@ -513,11 +513,11 @@ class AdvancedSettingsFragment : Fragment() {
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, true)
         } else {
           binding.singleChannelControlTv.text = resources.getString(R.string.off_sw)
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW_VM, 50)
           } else {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE)
             } else {
               main?.bleCommandConnector(byteArrayOf(0x00), SET_ONE_CHANNEL, WRITE, 16)
@@ -581,14 +581,14 @@ class AdvancedSettingsFragment : Fragment() {
           sensorGestureSwitching = 0x01
           binding.peakTimeRl.visibility = View.VISIBLE
           if (mode.toInt() == 0) binding.downtimeRl.visibility = View.VISIBLE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             binding.downtimeRl.visibility = View.GONE
             binding.peakTimeRl.visibility = View.GONE
             binding.modeNewRl.visibility = View.GONE
             binding.peakTimeVmRl.visibility = View.VISIBLE
             sendGestureRotation()
           } else {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               binding.modeNewRl.visibility = View.VISIBLE
               main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, WRITE)
             } else {
@@ -603,12 +603,12 @@ class AdvancedSettingsFragment : Fragment() {
           sensorGestureSwitching = 0x00
           binding.peakTimeRl.visibility = View.GONE
           binding.downtimeRl.visibility = View.GONE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             binding.modeNewRl.visibility = View.GONE
             binding.peakTimeVmRl.visibility = View.GONE
             sendGestureRotation()
           } else {
-            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               binding.modeNewRl.visibility = View.GONE
               main?.runWriteData(
                 byteArrayOf(
@@ -645,7 +645,7 @@ class AdvancedSettingsFragment : Fragment() {
           binding.modeTv.text = "двумя\nдатчиками"
           mode = 0x01
           binding.downtimeRl.visibility = View.GONE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, 50)
           } else {
@@ -657,7 +657,7 @@ class AdvancedSettingsFragment : Fragment() {
           binding.modeTv.text = "одним\nдатчиком"
           mode = 0x00
           binding.downtimeRl.visibility = View.VISIBLE
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
             main?.runSendCommand(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, 50)
           } else {
@@ -749,7 +749,7 @@ class AdvancedSettingsFragment : Fragment() {
             ((seekBar.progress + 5) * 0.05).toString() + "0c"
           }
         }
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
           time = (binding.peakTimeSb.progress?.times(0.04)).toString() + "c"
         }
         binding.peakTimeTv.text = time
@@ -768,12 +768,12 @@ class AdvancedSettingsFragment : Fragment() {
             ((seekBar.progress + 5) * 0.05).toString() + "0c"
           }
         }
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
           time = (binding.peakTimeSb.progress?.times(0.04)).toString() + "c"
         }
         binding.peakTimeTv.text = time
         if (!main?.lockWriteBeforeFirstRead!!) {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode,
               binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()
             ), ROTATION_GESTURE_NEW, WRITE)
@@ -801,7 +801,7 @@ class AdvancedSettingsFragment : Fragment() {
             ((seekBar.progress + 5) * 0.05).toString() + "0c"
           }
         }
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
           time = (binding.downtimeSb.progress?.times(0.04)).toString() + "c"
         }
         binding.downtimeTv.text = time
@@ -820,12 +820,12 @@ class AdvancedSettingsFragment : Fragment() {
             ((seekBar.progress + 5) * 0.05).toString() + "0c"
           }
         }
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
           time = (binding.downtimeSb.progress?.times(0.04)).toString() + "c"
         }
         binding.downtimeTv.text = time
         if (!main?.lockWriteBeforeFirstRead!!) {
-          if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+          if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode,
               binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()
             ), ROTATION_GESTURE_NEW, WRITE)
@@ -842,10 +842,10 @@ class AdvancedSettingsFragment : Fragment() {
 
     val eventYandexMetricaParametersGetSerialNumber = "{\"Screen advanced settings\":\"Tup get serial number button\"}"
     binding.getSetupBtn.setOnClickListener {
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         main?.bleCommandConnector(byteArrayOf(0x00), SERIAL_NUMBER_NEW, READ, 17)
       }
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         main?.bleCommandConnector(byteArrayOf(0x00), SERIAL_NUMBER_NEW_VM, READ, 17)
       }
       main?.lockChangeSerialNumber = true
@@ -941,14 +941,16 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
 
-    binding.resetToFactorySettingsBtn.setOnClickListener { main?.showResetDialog() }
+    binding.resetToFactorySettingsBtn.setOnClickListener {
+      main?.showSoftResetDialog()
+    }
     binding.calibrationAdvBtn.setOnClickListener { main?.showCalibrationDialog() }
     val eventYandexMetricaParametersCalibrationStatusAdv = "{\"Screen advanced settings\":\"Tup calibration status button\"}"
     binding.calibrationStatusAdvBtn.setOnClickListener {
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW_VM)
       } else {
-        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+        if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
           main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW)
         }
       }
@@ -960,8 +962,6 @@ class AdvancedSettingsFragment : Fragment() {
       val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)//context
       main!!.setDebugScreenIsOpen(true)
       startActivity(intent)
-
-      //TODO тут вход в секретное меню
     }
 
     binding.testConnectionBtn.setOnClickListener{
@@ -985,20 +985,20 @@ class AdvancedSettingsFragment : Fragment() {
     if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_A)
       || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_BT05)
       || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_MY_IPHONE)
-      || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)
-      || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+      || main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
+      || main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
       binding.shutdownCurrentRl.visibility = View.GONE
     }
     //Скрывает настройки, которые не актуальны для бионик кроме FEST-H и FEST-X
     when {
-        main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X) -> {
+        main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) -> {
           binding.serialRl.visibility = View.VISIBLE
           binding.onOffProsthesesBlockingRl.visibility = View.VISIBLE
           binding.testConnectionRl.visibility = View.VISIBLE
           binding.scaleTv.visibility = View.GONE
           binding.EMGModeRl.visibility = View.GONE
         }
-        main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) -> {
+        main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) -> {
           binding.EMGModeRl.visibility = View.GONE
           binding.serialRl.visibility = View.VISIBLE
           binding.debugScreenRl.visibility = View.GONE
@@ -1024,7 +1024,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.singleChannelControlSw.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
 
 
-    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+    if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     }
     binding.modeSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
@@ -1112,7 +1112,7 @@ class AdvancedSettingsFragment : Fragment() {
     current5 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, 80)
     current6 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80)
 
-    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+    if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
       var time: String = when {
         ((binding.peakTimeVmSb.progress?.plus(1))?.times(0.1)).toString().length == 4 -> {
           ((binding.peakTimeVmSb.progress?.plus(1))?.times(0.1)).toString() + "c"
@@ -1148,7 +1148,7 @@ class AdvancedSettingsFragment : Fragment() {
         binding.activeGesturesSwapSw.isChecked = false
       }
     }
-    if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+    if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
       var time: String = when {
       ((binding.peakTimeSb.progress?.plus(5))?.times(0.05)).toString().length == 4 -> {
         ((binding.peakTimeSb.progress?.plus(5))?.times(0.05)).toString() + "c"
@@ -1182,7 +1182,7 @@ class AdvancedSettingsFragment : Fragment() {
       binding.onOffProsthesesBlockingSw.isChecked = true
       lockProstheses = 0x01
       binding.onOffProsthesesBlockingTv.text = resources.getString(R.string.on_sw)
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         binding.holdToLockTimeRl.visibility = View.VISIBLE
       }
     } else {
@@ -1205,10 +1205,10 @@ class AdvancedSettingsFragment : Fragment() {
 
     binding.onOffSensorGestureSwitchingSw.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)) {
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         binding.peakTimeVmRl.visibility = View.VISIBLE
       }
-      if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         binding.modeNewRl.visibility = View.VISIBLE
         binding.peakTimeRl.visibility = View.VISIBLE
         //в зависимости от выбранного мода показывать тот или иной сетап сикбаров

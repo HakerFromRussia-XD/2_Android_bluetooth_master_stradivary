@@ -149,7 +149,7 @@
     <string name="swap_sensors">поменять сенсоры</string>
     <string name="swap_button_open_close">поменять кнопки открыть/закрыть</string>
     <string name="single_channel_control">одноканальное управление</string>
-    <string name="reset_to_factory_settings">восстановить к заводским настройкам</string>
+    <string name="reset_to_factory_settings">частично восстановить к заводским настройкам</string>
     <string name="off">нет</string>
     <string name="on">да</string>
     <string name="off_sw">выкл</string>
@@ -477,7 +477,9 @@
     <string name="emg_sensor_mode_selection">Выбор режима работы ЕМГ сенсоров</string>
     <string name="normal_sensitive_mode_reduces_false_signals_but_is_slower_to_respond_to_muscle_tension_while_increased_sensitive_mode_responds_faster_to_muscle_signals_with_less_noise_immunity">Нормальный режим уменьшает вероятность ложного срабатывания, но медленнее реагирует на напряжение мышцы, в то время как «чувствительный» режим быстрее реагирует на сигналы мышц, при этом имея меньшую помехозащищённость.</string>
     <string name="factory_reset">Сброс к заводским настройкам</string>
-    <string name="do_you_really_want_to_reset_your_prosthesis_to_factory_settings">Вы действительно хотите вернуть настройки протеза к заводским?</string>
+    <string name="do_you_really_want_to_soft_reset_your_prosthesis_to_factory_settings">Вы действительно хотите вернуть настройки протеза к заводским? (состояния жестов и имя протеза не будут затронуты)</string>
+    <string name="do_you_really_want_to_hard_reset_your_prosthesis_to_factory_settings">Вы действительно хотите вернуть все настройки протеза к заводским?</string>
+    <string name="do_you_really_want_to_gesture_reset_your_prosthesis_to_factory_settings">Вы действительно хотите восстановить все жесты протеза к заводским?</string>
     <string name="calibration_of_the_prosthesis">Калибровка протеза</string>
     <string name="calibration_will_take_approximately_15_seconds_do_you_really_want_to_continue">Калибровка займёт примерно 15 секунд. Вы действительно хотите продолжить?</string>
     <string name="setting_the_serial_number_of_the_prosthesis">Установка серийного номера протеза</string>
@@ -491,6 +493,9 @@
     <string name="number_of_cycles">количество циклов</string>
     <string name="blocking_secret_settings">заблокировать секретные настройки</string>
     <string name="neurointerface">Нейроинтерфейс</string>
+    <string name="full_reset">полный сброс</string>
+    <string name="soft_factory_reset">Частичный сброс к заводским настройкам</string>
+    <string name="gestures_reset">Сброс жестов</string>
 
     <string-array name="numbers">
         <item>0</item>

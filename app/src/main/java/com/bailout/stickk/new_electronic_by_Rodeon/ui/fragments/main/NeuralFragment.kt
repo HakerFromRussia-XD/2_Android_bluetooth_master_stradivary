@@ -27,12 +27,14 @@ class NeuralFragment: Fragment() {
     private var coordinateReadThreadFlag = true
     private var oldX = ArrayList<Float>()
     private var oldY = ArrayList<Float>()
-    private val ANIMATION_DURATION = 300L
-    private val UPDATE_DELAY = 50L
+    private val ANIMATION_DURATION = 1000L
+    private val dotPerReedCoordinate = 10
+    private val UPDATE_DELAY = 1000L
     private val controlledCircles = ArrayList<View>()
     private val controlledCircles2 = ArrayList<ImageView>()
     private var animations = ArrayList<ObjectAnimator>()
     private var timers = ArrayList<CountDownTimer>()
+    private lateinit var timer: CountDownTimer
     private var layout: LinearLayout? = null
 
     private lateinit var binding: FragmentNeuralTrainingBinding
@@ -47,8 +49,6 @@ class NeuralFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeUI()
-        testFun(100)
-        testFun(200)
 //        startCoordinateReadThread()
     }
 
@@ -102,14 +102,13 @@ class NeuralFragment: Fragment() {
         layout!!.addView(controlledCircles2.last(),0)
 
 
-        oldX.add(0f)
-        oldY.add(0f)
-        timers.add(object : CountDownTimer(0, 0) {
-            override fun onTick(millisUntilFinished: Long) {}
+        val multiplier: Int = binding.circleCountSb.progress/dotPerReedCoordinate
 
-            @SuppressLint("CutPasteId")
-            override fun onFinish() {}
-        })
+
+//        for (i in 0..multiplier) {
+            oldX.add(0f)
+            oldY.add(0f)
+//        }
     }
     private fun removeAllView() {
         for (item in controlledCircles2) {
@@ -131,7 +130,7 @@ class NeuralFragment: Fragment() {
                 }
 
                 try {
-                    Thread.sleep(ANIMATION_DURATION)
+                    Thread.sleep(UPDATE_DELAY)
                 } catch (ignored: Exception) { }
             }
         }.start()
@@ -150,18 +149,21 @@ class NeuralFragment: Fragment() {
         val normalizeY: Float = ((binding.testWindowView.height-controlledCircles2.last().height).toFloat()/255)*(y ?: 0)
 
         for ( (index, controlledCircle) in controlledCircles2.withIndex()) {
-            animations.add(ObjectAnimator.ofFloat(controlledCircle, "x", oldX.last(), normalizeX))//+(2*index)
+            animations.add(ObjectAnimator.ofFloat(controlledCircle, "x", oldX[index], normalizeX))//+(2*index)
             animations[index*2].duration = ANIMATION_DURATION
             animations[index*2].interpolator = LinearInterpolator()
 
-            animations.add(ObjectAnimator.ofFloat(controlledCircle, "y", oldY.last(), normalizeY))//+(2*index)
+            animations.add(ObjectAnimator.ofFloat(controlledCircle, "y", oldY[index], normalizeY))//+(2*index)
             animations[index*2 + 1].duration = ANIMATION_DURATION
             animations[index*2 + 1].interpolator = LinearInterpolator()
 
 
-//            if (x != null) { oldY.last() = normalizeX }
-//            if (y != null) { oldY.last() = normalizeY }
-            timers[index] = object : CountDownTimer( ANIMATION_DURATION*index, 500) {
+            oldX[index] = normalizeX
+            oldY[index] = normalizeY
+
+            val multiplier: Int = index/dotPerReedCoordinate
+
+            timer = object : CountDownTimer( (ANIMATION_DURATION/dotPerReedCoordinate*index), 500) {
                 override fun onTick(millisUntilFinished: Long) {}
 
                 @SuppressLint("CutPasteId")
@@ -170,7 +172,7 @@ class NeuralFragment: Fragment() {
                     try {
                         set.playTogether( animations[index*2], animations[index*2 + 1])
                         set.start()
-                        System.err.println("Start animation set ${index*2}")
+                        System.err.println("Start animation set 1=${ANIMATION_DURATION/dotPerReedCoordinate}  2=$index  3=${(multiplier+1)} ${(ANIMATION_DURATION/dotPerReedCoordinate*index)}")
                     } catch (e: Exception){
                         e.printStackTrace()
                     }
@@ -179,16 +181,4 @@ class NeuralFragment: Fragment() {
         }
     }
 
-    private fun testFun(newValue: Int) {
-        for (i in 1..5) {
-            object : CountDownTimer(1000L*i, 500) {
-                override fun onTick(millisUntilFinished: Long) {}
-
-                @SuppressLint("CutPasteId")
-                override fun onFinish() {
-                    System.err.println("testFun $i $newValue")
-                }
-            }.start()
-        }
-    }
 }

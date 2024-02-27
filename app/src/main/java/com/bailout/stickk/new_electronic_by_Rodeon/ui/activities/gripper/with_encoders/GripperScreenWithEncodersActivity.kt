@@ -947,7 +947,6 @@ class GripperScreenWithEncodersActivity
     }
     private fun loadOldState() {
         val text = "load not work"
-        //TODO тут возникает баг, приводящий к неправильному считыванию mDeviceType
         mDeviceType = mSettings!!.getString((ConstantManager.EXTRAS_DEVICE_TYPE),text).toString()
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             fingerOpenState1 = mSettings!!.getInt(

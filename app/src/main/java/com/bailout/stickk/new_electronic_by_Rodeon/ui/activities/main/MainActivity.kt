@@ -27,6 +27,7 @@ import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.BluetoothLeService
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
@@ -814,8 +815,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS)
     presenter.preferenceManager.putString(PreferenceKeys.DEVICE_NAME, mDeviceName.toString())
     presenter.preferenceManager.putString(PreferenceKeys.DEVICE_ADDR, mDeviceAddress.toString())
-    saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
     mDeviceType = intent.getStringExtra(EXTRAS_DEVICE_TYPE)
+    saveText(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, mDeviceAddress.toString())
+    saveText(EXTRAS_DEVICE_TYPE, mDeviceType)
     System.err.println("mDeviceAddress: $mDeviceAddress")
     saveText(PreferenceKeys.LAST_CONNECTION_MAC, mDeviceAddress)
 
@@ -1124,8 +1126,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     System.err.println("Check life cycle onNewIntent()")
     setIntent(intent)
   }
-
-
 
 
   override fun showWhiteStatusBar(show: Boolean) {

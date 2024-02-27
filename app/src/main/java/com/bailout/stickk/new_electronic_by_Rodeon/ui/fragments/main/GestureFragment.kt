@@ -287,6 +287,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                         loadAllVariables()
                         selectActiveGesture(it)
                         selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
+                        //тут нет onOffUIAll потому что
+                        onOffUIAll(true)
                     }
                     if (it == 100) {
                         //активирует интерфейс
@@ -295,12 +297,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                         selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
                         setPeakTimeVmNum(peakTimeVmNum)
                         onOffUIAll(true)
-//                        System.err.println("gonka enabledGestureUIBeforeConnection true")
                     }
                     if (it == 101) {
                         //деактивирует интерфейс
                         onOffUIAll(false)
-//                        System.err.println("gonka enabledGestureUIBeforeConnection false")
                     }
                 } else {
                     System.err.println("context GestureFragment NULL!")

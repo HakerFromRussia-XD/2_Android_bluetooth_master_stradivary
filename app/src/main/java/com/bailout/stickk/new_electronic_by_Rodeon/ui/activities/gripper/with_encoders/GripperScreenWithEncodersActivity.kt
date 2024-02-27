@@ -890,8 +890,9 @@ class GripperScreenWithEncodersActivity
     }
 
     private fun compileBLEMassage (withChangeGesture: Boolean, onlyNumberGesture: Boolean) {
+        System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture  onlyNumberGesture=$onlyNumberGesture")
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-            System.err.println("GripperSettingsRender--------> compileBLEMassage FEST_H withChangeGesture =$withChangeGesture")
+            System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture")
             val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
                 fingerOpenState1, fingerOpenState2, fingerOpenState3,
                 fingerOpenState4, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
@@ -903,6 +904,7 @@ class GripperScreenWithEncodersActivity
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         }
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture")
             val sendGestureNumber = if (checkDriverVersionGreaterThan237()) { gestureNumber
             } else { gestureNumber - 1 }
             val gestureStateModel = GestureStateWithEncoders(sendGestureNumber, // проверить тут -2
@@ -945,6 +947,7 @@ class GripperScreenWithEncodersActivity
     }
     private fun loadOldState() {
         val text = "load not work"
+        //TODO тут возникает баг, приводящий к неправильному считыванию mDeviceType
         mDeviceType = mSettings!!.getString((ConstantManager.EXTRAS_DEVICE_TYPE),text).toString()
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
             fingerOpenState1 = mSettings!!.getInt(

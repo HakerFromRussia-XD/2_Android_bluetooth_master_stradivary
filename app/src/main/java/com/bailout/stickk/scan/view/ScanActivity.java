@@ -27,6 +27,7 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -134,7 +135,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //            }
 //        }
 //    }
-
 
     @Inject
     ScanPresenter presenter;

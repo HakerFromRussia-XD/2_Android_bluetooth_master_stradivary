@@ -10,14 +10,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.SeekBar
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet.Constraint
+import androidx.constraintlayout.widget.ConstraintSet.WRAP_CONTENT
+import androidx.constraintlayout.widget.Constraints
 import androidx.fragment.app.Fragment
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.skydoves.powerspinner.IconSpinnerAdapter
-import com.skydoves.powerspinner.IconSpinnerItem
-import io.reactivex.android.schedulers.AndroidSchedulers
 import com.bailout.stickk.R
 import com.bailout.stickk.R.drawable.*
 import com.bailout.stickk.databinding.LayoutGesturesBinding
@@ -28,12 +28,18 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.skydoves.powerspinner.IconSpinnerAdapter
+import com.skydoves.powerspinner.IconSpinnerItem
+import io.reactivex.android.schedulers.AndroidSchedulers
 import org.jetbrains.anko.backgroundDrawable
 import org.jetbrains.anko.textColor
 
 
 @Suppress("DEPRECATION")
-class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickListener {
+class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickListener{
 
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
@@ -65,8 +71,10 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     private var holdToLockTimeSb = 0
     private var firstStart = true
     private val countRestart = 5//TODO поставить по больше после отладки (50)
+    private var startGesturesSvHeight = 0
 
     private lateinit var binding: LayoutGesturesBinding
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = LayoutGesturesBinding.inflate(layoutInflater)
@@ -78,8 +86,13 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     @SuppressLint("ClickableViewAccessibility", "UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+
+        //TODO эксперименты с высотой scroll view
+        System.err.println("scroll view height =  ${binding.gesturesButtonsCl.getChildAt(0).height}")
+        System.err.println("scroll view height =  ${binding.gesturesButtonsCl.height}")
+        System.err.println("scroll view height =  ${binding.gesture1Btn.height}")
+
 
 
         onOffUIAll(false)
@@ -92,7 +105,15 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.dividerV.animate().translationY(0F).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
+
+
+
+                binding.gesturesButtonsSv.layoutParams.height = 1000
             } else {
+
+                binding.gesturesButtonsSv.layoutParams.height = 0
+
+
                 sensorGestureSwitching = 0x00
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
                 binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
@@ -113,7 +134,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             ), ROTATION_GESTURE_NEW_VM, countRestart)
             main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, binding.onOffSensorGestureSwitchingSw.isChecked)
             RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
-//            System.err.println("gonka gesture 1 onViewCreated true")
             RxUpdateMainEvent.getInstance().updateUIChart(true)
         }
         binding.peakTimeVmSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

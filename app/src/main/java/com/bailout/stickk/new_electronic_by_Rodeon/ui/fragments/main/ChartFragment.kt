@@ -91,6 +91,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
     //TODO выключить быстрое открытие после завершения тестов
 //    navigator().showSecretSettingsScreen()
+
 //    navigator().showNeuralScreen()
 //    navigator().showWhiteStatusBar(true)
 

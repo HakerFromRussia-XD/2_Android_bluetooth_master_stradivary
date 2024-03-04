@@ -28,7 +28,7 @@ class NeuralFragment: Fragment() {
     private var oldX = ArrayList<Float>()
     private var oldY = ArrayList<Float>()
     private val ANIMATION_DURATION = 1000L
-    private val dotPerReedCoordinate = 10
+    private val dotPerReedCoordinate = 2
     private val UPDATE_DELAY = 1000L
     private val controlledCircles = ArrayList<View>()
     private val controlledCircles2 = ArrayList<ImageView>()
@@ -36,6 +36,7 @@ class NeuralFragment: Fragment() {
     private var timers = ArrayList<CountDownTimer>()
     private lateinit var timer: CountDownTimer
     private var layout: LinearLayout? = null
+    private var counterAnimationGroup = 0
 
     private lateinit var binding: FragmentNeuralTrainingBinding
 
@@ -49,7 +50,8 @@ class NeuralFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeUI()
-//        startCoordinateReadThread()
+//        animationTest()
+        startCoordinateReadThread()
     }
 
     private fun initializeUI() {
@@ -88,6 +90,7 @@ class NeuralFragment: Fragment() {
         }
     }
 
+    @SuppressLint("SuspiciousIndentation")
     private fun addView() {
         controlledCircles2.add(ImageView(mContext))
         controlledCircles2.last().setImageResource(R.drawable.circle)
@@ -105,10 +108,10 @@ class NeuralFragment: Fragment() {
         val multiplier: Int = binding.circleCountSb.progress/dotPerReedCoordinate
 
 
-//        for (i in 0..multiplier) {
+        for (i in 0..multiplier) {
             oldX.add(0f)
             oldY.add(0f)
-//        }
+        }
     }
     private fun removeAllView() {
         for (item in controlledCircles2) {
@@ -142,26 +145,100 @@ class NeuralFragment: Fragment() {
         animateGroup(main?.getDataSens1(), main?.getDataSens2())
     }
 
+    private fun animationTest() {
+        animations.add(ObjectAnimator.ofFloat(controlledCircles2[0], "x", 10f, 100f))//+(2*index)
+        animations[0].duration = ANIMATION_DURATION
+        animations[0].interpolator = LinearInterpolator()
+
+        animations.add(ObjectAnimator.ofFloat(controlledCircles2[0], "y", 10f, 50f))//+(2*index)
+        animations[1].duration = ANIMATION_DURATION
+        animations[1].interpolator = LinearInterpolator()
+
+        timer = object : CountDownTimer( 3000, 500) {
+            override fun onTick(millisUntilFinished: Long) {}
+
+            @SuppressLint("CutPasteId")
+            override fun onFinish() {
+                val set = AnimatorSet()
+                try {
+                    set.playTogether( animations[0], animations[1])
+                    set.start()
+                } catch (e: Exception){
+                    e.printStackTrace()
+                }
+            }
+        }.start()
+
+        animations.add(ObjectAnimator.ofFloat(controlledCircles2[0], "x", 200f, 100f))//+(2*index)
+        animations[2].duration = ANIMATION_DURATION
+        animations[2].interpolator = LinearInterpolator()
+
+        animations.add(ObjectAnimator.ofFloat(controlledCircles2[0], "y", 100f, 500f))//+(2*index)
+        animations[3].duration = ANIMATION_DURATION
+        animations[3].interpolator = LinearInterpolator()
+
+        timer = object : CountDownTimer( 2000, 500) {
+            override fun onTick(millisUntilFinished: Long) {}
+
+            @SuppressLint("CutPasteId")
+            override fun onFinish() {
+                val set = AnimatorSet()
+                try {
+                    set.playTogether( animations[2], animations[3])
+                    set.start()
+                } catch (e: Exception){
+                    e.printStackTrace()
+                }
+            }
+        }.start()
+
+        animations.add(ObjectAnimator.ofFloat(controlledCircles2[0], "x", 250f, 150f))//+(2*index)
+        animations[4].duration = ANIMATION_DURATION
+        animations[4].interpolator = LinearInterpolator()
+
+        animations.add(ObjectAnimator.ofFloat(controlledCircles2[0], "y", 150f, 250f))//+(2*index)
+        animations[5].duration = ANIMATION_DURATION
+        animations[5].interpolator = LinearInterpolator()
+
+        timer = object : CountDownTimer( 1000, 500) {
+            override fun onTick(millisUntilFinished: Long) {}
+
+            @SuppressLint("CutPasteId")
+            override fun onFinish() {
+                val set = AnimatorSet()
+                try {
+                    set.playTogether( animations[4], animations[5])
+                    set.start()
+                } catch (e: Exception){
+                    e.printStackTrace()
+                }
+            }
+        }.start()
+    }
     private fun animateGroup(x: Int?, y: Int?) {
         animations.clear()
-//        timers.clear()
+        //трекать состояние запускаемой функции каждый следующий раз, если попадаем при количестве
+        // точек, большем чем в пачке анимации, то прибавляем каунтер
+        val multiplier: Int = binding.circleCountSb.progress/dotPerReedCoordinate
+
+
         val normalizeX: Float = ((binding.testWindowView.width-controlledCircles2.last().width).toFloat()/255)*(x ?: 0)
         val normalizeY: Float = ((binding.testWindowView.height-controlledCircles2.last().height).toFloat()/255)*(y ?: 0)
 
+
+
         for ( (index, controlledCircle) in controlledCircles2.withIndex()) {
-            animations.add(ObjectAnimator.ofFloat(controlledCircle, "x", oldX[index], normalizeX))//+(2*index)
-            animations[index*2].duration = ANIMATION_DURATION
-            animations[index*2].interpolator = LinearInterpolator()
+            animations.add(ObjectAnimator.ofFloat(controlledCircle, "x", oldX[counterAnimationGroup*multiplier + index], normalizeX))//+(2*index)
+            animations[(index)*2].duration = ANIMATION_DURATION
+            animations[(index)*2].interpolator = LinearInterpolator()
 
-            animations.add(ObjectAnimator.ofFloat(controlledCircle, "y", oldY[index], normalizeY))//+(2*index)
-            animations[index*2 + 1].duration = ANIMATION_DURATION
-            animations[index*2 + 1].interpolator = LinearInterpolator()
+            animations.add(ObjectAnimator.ofFloat(controlledCircle, "y", oldY[counterAnimationGroup*multiplier + index], normalizeY))//+(2*index)
+            animations[(index)*2 + 1].duration = ANIMATION_DURATION
+            animations[(index)*2 + 1].interpolator = LinearInterpolator()
 
 
-            oldX[index] = normalizeX
-            oldY[index] = normalizeY
-
-            val multiplier: Int = index/dotPerReedCoordinate
+            oldX[counterAnimationGroup*multiplier + index] = normalizeX
+            oldY[counterAnimationGroup*multiplier + index] = normalizeY
 
             timer = object : CountDownTimer( (ANIMATION_DURATION/dotPerReedCoordinate*index), 500) {
                 override fun onTick(millisUntilFinished: Long) {}
@@ -178,6 +255,13 @@ class NeuralFragment: Fragment() {
                     }
                 }
             }.start()
+        }
+
+        if (multiplier > counterAnimationGroup) {
+            counterAnimationGroup += 1
+        }
+        if (multiplier == counterAnimationGroup) {
+            counterAnimationGroup = 0
         }
     }
 

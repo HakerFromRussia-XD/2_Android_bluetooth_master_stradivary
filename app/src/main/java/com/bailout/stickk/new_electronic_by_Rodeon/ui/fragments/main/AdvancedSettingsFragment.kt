@@ -587,11 +587,14 @@ class AdvancedSettingsFragment : Fragment() {
             binding.modeNewRl.visibility = View.GONE
             binding.peakTimeVmRl.visibility = View.VISIBLE
             sendGestureRotation()
+            System.err.println("sendGestureRotation FEST_X")
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              System.err.println("sendGestureRotation FEST_H")
               binding.modeNewRl.visibility = View.VISIBLE
               main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, WRITE)
             } else {
+              System.err.println("sendGestureRotation не то и не то")
               binding.modeRl.visibility = View.VISIBLE
               main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (binding.peakTimeSb.progress?.plus(5))?.toByte()!!, (binding.downtimeSb.progress?.plus(5))?.toByte()!!),
                 ROTATION_GESTURE_NEW, WRITE, 17)
@@ -606,9 +609,11 @@ class AdvancedSettingsFragment : Fragment() {
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             binding.modeNewRl.visibility = View.GONE
             binding.peakTimeVmRl.visibility = View.GONE
+            System.err.println("sendGestureRotation FEST_X")
             sendGestureRotation()
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+              System.err.println("sendGestureRotation FEST_H")
               binding.modeNewRl.visibility = View.GONE
               main?.runWriteData(
                 byteArrayOf(
@@ -619,6 +624,7 @@ class AdvancedSettingsFragment : Fragment() {
                 ), ROTATION_GESTURE_NEW, WRITE
               )
             } else {
+              System.err.println("sendGestureRotation не то и не то")
               binding.modeRl.visibility = View.GONE
               main?.bleCommandConnector(
                 byteArrayOf(
@@ -896,7 +902,6 @@ class AdvancedSettingsFragment : Fragment() {
         saveBool(PreferenceKeys.SET_MODE_SMART_CONNECTION, false)
       }
     }
-
 
 
     binding.activeGesturesSwapSw.setOnClickListener {
@@ -1295,7 +1300,7 @@ class AdvancedSettingsFragment : Fragment() {
     endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
 
     if (checkDriverVersionGreaterThan237()) {
-      System.err.println("sendGestureRotation   startGestureInLoopNum:$startGestureInLoopNum   endGestureInLoopNum:$endGestureInLoopNum")
+      System.err.println("sendGestureRotation  237=${checkDriverVersionGreaterThan237()}  startGestureInLoopNum:$startGestureInLoopNum   endGestureInLoopNum:$endGestureInLoopNum")
       main?.runSendCommand(byteArrayOf(
         sensorGestureSwitching,
         0.toByte(),
@@ -1307,7 +1312,7 @@ class AdvancedSettingsFragment : Fragment() {
         endGestureInLoopNum.toByte()
       ), ROTATION_GESTURE_NEW_VM, 50)
     } else {
-      System.err.println("sendGestureRotation else")
+      System.err.println("sendGestureRotation 237=${checkDriverVersionGreaterThan237()} else")
       main?.runSendCommand(byteArrayOf(
         sensorGestureSwitching,
         0.toByte(),
@@ -1317,7 +1322,7 @@ class AdvancedSettingsFragment : Fragment() {
         (binding.holdToLockTimeSb.progress).toByte()
       ), ROTATION_GESTURE_NEW_VM, 50)
     }
-    RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
+    RxUpdateMainEvent.getInstance().updateUIGestures(100)
   }
 
   private fun sendActiveGestures(numActiveGestures: Int) {

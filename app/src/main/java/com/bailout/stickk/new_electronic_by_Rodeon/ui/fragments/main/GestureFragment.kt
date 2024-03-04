@@ -10,13 +10,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.SeekBar
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet.Constraint
-import androidx.constraintlayout.widget.ConstraintSet.WRAP_CONTENT
-import androidx.constraintlayout.widget.Constraints
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.R.drawable.*
@@ -71,7 +65,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     private var holdToLockTimeSb = 0
     private var firstStart = true
     private val countRestart = 5//TODO поставить по больше после отладки (50)
-    private var startGesturesSvHeight = 0
 
     private lateinit var binding: LayoutGesturesBinding
 
@@ -88,12 +81,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         super.onActivityCreated(savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
-        //TODO эксперименты с высотой scroll view
-        System.err.println("scroll view height =  ${binding.gesturesButtonsCl.getChildAt(0).height}")
-        System.err.println("scroll view height =  ${binding.gesturesButtonsCl.height}")
-        System.err.println("scroll view height =  ${binding.gesture1Btn.height}")
-
-
 
         onOffUIAll(false)
         binding.onOffSensorGestureSwitchingSw.setOnClickListener {
@@ -105,15 +92,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.dividerV.animate().translationY(0F).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
-
-
-
                 binding.gesturesButtonsSv.layoutParams.height = 1000
             } else {
-
                 binding.gesturesButtonsSv.layoutParams.height = 0
-
-
                 sensorGestureSwitching = 0x00
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
                 binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
@@ -718,6 +699,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 //        System.err.println("my блок отрисовки картинок цикла на нужных кнопках 1")
         if (binding.onOffSensorGestureSwitchingSw.isChecked) {
 //            System.err.println("my блок отрисовки картинок цикла на нужных кнопках 2 true")
+            binding.gesturesButtonsSv.layoutParams.height = 1000
             val indicatorGestureLoop = arrayOf(
                 binding.gestureLoop1Iv,
                 binding.gestureLoop2Iv,
@@ -742,6 +724,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 indicatorGestureLoop[i].visibility = View.VISIBLE
             }
         } else {
+            binding.gesturesButtonsSv.layoutParams.height = 0
 //            System.err.println("my блок отрисовки картинок цикла на нужных кнопках 3 false")
         }
     }
@@ -897,6 +880,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
                 binding.dividerV.animate().translationY(0F).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
+                binding.gesturesButtonsSv.layoutParams.height = 1000
             } else {
                 binding.onOffSensorGestureSwitchingSw.isChecked = false
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
@@ -909,6 +893,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     .translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration =
                     300
                 offAllRotationImage()
+                binding.gesturesButtonsSv.layoutParams.height = 0
             }
         }
 

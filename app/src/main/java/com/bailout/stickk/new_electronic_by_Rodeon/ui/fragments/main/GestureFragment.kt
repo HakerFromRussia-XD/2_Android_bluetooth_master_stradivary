@@ -103,16 +103,20 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.gesturesButtonsSv.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
                 offAllRotationImage()
             }
-            main?.runSendCommand(byteArrayOf(
-                sensorGestureSwitching.toByte(),
-                0.toByte(),
-                binding.peakTimeVmSb.progress.toByte(),
-                0.toByte(),
-                lockProstheses.toByte(),
-                holdToLockTimeSb.toByte(),
-                startGestureInLoopNum.toByte(),
-                endGestureInLoopNum.toByte()
-            ), ROTATION_GESTURE_NEW_VM, countRestart)
+            if (useNewSystemSendCommand()) {
+                main?.runSendCommand(
+                    byteArrayOf(
+                        sensorGestureSwitching.toByte(),
+                        0.toByte(),
+                        binding.peakTimeVmSb.progress.toByte(),
+                        0.toByte(),
+                        lockProstheses.toByte(),
+                        holdToLockTimeSb.toByte(),
+                        startGestureInLoopNum.toByte(),
+                        endGestureInLoopNum.toByte()
+                    ), ROTATION_GESTURE_NEW_VM, countRestart
+                )
+            }
             main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, binding.onOffSensorGestureSwitchingSw.isChecked)
             RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
             RxUpdateMainEvent.getInstance().updateUIChart(true)
@@ -148,16 +152,20 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 }
                 binding.peakTimeVmTv.text = time
 
-                main?.runSendCommand(byteArrayOf(
-                    sensorGestureSwitching.toByte(),
-                    0.toByte(),
-                    binding.peakTimeVmSb.progress.toByte(),
-                    0.toByte(),
-                    lockProstheses.toByte(),
-                    holdToLockTimeSb.toByte(),
-                    startGestureInLoopNum.toByte(),
-                    endGestureInLoopNum.toByte()
-                ), ROTATION_GESTURE_NEW_VM, countRestart)
+                if (useNewSystemSendCommand()) {
+                    main?.runSendCommand(
+                        byteArrayOf(
+                            sensorGestureSwitching.toByte(),
+                            0.toByte(),
+                            binding.peakTimeVmSb.progress.toByte(),
+                            0.toByte(),
+                            lockProstheses.toByte(),
+                            holdToLockTimeSb.toByte(),
+                            startGestureInLoopNum.toByte(),
+                            endGestureInLoopNum.toByte()
+                        ), ROTATION_GESTURE_NEW_VM, countRestart
+                    )
+                }
                 RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(ROTATION_GESTURE_NEW_VM)
 
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, seekBar.progress)
@@ -314,7 +322,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         }
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "gesture activity 1"
-            main?.runSendCommand(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW_VM, 50)
+            if (useNewSystemSendCommand()) {
+                main?.runSendCommand(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW_VM, 50)
+            }
         }
     }
     override fun onDestroy() {
@@ -533,18 +543,21 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
                 }
 
-                main?.runSendCommand(byteArrayOf(
-                    sensorGestureSwitching.toByte(),
-                    0.toByte(),
-                    binding.peakTimeVmSb.progress.toByte(),
-                    0.toByte(),
-                    lockProstheses.toByte(),
-                    holdToLockTimeSb.toByte(),
-                    startGestureInLoopNum.toByte(),
-                    endGestureInLoopNum.toByte()
-                ), ROTATION_GESTURE_NEW_VM, countRestart)
+                if (useNewSystemSendCommand()) {
+                    main?.runSendCommand(
+                        byteArrayOf(
+                            sensorGestureSwitching.toByte(),
+                            0.toByte(),
+                            binding.peakTimeVmSb.progress.toByte(),
+                            0.toByte(),
+                            lockProstheses.toByte(),
+                            holdToLockTimeSb.toByte(),
+                            startGestureInLoopNum.toByte(),
+                            endGestureInLoopNum.toByte()
+                        ), ROTATION_GESTURE_NEW_VM, countRestart
+                    )
+                }
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
-//                System.err.println("gonka gesture 2 onViewCreated true")
                 RxUpdateMainEvent.getInstance().updateUIChart(true)
             }
         }
@@ -575,18 +588,18 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
                 }
 
-                main?.runSendCommand(
-                    byteArrayOf(
-                        sensorGestureSwitching.toByte(),
-                        0.toByte(),
-                        binding.peakTimeVmSb.progress.toByte(),
-                        0.toByte(),
-                        lockProstheses.toByte(),
-                        holdToLockTimeSb.toByte(),
-                        startGestureInLoopNum.toByte(),
-                        endGestureInLoopNum.toByte()
-                    ), ROTATION_GESTURE_NEW_VM, countRestart
-                )
+                if (useNewSystemSendCommand()) {
+                    main?.runSendCommand(byteArrayOf(
+                            sensorGestureSwitching.toByte(),
+                            0.toByte(),
+                            binding.peakTimeVmSb.progress.toByte(),
+                            0.toByte(),
+                            lockProstheses.toByte(),
+                            holdToLockTimeSb.toByte(),
+                            startGestureInLoopNum.toByte(),
+                            endGestureInLoopNum.toByte()
+                        ), ROTATION_GESTURE_NEW_VM, countRestart)
+                }
                 main?.saveInt(
                     main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP,
                     endGestureInLoopNum
@@ -853,7 +866,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         }
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "gesture activity 3"
-            main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 50)
+            if (useNewSystemSendCommand()) {
+                main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 50)
+            }
         }
     }
     override fun onValueSelected(e: Entry?, h: Highlight?) {}
@@ -932,6 +947,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         } else {
             false
         }
+    }
+    private fun useNewSystemSendCommand(): Boolean {
+        //спиннеры имеют свойство спамить блютуз команды при установке в них значения из памяти,
+        // что мешает нормальной инициализации блютуза и запросу стартовых параметров. Для
+        // отключения этого спама мы делаем эту проверку
+        var useNewSystemSendCommand = false
+        if (main?.driverVersionS != null) {
+            val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+            useNewSystemSendCommand = driverNum.toInt() > 233
+        }
+        return useNewSystemSendCommand
     }
 }
 

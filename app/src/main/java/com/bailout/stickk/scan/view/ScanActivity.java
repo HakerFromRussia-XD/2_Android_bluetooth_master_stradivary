@@ -1,6 +1,6 @@
 package com.bailout.stickk.scan.view;
 
-import static androidx.core.content.SharedPreferencesKt.edit;
+import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.MAX_NUMBER_DETAILS;
 
 import android.Manifest;
 import android.animation.ArgbEvaluator;
@@ -27,7 +27,6 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -43,16 +42,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
+import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
@@ -60,7 +50,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil;
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.ChartActivity;
-import com.bailout.stickk.R;
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.Load3DModel;
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.NemoStandActivity;
 import com.bailout.stickk.scan.data.DaggerScanComponent;
@@ -70,11 +59,14 @@ import com.bailout.stickk.scan.data.ScanListAdapter;
 import com.bailout.stickk.scan.data.ScanModule;
 import com.bailout.stickk.scan.presenter.ScanPresenter;
 
-import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.MAX_NUMBER_DETAILS;
-import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_F;
-import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_F_O;
-import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_H;
-import static com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_H_O;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import javax.inject.Inject;
 
 
 @SuppressWarnings("ALL")

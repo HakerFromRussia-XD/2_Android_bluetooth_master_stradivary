@@ -225,22 +225,22 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
           } else {
             if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-              if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. MIO_DATA_NEW")
-              if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SENS_VERSION_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. OPEN_THRESHOLD_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. CLOSE_THRESHOLD_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SENS_OPTIONS_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SET_GESTURE_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SET_REVERSE_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. ADD_GESTURE_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.SERIAL_NUMBER_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SERIAL_NUMBER_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. CALIBRATION_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SET_ONE_CHANNEL_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. STATUS_CALIBRATION_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.CHANGE_GESTURE_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. CHANGE_GESTURE_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SHUTDOWN_CURRENT_NEW_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.ROTATION_GESTURE_NEW_VM_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. ROTATION_GESTURE_NEW_VM_DATA")
-              if(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. DRIVER_VERSION_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. MIO_DATA_NEW")
+//              if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SENS_VERSION_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. OPEN_THRESHOLD_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. CLOSE_THRESHOLD_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SENS_OPTIONS_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SET_GESTURE_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SET_REVERSE_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. ADD_GESTURE_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.SERIAL_NUMBER_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SERIAL_NUMBER_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. CALIBRATION_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SET_ONE_CHANNEL_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. STATUS_CALIBRATION_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.CHANGE_GESTURE_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. CHANGE_GESTURE_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. SHUTDOWN_CURRENT_NEW_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.ROTATION_GESTURE_NEW_VM_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. ROTATION_GESTURE_NEW_VM_DATA")
+//              if(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. DRIVER_VERSION_NEW_DATA")
 
 
               if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
@@ -1333,7 +1333,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
   }
   fun readStartData(enabled: Boolean) {
-//    System.err.println("gonka readStartData $enabled")
     sensorsDataThreadFlag = enabled
     if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
       || mDeviceType!!.contains(DEVICE_TYPE_BT05)
@@ -1767,7 +1766,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           0 -> {
 //            showToast("Старт потока запросов начальных параметров для FEST-X")
             System.err.println("$info = 0")
-            bleCommand(READ_REGISTER, SENS_VERSION_NEW_VM, READ)
+            bleCommand(READ_REGISTER, DRIVER_VERSION_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 5
             updateUIChart(25)
@@ -1900,7 +1899,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           }
           16 -> {
             System.err.println("$info = 16")
-            bleCommand(READ_REGISTER, DRIVER_VERSION_NEW_VM, READ)
+            bleCommand(READ_REGISTER, SENS_VERSION_NEW_VM, READ)
             globalSemaphore = false
             percentSynchronize = 95
             updateUIChart(35)
@@ -1987,7 +1986,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (driverVersionS != null) {
       val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
       useNewSystemSendCommand = driverNum.toInt() > 233
-      System.err.println("$info = $state  driverNum:$driverNum")
+//      System.err.println("$info = $state  driverNum:$driverNum   useNewSystemSendCommand=$useNewSystemSendCommand")
     }
 
     expectedIdCommand = idCommand
@@ -1999,7 +1998,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     while (!endFlag) {
         when (state) {
           0 -> {
-            System.err.println("$info = $state  countRestart:$countRestart")
+            System.err.println("$info = $state  countRestart:$countRestart  useNewSystemSendCommand=$useNewSystemSendCommand")
             if (useNewSystemSendCommand) {
               expectedReceiveConfirmation = 1
               bleCommand(data, uuidCommand, WRITE)
@@ -2021,6 +2020,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             }
           }
           1 -> {
+            System.err.println("$info = $state   testingConnection: $testingConnection")
             if (countRestartLocal > 0) {
               if (resendCommandTimer) {
                 runOnUiThread{
@@ -2048,6 +2048,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             }
           }
           2 -> {
+            System.err.println("$info = $state   testingConnection: $testingConnection")
             if ( testingConnection ) {
               RxUpdateMainEvent.getInstance().updateCommunicationTestResult(countAttempt)
             }
@@ -2056,7 +2057,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
                 Thread.sleep(100)
               } catch (ignored: Exception) {}
             }
-            System.err.println("$info = $state   testingConnection: $testingConnection")
             endFlag = true
             state = 0
             expectedReceiveConfirmation = 0

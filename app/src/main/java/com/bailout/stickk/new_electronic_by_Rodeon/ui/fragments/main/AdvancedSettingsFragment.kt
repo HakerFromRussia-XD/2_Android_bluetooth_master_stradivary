@@ -36,7 +36,11 @@ import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_F
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_H
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_H_EB
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_H_EP
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_X
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_EB
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_EP
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_F
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_H
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
@@ -107,7 +111,6 @@ class AdvancedSettingsFragment : Fragment() {
         if (context != null) {
           updateAllParameters()
           enableInterface(it)
-//          System.err.println("gonka enabledAdvancedUIBeforeConnection $it")
         } else {
           System.err.println("context AdvancedSettingsFragment NULL!")
         }
@@ -119,6 +122,16 @@ class AdvancedSettingsFragment : Fragment() {
       .subscribe {
         resetUI()
       }
+
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-1234"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-12345"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-123456"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-1234"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-12345"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-123456"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EP-12345"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EB-12345"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-D-12345"))
   }
 
   @SuppressLint("SetTextI18n")
@@ -183,7 +196,10 @@ class AdvancedSettingsFragment : Fragment() {
           9
         }
       }
-      sendEMGMode(modeEMGSend)
+
+      if (useNewSystemSendCommand()) {
+        sendEMGMode(modeEMGSend)
+      }
     }
 
     when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)) {
@@ -937,12 +953,14 @@ class AdvancedSettingsFragment : Fragment() {
         val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
         if (activeGesture >= numActiveGestures) {
           RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
+          saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
+          sendActiveGestures(numActiveGestures)
         } else {
           RxUpdateMainEvent.getInstance().updateUIGestures(100)
         }
       }
+      RxUpdateMainEvent.getInstance().updateUIChart(true)
       sendGestureRotation()
-      sendActiveGestures(numActiveGestures)
     }
 
 
@@ -1326,7 +1344,8 @@ class AdvancedSettingsFragment : Fragment() {
   }
 
   private fun sendActiveGestures(numActiveGestures: Int) {
-    System.err.println("sendActiveGestures")
+    //TODO функция не отправляет активный жест
+    System.err.println("sendActiveGestures activeGesture = $numActiveGestures")
     val setReverse = if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) { 1 } else { 0 }
     val prosthesisMode = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_PROSTHESIS, 0)
     val numberOfCyclesStand = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES, 0)
@@ -1362,33 +1381,40 @@ class AdvancedSettingsFragment : Fragment() {
   private fun validationAndConversionSerialNumber(serialNumber: String): String {
     System.err.println("serialNumber: $serialNumber")//"FEST-F-11111"
 
-    if (serialNumber.length < 12) {
-      validationError = "Вы ввели слишком короткий серийный номер"
-      return "false"
-    } else {
-      if (serialNumber.length > 12) {
-        validationError = "Вы ввели слишком длинный серийный номер"
-        return "false"
-      }
-    }
 
-    val namePrefix = serialNumber.substring(0, 6)
+
+    val namePrefix = serialNumber.split("-")[0]+"-"+serialNumber.split("-")[1]
+    System.err.println("namePrefix = $namePrefix")
     when (namePrefix) {
       DEVICE_TYPE_FEST_F -> { }
       DEVICE_TYPE_FEST_H -> { }
+      DEVICE_TYPE_FEST_H_EP -> { }
+      DEVICE_TYPE_FEST_H_EB -> { }
       else -> {
         validationError = "В нашей линейке продуктов нет: $namePrefix"
         return "false"
       }
     }
 
-    val nameBridge: String = serialNumber.substring(6,7)
+    var nameBridge: String = serialNumber.substring(6,7)
+    if (serialNumber.split("-")[1].length == 2) { nameBridge = serialNumber.substring(7,8)}
     if (nameBridge != "-") {
       validationError = "Буквенную и числовую части должен разделять дефис"
       return "false"
     }
 
-    val nameCode: String = serialNumber.substring(7, serialNumber.length)
+    if ((serialNumber.split("-")[1].length == 1) && serialNumber.length < 12 || ((serialNumber.split("-")[1].length == 2) && serialNumber.length < 13)) {
+      validationError = "Вы ввели слишком короткий серийный номер"
+      return "false"
+    } else {
+      if (((serialNumber.split("-")[1].length == 1) && serialNumber.length > 12) || ((serialNumber.split("-")[1].length == 2) && serialNumber.length > 13)) {
+        validationError = "Вы ввели слишком длинный серийный номер"
+        return "false"
+      }
+    }
+
+    var nameCode: String = serialNumber.substring(7, serialNumber.length)
+    if (serialNumber.split("-")[1].length == 2) { nameCode = serialNumber.substring(8, serialNumber.length)}
     try {
       nameCode.toInt()
     } catch (e: Exception) {
@@ -1403,8 +1429,26 @@ class AdvancedSettingsFragment : Fragment() {
       DEVICE_TYPE_FEST_H -> {
         return DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_H+nameCode
       }
+      DEVICE_TYPE_FEST_H_EP -> {
+        return DEVICE_TYPE_FEST_X+ NEW_DEVICE_TYPE_FEST_EP+nameCode
+      }
+      DEVICE_TYPE_FEST_H_EB -> {
+        return DEVICE_TYPE_FEST_X+ NEW_DEVICE_TYPE_FEST_EB+nameCode
+      }
     }
 
     return "false"
+  }
+  private fun useNewSystemSendCommand(): Boolean {
+    //спиннеры имеют свойство спамить блютуз команды при установке в них значения из памяти,
+    // что мешает нормальной инициализации блютуза и запросу стартовых параметров. Для
+    // отключения этого спама мы делаем эту проверку
+    var useNewSystemSendCommand = false
+    if (main?.driverVersionS != null) {
+      val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+      useNewSystemSendCommand = driverNum.toInt() > 233
+      System.err.println("startSendCommand  driverNum:$driverNum   useNewSystemSendCommand=$useNewSystemSendCommand")
+    }
+    return useNewSystemSendCommand
   }
 }

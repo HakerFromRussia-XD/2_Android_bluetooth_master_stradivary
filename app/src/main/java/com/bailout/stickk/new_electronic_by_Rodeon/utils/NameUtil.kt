@@ -12,7 +12,10 @@ object NameUtil {
                 var newName = ""
                 val namePrefix = deviceName.substring(6, 10)
                 val nameCode = deviceName.substring(10, deviceName.length)
+//                if (deviceName.length == 13) { nameCode = deviceName.substring(11, deviceName.length) }
+                System.err.println("Test getCleanName() deviceName: $deviceName")
                 System.err.println("Test getCleanName() namePrefix: $namePrefix")
+                System.err.println("Test getCleanName() nameCode: $nameCode")
                 newName = when (namePrefix) {
                     ConstantManager.NEW_DEVICE_TYPE_FEST_F -> {
                         "FEST-F-$nameCode"
@@ -28,6 +31,14 @@ object NameUtil {
 
                     ConstantManager.NEW_DEVICE_TYPE_FEST_H_O -> {
                         "FEST-HO-$nameCode"
+                    }
+
+                    ConstantManager.NEW_DEVICE_TYPE_FEST_EP -> {
+                        "FEST-EP-$nameCode"
+                    }
+
+                    ConstantManager.NEW_DEVICE_TYPE_FEST_EB -> {
+                        "FEST-EB-$nameCode"
                     }
 
                     else -> {

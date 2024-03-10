@@ -1,10 +1,10 @@
 package com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PixelFormat
@@ -23,17 +23,21 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Navigator
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import online.devliving.passcodeview.PasscodeView
 import kotlin.properties.Delegates
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 
 
 @Suppress("DEPRECATION")
 @RequirePresenter(GripperScreenPresenter::class)
 class GripperTestScreenWithEncodersActivity
-    : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView{
+    : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView, Navigator {
     private var testWithEncodersRenderer: GripperTestSettingsWithEncodersRenderer? = null
     companion object {
         var angleFinger1 by Delegates.notNull<Int>()
@@ -151,8 +155,12 @@ class GripperTestScreenWithEncodersActivity
         }
     }
     private fun showSecretSettings() {
-        saveBool(PreferenceKeys.SHOW_SECRET_SETTINGS, true)
         finish()
+
+        Handler().postDelayed({
+            RxUpdateMainEvent.getInstance().updateOpenSecretSettings(true)
+        }, 100)
+
     }
     private fun mySaveText(key: String, text: String) {
         val editor: SharedPreferences.Editor = mSettings!!.edit()
@@ -207,4 +215,77 @@ class GripperTestScreenWithEncodersActivity
         editor.putBoolean(key, variable)
         editor.apply()
     }
+
+    override fun showWhiteStatusBar(show: Boolean) {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showSecretSettingsScreen() {  }
+
+    override fun showHelpScreen(chartFragmentClass: ChartFragment) {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showSensorsHelpScreen(chartFragmentClass: ChartFragment) {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showGesturesHelpScreen(chartFragmentClass: ChartFragment) {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showHelpMonoAdvancedSettingsScreen(chartFragmentClass: ChartFragment) {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showHelpMultyAdvancedSettingsScreen(chartFragmentClass: ChartFragment) {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showHowProsthesesWorksScreen() {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showHowProsthesesWorksMonoScreen() {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showHowPutOnTheProsthesesSocketScreen() {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showCompleteSetScreen() {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showChargingTheProsthesesScreen() {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showProsthesesCareScreen() {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showServiceAndWarrantyScreen() {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showNeuralScreen() {
+//        TODO("Not yet implemented")
+    }
+
+    override fun showArcanoidScreen() {
+//        TODO("Not yet implemented")
+    }
+
+    override fun getBackStackEntryCount(): Int {
+//        TODO("Not yet implemented")
+        return 0
+    }
+
+    override fun goingBack() {
+//        TODO("Not yet implemented")
+    }
+
+
 }

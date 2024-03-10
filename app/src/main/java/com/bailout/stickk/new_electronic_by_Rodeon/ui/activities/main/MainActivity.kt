@@ -42,9 +42,11 @@ import com.bailout.stickk.new_electronic_by_Rodeon.services.MyService
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Decorator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ArcanoidFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.NeuralFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.SecretSettingsFragment
@@ -126,7 +128,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
   private val listName = "NAME"
   private val listUUID = "UUID"
-  var firstActivateSetScaleDialog = false
+  private var firstActivateSetScaleDialog = false
   private var scaleProstheses = 5
   private var oldNumGesture = 0
   @Volatile
@@ -457,7 +459,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           if (oldNumGesture != castUnsignedCharToInt(data[2])+1) {
             RxUpdateMainEvent.getInstance().updateUIGestures(castUnsignedCharToInt(data[2])+1)
             saveInt(mDeviceAddress+PreferenceKeys.ACTIVE_GESTURE_NUM, castUnsignedCharToInt(data[2])+1)
-//            System.err.println("gonka main displayDataNew $enableInterfaceStatus")
             RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
             oldNumGesture = castUnsignedCharToInt(data[2])+1
             System.err.println("displayDataNew номер жеста ${castUnsignedCharToInt(data[2])+1}")
@@ -982,6 +983,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       .subscribe {
         openFragmentInfoCalibration()
       }
+    RxUpdateMainEvent.getInstance().openSecretSettings
+      .compose(bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe {
+        showSecretSettingsScreen()
+      }
 
     val worker = Thread {
       while (true) {
@@ -1006,7 +1013,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
       driverVersionS = driverVersion
       saveText(mDeviceAddress + PreferenceKeys.DRIVER_VERSION_STRING, driverVersionS)
-//      System.err.println("gonka main displayDataDriverVersionNew $enableInterfaceStatus")
       RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
@@ -1051,7 +1057,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           override fun onTick(millisUntilFinished: Long) {}
 
           override fun onFinish() {
-            System.err.println("gonka main updateUIChart $enableInterfaceStatus  source:$source  $mDeviceType")
             RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
 
             System.err.println("updateAllParameters updateUIChart($source) 4")
@@ -1152,6 +1157,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun showProsthesesCareScreen() { launchFragment(ProsthesesCareFragment()) }
   override fun showServiceAndWarrantyScreen() { launchFragment(ServiceAndWarrantyFragment()) }
   override fun showNeuralScreen() { launchFragment(NeuralFragment()) }
+  override fun showArcanoidScreen() { launchFragment(ArcanoidFragment()) }
   override fun getBackStackEntryCount():Int { return supportFragmentManager.backStackEntryCount }
   override fun goingBack() { onBackPressed() }
   override fun onBackPressed() {
@@ -1313,7 +1319,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private fun enableInterface(enabled: Boolean) {
     if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) { } else {
       enableInterfaceStatus = enabled
-//      System.err.println("gonka main enableInterface $enabled")
       RxUpdateMainEvent.getInstance().updateUIChart(enabled)
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(DEVICE_TYPE_BT05)
@@ -1985,8 +1990,10 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     var useNewSystemSendCommand = false
     if (driverVersionS != null) {
       val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
-      useNewSystemSendCommand = driverNum.toInt() > 233
-//      System.err.println("$info = $state  driverNum:$driverNum   useNewSystemSendCommand=$useNewSystemSendCommand")
+      try {
+        useNewSystemSendCommand = driverNum.toInt() > 233
+      } catch (_: Exception) { }
+
     }
 
     expectedIdCommand = idCommand
@@ -2038,7 +2045,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
               }
             } else {
               state += 1
-//              showToast(getString(R.string.unstable_connection))
             }
 
             if (expectedReceiveConfirmation == 2) {
@@ -2153,11 +2159,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 2)
       } else {
         val mSectionsPagerAdapter =  SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
         binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
       }
     } else {
       if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
@@ -2486,7 +2492,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       } else {
         System.err.println("DEVICE_TYPE_FEST_X else serialNumber=$serialNumber")
       }
-//      System.err.println("gonka main showSetSerialNumberDialog $enableInterfaceStatus")
       RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
       YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersSetSerialNumber)
 

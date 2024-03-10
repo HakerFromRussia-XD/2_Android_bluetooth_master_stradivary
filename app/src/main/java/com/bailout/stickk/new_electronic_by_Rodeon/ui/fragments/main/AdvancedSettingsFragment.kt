@@ -48,6 +48,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -114,6 +115,12 @@ class AdvancedSettingsFragment : Fragment() {
         } else {
           System.err.println("context AdvancedSettingsFragment NULL!")
         }
+
+//        if (mSettings!!.getBoolean(PreferenceKeys.SHOW_SECRET_SETTINGS, false)) {
+//          System.err.println("SHOW_SECRET_SETTINGS true")
+//          navigator().showSecretSettingsScreen()
+//          main?.saveBool(PreferenceKeys.SHOW_SECRET_SETTINGS, false)
+//        }
       }
 
     RxUpdateMainEvent.getInstance().resetAdvancedSettings
@@ -123,15 +130,16 @@ class AdvancedSettingsFragment : Fragment() {
         resetUI()
       }
 
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-1234"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-123456"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-1234"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-123456"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EP-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EB-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-D-12345"))
+
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-1234"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-123456"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-1234"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-123456"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EP-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EB-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-D-12345"))
   }
 
   @SuppressLint("SetTextI18n")
@@ -1446,8 +1454,9 @@ class AdvancedSettingsFragment : Fragment() {
     var useNewSystemSendCommand = false
     if (main?.driverVersionS != null) {
       val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-      useNewSystemSendCommand = driverNum.toInt() > 233
-      System.err.println("startSendCommand  driverNum:$driverNum   useNewSystemSendCommand=$useNewSystemSendCommand")
+      try {
+        useNewSystemSendCommand = driverNum.toInt() > 233
+      } catch (_: Exception) { }
     }
     return useNewSystemSendCommand
   }

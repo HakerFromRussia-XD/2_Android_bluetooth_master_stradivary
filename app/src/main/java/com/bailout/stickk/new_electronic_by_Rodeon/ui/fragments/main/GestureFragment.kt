@@ -385,6 +385,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             binding.gestureSettings12Btn.visibility = View.VISIBLE
             binding.gestureSettings13Btn.visibility = View.VISIBLE
             binding.gestureSettings14Btn.visibility = View.VISIBLE
+            binding.gesturesResetBtn.visibility = View.VISIBLE
         } else {
             offAllRotationImage()
             binding.toggleGestureClasterRl.visibility = View.GONE
@@ -403,6 +404,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             binding.gestureSettings12Btn.visibility = View.GONE
             binding.gestureSettings13Btn.visibility = View.GONE
             binding.gestureSettings14Btn.visibility = View.GONE
+            binding.gesturesResetBtn.visibility = View.GONE
         }
     }
     private fun setNumActiveGestures(activeGestures: Int) {
@@ -604,7 +606,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP,
                     endGestureInLoopNum
                 )
-//                System.err.println("gonka gesture 3 onViewCreated true")
                 RxUpdateMainEvent.getInstance().updateUIChart(true)
             }
         }
@@ -955,7 +956,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         var useNewSystemSendCommand = false
         if (main?.driverVersionS != null) {
             val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-            useNewSystemSendCommand = driverNum.toInt() > 233
+            try {
+                useNewSystemSendCommand = driverNum.toInt() > 233
+            } catch (_: Exception) { }
         }
         return useNewSystemSendCommand
     }

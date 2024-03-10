@@ -22,6 +22,7 @@ interface Navigator {
     fun showProsthesesCareScreen()
     fun showServiceAndWarrantyScreen()
     fun showNeuralScreen()
+    fun showArcanoidScreen()
 
     fun getBackStackEntryCount():Int
 

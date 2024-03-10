@@ -192,6 +192,13 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         scanningTextSwitcher.setFactory(this);
 
 
+        //TODO быстроее подключение
+        Intent intent = new Intent(ScanActivity.this, StartActivity.class);
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, NameUtil.INSTANCE.getCleanName("FEST-XFTHS65432"));
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, "50:46:5D:6E:8C:20");
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, getProtocolType("FEST-XFTHS65432"));
+        startActivity(intent);
+
         /// BLE
         // Smart connection
         mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE);

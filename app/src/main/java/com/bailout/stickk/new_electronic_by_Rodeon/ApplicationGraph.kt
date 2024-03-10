@@ -50,4 +50,5 @@ interface ApplicationGraph {
   fun inject(advancedSettingsFragmentMono: AdvancedSettingsFragmentMono) {}
   fun inject(gripperTestScreenWithEncodersActivity: GripperTestScreenWithEncodersActivity) {}
   fun inject(neuralFragment: NeuralFragment) {}
+  fun inject(arcanoidFragment: ArcanoidFragment) {}
 }

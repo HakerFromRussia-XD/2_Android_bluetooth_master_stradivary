@@ -1,6 +1,5 @@
 package com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main
 
-import android.Manifest
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -20,6 +19,7 @@ import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.FragmentArcanoidGameBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
+import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import java.util.Vector
@@ -31,7 +31,7 @@ class ArcanoidFragment: Fragment() {
     private var coordinateReadThreadFlag = true
     private lateinit var ball: ImageView
     private var layout: LinearLayout? = null
-    private val ANIMATION_DURATION = 1000L
+    private val ANIMATION_DURATION = 100L
     private var animations = ArrayList<ObjectAnimator>()
     private lateinit var timer: CountDownTimer
 
@@ -48,6 +48,8 @@ class ArcanoidFragment: Fragment() {
     private var oldCoordinate = Vector<Float>()
     private var directionX = 1
     private var directionY = 1
+    private var koefficientViravnivaniya = 0.2f //То насколько мячик будет больше стремиться отпрыгивать по вертикали чем от стен (0 - не работает)
+    private var koefficientOtrajeniaUglov = 0.5f //0.5 от ballWeight
 
     private lateinit var binding: FragmentArcanoidGameBinding
 
@@ -92,17 +94,21 @@ class ArcanoidFragment: Fragment() {
                 ballWidth = ball.measuredWidth
                 ballHeight = ball.measuredHeight
 
-                startPositionX = (gameWidth - ballWidth).toFloat()
-                startPositionY = (gameHeight - ballHeight).toFloat()
+                startPositionX = gameWidth.toFloat()// - binding.gameWindowView.x
+                startPositionY = gameHeight.toFloat() - binding.gameWindowView.y
 
                 firstBallYDelta = getBallCoordinate()[1].toFloat()
                 ball.x = startPositionX/2 - getBallCoordinate()[0].toFloat()
-                ball.y = startPositionY/2 - getBallCoordinate()[1].toFloat()
+                ball.y = 0f//startPositionY/2 - getBallCoordinate()[1].toFloat()
 
 
+                oldCoordinate.clear()
+                oldCoordinate.add(convertBallCoordinate(getBallCoordinate()[0], getBallCoordinate()[1])[0].toFloat())
+                oldCoordinate.add(convertBallCoordinate(getBallCoordinate()[0], getBallCoordinate()[1])[1].toFloat())
                 getRandomStartPoint()
-//                System.err.println("ball random x=${firstPoint[0]}  y=${firstPoint[1]}")
-                animationBall(newCoordinate[0], newCoordinate[1])
+                Handler().postDelayed({
+                    animationBall(newCoordinate[0], newCoordinate[1])
+                }, 1000)
             }
         })
 
@@ -114,7 +120,7 @@ class ArcanoidFragment: Fragment() {
         ball = ImageView(context)
         ball.setImageResource(R.drawable.circle)
 
-        val params = LinearLayout.LayoutParams(42, 42)
+        val params = LinearLayout.LayoutParams(43, 43)
 
         // setting the margin in linearlayout
         ball.layoutParams = params
@@ -146,16 +152,12 @@ class ArcanoidFragment: Fragment() {
     }
 
     private fun animationBall(finalX: Float, finalY: Float) {
+        System.err.println("================= start animationBall ===================")
         animations.clear()
-        oldCoordinate.clear()
-        oldCoordinate.add(convertBallCoordinate(getBallCoordinate()[0], getBallCoordinate()[1])[0].toFloat())
-        oldCoordinate.add(convertBallCoordinate(getBallCoordinate()[0], getBallCoordinate()[1])[1].toFloat())
         System.err.println("ball animationBall oldCoordinate[0]=${oldCoordinate[0]}")
         System.err.println("ball animationBall oldCoordinate[1]=${oldCoordinate[1]}")
         System.err.println("ball animationBall newCoordinate[0]=${newCoordinate[0]}")
         System.err.println("ball animationBall newCoordinate[1]=${newCoordinate[1]}")
-//        System.err.println("ball startPositionX/2=${startPositionX/2}")
-//        System.err.println("ball startPositionY/2=${startPositionY/2}")
 
 
         animations.add(ObjectAnimator.ofFloat(ball, "x", oldCoordinate[0]-ballWidth, finalX-ballWidth))
@@ -180,21 +182,15 @@ class ArcanoidFragment: Fragment() {
 
             @SuppressLint("CutPasteId")
             override fun onFinish() {
-                Handler().postDelayed({
-//                    getBallCoordinate()
-//                    convertBallCoordinate(getBallCoordinate()[0], getBallCoordinate()[1])
-                    getNewCoordinate()
-                    animationBall(newCoordinate[0], newCoordinate[1])
-                }, 100)
-
-//                getNewCoordinate()
-//                getRandomStartPoint()
-//                animationBall(newCoordinate[0], newCoordinate[1])
+                getNewCoordinate()
+                animationBall(newCoordinate[0], newCoordinate[1])
             }
         }.start()
+        System.err.println("================= end animationBall ===================")
     }
 
     private fun getNewCoordinate() {
+        System.err.println("================= start getNewCoordinateBall ===================")
         val ballX: Float = newCoordinate[0]
         val ballY: Float = newCoordinate[1]
 
@@ -202,14 +198,15 @@ class ArcanoidFragment: Fragment() {
 //        val ballX: Int = convertBallCoordinate(getBallCoordinate()[0], getBallCoordinate()[1])[0]
 //        val ballY: Int = convertBallCoordinate(getBallCoordinate()[0], getBallCoordinate()[1])[1]
 //        System.err.println("ball getNewCoordinate ballX=${ballX}  ballY=${ballY}")
-
+        System.err.println("ball direction x=$directionX  y=$directionY")
 
         if (directionY > 0) {
-            val param1 = ballY - oldCoordinate[1] //столько летел мячик по оси У за предыдущий свободный полёт
-            var param2 = (gameHeight - ballY) //столько мячику осталось пройти до конца оси Y
-            if (param2.toInt() == 0) {
-                directionY *= -1
+            val param1 = ballY - oldCoordinate[1]// + ballHeight //столько летел мячик по оси У за предыдущий свободный полёт
+            var param2 = (gameHeight - (param1 + (oldCoordinate[1] - ballHeight))) //столько мячику осталось пройти до конца оси Y
+            if (param2.toInt() == ballHeight) {
+//                directionY *= -1
                 param2 = gameHeight.toFloat()
+//                System.err.println("ball new direction x=$directionX  y=$directionY")
             }
             val param3 = param2/param1 //коэффициент масштаба пути по Х
             System.err.println("ball param1 = $param1")
@@ -217,155 +214,303 @@ class ArcanoidFragment: Fragment() {
             System.err.println("ball param3 = $param3")
 
 
-            if (ballX.toInt() == gameWidth) {
+
+
 //                System.err.println("ball удар о правую стенку")
-                if (directionX > 0) {
-                    //TODO сюда попадаем при движении направо
-                    val param4 = ballX - oldCoordinate[0] //столько летел мячик по оси Х за предыдущий свободный полёт
-                    val param5 = param4 * param3 //на такую величину должна быть сдвинута координата Х
-//                    System.err.println("ball param4 = $param4")
-//                    System.err.println("ball param5 = $param5")
+            if (directionX > 0) {
+                val param4 = ballX - oldCoordinate[0]// + ballWidth //столько летел мячик по оси Х за предыдущий свободный полёт
+                val param5 = param4 * param3 //на такую величину должна быть сдвинута координата Х
+                System.err.println("ball param4 = $param4")
+                System.err.println("ball param5 = $param5")
+                var param6 = (gameWidth - ballX) //- ballWidth //столько мячику осталось пройти до конца оси Х
+                if (param6.toInt() == 0) {
+                    param6 = gameWidth.toFloat()
+                }
+                val param7 = param6 / param4 //коэффициент масштаба пути по У
+                val param8 = param1 * param7 //на такую величину должна сдвинуться координата У
+                System.err.println("ball gameWidth=$gameWidth  ballX=$ballX  param6 = $param6")
+                System.err.println("ball param7 = $param7")
+                System.err.println("ball param8 = $param8")
 
-                    if ((gameWidth - param5) >= ballWidth) { //если двигать мы должны не за край оси, то правильно определили координаты
-//                        System.err.println("ball мы тут")
-                        newCoordinate.add(gameWidth - param5)
-                        newCoordinate.add((gameHeight).toFloat())
+                if (ballX.toInt() == gameWidth) {
+                    if (ballY.toInt() <= gameHeight && ballY.toInt() >= gameHeight - koefficientOtrajeniaUglov*ballWidth) {
+                        System.err.println("ball мы тут попадаем в правый нижний угол")
+                        newCoordinate.clear()
+                        newCoordinate.add(oldCoordinate[0])
+                        newCoordinate.add(oldCoordinate[1])
                     } else {
-//                        System.err.println("ball мы в элсе")
-                        val param6 = (gameWidth - ballX) //столько мячику осталось пройти до конца оси Х
-                        val param7 = param6 / param4 //коэффициент масштаба пути по У
-                        val param8 = param1 * param7 //на такую величину должна сдвинуться координата У
-//                        System.err.println("ball gameWidth=$gameWidth  ballX=$ballX  param6 = $param6")
-//                        System.err.println("ball param7 = $param7")
-//                        System.err.println("ball param8 = $param8")
-
-
-                        newCoordinate.add(ballWidth.toFloat())
-                        newCoordinate.add(ballY + param8)
+                        if ((ballX - param5) > ballWidth) { //если двигать мы должны не за край оси, то правильно определили координаты
+                            System.err.println("ball мы тут if gameWidth")
+                            newCoordinate.clear()
+                            newCoordinate.add((ballX - param5 + koefficientViravnivaniya*(0..ballWidth).random()))
+                            newCoordinate.add(gameHeight.toFloat())
+                        } else {
+                            System.err.println("ball мы в else gameWidth")
+                            newCoordinate.clear()
+                            newCoordinate.add(ballWidth.toFloat())
+                            newCoordinate.add((ballY + param8 + koefficientViravnivaniya*(0..ballWidth).random()))
+                        }
                     }
-                } else {
-                    //TODO сюда попадаем при движении налево
-                    System.err.println("ball popali suda 1")
+                }
+                if (newCoordinate.size == 0) {
+                    if (ballY.toInt() == gameHeight) {
+                        if (ballX.toInt() <= gameWidth && ballX.toInt() >= gameWidth - koefficientOtrajeniaUglov*ballWidth) {
+                            System.err.println("ball мы тут попадаем в правый нижний угол")
+                            newCoordinate.clear()
+                            newCoordinate.add(oldCoordinate[0])
+                            newCoordinate.add(oldCoordinate[1])
+                        } else {
+                            if ((ballY - param8) > ballWidth) { //если двигать мы должны не за край оси, то правильно определили координаты
+                                System.err.println("ball мы тут gameHeight")
+                                newCoordinate.clear()
+                                newCoordinate.add(gameWidth.toFloat())
+                                newCoordinate.add((ballY - param8 + koefficientViravnivaniya*(0..ballWidth).random()))
+                            } else {
+                                System.err.println("ball мы в элсе gameHeight")
+                                newCoordinate.clear()
+                                newCoordinate.add((ballX + param5 - koefficientViravnivaniya*(0..ballWidth).random()))
+                                newCoordinate.add(ballWidth.toFloat())
+                            }
+                        }
+                    }
+                }
+            } else {
+                System.err.println("ball popali suda 123")
+
+                val param4 = oldCoordinate[0] - ballX + ballWidth //столько летел мячик по оси Х за предыдущий свободный полёт
+                val param5 = param4 * param3 //на такую величину должна быть сдвинута координата Х
+                System.err.println("ball param4 = $param4")
+                System.err.println("ball param5 = $param5")
+                var param6 = ballX//столько мячику осталось пройти до конца оси Х
+                if (param6.toInt() == ballWidth) {
+                    param6 = gameWidth.toFloat()
+                }
+                val param7 = param6 / param4 //коэффициент масштаба пути по У
+                val param8 = param1 * param7 //на такую величину должна сдвинуться координата У
+                System.err.println("ball gameWidth=$gameWidth  ballX=$ballX  param6 = $param6")
+                System.err.println("ball param7 = $param7")
+                System.err.println("ball param8 = $param8")
+
+                if (ballY.toInt() == gameHeight) {
+                    if (ballX.toInt() >= ballWidth && (ballX.toInt() <= (ballWidth + koefficientOtrajeniaUglov*ballWidth))) {
+                        System.err.println("all popali suda 1234 попали чётко в левый нижний угол")
+                        newCoordinate.clear()
+                        newCoordinate.add(oldCoordinate[0])
+                        newCoordinate.add(oldCoordinate[1])
+                    } else {
+                        if ((ballX - param5) > ballWidth) {
+                            System.err.println("ball popali suda 1234 if gameHeight  (ballX - param5) ${(ballX - param5)} > ballWidth $ballWidth")
+                            newCoordinate.clear()
+                            newCoordinate.add(ballX - param5 + koefficientViravnivaniya*(0..ballWidth).random())
+                            newCoordinate.add(ballHeight.toFloat())
+                        } else {
+                            //TODO этот отскок правильный
+                            System.err.println("ball popali suda 1234 else gameHeight  (ballX - param5) ${(ballX - param5)} > ballWidth $ballWidth")
+                            newCoordinate.clear()
+                            newCoordinate.add(ballWidth.toFloat())
+                            newCoordinate.add(ballY - param8 - koefficientViravnivaniya*(0..ballWidth).random())
+                        }
+                    }
+                }
+                if (newCoordinate.size == 0) {
+                    if (ballX.toInt() == ballWidth) {
+                        if (ballY.toInt() <= gameHeight && (ballY.toInt() >= (gameHeight - koefficientOtrajeniaUglov*ballHeight))) {
+                            System.err.println("all popali suda 1234 попали чётко в левый нижний угол")
+                            newCoordinate.clear()
+                            newCoordinate.add(oldCoordinate[0])
+                            newCoordinate.add(oldCoordinate[1])
+                        } else {
+                            if ((ballWidth + param5) < gameWidth) {
+                                System.err.println("ball popali suda if 1234 ballWidth проверяли")
+                                newCoordinate.clear()
+                                newCoordinate.add(ballX + param5 - koefficientViravnivaniya*(0..ballWidth).random())
+                                newCoordinate.add(gameHeight.toFloat())
+                            } else {
+                                System.err.println("ball popali suda else 1234 ballWidth")
+                                newCoordinate.clear()
+                                newCoordinate.add(gameWidth.toFloat())
+                                newCoordinate.add(ballY + param8 + koefficientViravnivaniya*(0..ballWidth).random())
+                            }
+                        }
+                    }
                 }
             }
-            if (ballY.toInt() == gameHeight) {
-//                System.err.println("ball удар о нижнюю стенку")
-                if (directionX > 0) {
-                    //TODO сюда попадаем при движении направо
-                    val param4 = ballX - oldCoordinate[0] //столько летел мячик по оси Х за предыдущий свободный полёт
-                    val param5 = param4 * param3 //на такую величину должна быть сдвинута координата Х
-//                    System.err.println("ball param4 = $param4")
-//                    System.err.println("ball param5 = $param5")
-                    val param6 = (gameWidth - ballX) //столько мячику осталось пройти до конца оси Х
-                    val param7 = param6 / param4 //коэффициент масштаба пути по У
-                    val param8 = param1 * param7 //на такую величину должна сдвинуться координата У
-//                    System.err.println("ball gameWidth=$gameWidth  ballWidth=$ballWidth  param6 = $param6")
-//                    System.err.println("ball param7 = $param7")
-//                    System.err.println("ball param8 = $param8")
 
-                    if ((ballY - param8) >= ballWidth) { //если двигать мы должны не за край оси, то правильно определили координаты
-                        // отскок будет в противоположную стенку
-//                        System.err.println("ball мы тут")
-
-                        newCoordinate.add(gameWidth.toFloat())
-                        newCoordinate.add(ballY - param8)
-                    } else {
-                        // отскок будет в соседнюю стенку
-//                        System.err.println("ball мы в элсе")
-
-                        newCoordinate.add(ballX + param5)
-                        newCoordinate.add(ballWidth.toFloat())
-                    }
-                } else {
-                    //TODO сюда попадаем при движении налево
-                    System.err.println("ball popali suda 2")
-
-                    val param4 = oldCoordinate[0] - ballX //столько летел мячик по оси Х за предыдущий свободный полёт
-                    val param5 = param4 * param3 //на такую величину должна быть сдвинута координата Х
-                    System.err.println("ball param4 = $param4")
-                    System.err.println("ball param5 = $param5")
-                    var param6 = ballX //столько мячику осталось пройти до конца оси Х
-                    if (param6.toInt() == 0) {
-                        param6 = gameWidth.toFloat()
-                    }
-                    val param7 = param6 / param4 //коэффициент масштаба пути по У
-                    val param8 = param1 * param7 //на такую величину должна сдвинуться координата У
-                    System.err.println("ball gameWidth=$gameWidth  ballX=$ballX  param6 = $param6")
-                    System.err.println("ball param7 = $param7")
-                    System.err.println("ball param8 = $param8")
-
-
-                    newCoordinate.add(gameWidth - param5)
-                    newCoordinate.add(ballHeight.toFloat())
-                }
-            }
         } else {
-            val param1 = oldCoordinate[1] - ballY //столько летел мячик по оси У за предыдущий свободный полёт
-            var param2 = (gameHeight - param1) //столько мячику осталось пройти до конца оси Y
-            if (param2.toInt() == 0) {
-                directionY *= -1
+            val param1 = oldCoordinate[1] - ballY// + ballHeight //столько летел мячик по оси У за предыдущий свободный полёт
+            var param2 = (gameHeight - (param1 + (gameHeight - oldCoordinate[1]))) //столько мячику осталось пройти до конца оси Y
+            if (param2.toInt() == ballHeight) {
+//                directionY *= -1
                 param2 = gameHeight.toFloat()
+//                System.err.println("ball new direction x=$directionX  y=$directionY")
             }
             val param3 = param2/param1 //коэффициент масштаба пути по Х
             System.err.println("ball param1 = $param1")
             System.err.println("ball param2 = $param2")
             System.err.println("ball param3 = $param3")
 
-            if (ballX.toInt() == gameWidth) {
+
 //                System.err.println("ball popali suda 1 directionX=$directionX")
-                if (directionX > 0) {
-                    val param4 = ballX - oldCoordinate[0] //столько летел мячик по оси Х за предыдущий свободный полёт
-                    val param5 = param4 * param3 //на такую величину должна быть сдвинута координата Х
-//                    System.err.println("ball param4 = $param4")
-//                    System.err.println("ball param5 = $param5")
-                    var param6 = (gameWidth - ballX) //столько мячику осталось пройти до конца оси Х
-                    if (param6.toInt() == 0) {
-                        param6 = gameWidth.toFloat()
-                    }
-                    val param7 = param6 / param4 //коэффициент масштаба пути по У
-                    val param8 = param1 * param7 //на такую величину должна сдвинуться координата У
-//                    System.err.println("ball gameWidth=$gameWidth  ballX=$ballX  param6 = $param6")
-//                    System.err.println("ball param7 = $param7")
-//                    System.err.println("ball param8 = $param8")
+            if (directionX > 0) {
+                val param4 = ballX - oldCoordinate[0]// + ballWidth //столько летел мячик по оси Х за предыдущий свободный полёт
+                val param5 = param4 * param3 //на такую величину должна быть сдвинута координата Х
+                System.err.println("ball param4 = $param4")
+                System.err.println("ball param5 = $param5")
+                var param6 = (gameWidth - ballX) //столько мячику осталось пройти до конца оси Х
+                if (param6.toInt() == 0) {
+                    param6 = gameWidth.toFloat()
+                }
+                val param7 = param6 / param4 //коэффициент масштаба пути по У
+                val param8 = param1 * param7 //на такую величину должна сдвинуться координата У
+                System.err.println("ball gameWidth=$gameWidth  ballX=$ballX  param6 = $param6")
+                System.err.println("ball param7 = $param7")
+                System.err.println("ball param8 = $param8")
 
-                    if ((gameHeight - param5) >= ballWidth) { //если двигать мы должны не за край оси, то правильно определили координаты
-//                        System.err.println("ball мы тут")
-                        newCoordinate.add(gameHeight - param5)
-                        newCoordinate.add(ballWidth.toFloat())
+                if (ballX.toInt() == gameWidth) {
+                    if (ballY.toInt() >= ballHeight && ballY.toInt() <= ballHeight+koefficientOtrajeniaUglov*ballHeight) {
+                        System.err.println("ball popali suda 4123 попали чётко в правый верхний угол")
+                        newCoordinate.clear()
+                        newCoordinate.add(oldCoordinate[0])
+                        newCoordinate.add(oldCoordinate[1])
                     } else {
-                        System.err.println("ball мы в элсе НЕ ПРОВЕРЕНО!")
-                        newCoordinate.add(ballWidth.toFloat())
-                        newCoordinate.add(ballY + param8)
+                        if ((ballX - param5) >= ballWidth) { //если двигать мы должны не за край оси, то правильно определили координаты
+                            System.err.println("ball мы тут if 123456 ballX=$ballX   (ballX - param5) ${(ballX - param5)} >= ballWidth $ballWidth ")
+                            newCoordinate.clear()
+                            newCoordinate.add(ballX - param5 + koefficientViravnivaniya*(0..ballWidth).random())
+                            newCoordinate.add(ballHeight.toFloat())
+                        } else {
+                            System.err.println("ball мы тут else 123456 ballX=$ballX   (ballX - param5) ${(ballX - param5)} >= ballWidth $ballWidth ")
+                            newCoordinate.clear()
+                            newCoordinate.add(ballWidth.toFloat())
+                            System.err.println("ball мы тут else 123456 ballY=$ballY")
+                            newCoordinate.add(ballY - param8 - koefficientViravnivaniya*(0..ballWidth).random())
+                        }
                     }
-                } else {
-                    //TODO сюда попадаем при движении налево
-                    System.err.println("ball popali suda 1 1")
+                }
+                if (newCoordinate.size == 0) {
+                    if (ballY.toInt() == ballHeight) {
+                        if (ballX.toInt() <= gameWidth && ballX.toInt() >= gameWidth - koefficientOtrajeniaUglov*ballWidth) {
+                            System.err.println("ball popali suda 4123 попали чётко в правый верхний угол")
+                            newCoordinate.clear()
+                            newCoordinate.add(oldCoordinate[0])
+                            newCoordinate.add(oldCoordinate[1])
+                        } else {
+                            if ((ballX + param5) >= gameWidth) {
+                                System.err.println("ball popali suda 4123 if (ballX + param8) ${(ballX + param8)}")
+                                newCoordinate.clear()
+                                newCoordinate.add(gameWidth.toFloat())
+                                newCoordinate.add(ballY + param8 + koefficientViravnivaniya*(0..ballWidth).random())
+                            } else {
+                                System.err.println("ball popali suda 4123 else (ballX + param5) ${(ballX + param5)}")
+                                newCoordinate.clear()
+                                newCoordinate.add(ballX + param5 - koefficientViravnivaniya*(0..ballWidth).random())
+                                newCoordinate.add(gameHeight.toFloat())
+                            }
+                        }
 
+                    }
+                }
+            } else {
+                val param4 = oldCoordinate[0] - ballX// + ballWidth//столько летел мячик по оси Х за предыдущий свободный полёт
+                val param5 = param4 * param3 //на такую величину должна быть сдвинута координата Х
+                System.err.println("ball param4 = $param4")
+                System.err.println("ball param5 = $param5")
+                var param6 = ballX //столько мячику осталось пройти до конца оси Х
+                if (param6.toInt() == ballWidth) {// исправил с ballWidth при проверке нижнего левого угла
+                    param6 = gameWidth.toFloat()
+                }
+                val param7 = param6 / param4 //коэффициент масштаба пути по У
+                val param8 = param1 * param7 //на такую величину должна сдвинуться координата У
+                System.err.println("ball gameWidth=$gameWidth  ballX=$ballX  param6 = $param6")
+                System.err.println("ball param7 = $param7")
+                System.err.println("ball param8 = $param8")
+
+                if (ballX.toInt() == ballWidth) {
+                    if (ballY.toInt() >= ballHeight && ballY.toInt() <= ballHeight + koefficientOtrajeniaUglov*ballHeight) {
+                        System.err.println("ball popali 5123  попали чётко в левый верхний угол")
+                        newCoordinate.clear()
+                        newCoordinate.add(oldCoordinate[0])
+                        newCoordinate.add(oldCoordinate[1])
+                    } else {
+                        if ((ballY - param8) >= ballHeight) {
+                            System.err.println("ball popali suda if 5123   (ballY - param8) ${(ballY - param8)} >= ballHeight $ballHeight")
+                            newCoordinate.clear()
+                            newCoordinate.add(gameWidth.toFloat())
+                            newCoordinate.add(ballY - param8 - koefficientViravnivaniya*(0..ballWidth).random())
+                        } else {
+                            System.err.println("ball popali suda else 5123  ballX=$ballX  (ballY - param5) ${(ballY - param5)} >= ballHeight $ballHeight")
+                            newCoordinate.clear()
+                            newCoordinate.add(ballX + param5 - koefficientViravnivaniya*(0..ballWidth).random())
+                            newCoordinate.add(ballHeight.toFloat())
+                        }
+                    }
+                }
+                if (newCoordinate.size == 0) {
+                    if (ballY.toInt() == ballHeight) {
+                        if (ballX.toInt() >= ballWidth && ballX.toInt() <= ballWidth + koefficientOtrajeniaUglov*ballWidth) {
+                            System.err.println("ball popali 5123  попали чётко в левый верхний угол")
+                            newCoordinate.clear()
+                            newCoordinate.add(oldCoordinate[0])
+                            newCoordinate.add(oldCoordinate[1])
+                        } else {
+                            if ((ballY + param8) < gameHeight) {
+                                System.err.println("ball popali if 5123 ballHeight")
+                                newCoordinate.clear()
+                                newCoordinate.add(ballWidth.toFloat())
+                                newCoordinate.add(ballY + param8 + koefficientViravnivaniya*(0..ballWidth).random())
+                            } else {
+                                System.err.println("ball popali else 5123 ballHeight")
+                                newCoordinate.clear()
+                                newCoordinate.add(ballX - param5 + koefficientViravnivaniya*(0..ballWidth).random())
+                                newCoordinate.add(gameHeight.toFloat())
+                            }
+                        }
+                    }
                 }
             }
-            if (ballY.toInt() == gameHeight) {
-                System.err.println("ball popali suda 2 2")
-                if (directionX > 0) {
+        }
 
-                } else {
-
-                }
-            }
+        //защита от нештатных просчётов
+        if (newCoordinate[0] > gameWidth) {
+            System.err.println("ball сработала защита X newCoordinateX=${newCoordinate[0]}  newCoordinateY=${newCoordinate[1]}")
+            newCoordinate[0] = gameWidth.toFloat()
+        }
+        if (newCoordinate[0] < ballWidth) {
+            System.err.println("ball сработала защита X 2 newCoordinateX=${newCoordinate[0]}  newCoordinateY=${newCoordinate[1]}")
+            newCoordinate[0] = ballWidth.toFloat()
+        }
+        if (newCoordinate[1] > gameHeight) {
+            System.err.println("ball сработала защита Y newCoordinateX=${newCoordinate[0]}  newCoordinateY=${newCoordinate[1]}")
+            newCoordinate[1] = gameHeight.toFloat()
+        }
+        if (newCoordinate[1] < ballHeight) {
+            System.err.println("ball сработала защита Y 2 newCoordinateX=${newCoordinate[0]}  newCoordinateY=${newCoordinate[1]}")
+            newCoordinate[1] = ballHeight.toFloat()
         }
 
 
         directionX = if (newCoordinate[0] > ballX) { 1 } else { -1 }
         directionY = if (newCoordinate[1] > ballY) { 1 } else { -1 }
-        System.err.println("ball direction x=$directionX  y=$directionY")
+
+
+        System.err.println("ball direction x=$directionX  y=$directionY   newCoordinateX=${newCoordinate[0]}  newCoordinateY=${newCoordinate[1]}")
+//        for (item in newCoordinate) {
+//            System.err.println("ball newCoordinate = $item")
+//        }
+        oldCoordinate.clear()
+        oldCoordinate.add(ballX)
+        oldCoordinate.add(ballY)
+        System.err.println("================= end getNewCoordinateBall ===================")
     }
     private fun getRandomStartPoint() {
+        System.err.println("================= start getRandomStartPointBall ===================")
         newCoordinate.clear()
 //        if ((0..1000).random() % 2 == 1) {
 //            if ((0..1000).random() % 2 == 1) {
-//                newCoordinate.add(0f + ballHeight)
+                newCoordinate.add(0f + ballHeight)
 //                newCoordinate.add(Random.nextFloat()*(gameHeight - ballHeight))
 //            } else {
-                newCoordinate.add((gameWidth).toFloat())
+//                newCoordinate.add((gameWidth).toFloat())
 //                newCoordinate.add(Random.nextFloat()*(gameHeight - ballHeight))
 //            }
 //        } else {
@@ -378,8 +523,10 @@ class ArcanoidFragment: Fragment() {
 //            }
 //        }
 
-        directionX = if (newCoordinate[0] > startPositionX/2) { 1 } else { -1 }
-        directionY = if (newCoordinate[1] > startPositionY/2) { 1 } else { -1 }
+        directionX = if (newCoordinate[0] > oldCoordinate[0]) { 1 } else { -1 }
+        directionY = if (newCoordinate[1] > oldCoordinate[1]) { 1 } else { -1 }
 //        System.err.println("ball direction x=$directionX  y=$directionY")
+        System.err.println("ball newCoordinate[0]=${newCoordinate[0]}  newCoordinate[1]=${newCoordinate[1]}")
+        System.err.println("================= end getRandomStartPointBall ===================")
     }
 }

@@ -105,6 +105,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <View
+            android:id="@+id/ball_saver_view"
+            android:layout_width="0dp"
+            android:layout_height="10dp"
+            android:background="@color/dark_orange"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
+            app:layout_constraintBottom_toBottomOf="@+id/game_window_view"
+            app:layout_constraintEnd_toEndOf="@+id/game_window_view"
+            app:layout_constraintStart_toStartOf="@+id/game_window_view" />
+
+
         <Button
             android:id="@+id/right_btn"
             android:layout_width="120dp"

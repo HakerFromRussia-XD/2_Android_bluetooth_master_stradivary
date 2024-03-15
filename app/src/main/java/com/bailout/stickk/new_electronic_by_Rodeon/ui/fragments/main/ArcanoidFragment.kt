@@ -9,6 +9,7 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -21,6 +22,12 @@ import com.bailout.stickk.databinding.FragmentArcanoidGameBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.Vector
 import kotlin.math.sqrt
 
@@ -34,6 +41,7 @@ class ArcanoidFragment: Fragment() {
     private var ANIMATION_DURATION = 1000L
     private var animations = ArrayList<ObjectAnimator>()
     private lateinit var timer: CountDownTimer
+    private var moveBallSaverThread: Thread? = null
 
 
     private var gameWidth = 0
@@ -51,6 +59,9 @@ class ArcanoidFragment: Fragment() {
     private var koefficientViravnivaniya = 2f //То насколько мячик будет больше стремиться отпрыгивать по вертикали чем от стен (0 - не работает)
     private var koefficientOtrajeniaUglov = 0.2f //0.5 от ballWeight
     private var ballVelocity = 10f
+    private var saverVelocity = 1f
+    private var activationMoveBallSaver = true
+    private var directionSaver = 1
     private var score = 0
 
     private lateinit var binding: FragmentArcanoidGameBinding
@@ -66,8 +77,26 @@ class ArcanoidFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeUI()
+
+//        // Создаем пул из 4 потоков
+//        val executorService = Executors.newFixedThreadPool(4)
+//
+//        // Планируем на выполнение этот код в одном из этих потоков
+//        executorService.execute {
+//            val fibonacci10 = synchronousFibonacci(10)
+//        }
+        GlobalScope.launch {
+            synchronousFibonacci(10)
+        }
+    }
+    private suspend fun synchronousFibonacci(n: Long): Long {
+        System.err.println("program synchronousFibonacci n=$n")
+        delay(1000)
+        System.err.println("program synchronousFibonacci n=$n")
+        return n
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun initializeUI() {
         binding.backgroundClickBlockBtn.setOnClickListener {  }
 
@@ -76,12 +105,47 @@ class ArcanoidFragment: Fragment() {
             coordinateReadThreadFlag = false
         }
 
-        binding.leftBtn.setOnClickListener {  }
 
-        binding.rightBtn.setOnClickListener {
-            val x: Int = getBallCoordinate()[0]
-            val y: Int = getBallCoordinate()[1]
-//            System.err.println("ball x=$x  y=$y")
+        binding.leftBtn.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                activationMoveBallSaver = false
+                System.err.println("moveSaverVelocity влево $activationMoveBallSaver")
+                GlobalScope.launch(CoroutineName("leftBtn ACTION_UP")) {
+                    synchronousFibonacci(100)
+                }
+//                main()
+//                runBlocking {
+//                    launch { moveSaverVelocity(directionSaver) }
+//                }
+            }
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                if (directionSaver < 0) {} else { directionSaver *= -1 }
+                activationMoveBallSaver = true
+                System.err.println("moveSaverVelocity влево $activationMoveBallSaver")
+//                runBlocking {
+//                    launch { moveSaverVelocity(directionSaver) }
+//                }
+            }
+            false
+        }
+
+        binding.rightBtn.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                if (directionSaver > 0) {} else { directionSaver *= -1 }
+                activationMoveBallSaver = true
+                System.err.println("moveSaverVelocity вправо $activationMoveBallSaver")
+                runBlocking {
+                    async { moveSaverVelocity(directionSaver) }
+                }
+            }
+            if (event.action == MotionEvent.ACTION_UP) {
+                activationMoveBallSaver = false
+                System.err.println("moveSaverVelocity вправо $activationMoveBallSaver")
+//                runBlocking {
+//                    launch { moveSaverVelocity(directionSaver) }
+//                }
+            }
+            false
         }
 
 
@@ -116,6 +180,7 @@ class ArcanoidFragment: Fragment() {
 
         addView(requireContext())
     }
+
 
     @SuppressLint("SuspiciousIndentation")
     private fun addView(context: Context) {
@@ -553,5 +618,18 @@ class ArcanoidFragment: Fragment() {
         directionY = if (newCoordinate[1] > oldCoordinate[1]) { 1 } else { -1 }
         System.err.println("ball newCoordinate[0]=${newCoordinate[0]}  newCoordinate[1]=${newCoordinate[1]}")
         System.err.println("================= end getRandomStartPointBall ===================")
+    }
+    private suspend fun moveSaverVelocity(directionSaver: Int) {
+//        moveBallSaverThread = Thread {
+//            while (activationMoveBallSaver) {
+                if (directionSaver > 0) {
+                    System.err.println("moveSaverVelocity вправо")
+                } else {
+                    System.err.println("moveSaverVelocity влево")
+                }
+                delay(1000)
+//            }
+//        }
+//        moveBallSaverThread?.start()
     }
 }

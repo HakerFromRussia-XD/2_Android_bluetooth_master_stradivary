@@ -965,7 +965,11 @@ class AdvancedSettingsFragment : Fragment() {
 
 
     binding.resetToFactorySettingsBtn.setOnClickListener {
-      main?.showSoftResetDialog()
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+        main?.showSoftResetDialog()
+      } else {
+        main?.showHardResetDialog()
+      }
     }
     binding.calibrationAdvBtn.setOnClickListener { main?.showCalibrationDialog() }
     val eventYandexMetricaParametersCalibrationStatusAdv = "{\"Screen advanced settings\":\"Tup calibration status button\"}"
@@ -1026,10 +1030,11 @@ class AdvancedSettingsFragment : Fragment() {
           binding.serialRl.visibility = View.VISIBLE
           binding.debugScreenRl.visibility = View.GONE
           binding.scaleTv.visibility = View.GONE
+          binding.activeGesturesRl.visibility = View.GONE
         }
         else -> {
           binding.EMGModeRl.visibility = View.GONE
-          binding.debugScreenRl.visibility = View.GONE
+//          binding.debugScreenRl.visibility = View.GONE
           binding.serialRl.visibility = View.GONE
           binding.calibrationRl.visibility = View.GONE
           binding.shutdownCurrent1Rl.visibility = View.GONE
@@ -1040,13 +1045,17 @@ class AdvancedSettingsFragment : Fragment() {
           binding.shutdownCurrent6Rl.visibility = View.GONE
           binding.sideRl.visibility = View.GONE
           binding.onOffSensorGestureSwitchingRl.visibility = View.GONE
+          binding.activeGesturesRl.visibility = View.GONE
         }
     }
 
     binding.swapOpenCloseSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
     binding.singleChannelControlSw.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
 
-
+    //только для FEST-X введены различные еровни ресетов
+    if (!main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+      binding.resetToFactorySettingsBtn.text = getString(R.string.full_reset)
+    }
     if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
     }
@@ -1446,8 +1455,9 @@ class AdvancedSettingsFragment : Fragment() {
     var useNewSystemSendCommand = false
     if (main?.driverVersionS != null) {
       val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-      useNewSystemSendCommand = driverNum.toInt() > 233
-      System.err.println("startSendCommand  driverNum:$driverNum   useNewSystemSendCommand=$useNewSystemSendCommand")
+      try {
+        useNewSystemSendCommand = driverNum.toInt() > 233
+      } catch (_: Exception) { }
     }
     return useNewSystemSendCommand
   }

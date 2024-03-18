@@ -69,7 +69,6 @@ object PreferenceKeys {
   const val FILTERING_OUR_DEVISES = "FILTERING_OUR_DEVISES"
   const val ACTIVATE_RSSI_SHOW = "ACTIVATE_RSSI_SHOW"
   const val ENTER_SECRET_PIN = "ENTER_SECRET_PIN"
-  const val SHOW_SECRET_SETTINGS = "SHOW_SECRET_SETTINGS"
   const val MAX_STAND_CYCLES = "MAX_STAND_CYCLES"
 
 
@@ -101,6 +100,4 @@ object PreferenceKeys {
   const val END_GESTURE_IN_LOOP = "END_GESTURE_IN_LOOP"
 
   const val SHOW_HELP_ACCENT = "SHOW_HELP_ACCENT"
-
-  val ALARM_WEAHTER = Pair("setWeatherAlarm", false)
 }

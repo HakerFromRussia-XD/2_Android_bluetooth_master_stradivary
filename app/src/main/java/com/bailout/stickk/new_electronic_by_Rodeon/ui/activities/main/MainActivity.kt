@@ -982,6 +982,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       .subscribe {
         openFragmentInfoCalibration()
       }
+    RxUpdateMainEvent.getInstance().openSecretSettings
+      .compose(bindToLifecycle())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe {
+        showSecretSettingsScreen()
+      }
 
     val worker = Thread {
       while (true) {

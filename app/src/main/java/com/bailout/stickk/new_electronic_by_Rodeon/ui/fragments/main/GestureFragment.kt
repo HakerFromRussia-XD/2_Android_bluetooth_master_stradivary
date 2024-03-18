@@ -385,6 +385,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             binding.gestureSettings12Btn.visibility = View.VISIBLE
             binding.gestureSettings13Btn.visibility = View.VISIBLE
             binding.gestureSettings14Btn.visibility = View.VISIBLE
+            binding.gesturesResetBtn.visibility = View.VISIBLE
         } else {
             offAllRotationImage()
             binding.toggleGestureClasterRl.visibility = View.GONE
@@ -403,6 +404,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             binding.gestureSettings12Btn.visibility = View.GONE
             binding.gestureSettings13Btn.visibility = View.GONE
             binding.gestureSettings14Btn.visibility = View.GONE
+            binding.gesturesResetBtn.visibility = View.GONE
         }
     }
     private fun setNumActiveGestures(activeGestures: Int) {

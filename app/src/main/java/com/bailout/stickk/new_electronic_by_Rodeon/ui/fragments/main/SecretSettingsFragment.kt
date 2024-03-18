@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.R.drawable.*
 import com.bailout.stickk.databinding.LayoutSecretSettingsBinding
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
@@ -86,6 +87,18 @@ class SecretSettingsFragment: Fragment(){
     }
 
     private fun initializeUI() {
+        when {
+            main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X) -> {
+                System.err.println("DEVICE_TYPE FEST_X")
+            }
+            else -> {
+                System.err.println("DEVICE_TYPE НЕ FEST_X")
+                binding.numberOfCyclesStandRl.visibility = View.GONE
+                binding.prosthesisModeRl.visibility = View.GONE
+                binding.fullResetRl.visibility = View.GONE
+                binding.autocalibrationRl.visibility = View.GONE
+            }
+        }
 
         try {
             binding.prosthesisModeSwapPsv.selectItemByIndex(mSettings!!.getInt(

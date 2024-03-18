@@ -151,8 +151,11 @@ class GripperTestScreenWithEncodersActivity
         }
     }
     private fun showSecretSettings() {
-        saveBool(PreferenceKeys.SHOW_SECRET_SETTINGS, true)
         finish()
+
+        Handler().postDelayed({
+            RxUpdateMainEvent.getInstance().updateOpenSecretSettings(true)
+        }, 100)
     }
     private fun mySaveText(key: String, text: String) {
         val editor: SharedPreferences.Editor = mSettings!!.edit()

@@ -26,4 +26,9 @@
         <item>стенд</item>
         <item>демо</item>
     </string-array>
+    <string-array name="autocalibration_indy_modes">
+        <item>0x00</item>
+        <item>0x01</item>
+        <item>0x02</item>
+    </string-array>
 </resources>

@@ -418,6 +418,26 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
               countdownToUpdate = COUNT_ATTEMPTS_TO_UPDATE
             }
           }
+
+          if (data.size >= 14) {
+            if (castUnsignedCharToInt(data[12]) != mSettings!!.getInt(
+                mDeviceAddress + PreferenceKeys.AUTOCALIBRATION_MODE, 0)) {
+              saveInt(
+                mDeviceAddress + PreferenceKeys.AUTOCALIBRATION_MODE,
+                (castUnsignedCharToInt(data[12]))
+              )
+              RxUpdateMainEvent.getInstance().updateUISecretSettings(true)
+            }
+            if (castUnsignedCharToInt(data[13]) != mSettings!!.getInt(
+                mDeviceAddress + PreferenceKeys.GESTURE_TYPE, 0)) {
+              saveInt(
+                mDeviceAddress + PreferenceKeys.GESTURE_TYPE,
+                (castUnsignedCharToInt(data[13]))
+              )
+              System.err.println("GESTURE_TYPE ${castUnsignedCharToInt(data[13])}  key= ${mDeviceAddress + PreferenceKeys.GESTURE_TYPE}")
+              RxUpdateMainEvent.getInstance().updateUISecretSettings(true)
+            }
+          }
         }
         lockWriteBeforeFirstRead = false
       } else {
@@ -431,18 +451,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           runReadData()
         }
       }
-
-//      if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
-//        dataSensPrevious1 = dataSens1
-//        dataSensPrevious2 = dataSens2
-//
-//        val transferIntent = Intent(this, DataTransferToService::class.java)
-//        transferIntent.putExtra("sensor_level_1", dataSens1)
-//        transferIntent.putExtra("sensor_level_2", dataSens2)
-//        transferIntent.putExtra("open_ch_num", openChNum)
-//        transferIntent.putExtra("close_ch_num", closeChNum)
-//        startService(transferIntent)
-//      }
     }
   }
   private fun displayDataNew(data: ByteArray?) {
@@ -1456,6 +1464,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         }
         18 -> { //подтверждение перепрошивки
           sendByteMassive[3] = 18.toByte()
+          sendByteMassive[4] = byteArray[0]
+          sendByteMassive[5] = crcCalc(sendByteMassive)
+        }
+        19 -> { //отправка автокалибровки (но мы сюда никогда не попадём, это просто описание)
+          sendByteMassive[3] = 19.toByte()
           sendByteMassive[4] = byteArray[0]
           sendByteMassive[5] = crcCalc(sendByteMassive)
         }

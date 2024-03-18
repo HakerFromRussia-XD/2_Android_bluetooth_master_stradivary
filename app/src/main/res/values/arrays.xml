@@ -38,6 +38,11 @@
         <item>stand mode</item>
         <item>demo mode</item>
     </string-array>
+    <string-array name="autocalibration_indy_modes">
+        <item>0x00</item>
+        <item>0x01</item>
+        <item>0x02</item>
+    </string-array>
 
 
     <string-array name="switch_tabs_scale">

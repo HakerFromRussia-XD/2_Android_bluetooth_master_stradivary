@@ -13,8 +13,10 @@ import com.bailout.stickk.R.drawable.*
 import com.bailout.stickk.databinding.LayoutSecretSettingsBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
+import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import io.reactivex.android.schedulers.AndroidSchedulers
 
 
 @Suppress("DEPRECATION")
@@ -55,6 +57,11 @@ class SecretSettingsFragment: Fragment(){
             sendProsthesisMode()
         }
 
+        binding.autocalibrationIndyPsv.setOnSpinnerItemSelectedListener<String> { _, _, gestureType, _ ->
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.AUTOCALIBRATION_MODE, gestureType)
+            sendGestureType(gestureType.toByte())
+        }
+
         binding.setNumberOfCyclesStandBtn.setOnClickListener {
             var numberOfCyclesStand = 0
             try {
@@ -77,19 +84,28 @@ class SecretSettingsFragment: Fragment(){
         }
 
         binding.fullResetBtn.setOnClickListener {
-//            main?.goingBack()
             main?.showHardResetDialog()
         }
 
         binding.autocalibrationBtn.setOnClickListener {
             sendAutocalibration()
         }
+
+
+        RxUpdateMainEvent.getInstance().uiSecretSettings
+            .compose(main?.bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                initializeUI()
+            }
     }
 
     private fun initializeUI() {
         when {
             main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X) -> {
                 System.err.println("DEVICE_TYPE FEST_X")
+                binding.autocalibrationIndyRl.visibility = View.GONE
+                binding.gestureTypeRl.visibility = View.GONE
             }
             else -> {
                 System.err.println("DEVICE_TYPE НЕ FEST_X")
@@ -105,15 +121,23 @@ class SecretSettingsFragment: Fragment(){
                 main?.mDeviceAddress + PreferenceKeys.SET_MODE_PROSTHESIS,
                 0
             ))
+            binding.autocalibrationIndyPsv.selectItemByIndex(mSettings!!.getInt(
+                main?.mDeviceAddress + PreferenceKeys.AUTOCALIBRATION_MODE, 0
+            ))
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
+        binding.gestureTypeNumTv.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.GESTURE_TYPE, 0).toString()
 
         binding.numberOfCyclesStandEt.setText((mSettings!!.getInt(
             main?.mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES,
             0
         )).toString())
+    }
+
+    private fun sendGestureType(gestureType: Byte) {
+        main?.bleCommandConnector(byteArrayOf(gestureType), SET_AUTOCALIBRATION, WRITE, 19)
     }
     private fun sendProsthesisMode() {
         val setReverse = if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)) { 1 } else { 0 }

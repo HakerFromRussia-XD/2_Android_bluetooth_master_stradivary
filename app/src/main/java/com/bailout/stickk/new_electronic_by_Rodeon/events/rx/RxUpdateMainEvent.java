@@ -21,6 +21,7 @@ public class RxUpdateMainEvent {
   private final PublishSubject<Boolean> openSecretSettings;
   private final PublishSubject<Boolean> updateResetAdvancedSettings;
   private final PublishSubject<Integer> updateCommunicationTestResult;
+  private final PublishSubject<Boolean> updateUISecretSettings;
   private final PublishSubject<Boolean> updateUIChart;
   private final PublishSubject<Integer> updateUIGestures;
   private final PublishSubject<Integer> updateEncodersError;
@@ -38,6 +39,7 @@ public class RxUpdateMainEvent {
     calibrating = PublishSubject.create();
     characteristics = PublishSubject.create();
     updateUIAdvancedSettings = PublishSubject.create();
+    updateUISecretSettings = PublishSubject.create();
     openSecretSettings = PublishSubject.create();
     updateResetAdvancedSettings = PublishSubject.create();
     updateCommunicationTestResult = PublishSubject.create();
@@ -61,6 +63,7 @@ public class RxUpdateMainEvent {
   public void updateCalibrationStatus(Boolean status) { calibrating.onNext(status); }
   public void updateReadCharacteristicBLE(String characteristic) { characteristics.onNext(characteristic); }
   public void updateUIAdvancedSettings(Boolean state) { updateUIAdvancedSettings.onNext(state); }
+  public void updateUISecretSettings(Boolean state) { updateUISecretSettings.onNext(state); }
   public void updateOpenSecretSettings(Boolean state) { openSecretSettings.onNext(state); }
   public void updateResetAdvancedSettings(Boolean state) { updateResetAdvancedSettings.onNext(state); }
   public void updateCommunicationTestResult(Integer attempt) { updateCommunicationTestResult.onNext(attempt); }
@@ -80,6 +83,7 @@ public class RxUpdateMainEvent {
   public Observable<String> getReadCharacteristicBLEObservable() { return characteristics; }
   public Observable<Boolean> getUIChart() { return updateUIChart; }
   public Observable<Boolean> getUIAdvancedSettings() { return updateUIAdvancedSettings; }
+  public Observable<Boolean> getUISecretSettings() { return updateUISecretSettings; }
   public Observable<Boolean> getOpenSecretSettings() { return openSecretSettings; }
   public Observable<Boolean> getResetAdvancedSettings() { return updateResetAdvancedSettings; }
   public Observable<Integer> getCommunicationTestResult() { return updateCommunicationTestResult; }

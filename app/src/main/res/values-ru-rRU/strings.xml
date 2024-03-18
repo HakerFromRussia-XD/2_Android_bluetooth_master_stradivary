@@ -496,6 +496,7 @@
     <string name="full_reset">полный сброс</string>
     <string name="soft_factory_reset">Частичный сброс к заводским настройкам</string>
     <string name="gestures_reset">Сброс жестов</string>
+    <string name="gesture_type">тип жеста</string>
 
     <string-array name="numbers">
         <item>0</item>

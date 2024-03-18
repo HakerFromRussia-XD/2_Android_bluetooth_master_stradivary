@@ -494,6 +494,7 @@
     <string name="full_reset">full reset</string>
     <string name="soft_factory_reset">Soft factory reset</string>
     <string name="gestures_reset">Gestures reset</string>
+    <string name="gesture_type">gesture type</string>
 
 
     <string-array name="numbers">

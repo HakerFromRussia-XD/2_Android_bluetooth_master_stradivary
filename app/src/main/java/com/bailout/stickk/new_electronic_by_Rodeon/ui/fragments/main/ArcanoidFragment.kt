@@ -4,6 +4,7 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -15,26 +16,31 @@ import android.view.ViewTreeObserver
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.FragmentArcanoidGameBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import com.yandex.metrica.YandexMetrica
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.anko.runOnUiThread
 import java.util.Vector
-import kotlin.coroutines.coroutineContext
 import kotlin.math.sqrt
 
 
 @OptIn(DelicateCoroutinesApi::class)
 class ArcanoidFragment: Fragment() {
+    private var mSettings: SharedPreferences? = null
     private var windowIsOpen = true
     private var mContext: Context? = null
     private var main: MainActivity? = null
@@ -66,16 +72,17 @@ class ArcanoidFragment: Fragment() {
     private var speedSaver = 10
     private val startScore = 10
     private val scoreIncrement = 1
-    private val scoreDecrement = 0
+    private val scoreDecrement = 5
     private var score = startScore
     private lateinit var moveSaverJob: Job
     private lateinit var readSensDataJob: Job
 
     private var dataSens1 = 0
     private var dataSens2 = 0
-    private val sensorLevel = 100
-    private var rightSlide: Boolean = dataSens1 > sensorLevel
-    private var leftSlide: Boolean = dataSens2 > sensorLevel
+    private var sensor1Level = 100
+    private var sensor2Level = 100
+    private var rightSlide: Boolean = dataSens1 > sensor1Level
+    private var leftSlide: Boolean = dataSens2 > sensor2Level
 
     private lateinit var binding: FragmentArcanoidGameBinding
 
@@ -95,13 +102,43 @@ class ArcanoidFragment: Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initializeUI() {
+        mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+
         binding.backgroundClickBlockBtn.setOnClickListener {  }
 
         binding.backBtn.setOnClickListener {
             navigator().goingBack()
             coordinateReadThreadFlag = false
             windowIsOpen = false
+            activationMoveBallSaver = false
         }
+
+        binding.correlatorNoiseThreshold1Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                binding.correlatorNoiseThreshold1Tv.text = progress.toString()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                if (main?.savingSettingsWhenModified == true) {
+                    main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
+                }
+                sendCorrelatorNoiseThreshold(1)
+                updateAllParameters()
+            }
+        })
+        binding.correlatorNoiseThreshold2Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                binding.correlatorNoiseThreshold2Tv.text = seekBar.progress.toString()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                if (main?.savingSettingsWhenModified == true) {
+                    main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
+                }
+                sendCorrelatorNoiseThreshold(2)
+                updateAllParameters()
+            }
+        })
 
         binding.leftBtn.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
@@ -159,6 +196,7 @@ class ArcanoidFragment: Fragment() {
 
         binding.animationsLav.setAnimation(R.raw.start_animation)
         binding.animationsLav.setOnClickListener {
+            activationMoveBallSaver = true
             windowIsOpen = true
             getRandomStartPoint()
             animationBall(newCoordinate[0], newCoordinate[1])
@@ -167,9 +205,15 @@ class ArcanoidFragment: Fragment() {
             moveSaverJob = GlobalScope.launch(CoroutineName("start")) {
                 moveSaverVelocity(directionSaver)
             }
+            moveSaverJob.cancel()
         }
 
         addView(requireContext())
+
+        sensor1Level = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 0)
+        sensor2Level = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 0)
+        System.err.println("sensor1Level=$sensor1Level   sensor2Level=$sensor2Level")
+        updateAllParameters()
     }
 
 
@@ -629,29 +673,28 @@ class ArcanoidFragment: Fragment() {
     }
     private suspend fun moveSaverVelocity(directionSaver: Int) {
         while (activationMoveBallSaver) {
-
-            System.err.println("name CoroutineName: ${currentCoroutineContext()[CoroutineName]}")
-            if (directionSaver > 0) {
-//                System.err.println("moveSaverVelocity вправо  x=${(binding.gameWindowView.x + gameWidth) - (binding.ballSaverView.x+binding.ballSaverView.measuredWidth)}  gameWidth=$gameWidth   binding.ballSaverView.x=${binding.ballSaverView.x}    binding.ballSaverView.measuredWidth=${binding.ballSaverView.measuredWidth}")
-                if ((binding.gameWindowView.x + gameWidth) - (binding.ballSaverView.x+binding.ballSaverView.measuredWidth) > 0) {
-                    binding.ballSaverView.x += 1
-                }
-            } else {
-//                System.err.println("moveSaverVelocity влево  x=${binding.ballSaverView.x - binding.gameWindowView.x}")
-                if ((binding.ballSaverView.x - binding.gameWindowView.x) > 0) {
-                    binding.ballSaverView.x -= 1
+            main?.runOnUiThread {
+                if (directionSaver > 0) {
+                    if ((binding.gameWindowView.x + gameWidth) - (binding.ballSaverView.x + binding.ballSaverView.measuredWidth) > 0) {
+                        binding.ballSaverView.x += 1
+                    }
+                } else {
+                    if ((binding.ballSaverView.x - binding.gameWindowView.x) > 0) {
+                        binding.ballSaverView.x -= 1
+                    }
                 }
             }
+
             delay((10/speedSaver).toLong())
         }
     }
     private suspend fun readSensorsData() {
         while (windowIsOpen) {
-//            System.err.println("state sens1=${main!!.getDataSens1()}  sens2=${main!!.getDataSens2()}")
+//            System.err.println("state sens1=${main!!.getDataSens1()}  sens2=${main!!.getDataSens2()}  previousState=$previousState")
             dataSens1 = main!!.getDataSens1()
             dataSens2 = main!!.getDataSens2()
-            rightSlide = dataSens1 > sensorLevel
-            leftSlide = dataSens2 > sensorLevel
+            rightSlide = dataSens1 > sensor1Level
+            leftSlide = dataSens2 > sensor2Level
 
             // фейковое движение
 //            previousState = when((0..2).random()) {
@@ -673,52 +716,110 @@ class ArcanoidFragment: Fragment() {
 
 
             //если решение лететь налево
-//            if (rightSlide && leftSlide && previousState == PreviousStates.LEFT_SLIDE || !rightSlide && leftSlide){
-//                previousState = PreviousStates.LEFT_SLIDE
-//            }
-//
-//
-//            //если решение лететь направо
-//            if (rightSlide && leftSlide && previousState == PreviousStates.RIGHT_SLIDE || rightSlide && !leftSlide) {
-//                previousState = PreviousStates.RIGHT_SLIDE
-//            }
-//
-//
-//            //если решение не поворачивать
-//            if (!rightSlide && !leftSlide) {
-//                previousState = PreviousStates.STOP_SLIDE
-//            }
+            if (rightSlide && leftSlide && previousState == PreviousStates.LEFT_SLIDE || !rightSlide && leftSlide){
+                previousState = PreviousStates.LEFT_SLIDE
+            }
+
+
+            //если решение лететь направо
+            if (rightSlide && leftSlide && previousState == PreviousStates.RIGHT_SLIDE || rightSlide && !leftSlide) {
+                previousState = PreviousStates.RIGHT_SLIDE
+            }
+
+
+            //если решение не поворачивать
+            if (!rightSlide && !leftSlide) {
+                previousState = PreviousStates.STOP_SLIDE
+            }
 
 
 
-//            if (stateNow !=  previousState) {
-//                System.err.println("state $previousState")
-//                when (previousState) {
-//                    PreviousStates.LEFT_SLIDE -> {
-//                        activationMoveBallSaver = true
-//                        if (directionSaver < 0) {} else { directionSaver *= -1 }
-//                        if (stateNow == PreviousStates.RIGHT_SLIDE) { moveSaverJob.cancel() }
-//                        moveSaverJob = GlobalScope.launch(CoroutineName("left SENS")) {
-//                            moveSaverVelocity(directionSaver)
-//                        }
-//                    }
-//                    PreviousStates.RIGHT_SLIDE -> {
-//                        activationMoveBallSaver = true
-//                        if (directionSaver > 0) {} else { directionSaver *= -1 }
-//                        if (stateNow == PreviousStates.LEFT_SLIDE) { moveSaverJob.cancel() }
-//                        moveSaverJob = GlobalScope.launch(CoroutineName("right SENS")) {
-//                            moveSaverVelocity(directionSaver)
-//                        }
-//                    }
-//                    PreviousStates.STOP_SLIDE -> {
-//                        activationMoveBallSaver = false
-//                        moveSaverJob.cancel()
-//                    }
-//                }
-//                stateNow = previousState
-//            }
+            if (stateNow !=  previousState) {
+                System.err.println("state $previousState")
+                when (previousState) {
+                    PreviousStates.LEFT_SLIDE -> {
+                        if (directionSaver < 0) {} else { directionSaver *= -1 }
+                        if (stateNow == PreviousStates.RIGHT_SLIDE) { moveSaverJob.cancel() }
+                        moveSaverJob = GlobalScope.launch(CoroutineName("left SENS")) {
+                            moveSaverVelocity(directionSaver)
+                        }
+                    }
+                    PreviousStates.RIGHT_SLIDE -> {
+                        if (directionSaver > 0) {} else { directionSaver *= -1 }
+                        if (stateNow == PreviousStates.LEFT_SLIDE) { moveSaverJob.cancel() }
+                        moveSaverJob = GlobalScope.launch(CoroutineName("right SENS")) {
+                            moveSaverVelocity(directionSaver)
+                        }
+                    }
+                    PreviousStates.STOP_SLIDE -> {
+                        moveSaverJob.cancel()
+                    }
+                }
+                stateNow = previousState
+            }
 
-            delay(1000)//(10/speedSaver).toLong())
+            delay((10/speedSaver).toLong())//1000)
         }
     }
+    private fun sendCorrelatorNoiseThreshold(value: Int) {
+        val modeEMGSend = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)
+
+
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "chart activity"
+            main?.runSendCommand(byteArrayOf(
+                (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+                64, (255 - binding.correlatorNoiseThreshold2Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+                44, 52, 64, 72, 0x40, 5, 64, modeEMGSend.toByte()
+            ), SampleGattAttributes.SENS_OPTIONS_NEW_VM, 50)
+        } else {
+            if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+                main?.runWriteData(
+                    byteArrayOf(
+                        (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+                        64, (255 - binding.correlatorNoiseThreshold2Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
+                        44, 52, 64, 72, 0x40, 5, 64
+                    ), SampleGattAttributes.SENS_OPTIONS_NEW, SampleGattAttributes.WRITE
+                )
+            } else {
+                if (value == 1) {
+                    main?.bleCommandConnector(
+                        byteArrayOf(0x01, (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 0x01),
+                        SampleGattAttributes.SENS_OPTIONS,
+                        SampleGattAttributes.WRITE,
+                        11
+                    )
+                }
+                if (value == 2) {
+                    main?.bleCommandConnector(
+                        byteArrayOf(0x01, (255 - binding.correlatorNoiseThreshold2Sb.progress).toByte(), 0x02),
+                        SampleGattAttributes.SENS_OPTIONS,
+                        SampleGattAttributes.WRITE,
+                        11
+                    )
+                }
+            }
+        }
+    }
+    private fun updateAllParameters() {
+        activity?.runOnUiThread {
+            ObjectAnimator.ofInt(
+                binding.correlatorNoiseThreshold1Sb,
+                "progress",
+                255 - (mSettings!!.getInt(
+                    main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM,
+                    16
+                ))
+            ).setDuration(200).start()
+            ObjectAnimator.ofInt(
+                binding.correlatorNoiseThreshold2Sb,
+                "progress",
+                255 - (mSettings!!.getInt(
+                    main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM,
+                    16
+                ))
+            ).setDuration(200).start()
+        }
+    }
+
 }

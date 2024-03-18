@@ -90,11 +90,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     //TODO выключить быстрое открытие после завершения тестов
-    navigator().showArcanoidScreen()
 //    navigator().showSecretSettingsScreen()
-
 //    navigator().showNeuralScreen()
-    navigator().showWhiteStatusBar(true)
+
 
 
     return binding.root
@@ -429,8 +427,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       main?.showCalibrationDialog()
     }
 
-    binding.gameBtn.setOnClickListener {
-      System.err.println("вызов игры тык")
+
+    binding.startGameBtn.setOnClickListener {
+      navigator().showArcanoidScreen()
+      navigator().showGrayStatusBar(true)
     }
 
     val eventYandexMetricaParametersClose = "{\"Screen chart\":\"Tup close button\"}"
@@ -663,6 +663,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.closeBtn.isEnabled = enabled
     binding.openBtn.isEnabled = enabled
     binding.calibrationBtn.isEnabled = enabled
+    binding.startGameBtn.isEnabled = enabled
     binding.thresholdsBlockingSw.isEnabled = enabled
     binding.correlatorNoiseThreshold1Sb.isEnabled = enabled
     binding.correlatorNoiseThreshold2Sb.isEnabled = enabled

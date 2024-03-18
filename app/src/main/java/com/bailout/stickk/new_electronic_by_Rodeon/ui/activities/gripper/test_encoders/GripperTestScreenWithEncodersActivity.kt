@@ -37,7 +37,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 @Suppress("DEPRECATION")
 @RequirePresenter(GripperScreenPresenter::class)
 class GripperTestScreenWithEncodersActivity
-    : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView, Navigator {
+    : BaseActivity<GripperScreenPresenter, GripperScreenActivityView>(), GripperScreenActivityView {
     private var testWithEncodersRenderer: GripperTestSettingsWithEncodersRenderer? = null
     companion object {
         var angleFinger1 by Delegates.notNull<Int>()
@@ -215,77 +215,4 @@ class GripperTestScreenWithEncodersActivity
         editor.putBoolean(key, variable)
         editor.apply()
     }
-
-    override fun showWhiteStatusBar(show: Boolean) {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showSecretSettingsScreen() {  }
-
-    override fun showHelpScreen(chartFragmentClass: ChartFragment) {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showSensorsHelpScreen(chartFragmentClass: ChartFragment) {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showGesturesHelpScreen(chartFragmentClass: ChartFragment) {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showHelpMonoAdvancedSettingsScreen(chartFragmentClass: ChartFragment) {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showHelpMultyAdvancedSettingsScreen(chartFragmentClass: ChartFragment) {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showHowProsthesesWorksScreen() {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showHowProsthesesWorksMonoScreen() {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showHowPutOnTheProsthesesSocketScreen() {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showCompleteSetScreen() {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showChargingTheProsthesesScreen() {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showProsthesesCareScreen() {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showServiceAndWarrantyScreen() {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showNeuralScreen() {
-//        TODO("Not yet implemented")
-    }
-
-    override fun showArcanoidScreen() {
-//        TODO("Not yet implemented")
-    }
-
-    override fun getBackStackEntryCount(): Int {
-//        TODO("Not yet implemented")
-        return 0
-    }
-
-    override fun goingBack() {
-//        TODO("Not yet implemented")
-    }
-
-
 }

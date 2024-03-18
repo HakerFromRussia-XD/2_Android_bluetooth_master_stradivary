@@ -1143,6 +1143,16 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE
     }
   }
+  override fun showGrayStatusBar(show: Boolean) {
+    if (show) {
+      window.statusBarColor = resources.getColor(R.color.color_primary, theme)
+      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+    }
+    else {
+      window.statusBarColor = resources.getColor(R.color.blue_status_bar, theme)
+      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE
+    }
+  }
   override fun showSecretSettingsScreen() { launchFragment(SecretSettingsFragment()) }
   override fun showHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(HelpFragment(chartFragmentClass)) }
   override fun showSensorsHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(SensorsFragment(chartFragmentClass)) }
@@ -1168,6 +1178,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
     if (supportFragmentManager.backStackEntryCount == 0) {
       showWhiteStatusBar(false)
+      showGrayStatusBar(false)
     }
   }
 

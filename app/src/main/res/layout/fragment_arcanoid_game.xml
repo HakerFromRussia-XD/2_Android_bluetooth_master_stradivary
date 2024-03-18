@@ -104,17 +104,40 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/score_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="10"
+            android:textColor="@color/dark_orange"
+            android:fontFamily="@font/font_open_sans_bold"
+            android:textSize="80sp"
+            app:layout_constraintEnd_toEndOf="@+id/game_window_view"
+            app:layout_constraintStart_toStartOf="@+id/game_window_view"
+            app:layout_constraintTop_toTopOf="@+id/game_window_view" />
 
         <View
             android:id="@+id/ball_saver_view"
-            android:layout_width="0dp"
-            android:layout_height="10dp"
+            android:layout_width="100dp"
+            android:layout_height="5dp"
             android:background="@color/dark_orange"
-            android:layout_marginStart="50dp"
-            android:layout_marginEnd="50dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginEnd="100dp"
             app:layout_constraintBottom_toBottomOf="@+id/game_window_view"
             app:layout_constraintEnd_toEndOf="@+id/game_window_view"
             app:layout_constraintStart_toStartOf="@+id/game_window_view" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animations_lav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/game_window_view"
+            app:layout_constraintEnd_toEndOf="@+id/game_window_view"
+            app:layout_constraintStart_toStartOf="@+id/game_window_view"
+            app:layout_constraintTop_toTopOf="@+id/game_window_view"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="false"/>
 
 
         <Button

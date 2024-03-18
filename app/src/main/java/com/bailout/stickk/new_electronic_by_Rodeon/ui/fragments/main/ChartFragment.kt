@@ -94,7 +94,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 //    navigator().showSecretSettingsScreen()
 
 //    navigator().showNeuralScreen()
-//    navigator().showWhiteStatusBar(true)
+    navigator().showWhiteStatusBar(true)
 
 
     return binding.root

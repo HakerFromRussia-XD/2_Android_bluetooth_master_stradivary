@@ -121,14 +121,15 @@ class SecretSettingsFragment: Fragment(){
                 main?.mDeviceAddress + PreferenceKeys.SET_MODE_PROSTHESIS,
                 0
             ))
-            binding.autocalibrationIndyPsv.selectItemByIndex(mSettings!!.getInt(
-                main?.mDeviceAddress + PreferenceKeys.AUTOCALIBRATION_MODE, 0
-            ))
+//            binding.autocalibrationIndyPsv.selectItemByIndex(mSettings!!.getInt(
+//                main?.mDeviceAddress + PreferenceKeys.AUTOCALIBRATION_MODE, 0
+//            ))
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
         binding.gestureTypeNumTv.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.GESTURE_TYPE, 0).toString()
+        binding.autocalibrationIndyNumTv.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.AUTOCALIBRATION_MODE, 0).toString()
 
         binding.numberOfCyclesStandEt.setText((mSettings!!.getInt(
             main?.mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES,

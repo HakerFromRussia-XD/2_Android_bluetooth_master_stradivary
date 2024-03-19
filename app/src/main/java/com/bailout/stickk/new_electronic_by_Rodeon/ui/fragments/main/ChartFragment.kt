@@ -91,9 +91,8 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
     //TODO выключить быстрое открытие после завершения тестов
 //    navigator().showSecretSettingsScreen()
-
 //    navigator().showNeuralScreen()
-//    navigator().showWhiteStatusBar(true)
+
 
 
     return binding.root
@@ -428,9 +427,11 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       main?.showCalibrationDialog()
     }
 
-    binding.gameBtn.setOnClickListener {
-      System.err.println("вызов игры тык")
-    }
+
+//    binding.startGameBtn.setOnClickListener {
+//      navigator().showArcanoidScreen()
+//      navigator().showGrayStatusBar(true)
+//    }
 
     val eventYandexMetricaParametersClose = "{\"Screen chart\":\"Tup close button\"}"
     val eventYandexMetricaParametersOpen = "{\"Screen chart\":\"Tup open button\"}"
@@ -658,11 +659,11 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   }
   @SuppressLint("SetTextI18n")
   private fun enabledSensorsUIBeforeConnection (enabled: Boolean) {
-//    System.err.println("gonka enabledSensorsUIBeforeConnection $enabled")
     binding.swapSensorsSw.isEnabled = enabled
     binding.closeBtn.isEnabled = enabled
     binding.openBtn.isEnabled = enabled
     binding.calibrationBtn.isEnabled = enabled
+//    binding.startGameBtn.isEnabled = enabled
     binding.thresholdsBlockingSw.isEnabled = enabled
     binding.correlatorNoiseThreshold1Sb.isEnabled = enabled
     binding.correlatorNoiseThreshold2Sb.isEnabled = enabled
@@ -679,7 +680,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   private fun initializedUI() {
     binding.thresholdsBlockingSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
-//    System.err.println("gonka initializedUI false")
     enabledSensorsUIBeforeConnection(false)
     //скрываем кнопку калибровки для всех моделей кроме FEST_H и FEST_X
     if ((main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false && main?.mDeviceType?.contains(DEVICE_TYPE_FEST_X) == false)) {
@@ -704,6 +704,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           //показываем индикацию выбранной группы ротации
           if (main?.driverVersionS != null) {
             val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+//            System.err.println("context ChartFragment NULL! ${mSettings!!.getBoolean(PreferenceKeys.SHOW_SECRET_SETTINGS, false)}")
             if (driverNum.toInt() >= 237) {
               showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
             } else {

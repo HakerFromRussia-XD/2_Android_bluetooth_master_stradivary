@@ -279,9 +279,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private fun displayData(data: ByteArray?) {
     if (data != null){
 //      System.err.println("BluetoothLeService-------------> прошли первый иф ")
-//      System.err.println("============================================")
+      System.err.println("============================================ notify")
       for (i in data.indices) {
-//        System.err.println("BluetoothLeService------------->  size: ${data.size}    $i - ${data[i]}")
+        System.err.println("BluetoothLeService------------->  size: ${data.size}    $i - ${data[i]} notify")
       }
 
 

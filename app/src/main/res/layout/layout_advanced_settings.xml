@@ -1660,8 +1660,8 @@
                             android:layout_centerInParent="true"
                             android:text="8"
                             android:textColor="@color/white"
-                            android:textStyle="bold"
                             android:textSize="11sp"
+                            android:textStyle="bold"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 

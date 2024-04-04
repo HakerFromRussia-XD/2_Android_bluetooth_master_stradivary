@@ -42,7 +42,7 @@ import me.start.motorica.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import me.start.motorica.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import me.start.motorica.new_electronic_by_Rodeon.ui.dialogs.ChartFragmentCallback
 import me.start.motorica.new_electronic_by_Rodeon.utils.NavigationUtils
-import me.start.myunitylibrary.PluginActivity
+//import me.start.myunitylibrary.PluginActivity
 import javax.inject.Inject
 
 
@@ -423,8 +423,8 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
     game_btn?.setOnClickListener {
       System.err.println("вызов игры тык")
-      val i = Intent(activity, PluginActivity::class.java)//UnityPlayerActivity::class.java)
-      startActivity(i)
+//      val i = Intent(activity, PluginActivity::class.java)//UnityPlayerActivity::class.java)
+//      startActivity(i)
       graphThreadFlag = false
     }
 

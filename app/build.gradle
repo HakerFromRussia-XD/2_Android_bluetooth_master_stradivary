@@ -46,8 +46,8 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     compileOnly 'com.github.pengrad:jdk9-deps:1.0'
     //unity
-    implementation project(path: ':unityLibrary')
-    implementation(name:'unitylibrary-debug', ext:'aar')
+//    implementation project(path: ':unityLibrary')
+//    implementation(name:'unitylibrary-debug', ext:'aar')
 
     //noinspection GradleDependency
     implementation 'androidx.appcompat:appcompat:1.4.1'

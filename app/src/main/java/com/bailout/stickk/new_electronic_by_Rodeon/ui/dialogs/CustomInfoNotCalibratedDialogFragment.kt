@@ -42,7 +42,7 @@ class CustomInfoNotCalibratedDialogFragment: DialogFragment()  {
 
         dialog!!.setCanceledOnTouchOutside(false)
 
-        rootView?.findViewById<Button>(R.id.v_andex_alert_dialog_layout_confirm_not_calibrated)?.setOnClickListener {
+        rootView?.findViewById<View>(R.id.v_andex_alert_dialog_layout_confirm_not_calibrated)?.setOnClickListener {
             dismiss()
         }
     }

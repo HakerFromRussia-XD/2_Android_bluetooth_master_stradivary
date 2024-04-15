@@ -941,13 +941,15 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             ).setDuration(200).start()
         }
     }
-    private fun checkDriverVersionGreaterThan237():Boolean {
-        return if (main?.driverVersionS != null) {
+    private fun checkDriverVersionGreaterThan237(): Boolean {
+        var useNewSystemSendCommand = false
+        if (main?.driverVersionS != null) {
             val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-            driverNum.toInt() >= 237
-        } else {
-            false
+            try {
+                useNewSystemSendCommand =  driverNum.toInt() >= 237
+            } catch (_: Exception) { }
         }
+        return useNewSystemSendCommand
     }
     private fun useNewSystemSendCommand(): Boolean {
         //спиннеры имеют свойство спамить блютуз команды при установке в них значения из памяти,

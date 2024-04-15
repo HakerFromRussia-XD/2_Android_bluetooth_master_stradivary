@@ -27,6 +27,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.LayoutChartBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
@@ -90,6 +91,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     //TODO выключить быстрое открытие после завершения тестов
+//    navigator().showArcanoidScreen()
 //    navigator().showSecretSettingsScreen()
 //    navigator().showNeuralScreen()
 
@@ -429,7 +431,16 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     binding.startGameBtn.setOnClickListener {
-      navigator().showArcanoidScreen()
+      // отправить тут данные об отключении работы кисти от датчиков
+      //выключение работы протеза от датчиков
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+        main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW, WRITE)
+      }
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+        main?.stage = "gesture activity 3"
+        main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 50)
+      }
+//      navigator().showArcanoidScreen()
       navigator().showGrayStatusBar(true)
     }
 

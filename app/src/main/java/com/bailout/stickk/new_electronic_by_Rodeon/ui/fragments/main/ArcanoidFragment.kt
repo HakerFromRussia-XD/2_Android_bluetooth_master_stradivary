@@ -42,6 +42,7 @@ import kotlin.math.sqrt
 class ArcanoidFragment: Fragment() {
     private var mSettings: SharedPreferences? = null
     private var windowIsOpen = true
+    private var animationBall = true
     private var mContext: Context? = null
     private var main: MainActivity? = null
     private var coordinateReadThreadFlag = true
@@ -66,7 +67,7 @@ class ArcanoidFragment: Fragment() {
     private var directionY = 1
     private var koefficientViravnivaniya = 2f //То насколько мячик будет больше стремиться отпрыгивать по вертикали чем от стен (0 - не работает)
     private var koefficientOtrajeniaUglov = 0.2f //0.5 от ballWeight
-    private var ballVelocity = 1f
+    private val ballVelocity = 1f
     private var activationMoveBallSaver = true
     private var directionSaver = 1
     private var speedSaver = 10
@@ -76,6 +77,7 @@ class ArcanoidFragment: Fragment() {
     private var score = startScore
     private lateinit var moveSaverJob: Job
     private lateinit var readSensDataJob: Job
+    private var reverse = false
 
     private var dataSens1 = 0
     private var dataSens2 = 0
@@ -103,14 +105,18 @@ class ArcanoidFragment: Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     private fun initializeUI() {
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+        readSensDataJob = GlobalScope.launch { readSensorsData() }
 
         binding.backgroundClickBlockBtn.setOnClickListener {  }
 
         binding.backBtn.setOnClickListener {
             navigator().goingBack()
+            readSensDataJob.cancel()
             coordinateReadThreadFlag = false
             windowIsOpen = false
+            animationBall = false
             activationMoveBallSaver = false
+            startProsthesisWork()
         }
 
         binding.correlatorNoiseThreshold1Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -146,7 +152,7 @@ class ArcanoidFragment: Fragment() {
                 if (directionSaver < 0) {} else { directionSaver *= -1 }
                 moveSaverJob.cancel()
                 moveSaverJob = GlobalScope.launch(CoroutineName("leftBtn ACTION_DOWN")) {
-                    moveSaverVelocity(directionSaver)
+                    moveSaverVelocity()//directionSaver)
                 }
             }
 
@@ -163,7 +169,7 @@ class ArcanoidFragment: Fragment() {
                 if (directionSaver > 0) {} else { directionSaver *= -1 }
                 moveSaverJob.cancel()
                 moveSaverJob = GlobalScope.launch(CoroutineName("rightBtn ACTION_DOWN")) {
-                    moveSaverVelocity(directionSaver)
+                    moveSaverVelocity()//directionSaver)
                 }
             }
             if (event.action == MotionEvent.ACTION_UP) {
@@ -198,12 +204,12 @@ class ArcanoidFragment: Fragment() {
         binding.animationsLav.setOnClickListener {
             activationMoveBallSaver = true
             windowIsOpen = true
+            animationBall = true
             getRandomStartPoint()
             animationBall(newCoordinate[0], newCoordinate[1])
             binding.animationsLav.visibility = View.GONE
-            readSensDataJob = GlobalScope.launch { readSensorsData() }
             moveSaverJob = GlobalScope.launch(CoroutineName("start")) {
-                moveSaverVelocity(directionSaver)
+                moveSaverVelocity()//directionSaver)
             }
             moveSaverJob.cancel()
         }
@@ -212,6 +218,7 @@ class ArcanoidFragment: Fragment() {
 
         sensor1Level = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 0)
         sensor2Level = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 0)
+        reverse = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
         System.err.println("sensor1Level=$sensor1Level   sensor2Level=$sensor2Level")
         updateAllParameters()
     }
@@ -248,13 +255,25 @@ class ArcanoidFragment: Fragment() {
         return location
     }
 
+//    private fun resetBall(){
+//        animations.add(ObjectAnimator.ofFloat(ball, "x", oldCoordinate[0]-ballWidth, finalX-ballWidth))
+//        animations[0].duration = ANIMATION_DURATION
+//        animations[0].interpolator = LinearInterpolator()
+//
+//        animations.add(ObjectAnimator.ofFloat(ball, "y", oldCoordinate[1]-ballHeight, finalY-ballHeight))
+//        animations[1].duration = ANIMATION_DURATION
+//        animations[1].interpolator = LinearInterpolator()
+//
+//        val set = AnimatorSet()
+//        try {
+//            set.playTogether( animations[0], animations[1])
+//            set.start()
+//        } catch (e: Exception){
+//            e.printStackTrace()
+//        }
+//    }
     private fun animationBall(finalX: Float, finalY: Float) {
-//        System.err.println("================= start animationBall ===================")
         animations.clear()
-//        System.err.println("ball animationBall oldCoordinate[0]=${oldCoordinate[0]}")
-//        System.err.println("ball animationBall oldCoordinate[1]=${oldCoordinate[1]}")
-//        System.err.println("ball animationBall newCoordinate[0]=${newCoordinate[0]}")
-//        System.err.println("ball animationBall newCoordinate[1]=${newCoordinate[1]}")
 
 
         animations.add(ObjectAnimator.ofFloat(ball, "x", oldCoordinate[0]-ballWidth, finalX-ballWidth))
@@ -280,7 +299,7 @@ class ArcanoidFragment: Fragment() {
             @SuppressLint("CutPasteId")
             override fun onFinish() {
                 scoring(newCoordinate[0], newCoordinate[1])
-                if (windowIsOpen) {
+                if (animationBall) {
                     getNewCoordinate()
                     animationBall(newCoordinate[0], newCoordinate[1])
                 }
@@ -291,7 +310,7 @@ class ArcanoidFragment: Fragment() {
 
     private fun scoring(coordinateX: Float, coordinateY: Float) {
         if (coordinateY.toInt() == gameHeight) {
-            if (coordinateX >= (binding.ballSaverView.x - binding.gameWindowView.x) && coordinateX <= (binding.ballSaverView.x+binding.ballSaverView.measuredWidth - binding.gameWindowView.x)) {
+            if (coordinateX >= (binding.ballSaverView.x - binding.gameWindowView.x+ball.measuredWidth/2) && coordinateX <= (binding.ballSaverView.x+binding.ballSaverView.measuredWidth - binding.gameWindowView.x+ball.measuredWidth/2)) {
                 score += scoreIncrement
             } else {
                 score -= scoreDecrement
@@ -310,9 +329,13 @@ class ArcanoidFragment: Fragment() {
                     score = startScore
                     binding.scoreTv.text = score.toString()
                 }, 2000)
-                windowIsOpen = false
-                readSensDataJob.cancel()
 
+                coordinateReadThreadFlag = true
+                windowIsOpen = true
+                activationMoveBallSaver = true
+                animationBall = false
+                directionSaver = 1
+                moveSaverJob.cancel()
                 ball.x = gameWidth.toFloat()/2
                 ball.y = 0f
 
@@ -671,16 +694,29 @@ class ArcanoidFragment: Fragment() {
 //        System.err.println("ball newCoordinate[0]=${newCoordinate[0]}  newCoordinate[1]=${newCoordinate[1]}")
 //        System.err.println("================= end getRandomStartPointBall ===================")
     }
-    private suspend fun moveSaverVelocity(directionSaver: Int) {
+    private suspend fun moveSaverVelocity() {
+        System.err.println("activationMoveBallSaver = $activationMoveBallSaver")
         while (activationMoveBallSaver) {
             main?.runOnUiThread {
-                if (directionSaver > 0) {
-                    if ((binding.gameWindowView.x + gameWidth) - (binding.ballSaverView.x + binding.ballSaverView.measuredWidth) > 0) {
-                        binding.ballSaverView.x += 1
+                if (!reverse) {
+                    if (directionSaver > 0) {
+                        if ((binding.gameWindowView.x + gameWidth) - (binding.ballSaverView.x + binding.ballSaverView.measuredWidth) > 0) {
+                            binding.ballSaverView.x += 1
+                        }
+                    } else {
+                        if ((binding.ballSaverView.x - binding.gameWindowView.x) > 0) {
+                            binding.ballSaverView.x -= 1
+                        }
                     }
                 } else {
-                    if ((binding.ballSaverView.x - binding.gameWindowView.x) > 0) {
-                        binding.ballSaverView.x -= 1
+                    if (directionSaver > 0) {
+                        if ((binding.ballSaverView.x - binding.gameWindowView.x) > 0) {
+                            binding.ballSaverView.x -= 1
+                        }
+                    } else {
+                        if ((binding.gameWindowView.x + gameWidth) - (binding.ballSaverView.x + binding.ballSaverView.measuredWidth) > 0) {
+                            binding.ballSaverView.x += 1
+                        }
                     }
                 }
             }
@@ -695,24 +731,6 @@ class ArcanoidFragment: Fragment() {
             dataSens2 = main!!.getDataSens2()
             rightSlide = dataSens1 > sensor1Level
             leftSlide = dataSens2 > sensor2Level
-
-            // фейковое движение
-//            previousState = when((0..2).random()) {
-//                0 -> {
-//                    PreviousStates.RIGHT_SLIDE
-//                }
-//
-//                1 -> {
-//                    PreviousStates.STOP_SLIDE
-//                }
-//
-//                2 -> {
-//                    PreviousStates.LEFT_SLIDE
-//                }
-//                else -> {
-//                    PreviousStates.STOP_SLIDE
-//                }
-//            }
 
 
             //если решение лететь налево
@@ -739,16 +757,16 @@ class ArcanoidFragment: Fragment() {
                 when (previousState) {
                     PreviousStates.LEFT_SLIDE -> {
                         if (directionSaver < 0) {} else { directionSaver *= -1 }
-                        if (stateNow == PreviousStates.RIGHT_SLIDE) { moveSaverJob.cancel() }
+                        if (stateNow == PreviousStates.RIGHT_SLIDE ) { moveSaverJob.cancel() }
                         moveSaverJob = GlobalScope.launch(CoroutineName("left SENS")) {
-                            moveSaverVelocity(directionSaver)
+                            moveSaverVelocity()//directionSaver)
                         }
                     }
                     PreviousStates.RIGHT_SLIDE -> {
                         if (directionSaver > 0) {} else { directionSaver *= -1 }
                         if (stateNow == PreviousStates.LEFT_SLIDE) { moveSaverJob.cancel() }
                         moveSaverJob = GlobalScope.launch(CoroutineName("right SENS")) {
-                            moveSaverVelocity(directionSaver)
+                            moveSaverVelocity()//directionSaver)
                         }
                     }
                     PreviousStates.STOP_SLIDE -> {
@@ -821,5 +839,18 @@ class ArcanoidFragment: Fragment() {
             ).setDuration(200).start()
         }
     }
-
+    private fun startProsthesisWork() {
+        //включение работы протеза от датчиков
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
+            main?.runWriteData(byteArrayOf(0x01.toByte()),
+                SampleGattAttributes.SENS_ENABLED_NEW,
+                SampleGattAttributes.WRITE
+            )
+        }
+        if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            main?.stage = "gesture activity 3"
+            main?.runSendCommand(byteArrayOf(0x01.toByte()),
+                SampleGattAttributes.SENS_ENABLED_NEW_VM, 50)
+        }
+    }
 }

@@ -440,7 +440,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         main?.stage = "gesture activity 3"
         main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 50)
       }
-//      navigator().showArcanoidScreen()
+
+
+      navigator().showArcanoidScreen()
       navigator().showGrayStatusBar(true)
     }
 

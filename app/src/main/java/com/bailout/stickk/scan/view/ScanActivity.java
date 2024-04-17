@@ -251,18 +251,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
 
         checkLocationPermission();
-        init3D();
-
-//        System.err.println("Test getCleanName():"+getCleanName("FEST-X"));
-//        System.err.println("Test getCleanName():"+getCleanName("FEST-X "));
-//        System.err.println("Test getCleanName():"+getCleanName("FEST-X FEST-XXXXXX"));
-//        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTFS11111"));
-//        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTFO11112"));
-//        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTHS22222"));
-//        System.err.println("Test getCleanName():"+getCleanName("FEST-XFTHO22223"));
-//        System.err.println("Test getCleanName():"+getCleanName("FEST-XEIAS33333"));
-//        System.err.println("Test getCleanName():"+getCleanName("FEST-XEFAS44444"));
-
+        //ускорение загрузки
+//        init3D();
 
         //TODO закомментить быстрый вход после завершения экспериментов
 //        testNavigate();
@@ -478,14 +468,14 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) {
         if (firstNavigateToActivity) {
             firstNavigateToActivity = false;
-            mHandler.postDelayed(() -> {
-                for (int k = 0; k < MAX_NUMBER_DETAILS; k++) {
-                    final int finalK = k;
-                    System.err.println("Запуск загрузки: " + finalK);
-                    threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
-                    threadFunction[k].start();
-                }
-            }, 500);
+//            mHandler.postDelayed(() -> {
+//                for (int k = 0; k < MAX_NUMBER_DETAILS; k++) {
+//                    final int finalK = k;
+//                    System.err.println("Запуск загрузки: " + finalK);
+//                    threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
+//                    threadFunction[k].start();
+//                }
+//            }, 500);
 
 
             if (extraDevice == null) return;

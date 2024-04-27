@@ -750,7 +750,6 @@ class Decorator(private val main: MainActivity,
     fun showGuide(nameGuide: TypeGuides, targetView: View, rootClass: Any) {
         when (nameGuide) {
             TypeGuides.SHOW_HELP_GUIDE -> {showHelpGuide(targetView, rootClass)}
-
             TypeGuides.SHOW_VERSION_GUIDE -> {showVersionGuide(targetView, rootClass)}
             TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE -> {showSensorsSensitivityGuide(targetView, rootClass)}
             TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE -> {showSensorsSensitivityClarificationGuide(targetView, rootClass)}

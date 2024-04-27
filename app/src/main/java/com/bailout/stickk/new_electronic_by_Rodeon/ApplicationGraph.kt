@@ -17,6 +17,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.presenters.GripperScreenPrese
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.StartActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.AccountFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
@@ -50,4 +51,5 @@ interface ApplicationGraph {
   fun inject(advancedSettingsFragmentMono: AdvancedSettingsFragmentMono) {}
   fun inject(gripperTestScreenWithEncodersActivity: GripperTestScreenWithEncodersActivity) {}
   fun inject(neuralFragment: NeuralFragment) {}
+  fun inject(accountFragment: AccountFragment) {}
 }

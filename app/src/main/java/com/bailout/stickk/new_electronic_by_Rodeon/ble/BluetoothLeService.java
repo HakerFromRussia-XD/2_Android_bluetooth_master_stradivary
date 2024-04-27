@@ -120,7 +120,6 @@ public class BluetoothLeService extends Service {
         if (data != null && data.length > 0) {
             if (state.equals(WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
-//                System.err.println("MIO_DATA_NEW from service data=" + data[0]);
                 intent.putExtra(MIO_DATA, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
             }
@@ -241,8 +240,6 @@ public class BluetoothLeService extends Service {
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
-
-
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
@@ -373,7 +370,6 @@ public class BluetoothLeService extends Service {
             Timber.d("Trying to use an existing mBluetoothGatt for connection.");
             return mBluetoothGatt.connect();
         }
-//TODO раскомментить после завершения теста с сохранением имён жестов
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {

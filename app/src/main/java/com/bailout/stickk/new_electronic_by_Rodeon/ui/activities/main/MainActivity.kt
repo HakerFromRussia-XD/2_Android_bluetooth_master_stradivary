@@ -44,6 +44,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.*
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.AccountFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.NeuralFragment
@@ -152,7 +153,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
 
       // Automatically connects to the device upon successful start-up initialization.
-      mBluetoothLeService?.connect(mDeviceAddress)
+      //TODO закомментить быстрый вход после завершения экспериментов
+//      mBluetoothLeService?.connect(mDeviceAddress)
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(DEVICE_TYPE_BT05)
         || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
@@ -789,7 +791,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       globalSemaphore = true
     }
   }
-  @SuppressLint("CheckResult", "NewApi")
+  @SuppressLint("CheckResult", "NewApi", "UnspecifiedRegisterReceiverFlag")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     binding = ActivityMainBinding.inflate(layoutInflater)
@@ -807,7 +809,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
 
-    // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
+    // Initializes a Bluetooth adapter.
+    // For API level 18 and above, get a reference to
     // BluetoothAdapter through BluetoothManager.
     val bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
     mBluetoothAdapter = bluetoothManager.adapter
@@ -1166,8 +1169,10 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun showProsthesesCareScreen() { launchFragment(ProsthesesCareFragment()) }
   override fun showServiceAndWarrantyScreen() { launchFragment(ServiceAndWarrantyFragment()) }
   override fun showNeuralScreen() { launchFragment(NeuralFragment()) }
+  override fun showAccountScreen() { launchFragment(AccountFragment()) }
   override fun getBackStackEntryCount():Int { return supportFragmentManager.backStackEntryCount }
   override fun goingBack() { onBackPressed() }
+  @SuppressLint("MissingSuperCall")
   override fun onBackPressed() {
     System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
     //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи

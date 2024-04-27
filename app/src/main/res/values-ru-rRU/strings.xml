@@ -497,6 +497,9 @@
     <string name="soft_factory_reset">Частичный сброс к заводским настройкам</string>
     <string name="gestures_reset">Сброс жестов</string>
     <string name="gesture_type">тип жеста</string>
+    <string name="general">Главные</string>
+    <string name="customer_service">Служба поддержки</string>
+    <string name="prosthesis_information">Информация о протезе</string>
 
     <string-array name="numbers">
         <item>0</item>

@@ -33,9 +33,10 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="baseline_circle_24" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/../../user.svg" />
+                            <entry key="outputName" value="prosthesis_information" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/../../trace.svg" />
                           </map>
                         </option>
                       </PersistentState>

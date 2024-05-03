@@ -226,7 +226,7 @@
     <string name="time_at_rest">длина пика</string>
     <string name="recalibration_required_to_complete_prostheses_side_change">Для завершения смены стороны протеза необходима перекалибровка.</string>
     <string name="do_you_want_to_start_calibration_now">Вы хотите начать калибровку сейчас?</string>
-    <string name="version_app">версия приложения:</string>
+    <string name="version_app">Версия приложения</string>
     <string name="error_code">Код ошибки: %d</string>
     <string name="prostheses_blocking">блокировка протеза</string>
     <string name="hold_to_lock_time">время удержания для блокировки</string>
@@ -500,6 +500,10 @@
     <string name="general">Главные</string>
     <string name="customer_service">Служба поддержки</string>
     <string name="prosthesis_information">Информация о протезе</string>
+    <string name="driver_version">Версия драйвера</string>
+    <string name="software_information">Информация о версиях</string>
+    <string name="bms_version">Версия БМС</string>
+    <string name="sensors_version">Версия сенсоров</string>
 
     <string-array name="numbers">
         <item>0</item>

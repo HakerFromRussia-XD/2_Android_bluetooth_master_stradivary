@@ -225,7 +225,7 @@
     <string name="time_at_rest">peak length</string>
     <string name="recalibration_required_to_complete_prostheses_side_change">Recalibration required to complete prostheses side change.</string>
     <string name="do_you_want_to_start_calibration_now">Do you want to start calibration now?</string>
-    <string name="version_app">version app:</string>
+    <string name="version_app">Application version</string>
     <string name="error_code">Error code: %d</string>
     <string name="prostheses_blocking">prostheses blocking</string>
     <string name="hold_to_lock_time">hold to lock time</string>
@@ -498,6 +498,10 @@
     <string name="general">General</string>
     <string name="customer_service">Customer service</string>
     <string name="prosthesis_information">Prosthesis information</string>
+    <string name="driver_version">Driver version</string>
+    <string name="software_information">Software information</string>
+    <string name="bms_version">Bms version</string>
+    <string name="sensors_version">Sensors version</string>
 
 
     <string-array name="numbers">

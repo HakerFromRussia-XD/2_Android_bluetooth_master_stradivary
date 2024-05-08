@@ -23,6 +23,8 @@ interface Navigator {
     fun showServiceAndWarrantyScreen()
     fun showNeuralScreen()
     fun showAccountScreen()
+    fun showAccountCustomerServiceScreen()
+    fun showAccountProsthesisInformationScreen()
 
     fun getBackStackEntryCount():Int
 

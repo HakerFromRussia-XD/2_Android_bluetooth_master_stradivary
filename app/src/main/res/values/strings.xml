@@ -502,6 +502,16 @@
     <string name="software_information">Software information</string>
     <string name="bms_version">Bms version</string>
     <string name="sensors_version">Sensors version</string>
+    <string name="date_of_receipt_of_prosthesis">Date of receipt of prosthesis</string>
+    <string name="warranty_expiration_date">Warranty expiration date</string>
+    <string name="your_manager">Your manager</string>
+    <string name="prosthesis_status">Prosthesis status</string>
+    <string name="prosthesis_model">Prosthesis model</string>
+    <string name="prosthesis_size">Prosthesis size</string>
+    <string name="hand_side_2">Hand side</string>
+    <string name="rotator_type">Rotator type</string>
+    <string name="touchscreen_finger_pads">Touchscreen finger pads</string>
+    <string name="battery_type">Battery type</string>
 
 
     <string-array name="numbers">

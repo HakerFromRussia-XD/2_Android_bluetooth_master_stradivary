@@ -504,6 +504,16 @@
     <string name="software_information">Информация о версиях</string>
     <string name="bms_version">Версия БМС</string>
     <string name="sensors_version">Версия сенсоров</string>
+    <string name="date_of_receipt_of_prosthesis">Дата получения протеза</string>
+    <string name="warranty_expiration_date">Дата окончания гарантии</string>
+    <string name="your_manager">Ваш менеджер</string>
+    <string name="prosthesis_status">Статус протеза</string>
+    <string name="prosthesis_model">Модель протеза</string>
+    <string name="prosthesis_size">Размер протеза</string>
+    <string name="hand_side_2">Сторона руки</string>
+    <string name="rotator_type">Тип ротатора</string>
+    <string name="touchscreen_finger_pads">Touchscreen напальчники</string>
+    <string name="battery_type">Тип аккумулятора</string>
 
     <string-array name="numbers">
         <item>0</item>

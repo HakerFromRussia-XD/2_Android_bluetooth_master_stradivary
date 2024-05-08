@@ -27,7 +27,6 @@ import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.BluetoothLeService
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
@@ -44,7 +43,9 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.*
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.AccountFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.customerServiceFragment.AccountFragmentCustomerService
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountFragmentMain
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.prosthesisInformationFragment.AccountFragmentProsthesisInformation
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.NeuralFragment
@@ -1169,7 +1170,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun showProsthesesCareScreen() { launchFragment(ProsthesesCareFragment()) }
   override fun showServiceAndWarrantyScreen() { launchFragment(ServiceAndWarrantyFragment()) }
   override fun showNeuralScreen() { launchFragment(NeuralFragment()) }
-  override fun showAccountScreen() { launchFragment(AccountFragment()) }
+  override fun showAccountScreen() { launchFragment(AccountFragmentMain()) }
+  override fun showAccountCustomerServiceScreen() { launchFragment(AccountFragmentCustomerService()) }
+  override fun showAccountProsthesisInformationScreen() { launchFragment(AccountFragmentProsthesisInformation()) }
   override fun getBackStackEntryCount():Int { return supportFragmentManager.backStackEntryCount }
   override fun goingBack() { onBackPressed() }
   @SuppressLint("MissingSuperCall")

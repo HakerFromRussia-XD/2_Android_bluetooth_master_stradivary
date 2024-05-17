@@ -137,6 +137,7 @@ class SecretSettingsFragment: Fragment(){
         )).toString())
     }
 
+
     private fun sendGestureType(gestureType: Byte) {
         main?.bleCommandConnector(byteArrayOf(gestureType), SET_AUTOCALIBRATION, WRITE, 19)
     }

@@ -1507,6 +1507,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (mBluetoothLeService != null) {
       for (i in mGattCharacteristics.indices) {
         for (j in mGattCharacteristics[i].indices) {
+          System.err.println("sendEMGMode INDY bleCommand: $Command == ${mGattCharacteristics[i][j].uuid}")
           if (mGattCharacteristics[i][j].uuid.toString() == Command) {
             mCharacteristic = mGattCharacteristics[i][j]
             if (typeCommand == WRITE){

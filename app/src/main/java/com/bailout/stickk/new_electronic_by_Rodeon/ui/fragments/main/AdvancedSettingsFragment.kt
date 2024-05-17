@@ -199,6 +199,9 @@ class AdvancedSettingsFragment : Fragment() {
 
       if (useNewSystemSendCommand()) {
         sendEMGMode(modeEMGSend)
+        System.err.println("useNewSystemSendCommand true")
+      } else {
+        System.err.println("useNewSystemSendCommand false")
       }
     }
 
@@ -1034,6 +1037,7 @@ class AdvancedSettingsFragment : Fragment() {
         }
         else -> {
           binding.EMGModeRl.visibility = View.GONE
+          //TODO кнопка дебагинга в INDY для доступа к секретным настройкам не совсем годится, потому что там модель FEST-H (если закомментить, то будет кнопка)
           binding.debugScreenRl.visibility = View.GONE
           binding.serialRl.visibility = View.GONE
           binding.calibrationRl.visibility = View.GONE
@@ -1321,11 +1325,17 @@ class AdvancedSettingsFragment : Fragment() {
     correlatorNoiseThreshold2 =
       mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM,16)
 
-    main?.runSendCommand(byteArrayOf(
-      (correlatorNoiseThreshold1).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
-      64, (correlatorNoiseThreshold2).toByte(), 6, 1, 0x10, 36, 18,
-      44, 52, 64, 72, 0x40, 5, 64, value.toByte()
-    ), SENS_OPTIONS_NEW_VM, 50)
+    //TODO отправка команды на индюшку
+    if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+      main?.runSendCommand(byteArrayOf(
+        (correlatorNoiseThreshold1).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
+        64, (correlatorNoiseThreshold2).toByte(), 6, 1, 0x10, 36, 18,
+        44, 52, 64, 72, 0x40, 5, 64, value.toByte()
+      ), SENS_OPTIONS_NEW_VM, 50)
+    } else {
+      System.err.println("sendEMGMode INDY: $value")
+      main?.bleCommandConnector(byteArrayOf(value.toByte()), SET_EMG_MODE, WRITE, 11)
+    }
   }
   private fun sendGestureRotation () {
     main?.stage = "advanced activity"
@@ -1478,6 +1488,9 @@ class AdvancedSettingsFragment : Fragment() {
       try {
         useNewSystemSendCommand = driverNum.toInt() > 233
       } catch (_: Exception) { }
+    }
+    if (main?.driverVersionINDY != null) {
+      useNewSystemSendCommand = main?.driverVersionINDY!! > 237
     }
     return useNewSystemSendCommand
   }

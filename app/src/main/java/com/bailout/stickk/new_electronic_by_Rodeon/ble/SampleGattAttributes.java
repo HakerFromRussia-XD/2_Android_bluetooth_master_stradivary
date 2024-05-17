@@ -28,6 +28,7 @@ public class SampleGattAttributes {
     public static String SET_START_UPDATE = "0000fe53-8e22-4541-9d4c-21edae82ed19";
     public static String SET_SELECT_SCALE = "0000fe54-8e22-4541-9d4c-21edae82ed19";
     public static String SET_AUTOCALIBRATION = "0000fe55-8e22-4541-9d4c-21edae82ed19";
+    public static String SET_EMG_MODE = "0000fe56-8e22-4541-9d4c-21edae82ed19";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     public static String FESTO_A_CHARACTERISTIC = "0000ffe1-0000-1000-8000-00805f9b34fb";
 

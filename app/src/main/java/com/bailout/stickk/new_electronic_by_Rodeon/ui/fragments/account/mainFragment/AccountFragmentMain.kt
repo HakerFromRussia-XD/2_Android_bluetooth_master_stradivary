@@ -33,7 +33,7 @@ class AccountFragmentMain : Fragment() {
     private var gson: Gson? = null
     private var encryptionManager: EncryptionManagerUtils? = null
     private var encryptionResult: String? = null
-    private var testSerialNumber = "FEST-EP-05674"
+    private var testSerialNumber = "FEST-H-04921"//"FEST-EP-05674"
     private var myRequests: Requests? = null
 
     private lateinit var binding: FragmentPersonalAccountMainBinding
@@ -52,6 +52,7 @@ class AccountFragmentMain : Fragment() {
         myRequests = Requests()
         encryptionManager = EncryptionManagerUtils.instance
         encryptionResult = encryptionManager?.encrypt(testSerialNumber)
+//        System.err.println("encryptionResult = $encryptionResult")
 
         accountMainList = ArrayList()
         requestToken()

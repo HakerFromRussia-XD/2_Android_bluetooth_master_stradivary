@@ -71,6 +71,7 @@ object PreferenceKeys {
   const val ENTER_SECRET_PIN = "ENTER_SECRET_PIN"
   const val MAX_STAND_CYCLES = "MAX_STAND_CYCLES"
   const val AUTOCALIBRATION_MODE = "AUTOCALIBRATION_MODE"
+  const val EMG_MODE = "EMG_MODE"
   const val GESTURE_TYPE = "GESTURE_TYPE"
 
 

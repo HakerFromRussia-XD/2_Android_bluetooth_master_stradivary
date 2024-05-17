@@ -1034,7 +1034,7 @@ class AdvancedSettingsFragment : Fragment() {
         }
         else -> {
           binding.EMGModeRl.visibility = View.GONE
-//          binding.debugScreenRl.visibility = View.GONE
+          binding.debugScreenRl.visibility = View.GONE
           binding.serialRl.visibility = View.GONE
           binding.calibrationRl.visibility = View.GONE
           binding.shutdownCurrent1Rl.visibility = View.GONE
@@ -1107,7 +1107,15 @@ class AdvancedSettingsFragment : Fragment() {
     binding.calibrationStatusAdvBtn.isEnabled = enabled
     binding.debugScreenBtn.isEnabled = enabled
     binding.testConnectionBtn.isEnabled = enabled
-    if (checkDriverVersionGreaterThan237()) { binding.EMGModeRl.visibility = View.VISIBLE }
+    if (checkDriverVersionGreaterThan237()) {
+      binding.EMGModeRl.visibility = View.VISIBLE
+      when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)) {
+        9 -> { binding.EMGModeSwapPsv.selectItemByIndex(0) }
+        7 -> { binding.EMGModeSwapPsv.selectItemByIndex(1) }
+        10 -> { binding.EMGModeSwapPsv.selectItemByIndex(2) }
+      }
+    }
+    else { binding.EMGModeRl.visibility = View.GONE }
   }
   @SuppressLint("Recycle", "SetTextI18n")
   private fun updateAllParameters() {
@@ -1379,17 +1387,28 @@ class AdvancedSettingsFragment : Fragment() {
     editor.apply()
   }
   private fun checkDriverVersionGreaterThan237():Boolean {
+    System.err.println("driverVersionS "+main?.driverVersionS)
+    val indyVersion = (mSettings!!.getInt(
+      main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
+      1
+    ))
+    System.err.println("driverVersion indy $indyVersion")
     if (main?.driverVersionS != null) {
       val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
       if (driverNum.toInt() >= 237) {
         return true
       }
+    } else {
+      //TODO прописать сюда версию ИНДИ с датчиками
+      if (indyVersion >= 237) {
+        return true
+      }
     }
     return false
   }
+
   private fun validationAndConversionSerialNumber(serialNumber: String): String {
     System.err.println("serialNumber: $serialNumber")//"FEST-F-11111"
-
 
 
     val namePrefix = serialNumber.split("-")[0]+"-"+serialNumber.split("-")[1]
@@ -1453,6 +1472,7 @@ class AdvancedSettingsFragment : Fragment() {
     // что мешает нормальной инициализации блютуза и запросу стартовых параметров. Для
     // отключения этого спама мы делаем эту проверку
     var useNewSystemSendCommand = false
+    System.err.println("useNewSystemSendCommand driverVersionINDY = ${main?.driverVersionINDY}")
     if (main?.driverVersionS != null) {
       val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
       try {

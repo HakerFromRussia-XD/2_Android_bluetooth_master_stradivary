@@ -52,6 +52,7 @@ class AccountFragmentCustomerService : Fragment() {
         encryptionManager = EncryptionManagerUtils.instance
         encryptionResult = encryptionManager?.encrypt(testSerialNumber)
 
+
         accountCustomerServiceList = ArrayList()
         requestToken()
         binding.refreshLayout.setLottieAnimation("loader_3.json")

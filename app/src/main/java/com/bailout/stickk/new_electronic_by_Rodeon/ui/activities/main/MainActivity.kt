@@ -81,6 +81,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var mDeviceAddress: String? = null
   var mDeviceType: String? = null
   var driverVersionS: String? = null
+  var driverVersionINDY: Int? = null
   private var mBluetoothLeService: BluetoothLeService? = null
   private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
   private var mGattServicesList: ExpandableListView? = null
@@ -155,7 +156,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
       // Automatically connects to the device upon successful start-up initialization.
       //TODO закомментить быстрый вход после завершения экспериментов
-//      mBluetoothLeService?.connect(mDeviceAddress)
+      mBluetoothLeService?.connect(mDeviceAddress)
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(DEVICE_TYPE_BT05)
         || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
@@ -165,6 +166,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         binding.mainactivityNavi.visibility = View.GONE
       }
     }
+
 
     override fun onServiceDisconnected(componentName: ComponentName) {
       System.err.println("Check ServiceConnection onServiceDisconnected()")
@@ -326,6 +328,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           dataSens2 = castUnsignedCharToInt(data[2])
           if (castUnsignedCharToInt(data[3]) != mSettings!!.getInt(mDeviceAddress +PreferenceKeys.DRIVER_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.DRIVER_NUM, castUnsignedCharToInt(data[3]))
+            driverVersionINDY = castUnsignedCharToInt(data[3])
+            RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
             updateUIChart(2)
           }
           if (castUnsignedCharToInt(data[4]) != mSettings!!.getInt(mDeviceAddress +PreferenceKeys.BMS_NUM, 0)) {
@@ -439,6 +443,17 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
               )
               System.err.println("GESTURE_TYPE ${castUnsignedCharToInt(data[13])}  key= ${mDeviceAddress + PreferenceKeys.GESTURE_TYPE}")
               RxUpdateMainEvent.getInstance().updateUISecretSettings(true)
+            }
+          }
+
+          if (data.size >= 15) {
+            if (castUnsignedCharToInt(data[14]) != mSettings!!.getInt(
+                mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 0)) {
+              saveInt(
+                mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,
+                (castUnsignedCharToInt(data[14]))
+              )
+              RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
             }
           }
         }

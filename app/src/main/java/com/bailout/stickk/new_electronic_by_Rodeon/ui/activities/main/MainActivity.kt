@@ -326,9 +326,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           }
           dataSens1 = castUnsignedCharToInt(data[1])
           dataSens2 = castUnsignedCharToInt(data[2])
+          driverVersionINDY = castUnsignedCharToInt(data[3])
           if (castUnsignedCharToInt(data[3]) != mSettings!!.getInt(mDeviceAddress +PreferenceKeys.DRIVER_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.DRIVER_NUM, castUnsignedCharToInt(data[3]))
-            driverVersionINDY = castUnsignedCharToInt(data[3])
             RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
             updateUIChart(2)
           }
@@ -446,7 +446,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             }
           }
 
+          System.err.println("data.size было ${data.size}")
           if (data.size >= 15) {
+            System.err.println("SET_MODE_EMG_SENSORS было = ${mSettings!!.getInt(mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 0)}")
             if (castUnsignedCharToInt(data[14]) != mSettings!!.getInt(
                 mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 0)) {
               saveInt(
@@ -454,6 +456,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
                 (castUnsignedCharToInt(data[14]))
               )
               RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
+              System.err.println("SET_MODE_EMG_SENSORS приём = ${castUnsignedCharToInt(data[14])}")
             }
           }
         }
@@ -1507,7 +1510,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (mBluetoothLeService != null) {
       for (i in mGattCharacteristics.indices) {
         for (j in mGattCharacteristics[i].indices) {
-          System.err.println("sendEMGMode INDY bleCommand: $Command == ${mGattCharacteristics[i][j].uuid}")
           if (mGattCharacteristics[i][j].uuid.toString() == Command) {
             mCharacteristic = mGattCharacteristics[i][j]
             if (typeCommand == WRITE){

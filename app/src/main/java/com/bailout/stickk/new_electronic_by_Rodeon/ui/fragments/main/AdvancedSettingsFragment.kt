@@ -22,6 +22,7 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
@@ -55,7 +56,8 @@ import javax.inject.Inject
 
 @Suppress("DEPRECATION", "UNNECESSARY_SAFE_CALL")
 class AdvancedSettingsFragment : Fragment() {
-
+//  private var timer: CountDownTimer? = null
+  private var sendFlag: Boolean = false
   @Inject
   lateinit var preferenceManager: PreferenceManager
 
@@ -173,11 +175,32 @@ class AdvancedSettingsFragment : Fragment() {
     }
   }
 
+//  private fun recursia(value: Int) {
+//    var value = value
+//    if (value > 2) { value = 0 }
+//    timer?.cancel()
+//    timer = object : CountDownTimer(3000, 1) {
+//      override fun onTick(millisUntilFinished: Long) {}
+//
+//      override fun onFinish() {
+//        sendFlag = false
+//        binding.EMGModeSwapPsv.selectItemByIndex(value)
+//        recursia(value)
+//      }
+//    }.start()
+//  }
   @SuppressLint("SetTextI18n", "CheckResult", "Recycle")
   private fun initializeUI() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
     binding.EMGModeSwapPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
+      if (sendFlag) {
+        System.err.println("TEST отправляем блютуз команду")
+      } else {
+        sendFlag = true
+        System.err.println("TEST просто меняем значение в спиннере")
+      }
+
       modeEMGSend = when (newIndex) {
         0 -> {
           saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS, 9)
@@ -204,11 +227,18 @@ class AdvancedSettingsFragment : Fragment() {
         System.err.println("useNewSystemSendCommand false")
       }
     }
+//    recursia(0)
 
     when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)) {
-      9 -> { binding.EMGModeSwapPsv.selectItemByIndex(0) }
-      7 -> { binding.EMGModeSwapPsv.selectItemByIndex(1) }
-      10 -> { binding.EMGModeSwapPsv.selectItemByIndex(2) }
+      9 -> {
+        sendFlag = false
+        binding.EMGModeSwapPsv.selectItemByIndex(0) }
+      7 -> {
+        sendFlag = false
+        binding.EMGModeSwapPsv.selectItemByIndex(1) }
+      10 -> {
+        sendFlag = false
+        binding.EMGModeSwapPsv.selectItemByIndex(2) }
     }
 
 
@@ -1114,9 +1144,15 @@ class AdvancedSettingsFragment : Fragment() {
     if (checkDriverVersionGreaterThan237()) {
       binding.EMGModeRl.visibility = View.VISIBLE
       when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)) {
-        9 -> { binding.EMGModeSwapPsv.selectItemByIndex(0) }
-        7 -> { binding.EMGModeSwapPsv.selectItemByIndex(1) }
-        10 -> { binding.EMGModeSwapPsv.selectItemByIndex(2) }
+        9 -> {
+          sendFlag = false
+          binding.EMGModeSwapPsv.selectItemByIndex(0) }
+        7 -> {
+          sendFlag = false
+          binding.EMGModeSwapPsv.selectItemByIndex(1) }
+        10 -> {
+          sendFlag = false
+          binding.EMGModeSwapPsv.selectItemByIndex(2) }
       }
     }
     else { binding.EMGModeRl.visibility = View.GONE }

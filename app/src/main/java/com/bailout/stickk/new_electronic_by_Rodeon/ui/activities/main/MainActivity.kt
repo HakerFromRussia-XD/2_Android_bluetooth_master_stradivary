@@ -2415,7 +2415,16 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_hard_confirm)
     yesBtn.setOnClickListener {
-      runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
+      if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+        runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
+      } else {
+        if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+          runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
+        } else {
+          firstActivateSetScaleDialog = false
+          bleCommandConnector(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS, WRITE, 15)
+        }
+      }
 
       RxUpdateMainEvent.getInstance().updateResetAdvancedSettings(true)
 

@@ -22,7 +22,6 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
-import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.LayoutChartBinding
@@ -199,7 +198,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     })
 
 
-    val eventYandexMetricaParametersOpenCH = "{\"Screen chart\":\"Change threshold open sensor\"}"
 
     binding.openCHSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -229,7 +227,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             if (main?.savingSettingsWhenModified == true) {
               main?.saveInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, seekBar.progress)
             }
-            YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpenCH)
           } else {
             updateAllParameters()
             main?.showToast(resources.getString(R.string.settings_blocking_massage))
@@ -241,7 +238,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         }
       }
     })
-    val eventYandexMetricaParametersCloseCH = "{\"Screen chart\":\"Change threshold close sensor\"}"
     binding.closeCHSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         System.err.println("CH2 = $progress")
@@ -267,7 +263,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             if (main?.savingSettingsWhenModified == true) {
               main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, seekBar.progress)
             }
-            YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCloseCH)
           } else {
             updateAllParameters()
             main?.showToast(resources.getString(R.string.settings_blocking_massage))
@@ -314,7 +309,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         main?.showToast(resources.getString(R.string.waiting_for_data_transfer_from_the_prosthesis))
       }
     }
-    val eventYandexMetricaParametersNoiseThresholdOpen = "{\"Screen chart\":\"Change noise threshold open sensor\"}"
     binding.correlatorNoiseThreshold1Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         binding.correlatorNoiseThreshold1Tv.text = progress.toString()
@@ -329,7 +323,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
               main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - seekBar.progress))
             }
             sendCorrelatorNoiseThreshold(1)
-            YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdOpen)
           } else {
             updateAllParameters()
             main?.showToast(resources.getString(R.string.settings_blocking_massage))
@@ -340,7 +333,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         }
       }
     })
-    val eventYandexMetricaParametersNoiseThresholdClose = "{\"Screen chart\":\"Change noise threshold close sensor\"}"
     binding.correlatorNoiseThreshold2Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         binding.correlatorNoiseThreshold2Tv.text = seekBar.progress.toString()
@@ -353,7 +345,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
               main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
             }
             sendCorrelatorNoiseThreshold(2)
-            YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersNoiseThresholdClose)
           } else {
             updateAllParameters()
             main?.showToast(resources.getString(R.string.settings_blocking_massage))
@@ -366,7 +357,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     })
 
 
-    val eventYandexMetricaParametersSwapSensors = "{\"Screen chart\":\"Tup swap sensors switch\"}"
     binding.swapSensorsSw.setOnClickListener {
       if ( (!main?.lockWriteBeforeFirstRead!!)) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
@@ -399,7 +389,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             main?.saveBool(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
 //          main?.setReverseNum = 0
           }
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSwapSensors)
         } else {
           updateAllParameters()
           main?.showToast(resources.getString(R.string.settings_blocking_massage))
@@ -411,7 +400,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
 
 
-    val eventYandexMetricaParametersThresholdsBlocking = "{\"Screen chart\":\"Tup settings blocking switch\"}"
     binding.thresholdsBlockingSw.setOnClickListener{
       if (binding.thresholdsBlockingSw.isChecked) {
         binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
@@ -420,7 +408,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         binding.thresholdsBlockingTv.text = resources.getString(R.string.off_sw)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersThresholdsBlocking)
     }
 
 
@@ -436,12 +423,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 //      navigator().showGrayStatusBar(true)
 //    }
 
-    val eventYandexMetricaParametersClose = "{\"Screen chart\":\"Tup close button\"}"
-    val eventYandexMetricaParametersOpen = "{\"Screen chart\":\"Tup open button\"}"
     binding.closeBtn.setOnTouchListener { _, event ->
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersClose)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
@@ -467,7 +451,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             }
           }
         } else {
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpen)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
@@ -501,7 +484,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       if (!main?.lockWriteBeforeFirstRead!!) {
         System.err.println("openBtn 1")
         if (!main?.getSwapOpenCloseButton()!!) {
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOpen)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
@@ -529,7 +511,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             }
           }
         } else {
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersClose)
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"

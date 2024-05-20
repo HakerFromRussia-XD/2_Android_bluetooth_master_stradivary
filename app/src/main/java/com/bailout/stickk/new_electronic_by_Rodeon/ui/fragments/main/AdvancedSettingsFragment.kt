@@ -50,7 +50,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
-import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
@@ -138,7 +137,6 @@ class AdvancedSettingsFragment : Fragment() {
 
   @SuppressLint("SetTextI18n")
   private fun resetUI() {
-    val eventYandexMetricaParametersReset = "{\"Screen advanced settings\":\"Tup reset to factory settings button\"}"
     if (!main?.lockWriteBeforeFirstRead!!) {
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
 
@@ -167,7 +165,6 @@ class AdvancedSettingsFragment : Fragment() {
       mode = 0x00
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
 
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersReset)
       RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
     } else {
       updateAllParameters()
@@ -194,12 +191,6 @@ class AdvancedSettingsFragment : Fragment() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
     binding.EMGModeSwapPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
-      if (sendFlag) {
-        System.err.println("TEST отправляем блютуз команду")
-      } else {
-        sendFlag = true
-        System.err.println("TEST просто меняем значение в спиннере")
-      }
 
       modeEMGSend = when (newIndex) {
         0 -> {
@@ -220,11 +211,12 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
 
-      if (useNewSystemSendCommand()) {
+      if (useNewSystemSendCommand() && sendFlag) {
         sendEMGMode(modeEMGSend)
-        System.err.println("useNewSystemSendCommand true")
+        System.err.println("TEST отправляем блютуз команду")
       } else {
-        System.err.println("useNewSystemSendCommand false")
+        sendFlag = true
+        System.err.println("TEST просто меняем значение в спиннере")
       }
     }
 //    recursia(0)
@@ -283,7 +275,6 @@ class AdvancedSettingsFragment : Fragment() {
       if (main?.locate?.contains("w")!!) { binding.calibrationStatusAdvBtn.textSize = 12f }
     }
 
-    var eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current\"}"
 
     binding.shutdownCurrentSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -295,12 +286,10 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
         }
       }
     })
 
-    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 1\"}"
     binding.shutdownCurrent1Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         binding.shutdownCurrent1Tv.text = seekBar.progress.toString()
@@ -331,12 +320,10 @@ class AdvancedSettingsFragment : Fragment() {
               SHUTDOWN_CURRENT_NEW, WRITE, 0)
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, seekBar.progress)
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
-    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 2\"}"
     binding.shutdownCurrent2Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         binding.shutdownCurrent2Tv.text = seekBar.progress.toString()
@@ -369,12 +356,11 @@ class AdvancedSettingsFragment : Fragment() {
             )
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, seekBar.progress)
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
-    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 3\"}"
+
     binding.shutdownCurrent3Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         binding.shutdownCurrent3Tv.text = seekBar.progress.toString()
@@ -407,12 +393,10 @@ class AdvancedSettingsFragment : Fragment() {
             )
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, seekBar.progress)
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
-    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 4\"}"
     binding.shutdownCurrent4Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         binding.shutdownCurrent4Tv.text = seekBar.progress.toString()
@@ -445,12 +429,10 @@ class AdvancedSettingsFragment : Fragment() {
             )
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_4, seekBar.progress)
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
-    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 5\"}"
     binding.shutdownCurrent5Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         binding.shutdownCurrent5Tv.text = seekBar.progress.toString()
@@ -483,12 +465,10 @@ class AdvancedSettingsFragment : Fragment() {
             )
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_5, seekBar.progress)
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
-    eventYandexMetricaParametersShutdownCurrent = "{\"Screen advanced settings\":\"Change shutdown current 6\"}"
     binding.shutdownCurrent6Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         binding.shutdownCurrent6Tv.text = seekBar.progress.toString()
@@ -521,14 +501,12 @@ class AdvancedSettingsFragment : Fragment() {
             )
           }
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, seekBar.progress)
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersShutdownCurrent)
           RxUpdateMainEvent.getInstance().updateReadCharacteristicBLE(SHUTDOWN_CURRENT_NEW_VM)
         }
       }
     })
 
 
-    val eventYandexMetricaParametersSwapOpenCloseButton = "{\"Screen advanced settings\":\"Tup swap open close button\"}"
     binding.swapOpenCloseSw.setOnClickListener {
       if (binding.swapOpenCloseSw.isChecked) {
         binding.swapOpenCloseTv.text = resources.getString(R.string.on_sw)
@@ -539,11 +517,9 @@ class AdvancedSettingsFragment : Fragment() {
         main?.setSwapOpenCloseButton(false)
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
       }
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSwapOpenCloseButton)
     }
 
 
-    val eventYandexMetricaParametersSingleChannel = "{\"Screen advanced settings\":\"Tup single channel control switch\"}"
     binding.singleChannelControlSw.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (binding.singleChannelControlSw.isChecked) {
@@ -575,7 +551,6 @@ class AdvancedSettingsFragment : Fragment() {
           main?.setOneChannelNum = 0
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_ONE_CHANNEL_NUM, false)
         }
-        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersSingleChannel)
       }
     }
 
@@ -622,7 +597,6 @@ class AdvancedSettingsFragment : Fragment() {
     })
 
 
-    val eventYandexMetricaParametersOnOffGesturesSwitching = "{\"Screen advanced settings\":\"On/off gesture switch using sensors\"}"
     binding.onOffSensorGestureSwitchingSw.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (binding.onOffSensorGestureSwitchingSw.isChecked) {
@@ -688,12 +662,10 @@ class AdvancedSettingsFragment : Fragment() {
           }
           saveBool(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false)
         }
-        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersOnOffGesturesSwitching)
       }
     }
 
 
-    val eventYandexMetricaParametersMode = "{\"Screen advanced settings\":\"Change switching modes gestures using sensors\"}"
     binding.modeSw.setOnClickListener {
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (binding.modeSw.isChecked) {
@@ -721,7 +693,6 @@ class AdvancedSettingsFragment : Fragment() {
           }
           preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NUM, false)
         }
-        YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersMode)
       }
     }
 
@@ -747,11 +718,9 @@ class AdvancedSettingsFragment : Fragment() {
         binding.downtimeRl.visibility = View.GONE
         main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, WRITE)
       }
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersMode)
     }
     binding.modeNewSw.selectedTab = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
 
-    val eventYandexMetricaParametersPeakTimeVM = "{\"Screen advanced settings\":\"Change peak time VM\"}"
     binding.peakTimeVmSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         val time: String = when {
@@ -785,12 +754,10 @@ class AdvancedSettingsFragment : Fragment() {
         if (!main?.lockWriteBeforeFirstRead!!) {
           sendGestureRotation()
           saveInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_VM_NUM, seekBar.progress)
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersPeakTimeVM)
         }
       }
     })
 
-    val eventYandexMetricaParametersPeakTime = "{\"Screen advanced settings\":\"Change peak time\"}"
     binding.peakTimeSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         var time: String = when {
@@ -837,12 +804,10 @@ class AdvancedSettingsFragment : Fragment() {
               ROTATION_GESTURE_NEW, WRITE, 17)
           }
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, seekBar.progress)
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersPeakTime)
         }
       }
     })
 
-    val eventYandexMetricaParametersDowntime = "{\"Screen advanced settings\":\"Change downtime\"}"
     binding.downtimeSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         var time: String = when {
@@ -889,13 +854,11 @@ class AdvancedSettingsFragment : Fragment() {
               ROTATION_GESTURE_NEW, WRITE, 17)
           }
           preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, seekBar.progress)
-          YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersDowntime)
         }
       }
     })
 
 
-    val eventYandexMetricaParametersGetSerialNumber = "{\"Screen advanced settings\":\"Tup get serial number button\"}"
     binding.getSetupBtn.setOnClickListener {
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         main?.bleCommandConnector(byteArrayOf(0x00), SERIAL_NUMBER_NEW, READ, 17)
@@ -904,7 +867,6 @@ class AdvancedSettingsFragment : Fragment() {
         main?.bleCommandConnector(byteArrayOf(0x00), SERIAL_NUMBER_NEW_VM, READ, 17)
       }
       main?.lockChangeSerialNumber = true
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersGetSerialNumber)
     }
 
     binding.setSetupBtn.setOnClickListener {
@@ -920,15 +882,12 @@ class AdvancedSettingsFragment : Fragment() {
     }
     main?.serialNumber = binding.serialNumberEt.text.toString()
 
-    val eventYandexMetricaParametersLeftRight = "{\"Screen advanced settings\":\"Tup left right side swap switch\"}"
     binding.leftRightSideSwapSw.setOnClickListener{
 //      System.err.println(" LOLOLOEFWEF --->  side key : ${main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE}")
       showAlertChangeSideDialog()
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersLeftRight)
     }
 
 
-    val eventYandexMetricaParametersFingersDelay = "{\"Screen advanced settings\":\"Tup  time delay fingers swap switch\"}"
     binding.timeDelayOfFingersSwapSw.setOnClickListener {
       if (binding.timeDelayOfFingersSwapSw.isChecked) {
         System.err.println("time_delay_of_fingers_swap_sw 1")
@@ -939,7 +898,6 @@ class AdvancedSettingsFragment : Fragment() {
         binding.timeDelayOfFingersSwapTv.text = resources.getString(R.string.off_sw)
         saveInt(main?.mDeviceAddress + PreferenceKeys.SET_FINGERS_DELAY, 0)
       }
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersFingersDelay)
     }
 
     binding.smartConnectionSwapSw.setOnClickListener {
@@ -1005,7 +963,6 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
     binding.calibrationAdvBtn.setOnClickListener { main?.showCalibrationDialog() }
-    val eventYandexMetricaParametersCalibrationStatusAdv = "{\"Screen advanced settings\":\"Tup calibration status button\"}"
     binding.calibrationStatusAdvBtn.setOnClickListener {
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW_VM)
@@ -1014,7 +971,6 @@ class AdvancedSettingsFragment : Fragment() {
           main?.runReadDataAllCharacteristics(STATUS_CALIBRATION_NEW)
         }
       }
-      YandexMetrica.reportEvent(main?.mDeviceType!!, eventYandexMetricaParametersCalibrationStatusAdv)
     }
 
 
@@ -1068,7 +1024,7 @@ class AdvancedSettingsFragment : Fragment() {
         else -> {
           binding.EMGModeRl.visibility = View.GONE
           //TODO кнопка дебагинга в INDY для доступа к секретным настройкам не совсем годится, потому что там модель FEST-H (если закомментить, то будет кнопка)
-          binding.debugScreenRl.visibility = View.GONE
+//          binding.debugScreenRl.visibility = View.GONE
           binding.serialRl.visibility = View.GONE
           binding.calibrationRl.visibility = View.GONE
           binding.shutdownCurrent1Rl.visibility = View.GONE

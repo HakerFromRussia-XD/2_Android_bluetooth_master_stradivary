@@ -28,7 +28,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 5
-        versionName "2.4.679"
+        versionName "2.4.681"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -78,10 +78,6 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0'
     //gson
     implementation 'com.google.code.gson:gson:2.9.0'
-    //app metrica
-    implementation ('com.yandex.android:mobmetricalib:4.2.0') {
-        exclude group: 'com.yandex.android', module: 'mobmetricalib-identifiers'
-    }
 
     // dagger
     implementation "com.google.dagger:dagger:2.47"

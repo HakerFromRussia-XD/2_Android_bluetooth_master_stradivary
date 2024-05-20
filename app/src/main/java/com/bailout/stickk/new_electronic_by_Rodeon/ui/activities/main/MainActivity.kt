@@ -54,7 +54,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
-import com.yandex.metrica.YandexMetrica
 import io.reactivex.android.schedulers.AndroidSchedulers
 import lib.kingja.switchbutton.SwitchMultiButton
 import online.devliving.passcodeview.PasscodeView
@@ -2501,8 +2500,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         }
       }
       saveInt(mDeviceAddress + PreferenceKeys.CALIBRATING_STATUS, 1)
-      val eventYandexMetricaParametersCalibration = "{\"Screen chart\":\"Tup calibration button\"}"
-      YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersCalibration)
 
       myDialog.dismiss()
     }
@@ -2522,7 +2519,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_set_serial_number_confirm)
     yesBtn.setOnClickListener {
-      val eventYandexMetricaParametersSetSerialNumber = "{\"Screen advanced settings\":\"Tup set serial number button\"}"
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         bleCommandConnector(
           serialNumber.toByteArray(Charsets.UTF_8),
@@ -2542,7 +2538,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
 //      System.err.println("gonka main showSetSerialNumberDialog $enableInterfaceStatus")
       RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
-      YandexMetrica.reportEvent(mDeviceType!!, eventYandexMetricaParametersSetSerialNumber)
 
 
       myDialog.dismiss()

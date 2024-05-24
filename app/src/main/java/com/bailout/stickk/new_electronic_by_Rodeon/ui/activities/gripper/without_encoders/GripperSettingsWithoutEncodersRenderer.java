@@ -16,7 +16,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent;
-import com.bailout.stickk.new_electronic_by_Rodeon.models.FingerAngle;
+import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingerAngle;
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.common.RawResourceReader;
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.common.ShaderHelper;

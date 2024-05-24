@@ -31,7 +31,7 @@ class AccountMainAdapter(private val onAccountClickListener: OnAccountMainClickL
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: AccountViewHolder, position: Int) {
-        holder.fioTv.text = accountMainList[position].getName() + " " + accountMainList[position].getPatronymic()
+        holder.fioTv.text = accountMainList[position].getName()+" "+accountMainList[position].getSurname()
 
 
         holder.driverVersionNumTv.text = accountMainList[position].getVersionDriver()

@@ -1,9 +1,12 @@
 package com.bailout.stickk.new_electronic_by_Rodeon.connection
 
 import com.bailout.stickk.new_electronic_by_Rodeon.models.AllOptions
+import com.bailout.stickk.new_electronic_by_Rodeon.models.DevicesList_DEV
 import com.bailout.stickk.new_electronic_by_Rodeon.models.TestModel
 import com.bailout.stickk.new_electronic_by_Rodeon.models.Token
-import com.bailout.stickk.new_electronic_by_Rodeon.models.User
+import com.bailout.stickk.new_electronic_by_Rodeon.models.deviceInfo.DeviceInfo
+import com.bailout.stickk.new_electronic_by_Rodeon.models.user.User
+import com.bailout.stickk.new_electronic_by_Rodeon.models.userV2.UserV2
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -24,15 +27,30 @@ interface ApiInterface {
     @GET("/v1/clients/self-info")
     suspend fun getUserInfo(@Header("Authorization") authorization: String):Response<User>
 
-    @GET("/v1/device-mobile-app/{id}")
+    @GET("/v1/user/info")
+    suspend fun getUserInfoV2(@Header("Authorization") authorization: String):Response<UserV2>
+
+    @GET("/v1/clients/{user_id}/devices")
+    suspend fun getDevicesList(
+        @Path("user_id") user_id : Int,
+        @Header("Authorization") authorization: String
+    ):Response<DevicesList_DEV>
+
+    @GET("/v1/devices/{device_id}/info")
+    suspend fun getDeviceInfo(
+        @Path("device_id") device_id : Int,
+        @Header("Authorization") authorization: String
+    ):Response<DeviceInfo>
+
+    @GET("/v1/device-mobile-app/{device_id}")
     suspend fun getRequestProthesisSettings(
-        @Path("id") id : String,
+        @Path("device_id") device_id : String,
         @Header("Authorization") authorization: String
     ):Response<AllOptions>
 
-    @POST("/v1/device-mobile-app/{id}")
+    @POST("/v1/device-mobile-app/{device_id}")
     suspend fun createPost(
-        @Path("id") id : String,
+        @Path("device_id") device_id : String,
         @Header("Authorization") authorization: String,
         @Body  body: TestModel
     ): Response<AllOptions>

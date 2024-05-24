@@ -51,7 +51,7 @@ class AccountFragmentCustomerService : Fragment() {
         myRequests = Requests()
         encryptionManager = EncryptionManagerUtils.instance
         encryptionResult = encryptionManager?.encrypt(testSerialNumber)
-
+        System.err.println("Aesserial $encryptionResult")
 
         accountCustomerServiceList = ArrayList()
         requestToken()

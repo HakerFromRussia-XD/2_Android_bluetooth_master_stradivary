@@ -30,7 +30,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
-import com.bailout.stickk.new_electronic_by_Rodeon.models.GestureStateWithEncoders
+import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.GestureStateWithEncoders
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.GripperScreenActivityView

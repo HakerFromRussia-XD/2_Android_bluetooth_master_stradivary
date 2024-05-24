@@ -21,6 +21,7 @@ import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.jetbrains.anko.runOnUiThread
 import kotlin.properties.Delegates
 
 class AccountFragmentMain : Fragment() {
@@ -30,10 +31,11 @@ class AccountFragmentMain : Fragment() {
     private var adapter: AccountMainAdapter? = null
 
     private var token = ""
+    private var clientId = 0
     private var gson: Gson? = null
     private var encryptionManager: EncryptionManagerUtils? = null
     private var encryptionResult: String? = null
-    private var testSerialNumber = "FEST-H-04921"//"FEST-EP-05674"
+    private var testSerialNumber = "FEST-H-04921"//"FEST-EP-05674"//"FEST-F-06879"//
     private var myRequests: Requests? = null
 
     private lateinit var binding: FragmentPersonalAccountMainBinding
@@ -52,7 +54,8 @@ class AccountFragmentMain : Fragment() {
         myRequests = Requests()
         encryptionManager = EncryptionManagerUtils.instance
         encryptionResult = encryptionManager?.encrypt(testSerialNumber)
-//        System.err.println("encryptionResult = $encryptionResult")
+        System.err.println("encryptionResult = ${encryptionManager?.encrypt(testSerialNumber)}")
+//        System.err.println("encryption Decription = ${encryptionManager?.decrypt(encryptionResult)}")
 
         accountMainList = ArrayList()
         requestToken()
@@ -69,23 +72,26 @@ class AccountFragmentMain : Fragment() {
             myRequests!!.getRequestToken(
                 { token ->
                     this@AccountFragmentMain.token = token
+                    binding.preloaderLav.visibility = View.GONE
                     requestUserData()
                 },
-                { error -> Toast.makeText(context, error, Toast.LENGTH_SHORT).show()},
+                { error ->
+                    main?.runOnUiThread {Toast.makeText(context, error, Toast.LENGTH_SHORT).show()}
+                },
                 "Aesserial $encryptionResult")
         }
     }
     private fun requestUserData() {
         CoroutineScope(Dispatchers.Main).launch {
-            myRequests!!.getRequestUser(
+            myRequests!!.getRequestUserV2(
                 { user ->
                     binding.apply {
                         accountMainList.clear()
                         accountMainList.add(
                             AccountMainItem(
                             avatarUrl = "avatarUrl",
-                            name = user.clientData?.fio.toString(),
-                            surname = user.clientData?.fio.toString(),
+                            name = user.userInfo?.fname.toString(),
+                            surname = user.userInfo?.sname.toString(),
                             patronymic = "Ivanovich",
                             versionDriver = "111111111.111",
                             versionBms = "222222.22222",
@@ -94,9 +100,75 @@ class AccountFragmentMain : Fragment() {
                         initAdapter(binding.accountRv)
                         binding.refreshLayout.setRefreshing(false)
                     }
+                    clientId = user.userInfo?.clientId ?: 0
+                    System.err.println("TEST  clientId: ${user.userInfo?.clientId}")
+                    System.err.println("Custom service  Manager name: ${user.userInfo?.manager?.fio}")
+                    System.err.println("Custom service  Manager phone: ${user.userInfo?.manager?.phone}")
+                    requestDeviceList()
                 },
-                { error -> Toast.makeText(context, error, Toast.LENGTH_SHORT).show() },
+                { error ->
+                    main?.runOnUiThread {Toast.makeText(context, error, Toast.LENGTH_SHORT).show()}
+                },
                 token = this@AccountFragmentMain.token
+            )
+        }
+    }
+    private fun requestDeviceList() {
+        CoroutineScope(Dispatchers.Main).launch {
+            myRequests!!.getRequestUser(
+                { user ->
+                    System.err.println("Device list size: ${user.devices.size}")
+                    for (device in user.devices) {
+                        if (device.serialNumber == testSerialNumber) {
+                            System.err.println("Device list искомый девайс: ${device.id}")
+                            device.id?.let { requestDeviceInfo(deviceId = it.toInt()) }
+                        }
+                    }
+                },
+                { error ->
+                    main?.runOnUiThread {Toast.makeText(context, error, Toast.LENGTH_SHORT).show()}
+                },
+                token = this@AccountFragmentMain.token
+            )
+        }
+    }
+    private fun requestDeviceInfo(deviceId: Int) {
+        CoroutineScope(Dispatchers.Main).launch {
+            myRequests!!.getRequestDeviceInfo(
+                { deviceInfo ->
+                    System.err.println("Device Info model: ${deviceInfo.model?.name}")
+                    System.err.println("Device Info size: ${deviceInfo.size?.name}")
+                    System.err.println("Device Info side: ${deviceInfo.side?.name}")
+                    System.err.println("Device Info status: ${deviceInfo.status?.name}")
+                    System.err.println("Device Info date transfer: ${deviceInfo.dateTransfer}")
+                    System.err.println("Device Info guarantee period: ${deviceInfo.guaranteePeriod}")
+                    System.err.println("Device Info options: ${deviceInfo.options.size}")
+                    var rotatorSet = false
+                    var accumulatorSet = false
+                    var touchscreenFingersSet = false
+                    for (option in deviceInfo.options) {
+                        if (option.id == 3) {
+                            System.err.println("Device Info rotator: ${option.value?.name}")
+                            rotatorSet = true
+                        }
+                        if (option.id == 15) {
+                            System.err.println("Device Info accumulator: ${option.value?.name}")
+                            accumulatorSet = true
+                        }
+                        if (option.id == 5) {
+                            System.err.println("Device Info Touchscreen fingers: ${option.value?.name}")
+                            touchscreenFingersSet = true
+                        }
+                    }
+                    if (!rotatorSet) { System.err.println("Device Info rotator NOT SET")}
+                    if (!accumulatorSet) { System.err.println("Device Info accumulator NOT SET") }
+                    if (!touchscreenFingersSet) { System.err.println("Device Info Touchscreen fingers NOT SET") }
+                },
+                { error ->
+                    main?.runOnUiThread {Toast.makeText(context, error, Toast.LENGTH_SHORT).show()}
+                },
+                token = this@AccountFragmentMain.token,
+                deviceId = deviceId
             )
         }
     }

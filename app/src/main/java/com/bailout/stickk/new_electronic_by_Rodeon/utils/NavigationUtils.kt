@@ -76,15 +76,15 @@ object NavigationUtils {
   }
 
   fun setComponents(context: Context, navigationTabBar: NavigationTabBar) {
-    navigationTabBar.models = getNavigationModels(context)
-    navigationTabBar.setOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-      override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+      navigationTabBar.models = getNavigationModels(context)
+      navigationTabBar.setOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+          override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
-      override fun onPageSelected(position: Int) {
-        navigationTabBar.models[position].hideBadge()
-      }
+          override fun onPageSelected(position: Int) {
+              navigationTabBar.models[position].hideBadge()
+          }
 
-      override fun onPageScrollStateChanged(state: Int) {}
-    })
+          override fun onPageScrollStateChanged(state: Int) {}
+      })
   }
 }

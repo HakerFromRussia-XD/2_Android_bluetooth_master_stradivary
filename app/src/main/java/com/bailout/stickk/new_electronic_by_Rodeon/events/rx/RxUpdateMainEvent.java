@@ -2,10 +2,10 @@ package com.bailout.stickk.new_electronic_by_Rodeon.events.rx;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-import com.bailout.stickk.new_electronic_by_Rodeon.models.FingerAngle;
-import com.bailout.stickk.new_electronic_by_Rodeon.models.FingersEncoderValue;
-import com.bailout.stickk.new_electronic_by_Rodeon.models.GestureState;
-import com.bailout.stickk.new_electronic_by_Rodeon.models.GestureStateWithEncoders;
+import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingerAngle;
+import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingersEncoderValue;
+import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.GestureState;
+import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.GestureStateWithEncoders;
 
 public class RxUpdateMainEvent {
 

@@ -538,7 +538,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             }
             it.setOnSpinnerItemSelectedListener<IconSpinnerItem> { oldIndex, _, newIndex, _ ->
                 startGestureInLoopNum = newIndex
-                System.err.println("test gestures in loop    GF gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
+//                System.err.println("test gestures in loop    GF gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
 
                 if (oldIndex != newIndex) {
@@ -584,7 +584,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             it.setOnSpinnerItemSelectedListener<IconSpinnerItem> {
                     oldIndex, _, newIndex, _ ->
                 endGestureInLoopNum = newIndex
-                System.err.println("test gestures in loop  GF gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
+//                System.err.println("test gestures in loop  GF gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, false)
                 if (oldIndex != newIndex) {
                     binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)

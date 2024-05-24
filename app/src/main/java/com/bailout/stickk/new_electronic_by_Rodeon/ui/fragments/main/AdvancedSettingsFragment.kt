@@ -140,6 +140,7 @@ class AdvancedSettingsFragment : Fragment() {
     if (!main?.lockWriteBeforeFirstRead!!) {
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SET_REVERSE_NUM, false)
 
+      main?.firstActivateSetScaleDialog = false
       main?.setSwapOpenCloseButton(false)
       binding.swapOpenCloseSw.isChecked = false
       binding.swapOpenCloseTv.text = resources.getString(R.string.off_sw)
@@ -925,13 +926,13 @@ class AdvancedSettingsFragment : Fragment() {
 
 
         //ограничиваем диапазон старт/стопа ргуппы ротации
-        System.err.println("test gestures in loop  ASF startGestureInLoopNum=$startGestureInLoopNum  activeGestures - 1 =${(numActiveGestures - 1)}")
+//        System.err.println("test gestures in loop  ASF startGestureInLoopNum=$startGestureInLoopNum  activeGestures - 1 =${(numActiveGestures - 1)}")
         if (startGestureInLoopNum >= numActiveGestures) {
           startGestureInLoopNum = (numActiveGestures - 1)
           saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
         }
 
-        System.err.println("test gestures in loop  ASF endGestureInLoopNum=$endGestureInLoopNum  activeGestures - 1 =${(numActiveGestures - 1)}")
+//        System.err.println("test gestures in loop  ASF endGestureInLoopNum=$endGestureInLoopNum  activeGestures - 1 =${(numActiveGestures - 1)}")
         if (endGestureInLoopNum >= numActiveGestures) {
           endGestureInLoopNum = (numActiveGestures - 1)
           saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
@@ -1389,22 +1390,25 @@ class AdvancedSettingsFragment : Fragment() {
     editor.apply()
   }
   private fun checkDriverVersionGreaterThan237():Boolean {
-    System.err.println("driverVersionS "+main?.driverVersionS)
-    val indyVersion = (mSettings!!.getInt(
-      main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
-      1
-    ))
-    System.err.println("driverVersion indy $indyVersion")
+    System.err.println("driverVersionS " + main?.driverVersionS)
+
     if (main?.driverVersionS != null) {
       val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
       if (driverNum.toInt() >= 237) {
         return true
       }
-    } else {
-      //TODO прописать сюда версию ИНДИ с датчиками
-      if (indyVersion >= 237) {
-        return true
-      }
+    }
+    return false
+  }
+
+  private fun checkINDYCanControlEMGModes():Boolean {
+    val indyVersion = (mSettings!!.getInt(
+      main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
+      1
+    ))
+    System.err.println("driverVersion indy $indyVersion")
+    if (indyVersion >= 120) {
+      return true
     }
     return false
   }

@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.viewpager.widget.ViewPager
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.ActivityMainBinding
@@ -32,7 +33,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
-import com.bailout.stickk.new_electronic_by_Rodeon.models.FingersEncoderValue
+import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingersEncoderValue
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
@@ -64,7 +65,7 @@ import kotlin.experimental.xor
 
 
 @SuppressLint("MissingPermission")
-@Suppress("SameParameterValue", "SameParameterValue", "DEPRECATION", "SENSELESS_COMPARISON")
+@Suppress("SameParameterValue", "SameParameterValue", "DEPRECATION")
 @RequirePresenter(MainPresenter::class)
 class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable,
   Navigator {
@@ -155,7 +156,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
       // Automatically connects to the device upon successful start-up initialization.
       //TODO закомментить быстрый вход после завершения экспериментов
-      mBluetoothLeService?.connect(mDeviceAddress)
+//      mBluetoothLeService?.connect(mDeviceAddress)
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(DEVICE_TYPE_BT05)
         || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
@@ -1284,7 +1285,24 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
 
     binding.mainactivityViewpager.offscreenPageLimit = 3
-    NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)
+    System.err.println("setComponents ${NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)}")
+    optimizationNavi()
+  }
+  private fun optimizationNavi() {
+    binding.mainactivityNavi.setOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+      //TODO добавить сюда оптимизацию при переходе по страницам
+      override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+        System.err.println("main fragmentss Scrolled $position")
+      }
+
+      override fun onPageSelected(position: Int) {
+        System.err.println("main fragmentss Selected $position")
+      }
+
+      override fun onPageScrollStateChanged(state: Int) {
+        System.err.println("main fragmentss Scroll State Changed $state")
+      }
+    })
   }
 
   @SuppressLint("ClickableViewAccessibility")
@@ -2222,7 +2240,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     Toast.makeText(this, "Advanced settings: $showAdvancedSettings", Toast.LENGTH_SHORT).show()
 
     binding.mainactivityViewpager.offscreenPageLimit = 3
-    NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)
+    System.err.println("setComponents ${NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)}")
     updateUIChart(40)
   }
   @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")

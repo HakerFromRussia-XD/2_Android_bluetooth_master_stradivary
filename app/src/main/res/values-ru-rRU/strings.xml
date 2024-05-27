@@ -154,7 +154,7 @@
     <string name="on">да</string>
     <string name="off_sw">выкл</string>
     <string name="on_sw">вкл</string>
-    <string name="shutdown_current">ток отсечки</string>
+    <string name="shutdown_current">сила сжатия</string>
     <string name="rotation_thumb">ротация</string>
     <string name="thumb">большой палец</string>
     <string name="forefinger">указательный палец</string>
@@ -466,7 +466,7 @@
     <string name="the_number_of_gestures_per_cycle_should_not_exceed_4">Количество жестов в цикле не должно превышать 4</string>
     <string name="the_starting_gesture_of_the_cycle_was_changed_to">Стартовый жест цикла был изменён на</string>
     <string name="the_ending_gesture_of_the_cycle_was_changed_to">Конечный жест цикла был изменён на</string>
-    <string name="emg_mode">режим ЕМГ</string>
+    <string name="emg_mode">режим ЭМГ датчиков</string>
     <string name="configuring_a_gesture_group_for_sensor_switching">Настройка группы жестов для переключения датчиками</string>
     <string name="to_make_the_rotation_group_setting_available_you_must_activate_the_gesture_switching_function_of_the_sensors">Для того чтобы настройка группы ротации стала доступной, необходимо активировать функцию переключения жестов сенсорами.</string>
     <string name="by_pressing_these_buttons_from_the_drop_down_list_you_can_select_the_numbers_of_the_start_and_end_gesture_in_the_rotation_group_respectively">Нажимая на эти кнопки из выпадающего списка, можно выбирать номера начального и конечного жеста в группе ротации соответственно.</string>

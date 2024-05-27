@@ -69,7 +69,7 @@ class AdvancedSettingsFragment : Fragment() {
   private var lockProstheses: Byte = 0x00
   private var validationError = ""
 
-  private var current  = 0
+//  private var current  = 0
   private var current1 = 0
   private var current2 = 0
   private var current3 = 0
@@ -229,9 +229,9 @@ class AdvancedSettingsFragment : Fragment() {
       7 -> {
         sendFlag = false
         binding.EMGModeSwapPsv.selectItemByIndex(1) }
-      10 -> {
-        sendFlag = false
-        binding.EMGModeSwapPsv.selectItemByIndex(2) }
+//      10 -> {
+//        sendFlag = false
+//        binding.EMGModeSwapPsv.selectItemByIndex(2) }
     }
 
 
@@ -279,13 +279,13 @@ class AdvancedSettingsFragment : Fragment() {
 
     binding.shutdownCurrentSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        binding.shutdownCurrentTv.text = seekBar.progress.toString()
+        binding.shutdownCurrentTv.text = (seekBar.progress + 30).toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+          main?.bleCommandConnector(byteArrayOf((seekBar.progress + 30).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
         }
       }
@@ -1025,7 +1025,15 @@ class AdvancedSettingsFragment : Fragment() {
         else -> {
           binding.EMGModeRl.visibility = View.GONE
           //TODO кнопка дебагинга в INDY для доступа к секретным настройкам не совсем годится, потому что там модель FEST-H (если закомментить, то будет кнопка)
-//          binding.debugScreenRl.visibility = View.GONE
+          binding.debugScreenRl.visibility = View.GONE
+
+          //для тестовой версии приложения ИНДИ
+          binding.swapOpenCloseRl.visibility = View.GONE
+          binding.singleChannelControlRl.visibility = View.GONE
+          binding.smartConnectionRl.visibility = View.GONE
+          binding.resetToFactorySettingsRl.visibility = View.GONE
+
+
           binding.serialRl.visibility = View.GONE
           binding.calibrationRl.visibility = View.GONE
           binding.shutdownCurrent1Rl.visibility = View.GONE
@@ -1107,9 +1115,9 @@ class AdvancedSettingsFragment : Fragment() {
         7 -> {
           sendFlag = false
           binding.EMGModeSwapPsv.selectItemByIndex(1) }
-        10 -> {
-          sendFlag = false
-          binding.EMGModeSwapPsv.selectItemByIndex(2) }
+//        10 -> {
+//          sendFlag = false
+//          binding.EMGModeSwapPsv.selectItemByIndex(2) }
       }
     }
     else { binding.EMGModeRl.visibility = View.GONE }
@@ -1118,7 +1126,11 @@ class AdvancedSettingsFragment : Fragment() {
   private fun updateAllParameters() {
     main?.runOnUiThread {
       System.err.println("Принятые данные состояния токов ОБНОВЛЕНИЕ")
-      ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+
+      var compressionForce = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
+      if (compressionForce - 30 < 0 ) { compressionForce = 30 }
+      ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", compressionForce-30).setDuration(200).start()
+
       ObjectAnimator.ofInt(binding.shutdownCurrent1Sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(binding.shutdownCurrent2Sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(binding.shutdownCurrent3Sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80)).setDuration(200).start()
@@ -1141,7 +1153,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.shutdownCurrent6Tv.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_6, 80).toString()
     binding.shutdownCurrentTv.text = binding.shutdownCurrentSb.progress.toString()
 
-    current  = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM,   80)
+
     current1 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)
     current2 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)
     current3 = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_3, 80)

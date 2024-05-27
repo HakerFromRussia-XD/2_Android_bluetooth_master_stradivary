@@ -89,7 +89,7 @@
                             android:id="@+id/shutdown_current_sb"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:max="100"
+                            android:max="70"
                             android:paddingStart="16dp"
                             android:paddingEnd="0dp"
                             android:progress="0"
@@ -1760,7 +1760,7 @@
                             app:spinner_divider_show="true"
                             app:spinner_divider_size="1dp"
                             app:spinner_item_height="42dp"
-                            app:spinner_popup_height="132dp"/>
+                            app:spinner_popup_height="88dp"/>
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>

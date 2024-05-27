@@ -153,7 +153,7 @@
     <string name="on">on</string>
     <string name="off_sw">off</string>
     <string name="on_sw">on</string>
-    <string name="shutdown_current">shutdown current</string>
+    <string name="shutdown_current">compression force</string>
     <string name="rotation_thumb">rotation thumb</string>
     <string name="thumb">thumb</string>
     <string name="forefinger">forefinger</string>
@@ -464,7 +464,7 @@
     <string name="the_number_of_gestures_per_cycle_should_not_exceed_4">The number of gestures per cycle should not exceed 4</string>
     <string name="the_starting_gesture_of_the_cycle_was_changed_to">The starting gesture of the cycle was changed to</string>
     <string name="the_ending_gesture_of_the_cycle_was_changed_to">The ending gesture of the cycle was changed to</string>
-    <string name="emg_mode">EMG mode</string>
+    <string name="emg_mode">EMG sensors mode</string>
     <string name="configuring_a_gesture_group_for_sensor_switching">Configuring a gesture group for sensor switching</string>
     <string name="to_make_the_rotation_group_setting_available_you_must_activate_the_gesture_switching_function_of_the_sensors">To make the rotation group setting available, you must activate the gesture switching function of the sensors.</string>
     <string name="by_pressing_these_buttons_from_the_drop_down_list_you_can_select_the_numbers_of_the_start_and_end_gesture_in_the_rotation_group_respectively">By pressing these buttons from the drop-down list you can select the numbers of the start and end gesture in the rotation group respectively.</string>

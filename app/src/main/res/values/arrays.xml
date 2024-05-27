@@ -29,9 +29,9 @@
         <item>gesture №14</item>
     </string-array>
     <string-array name="emg_modes">
-        <item>normal sensitive</item>
+        <item>classic sensitive</item>
         <item>increased sensitive</item>
-        <item>artificial intelligence</item>
+<!--        <item>artificial intelligence</item>-->
     </string-array>
     <string-array name="prosthesis_modes">
         <item>standard mode</item>

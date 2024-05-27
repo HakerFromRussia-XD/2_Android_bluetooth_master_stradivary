@@ -1098,7 +1098,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.calibrationStatusAdvBtn.isEnabled = enabled
     binding.debugScreenBtn.isEnabled = enabled
     binding.testConnectionBtn.isEnabled = enabled
-    if (checkDriverVersionGreaterThan237()) {
+    if (checkDriverVersionGreaterThan237() || checkINDYCanControlEMGModes()) {
       binding.EMGModeRl.visibility = View.VISIBLE
       when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)) {
         9 -> {
@@ -1337,7 +1337,7 @@ class AdvancedSettingsFragment : Fragment() {
     startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
     endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
 
-    if (checkDriverVersionGreaterThan237()) {
+    if (checkDriverVersionGreaterThan237() || checkINDYCanControlEMGModes()) {
       System.err.println("sendGestureRotation  237=${checkDriverVersionGreaterThan237()}  startGestureInLoopNum:$startGestureInLoopNum   endGestureInLoopNum:$endGestureInLoopNum")
       main?.runSendCommand(byteArrayOf(
         sensorGestureSwitching,

@@ -1025,13 +1025,13 @@ class AdvancedSettingsFragment : Fragment() {
         else -> {
           binding.EMGModeRl.visibility = View.GONE
           //TODO кнопка дебагинга в INDY для доступа к секретным настройкам не совсем годится, потому что там модель FEST-H (если закомментить, то будет кнопка)
-          binding.debugScreenRl.visibility = View.GONE
+//          binding.debugScreenRl.visibility = View.GONE
 
           //для тестовой версии приложения ИНДИ
-          binding.swapOpenCloseRl.visibility = View.GONE
-          binding.singleChannelControlRl.visibility = View.GONE
-          binding.smartConnectionRl.visibility = View.GONE
-          binding.resetToFactorySettingsRl.visibility = View.GONE
+//          binding.swapOpenCloseRl.visibility = View.GONE
+//          binding.singleChannelControlRl.visibility = View.GONE
+//          binding.smartConnectionRl.visibility = View.GONE
+//          binding.resetToFactorySettingsRl.visibility = View.GONE
 
 
           binding.serialRl.visibility = View.GONE

@@ -23,6 +23,7 @@ public class RxUpdateMainEvent {
   private final PublishSubject<Integer> updateCommunicationTestResult;
   private final PublishSubject<Boolean> updateUISecretSettings;
   private final PublishSubject<Boolean> updateUIChart;
+  private final PublishSubject<Boolean> updateUIAccountMain;
   private final PublishSubject<Integer> updateUIGestures;
   private final PublishSubject<Integer> updateEncodersError;
   private final PublishSubject<FingersEncoderValue> updateEncoders;
@@ -44,6 +45,7 @@ public class RxUpdateMainEvent {
     updateResetAdvancedSettings = PublishSubject.create();
     updateCommunicationTestResult = PublishSubject.create();
     updateUIChart = PublishSubject.create();
+    updateUIAccountMain = PublishSubject.create();
     updateUIGestures = PublishSubject.create();
     updateEncoders = PublishSubject.create();
     updateEncodersError = PublishSubject.create();
@@ -68,6 +70,7 @@ public class RxUpdateMainEvent {
   public void updateResetAdvancedSettings(Boolean state) { updateResetAdvancedSettings.onNext(state); }
   public void updateCommunicationTestResult(Integer attempt) { updateCommunicationTestResult.onNext(attempt); }
   public void updateUIChart(Boolean state) { updateUIChart.onNext(state); }
+  public void updateUIAccountMain(Boolean state) { updateUIAccountMain.onNext(state); }
   public void updateUIGestures(Integer number) { updateUIGestures.onNext(number); }
   public void updateEncodersError(Integer number) { updateEncodersError.onNext(number); }
   public void updateEncoders(FingersEncoderValue values) { updateEncoders.onNext(values); }
@@ -82,6 +85,7 @@ public class RxUpdateMainEvent {
   public Observable<Boolean> getCalibratingStatusObservable() { return calibrating; }
   public Observable<String> getReadCharacteristicBLEObservable() { return characteristics; }
   public Observable<Boolean> getUIChart() { return updateUIChart; }
+  public Observable<Boolean> getUIAccountMain() { return updateUIAccountMain; }
   public Observable<Boolean> getUIAdvancedSettings() { return updateUIAdvancedSettings; }
   public Observable<Boolean> getUISecretSettings() { return updateUISecretSettings; }
   public Observable<Boolean> getOpenSecretSettings() { return openSecretSettings; }

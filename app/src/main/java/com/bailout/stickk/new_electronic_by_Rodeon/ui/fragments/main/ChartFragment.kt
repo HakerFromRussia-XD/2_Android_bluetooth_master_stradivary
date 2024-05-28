@@ -113,11 +113,127 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     initializedUI()
 
 
+    if (mSettings!!.getInt(PreferenceKeys.SHOW_HELP_ACCENT, 4) == 1) {} else {
+      main!!.saveInt(PreferenceKeys.SHOW_HELP_ACCENT, 1)
+      Handler().postDelayed({
+        main!!.setDecorator(TypeGuides.SHOW_HELP_GUIDE, binding.helpBtn, this)
+      }, 500)
+    }
+  }
+
+  override fun setStartDecorator() {
+    for(i in 1..navigator().getBackStackEntryCount()){ navigator().goingBack() }
+    main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
+    displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
+  }
+  override fun setNextDecorator() {
+    System.err.println("onClick buttonNext displayedNextTypeGuides = $displayedNextTypeGuides")
+    when(displayedNextTypeGuides) {
+      TypeGuides.SHOW_HELP_GUIDE -> { main!!.hideDecorator() }
+      TypeGuides.SHOW_VERSION_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
+      }
+      TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE, binding.openSensorsSensitivityRl, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE
+      }
+      TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE, binding.correlatorNoiseThreshold1Tv, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE
+      }
+      TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE, binding.openThresholdHelpV, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE
+      }
+      TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE, binding.openCHV, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE
+      }
+      TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE, binding.closeCHV, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SWAP_GUIDE
+      }
+      TypeGuides.SHOW_SENSORS_SWAP_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SWAP_GUIDE, binding.swapSensorsRl, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_BLOCKING_GUIDE
+      }
+      TypeGuides.SHOW_BLOCKING_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_BLOCKING_GUIDE, binding.thresholdsBlockingRl, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE
+      }
+      TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, binding.movementButtonsRl, this)
+        displayedNextTypeGuides = TypeGuides.SHOW_DEVICE_NAME_GUIDE
+      }
+      TypeGuides.SHOW_DEVICE_NAME_GUIDE -> {
+        main!!.hideDecorator()
+        main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, binding.nameTv, this)
+        displayedNextTypeGuides = TypeGuides.END_GUIDE
+      }
+      TypeGuides.END_GUIDE -> {
+        main!!.hideDecorator()
+        navigator().showWhiteStatusBar(true)
+        navigator().showHelpScreen(this)
+        navigator().showSensorsHelpScreen(this)
+      }
+      else -> {}
+    }
+  }
+  override fun reactivatedChart() {
+    graphThreadFlag = true
+    startGraphEnteringDataThread()
+  }
+
+  private fun showUIRotationGroup(enabled: Boolean) {
+    if (enabled) {
+      binding.loopGesturesLl.visibility = View.VISIBLE
+    } else {
+      binding.loopGesturesLl.visibility = View.GONE
+    }
+  }
+  @SuppressLint("SetTextI18n")
+  private fun enabledSensorsUIBeforeConnection (enabled: Boolean) {
+    binding.swapSensorsSw.isEnabled = enabled
+    binding.closeBtn.isEnabled = enabled
+    binding.openBtn.isEnabled = enabled
+    binding.calibrationBtn.isEnabled = enabled
+//    binding.startGameBtn.isEnabled = enabled
+    binding.thresholdsBlockingSw.isEnabled = enabled
+    binding.correlatorNoiseThreshold1Sb.isEnabled = enabled
+    binding.correlatorNoiseThreshold2Sb.isEnabled = enabled
+    binding.correlatorNoiseThreshold1Tv.isEnabled = enabled
+    binding.correlatorNoiseThreshold2Tv.isEnabled = enabled
+
+    val startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
+    val endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
+    binding.startLoopGestureTv.text = (startGestureInLoopNum + 1).toString()
+    binding.endLoopGestureTv.text = (endGestureInLoopNum + 1).toString()
+//    showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
+  }
+  @SuppressLint("SetTextI18n")
+  private fun initializedUI() {
+    binding.thresholdsBlockingSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
+    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
+    enabledSensorsUIBeforeConnection(false)
+    //скрываем кнопку калибровки для всех моделей кроме FEST_H и FEST_X
+    if ((main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false && main?.mDeviceType?.contains(DEVICE_TYPE_FEST_X) == false)) {
+      binding.chartCalibrationRl.visibility = View.GONE
+    }
+
     binding.nameTv.setOnClickListener {
       main?.showDisconnectDialog()
     }
-
-    binding.driverTv.setOnLongClickListener {
+    binding.syncPb.setOnLongClickListener {
       main?.readStartData(true)
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
@@ -134,56 +250,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       false
     }
-    binding.bmsTv.setOnLongClickListener {
-      main?.readStartData(true)
-      showAdvancedSettings = if (showAdvancedSettings) {
-        graphThreadFlag = false
-        Handler().postDelayed({
-          main?.showAdvancedSettings(showAdvancedSettings)
-        }, 100)
-        false
-      } else {
-        graphThreadFlag = false
-        Handler().postDelayed({
-          main?.showAdvancedSettings(showAdvancedSettings)
-        }, 100)
-        true
-      }
-      false
-    }
-    binding.sensorTv.setOnLongClickListener {
-      main?.readStartData(true)
-      showAdvancedSettings = if (showAdvancedSettings) {
-        graphThreadFlag = false
-        Handler().postDelayed({
-          main?.showAdvancedSettings(showAdvancedSettings)
-        }, 100)
-        false
-      } else {
-        graphThreadFlag = false
-        Handler().postDelayed({
-          main?.showAdvancedSettings(showAdvancedSettings)
-        }, 100)
-        true
-      }
-      false
-    }
-    binding.syncTv.setOnLongClickListener {
-      main?.readStartData(true)
-      showAdvancedSettings = if (showAdvancedSettings) {
-        graphThreadFlag = false
-        Handler().postDelayed({
-          main?.showAdvancedSettings(showAdvancedSettings)
-        }, 100)
-        false
-      } else {
-        graphThreadFlag = false
-        Handler().postDelayed({
-          main?.showAdvancedSettings(showAdvancedSettings)
-        }, 100)
-        true
-      }
-      false
+    binding.syncPb.setOnClickListener {
+      graphThreadFlag = false
+      navigator().showAccountScreen(this)
+      navigator().showWhiteStatusBar(true)
     }
     binding.syncSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -192,12 +262,11 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         } else {
           binding.syncTv.text = "sync "+seekBar.progress.toString()+"%"
         }
+        binding.syncPb.progress = seekBar.progress
       }
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {}
     })
-
-
 
     binding.openCHSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -274,8 +343,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         }
       }
     })
-
-
 
     binding.correlatorNoiseThreshold1Tv.setOnClickListener {
       if ( (!main?.lockWriteBeforeFirstRead!!)) {
@@ -356,7 +423,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
     })
 
-
     binding.swapSensorsSw.setOnClickListener {
       if ( (!main?.lockWriteBeforeFirstRead!!)) {
         if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
@@ -399,7 +465,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
     }
 
-
     binding.thresholdsBlockingSw.setOnClickListener{
       if (binding.thresholdsBlockingSw.isChecked) {
         binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
@@ -409,8 +474,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
     }
-
-
 
     binding.calibrationBtn.setOnClickListener {
       System.err.println("запись глобальной калибровки тык")
@@ -549,125 +612,6 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
     binding.saveProfileBtn.setOnClickListener {
       main!!.showToast("save profile btn tup")
-    }
-
-
-    if (mSettings!!.getInt(PreferenceKeys.SHOW_HELP_ACCENT, 4) == 1) {} else {
-      main!!.saveInt(PreferenceKeys.SHOW_HELP_ACCENT, 1)
-      Handler().postDelayed({
-        main!!.setDecorator(TypeGuides.SHOW_HELP_GUIDE, binding.helpBtn, this)
-      }, 500)
-    }
-  }
-
-  override fun setStartDecorator() {
-    for(i in 1..navigator().getBackStackEntryCount()){ navigator().goingBack() }
-    main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
-    displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
-  }
-  override fun setNextDecorator() {
-    System.err.println("onClick buttonNext displayedNextTypeGuides = $displayedNextTypeGuides")
-    when(displayedNextTypeGuides) {
-      TypeGuides.SHOW_HELP_GUIDE -> { main!!.hideDecorator() }
-      TypeGuides.SHOW_VERSION_GUIDE -> {
-        main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
-        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
-      }
-      TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE -> {
-        main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE, binding.openSensorsSensitivityRl, this)
-        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE
-      }
-      TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE -> {
-        main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE, binding.correlatorNoiseThreshold1Tv, this)
-        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE
-      }
-      TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE -> {
-        main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_SENSORS_THRESHOLD_LEVELS_GUIDE, binding.openThresholdHelpV, this)
-        displayedNextTypeGuides = TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE
-      }
-      TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE -> {
-        main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_OPEN_SENSORS_THRESHOLD_AREA_GUIDE, binding.openCHV, this)
-        displayedNextTypeGuides = TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE
-      }
-      TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE -> {
-        main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_CLOSE_SENSORS_THRESHOLD_AREA_GUIDE, binding.closeCHV, this)
-        displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SWAP_GUIDE
-      }
-      TypeGuides.SHOW_SENSORS_SWAP_GUIDE -> {
-        main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_SENSORS_SWAP_GUIDE, binding.swapSensorsRl, this)
-        displayedNextTypeGuides = TypeGuides.SHOW_BLOCKING_GUIDE
-      }
-      TypeGuides.SHOW_BLOCKING_GUIDE -> {
-        main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_BLOCKING_GUIDE, binding.thresholdsBlockingRl, this)
-        displayedNextTypeGuides = TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE
-      }
-      TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE -> {
-        main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_MOVEMENT_BUTTONS_GUIDE, binding.movementButtonsRl, this)
-        displayedNextTypeGuides = TypeGuides.SHOW_DEVICE_NAME_GUIDE
-      }
-      TypeGuides.SHOW_DEVICE_NAME_GUIDE -> {
-        main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_DEVICE_NAME_GUIDE, binding.nameTv, this)
-        displayedNextTypeGuides = TypeGuides.END_GUIDE
-      }
-      TypeGuides.END_GUIDE -> {
-        main!!.hideDecorator()
-        navigator().showWhiteStatusBar(true)
-        navigator().showHelpScreen(this)
-        navigator().showSensorsHelpScreen(this)
-      }
-      else -> {}
-    }
-  }
-  override fun reactivatedChart() {
-    System.err.println("Test reactivatedChart ChartFragment")
-    graphThreadFlag = true
-    startGraphEnteringDataThread()
-  }
-
-  private fun showUIRotationGroup(enabled: Boolean) {
-    if (enabled) {
-      binding.loopGesturesLl.visibility = View.VISIBLE
-    } else {
-      binding.loopGesturesLl.visibility = View.GONE
-    }
-  }
-  @SuppressLint("SetTextI18n")
-  private fun enabledSensorsUIBeforeConnection (enabled: Boolean) {
-    binding.swapSensorsSw.isEnabled = enabled
-    binding.closeBtn.isEnabled = enabled
-    binding.openBtn.isEnabled = enabled
-    binding.calibrationBtn.isEnabled = enabled
-//    binding.startGameBtn.isEnabled = enabled
-    binding.thresholdsBlockingSw.isEnabled = enabled
-    binding.correlatorNoiseThreshold1Sb.isEnabled = enabled
-    binding.correlatorNoiseThreshold2Sb.isEnabled = enabled
-    binding.correlatorNoiseThreshold1Tv.isEnabled = enabled
-    binding.correlatorNoiseThreshold2Tv.isEnabled = enabled
-
-    val startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
-    val endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
-    binding.startLoopGestureTv.text = (startGestureInLoopNum + 1).toString()
-    binding.endLoopGestureTv.text = (endGestureInLoopNum + 1).toString()
-//    showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
-  }
-  @SuppressLint("SetTextI18n")
-  private fun initializedUI() {
-    binding.thresholdsBlockingSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
-    enabledSensorsUIBeforeConnection(false)
-    //скрываем кнопку калибровки для всех моделей кроме FEST_H и FEST_X
-    if ((main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false && main?.mDeviceType?.contains(DEVICE_TYPE_FEST_X) == false)) {
-      binding.chartCalibrationRl.visibility = View.GONE
     }
   }
   @SuppressLint("CheckResult")
@@ -834,6 +778,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.chartMainchart.axisRight.textColor = Color.TRANSPARENT
   }
 
+  //TODO переписать с использованием корутины
   private fun startGraphEnteringDataThread() {
     graphThread = Thread {
       while (graphThreadFlag) {

@@ -331,14 +331,17 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             saveInt(mDeviceAddress + PreferenceKeys.DRIVER_NUM, castUnsignedCharToInt(data[3]))
             RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
             updateUIChart(2)
+            updateUIAccountMain()
           }
           if (castUnsignedCharToInt(data[4]) != mSettings!!.getInt(mDeviceAddress +PreferenceKeys.BMS_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.BMS_NUM, castUnsignedCharToInt(data[4]))
             updateUIChart(3)
+            updateUIAccountMain()
           }
           if (castUnsignedCharToInt(data[5]) != mSettings!!.getInt(mDeviceAddress +PreferenceKeys.SENS_NUM, 0)) {
             saveInt(mDeviceAddress + PreferenceKeys.SENS_NUM, castUnsignedCharToInt(data[5]))
             updateUIChart(4)
+            updateUIAccountMain()
           }
           if (castUnsignedCharToInt(data[6]) != mSettings!!.getInt(mDeviceAddress +PreferenceKeys.OPEN_CH_NUM, 0)) {
             openChNum = castUnsignedCharToInt(data[6])
@@ -487,7 +490,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             RxUpdateMainEvent.getInstance().updateUIGestures(castUnsignedCharToInt(data[2])+1)
             saveInt(mDeviceAddress+PreferenceKeys.ACTIVE_GESTURE_NUM, castUnsignedCharToInt(data[2])+1)
 //            System.err.println("gonka main displayDataNew $enableInterfaceStatus")
-            RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
+            updateUIChart(100)
             oldNumGesture = castUnsignedCharToInt(data[2])+1
             System.err.println("displayDataNew номер жеста ${castUnsignedCharToInt(data[2])+1}")
           }
@@ -1043,7 +1046,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       driverVersionS = driverVersion
       saveText(mDeviceAddress + PreferenceKeys.DRIVER_VERSION_STRING, driverVersionS)
 //      System.err.println("gonka main displayDataDriverVersionNew $enableInterfaceStatus")
-      RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
+      updateUIChart(100)
+      updateUIAccountMain()
       System.err.println("Принятые данные версии прошивки: $driverVersion ${data.size}")
       globalSemaphore = true
     }
@@ -1091,6 +1095,23 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
 
             System.err.println("updateAllParameters updateUIChart($source) 4")
+          }
+        }.start()
+      }
+    } catch (err : Exception)  {
+      System.err.println("Exception: $err")
+      return
+    }
+  }
+  private fun updateUIAccountMain() {
+    try {
+      runOnUiThread{
+        timer?.cancel()
+        timer = object : CountDownTimer(300, 1) {
+          override fun onTick(millisUntilFinished: Long) {}
+
+          override fun onFinish() {
+            RxUpdateMainEvent.getInstance().updateUIAccountMain(true)
           }
         }.start()
       }
@@ -1188,7 +1209,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun showProsthesesCareScreen() { launchFragment(ProsthesesCareFragment()) }
   override fun showServiceAndWarrantyScreen() { launchFragment(ServiceAndWarrantyFragment()) }
   override fun showNeuralScreen() { launchFragment(NeuralFragment()) }
-  override fun showAccountScreen() { launchFragment(AccountFragmentMain()) }
+  override fun showAccountScreen(chartFragmentClass: ChartFragment) { launchFragment(AccountFragmentMain(chartFragmentClass)) }
   override fun showAccountCustomerServiceScreen() { launchFragment(AccountFragmentCustomerService()) }
   override fun showAccountProsthesisInformationScreen() { launchFragment(AccountFragmentProsthesisInformation()) }
   override fun getBackStackEntryCount():Int { return supportFragmentManager.backStackEntryCount }
@@ -1371,7 +1392,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (mDeviceName!!.contains(DEVICE_TYPE_FEST_TEST)) { } else {
       enableInterfaceStatus = enabled
 //      System.err.println("gonka main enableInterface $enabled")
-      RxUpdateMainEvent.getInstance().updateUIChart(enabled)
+      updateUIChart(100)
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(DEVICE_TYPE_BT05)
         || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
@@ -1660,6 +1681,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 15
             updateUIChart(15)
+            updateUIAccountMain()
             state = 2
           }
           2 -> {
@@ -1785,6 +1807,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 100
             updateUIChart(24)
+            updateUIAccountMain()
             state = 0
             endFlag = true
             startSubscribeSensorsNewDataThread()
@@ -1832,6 +1855,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 5
             updateUIChart(25)
+            updateUIAccountMain()
             state = 1
           }
           1 -> {
@@ -1965,6 +1989,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 95
             updateUIChart(35)
+            updateUIAccountMain()
             state = 17
           }
           17 -> {
@@ -2555,7 +2580,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         System.err.println("DEVICE_TYPE_FEST_X else serialNumber=$serialNumber")
       }
 //      System.err.println("gonka main showSetSerialNumberDialog $enableInterfaceStatus")
-      RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
+      updateUIChart(100)
 
 
       myDialog.dismiss()

@@ -2,41 +2,61 @@ package com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFra
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bailout.stickk.R
 import com.bailout.stickk.databinding.FragmentPersonalAccountMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
+import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
+import com.bailout.stickk.new_electronic_by_Rodeon.models.userV2.UserV2
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.jetbrains.anko.runOnUiThread
 import kotlin.properties.Delegates
 
-class AccountFragmentMain : Fragment() {
+class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragment() {
     private var mContext: Context? = null
     private var main: MainActivity? = null
     private var linearLayoutManager: LinearLayoutManager? = null
     private var adapter: AccountMainAdapter? = null
+    private var mSettings: SharedPreferences? = null
 
     private var token = ""
     private var clientId = 0
     private var gson: Gson? = null
     private var encryptionManager: EncryptionManagerUtils? = null
+    private val reactivatedInterface: ReactivatedChart = chartFragmentClass
     private var encryptionResult: String? = null
     private var testSerialNumber = "FEST-H-04921"//"FEST-EP-05674"//"FEST-F-06879"//
     private var myRequests: Requests? = null
+//    private var myUser: UserV2? = null
+    private var fname: String = ""
+    private var sname: String = ""
+
+    private var driverVersion = "0.01"
+    private var bmsVersion = "0.01"
+    private var sensorsVersion = "0.01"
+
 
     private lateinit var binding: FragmentPersonalAccountMainBinding
 
@@ -50,6 +70,7 @@ class AccountFragmentMain : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         gson = Gson()
         myRequests = Requests()
         encryptionManager = EncryptionManagerUtils.instance
@@ -65,6 +86,44 @@ class AccountFragmentMain : Fragment() {
         binding.refreshLayout.setOnRefreshListener { requestToken() }
 
         initializeUI()
+    }
+
+    @SuppressLint("CheckResult")
+    override fun onResume() {
+        super.onResume()
+
+        RxUpdateMainEvent.getInstance().uiAccountMain
+            .compose(main?.bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                if (context != null) {
+                    updateAllParameters()
+                }
+            }
+    }
+    private fun updateAllParameters() {
+        activity?.runOnUiThread {
+            initializeUI()
+
+            accountMainList.clear()
+            accountMainList.add(
+                AccountMainItem(
+                    avatarUrl = "avatarUrl",
+                    name = fname,
+                    surname = sname,
+                    patronymic = "Ivanovich",
+                    versionDriver = driverVersion,
+                    versionBms = bmsVersion,
+                    versionSensors = sensorsVersion
+                )
+            )
+            initAdapter(binding.accountRv)
+        }
+    }
+    private fun checkMultigrib(): Boolean {
+        return main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X) ||
+                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
+                main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_A)
     }
 
     private fun requestToken() {
@@ -85,17 +144,19 @@ class AccountFragmentMain : Fragment() {
         CoroutineScope(Dispatchers.Main).launch {
             myRequests!!.getRequestUserV2(
                 { user ->
+                    fname = user.userInfo?.fname.toString()
+                    sname = user.userInfo?.sname.toString()
                     binding.apply {
                         accountMainList.clear()
                         accountMainList.add(
                             AccountMainItem(
                             avatarUrl = "avatarUrl",
-                            name = user.userInfo?.fname.toString(),
-                            surname = user.userInfo?.sname.toString(),
+                            name = fname,
+                            surname = sname,
                             patronymic = "Ivanovich",
-                            versionDriver = "111111111.111",
-                            versionBms = "222222.22222",
-                            versionSensors = "33333.33333")
+                            versionDriver = driverVersion,
+                            versionBms = bmsVersion,
+                            versionSensors = sensorsVersion)
                         )
                         initAdapter(binding.accountRv)
                         binding.refreshLayout.setRefreshing(false)
@@ -218,7 +279,39 @@ class AccountFragmentMain : Fragment() {
         binding.titleClickBlockBtn.setOnClickListener {  }
         initAdapter(binding.accountRv)
 
-        binding.backBtn.setOnClickListener { navigator().goingBack() }
+        binding.backBtn.setOnClickListener {
+            navigator().goingBack()
+            reactivatedInterface.reactivatedChart()
+        }
+
+        binding.root.isFocusableInTouchMode = true
+        binding.root.requestFocus()
+        binding.root.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                navigator().goingBack()
+                reactivatedInterface.reactivatedChart()
+                requireFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                return@OnKeyListener true
+            }
+            false
+        })
+
+        driverVersion = if (!checkMultigrib()) {
+            ((mSettings!!.getInt(
+                main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
+                1
+            )).toFloat() / 100).toString()
+        } else {
+            main?.driverVersionS.toString()
+        }
+        bmsVersion = ((mSettings!!.getInt(
+            main?.mDeviceAddress + PreferenceKeys.BMS_NUM,
+            1
+        )).toFloat() / 100).toString()
+        sensorsVersion = ((mSettings!!.getInt(
+            main?.mDeviceAddress + PreferenceKeys.SENS_NUM,
+            1
+        )).toFloat() / 100).toString()
     }
 
     companion object {

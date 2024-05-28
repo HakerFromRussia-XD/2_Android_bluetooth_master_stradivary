@@ -22,7 +22,7 @@ interface Navigator {
     fun showProsthesesCareScreen()
     fun showServiceAndWarrantyScreen()
     fun showNeuralScreen()
-    fun showAccountScreen()
+    fun showAccountScreen(chartFragmentClass: ChartFragment)
     fun showAccountCustomerServiceScreen()
     fun showAccountProsthesisInformationScreen()
 

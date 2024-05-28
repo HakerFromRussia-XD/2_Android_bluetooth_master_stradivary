@@ -28,7 +28,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 6
-        versionName "2.4.684"
+        versionName "2.4.685"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

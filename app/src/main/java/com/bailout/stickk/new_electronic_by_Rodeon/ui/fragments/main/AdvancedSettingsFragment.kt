@@ -279,13 +279,13 @@ class AdvancedSettingsFragment : Fragment() {
 
     binding.shutdownCurrentSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        binding.shutdownCurrentTv.text = (seekBar.progress + 30).toString()
+        binding.shutdownCurrentTv.text = (seekBar.progress).toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf((seekBar.progress + 30).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+          main?.bleCommandConnector(byteArrayOf((seekBar.progress).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
         }
       }
@@ -1025,13 +1025,13 @@ class AdvancedSettingsFragment : Fragment() {
         else -> {
           binding.EMGModeRl.visibility = View.GONE
           //TODO кнопка дебагинга в INDY для доступа к секретным настройкам не совсем годится, потому что там модель FEST-H (если закомментить, то будет кнопка)
-//          binding.debugScreenRl.visibility = View.GONE
+          binding.debugScreenRl.visibility = View.GONE
 
           //для тестовой версии приложения ИНДИ
-//          binding.swapOpenCloseRl.visibility = View.GONE
-//          binding.singleChannelControlRl.visibility = View.GONE
-//          binding.smartConnectionRl.visibility = View.GONE
-//          binding.resetToFactorySettingsRl.visibility = View.GONE
+          binding.swapOpenCloseRl.visibility = View.GONE
+          binding.singleChannelControlRl.visibility = View.GONE
+          binding.smartConnectionRl.visibility = View.GONE
+          binding.resetToFactorySettingsRl.visibility = View.GONE
 
 
           binding.serialRl.visibility = View.GONE
@@ -1128,8 +1128,8 @@ class AdvancedSettingsFragment : Fragment() {
       System.err.println("Принятые данные состояния токов ОБНОВЛЕНИЕ")
 
       var compressionForce = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
-      if (compressionForce - 30 < 0 ) { compressionForce = 30 }
-      ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", compressionForce-30).setDuration(200).start()
+//      if (compressionForce - 30 < 0 ) { compressionForce = 30 }
+      ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", compressionForce).setDuration(200).start()
 
       ObjectAnimator.ofInt(binding.shutdownCurrent1Sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(binding.shutdownCurrent2Sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)).setDuration(200).start()

@@ -89,7 +89,7 @@
                             android:id="@+id/shutdown_current_sb"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:max="70"
+                            android:max="100"
                             android:paddingStart="16dp"
                             android:paddingEnd="0dp"
                             android:progress="0"

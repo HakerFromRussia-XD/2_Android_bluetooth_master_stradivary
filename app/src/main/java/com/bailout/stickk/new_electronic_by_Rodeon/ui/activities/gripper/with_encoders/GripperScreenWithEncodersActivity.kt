@@ -1156,8 +1156,6 @@ class GripperScreenWithEncodersActivity
                 PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 5, 0)
             fingerCloseStateDelay6 = mSettings!!.getInt(
                 PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 6, 0)
-
-
         }
     }
     private fun myLoadGesturesList() {

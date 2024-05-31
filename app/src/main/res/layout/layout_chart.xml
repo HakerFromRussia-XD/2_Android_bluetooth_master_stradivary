@@ -110,8 +110,8 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView4"
-                android:layout_width="46dp"
-                android:layout_height="46dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="10dp"
@@ -120,23 +120,22 @@
                 app:cardCornerRadius="25dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
+                <ProgressBar
+                    android:id="@+id/sync_pb"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:indeterminateOnly="false"
+                    android:progressDrawable="@drawable/custom_progress" />
 
                 <ImageView
-                    android:layout_width="46dp"
-                    android:layout_height="46dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:layout_marginStart="0dp"
                     android:layout_marginTop="0dp"
                     android:src="@drawable/baseline_circle_24"
                     tools:ignore="ContentDescription" />
-
-                <ProgressBar
-                    android:id="@+id/sync_pb"
-                    android:layout_width="54dp"
-                    android:layout_height="54dp"
-                    android:layout_marginStart="-4dp"
-                    android:layout_marginTop="-4dp"
-                    android:indeterminateOnly="false"
-                    android:progressDrawable="@drawable/custom_progress" />
 
                 <ImageView
                     android:layout_width="match_parent"
@@ -144,6 +143,7 @@
                     android:padding="2dp"
                     android:src="@drawable/user"
                     tools:ignore="ContentDescription" />
+
 
             </androidx.cardview.widget.CardView>
 
@@ -268,7 +268,7 @@
 
             <Button
                 android:id="@+id/save_profile_btn"
-                android:layout_width="0dp"
+                android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:layout_alignTop="@+id/name_tv"
                 android:layout_alignParentEnd="true"

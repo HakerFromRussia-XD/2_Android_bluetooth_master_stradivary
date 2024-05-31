@@ -744,11 +744,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (data != null) {
       if (data.size >= 25) {
         for (i in 13..18) {
-          saveInt(GESTURE_OPEN_DELAY_FINGER+"${i-12}", castUnsignedCharToInt(data[i]))
+          saveInt(mDeviceAddress + GESTURE_OPEN_DELAY_FINGER+"${i-12}", castUnsignedCharToInt(data[i]))
           System.err.println("Принятые данные состояния задержек открытого состояния: " + data[i])
         }
         for (i in 19..24) {
-          saveInt(GESTURE_CLOSE_DELAY_FINGER+"${i-18}", castUnsignedCharToInt(data[i]))
+          saveInt(mDeviceAddress + GESTURE_CLOSE_DELAY_FINGER+"${i-18}", castUnsignedCharToInt(data[i]))
           System.err.println("Принятые данные состояния задержек закрытого состояния: " + data[i])
         }
       }

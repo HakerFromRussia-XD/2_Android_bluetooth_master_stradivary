@@ -17,6 +17,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 
 class PreferenceManager(private val mContext: Context) {
+  private val preferenceKey = "motoricaStart"
 
   fun getBoolean(key: String, default_value: Boolean): Boolean {
     val pref = mContext.getSharedPreferences(preferenceKey, 0)
@@ -52,9 +53,5 @@ class PreferenceManager(private val mContext: Context) {
     val pref = mContext.getSharedPreferences(preferenceKey, 0)
     val editor = pref.edit()
     editor.putString(key, default_value).apply()
-  }
-
-  companion object {
-    private val preferenceKey = "waterdays"
   }
 }

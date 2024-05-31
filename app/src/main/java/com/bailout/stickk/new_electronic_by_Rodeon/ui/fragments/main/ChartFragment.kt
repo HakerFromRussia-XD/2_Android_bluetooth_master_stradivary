@@ -31,6 +31,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceManager
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.ProfileManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.DecoratorChange
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
@@ -220,10 +221,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.endLoopGestureTv.text = (endGestureInLoopNum + 1).toString()
 //    showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
   }
-  @SuppressLint("SetTextI18n")
+  @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
   private fun initializedUI() {
-    binding.thresholdsBlockingSw.isChecked = preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
-    if (preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
+    binding.thresholdsBlockingSw.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
+    if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
     enabledSensorsUIBeforeConnection(false)
     //скрываем кнопку калибровки для всех моделей кроме FEST_H и FEST_X
     if ((main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false && main?.mDeviceType?.contains(DEVICE_TYPE_FEST_X) == false)) {
@@ -280,7 +281,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if ((!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+          if (!mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
               main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, 50)
@@ -318,7 +319,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if ((!main?.lockWriteBeforeFirstRead!!)) {//отправка команды изменения порога на протез только если блокировка не активна
-          if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+          if (!mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
               main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW_VM, 50)
@@ -346,7 +347,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
     binding.correlatorNoiseThreshold1Tv.setOnClickListener {
       if ( (!main?.lockWriteBeforeFirstRead!!)) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+        if (!mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
           main!!.openValueChangeDialog(
             PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM,
             callbackFromDialogChangeValue
@@ -362,7 +363,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
     binding.correlatorNoiseThreshold2Tv.setOnClickListener {
       if ( (!main?.lockWriteBeforeFirstRead!!)) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+        if (!mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
           main!!.openValueChangeDialog(
             PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM,
             callbackFromDialogChangeValue
@@ -383,7 +384,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if ( (!main?.lockWriteBeforeFirstRead!!)) {
-          if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+          if (!mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
             System.err.println("test save correlator value" + main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM)
             if (main?.savingSettingsWhenModified == true) {
               System.err.println("test save correlator value" + main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM)
@@ -407,7 +408,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if ( (!main?.lockWriteBeforeFirstRead!!)) {
-          if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+          if (!mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
             if (main?.savingSettingsWhenModified == true) {
               main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - seekBar.progress))
             }
@@ -425,7 +426,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
     binding.swapSensorsSw.setOnClickListener {
       if ( (!main?.lockWriteBeforeFirstRead!!)) {
-        if (!preferenceManager.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
+        if (!mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
           if (binding.swapSensorsSw.isChecked) {
             binding.swapSensorsTv.text = resources.getString(R.string.on_sw)
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
@@ -468,10 +469,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.thresholdsBlockingSw.setOnClickListener{
       if (binding.thresholdsBlockingSw.isChecked) {
         binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
+        main?.saveBool(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, true)
       } else {
         binding.thresholdsBlockingTv.text = resources.getString(R.string.off_sw)
-        preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
+        main?.saveBool(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
       }
     }
 
@@ -612,6 +613,14 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
     binding.saveProfileBtn.setOnClickListener {
       main!!.showToast("save profile btn tup")
+      val profileManager = ProfileManager(myAppContext, main!!)
+//      System.err.println(""+profileManager.showVersion())
+//      System.err.println(""+profileManager.showVersionS())
+//      System.err.println("save profile btn gesturesStateWithEncoders = "+profileManager.loadProfileSettings().gesturesStateWithEncoders.size)
+      System.err.println("save profile btn openChNum = "+profileManager.loadProfileSettings().openChNum)
+      System.err.println("save profile btn closeChNum = "+profileManager.loadProfileSettings().closeChNum)
+      System.err.println("save profile btn correlatorNoiseThreshold1 = "+profileManager.loadProfileSettings().correlatorNoiseThreshold1)
+      System.err.println("save profile btn correlatorNoiseThreshold2 = "+profileManager.loadProfileSettings().correlatorNoiseThreshold2)
     }
   }
   @SuppressLint("CheckResult")

@@ -70,6 +70,9 @@ import kotlin.experimental.xor
 class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView, Parcelable,
   Navigator {
 
+  var startScrollForGesturesFragment: (()->Unit)? = null
+  var startScrollForChartFragment: ((enabledGraph: Boolean)->Unit)? = null
+  var startScrollForAdvancedSettingsFragment: (()->Unit)? = null
   private var sensorsDataThreadFlag: Boolean = true
   var reconnectThreadFlag: Boolean = false
   private var reconnectThread: Thread? = null
@@ -1307,17 +1310,29 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     binding.mainactivityViewpager.offscreenPageLimit = 3
     System.err.println("setComponents ${NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)}")
+//    optimizationNavi{ result ->
+//      System.err.println(result)
+//    }
     optimizationNavi()
   }
+
   private fun optimizationNavi() {
+    var increment = 0
     binding.mainactivityNavi.setOnPageChangeListener(object : ViewPager.OnPageChangeListener {
       //TODO добавить сюда оптимизацию при переходе по страницам
       override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-        System.err.println("main fragmentss Scrolled $position")
+//        System.err.println("main fragmentss Scrolled $position")
+        if (increment != 0) {
+          startScrollForGesturesFragment?.invoke()
+          startScrollForChartFragment?.invoke(false)
+          startScrollForAdvancedSettingsFragment?.invoke()
+        }
+        increment = 1
       }
 
       override fun onPageSelected(position: Int) {
         System.err.println("main fragmentss Selected $position")
+        startScrollForChartFragment?.invoke(true)
       }
 
       override fun onPageScrollStateChanged(state: Int) {
@@ -1325,6 +1340,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
     })
   }
+
 
   @SuppressLint("ClickableViewAccessibility")
   fun setDecorator(guide: TypeGuides, targetView: View, rootClass: Any) {

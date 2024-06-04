@@ -47,66 +47,66 @@
                 android:background="@drawable/close_border"
                 tools:ignore="ContentDescription" />
 
-            <TextView
-                android:id="@+id/driver_tv"
-                style="@style/Text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="4dp"
-                android:text="@string/driver_0_00v"
-                android:textSize="9sp"
-                android:textColor="@color/white"
-                android:visibility="gone"
-                tools:ignore="RelativeOverlap,RtlHardcoded,SmallSp" />
+<!--            <TextView-->
+<!--                android:id="@+id/driver_tv"-->
+<!--                style="@style/Text"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_alignParentStart="true"-->
+<!--                android:layout_alignParentLeft="true"-->
+<!--                android:layout_alignParentTop="true"-->
+<!--                android:layout_marginStart="5dp"-->
+<!--                android:layout_marginTop="4dp"-->
+<!--                android:text="@string/driver_0_00v"-->
+<!--                android:textSize="9sp"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:visibility="visible"-->
+<!--                tools:ignore="RelativeOverlap,RtlHardcoded,SmallSp" />-->
 
-            <TextView
-                android:id="@+id/bms_tv"
-                style="@style/Text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/driver_tv"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="0dp"
-                android:text="@string/bms_0_00v"
-                android:textColor="@color/white"
-                android:textSize="9sp"
-                android:visibility="gone"
-                tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
+<!--            <TextView-->
+<!--                android:id="@+id/bms_tv"-->
+<!--                style="@style/Text"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_below="@+id/driver_tv"-->
+<!--                android:layout_alignParentStart="true"-->
+<!--                android:layout_marginStart="5dp"-->
+<!--                android:layout_marginTop="0dp"-->
+<!--                android:text="@string/bms_0_00v"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="9sp"-->
+<!--                android:visibility="visible"-->
+<!--                tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />-->
 
-            <TextView
-                android:id="@+id/sensor_tv"
-                style="@style/Text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/bms_tv"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="0dp"
-                android:text="@string/sens_0_00v"
-                android:textColor="@color/white"
-                android:textSize="9sp"
-                android:visibility="gone"
-                tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />
+<!--            <TextView-->
+<!--                android:id="@+id/sensor_tv"-->
+<!--                style="@style/Text"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_below="@+id/bms_tv"-->
+<!--                android:layout_alignParentStart="true"-->
+<!--                android:layout_marginStart="5dp"-->
+<!--                android:layout_marginTop="0dp"-->
+<!--                android:text="@string/sens_0_00v"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="9sp"-->
+<!--                android:visibility="visible"-->
+<!--                tools:ignore="HardcodedText,RtlHardcoded,SmallSp" />-->
 
-            <TextView
-                android:id="@+id/sync_tv"
-                style="@style/Text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/sensor_tv"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="0dp"
-                android:text="@string/sync_0"
-                android:textColor="@color/white"
-                android:textSize="9sp"
-                android:visibility="gone"
-                tools:ignore="RtlHardcoded,SmallSp" />
+<!--            <TextView-->
+<!--                android:id="@+id/sync_tv"-->
+<!--                style="@style/Text"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_below="@+id/sensor_tv"-->
+<!--                android:layout_alignParentStart="true"-->
+<!--                android:layout_marginStart="5dp"-->
+<!--                android:layout_marginTop="0dp"-->
+<!--                android:text="@string/sync_0"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="9sp"-->
+<!--                android:visibility="visible"-->
+<!--                tools:ignore="RtlHardcoded,SmallSp" />-->
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView4"
@@ -120,6 +120,7 @@
                 app:cardCornerRadius="25dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
+
                 <ProgressBar
                     android:id="@+id/sync_pb"
                     android:layout_width="28dp"
@@ -147,18 +148,18 @@
 
             </androidx.cardview.widget.CardView>
 
-            <View
-                android:id="@+id/version_help_v"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_alignStart="@+id/bms_tv"
-                android:layout_alignEnd="@+id/driver_tv"
-                android:layout_alignBottom="@+id/sync_tv"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="0dp"
-                android:layout_marginTop="0dp"
-                android:layout_marginEnd="0dp"
-                android:layout_marginBottom="0dp" />
+<!--            <View-->
+<!--                android:id="@+id/version_help_v"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="0dp"-->
+<!--                android:layout_alignStart="@+id/bms_tv"-->
+<!--                android:layout_alignEnd="@+id/driver_tv"-->
+<!--                android:layout_alignBottom="@+id/sync_tv"-->
+<!--                android:layout_alignParentTop="true"-->
+<!--                android:layout_marginStart="0dp"-->
+<!--                android:layout_marginTop="0dp"-->
+<!--                android:layout_marginEnd="0dp"-->
+<!--                android:layout_marginBottom="0dp" />-->
 
             <TextView
                 android:id="@+id/name_tv"
@@ -178,10 +179,10 @@
                 android:layout_width="72dp"
                 android:layout_height="0dp"
                 android:layout_below="@+id/name_tv"
-                android:layout_alignBottom="@+id/version_help_v"
+                android:layout_alignBottom="@+id/cardView4"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="0dp"
-                android:layout_marginBottom="0dp"
+                android:layout_marginBottom="-20dp"
                 android:orientation="horizontal"
                 android:visibility="visible"
                 android:weightSum="2.6"

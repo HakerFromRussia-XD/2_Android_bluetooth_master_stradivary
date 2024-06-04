@@ -73,6 +73,13 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding = LayoutGesturesBinding.inflate(layoutInflater)
         if (activity != null) { main = activity as MainActivity? }
 
+
+        main?.startScrollForGesturesFragment = {
+            System.err.println("GestureFragment startScroll")
+            binding.gestureLoop1Psv.dismiss()
+            binding.gestureLoop2Psv.dismiss()
+        }
+
         return binding.root
     }
     @Deprecated("Deprecated in Java")
@@ -277,7 +284,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             hideUIRotationGroup(false)
         }
     }
-    @SuppressLint("CheckResult")
+
     override fun onResume() {
         super.onResume()
         gestureNameList.clear()

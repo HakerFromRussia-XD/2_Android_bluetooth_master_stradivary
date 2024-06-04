@@ -91,6 +91,12 @@ class AdvancedSettingsFragment : Fragment() {
     if (activity != null) { main = activity as MainActivity? }
     this.mContext = context
     scale = resources.displayMetrics.density
+
+    main?.startScrollForAdvancedSettingsFragment = {
+      System.err.println("AdvancedSettingsFragment startScroll")
+      binding.EMGModeSwapPsv.dismiss()
+    }
+
     return binding.root
   }
 

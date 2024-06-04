@@ -145,7 +145,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 20000;
-//    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    // public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private int scanListBLEPosition = 0;
 
     private ArrayList<BluetoothDevice> mLeDevices  = new ArrayList<>();

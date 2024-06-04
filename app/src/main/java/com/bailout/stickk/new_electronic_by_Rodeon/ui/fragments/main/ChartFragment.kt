@@ -96,7 +96,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 //    navigator().showSecretSettingsScreen()
 //    navigator().showNeuralScreen()
 
-
+    main?.startScrollForChartFragment = { result ->
+      System.err.println("ВЫКЛЮЧАЕМ ГРАФИКИ $result startScroll")
+    }
 
     return binding.root
   }
@@ -124,8 +126,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
   override fun setStartDecorator() {
     for(i in 1..navigator().getBackStackEntryCount()){ navigator().goingBack() }
-    main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
-    displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
+//    main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
+//    displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
+    main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE, binding.openSensorsSensitivityRl, this)
+    displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE
   }
   override fun setNextDecorator() {
     System.err.println("onClick buttonNext displayedNextTypeGuides = $displayedNextTypeGuides")
@@ -133,7 +137,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       TypeGuides.SHOW_HELP_GUIDE -> { main!!.hideDecorator() }
       TypeGuides.SHOW_VERSION_GUIDE -> {
         main!!.hideDecorator()
-        main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
+//        main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
         displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
       }
       TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE -> {
@@ -197,8 +201,10 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
   private fun showUIRotationGroup(enabled: Boolean) {
     if (enabled) {
+      System.err.println("showUIRotationGroup VISIBLE")
       binding.loopGesturesLl.visibility = View.VISIBLE
     } else {
+      System.err.println("showUIRotationGroup GONE")
       binding.loopGesturesLl.visibility = View.GONE
     }
   }
@@ -259,9 +265,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.syncSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         if (main?.locate?.contains("ru")!!) {
-          binding.syncTv.text = "снхро "+seekBar.progress.toString()+"%"
+//          binding.syncTv.text = "снхро "+seekBar.progress.toString()+"%"
         } else {
-          binding.syncTv.text = "sync "+seekBar.progress.toString()+"%"
+//          binding.syncTv.text = "sync "+seekBar.progress.toString()+"%"
         }
         binding.syncPb.progress = seekBar.progress
       }
@@ -833,25 +839,25 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       } else {
         binding.swapSensorsTv.text = resources.getString(R.string.off_sw)
       }
-      if (!(main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) ||
-                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) ||
-                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_A))
-      ) {
-        binding.driverTv.text = resources.getString(R.string.driver) + (mSettings!!.getInt(
-          main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
-          1
-        )).toFloat() / 100 + "v"
-      } else {
-        binding.driverTv.text = resources.getString(R.string.driver) +main?.driverVersionS + "v"
-      }
-      binding.bmsTv.text = resources.getString(R.string.bms) + (mSettings!!.getInt(
-        main?.mDeviceAddress + PreferenceKeys.BMS_NUM,
-        1
-      )).toFloat() / 100 + "v"
-      binding.sensorTv.text = resources.getString(R.string.sens) + (mSettings!!.getInt(
-        main?.mDeviceAddress + PreferenceKeys.SENS_NUM,
-        1
-      )).toFloat() / 100 + "v"
+//      if (!(main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) ||
+//                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) ||
+//                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_A))
+//      ) {
+//        binding.driverTv.text = resources.getString(R.string.driver) + (mSettings!!.getInt(
+//          main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
+//          1
+//        )).toFloat() / 100 + "v"
+//      } else {
+//        binding.driverTv.text = resources.getString(R.string.driver) +main?.driverVersionS + "v"
+//      }
+//      binding.bmsTv.text = resources.getString(R.string.bms) + (mSettings!!.getInt(
+//        main?.mDeviceAddress + PreferenceKeys.BMS_NUM,
+//        1
+//      )).toFloat() / 100 + "v"
+//      binding.sensorTv.text = resources.getString(R.string.sens) + (mSettings!!.getInt(
+//        main?.mDeviceAddress + PreferenceKeys.SENS_NUM,
+//        1
+//      )).toFloat() / 100 + "v"
       ObjectAnimator.ofFloat(
         binding.limitCH1, "y", 320 * scale - 5f - (binding.openCHSb.progress.times(scale) * 1.04f)
       ).setDuration(200).start()

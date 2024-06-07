@@ -2192,17 +2192,13 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     parcel.writeString(mDeviceAddress)
     parcel.writeString(mDeviceType)
     parcel.writeByte(if (mConnected) 1 else 0)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      parcel.writeParcelable(mNotifyCharacteristic, flags)
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      parcel.writeParcelable(mCharacteristic, flags)
-    }
+    parcel.writeParcelable(mNotifyCharacteristic, flags)
+    parcel.writeParcelable(mCharacteristic, flags)
     parcel.writeInt(dataSens1)
     parcel.writeInt(dataSens2)
     parcel.writeInt(state)
   }
-  override fun describeContents(): Int { return 0 }
+  override fun describeContents(): Int { return 0 }   
 
   companion object CREATOR : Parcelable.Creator<MainActivity> {
     override fun createFromParcel(parcel: Parcel): MainActivity { return MainActivity(parcel) }
@@ -2585,12 +2581,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           WRITE,
           17
         )
-        mDeviceName = NameUtil.getCleanName(serialNumber)
+        this.mDeviceName = NameUtil.getCleanName(serialNumber)
       }
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         runSendCommand(serialNumber.toByteArray(Charsets.UTF_8),
           SERIAL_NUMBER_NEW_VM, 50)
-        mDeviceName = NameUtil.getCleanName(serialNumber)
+        this.mDeviceName = NameUtil.getCleanName(serialNumber)
         System.err.println("DEVICE_TYPE_FEST_X serialNumber=$serialNumber")
       } else {
         System.err.println("DEVICE_TYPE_FEST_X else serialNumber=$serialNumber")

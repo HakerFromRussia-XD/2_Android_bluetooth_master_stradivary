@@ -41,6 +41,8 @@ class NameUtilTest {
         assertEquals("FEST-EP-00001", cleanName)
         cleanName = NameUtil.getCleanName("FEST-XFTEB00001")
         assertEquals("FEST-EB-00001", cleanName)
+        cleanName = NameUtil.getCleanName("FEST-XFTEB 0000")
+        assertEquals("FEST-XFTEB 0000", cleanName)
     }
 
 

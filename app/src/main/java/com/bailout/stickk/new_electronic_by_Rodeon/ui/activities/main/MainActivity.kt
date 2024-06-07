@@ -181,7 +181,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var gestureTableBig: Array<Array<Array<Int>>> = Array(13) { Array(2) { Array(6) { 0 } } }
   private var byteEnabledGesture: Byte = 1 // байт по маске показывающий единицами, какие из жестов сконфигурированы и доступны для использования
   var calibrationStage: Int = 0 // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
-  var serialNumber: String = "" // состояния калибровки протеза 0-не откалиброван  1-калибруется  2-откалиброван  |  для запуска калибровки пишем !0
+  var serialNumber: String = ""
   private lateinit var dialog: DialogFragment
   private var mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

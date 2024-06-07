@@ -179,20 +179,6 @@ class AdvancedSettingsFragment : Fragment() {
     }
   }
 
-//  private fun recursia(value: Int) {
-//    var value = value
-//    if (value > 2) { value = 0 }
-//    timer?.cancel()
-//    timer = object : CountDownTimer(3000, 1) {
-//      override fun onTick(millisUntilFinished: Long) {}
-//
-//      override fun onFinish() {
-//        sendFlag = false
-//        binding.EMGModeSwapPsv.selectItemByIndex(value)
-//        recursia(value)
-//      }
-//    }.start()
-//  }
   @SuppressLint("SetTextI18n", "CheckResult", "Recycle")
   private fun initializeUI() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)

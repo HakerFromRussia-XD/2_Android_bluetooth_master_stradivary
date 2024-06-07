@@ -42,6 +42,8 @@ class AccountFragmentCustomerService : Fragment() {
         WDApplication.component.inject(this)
         if (activity != null) { main = activity as MainActivity? }
         this.mContext = context
+        testSerialNumber = main?.mDeviceName.toString()
+        System.err.println("TEST SERIAL NUMBER $testSerialNumber")
         return binding.root
     }
 

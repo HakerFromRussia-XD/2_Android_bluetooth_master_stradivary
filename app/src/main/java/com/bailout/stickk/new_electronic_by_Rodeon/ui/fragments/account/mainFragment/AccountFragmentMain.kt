@@ -47,7 +47,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
     private var encryptionManager: EncryptionManagerUtils? = null
     private val reactivatedInterface: ReactivatedChart = chartFragmentClass
     private var encryptionResult: String? = null
-    private var testSerialNumber = "FEST-H-04921"//"FEST-EP-05674"//"FEST-F-06879"//
+    private var testSerialNumber = "FEST-EP-05674"//"FEST-H-04921"//"FEST-F-06879"//
     private var myRequests: Requests? = null
 //    private var myUser: UserV2? = null
     private var fname: String = ""
@@ -65,6 +65,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
         WDApplication.component.inject(this)
         if (activity != null) { main = activity as MainActivity? }
         this.mContext = context
+        testSerialNumber = main?.mDeviceName.toString()
         return binding.root
     }
 

@@ -8,6 +8,7 @@ public interface ConstantManager {
 
     String DEVICE_NAME = "";
     String EXTRAS_DEVICE_TYPE = "EXTRAS_DEVICE_TYPE";
+    String DEVICE_TYPE_INDY = "INDY";
     String DEVICE_TYPE_FEST_A = "FEST-A";
     String DEVICE_TYPE_BT05 = "BT05";
     String DEVICE_TYPE_MY_IPHONE = "FEST-A";
@@ -16,7 +17,7 @@ public interface ConstantManager {
     String DEVICE_TYPE_FEST_H_EB = "FEST-EB";
     String DEVICE_TYPE_FEST_X = "FEST-X";
     String DEVICE_TYPE_FEST_F = "FEST-F";
-    String DEVICE_TYPE_INDY = "INDY";
+    String DEVICE_TYPE_INDY_H = "INDY-H";
     String DEVICE_TYPE_INDY_EP = "INDY-EP";
     String DEVICE_TYPE_INDY_EB = "INDY-EB";
     String DEVICE_TYPE_INDY_SH = "INDY-SH";

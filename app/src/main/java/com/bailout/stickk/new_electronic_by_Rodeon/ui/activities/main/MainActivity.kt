@@ -1564,12 +1564,14 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (mBluetoothLeService != null) {
       for (i in mGattCharacteristics.indices) {
         for (j in mGattCharacteristics[i].indices) {
+          System.err.println("mGattCharacteristics ${mGattCharacteristics[i][j].uuid}")
           if (mGattCharacteristics[i][j].uuid.toString() == Command) {
             mCharacteristic = mGattCharacteristics[i][j]
             if (typeCommand == WRITE){
               if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
                 mCharacteristic?.value = byteArray
                 mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+                System.err.println("bleCommand Write Characteristic")
               }
             }
 
@@ -1577,7 +1579,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
               if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0) {
                 mCharacteristic?.value = byteArray
                 mBluetoothLeService?.writeCharacteristic(mCharacteristic)
-                System.err.println("bleCommand Write Characteristic")
+                System.err.println("bleCommand Write WR Characteristic")
               }
             }
 
@@ -2574,6 +2576,16 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_set_serial_number_confirm)
     yesBtn.setOnClickListener {
+      if (mDeviceType!!.contains(DEVICE_TYPE_INDY)) {
+        val charset = Charsets.UTF_8
+        val byteArray = serialNumber.toByteArray(charset)
+        System.err.println("serialNumber ОТПРАВКА! ${byteArray.size}  ${(byteArray+byteArrayOf(0x00)).contentToString()}")
+        if (byteArray.size == 8) {
+          bleCommandConnector(byteArray, SET_SERIAL_NUMBER, WRITE, 11)
+        } else {
+          bleCommandConnector(byteArray+byteArrayOf(0x00), SET_SERIAL_NUMBER, WRITE, 11)
+        }
+      }
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         bleCommandConnector(
           serialNumber.toByteArray(Charsets.UTF_8),
@@ -2591,7 +2603,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       } else {
         System.err.println("DEVICE_TYPE_FEST_X else serialNumber=$serialNumber")
       }
-//      System.err.println("gonka main showSetSerialNumberDialog $enableInterfaceStatus")
       updateUIChart(100)
 
 

@@ -40,6 +40,10 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TY
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_H_EB
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_H_EP
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_X
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_INDY_EB
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_INDY_EP
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_INDY_H
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_INDY_SH
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_EB
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_EP
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.NEW_DEVICE_TYPE_FEST_F
@@ -130,15 +134,20 @@ class AdvancedSettingsFragment : Fragment() {
         resetUI()
       }
 
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-1234"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-123456"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-1234"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-123456"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EP-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EB-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-D-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-1234"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-H-123456"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-1234"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-123456"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EP-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EB-12345"))
+    binding.serialNumberEt.setText("INDY-H-12345")
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-H-12345"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-EP-12345"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-EB-12345"))
+    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-SH-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-D-12345"))
   }
 
   @SuppressLint("SetTextI18n")
@@ -863,15 +872,17 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     binding.setSetupBtn.setOnClickListener {
-      if (validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()) != "false") {
-        if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
-          main?.showPinCodeDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
-        } else {
-          main?.showSetSerialNumberDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
-        }
-      } else {
-        main?.showToast(validationError)
-      }
+      //TODO вернуть валидацию после согласования форматов серийников
+//      if (validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()) != "false") {
+//        if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
+//          main?.showPinCodeDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
+//        } else {
+//          main?.showSetSerialNumberDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
+//        }
+//      } else {
+//        main?.showToast(validationError)
+//      }
+      main?.showSetSerialNumberDialog(binding.serialNumberEt.text.toString())
     }
     main?.serialNumber = binding.serialNumberEt.text.toString()
 
@@ -1026,7 +1037,7 @@ class AdvancedSettingsFragment : Fragment() {
           binding.resetToFactorySettingsRl.visibility = View.GONE
 
 
-          binding.serialRl.visibility = View.GONE
+//          binding.serialRl.visibility = View.GONE
           binding.calibrationRl.visibility = View.GONE
           binding.shutdownCurrent1Rl.visibility = View.GONE
           binding.shutdownCurrent2Rl.visibility = View.GONE
@@ -1422,14 +1433,19 @@ class AdvancedSettingsFragment : Fragment() {
 
 
     val namePrefix = serialNumber.split("-")[0]+"-"+serialNumber.split("-")[1]
-    System.err.println("namePrefix = $namePrefix")
+    System.err.println("namePrefix = $namePrefix    serialNumber")
     when (namePrefix) {
+      DEVICE_TYPE_INDY_H -> { }
+      DEVICE_TYPE_INDY_EP -> { }
+      DEVICE_TYPE_INDY_EB -> { }
+      DEVICE_TYPE_INDY_SH -> { }
       DEVICE_TYPE_FEST_F -> { }
       DEVICE_TYPE_FEST_H -> { }
       DEVICE_TYPE_FEST_H_EP -> { }
       DEVICE_TYPE_FEST_H_EB -> { }
       else -> {
         validationError = "В нашей линейке продуктов нет: $namePrefix"
+        System.err.println("В нашей линейке продуктов нет: $namePrefix    serialNumber")
         return "false"
       }
     }
@@ -1438,15 +1454,18 @@ class AdvancedSettingsFragment : Fragment() {
     if (serialNumber.split("-")[1].length == 2) { nameBridge = serialNumber.substring(7,8)}
     if (nameBridge != "-") {
       validationError = "Буквенную и числовую части должен разделять дефис"
+      System.err.println("Буквенную и числовую части должен разделять дефис    serialNumber")
       return "false"
     }
 
     if ((serialNumber.split("-")[1].length == 1) && serialNumber.length < 12 || ((serialNumber.split("-")[1].length == 2) && serialNumber.length < 13)) {
       validationError = "Вы ввели слишком короткий серийный номер"
+      System.err.println("Вы ввели слишком короткий серийный номер    serialNumber")
       return "false"
     } else {
       if (((serialNumber.split("-")[1].length == 1) && serialNumber.length > 12) || ((serialNumber.split("-")[1].length == 2) && serialNumber.length > 13)) {
         validationError = "Вы ввели слишком длинный серийный номер"
+        System.err.println("Вы ввели слишком длинный серийный номер    serialNumber")
         return "false"
       }
     }
@@ -1457,10 +1476,23 @@ class AdvancedSettingsFragment : Fragment() {
       nameCode.toInt()
     } catch (e: Exception) {
       validationError = "Вторая часть серийного номера не число: $nameCode"
+      System.err.println("Вторая часть серийного номера не число: $nameCode    serialNumber")
       return "false"
     }
 
     when (namePrefix) {
+      DEVICE_TYPE_INDY_H -> {
+        return nameCode
+      }
+      DEVICE_TYPE_INDY_EP -> {
+        return nameCode
+      }
+      DEVICE_TYPE_INDY_EB -> {
+        return nameCode
+      }
+      DEVICE_TYPE_INDY_SH -> {
+        return nameCode
+      }
       DEVICE_TYPE_FEST_F -> {
         return DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_F+nameCode
       }

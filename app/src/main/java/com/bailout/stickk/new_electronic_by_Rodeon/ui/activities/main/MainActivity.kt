@@ -2579,12 +2579,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       if (mDeviceType!!.contains(DEVICE_TYPE_INDY)) {
         val charset = Charsets.UTF_8
         val byteArray = serialNumber.toByteArray(charset)
-        System.err.println("serialNumber ОТПРАВКА! ${byteArray.size}  ${(byteArray+byteArrayOf(0x00)).contentToString()}")
-        if (byteArray.size == 8) {
-          bleCommandConnector(byteArray, SET_SERIAL_NUMBER, WRITE, 11)
-        } else {
-          bleCommandConnector(byteArray+byteArrayOf(0x00), SET_SERIAL_NUMBER, WRITE, 11)
-        }
+
+        bleCommandConnector(byteArray+byteArrayOf(0x00), SET_SERIAL_NUMBER, WRITE, 11)
       }
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         bleCommandConnector(

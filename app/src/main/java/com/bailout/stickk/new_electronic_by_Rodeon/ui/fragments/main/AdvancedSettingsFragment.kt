@@ -872,7 +872,6 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     binding.setSetupBtn.setOnClickListener {
-      //TODO вернуть валидацию после согласования форматов серийников
       if (validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()) != "false") {
         if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
           main?.showPinCodeDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
@@ -882,12 +881,12 @@ class AdvancedSettingsFragment : Fragment() {
       } else {
         main?.showToast(validationError)
       }
+
 //      main?.showSetSerialNumberDialog(binding.serialNumberEt.text.toString())
     }
     main?.serialNumber = binding.serialNumberEt.text.toString()
 
     binding.leftRightSideSwapSw.setOnClickListener{
-//      System.err.println(" LOLOLOEFWEF --->  side key : ${main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE}")
       showAlertChangeSideDialog()
     }
 
@@ -1035,7 +1034,6 @@ class AdvancedSettingsFragment : Fragment() {
           binding.singleChannelControlRl.visibility = View.GONE
           binding.smartConnectionRl.visibility = View.GONE
           binding.resetToFactorySettingsRl.visibility = View.GONE
-
 
 //          binding.serialRl.visibility = View.GONE
           binding.calibrationRl.visibility = View.GONE

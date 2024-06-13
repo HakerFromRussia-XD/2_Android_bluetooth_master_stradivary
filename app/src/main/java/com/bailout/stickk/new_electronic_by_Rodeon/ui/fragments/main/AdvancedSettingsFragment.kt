@@ -873,16 +873,16 @@ class AdvancedSettingsFragment : Fragment() {
 
     binding.setSetupBtn.setOnClickListener {
       //TODO вернуть валидацию после согласования форматов серийников
-//      if (validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()) != "false") {
-//        if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
-//          main?.showPinCodeDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
-//        } else {
-//          main?.showSetSerialNumberDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
-//        }
-//      } else {
-//        main?.showToast(validationError)
-//      }
-      main?.showSetSerialNumberDialog(binding.serialNumberEt.text.toString())
+      if (validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()) != "false") {
+        if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
+          main?.showPinCodeDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
+        } else {
+          main?.showSetSerialNumberDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
+        }
+      } else {
+        main?.showToast(validationError)
+      }
+//      main?.showSetSerialNumberDialog(binding.serialNumberEt.text.toString())
     }
     main?.serialNumber = binding.serialNumberEt.text.toString()
 
@@ -1482,16 +1482,16 @@ class AdvancedSettingsFragment : Fragment() {
 
     when (namePrefix) {
       DEVICE_TYPE_INDY_H -> {
-        return nameCode
+        return "H-$nameCode"
       }
       DEVICE_TYPE_INDY_EP -> {
-        return nameCode
+        return "EP-$nameCode"
       }
       DEVICE_TYPE_INDY_EB -> {
-        return nameCode
+        return "EB-$nameCode"
       }
       DEVICE_TYPE_INDY_SH -> {
-        return nameCode
+        return "SH-$nameCode"
       }
       DEVICE_TYPE_FEST_F -> {
         return DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_F+nameCode

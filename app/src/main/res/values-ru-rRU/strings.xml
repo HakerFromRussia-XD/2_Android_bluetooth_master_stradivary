@@ -154,6 +154,7 @@
     <string name="on">да</string>
     <string name="off_sw">выкл</string>
     <string name="on_sw">вкл</string>
+    <string name="dialog_pin_app_varning">Введите 4 цифры</string>
     <string name="shutdown_current">сила сжатия</string>
     <string name="rotation_thumb">ротация</string>
     <string name="thumb">большой палец</string>
@@ -228,6 +229,7 @@
     <string name="do_you_want_to_start_calibration_now">Вы хотите начать калибровку сейчас?</string>
     <string name="version_app">Версия приложения</string>
     <string name="error_code">Код ошибки: %d</string>
+    <string name="app_pin_entering_varning">Вы ввели неверный код.</string>
     <string name="prostheses_blocking">блокировка протеза</string>
     <string name="hold_to_lock_time">время удержания для блокировки</string>
     <string name="debug_screen">отладочный экран</string>
@@ -514,6 +516,9 @@
     <string name="rotator_type">Тип ротатора</string>
     <string name="touchscreen_finger_pads">Touchscreen напальчники</string>
     <string name="battery_type">Тип аккумулятора</string>
+    <string name="application_pin_code">пин-код приложения</string>
+    <string name="enter_new_pin">Введите новый ПИН</string>
+    <string name="done">Применить</string>
 
     <string-array name="numbers">
         <item>0</item>

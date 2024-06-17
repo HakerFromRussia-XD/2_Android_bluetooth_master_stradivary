@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.FragmentPersonalAccountCustomerServiceBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
 import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
@@ -67,11 +68,11 @@ class AccountFragmentCustomerService : Fragment() {
         accountCustomerServiceList.clear()
         accountCustomerServiceList.add(
             AccountCustomerServiceItem(
-                dateOfReceiptOfProsthesis = "25.08.2015",
+                dateOfReceiptOfProsthesis = main?.loadText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString(),
                 warrantyExpirationDate = "25.08.2018",
-                yourManager = "Ivanov Ivan",
-                yourManagerPhone = "8 (916) 329-91-46",
-                prosthesisStatus = "formulation of technical specifications")
+                yourManager = main?.loadText(PreferenceKeys.ACCOUNT_MANAGER_FIO).toString(),
+                yourManagerPhone = main?.loadText(PreferenceKeys.ACCOUNT_MANAGER_PHONE).toString(),
+                prosthesisStatus = main?.loadText(PreferenceKeys.ACCOUNT_STATUS_PROSTHESIS).toString())
         )
         initAdapter(binding.accountCustomerServiceRv)
     }

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.FragmentPersonalAccountProsthesisInformationBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
 import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.customerServiceFragment.AccountCustomerServiceItem
@@ -56,7 +57,7 @@ class AccountFragmentProsthesisInformation : Fragment() {
         encryptionResult = encryptionManager?.encrypt(testSerialNumber)
 
         accountProsthesisInformationList = ArrayList()
-        requestToken()
+//        requestToken()
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
@@ -68,12 +69,12 @@ class AccountFragmentProsthesisInformation : Fragment() {
         accountProsthesisInformationList.clear()
         accountProsthesisInformationList.add(
             AccountProsthesisInformationItem(
-                prosthesisModel = "ПР4 MANIFESTO-EP пассивный",
-                prosthesisSize = "S",
-                handSide = "Left",
-                rotatorType = "quick-release with passive rotation",
-                touchscreenFingerPads = "yes (index finger + middle finger)",
-                batteryType = "3400 mА*h (18650)")
+                prosthesisModel = main?.loadText(PreferenceKeys.ACCOUNT_MODEL_PROSTHESIS).toString(),
+                prosthesisSize = main?.loadText(PreferenceKeys.ACCOUNT_SIZE_PROSTHESIS).toString(),
+                handSide = main?.loadText(PreferenceKeys.ACCOUNT_SIDE_PROSTHESIS).toString(),
+                rotatorType = main?.loadText(PreferenceKeys.ACCOUNT_ROTATOR_PROSTHESIS).toString(),
+                touchscreenFingerPads = main?.loadText(PreferenceKeys.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS).toString(),
+                batteryType = main?.loadText(PreferenceKeys.ACCOUNT_ACCUMULATOR_PROSTHESIS).toString())
         )
         initAdapter(binding.accountProsthesisInformationRv)
     }

@@ -38,7 +38,7 @@ class SplashScreen : AppCompatActivity() {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.navigationBarColor = this.resources.getColor(R.color.color_primary, theme)
         window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)
-
+        mSettings = getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
 
         askPermissions()
     }
@@ -49,7 +49,13 @@ class SplashScreen : AppCompatActivity() {
                 requestMultiplePermissions.launch(arrayOf(
                     Manifest.permission.BLUETOOTH_SCAN,
                     Manifest.permission.BLUETOOTH_CONNECT))
-                launchScanActivity()
+                if (mSettings?.getBoolean(PreferenceKeys.USE_APP_PIN_CODE, false) == true) {
+                    System.err.println("SplashScreen USE_APP_PIN_CODE true")
+                    launchPinActivity()
+                } else {
+                    System.err.println("SplashScreen USE_APP_PIN_CODE false")
+                    launchScanActivity()
+                }
             }, 300)
         }
         else{
@@ -91,15 +97,28 @@ class SplashScreen : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        System.err.println(" LOLOLOEFWEF --->  onRequestPermissionsResult")
-        launchScanActivity()
+
+        if (mSettings?.getBoolean(PreferenceKeys.USE_APP_PIN_CODE, false) == true) {
+            System.err.println("SplashScreen USE_APP_PIN_CODE true")
+            launchPinActivity()
+        } else {
+            System.err.println("SplashScreen USE_APP_PIN_CODE false")
+            launchScanActivity()
+        }
     }
 
     private fun launchScanActivity() {
         if ((ContextCompat.checkSelfPermission(this,
                 Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
-//            System.err.println(" LOLOLOEFWEF --->  launchScanActivity true")
             val intent = Intent(this@SplashScreen, ScanActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+    }
+    private fun launchPinActivity() {
+        if ((ContextCompat.checkSelfPermission(this,
+                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+            val intent = Intent(this@SplashScreen, PinActivity::class.java)
             startActivity(intent)
             finish()
         }
@@ -111,10 +130,5 @@ class SplashScreen : AppCompatActivity() {
 //        permissions.entries.forEach {
 //            System.err.println("LOLOLOEFWEF --->  ${it.key} = ${it.value}")
 //        }
-    }
-    private fun saveBool(key: String, variable: Boolean) {
-        val editor: SharedPreferences.Editor = mSettings!!.edit()
-        editor.putBoolean(key, variable)
-        editor.apply()
     }
 }

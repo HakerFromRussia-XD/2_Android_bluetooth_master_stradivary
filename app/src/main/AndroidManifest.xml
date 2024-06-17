@@ -44,6 +44,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.PinActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity"/>
+        <activity
             android:name="com.bailout.stickk.scan.view.ScanActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />

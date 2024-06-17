@@ -153,6 +153,7 @@
     <string name="on">on</string>
     <string name="off_sw">off</string>
     <string name="on_sw">on</string>
+    <string name="dialog_pin_app_varning">Enter 4 digits</string>
     <string name="shutdown_current">compression force</string>
     <string name="rotation_thumb">rotation thumb</string>
     <string name="thumb">thumb</string>
@@ -227,6 +228,7 @@
     <string name="do_you_want_to_start_calibration_now">Do you want to start calibration now?</string>
     <string name="version_app">Application version</string>
     <string name="error_code">Error code: %d</string>
+    <string name="app_pin_entering_varning">You entered an incorrect code.</string>
     <string name="prostheses_blocking">prostheses blocking</string>
     <string name="hold_to_lock_time">hold to lock time</string>
     <string name="debug_screen">debug screen</string>
@@ -512,6 +514,9 @@
     <string name="rotator_type">Rotator type</string>
     <string name="touchscreen_finger_pads">Touchscreen finger pads</string>
     <string name="battery_type">Battery type</string>
+    <string name="application_pin_code">application pin code</string>
+    <string name="enter_new_pin">Enter new PIN</string>
+    <string name="done">Done</string>
 
 
     <string-array name="numbers">

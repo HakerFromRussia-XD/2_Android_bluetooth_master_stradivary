@@ -90,14 +90,18 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     //TODO выключить быстрое открытие после завершения тестов
-    navigator().showAccountScreen(this)
-    navigator().showWhiteStatusBar(true)
+//    navigator().showAccountScreen(this)
+//    navigator().showWhiteStatusBar(true)
 
 //    navigator().showSecretSettingsScreen()
 //    navigator().showNeuralScreen()
 
     main?.startScrollForChartFragment = { result ->
-      System.err.println("ВЫКЛЮЧАЕМ ГРАФИКИ $result startScroll")
+      if (result) {
+        reactivatedChart()
+      } else {
+        graphThreadFlag = false
+      }
     }
 
     return binding.root
@@ -127,7 +131,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   override fun setStartDecorator() {
     for(i in 1..navigator().getBackStackEntryCount()){ navigator().goingBack() }
 //    main!!.setDecorator(TypeGuides.SHOW_VERSION_GUIDE, binding.versionHelpV, this)
-//    displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
+    displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE
     main!!.setDecorator(TypeGuides.SHOW_SENSORS_SENSITIVITY_GUIDE, binding.openSensorsSensitivityRl, this)
     displayedNextTypeGuides = TypeGuides.SHOW_SENSORS_SENSITIVITY_CLARIFICATION_GUIDE
   }
@@ -232,6 +236,23 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.thresholdsBlockingSw.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
     enabledSensorsUIBeforeConnection(false)
+    //скрываем текстовое отображение версий для протезов с прошитым серийным номером и включаем отображение кнопки личного кабинета
+    if (main?.mDeviceName?.length ?: 0 < 12) {
+      binding.bmsTv.visibility = View.VISIBLE
+      binding.driverTv.visibility = View.VISIBLE
+      binding.sensorTv.visibility = View.VISIBLE
+      binding.syncTv.visibility = View.VISIBLE
+//      binding.versionHelpV.visibility = View.VISIBLE
+      binding.accountCv.visibility = View.GONE
+    } else {
+      binding.accountCv.visibility = View.VISIBLE
+      binding.bmsTv.visibility = View.GONE
+      binding.driverTv.visibility = View.GONE
+      binding.sensorTv.visibility = View.GONE
+      binding.syncTv.visibility = View.GONE
+//      binding.versionHelpV.visibility = View.GONE
+    }
+
     //скрываем кнопку калибровки для всех моделей кроме FEST_H и FEST_X
     if ((main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false && main?.mDeviceType?.contains(DEVICE_TYPE_FEST_X) == false)) {
       binding.chartCalibrationRl.visibility = View.GONE
@@ -240,7 +261,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.nameTv.setOnClickListener {
       main?.showDisconnectDialog()
     }
-    binding.syncPb.setOnLongClickListener {
+    binding.accountCv.setOnLongClickListener {
       main?.readStartData(true)
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
@@ -257,6 +278,75 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
       false
     }
+    binding.driverTv.setOnLongClickListener {
+      main?.readStartData(true)
+      showAdvancedSettings = if (showAdvancedSettings) {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        false
+      } else {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        true
+      }
+      false
+    }
+    binding.bmsTv.setOnLongClickListener {
+      main?.readStartData(true)
+      showAdvancedSettings = if (showAdvancedSettings) {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        false
+      } else {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        true
+      }
+      false
+    }
+    binding.sensorTv.setOnLongClickListener {
+      main?.readStartData(true)
+      showAdvancedSettings = if (showAdvancedSettings) {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        false
+      } else {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        true
+      }
+      false
+    }
+    binding.syncTv.setOnLongClickListener {
+      main?.readStartData(true)
+      showAdvancedSettings = if (showAdvancedSettings) {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        false
+      } else {
+        graphThreadFlag = false
+        Handler().postDelayed({
+          main?.showAdvancedSettings(showAdvancedSettings)
+        }, 100)
+        true
+      }
+      false
+    }
+
     binding.syncPb.setOnClickListener {
       graphThreadFlag = false
       navigator().showAccountScreen(this)
@@ -265,9 +355,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.syncSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         if (main?.locate?.contains("ru")!!) {
-//          binding.syncTv.text = "снхро "+seekBar.progress.toString()+"%"
+          binding.syncTv.text = "снхро "+seekBar.progress.toString()+"%"
         } else {
-//          binding.syncTv.text = "sync "+seekBar.progress.toString()+"%"
+          binding.syncTv.text = "sync "+seekBar.progress.toString()+"%"
         }
         binding.syncPb.progress = seekBar.progress
       }
@@ -839,25 +929,25 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       } else {
         binding.swapSensorsTv.text = resources.getString(R.string.off_sw)
       }
-//      if (!(main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) ||
-//                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) ||
-//                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_A))
-//      ) {
-//        binding.driverTv.text = resources.getString(R.string.driver) + (mSettings!!.getInt(
-//          main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
-//          1
-//        )).toFloat() / 100 + "v"
-//      } else {
-//        binding.driverTv.text = resources.getString(R.string.driver) +main?.driverVersionS + "v"
-//      }
-//      binding.bmsTv.text = resources.getString(R.string.bms) + (mSettings!!.getInt(
-//        main?.mDeviceAddress + PreferenceKeys.BMS_NUM,
-//        1
-//      )).toFloat() / 100 + "v"
-//      binding.sensorTv.text = resources.getString(R.string.sens) + (mSettings!!.getInt(
-//        main?.mDeviceAddress + PreferenceKeys.SENS_NUM,
-//        1
-//      )).toFloat() / 100 + "v"
+      if (!(main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X) ||
+                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) ||
+                main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_A))
+      ) {
+        binding.driverTv.text = resources.getString(R.string.driver) + (mSettings!!.getInt(
+          main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
+          1
+        )).toFloat() / 100 + "v"
+      } else {
+        binding.driverTv.text = resources.getString(R.string.driver) +main?.driverVersionS + "v"
+      }
+      binding.bmsTv.text = resources.getString(R.string.bms) + (mSettings!!.getInt(
+        main?.mDeviceAddress + PreferenceKeys.BMS_NUM,
+        1
+      )).toFloat() / 100 + "v"
+      binding.sensorTv.text = resources.getString(R.string.sens) + (mSettings!!.getInt(
+        main?.mDeviceAddress + PreferenceKeys.SENS_NUM,
+        1
+      )).toFloat() / 100 + "v"
       ObjectAnimator.ofFloat(
         binding.limitCH1, "y", 320 * scale - 5f - (binding.openCHSb.progress.times(scale) * 1.04f)
       ).setDuration(200).start()

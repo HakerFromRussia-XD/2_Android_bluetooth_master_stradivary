@@ -2873,11 +2873,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     editor.putBoolean(key, variable)
     editor.apply()
   }
-  private fun saveText(key: String, text: String?) {
+  fun saveText(key: String, text: String?) {
     val editor: SharedPreferences.Editor = mSettings!!.edit()
     editor.putString(key, text)
     editor.apply()
   }
+  fun loadText(key: String): String { return mSettings!!.getString(key, "null").toString() }
 
   fun setSwapOpenCloseButton(swap: Boolean) {
     swapOpenCloseButton = swap

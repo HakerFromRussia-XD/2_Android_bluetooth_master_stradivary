@@ -247,5 +247,21 @@
 
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/version_app_tv"
+        style="@style/Text_transparency_30"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:lines="1"
+        android:text="@string/version_app"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

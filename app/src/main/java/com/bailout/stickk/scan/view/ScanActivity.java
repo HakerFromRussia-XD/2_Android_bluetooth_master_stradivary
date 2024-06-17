@@ -42,6 +42,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.bailout.stickk.BuildConfig;
 import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
@@ -87,6 +88,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     ImageView rssiOffImage;
     TextView prosthesesText;
     TextView allDevicesText;
+    TextView versionAppText;
     TextSwitcher scanningTextSwitcher;
     private int filterWidth = 0;
     private boolean firstStart = true;
@@ -182,6 +184,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         rssiOffImage = findViewById(R.id.rssi_off_iv);
         prosthesesText = findViewById(R.id.prostheses_tv);
         allDevicesText = findViewById(R.id.all_devices_tv);
+        versionAppText = findViewById(R.id.version_app_tv);
         prosthesesButtonFilter = findViewById(R.id.prostheses_select_btn);
         allDevicesButtonFilter = findViewById(R.id.all_devices_select_btn);
         selectView = findViewById(R.id.select_v);
@@ -200,6 +203,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         buildScanListView();
         onProsthesesFilterClick();
         onAllDevicesFilterClick();
+
+        String versionName = BuildConfig.VERSION_NAME;
+        versionAppText.setText((this.getResources().getString(R.string.version_app)) + " " + versionName);
+
         scanButton.setOnClickListener(v -> {
             mLeDevices.clear();
             mRssisList.clear();

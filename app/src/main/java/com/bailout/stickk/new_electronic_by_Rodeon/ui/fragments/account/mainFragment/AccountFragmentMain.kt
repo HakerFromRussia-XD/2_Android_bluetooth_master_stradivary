@@ -13,13 +13,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bailout.stickk.R
 import com.bailout.stickk.databinding.FragmentPersonalAccountMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
-import com.bailout.stickk.new_electronic_by_Rodeon.models.userV2.UserV2
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
@@ -32,6 +30,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.min
 import kotlin.properties.Delegates
 
 class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragment() {
@@ -66,6 +65,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
         if (activity != null) { main = activity as MainActivity? }
         this.mContext = context
         testSerialNumber = main?.mDeviceName.toString()
+//        if (testSerialNumber == "INDY") { testSerialNumber = "INDY-H-05668" } //"INDY-H-02453" }
         System.err.println("TEST SERIAL NUMBER $testSerialNumber")
         return binding.root
     }
@@ -135,9 +135,14 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                     this@AccountFragmentMain.token = token
                     binding.preloaderLav.visibility = View.GONE
                     requestUserData()
+                    System.err.println("requestToken запрос обработан")
                 },
                 { error ->
-                    main?.runOnUiThread {Toast.makeText(context, error, Toast.LENGTH_SHORT).show()}
+                    System.err.println("requestToken error: $error")
+                    when (error) {
+                        "500" -> { main?.runOnUiThread {Toast.makeText(context, "На сервере нет данных пользователя", Toast.LENGTH_LONG).show()} }
+                        else -> { main?.runOnUiThread {Toast.makeText(context, error, Toast.LENGTH_SHORT).show()} }
+                    }
                 },
                 "Aesserial $encryptionResult")
         }
@@ -167,6 +172,9 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                     System.err.println("TEST  clientId: ${user.userInfo?.clientId}")
                     System.err.println("Custom service  Manager name: ${user.userInfo?.manager?.fio}")
                     System.err.println("Custom service  Manager phone: ${user.userInfo?.manager?.phone}")
+
+                    main?.saveText(PreferenceKeys.ACCOUNT_MANAGER_FIO, user.userInfo?.manager?.fio)
+                    main?.saveText(PreferenceKeys.ACCOUNT_MANAGER_PHONE, user.userInfo?.manager?.phone)
                     requestDeviceList()
                 },
                 { error ->
@@ -182,6 +190,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                 { user ->
                     System.err.println("Device list size: ${user.devices.size}")
                     for (device in user.devices) {
+                        System.err.println("Device list id = ${device.id}    serialNumber = ${device.serialNumber}")
                         if (device.serialNumber == testSerialNumber) {
                             System.err.println("Device list искомый девайс: ${device.id}")
                             device.id?.let { requestDeviceInfo(deviceId = it.toInt()) }
@@ -199,6 +208,14 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
         CoroutineScope(Dispatchers.Main).launch {
             myRequests!!.getRequestDeviceInfo(
                 { deviceInfo ->
+                    main?.saveText(PreferenceKeys.ACCOUNT_MODEL_PROSTHESIS, simplificationName(deviceInfo.model?.name.toString()))
+                    main?.saveText(PreferenceKeys.ACCOUNT_SIZE_PROSTHESIS, deviceInfo.size?.name)
+                    main?.saveText(PreferenceKeys.ACCOUNT_SIDE_PROSTHESIS, deviceInfo.side?.name)
+                    main?.saveText(PreferenceKeys.ACCOUNT_STATUS_PROSTHESIS, deviceInfo.status?.name)
+                    main?.saveText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS, deviceInfo.dateTransfer)
+                    main?.saveText(PreferenceKeys.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, deviceInfo.guaranteePeriod)
+
+
                     System.err.println("Device Info model: ${deviceInfo.model?.name}")
                     System.err.println("Device Info size: ${deviceInfo.size?.name}")
                     System.err.println("Device Info side: ${deviceInfo.side?.name}")
@@ -211,14 +228,17 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                     var touchscreenFingersSet = false
                     for (option in deviceInfo.options) {
                         if (option.id == 3) {
+                            main?.saveText(PreferenceKeys.ACCOUNT_ROTATOR_PROSTHESIS, option.value?.name)
                             System.err.println("Device Info rotator: ${option.value?.name}")
                             rotatorSet = true
                         }
                         if (option.id == 15) {
+                            main?.saveText(PreferenceKeys.ACCOUNT_ACCUMULATOR_PROSTHESIS, option.value?.name)
                             System.err.println("Device Info accumulator: ${option.value?.name}")
                             accumulatorSet = true
                         }
                         if (option.id == 5) {
+                            main?.saveText(PreferenceKeys.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, option.value?.name)
                             System.err.println("Device Info Touchscreen fingers: ${option.value?.name}")
                             touchscreenFingersSet = true
                         }
@@ -314,6 +334,16 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
             main?.mDeviceAddress + PreferenceKeys.SENS_NUM,
             1
         )).toFloat() / 100).toString()
+    }
+    private fun simplificationName(name: String): String {
+        return name.substringFrom("ПР", name.lastIndex)
+    }
+    private fun String.substringFrom(char: String, maxLen: Int)
+            = indexOf(char).let {
+        if (it >= 0)
+            substring(it, min(it + maxLen, length))
+        else
+            this
     }
 
     companion object {

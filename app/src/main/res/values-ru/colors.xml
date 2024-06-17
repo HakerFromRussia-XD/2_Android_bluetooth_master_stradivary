@@ -31,6 +31,7 @@
     <color name="background_scan_cell">#E7EAEB</color>
     <color name="selected_filter">#0C212C</color>
     <color name="unselected_filter">#576B74</color>
+    <color name="input_name_bg">#1b767680</color>
 
     <color name="deep_dark">#343434</color>
     <color name="end_gradient">#e0e0e0</color>

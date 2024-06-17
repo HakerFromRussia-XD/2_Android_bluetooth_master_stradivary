@@ -1582,8 +1582,8 @@
                             android:layout_centerInParent="true"
                             android:text="@string/on_sw"
                             android:textColor="@color/white"
-                            android:textStyle="bold"
                             android:textSize="11sp"
+                            android:textStyle="bold"
                             tools:ignore="HardcodedText" />
                     </RelativeLayout>
 
@@ -1679,6 +1679,84 @@
                             android:layout_marginStart="0dp"
                             android:layout_marginEnd="0dp"
                             android:checked="true"
+                            android:ellipsize="middle"
+                            android:paddingStart="16dp"
+                            android:scrollbarSize="48dp"
+                            android:thumb="@drawable/switch_le_thumb"
+                            android:track="@drawable/switch_le_truck"
+                            tools:ignore="RtlSymmetry,UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/app_pin_code_rl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:weightSum="4"
+                    tools:ignore="DisableBaselineAlignment">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.5">
+
+                        <TextView
+                            android:id="@+id/app_pin_code_tv"
+                            style="@style/Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:gravity="center_vertical"
+                            android:lines="2"
+                            android:text="@string/application_pin_code"
+                            android:textSize="11sp"
+                            android:textColor="@color/white"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.5">
+
+                        <TextView
+                            android:id="@+id/app_pin_code_swap_tv"
+                            style="@style/Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="@string/off_sw"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <Switch
+                            android:id="@+id/active_app_pin_code_swap_sw"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:checked="false"
                             android:ellipsize="middle"
                             android:paddingStart="16dp"
                             android:scrollbarSize="48dp"

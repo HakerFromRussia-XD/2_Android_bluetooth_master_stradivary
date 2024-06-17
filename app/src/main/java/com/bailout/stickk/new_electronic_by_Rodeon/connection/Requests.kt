@@ -36,6 +36,8 @@ class Requests {
                 withContext(Dispatchers.Main) {
                     token(response.body()!!.token)
                 }
+            } else {
+                error("${response.code()}")
             }
         }
     }

@@ -23,12 +23,16 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.R
@@ -142,11 +146,11 @@ class AdvancedSettingsFragment : Fragment() {
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-123456"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EP-12345"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EB-12345"))
-    binding.serialNumberEt.setText("INDY-H-12345")
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-H-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-EP-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-EB-12345"))
-    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-SH-12345"))
+//    binding.serialNumberEt.setText("INDY-H-12345")
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-H-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-EP-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-EB-12345"))
+//    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-SH-12345"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-D-12345"))
   }
 
@@ -872,6 +876,7 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     binding.setSetupBtn.setOnClickListener {
+      //TODO тут можно отключать валидацию отправляемого серийного номера
       if (validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()) != "false") {
         if (!mSettings!!.getBoolean(PreferenceKeys.ENTER_SECRET_PIN, false)) {
           main?.showPinCodeDialog(validationAndConversionSerialNumber(binding.serialNumberEt.text.toString()))
@@ -957,6 +962,16 @@ class AdvancedSettingsFragment : Fragment() {
       sendGestureRotation()
     }
 
+    binding.activeAppPinCodeSwapSw.setOnClickListener {
+      if (binding.activeAppPinCodeSwapSw.isChecked) {
+        binding.appPinCodeSwapTv.text = resources.getString(R.string.on_sw)
+        main?.saveBool(PreferenceKeys.USE_APP_PIN_CODE, true)
+        showPinCodeAppDialog()
+      } else {
+        binding.appPinCodeSwapTv.text = resources.getString(R.string.off_sw)
+        main?.saveBool(PreferenceKeys.USE_APP_PIN_CODE, false)
+      }
+    }
 
     binding.resetToFactorySettingsBtn.setOnClickListener {
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
@@ -1016,6 +1031,7 @@ class AdvancedSettingsFragment : Fragment() {
           binding.testConnectionRl.visibility = View.VISIBLE
           binding.scaleTv.visibility = View.GONE
           binding.EMGModeRl.visibility = View.GONE
+          binding.appPinCodeRl.visibility = View.GONE
         }
         main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) -> {
           binding.EMGModeRl.visibility = View.GONE
@@ -1023,17 +1039,19 @@ class AdvancedSettingsFragment : Fragment() {
           binding.debugScreenRl.visibility = View.GONE
           binding.scaleTv.visibility = View.GONE
           binding.activeGesturesRl.visibility = View.GONE
+          binding.appPinCodeRl.visibility = View.GONE
         }
         else -> {
           binding.EMGModeRl.visibility = View.GONE
           //TODO кнопка дебагинга в INDY для доступа к секретным настройкам не совсем годится, потому что там модель FEST-H (если закомментить, то будет кнопка)
           binding.debugScreenRl.visibility = View.GONE
+          binding.appPinCodeRl.visibility = View.GONE
 
           //для тестовой версии приложения ИНДИ
-          binding.swapOpenCloseRl.visibility = View.GONE
-          binding.singleChannelControlRl.visibility = View.GONE
-          binding.smartConnectionRl.visibility = View.GONE
-          binding.resetToFactorySettingsRl.visibility = View.GONE
+//          binding.swapOpenCloseRl.visibility = View.GONE
+//          binding.singleChannelControlRl.visibility = View.GONE
+//          binding.smartConnectionRl.visibility = View.GONE
+//          binding.resetToFactorySettingsRl.visibility = View.GONE
 
 //          binding.serialRl.visibility = View.GONE
           binding.calibrationRl.visibility = View.GONE
@@ -1102,6 +1120,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.timeDelayOfFingersSwapSw.isEnabled = enabled
     binding.smartConnectionSwapSw.isEnabled = enabled
     binding.activeGesturesSwapSw.isEnabled = enabled
+    binding.activeAppPinCodeSwapSw.isEnabled = enabled
     binding.resetToFactorySettingsBtn.isEnabled = enabled
     binding.calibrationAdvBtn.isEnabled = enabled
     binding.calibrationStatusAdvBtn.isEnabled = enabled
@@ -1227,7 +1246,15 @@ class AdvancedSettingsFragment : Fragment() {
       binding.downtimeTv.text = time
     }
 
-
+    if (mSettings?.getBoolean(PreferenceKeys.USE_APP_PIN_CODE, false) == true) {
+      System.err.println("USE_APP_PIN_CODE true")
+      binding.appPinCodeSwapTv.text = resources.getString(R.string.on_sw)
+      binding.activeAppPinCodeSwapSw.isChecked = true
+    } else {
+      System.err.println("USE_APP_PIN_CODE false")
+      binding.appPinCodeSwapTv.text = resources.getString(R.string.off_sw)
+      binding.activeAppPinCodeSwapSw.isChecked = false
+    }
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_LOCK_NUM, false)) {
       binding.onOffProsthesesBlockingSw.isChecked = true
       lockProstheses = 0x01
@@ -1323,6 +1350,37 @@ class AdvancedSettingsFragment : Fragment() {
         binding.leftRightSideSwapTv.text = resources.getString(R.string.left)
       }
       myDialog.dismiss()
+    }
+  }
+  @SuppressLint("InflateParams")
+  @Suppress("DEPRECATION")
+  private fun showPinCodeAppDialog() {
+    val dialogBinding = layoutInflater.inflate(R.layout.dialog_enter_app_pin, null)
+    val myDialog = Dialog(requireContext())
+    myDialog.setContentView(dialogBinding)
+    myDialog.setCancelable(false)
+    myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    myDialog.show()
+
+    val enterAppPinDialogEt = dialogBinding.findViewById<EditText>(R.id.enter_app_pin_dialog_et)
+
+    Handler().postDelayed({
+      enterAppPinDialogEt.showKeyboard()
+      enterAppPinDialogEt.requestFocus()
+      enterAppPinDialogEt.isFocusableInTouchMode = true
+    }, 200)
+
+    val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_enter_app_pin_confirm)
+    yesBtn.setOnClickListener {
+      if (enterAppPinDialogEt.text.length < 4) {
+        Toast.makeText(context, getString(R.string.dialog_pin_app_varning), Toast.LENGTH_SHORT).show()
+      } else {
+        val pinCodeApp = enterAppPinDialogEt.text.toString()
+        main?.saveText(PreferenceKeys.APP_PIN_CODE, pinCodeApp)
+        Toast.makeText(context, "pinCodeApp: $pinCodeApp", Toast.LENGTH_SHORT).show()
+        hideKeyboard(enterAppPinDialogEt)
+        myDialog.dismiss()
+      }
     }
   }
   private fun sendEMGMode(value: Int) {
@@ -1506,6 +1564,15 @@ class AdvancedSettingsFragment : Fragment() {
     }
 
     return "false"
+  }
+
+  private fun View.showKeyboard() {
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+  }
+  private fun hideKeyboard(view: View) {
+    val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(view.windowToken, 0)
   }
   private fun useNewSystemSendCommand(): Boolean {
     //спиннеры имеют свойство спамить блютуз команды при установке в них значения из памяти,

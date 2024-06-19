@@ -520,7 +520,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
               val receiveIdCommand = "%02x".format(castUnsignedCharToInt(data[11])) + "%02x".format(castUnsignedCharToInt(data[10]))
 //              System.err.println("данные IdCommand: $receiveIdCommand")
               if (expectedIdCommand == receiveIdCommand) {
-                System.err.println("startSendCommand id $receiveIdCommand  receive")
+//                System.err.println("startSendCommand id $receiveIdCommand  receive")
                 expectedReceiveConfirmation = 2
                 expectedIdCommand = "not set"
               }
@@ -2620,7 +2620,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }, 200)
 
     pin.setPasscodeEntryListener { passcode ->
-
         if (passcode == SECRET_PIN) {
           showSetSerialNumberDialog(serialNumber)
           saveBool(PreferenceKeys.ENTER_SECRET_PIN, true)

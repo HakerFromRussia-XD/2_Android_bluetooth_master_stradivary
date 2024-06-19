@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.core.os.postDelayed
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.LayoutChartBinding
@@ -56,6 +57,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   private var testThreadFlag = true
   private var plotData = true
   private var showAdvancedSettings = false
+  private var timer: CountDownTimer? = null
   private var animationSyncProgressFlag = true
   private var mSettings: SharedPreferences? = null
   private var scale = 0F
@@ -264,7 +266,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.nameTv.setOnClickListener {
       main?.showDisconnectDialog()
     }
-    binding.accountCv.setOnLongClickListener {
+    binding.syncPb.setOnLongClickListener {
       main?.readStartData(true)
       showAdvancedSettings = if (showAdvancedSettings) {
         graphThreadFlag = false
@@ -987,13 +989,14 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     modeEMGSend = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)
   }
   private fun changeSyncProgress() {
-    if (animationSyncProgressFlag) {
+    if (animationSyncProgressFlag && (oldStateSync != main?.percentSynchronize!!)) {
       ObjectAnimator.ofInt(binding.syncSb, "progress", oldStateSync, main?.percentSynchronize!!)
         .setDuration(1000).start()
       animationSyncProgressFlag = false
       oldStateSync = main?.percentSynchronize!!
 
-      object : CountDownTimer(100, 1000) {
+      timer?.cancel()
+      timer = object : CountDownTimer(1000, 1000) {
         override fun onTick(millisUntilFinished: Long) {}
         override fun onFinish() {
           animationSyncProgressFlag = true

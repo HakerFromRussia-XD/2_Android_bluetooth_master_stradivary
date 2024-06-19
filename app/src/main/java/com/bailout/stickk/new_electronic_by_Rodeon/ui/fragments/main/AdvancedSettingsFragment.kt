@@ -146,7 +146,7 @@ class AdvancedSettingsFragment : Fragment() {
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-123456"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EP-12345"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EB-12345"))
-//    binding.serialNumberEt.setText("INDY-H-12345")
+    binding.serialNumberEt.setText("INDY-H-04440")
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-H-12345"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-EP-12345"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-EB-12345"))
@@ -1354,7 +1354,7 @@ class AdvancedSettingsFragment : Fragment() {
   }
   @SuppressLint("InflateParams")
   @Suppress("DEPRECATION")
-  private fun showPinCodeAppDialog() {
+  private fun showPinCodeAppDialog () {
     val dialogBinding = layoutInflater.inflate(R.layout.dialog_enter_app_pin, null)
     val myDialog = Dialog(requireContext())
     myDialog.setContentView(dialogBinding)
@@ -1538,16 +1538,19 @@ class AdvancedSettingsFragment : Fragment() {
 
     when (namePrefix) {
       DEVICE_TYPE_INDY_H -> {
-        return "H-$nameCode"
+        return "INDY-H-$nameCode"
       }
       DEVICE_TYPE_INDY_EP -> {
-        return "EP-$nameCode"
+
+        return "INDY-EP-$nameCode"
       }
       DEVICE_TYPE_INDY_EB -> {
-        return "EB-$nameCode"
+
+        return "INDY-EB-$nameCode"
       }
       DEVICE_TYPE_INDY_SH -> {
-        return "SH-$nameCode"
+
+        return "INDY-SH-$nameCode"
       }
       DEVICE_TYPE_FEST_F -> {
         return DEVICE_TYPE_FEST_X+NEW_DEVICE_TYPE_FEST_F+nameCode

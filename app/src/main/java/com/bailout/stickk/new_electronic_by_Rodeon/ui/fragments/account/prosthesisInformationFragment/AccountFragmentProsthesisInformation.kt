@@ -15,7 +15,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.customerServiceFragment.AccountCustomerServiceItem
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.google.gson.Gson
 import com.simform.refresh.SSPullToRefreshLayout
@@ -86,12 +85,12 @@ class AccountFragmentProsthesisInformation : Fragment() {
                     this@AccountFragmentProsthesisInformation.token = token
 //                    requestUserData()
                 },
-                { error -> Toast.makeText(context, error, Toast.LENGTH_SHORT).show()},
+                { error -> main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}},
                 "Aesserial $encryptionResult")
         }
     }
     private fun initAdapter(accountRv: RecyclerView) {
-        linearLayoutManager = LinearLayoutManager(context)
+        linearLayoutManager = LinearLayoutManager(mContext)
         linearLayoutManager!!.orientation = LinearLayoutManager.VERTICAL
         accountRv.layoutManager = linearLayoutManager
         adapter = AccountProsthesisInformationAdapter()

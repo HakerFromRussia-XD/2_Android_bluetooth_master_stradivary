@@ -1,6 +1,8 @@
 package com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.customerServiceFragment
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -57,7 +59,7 @@ class AccountFragmentCustomerService : Fragment() {
         System.err.println("Aesserial $encryptionResult")
 
         accountCustomerServiceList = ArrayList()
-        requestToken()
+//        requestToken()
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
@@ -65,11 +67,21 @@ class AccountFragmentCustomerService : Fragment() {
 
         initializeUI()
 
+
+        val dateOfReceipt: String = main?.loadText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString()//"14.03.2021"
+        var warrantyDate: String? = null
+        if (dateOfReceipt.length > 7 ) {
+            val year = dateOfReceipt.takeLast(4).toInt()
+            System.err.println("year test: $year")
+            warrantyDate = dateOfReceipt.take(6) + (year+3).toString()
+        }
+
+
         accountCustomerServiceList.clear()
         accountCustomerServiceList.add(
             AccountCustomerServiceItem(
-                dateOfReceiptOfProsthesis = main?.loadText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS).toString(),
-                warrantyExpirationDate = "25.08.2018",
+                dateOfReceiptOfProsthesis = dateOfReceipt,
+                warrantyExpirationDate = warrantyDate.toString(),
                 yourManager = main?.loadText(PreferenceKeys.ACCOUNT_MANAGER_FIO).toString(),
                 yourManagerPhone = main?.loadText(PreferenceKeys.ACCOUNT_MANAGER_PHONE).toString(),
                 prosthesisStatus = main?.loadText(PreferenceKeys.ACCOUNT_STATUS_PROSTHESIS).toString())
@@ -84,17 +96,20 @@ class AccountFragmentCustomerService : Fragment() {
                     this@AccountFragmentCustomerService.token = token
 //                    requestUserData()
                 },
-                { error -> Toast.makeText(context, error, Toast.LENGTH_SHORT).show()},
+                { error -> main?.runOnUiThread {Toast.makeText(mContext, "AccountFragmentCustomerService requestToken $error", Toast.LENGTH_SHORT).show()}},
                 "Aesserial $encryptionResult")
         }
     }
     private fun initAdapter(accountRv: RecyclerView) {
-        linearLayoutManager = LinearLayoutManager(context)
+        linearLayoutManager = LinearLayoutManager(mContext)
         linearLayoutManager!!.orientation = LinearLayoutManager.VERTICAL
         accountRv.layoutManager = linearLayoutManager
         adapter = AccountCustomerServiceAdapter(object : OnAccountCustomerServiceClickListener {
             override fun onYourMangerClicked() {
-                main?.showToast("onYourMangerClicked")
+                val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${main?.loadText(PreferenceKeys.ACCOUNT_MANAGER_PHONE).toString()}"))
+                if (intent.resolveActivity( main!!.packageManager ) != null) {
+                    startActivity(intent)
+                }
             }
         })
         accountRv.adapter = adapter

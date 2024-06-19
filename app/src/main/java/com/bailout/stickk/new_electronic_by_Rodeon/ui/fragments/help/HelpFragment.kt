@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -41,7 +42,9 @@ class HelpFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
         binding.root.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
                 navigator().goingBack()
-                reactivatedInterface.reactivatedChart()
+                Handler().postDelayed({
+                    reactivatedInterface.reactivatedChart()
+                }, 300)
                 requireFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                 return@OnKeyListener true
             }
@@ -69,7 +72,9 @@ class HelpFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
 
         binding.backBtn.setOnClickListener {
             navigator().goingBack()
-            reactivatedInterface.reactivatedChart()
+            Handler().postDelayed({
+                reactivatedInterface.reactivatedChart()
+            }, 300)
         }
 
         binding.sensorsSettingsBtn.setOnClickListener { navigator().showSensorsHelpScreen(chartFragmentClass) }

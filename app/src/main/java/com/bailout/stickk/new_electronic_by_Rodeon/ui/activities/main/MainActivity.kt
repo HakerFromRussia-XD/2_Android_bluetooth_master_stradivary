@@ -214,7 +214,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         }
         BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
           System.err.println("Check BroadcastReceiver() ACTION_GATT_SERVICES_DISCOVERED")
-          Toast.makeText(context, "подключение установлено к $mDeviceName:$mDeviceAddress", Toast.LENGTH_SHORT).show()
+          Toast.makeText(context, "подключение установлено к $mDeviceName", Toast.LENGTH_SHORT).show()
           System.err.println("DeviceControlActivity-------> $mDeviceAddress  ACTION_GATT_SERVICES_DISCOVERED ${this.hashCode()}")
           mConnected = true
           mConnectView!!.visibility = View.VISIBLE
@@ -1310,9 +1310,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     binding.mainactivityViewpager.offscreenPageLimit = 3
     System.err.println("setComponents ${NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)}")
-//    optimizationNavi{ result ->
-//      System.err.println(result)
-//    }
     optimizationNavi()
   }
 
@@ -1321,7 +1318,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     binding.mainactivityNavi.setOnPageChangeListener(object : ViewPager.OnPageChangeListener {
       //TODO добавить сюда оптимизацию при переходе по страницам
       override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-//        System.err.println("main fragmentss Scrolled $position")
         if (increment != 0) {
           startScrollForGesturesFragment?.invoke()
           startScrollForChartFragment?.invoke(false)
@@ -1331,13 +1327,10 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
 
       override fun onPageSelected(position: Int) {
-        System.err.println("main fragmentss Selected $position")
         startScrollForChartFragment?.invoke(true)
       }
 
-      override fun onPageScrollStateChanged(state: Int) {
-        System.err.println("main fragmentss Scroll State Changed $state")
-      }
+      override fun onPageScrollStateChanged(state: Int) {}
     })
   }
 
@@ -2589,7 +2582,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           WRITE,
           17
         )
-        this.mDeviceName = NameUtil.getCleanName(serialNumber)
       }
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         runSendCommand(serialNumber.toByteArray(Charsets.UTF_8),
@@ -2599,6 +2591,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       } else {
         System.err.println("DEVICE_TYPE_FEST_X else serialNumber=$serialNumber")
       }
+
+      this.mDeviceName = NameUtil.getCleanName(serialNumber)
       updateUIChart(100)
 
 

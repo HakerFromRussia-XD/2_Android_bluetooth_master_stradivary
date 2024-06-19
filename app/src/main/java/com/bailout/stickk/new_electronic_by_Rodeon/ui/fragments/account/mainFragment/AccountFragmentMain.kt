@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +21,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
@@ -33,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.properties.Delegates
 
+@Suppress("DEPRECATION")
 class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragment() {
     private var mContext: Context? = null
     private var main: MainActivity? = null
@@ -46,7 +49,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
     private var encryptionManager: EncryptionManagerUtils? = null
     private val reactivatedInterface: ReactivatedChart = chartFragmentClass
     private var encryptionResult: String? = null
-    private var testSerialNumber = "FEST-EP-05674"//"FEST-H-04921"//"FEST-F-06879"//
+    private var serialNumber = "FEST-F-06879"//"FEST-H-04921"//"FEST-F-06879"//FEST-EP-05674//FEST-H-02211
     private var myRequests: Requests? = null
 //    private var myUser: UserV2? = null
     private var fname: String = ""
@@ -64,28 +67,36 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
         WDApplication.component.inject(this)
         if (activity != null) { main = activity as MainActivity? }
         this.mContext = context
-        testSerialNumber = main?.mDeviceName.toString()
-//        if (testSerialNumber == "INDY") { testSerialNumber = "INDY-H-05668" } //"INDY-H-02453" }
-        System.err.println("TEST SERIAL NUMBER $testSerialNumber")
+        //передача реального серийного номера
+        serialNumber = main?.mDeviceName.toString()
+//        if (testSerialNumber == "INDY") { testSer ialNumber = "INDY-H-05668" } //"INDY-H-02453" }
+//        if (serialNumber == "FEST-X") { serialNumber = "INDY-H-05668" } //"INDY-H-02453" }
+        System.err.println("TEST SERIAL NUMBER $serialNumber")
+//        System.err.println("AccountFragmentMain onCreateView()")
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+        mSettings = mContext?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         gson = Gson()
         myRequests = Requests()
         encryptionManager = EncryptionManagerUtils.instance
-        encryptionResult = encryptionManager?.encrypt(testSerialNumber)
-        System.err.println("encryptionResult = ${encryptionManager?.encrypt(testSerialNumber)}")
-//        System.err.println("encryption Decription = ${encryptionManager?.decrypt(encryptionResult)}")
+        encryptionResult = encryptionManager?.encrypt(serialNumber)
+        System.err.println("encryptionResult = ${encryptionManager?.encrypt(serialNumber)}")
 
         accountMainList = ArrayList()
-        requestToken()
-        binding.refreshLayout.setLottieAnimation("loader_3.json")
-        binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
-        binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-        binding.refreshLayout.setOnRefreshListener { requestToken() }
+        if (mSettings!!.getInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 0) == 0) {
+            main?.saveInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 1)
+            requestToken()
+            binding.refreshLayout.setLottieAnimation("loader_3.json")
+            binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
+            binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
+            binding.refreshLayout.setOnRefreshListener { requestToken() }
+        } else {
+            binding.preloaderLav.visibility = View.GONE
+            updateAllParameters()
+        }
 
         initializeUI()
     }
@@ -98,7 +109,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
             .compose(main?.bindToLifecycle())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                if (context != null) {
+                if (mContext != null) {
                     updateAllParameters()
                 }
             }
@@ -140,8 +151,10 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                 { error ->
                     System.err.println("requestToken error: $error")
                     when (error) {
-                        "500" -> { main?.runOnUiThread {Toast.makeText(context, "На сервере нет данных пользователя", Toast.LENGTH_LONG).show()} }
-                        else -> { main?.runOnUiThread {Toast.makeText(context, error, Toast.LENGTH_SHORT).show()} }
+                        "500" -> {
+                            main?.runOnUiThread {Toast.makeText(mContext, "На сервере нет данных пользователя", Toast.LENGTH_LONG).show()}
+                        }
+                        else -> { main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()} }
                     }
                 },
                 "Aesserial $encryptionResult")
@@ -178,7 +191,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                     requestDeviceList()
                 },
                 { error ->
-                    main?.runOnUiThread {Toast.makeText(context, error, Toast.LENGTH_SHORT).show()}
+                    main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
                 },
                 token = this@AccountFragmentMain.token
             )
@@ -191,14 +204,14 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                     System.err.println("Device list size: ${user.devices.size}")
                     for (device in user.devices) {
                         System.err.println("Device list id = ${device.id}    serialNumber = ${device.serialNumber}")
-                        if (device.serialNumber == testSerialNumber) {
+                        if (device.serialNumber == serialNumber) {
                             System.err.println("Device list искомый девайс: ${device.id}")
                             device.id?.let { requestDeviceInfo(deviceId = it.toInt()) }
                         }
                     }
                 },
                 { error ->
-                    main?.runOnUiThread {Toast.makeText(context, error, Toast.LENGTH_SHORT).show()}
+                    main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
                 },
                 token = this@AccountFragmentMain.token
             )
@@ -248,7 +261,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                     if (!touchscreenFingersSet) { System.err.println("Device Info Touchscreen fingers NOT SET") }
                 },
                 { error ->
-                    main?.runOnUiThread {Toast.makeText(context, error, Toast.LENGTH_SHORT).show()}
+                    main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
                 },
                 token = this@AccountFragmentMain.token,
                 deviceId = deviceId
@@ -256,7 +269,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
         }
     }
     private fun initAdapter(accountRv: RecyclerView) {
-        linearLayoutManager = LinearLayoutManager(context)
+        linearLayoutManager = LinearLayoutManager(mContext)
         linearLayoutManager!!.orientation = LinearLayoutManager.VERTICAL
         accountRv.layoutManager = linearLayoutManager
         adapter = AccountMainAdapter(object : OnAccountMainClickListener {
@@ -264,10 +277,10 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
             override fun onCustomerServiceClicked() {
                 navigator().showAccountCustomerServiceScreen()
 
-                main?.showToast("onCustomerServiceClicked")
+//                main?.showToast("onCustomerServiceClicked")
 //                CoroutineScope(Dispatchers.Main).launch {
 //                    myRequests?.postRequestSettings(
-//                        { error -> Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show() },
+//                        { error -> Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() },
 //                        token = token,
 //                        prosthesisId = address,
 //                        gson = this@MainActivity.gson!!
@@ -278,7 +291,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
             override fun onProsthesisInformationClicked() {
                 navigator().showAccountProsthesisInformationScreen()
 
-                main?.showToast("onProsthesisInformationClicked")
+//                main?.showToast("onProsthesisInformationClicked")
 //                CoroutineScope(Dispatchers.Main).launch {
 //                    myRequests?.getRequestProthesisSettings(
 //                        { allOptions ->
@@ -288,7 +301,7 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
 //                                tvUserId.text = allOptions.toString()
 //                            }
 //                        },
-//                        { error -> Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show() },
+//                        { error -> Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show() },
 //                        token = token,
 //                        prosthesisId = id
 //                    )
@@ -302,16 +315,25 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
         initAdapter(binding.accountRv)
 
         binding.backBtn.setOnClickListener {
+            System.err.println("AccountFragmentMain backBtn")
+            main?.saveInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 0)
             navigator().goingBack()
-            reactivatedInterface.reactivatedChart()
+            Handler().postDelayed({
+                reactivatedInterface.reactivatedChart()
+            }, 300)
+
         }
 
         binding.root.isFocusableInTouchMode = true
         binding.root.requestFocus()
         binding.root.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                System.err.println("AccountFragmentMain backBtn")
+                main?.saveInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 0)
                 navigator().goingBack()
-                reactivatedInterface.reactivatedChart()
+                Handler().postDelayed({
+                    reactivatedInterface.reactivatedChart()
+                }, 300)
                 requireFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                 return@OnKeyListener true
             }

@@ -6,23 +6,15 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.github.mikephil.charting.utils.ColorTemplate
-import io.reactivex.android.schedulers.AndroidSchedulers
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.LayoutChartBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
@@ -39,6 +31,16 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.ChartFragmentCallback
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.github.mikephil.charting.utils.ColorTemplate
+import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
 
@@ -54,6 +56,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   private var testThreadFlag = true
   private var plotData = true
   private var showAdvancedSettings = false
+  private var animationSyncProgressFlag = true
   private var mSettings: SharedPreferences? = null
   private var scale = 0F
   private var oldStateSync = 0
@@ -976,13 +979,28 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           16
         ))
       ).setDuration(200).start()
+      System.err.println("TEST updateAllParameters call")
       if (oldStateSync != main?.percentSynchronize!!) {
-        ObjectAnimator.ofInt(binding.syncSb, "progress", oldStateSync, main?.percentSynchronize!!)
-          .setDuration(1000).start()
-        oldStateSync = main?.percentSynchronize!!
+        changeSyncProgress()
       }
     }
     modeEMGSend = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)
+  }
+  private fun changeSyncProgress() {
+    if (animationSyncProgressFlag) {
+      ObjectAnimator.ofInt(binding.syncSb, "progress", oldStateSync, main?.percentSynchronize!!)
+        .setDuration(1000).start()
+      animationSyncProgressFlag = false
+      oldStateSync = main?.percentSynchronize!!
+
+      object : CountDownTimer(100, 1000) {
+        override fun onTick(millisUntilFinished: Long) {}
+        override fun onFinish() {
+          animationSyncProgressFlag = true
+          changeSyncProgress()
+        }
+      }.start()
+    }
   }
   private fun sendCorrelatorNoiseThreshold(value: Int) {
     if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {

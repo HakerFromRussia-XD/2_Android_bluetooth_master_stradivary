@@ -18,6 +18,7 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiInterface {
 
@@ -25,21 +26,29 @@ interface ApiInterface {
     suspend fun getToken(@Header("Authorization") authorization: String):Response<Token>
 
     @GET("/v1/clients/self-info")
-    suspend fun getUserInfo(@Header("Authorization") authorization: String):Response<User>
+    suspend fun getUserInfo(
+        @Header("Authorization") authorization: String,
+        @Query("lang") lang : String
+    ):Response<User>
 
     @GET("/v1/user/info")
-    suspend fun getUserInfoV2(@Header("Authorization") authorization: String):Response<UserV2>
+    suspend fun getUserInfoV2(
+        @Header("Authorization") authorization: String,
+        @Query("lang") lang : String
+    ):Response<UserV2>
 
     @GET("/v1/clients/{user_id}/devices")
     suspend fun getDevicesList(
         @Path("user_id") user_id : Int,
-        @Header("Authorization") authorization: String
+        @Header("Authorization") authorization: String,
+        @Query("lang") lang : String
     ):Response<DevicesList_DEV>
 
     @GET("/v1/devices/{device_id}/info")
     suspend fun getDeviceInfo(
         @Path("device_id") device_id : Int,
-        @Header("Authorization") authorization: String
+        @Header("Authorization") authorization: String,
+        @Query("lang") lang : String
     ):Response<DeviceInfo>
 
     @GET("/v1/device-mobile-app/{device_id}")

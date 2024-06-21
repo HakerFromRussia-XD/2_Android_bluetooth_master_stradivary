@@ -54,6 +54,8 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
 //    private var myUser: UserV2? = null
     private var fname: String = ""
     private var sname: String = ""
+    private var locate: String = "en"
+    private var attemptedRequest: Int = 1
 
     private var driverVersion = "0.01"
     private var bmsVersion = "0.01"
@@ -82,17 +84,22 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
         gson = Gson()
         myRequests = Requests()
         encryptionManager = EncryptionManagerUtils.instance
-        encryptionResult = encryptionManager?.encrypt(serialNumber)
-        System.err.println("encryptionResult = ${encryptionManager?.encrypt(serialNumber)}")
+        attemptedRequest = 1
+        if (main?.locate?.contains("ru")!!) { locate = "ru" }
+
+
+        binding.refreshLayout.setLottieAnimation("loader_3.json")
+        binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
+        binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
+        binding.refreshLayout.setOnRefreshListener {
+            System.err.println("TEST SERIAL NUMBER $serialNumber  requestToken()")
+            requestToken()
+        }
 
         accountMainList = ArrayList()
         if (mSettings!!.getInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 0) == 0) {
             main?.saveInt(PreferenceKeys.FIRST_LOAD_ACCOUNT_INFO, 1)
             requestToken()
-            binding.refreshLayout.setLottieAnimation("loader_3.json")
-            binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
-            binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-            binding.refreshLayout.setOnRefreshListener { requestToken() }
         } else {
             binding.preloaderLav.visibility = View.GONE
             updateAllParameters()
@@ -141,6 +148,8 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
 
     private fun requestToken() {
         CoroutineScope(Dispatchers.Main).launch {
+            encryptionResult = encryptionManager?.encrypt(serialNumber)
+            System.err.println("encryptionResult = ${encryptionManager?.encrypt(serialNumber)}  requestToken")
             myRequests!!.getRequestToken(
                 { token ->
                     this@AccountFragmentMain.token = token
@@ -150,9 +159,16 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                 },
                 { error ->
                     System.err.println("requestToken error: $error")
+                    binding.refreshLayout.setRefreshing(false)
                     when (error) {
                         "500" -> {
-                            main?.runOnUiThread {Toast.makeText(mContext, "На сервере нет данных пользователя", Toast.LENGTH_LONG).show()}
+                            if (attemptedRequest != 4) {
+                                //для того чтобы по другому зашифровать серийник
+                                attemptedRequest ++
+                                requestToken()
+                            } else {
+                                main?.runOnUiThread {Toast.makeText(mContext, "На сервере нет данных пользователя", Toast.LENGTH_LONG).show()}
+                            }
                         }
                         else -> { main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()} }
                     }
@@ -191,9 +207,11 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                     requestDeviceList()
                 },
                 { error ->
+                    binding.refreshLayout.setRefreshing(false)
                     main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
                 },
-                token = this@AccountFragmentMain.token
+                token = this@AccountFragmentMain.token,
+                lang = locate
             )
         }
     }
@@ -211,9 +229,11 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                     }
                 },
                 { error ->
+                    binding.refreshLayout.setRefreshing(false)
                     main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
                 },
-                token = this@AccountFragmentMain.token
+                token = this@AccountFragmentMain.token,
+                lang = locate
             )
         }
     }
@@ -261,10 +281,12 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                     if (!touchscreenFingersSet) { System.err.println("Device Info Touchscreen fingers NOT SET") }
                 },
                 { error ->
+                    binding.refreshLayout.setRefreshing(false)
                     main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
                 },
                 token = this@AccountFragmentMain.token,
-                deviceId = deviceId
+                deviceId = deviceId,
+                lang = locate
             )
         }
     }

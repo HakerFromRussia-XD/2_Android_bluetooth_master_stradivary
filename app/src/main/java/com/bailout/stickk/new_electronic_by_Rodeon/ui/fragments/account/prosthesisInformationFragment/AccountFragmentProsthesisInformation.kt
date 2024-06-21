@@ -60,7 +60,10 @@ class AccountFragmentProsthesisInformation : Fragment() {
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-        binding.refreshLayout.setOnRefreshListener { requestToken() }
+        binding.refreshLayout.setOnRefreshListener {
+//            requestToken()
+            binding.refreshLayout.setRefreshing(false)
+        }
 
 
         initializeUI()

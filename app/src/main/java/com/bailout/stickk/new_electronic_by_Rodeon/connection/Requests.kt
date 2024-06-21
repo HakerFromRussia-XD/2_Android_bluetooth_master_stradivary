@@ -44,10 +44,10 @@ class Requests {
 
     @SuppressLint("SetTextI18n")
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun getRequestUser(clientData: (User) -> Unit, error: (String) -> Unit, token: String) {
+    suspend fun getRequestUser(clientData: (User) -> Unit, error: (String) -> Unit, token: String, lang: String) {
         GlobalScope.launch(Dispatchers.IO) {
             val response = try {
-                RetrofitInstance.api.getUserInfo("Bearer $token")
+                RetrofitInstance.api.getUserInfo("Bearer $token", lang)
             }catch (e: HttpException){
                 error("http error ${e.message}")
                 return@launch
@@ -67,10 +67,10 @@ class Requests {
 
     @SuppressLint("SetTextI18n")
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun getRequestUserV2(clientData: (UserV2) -> Unit, error: (String) -> Unit, token: String) {
+    suspend fun getRequestUserV2(clientData: (UserV2) -> Unit, error: (String) -> Unit, token: String, lang: String) {
         GlobalScope.launch(Dispatchers.IO) {
             val response = try {
-                RetrofitInstance.api.getUserInfoV2("Bearer $token")
+                RetrofitInstance.api.getUserInfoV2("Bearer $token", lang)
             }catch (e: HttpException){
                 error("http error ${e.message}")
                 return@launch
@@ -90,10 +90,10 @@ class Requests {
 
     @SuppressLint("SetTextI18n")
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun getRequestDevicesList(devicesList: (ArrayList<DeviceInList_DEV>) -> Unit, error: (String) -> Unit, token: String, clientId: Int) {
+    suspend fun getRequestDevicesList(devicesList: (ArrayList<DeviceInList_DEV>) -> Unit, error: (String) -> Unit, token: String, clientId: Int, lang: String) {
         GlobalScope.launch(Dispatchers.IO) {
             val response = try {
-                RetrofitInstance.api.getDevicesList(clientId, "Bearer $token")
+                RetrofitInstance.api.getDevicesList(clientId, "Bearer $token", lang)
             }catch (e: HttpException){
                 error("http error ${e.message}")
                 return@launch
@@ -112,10 +112,10 @@ class Requests {
 
     @SuppressLint("SetTextI18n")
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun getRequestDeviceInfo(devicesInfo: (DeviceInfo) -> Unit, error: (String) -> Unit, token: String, deviceId: Int) {
+    suspend fun getRequestDeviceInfo(devicesInfo: (DeviceInfo) -> Unit, error: (String) -> Unit, token: String, deviceId: Int, lang: String) {
         GlobalScope.launch(Dispatchers.IO) {
             val response = try {
-                RetrofitInstance.api.getDeviceInfo(deviceId, "Bearer $token")
+                RetrofitInstance.api.getDeviceInfo(deviceId, "Bearer $token", lang)
             }catch (e: HttpException){
                 error("http error ${e.message}")
                 return@launch

@@ -146,7 +146,7 @@ class AdvancedSettingsFragment : Fragment() {
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-F-123456"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EP-12345"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("FEST-EB-12345"))
-    binding.serialNumberEt.setText("INDY-H-04440")
+//    binding.serialNumberEt.setText("INDY-H-04440")
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-H-12345"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-EP-12345"))
 //    System.err.println("serialNumber validationAndConversionSerialNumber "+validationAndConversionSerialNumber("INDY-EB-12345"))

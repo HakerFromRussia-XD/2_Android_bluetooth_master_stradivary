@@ -27,8 +27,8 @@ android {
         applicationId "com.bailout.stickk"
         minSdk 24
         targetSdk 33
-        versionCode 6
-        versionName "2.4.696"
+        versionCode 7
+        versionName "2.4.701"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

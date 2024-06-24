@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.LayoutChartBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
@@ -95,6 +96,9 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     //TODO выключить быстрое открытие после завершения тестов
+//    navigator().showArcanoidScreen()
+//    navigator().showGrayStatusBar(true)
+
 //    navigator().showAccountScreen(this)
 //    navigator().showWhiteStatusBar(true)
 
@@ -223,7 +227,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.closeBtn.isEnabled = enabled
     binding.openBtn.isEnabled = enabled
     binding.calibrationBtn.isEnabled = enabled
-//    binding.startGameBtn.isEnabled = enabled
+    binding.startGameBtn.isEnabled = enabled
     binding.thresholdsBlockingSw.isEnabled = enabled
     binding.correlatorNoiseThreshold1Sb.isEnabled = enabled
     binding.correlatorNoiseThreshold2Sb.isEnabled = enabled
@@ -583,10 +587,19 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     }
 
 
-//    binding.startGameBtn.setOnClickListener {
-//      navigator().showArcanoidScreen()
-//      navigator().showGrayStatusBar(true)
-//    }
+    binding.startGameBtn.setOnClickListener {
+      navigator().showArcanoidScreen()
+      navigator().showGrayStatusBar(true)
+      //выключение работы протеза от датчиков
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+        main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW, WRITE)
+      }
+      if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
+//        if (useNewSystemSendCommand()) {
+          main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 50)
+//        }
+      }
+    }
 
     binding.closeBtn.setOnTouchListener { _, event ->
       if (!main?.lockWriteBeforeFirstRead!!) {

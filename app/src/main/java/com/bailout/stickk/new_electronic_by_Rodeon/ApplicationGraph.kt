@@ -56,4 +56,5 @@ interface ApplicationGraph {
   fun inject(accountFragment: AccountFragmentMain) {}
   fun inject(accountFragment: AccountFragmentCustomerService) {}
   fun inject(accountFragment: AccountFragmentProsthesisInformation) {}
+  fun inject(arcanoidFragment: ArcanoidFragment) {}
 }

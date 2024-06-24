@@ -8,6 +8,7 @@ fun Fragment.navigator(): Navigator {
 
 interface Navigator {
     fun showWhiteStatusBar(show: Boolean)
+    fun showGrayStatusBar(show: Boolean)
     fun showSecretSettingsScreen()
     fun showHelpScreen(chartFragmentClass: ChartFragment)
     fun showSensorsHelpScreen(chartFragmentClass: ChartFragment)
@@ -22,6 +23,7 @@ interface Navigator {
     fun showProsthesesCareScreen()
     fun showServiceAndWarrantyScreen()
     fun showNeuralScreen()
+    fun showArcanoidScreen()
     fun showAccountScreen(chartFragmentClass: ChartFragment)
     fun showAccountCustomerServiceScreen()
     fun showAccountProsthesisInformationScreen()

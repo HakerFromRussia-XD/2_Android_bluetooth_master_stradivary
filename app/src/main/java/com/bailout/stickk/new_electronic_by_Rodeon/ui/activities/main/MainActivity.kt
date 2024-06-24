@@ -48,6 +48,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.customer
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountFragmentMain
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.prosthesisInformationFragment.AccountFragmentProsthesisInformation
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ArcanoidFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.NeuralFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.SecretSettingsFragment
@@ -1198,6 +1199,16 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE
     }
   }
+  override fun showGrayStatusBar(show: Boolean) {
+    if (show) {
+      window.statusBarColor = resources.getColor(R.color.color_primary, theme)
+      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+    }
+    else {
+      window.statusBarColor = resources.getColor(R.color.blue_status_bar, theme)
+      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE
+    }
+  }
   override fun showSecretSettingsScreen() { launchFragment(SecretSettingsFragment()) }
   override fun showHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(HelpFragment(chartFragmentClass)) }
   override fun showSensorsHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(SensorsFragment(chartFragmentClass)) }
@@ -1212,6 +1223,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun showProsthesesCareScreen() { launchFragment(ProsthesesCareFragment()) }
   override fun showServiceAndWarrantyScreen() { launchFragment(ServiceAndWarrantyFragment()) }
   override fun showNeuralScreen() { launchFragment(NeuralFragment()) }
+  override fun showArcanoidScreen() { launchFragment(ArcanoidFragment()) }
   override fun showAccountScreen(chartFragmentClass: ChartFragment) { launchFragment(AccountFragmentMain(chartFragmentClass)) }
   override fun showAccountCustomerServiceScreen() { launchFragment(AccountFragmentCustomerService()) }
   override fun showAccountProsthesisInformationScreen() { launchFragment(AccountFragmentProsthesisInformation()) }
@@ -1226,6 +1238,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
     if (supportFragmentManager.backStackEntryCount == 0) {
       showWhiteStatusBar(false)
+      showGrayStatusBar(false)
     }
   }
 

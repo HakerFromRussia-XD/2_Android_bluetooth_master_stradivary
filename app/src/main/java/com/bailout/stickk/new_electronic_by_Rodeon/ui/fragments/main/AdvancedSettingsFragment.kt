@@ -63,7 +63,6 @@ import javax.inject.Inject
 
 @Suppress("DEPRECATION", "UNNECESSARY_SAFE_CALL")
 class AdvancedSettingsFragment : Fragment() {
-//  private var timer: CountDownTimer? = null
   private var sendFlag: Boolean = false
   @Inject
   lateinit var preferenceManager: PreferenceManager

@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -18,12 +19,14 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.FragmentArcanoidGameBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import kotlinx.coroutines.CoroutineName
@@ -37,8 +40,9 @@ import kotlin.math.sqrt
 
 
 @OptIn(DelicateCoroutinesApi::class)
-class ArcanoidFragment: Fragment() {
+class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment() {
     private var mSettings: SharedPreferences? = null
+    private val reactivatedInterface: ReactivatedChart = chartFragmentClass
     private var windowIsOpen = true
     private var animationBall = true
     private var mContext: Context? = null
@@ -46,7 +50,7 @@ class ArcanoidFragment: Fragment() {
     private var coordinateReadThreadFlag = true
     private lateinit var ball: ImageView
     private var layout: LinearLayout? = null
-    private var ANIMATION_DURATION = 1000L
+    private var ANIMATION_DURATION = 1300L
     private var animations = ArrayList<ObjectAnimator>()
     private lateinit var timer: CountDownTimer
 
@@ -115,7 +119,31 @@ class ArcanoidFragment: Fragment() {
             animationBall = false
             activationMoveBallSaver = false
             startProsthesisWork()
+            Handler().postDelayed({
+                reactivatedInterface.reactivatedChart()
+            }, 300)
         }
+
+        binding.root.isFocusableInTouchMode = true
+        binding.root.requestFocus()
+        binding.root.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                navigator().goingBack()
+                readSensDataJob.cancel()
+                coordinateReadThreadFlag = false
+                windowIsOpen = false
+                animationBall = false
+                activationMoveBallSaver = false
+                startProsthesisWork()
+                Handler().postDelayed({
+                    reactivatedInterface.reactivatedChart()
+                }, 300)
+                requireFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                return@OnKeyListener true
+            }
+            false
+        })
+
 
         binding.correlatorNoiseThreshold1Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -253,23 +281,6 @@ class ArcanoidFragment: Fragment() {
         return location
     }
 
-    //    private fun resetBall(){
-//        animations.add(ObjectAnimator.ofFloat(ball, "x", oldCoordinate[0]-ballWidth, finalX-ballWidth))
-//        animations[0].duration = ANIMATION_DURATION
-//        animations[0].interpolator = LinearInterpolator()
-//
-//        animations.add(ObjectAnimator.ofFloat(ball, "y", oldCoordinate[1]-ballHeight, finalY-ballHeight))
-//        animations[1].duration = ANIMATION_DURATION
-//        animations[1].interpolator = LinearInterpolator()
-//
-//        val set = AnimatorSet()
-//        try {
-//            set.playTogether( animations[0], animations[1])
-//            set.start()
-//        } catch (e: Exception){
-//            e.printStackTrace()
-//        }
-//    }
     private fun animationBall(finalX: Float, finalY: Float) {
         animations.clear()
 
@@ -321,11 +332,12 @@ class ArcanoidFragment: Fragment() {
                 binding.animationsLav.setAnimation(R.raw.game_over_animation)
                 binding.animationsLav.playAnimation()
                 Handler().postDelayed({
-                    binding.animationsLav.setAnimation(R.raw.start_animation)
-                    binding.animationsLav.playAnimation()
-
                     score = startScore
                     binding.scoreTv.text = score.toString()
+                }, 1000)
+                Handler().postDelayed({
+                    binding.animationsLav.setAnimation(R.raw.start_animation)
+                    binding.animationsLav.playAnimation()
                 }, 2000)
 
 
@@ -342,7 +354,7 @@ class ArcanoidFragment: Fragment() {
                 oldCoordinate.add(convertBallCoordinate(getBallCoordinate()[0], getBallCoordinate()[1])[0].toFloat())
                 oldCoordinate.add(convertBallCoordinate(getBallCoordinate()[0], getBallCoordinate()[1])[1].toFloat())
 
-                ANIMATION_DURATION = 1000
+                ANIMATION_DURATION = 1300
             }
         }
     }

@@ -588,16 +588,15 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
 
     binding.startGameBtn.setOnClickListener {
-      navigator().showArcanoidScreen()
+      graphThreadFlag = false
+      navigator().showArcanoidScreen(this)
       navigator().showGrayStatusBar(true)
       //выключение работы протеза от датчиков
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW, WRITE)
       }
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-//        if (useNewSystemSendCommand()) {
-          main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 50)
-//        }
+          main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 5)
       }
     }
 

@@ -1223,7 +1223,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun showProsthesesCareScreen() { launchFragment(ProsthesesCareFragment()) }
   override fun showServiceAndWarrantyScreen() { launchFragment(ServiceAndWarrantyFragment()) }
   override fun showNeuralScreen() { launchFragment(NeuralFragment()) }
-  override fun showArcanoidScreen() { launchFragment(ArcanoidFragment()) }
+  override fun showArcanoidScreen(chartFragmentClass: ChartFragment) { launchFragment(ArcanoidFragment(chartFragmentClass)) }
   override fun showAccountScreen(chartFragmentClass: ChartFragment) { launchFragment(AccountFragmentMain(chartFragmentClass)) }
   override fun showAccountCustomerServiceScreen() { launchFragment(AccountFragmentCustomerService()) }
   override fun showAccountProsthesisInformationScreen() { launchFragment(AccountFragmentProsthesisInformation()) }

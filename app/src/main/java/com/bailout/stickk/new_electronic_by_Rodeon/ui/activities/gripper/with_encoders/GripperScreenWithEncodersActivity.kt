@@ -890,9 +890,9 @@ class GripperScreenWithEncodersActivity
     }
 
     private fun compileBLEMassage (withChangeGesture: Boolean, onlyNumberGesture: Boolean) {
-        System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture  onlyNumberGesture=$onlyNumberGesture")
+//        System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture  onlyNumberGesture=$onlyNumberGesture")
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-            System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture")
+//            System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture")
             val gestureStateModel = GestureStateWithEncoders(gestureNumber - 1,
                 fingerOpenState1, fingerOpenState2, fingerOpenState3,
                 fingerOpenState4, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
@@ -904,7 +904,7 @@ class GripperScreenWithEncodersActivity
             RxUpdateMainEvent.getInstance().updateGestureWithEncodersState(gestureStateModel)
         }
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture")
+            System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture  fingerOpenStateDelay1=$fingerOpenStateDelay1  fingerCloseStateDelay1=$fingerCloseStateDelay1")
             val sendGestureNumber = if (checkDriverVersionGreaterThan237()) { gestureNumber
             } else { gestureNumber - 1 }
             val gestureStateModel = GestureStateWithEncoders(sendGestureNumber, // проверить тут -2

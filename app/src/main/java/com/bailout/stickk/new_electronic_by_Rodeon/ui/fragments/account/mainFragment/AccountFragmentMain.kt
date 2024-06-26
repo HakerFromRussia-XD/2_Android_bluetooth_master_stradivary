@@ -159,7 +159,8 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                 },
                 { error ->
                     System.err.println("requestToken error: $error")
-                    binding.refreshLayout.setRefreshing(false)
+                    main?.runOnUiThread { binding.refreshLayout.setRefreshing(false) }
+
                     when (error) {
                         "500" -> {
                             if (attemptedRequest != 4) {
@@ -167,10 +168,18 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
                                 attemptedRequest ++
                                 requestToken()
                             } else {
-                                main?.runOnUiThread {Toast.makeText(mContext, "На сервере нет данных пользователя", Toast.LENGTH_LONG).show()}
+                                main?.runOnUiThread {
+                                    showInfoWithoutConnection()
+                                    Toast.makeText(mContext, "На сервере нет данных пользователя", Toast.LENGTH_LONG).show()
+                                }
                             }
                         }
-                        else -> { main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()} }
+                        else -> {
+                            main?.runOnUiThread {
+                                showInfoWithoutConnection()
+                                Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
                 },
                 "Aesserial $encryptionResult")
@@ -388,6 +397,35 @@ class AccountFragmentMain(private val chartFragmentClass: ChartFragment) : Fragm
             substring(it, min(it + maxLen, length))
         else
             this
+    }
+    private fun showInfoWithoutConnection() {
+        binding.preloaderLav.visibility = View.GONE
+        binding.apply {
+            accountMainList.clear()
+            accountMainList.add(
+                AccountMainItem(
+                    avatarUrl = "avatarUrl",
+                    name = fname,
+                    surname = sname,
+                    patronymic = "Ivanovich",
+                    versionDriver = driverVersion,
+                    versionBms = bmsVersion,
+                    versionSensors = sensorsVersion
+                )
+            )
+            initAdapter(binding.accountRv)
+        }
+        main?.saveText(PreferenceKeys.ACCOUNT_MANAGER_FIO, "")
+        main?.saveText(PreferenceKeys.ACCOUNT_MANAGER_PHONE, "")
+        main?.saveText(PreferenceKeys.ACCOUNT_MODEL_PROSTHESIS, "")
+        main?.saveText(PreferenceKeys.ACCOUNT_SIZE_PROSTHESIS, "")
+        main?.saveText(PreferenceKeys.ACCOUNT_SIDE_PROSTHESIS, "")
+        main?.saveText(PreferenceKeys.ACCOUNT_STATUS_PROSTHESIS, "")
+        main?.saveText(PreferenceKeys.ACCOUNT_DATE_TRANSFER_PROSTHESIS, "")
+        main?.saveText(PreferenceKeys.ACCOUNT_GUARANTEE_PERIOD_PROSTHESIS, "")
+        main?.saveText(PreferenceKeys.ACCOUNT_ROTATOR_PROSTHESIS, "")
+        main?.saveText(PreferenceKeys.ACCOUNT_ACCUMULATOR_PROSTHESIS, "")
+        main?.saveText(PreferenceKeys.ACCOUNT_TOUCHSCREEN_FINGERS_PROSTHESIS, "")
     }
 
     companion object {

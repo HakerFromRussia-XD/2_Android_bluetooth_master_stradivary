@@ -24,11 +24,11 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.bailout.stickk"
+        applicationId "com.bailout.stickk_dev"
         minSdk 24
         targetSdk 33
         versionCode 7
-        versionName "2.4.710"
+        versionName "2.4.711"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

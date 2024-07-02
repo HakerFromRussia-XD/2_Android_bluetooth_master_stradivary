@@ -36,11 +36,13 @@
         android:layout_marginEnd="6dp"
         android:layout_marginBottom="6dp"
         android:background="@drawable/ic_arrow_left"
+        android:backgroundTintMode="multiply"
         app:layout_constraintBottom_toBottomOf="@+id/back_btn"
         app:layout_constraintEnd_toEndOf="@+id/back_btn"
         app:layout_constraintStart_toStartOf="@+id/back_btn"
         app:layout_constraintTop_toTopOf="@+id/back_btn"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"
+        app:tint="@color/cream_white"/>
 
     <View
         android:id="@+id/back_btn"
@@ -314,6 +316,56 @@
             app:layout_constraintEnd_toEndOf="@+id/game_window_view"
             app:layout_constraintStart_toStartOf="@+id/game_window_view" />
 
+        <TextView
+            android:id="@+id/lvl_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="lvl 1"
+            android:textColor="@color/edit_text_disabled"
+            android:fontFamily="@font/font_open_sans_bold"
+            android:textSize="40dp"
+            app:layout_constraintEnd_toEndOf="@+id/game_window_view"
+            app:layout_constraintStart_toStartOf="@+id/game_window_view"
+            app:layout_constraintTop_toTopOf="@+id/game_window_view" />
+
+        <LinearLayout
+            android:id="@+id/game_window_view_for_ball"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/left_btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+<!--        <androidx.appcompat.widget.LinearLayoutCompat-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="0dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="@+id/score_tv"-->
+<!--            app:layout_constraintEnd_toEndOf="@+id/game_window_view"-->
+<!--            app:layout_constraintStart_toStartOf="@+id/game_window_view"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/linearLayout"-->
+<!--            android:background="@color/green"/>-->
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animations_lvl_up_lav"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="0dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@+id/game_window_view"
+            app:layout_constraintStart_toStartOf="@+id/game_window_view"
+            app:layout_constraintTop_toTopOf="@+id/game_window_view"
+            app:layout_constraintDimensionRatio="1:1"
+            app:lottie_autoPlay="false"
+            app:lottie_loop="false"
+            app:lottie_rawRes="@raw/lvl_up" />
+
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/animations_lav"
             android:layout_width="wrap_content"
@@ -333,7 +385,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/left_btn"
             app:layout_constraintTop_toTopOf="@+id/left_btn"
-            android:visibility="gone"/>
+            android:visibility="visible"/>
 
         <Button
             android:id="@+id/left_btn"
@@ -343,7 +395,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/right_btn"
             app:layout_constraintStart_toStartOf="parent"
-            android:visibility="gone"/>
+            android:visibility="visible"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>

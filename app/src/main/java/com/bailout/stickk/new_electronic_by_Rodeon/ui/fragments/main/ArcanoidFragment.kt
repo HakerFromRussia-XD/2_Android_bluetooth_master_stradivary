@@ -18,8 +18,10 @@ import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
+import androidx.core.os.postDelayed
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.FragmentArcanoidGameBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
@@ -49,37 +51,51 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     private var main: MainActivity? = null
     private var coordinateReadThreadFlag = true
     private lateinit var ball: ImageView
+    private lateinit var bonus: ImageView
+    private lateinit var bonus_test: LottieAnimationView
     private var layout: LinearLayout? = null
     private var ANIMATION_DURATION = 1300L
-    private var animations = ArrayList<ObjectAnimator>()
+    private var ANIMATION_DURATION_BONUS = 3000L
+    private var animationsBall = ArrayList<ObjectAnimator>()
+    private var animationsBonus = ArrayList<ObjectAnimator>()
     private lateinit var timer: CountDownTimer
+    private lateinit var timerBonus: CountDownTimer
 
     private var gameWidth = 0
     private var gameHeight = 0
-    private var ballWidth = 0
-    private var ballHeight = 0
+    private var ballWidth = 43
+    private var ballHeight = 43
+    private var bonusWidth = 180
+    private var bonusHeight = 180
     private var firstBallYDelta = 0f
     enum class PreviousStates { STOP_SLIDE, LEFT_SLIDE, RIGHT_SLIDE }
     private var previousState = PreviousStates.STOP_SLIDE
     private var stateNow = PreviousStates.STOP_SLIDE
 
+    private var newCoordinateBonus = Vector<Float>()
     private var newCoordinate = Vector<Float>()
     private var oldCoordinate = Vector<Float>()
     private var directionX = 1
     private var directionY = 1
     private var koefficientViravnivaniya = 2f //То насколько мячик будет больше стремиться отпрыгивать по вертикали чем от стен (0 - не работает)
     private var koefficientOtrajeniaUglov = 0.2f //0.5 от ballWeight
-    private val ballVelocity = 1f
+    private var ballVelocity = 1f
     private var activationMoveBallSaver = true
     private var directionSaver = 1
-    private var speedSaver = 10
+    private var speedSaver = 1f
     private val startScore = 10
-    private val scoreIncrement = 1
-    private val scoreDecrement = 5
+    private var scoreIncrement = 10
+    private var scoreDecrement = 10
+    private var levelGame = 1
     private var score = startScore
     private lateinit var moveSaverJob: Job
     private lateinit var readSensDataJob: Job
     private var reverse = false
+
+    //bonuses
+    private var infiniteSavePlatform = false
+    private var freezeTime = false
+
 
     private var dataSens1 = 0
     private var dataSens2 = 0
@@ -108,6 +124,9 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     private fun initializeUI() {
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         readSensDataJob = GlobalScope.launch { readSensorsData() }
+
+        addBallView(requireContext())
+//        addBonusView(requireContext())
 
         binding.backgroundClickBlockBtn.setOnClickListener {  }
 
@@ -176,7 +195,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             if (event.action == MotionEvent.ACTION_DOWN) {
                 activationMoveBallSaver = true
                 if (directionSaver < 0) {} else { directionSaver *= -1 }
-                moveSaverJob.cancel()
+//                moveSaverJob.cancel()
                 moveSaverJob = GlobalScope.launch(CoroutineName("leftBtn ACTION_DOWN")) {
                     moveSaverVelocity()//directionSaver)
                 }
@@ -193,7 +212,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             if (event.action == MotionEvent.ACTION_DOWN) {
                 activationMoveBallSaver = true
                 if (directionSaver > 0) {} else { directionSaver *= -1 }
-                moveSaverJob.cancel()
+//                moveSaverJob.cancel()
                 moveSaverJob = GlobalScope.launch(CoroutineName("rightBtn ACTION_DOWN")) {
                     moveSaverVelocity()//directionSaver)
                 }
@@ -205,16 +224,23 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             false
         }
 
-        val vto = binding.gameWindowView.viewTreeObserver
+        val vto = binding.gameWindowViewForBall.viewTreeObserver
         vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                binding.gameWindowView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                gameWidth = binding.gameWindowView.measuredWidth
-                gameHeight = binding.gameWindowView.measuredHeight
+                binding.gameWindowViewForBall.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                gameWidth = binding.gameWindowViewForBall.measuredWidth
+                gameHeight = binding.gameWindowViewForBall.measuredHeight
                 System.err.println("ball gameWidth=${gameWidth}  gameHeight=${gameHeight}")
 
-                ballWidth = ball.measuredWidth
-                ballHeight = ball.measuredHeight
+//                ballWidth = ball.measuredWidth
+//                ballHeight = ball.measuredHeight
+
+                try {
+                    bonusWidth = bonus_test.measuredWidth
+                    bonusHeight = bonus_test.measuredHeight
+                    System.err.println("bonus   bonusWidth=$bonusWidth    bonusHeight=$bonusWidth ball")
+                } catch (e: Exception) {}
+
 
                 firstBallYDelta = getBallCoordinate()[1].toFloat()
                 ball.x = gameWidth.toFloat()/2
@@ -240,7 +266,8 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             moveSaverJob.cancel()
         }
 
-        addView(requireContext())
+//        binding.animationsLvlUpLav.setAnimation(R.raw.start_animation)
+//        binding.animationsLvlUpLav
 
         sensor1Level = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 0)
         sensor2Level = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 0)
@@ -251,7 +278,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
 
 
     @SuppressLint("SuspiciousIndentation")
-    private fun addView(context: Context) {
+    private fun addBallView(context: Context) {
         ball = ImageView(context)
         ball.setImageResource(R.drawable.circle)
 
@@ -262,10 +289,43 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
 
 
         // adding the image in layout
-        layout = binding.gameWindowView
+        layout = binding.gameWindowViewForBall
         layout!!.addView(ball,0)
     }
+    private fun addBonusView(context: Context) {
+//        bonus = ImageView(context)
+//        bonus.setImageResource(R.drawable.circle_16_red)
+        bonus_test = LottieAnimationView(context)
+        bonus_test.setAnimation(R.raw.bonus_time)
+        bonus_test.playAnimation()
+        Handler().postDelayed({
+            bonus_test.pauseAnimation()
+        }, 500)
 
+        val params = LinearLayout.LayoutParams(bonusWidth, bonusHeight)
+
+        // setting the margin in linearlayout
+//        System.err.println("ball gameWidth=${gameWidth}  gameHeight=${gameHeight}")
+
+//        ballWidth = bonus_test.measuredWidth
+//        ballHeight = bonus_test.measuredHeight
+
+        bonus_test.layoutParams = params
+        bonus_test.x = (bonusWidth + (0..(gameWidth - 200)).random()).toFloat()//gameWidth.toFloat()/2
+        bonus_test.y = 0f
+        animationBonus(bonus_test.x, gameHeight.toFloat())
+
+        // adding the image in layout
+//        layout = binding.gameWindowViewForBall
+//        if (layout!!.childCount == 2) {layout!!.removeViewAt(1)}
+        layout!!.addView(bonus_test,1)
+    }
+
+    private fun getBonusCoordinate(): IntArray {
+        val location = IntArray(2)
+        bonus_test.getLocationOnScreen(location)
+        return location
+    }
     private fun getBallCoordinate(): IntArray {
         val location = IntArray(2)
         ball.getLocationOnScreen(location)
@@ -281,21 +341,57 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
         return location
     }
 
-    private fun animationBall(finalX: Float, finalY: Float) {
-        animations.clear()
+    private fun animationBonus(finalX: Float, finalY: Float) {
+        animationsBonus.clear()
 
+        animationsBonus.add(ObjectAnimator.ofFloat(bonus_test, "x", finalX-bonusWidth/2, finalX-bonusWidth/2))
+        animationsBonus[0].duration = ANIMATION_DURATION_BONUS
+        animationsBonus[0].interpolator = LinearInterpolator()
 
-        animations.add(ObjectAnimator.ofFloat(ball, "x", oldCoordinate[0]-ballWidth, finalX-ballWidth))
-        animations[0].duration = ANIMATION_DURATION
-        animations[0].interpolator = LinearInterpolator()
-
-        animations.add(ObjectAnimator.ofFloat(ball, "y", oldCoordinate[1]-ballHeight, finalY-ballHeight))
-        animations[1].duration = ANIMATION_DURATION
-        animations[1].interpolator = LinearInterpolator()
+        val multiply = 3
+//        System.err.println("bonusHeight: $bonusHeight x $multiply")
+        animationsBonus.add(ObjectAnimator.ofFloat(bonus_test, "y", 0f-bonusHeight/2, finalY-bonusHeight/3))//-bonusHeight*multiply
+        animationsBonus[1].duration = ANIMATION_DURATION_BONUS
+        animationsBonus[1].interpolator = LinearInterpolator()
 
         val set = AnimatorSet()
         try {
-            set.playTogether( animations[0], animations[1])
+            set.playTogether( animationsBonus[0], animationsBonus[1])
+            set.start()
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+
+        timerBonus = object : CountDownTimer( ANIMATION_DURATION_BONUS-500, 10) {
+            override fun onTick(millisUntilFinished: Long) {}
+
+            @SuppressLint("CutPasteId")
+            override fun onFinish() {
+//                System.err.println("bonus таймер дотикал")
+                layout = binding.gameWindowViewForBall
+                bonus_test.playAnimation()
+                bonus_test.progress = 0.5f
+                Handler().postDelayed({
+                    bonusActivator(finalX, finalY)
+                    if (layout!!.childCount == 2) {layout!!.removeViewAt(1)}
+                }, 500)
+            }
+        }.start()
+    }
+    private fun animationBall(finalX: Float, finalY: Float) {
+        animationsBall.clear()
+
+        animationsBall.add(ObjectAnimator.ofFloat(ball, "x", oldCoordinate[0]-ballWidth, finalX-ballWidth))
+        animationsBall[0].duration = ANIMATION_DURATION
+        animationsBall[0].interpolator = LinearInterpolator()
+
+        animationsBall.add(ObjectAnimator.ofFloat(ball, "y", oldCoordinate[1]-ballHeight, finalY-ballHeight))
+        animationsBall[1].duration = ANIMATION_DURATION
+        animationsBall[1].interpolator = LinearInterpolator()
+
+        val set = AnimatorSet()
+        try {
+            set.playTogether( animationsBall[0], animationsBall[1])
             set.start()
         } catch (e: Exception){
             e.printStackTrace()
@@ -322,11 +418,12 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             if (coordinateX >= (binding.ballSaverView.x - binding.gameWindowView.x+ball.measuredWidth/2) && coordinateX <= (binding.ballSaverView.x+binding.ballSaverView.measuredWidth - binding.gameWindowView.x+ball.measuredWidth/2)) {
                 score += scoreIncrement
             } else {
-                score -= scoreDecrement
+                score += scoreDecrement
             }
             main?.runOnUiThread {
                 binding.scoreTv.text = score.toString()
             }
+            levelControl(score)
             if (score < 0) {
                 binding.animationsLav.visibility = View.VISIBLE
                 binding.animationsLav.setAnimation(R.raw.game_over_animation)
@@ -358,7 +455,164 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             }
         }
     }
+    private fun bonusActivator(coordinateX: Float, coordinateY: Float) {
+        if (coordinateY.toInt() == gameHeight) {
+            if (coordinateX >= (binding.ballSaverView.x - binding.gameWindowView.x) && coordinateX <= (binding.ballSaverView.x + binding.ballSaverView.measuredWidth - binding.gameWindowView.x)) {
+                System.err.println("bonus попал")
+            } else {
+                System.err.println("bonus НЕ попал")
+            }
+        }
+        System.err.println("bonus  ${binding.ballSaverView.x + binding.ballSaverView.measuredWidth - binding.gameWindowView.x} >= $coordinateX >= ${binding.ballSaverView.x - binding.gameWindowView.x}")
+    }
 
+    private fun levelControl(score: Int) {
+        if (score >= 20 && levelGame == 1) {
+            levelGame = 2
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 30 && levelGame == 2) {
+            levelGame = 3
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 40 && levelGame == 3) {
+            levelGame = 4
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 60 && levelGame == 4) {
+            levelGame = 5
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 80 && levelGame == 5) {
+            levelGame = 6
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 100 && levelGame == 6) {
+            levelGame = 7
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 130 && levelGame == 7) {
+            levelGame = 8
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 160 && levelGame == 8) {
+            levelGame = 9
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 200 && levelGame == 9) {
+            levelGame = 10
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 250 && levelGame == 10) {
+            levelGame = 11
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 300 && levelGame == 11) {
+            levelGame = 12
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 350 && levelGame == 12) {
+            levelGame = 13
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 400 && levelGame == 13) {
+            levelGame = 14
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 450 && levelGame == 14) {
+            levelGame = 15
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 500 && levelGame == 15) {
+            levelGame = 16
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 600 && levelGame == 16) {
+            levelGame = 17
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 700 && levelGame == 17) {
+            levelGame = 18
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 800 && levelGame == 18) {
+            levelGame = 19
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        if (score >= 1000 && levelGame == 19) {
+            levelGame = 20
+            binding.lvlTv.text = "lvl $levelGame"
+            binding.animationsLvlUpLav.playAnimation()
+        }
+        addBonusView(requireContext())
+        when (levelGame) {
+            2 -> {
+//                addBonusView(requireContext())
+                System.err.println("addBonusView ${getBonusCoordinate()[0]}, ${getBonusCoordinate()[1]}")
+            }
+            4 -> {
+                scoreIncrement = 2
+                scoreDecrement = 5
+                ballVelocity = 1.1f
+                speedSaver = 1.2f
+//                addBonusView(requireContext())
+//                System.err.println("addBonusView ${getBonusCoordinate()[0]}, ${getBonusCoordinate()[1]}")
+            }
+            6 -> {
+                scoreIncrement = 3
+                scoreDecrement = 10
+                ballVelocity = 1.2f
+                speedSaver = 1.4f
+//                addBonusView(requireContext())
+            }
+            9 -> {
+                scoreIncrement = 5
+                scoreDecrement = 15
+                ballVelocity = 1.4f
+                speedSaver = 1.6f
+//                addBonusView(requireContext())
+            }
+            12 -> {
+                scoreIncrement = 10
+                scoreDecrement = 30
+                ballVelocity = 1.6f
+                speedSaver = 2f
+//                addBonusView(requireContext())
+            }
+            18 -> {
+                scoreIncrement = 20
+                scoreDecrement = 60
+                ballVelocity = 1.8f
+                speedSaver = 2.2f
+//                addBonusView(requireContext())
+            }
+            20 -> {
+                scoreIncrement = 30
+                scoreDecrement = 90
+                ballVelocity = 2f
+                speedSaver = 2.4f
+//                addBonusView(requireContext())
+            }
+        }
+    }
     private fun getNewCoordinate() {
 //        System.err.println("================= start getNewCoordinateBall ===================")
         val ballX: Float = newCoordinate[0]
@@ -714,27 +968,27 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
                 if (!reverse) {
                     if (directionSaver > 0) {
                         if ((binding.gameWindowView.x + gameWidth) - (binding.ballSaverView.x + binding.ballSaverView.measuredWidth) > 0) {
-                            binding.ballSaverView.x += 1
+                            binding.ballSaverView.x += 1*speedSaver
                         }
                     } else {
                         if ((binding.ballSaverView.x - binding.gameWindowView.x) > 0) {
-                            binding.ballSaverView.x -= 1
+                            binding.ballSaverView.x -= 1*speedSaver
                         }
                     }
                 } else {
                     if (directionSaver > 0) {
                         if ((binding.ballSaverView.x - binding.gameWindowView.x) > 0) {
-                            binding.ballSaverView.x -= 1
+                            binding.ballSaverView.x -= 1*speedSaver
                         }
                     } else {
                         if ((binding.gameWindowView.x + gameWidth) - (binding.ballSaverView.x + binding.ballSaverView.measuredWidth) > 0) {
-                            binding.ballSaverView.x += 1
+                            binding.ballSaverView.x += 1*speedSaver
                         }
                     }
                 }
             }
 
-            delay((10/speedSaver).toLong())
+            delay(1)
         }
     }
     private suspend fun readSensorsData() {
@@ -789,7 +1043,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
                 stateNow = previousState
             }
 
-            delay((10/speedSaver).toLong())//1000)
+            delay(1)//1000)
         }
     }
     private fun sendCorrelatorNoiseThreshold(value: Int) {

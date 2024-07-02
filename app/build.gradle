@@ -165,7 +165,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     //animation
-    implementation 'com.airbnb.android:lottie:5.2.0'
+    implementation 'com.airbnb.android:lottie:6.4.0'
 
     // rxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.17'

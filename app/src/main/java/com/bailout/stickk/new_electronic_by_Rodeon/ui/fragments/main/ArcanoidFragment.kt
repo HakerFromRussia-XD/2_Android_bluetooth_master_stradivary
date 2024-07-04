@@ -18,7 +18,6 @@ import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
-import androidx.core.os.postDelayed
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.airbnb.lottie.LottieAnimationView
@@ -60,6 +59,9 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     private var animationsBonus = ArrayList<ObjectAnimator>()
     private lateinit var timer: CountDownTimer
     private lateinit var timerBonus: CountDownTimer
+    private lateinit var timerBonus1Activation: CountDownTimer
+    private lateinit var timerBonus2Activation: CountDownTimer
+
 
     private var gameWidth = 0
     private var gameHeight = 0
@@ -80,21 +82,28 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     private var koefficientViravnivaniya = 2f //То насколько мячик будет больше стремиться отпрыгивать по вертикали чем от стен (0 - не работает)
     private var koefficientOtrajeniaUglov = 0.2f //0.5 от ballWeight
     private var ballVelocity = 1f
+    private var oldBallVelocity = 1f
     private var activationMoveBallSaver = true
     private var directionSaver = 1
     private var speedSaver = 1f
     private val startScore = 10
-    private var scoreIncrement = 10
-    private var scoreDecrement = 10
+    private var scoreIncrement = 1
+    private var scoreDecrement = 2
     private var levelGame = 1
+    private var previousLevelGame = 1
     private var score = startScore
     private lateinit var moveSaverJob: Job
     private lateinit var readSensDataJob: Job
     private var reverse = false
+    private var typeBonus = 1
 
     //bonuses
-    private var infiniteSavePlatform = false
-    private var freezeTime = false
+    private var wallBonusActivated = false
+    private var timeBonusActivated = false
+    private var firstTimeActivate = true
+    private var firstWallActivate = true
+    private var remainingBonus1Time = 0
+    private var remainingBonus2Time = 0
 
 
     private var dataSens1 = 0
@@ -293,10 +302,17 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
         layout!!.addView(ball,0)
     }
     private fun addBonusView(context: Context) {
-//        bonus = ImageView(context)
-//        bonus.setImageResource(R.drawable.circle_16_red)
         bonus_test = LottieAnimationView(context)
-        bonus_test.setAnimation(R.raw.bonus_time)
+        when(typeBonus) {
+            1 -> {
+                bonus_test.setAnimation(R.raw.bonus_wall)
+                typeBonus = 2
+            }
+            2 -> {
+                bonus_test.setAnimation(R.raw.bonus_time)
+                typeBonus = 1
+            }
+        }
         bonus_test.playAnimation()
         Handler().postDelayed({
             bonus_test.pauseAnimation()
@@ -348,8 +364,6 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
         animationsBonus[0].duration = ANIMATION_DURATION_BONUS
         animationsBonus[0].interpolator = LinearInterpolator()
 
-        val multiply = 3
-//        System.err.println("bonusHeight: $bonusHeight x $multiply")
         animationsBonus.add(ObjectAnimator.ofFloat(bonus_test, "y", 0f-bonusHeight/2, finalY-bonusHeight/3))//-bonusHeight*multiply
         animationsBonus[1].duration = ANIMATION_DURATION_BONUS
         animationsBonus[1].interpolator = LinearInterpolator()
@@ -418,13 +432,14 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             if (coordinateX >= (binding.ballSaverView.x - binding.gameWindowView.x+ball.measuredWidth/2) && coordinateX <= (binding.ballSaverView.x+binding.ballSaverView.measuredWidth - binding.gameWindowView.x+ball.measuredWidth/2)) {
                 score += scoreIncrement
             } else {
-                score += scoreDecrement
+                if (wallBonusActivated) { score += scoreIncrement }
+                else { score -= scoreDecrement }
             }
             main?.runOnUiThread {
                 binding.scoreTv.text = score.toString()
             }
             levelControl(score)
-            if (score < 0) {
+            if (score <= 0) {
                 binding.animationsLav.visibility = View.VISIBLE
                 binding.animationsLav.setAnimation(R.raw.game_over_animation)
                 binding.animationsLav.playAnimation()
@@ -458,12 +473,79 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     private fun bonusActivator(coordinateX: Float, coordinateY: Float) {
         if (coordinateY.toInt() == gameHeight) {
             if (coordinateX >= (binding.ballSaverView.x - binding.gameWindowView.x) && coordinateX <= (binding.ballSaverView.x + binding.ballSaverView.measuredWidth - binding.gameWindowView.x)) {
-                System.err.println("bonus попал")
-            } else {
-                System.err.println("bonus НЕ попал")
+                when(typeBonus){
+                    1 -> {
+                        System.err.println("bonus 1 activated")
+                        timeBonusActivated = true
+                        binding.bonus1Tv.visibility = View.VISIBLE
+                        binding.bonus1Iv.visibility = View.VISIBLE
+                        addTimeBonusTimer(15)
+                    }
+                    2 -> {
+                        System.err.println("bonus 2 activated")
+                        wallBonusActivated = true
+                        binding.bonus2Tv.visibility = View.VISIBLE
+                        binding.bonus2Iv.visibility = View.VISIBLE
+                        addWallBonusTimer(15)
+                    }
+                }
             }
         }
-        System.err.println("bonus  ${binding.ballSaverView.x + binding.ballSaverView.measuredWidth - binding.gameWindowView.x} >= $coordinateX >= ${binding.ballSaverView.x - binding.gameWindowView.x}")
+//        System.err.println("bonus  ${binding.ballSaverView.x + binding.ballSaverView.measuredWidth - binding.gameWindowView.x} >= $coordinateX >= ${binding.ballSaverView.x - binding.gameWindowView.x}")
+    }
+
+    private fun addTimeBonusTimer(addBonusTime: Int) {
+        if (firstTimeActivate) {
+            firstTimeActivate = false
+            oldBallVelocity = ballVelocity
+            ballVelocity /=  2
+        }
+        remainingBonus1Time += addBonusTime
+        try {
+            timerBonus1Activation.cancel()
+        } catch (e: Exception) {}
+        timerBonus1Activation = object : CountDownTimer((remainingBonus1Time*1000).toLong(), 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                System.err.println("bonus in timer onTick")
+                binding.bonus1Tv.text = "$remainingBonus1Time"
+                remainingBonus1Time -= 1
+            }
+
+            @SuppressLint("CutPasteId")
+            override fun onFinish() {
+                timeBonusActivated = false
+                firstTimeActivate = true
+                ballVelocity = oldBallVelocity
+                binding.bonus1Tv.visibility = View.GONE
+                binding.bonus1Iv.visibility = View.GONE
+            }
+        }.start()
+    }
+    private fun addWallBonusTimer(addBonusTime: Int) {
+        if (firstWallActivate) {
+            firstWallActivate = false
+            binding.ballSaverWallView.visibility = View.VISIBLE
+        }
+        remainingBonus2Time += addBonusTime
+        try {
+            timerBonus2Activation.cancel()
+        } catch (e: Exception) {}
+
+        timerBonus2Activation = object : CountDownTimer((remainingBonus2Time*1000).toLong(), 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                binding.bonus2Tv.text = "$remainingBonus2Time"
+                remainingBonus2Time -= 1
+            }
+
+            @SuppressLint("CutPasteId")
+            override fun onFinish() {
+                wallBonusActivated = false
+                firstWallActivate = true
+                binding.ballSaverWallView.visibility = View.GONE
+                binding.bonus2Tv.visibility = View.GONE
+                binding.bonus2Iv.visibility = View.GONE
+            }
+        }.start()
     }
 
     private fun levelControl(score: Int) {
@@ -562,7 +644,15 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             binding.lvlTv.text = "lvl $levelGame"
             binding.animationsLvlUpLav.playAnimation()
         }
-        addBonusView(requireContext())
+
+        //даёт бонус каждый новый уровень
+        if (previousLevelGame != levelGame) {
+            previousLevelGame = levelGame
+            try {
+                addBonusView(requireContext())
+            } catch (e: Exception) {}
+        }
+
         when (levelGame) {
             2 -> {
 //                addBonusView(requireContext())
@@ -571,7 +661,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             4 -> {
                 scoreIncrement = 2
                 scoreDecrement = 5
-                ballVelocity = 1.1f
+                if (!timeBonusActivated) {ballVelocity = 1.1f}
                 speedSaver = 1.2f
 //                addBonusView(requireContext())
 //                System.err.println("addBonusView ${getBonusCoordinate()[0]}, ${getBonusCoordinate()[1]}")
@@ -579,35 +669,35 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             6 -> {
                 scoreIncrement = 3
                 scoreDecrement = 10
-                ballVelocity = 1.2f
+                if (!timeBonusActivated) {ballVelocity = 1.2f}
                 speedSaver = 1.4f
 //                addBonusView(requireContext())
             }
             9 -> {
                 scoreIncrement = 5
                 scoreDecrement = 15
-                ballVelocity = 1.4f
+                if (!timeBonusActivated) {ballVelocity = 1.4f}
                 speedSaver = 1.6f
 //                addBonusView(requireContext())
             }
             12 -> {
                 scoreIncrement = 10
                 scoreDecrement = 30
-                ballVelocity = 1.6f
+                if (!timeBonusActivated) {ballVelocity = 1.6f}
                 speedSaver = 2f
 //                addBonusView(requireContext())
             }
             18 -> {
                 scoreIncrement = 20
                 scoreDecrement = 60
-                ballVelocity = 1.8f
+                if (!timeBonusActivated) {ballVelocity = 1.8f}
                 speedSaver = 2.2f
 //                addBonusView(requireContext())
             }
             20 -> {
                 scoreIncrement = 30
                 scoreDecrement = 90
-                ballVelocity = 2f
+                if (!timeBonusActivated) {ballVelocity = 2f}
                 speedSaver = 2.4f
 //                addBonusView(requireContext())
             }

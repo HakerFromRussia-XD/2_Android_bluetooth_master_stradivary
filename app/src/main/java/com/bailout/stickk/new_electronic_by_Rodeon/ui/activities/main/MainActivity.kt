@@ -160,7 +160,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
       // Automatically connects to the device upon successful start-up initialization.
       //TODO закомментить быстрый вход после завершения экспериментов
-//      mBluetoothLeService?.connect(mDeviceAddress)
+      mBluetoothLeService?.connect(mDeviceAddress)
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(DEVICE_TYPE_BT05)
         || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)

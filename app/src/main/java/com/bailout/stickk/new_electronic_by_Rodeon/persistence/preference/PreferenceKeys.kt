@@ -77,6 +77,7 @@ object PreferenceKeys {
   const val APP_PIN_CODE = "APP_PIN_CODE"
   const val GAME_LAUNCH_RATE = "GAME_LAUNCH_RATE"
   const val MAXIMUM_POINTS = "MAXIMUM_POINTS"
+  const val NUMBER_OF_CUPS = "NUMBER_OF_CUPS"
 
 
   const val ACCOUNT_MODEL_PROSTHESIS = "ACCOUNT_MODEL_PROSTHESIS"

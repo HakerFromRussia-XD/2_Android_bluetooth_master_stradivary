@@ -97,6 +97,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     private var reverse = false
     private var typeBonus = 1
     private var gameLaunchRate = 0
+    private var cupsFlag = true
 
     //bonuses
     private var wallBonusActivated = false
@@ -275,6 +276,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             }
             moveSaverJob.cancel()
 
+            cupsFlag = true
             gameLaunchRate = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.GAME_LAUNCH_RATE, 0) + 1
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.GAME_LAUNCH_RATE, gameLaunchRate)
         }
@@ -341,11 +343,6 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
         layout!!.addView(bonus_test,1)
     }
 
-    private fun getBonusCoordinate(): IntArray {
-        val location = IntArray(2)
-        bonus_test.getLocationOnScreen(location)
-        return location
-    }
     private fun getBallCoordinate(): IntArray {
         val location = IntArray(2)
         ball.getLocationOnScreen(location)
@@ -442,7 +439,6 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             //считаем максимальное количество очков
             if (score > mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MAXIMUM_POINTS, 0)) {
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.MAXIMUM_POINTS, score)
-                System.err.println("MAXIMUM_POINTS = $score")
             }
 
 
@@ -455,6 +451,12 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
                 binding.animationsLav.setAnimation(R.raw.game_over_animation)
                 binding.animationsLav.playAnimation()
                 Handler().postDelayed({
+                    levelGame = 1
+                    binding.lvlTv.text = "lvl $levelGame"
+                    scoreIncrement = 1
+                    scoreDecrement = 2
+                    ballVelocity = 1f
+                    speedSaver = 1f
                     score = startScore
                     binding.scoreTv.text = score.toString()
                 }, 1000)
@@ -665,52 +667,49 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
         }
 
         when (levelGame) {
-            2 -> {
-//                addBonusView(requireContext())
-                System.err.println("addBonusView ${getBonusCoordinate()[0]}, ${getBonusCoordinate()[1]}")
-            }
+            2 -> {}
             4 -> {
                 scoreIncrement = 2
                 scoreDecrement = 5
                 if (!timeBonusActivated) {ballVelocity = 1.1f}
                 speedSaver = 1.2f
-//                addBonusView(requireContext())
-//                System.err.println("addBonusView ${getBonusCoordinate()[0]}, ${getBonusCoordinate()[1]}")
             }
             6 -> {
                 scoreIncrement = 3
                 scoreDecrement = 10
                 if (!timeBonusActivated) {ballVelocity = 1.2f}
                 speedSaver = 1.4f
-//                addBonusView(requireContext())
             }
             9 -> {
                 scoreIncrement = 5
                 scoreDecrement = 15
                 if (!timeBonusActivated) {ballVelocity = 1.4f}
                 speedSaver = 1.6f
-//                addBonusView(requireContext())
             }
             12 -> {
                 scoreIncrement = 10
                 scoreDecrement = 30
                 if (!timeBonusActivated) {ballVelocity = 1.6f}
                 speedSaver = 2f
-//                addBonusView(requireContext())
             }
             18 -> {
                 scoreIncrement = 20
                 scoreDecrement = 60
                 if (!timeBonusActivated) {ballVelocity = 1.8f}
                 speedSaver = 2.2f
-//                addBonusView(requireContext())
             }
             20 -> {
                 scoreIncrement = 30
                 scoreDecrement = 90
                 if (!timeBonusActivated) {ballVelocity = 2f}
                 speedSaver = 2.4f
-//                addBonusView(requireContext())
+
+
+                if (cupsFlag) {
+                    cupsFlag = false
+                    main?.saveInt(main?.mDeviceAddress + PreferenceKeys.NUMBER_OF_CUPS, mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.NUMBER_OF_CUPS, 0)+1)
+                    System.err.println("NUMBER_OF_CUPS = ${mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.NUMBER_OF_CUPS, 0)}")
+                }
             }
         }
     }

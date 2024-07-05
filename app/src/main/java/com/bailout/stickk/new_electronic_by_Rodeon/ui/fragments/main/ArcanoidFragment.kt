@@ -96,6 +96,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     private lateinit var readSensDataJob: Job
     private var reverse = false
     private var typeBonus = 1
+    private var gameLaunchRate = 0
 
     //bonuses
     private var wallBonusActivated = false
@@ -273,6 +274,9 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
                 moveSaverVelocity()//directionSaver)
             }
             moveSaverJob.cancel()
+
+            gameLaunchRate = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.GAME_LAUNCH_RATE, 0) + 1
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.GAME_LAUNCH_RATE, gameLaunchRate)
         }
 
 //        binding.animationsLvlUpLav.setAnimation(R.raw.start_animation)

@@ -439,6 +439,13 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
                 if (wallBonusActivated) { score += scoreIncrement }
                 else { score -= scoreDecrement }
             }
+            //считаем максимальное количество очков
+            if (score > mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MAXIMUM_POINTS, 0)) {
+                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.MAXIMUM_POINTS, score)
+                System.err.println("MAXIMUM_POINTS = $score")
+            }
+
+
             main?.runOnUiThread {
                 binding.scoreTv.text = score.toString()
             }

@@ -18,6 +18,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.airbnb.lottie.LottieAnimationView
@@ -26,12 +27,19 @@ import com.bailout.stickk.databinding.FragmentArcanoidGameBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes
+import com.bailout.stickk.new_electronic_by_Rodeon.connection.Requests
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountFragmentMain
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountMainItem
+import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -98,6 +106,16 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     private var typeBonus = 1
     private var gameLaunchRate = 0
     private var cupsFlag = true
+    private var myRequests: Requests? = null
+    private var encryptionManager: EncryptionManagerUtils? = null
+    private var attemptedRequest: Int = 1
+    private var token = ""
+    private var encryptionResult: String? = null
+    private var serialNumber = "FEST-F-06879"
+    private var gson: Gson? = null
+    private var deviceId = ""
+    private var clientId = 0
+    private var locate: String = "en"
 
     //bonuses
     private var wallBonusActivated = false
@@ -122,11 +140,19 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
         binding = FragmentArcanoidGameBinding.inflate(layoutInflater)
         WDApplication.component.inject(this)
         if (activity != null) { main = activity as MainActivity? }
+        serialNumber = main?.mDeviceName.toString()
         this.mContext = context
         return binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        gson = Gson()
+        myRequests = Requests()
+        encryptionManager = EncryptionManagerUtils.instance
+        attemptedRequest = 1
+        if (main?.locate?.contains("ru")!!) { locate = "ru" }
+        requestToken()
+
         initializeUI()
     }
 
@@ -137,7 +163,6 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
         readSensDataJob = GlobalScope.launch { readSensorsData() }
 
         addBallView(requireContext())
-//        addBonusView(requireContext())
 
         binding.backgroundClickBlockBtn.setOnClickListener {  }
 
@@ -152,6 +177,9 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             Handler().postDelayed({
                 reactivatedInterface.reactivatedChart()
             }, 300)
+
+            //отправка наигранной статистики
+            requestPostStatistic()
         }
 
         binding.root.isFocusableInTouchMode = true
@@ -169,6 +197,9 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
                     reactivatedInterface.reactivatedChart()
                 }, 300)
                 requireFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
+                //отправка наигранной статистики
+                requestPostStatistic()
                 return@OnKeyListener true
             }
             false
@@ -280,9 +311,6 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             gameLaunchRate = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.GAME_LAUNCH_RATE, 0) + 1
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.GAME_LAUNCH_RATE, gameLaunchRate)
         }
-
-//        binding.animationsLvlUpLav.setAnimation(R.raw.start_animation)
-//        binding.animationsLvlUpLav
 
         sensor1Level = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.OPEN_CH_NUM, 0)
         sensor2Level = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.CLOSE_CH_NUM, 0)
@@ -436,7 +464,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
                 if (wallBonusActivated) { score += scoreIncrement }
                 else { score -= scoreDecrement }
             }
-            //считаем максимальное количество очков
+            //считаем максимальное количество очков и отправляем его
             if (score > mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MAXIMUM_POINTS, 0)) {
                 main?.saveInt(main?.mDeviceAddress + PreferenceKeys.MAXIMUM_POINTS, score)
             }
@@ -1218,6 +1246,94 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             main?.stage = "gesture activity 3"
             main?.runSendCommand(byteArrayOf(0x01.toByte()),
                 SampleGattAttributes.SENS_ENABLED_NEW_VM, 50)
+        }
+    }
+
+
+    private fun requestToken() {
+        CoroutineScope(Dispatchers.Main).launch {
+            encryptionResult = encryptionManager?.encrypt(serialNumber)
+            System.err.println("encryptionResult = $encryptionResult  requestToken Device list")
+            myRequests!!.getRequestToken(
+                { token ->
+                    this@ArcanoidFragment.token = token
+                    requestUserData()
+                    System.err.println("requestToken запрос обработан")
+                },
+                { error ->
+                    System.err.println("requestToken error: $error")
+
+                    when (error) {
+                        "500" -> {
+                            if (attemptedRequest != 4) {
+                                //для того чтобы по другому зашифровать серийник
+                                attemptedRequest ++
+                                requestToken()
+                            } else {
+                                main?.runOnUiThread {
+                                    Toast.makeText(mContext, "На сервере нет данных пользователя", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+                        else -> {
+                            main?.runOnUiThread {
+                                Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                },
+                "Aesserial $encryptionResult")
+        }
+    }
+    private fun requestUserData() {
+        CoroutineScope(Dispatchers.Main).launch {
+            myRequests!!.getRequestUserV2(
+                { user ->
+                    clientId = user.userInfo?.clientId ?: 0
+                    requestDeviceList()
+                },
+                { error ->
+                    main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
+                },
+                token = this@ArcanoidFragment.token,
+                lang = locate
+            )
+        }
+    }
+    private fun requestDeviceList() {
+        CoroutineScope(Dispatchers.Main).launch {
+            myRequests!!.getRequestUser(
+                { user ->
+                    System.err.println("Device list size: ${user.devices.size}  token: $token")
+                    for (device in user.devices) {
+                        System.err.println("Device list id = ${device.id}    serialNumber = ${device.serialNumber}")
+                        if (device.serialNumber == serialNumber) {
+                            deviceId = device.id.toString()
+                            System.err.println("Device list искомый девайс: $deviceId")
+                        }
+                    }
+                },
+                { error ->
+                    main?.runOnUiThread {Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()}
+                },
+                token = this@ArcanoidFragment.token,
+                lang = locate
+            )
+        }
+    }
+    private fun requestPostStatistic() {
+        CoroutineScope(Dispatchers.Main).launch {
+            myRequests?.postRequestSettings(
+                { error ->
+                    main?.runOnUiThread {
+                        Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show()
+                    }},
+                token = token,
+                deviceId = deviceId,
+                gson = this@ArcanoidFragment.gson!!,
+                context = this@ArcanoidFragment.mContext!!,
+                mDeviceAddress = main?.mDeviceAddress!!
+            )
         }
     }
 }

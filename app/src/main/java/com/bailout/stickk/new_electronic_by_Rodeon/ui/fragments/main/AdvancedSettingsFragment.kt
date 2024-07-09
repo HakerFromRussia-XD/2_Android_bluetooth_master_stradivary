@@ -22,7 +22,6 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.text.Html
 import android.view.LayoutInflater
@@ -1583,13 +1582,13 @@ class AdvancedSettingsFragment : Fragment() {
     var useNewSystemSendCommand = false
     System.err.println("useNewSystemSendCommand driverVersionINDY = ${main?.driverVersionINDY}")
     if (main?.driverVersionS != null) {
-      val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
       try {
+        val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
         useNewSystemSendCommand = driverNum.toInt() > 233
       } catch (_: Exception) { }
     }
     if (main?.driverVersionINDY != null) {
-      useNewSystemSendCommand = main?.driverVersionINDY!! > 237
+      useNewSystemSendCommand = main?.driverVersionINDY!! > 120
     }
     return useNewSystemSendCommand
   }

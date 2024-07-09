@@ -96,7 +96,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     private var directionSaver = 1
     private var speedSaver = 1f
     private val startScore = 10
-    private var scoreIncrement = 999
+    private var scoreIncrement = 1
     private var scoreDecrement = 2
     private var levelGame = 1
     private var previousLevelGame = 1

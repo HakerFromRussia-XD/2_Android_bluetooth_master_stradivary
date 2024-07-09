@@ -3,8 +3,11 @@ package com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -32,8 +35,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.ReactivatedChart
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountFragmentMain
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountMainItem
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineName
@@ -95,7 +96,7 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     private var directionSaver = 1
     private var speedSaver = 1f
     private val startScore = 10
-    private var scoreIncrement = 1
+    private var scoreIncrement = 999
     private var scoreDecrement = 2
     private var levelGame = 1
     private var previousLevelGame = 1
@@ -734,8 +735,12 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
 
 
                 if (cupsFlag) {
+                    //останавливаем игру для показа поздравления
+                    animationBall = false
+                    showCongratulationDialog()
                     cupsFlag = false
                     main?.saveInt(main?.mDeviceAddress + PreferenceKeys.NUMBER_OF_CUPS, mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.NUMBER_OF_CUPS, 0)+1)
+                    // добавить сюда диалоговое окно с анимацией получения кубка и паузу и кнопками проболжения игры или выхода
                     System.err.println("NUMBER_OF_CUPS = ${mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.NUMBER_OF_CUPS, 0)}")
                 }
             }
@@ -1246,6 +1251,48 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
             main?.stage = "gesture activity 3"
             main?.runSendCommand(byteArrayOf(0x01.toByte()),
                 SampleGattAttributes.SENS_ENABLED_NEW_VM, 50)
+        }
+    }
+    @SuppressLint("InflateParams")
+    @Suppress("DEPRECATION")
+    fun showCongratulationDialog() {
+        val dialogBinding = layoutInflater.inflate(R.layout.dialog_cups_achievement, null)
+        val myDialog = Dialog(requireContext())
+        myDialog.setContentView(dialogBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+
+
+        val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_cups_achievement_confirm)
+        yesBtn.setOnClickListener {
+            //возобновляем игру при подтверждении
+            animationBall = true
+            getNewCoordinate()
+            animationBall(newCoordinate[0], newCoordinate[1])
+
+            myDialog.dismiss()
+        }
+
+        val noBtn = dialogBinding.findViewById<View>(R.id.dialog_cups_achievement_cancel)
+        noBtn.setOnClickListener {
+            //зарываем игру при отказе
+            navigator().goingBack()
+            readSensDataJob.cancel()
+            coordinateReadThreadFlag = false
+            windowIsOpen = false
+            animationBall = false
+            activationMoveBallSaver = false
+            startProsthesisWork()
+            Handler().postDelayed({
+                reactivatedInterface.reactivatedChart()
+            }, 300)
+            requireFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
+            //отправка наигранной статистики
+            requestPostStatistic()
+
+            myDialog.dismiss()
         }
     }
 

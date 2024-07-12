@@ -521,6 +521,7 @@
     <string name="done">Применить</string>
     <string name="congratulations">Поздравляем!!!</string>
     <string name="do_you_want_to_continue_playing_in_infinite_mode_and_battle_for_the_lead_in_the_points_record_table">Вы хотите продолжить играть в бесконечном режиме и сразиться за лидерство в таблице рекордов по очкам?</string>
+    <string name="grip_force">cила сжатия</string>
 
     <string-array name="numbers">
         <item>0</item>

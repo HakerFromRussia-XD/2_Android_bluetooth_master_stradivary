@@ -393,7 +393,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         //здесь мы принимаем решение добавлять ли новое устройство в список отсканированных
 
         if (canAdd) {
-//            System.err.println("--> my addLEDeviceToLeDevicesList name = "+device.getName() + " Address: " + device.getAddress());
+            System.err.println("--> my addLEDeviceToLeDevicesList name = "+device.getName() + " Address: " + device.getAddress());
             mLeDevices.add(device);
             mRssisList.add(rssi);
             showScanList(mLeDevices, mRssisList);

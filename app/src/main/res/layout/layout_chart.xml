@@ -958,10 +958,71 @@
                     </LinearLayout>
                 </RelativeLayout>
                 <RelativeLayout
+                    android:id="@+id/chart_compression_force_rl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/thresholds_blocking_rl">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:weightSum="4"
+                        tools:ignore="DisableBaselineAlignment">
+                        <RelativeLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1">
+                            <TextView
+                                android:id="@+id/chart_compression_force_tv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentStart="true"
+                                android:layout_centerVertical="true"
+                                android:text="@string/grip_force"
+                                android:textColor="@color/white"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                style="@style/Text" />
+                        </RelativeLayout>
+                        <RelativeLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="3">
+
+                            <lib.kingja.switchbutton.SwitchMultiButton
+                                android:id="@+id/compression_force_btn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="37dp"
+                                android:layout_alignParentStart="true"
+                                android:layout_alignParentTop="true"
+                                android:layout_alignParentEnd="true"
+                                android:layout_alignParentBottom="true"
+                                android:layout_marginStart="0dp"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="0dp"
+                                android:layout_marginBottom="3dp"
+                                android:padding="8dp"
+                                android:textStyle="bold"
+                                style="@style/Text"
+                                app:selectedColor="@color/orange"
+                                app:selectedTab="0"
+                                app:strokeRadius="22dp"
+                                app:strokeWidth="2dp"
+                                app:switchTabs="@array/switch_force"
+                                app:textSize="11sp" />
+                        </RelativeLayout>
+                    </LinearLayout>
+
+                </RelativeLayout>
+                <RelativeLayout
                     android:id="@+id/chart_calibration_rl"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    app:layout_constraintTop_toBottomOf="@+id/thresholds_blocking_rl">
+                    app:layout_constraintTop_toBottomOf="@+id/chart_compression_force_rl">
 
                     <Button
                         android:id="@+id/calibration_btn"

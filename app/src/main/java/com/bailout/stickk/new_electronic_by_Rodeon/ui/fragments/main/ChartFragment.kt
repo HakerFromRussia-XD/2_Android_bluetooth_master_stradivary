@@ -233,6 +233,15 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.correlatorNoiseThreshold2Sb.isEnabled = enabled
     binding.correlatorNoiseThreshold1Tv.isEnabled = enabled
     binding.correlatorNoiseThreshold2Tv.isEnabled = enabled
+    // этот дурик не такой как все. Если его невозможно вытащить из неактивного состояния поэтому
+    // в его случае мы скрываем весь лэйаут
+    if (enabled) {
+      binding.chartCompressionForceRl.visibility = View.VISIBLE
+    } else {
+      binding.chartCompressionForceRl.visibility = View.GONE
+    }
+
+
 
     val startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
     val endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
@@ -245,6 +254,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.thresholdsBlockingSw.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
     enabledSensorsUIBeforeConnection(false)
+    binding.compressionForceBtn.selectedTab = 1
     //скрываем текстовое отображение версий для протезов с прошитым серийным номером и включаем отображение кнопки личного кабинета
     if (main?.mDeviceName?.length ?: 0 < 12) {
       binding.bmsTv.visibility = View.VISIBLE
@@ -262,9 +272,11 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 //      binding.versionHelpV.visibility = View.GONE
     }
 
-    //скрываем кнопку калибровки для всех моделей кроме FEST_H и FEST_X
+    //скрываем кнопку калибровки для всех моделей кроме FEST_H и FEST_X и показываем управление силой сжатия для INDY
     if ((main?.mDeviceType?.contains(DEVICE_TYPE_FEST_H) == false && main?.mDeviceType?.contains(DEVICE_TYPE_FEST_X) == false)) {
       binding.chartCalibrationRl.visibility = View.GONE
+    } else {
+      binding.chartCompressionForceRl.visibility = View.GONE
     }
 
     binding.nameTv.setOnClickListener {
@@ -719,6 +731,25 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       false
     }
 
+    binding.compressionForceBtn.setOnSwitchListener { position, _ ->
+      System.err.println("chartCompressionForceRl id $position")
+      when (position) {
+        0 -> {
+          main?.bleCommandConnector(byteArrayOf((1).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+          main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 1)
+        }
+        1 -> {
+          main?.bleCommandConnector(byteArrayOf((50).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+          main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 50)
+        }
+        2 -> {
+          main?.bleCommandConnector(byteArrayOf((100).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+          main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 100)
+        }
+      }
+      RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
+    }
+
     binding.helpBtn.setOnClickListener {
       graphThreadFlag = false
       navigator().showWhiteStatusBar(true)
@@ -998,6 +1029,12 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         changeSyncProgress()
       }
     }
+    when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)) {
+      in 1..39   -> { binding.compressionForceBtn.selectedTab = 0 }
+      in 40..69  -> { binding.compressionForceBtn.selectedTab = 1 }
+      in 70..100 -> { binding.compressionForceBtn.selectedTab = 2 }
+    }
+
     modeEMGSend = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)
   }
   private fun changeSyncProgress() {

@@ -519,6 +519,7 @@
     <string name="done">Done</string>
     <string name="congratulations">Congratulations!!!</string>
     <string name="do_you_want_to_continue_playing_in_infinite_mode_and_battle_for_the_lead_in_the_points_record_table">Do you want to continue playing in infinite mode and battle for the lead in the points record table?</string>
+    <string name="grip_force">grip force</string>
 
 
     <string-array name="numbers">

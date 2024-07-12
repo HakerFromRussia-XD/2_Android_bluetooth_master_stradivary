@@ -8,9 +8,14 @@
         <item>#404040</item>
     </string-array>
     <string-array name="switch_tabs">
-        <item>двойное</item>
-        <item>одновременное</item>
-        <item>в упоре</item>
+        <item>double</item>
+        <item>synchronous</item>
+        <item>at the rest</item>
+    </string-array>
+    <string-array name="switch_force">
+        <item>minimum</item>
+        <item>medium</item>
+        <item>maximum</item>
     </string-array>
     <string-array name="gesture_loop">
         <item>gesture №1</item>

@@ -2586,7 +2586,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         val charset = Charsets.UTF_8
         val byteArray = serialNumber.toByteArray(charset)
 
-        bleCommandConnector(byteArray+byteArrayOf(0x00), SET_SERIAL_NUMBER, WRITE, 11)
+        System.err.println("byteArray serialNumber = $serialNumber byteArray = ${byteArray[0]} ${byteArray[1]} ${byteArray[2]} ${byteArray[3]} ${byteArray[4]} ${byteArray[5]} ${byteArray[6]} ${byteArray[7]} ${byteArray[8]} ${byteArray[9]} ${byteArray[10]} ${byteArray[11]}")
+        bleCommandConnector(byteArray, SET_SERIAL_NUMBER, WRITE, 11)
       }
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         bleCommandConnector(

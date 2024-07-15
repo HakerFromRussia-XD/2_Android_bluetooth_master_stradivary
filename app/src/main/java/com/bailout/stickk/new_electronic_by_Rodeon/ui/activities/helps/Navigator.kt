@@ -1,6 +1,6 @@
 package com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps
 import androidx.fragment.app.Fragment
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.ubi3.main.ChartFragment
 
 fun Fragment.navigator(): Navigator {
     return requireActivity() as Navigator

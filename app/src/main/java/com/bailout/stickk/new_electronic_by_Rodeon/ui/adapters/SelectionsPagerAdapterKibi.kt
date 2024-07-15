@@ -4,7 +4,7 @@ package com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.KibiFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.ubi3.main.KibiFragment
 
 class SelectionsPagerAdapterKibi (fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
 

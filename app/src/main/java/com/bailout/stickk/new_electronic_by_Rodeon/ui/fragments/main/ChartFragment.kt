@@ -82,6 +82,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   private lateinit var myAppContext: Context
   private var displayedNextTypeGuides: TypeGuides? = TypeGuides.SHOW_HELP_GUIDE
   private var modeEMGSend = 0
+  private var dontMove = false
 
   private lateinit var binding: LayoutChartBinding
 
@@ -733,21 +734,24 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
 
     binding.compressionForceBtn.setOnSwitchListener { position, _ ->
       System.err.println("chartCompressionForceRl id $position")
-      when (position) {
-        0 -> {
-          main?.bleCommandConnector(byteArrayOf((1).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-          main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 1)
+      if (!dontMove) {
+        System.err.println("chartCompressionForceRl with ble command id $position")
+        when (position) {
+          0 -> {
+            main?.bleCommandConnector(byteArrayOf((1).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 1)
+          }
+          1 -> {
+            main?.bleCommandConnector(byteArrayOf((50).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 50)
+          }
+          2 -> {
+            main?.bleCommandConnector(byteArrayOf((100).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 100)
+          }
         }
-        1 -> {
-          main?.bleCommandConnector(byteArrayOf((50).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-          main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 50)
-        }
-        2 -> {
-          main?.bleCommandConnector(byteArrayOf((100).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-          main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 100)
-        }
+        RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
       }
-      RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
     }
 
     binding.helpBtn.setOnClickListener {
@@ -1030,9 +1034,21 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
     }
     when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)) {
-      in 1..39   -> { binding.compressionForceBtn.selectedTab = 0 }
-      in 40..69  -> { binding.compressionForceBtn.selectedTab = 1 }
-      in 70..100 -> { binding.compressionForceBtn.selectedTab = 2 }
+      in 1..39   -> {
+        dontMove = true
+        binding.compressionForceBtn.selectedTab = 0
+        dontMove = false
+      }
+      in 40..69  -> {
+        dontMove = true
+        binding.compressionForceBtn.selectedTab = 1
+        dontMove = false
+      }
+      in 70..100 -> {
+        dontMove = true
+        binding.compressionForceBtn.selectedTab = 2
+        dontMove = false
+      }
     }
 
     modeEMGSend = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)

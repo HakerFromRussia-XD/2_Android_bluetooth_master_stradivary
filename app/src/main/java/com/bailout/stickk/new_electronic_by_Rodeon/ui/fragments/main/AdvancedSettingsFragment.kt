@@ -291,6 +291,7 @@ class AdvancedSettingsFragment : Fragment() {
           main?.bleCommandConnector(byteArrayOf((seekBar.progress).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
           saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
         }
+        RxUpdateMainEvent.getInstance().updateUIChart(true)
       }
     })
 

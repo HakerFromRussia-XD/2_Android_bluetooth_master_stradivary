@@ -37,6 +37,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,6 +48,7 @@ import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys;
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeysUBI4;
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.Load3DModelNew;
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.StartActivity;
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil;
@@ -73,6 +75,7 @@ import javax.inject.Inject;
 @SuppressWarnings("ALL")
 public class ScanActivity extends AppCompatActivity implements ScanView, ScanListAdapter.OnScanMyListener, PairedListAdapter.OnScanMyListener, TextSwitcher.ViewFactory {
     /// BT
+    ConstraintLayout mainLayout;
     RecyclerView pairedDeviceList;
     RecyclerView scanDeviceList;
     TextView state;
@@ -83,6 +86,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     View rssiButton;
     View selectView;
     View filterView;
+    ImageView devModeBtn;
     ImageView rescanImage;
     ImageView rssiOnImage;
     ImageView rssiOffImage;
@@ -190,6 +194,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         selectView = findViewById(R.id.select_v);
         filterView = findViewById(R.id.filter_v);
         scanningTextSwitcher = (TextSwitcher) findViewById(R.id.scanning_ts);
+        mainLayout = findViewById(R.id.main_layout);
+        devModeBtn = findViewById(R.id.dev_mode_btn);
         scanningTextSwitcher.setInAnimation(this, android.R.anim.slide_in_left);
         scanningTextSwitcher.setOutAnimation(this, android.R.anim.slide_out_right);
         scanningTextSwitcher.setFactory(this);
@@ -206,6 +212,24 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
         String versionName = BuildConfig.VERSION_NAME;
         versionAppText.setText((this.getResources().getString(R.string.version_app)) + " " + versionName);
+
+        devModeBtn.setOnClickListener(v -> {
+            if (loadBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED)) {
+                if (android.os.Build.VERSION.SDK_INT >= 21) {
+                    Window window = this.getWindow();
+                    window.setStatusBarColor(this.getResources().getColor(R.color.blue_status_bar));
+                }
+                mainLayout.setBackgroundResource(R.drawable.gradient_background);
+                saveBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED, false);
+            } else {
+                if (android.os.Build.VERSION.SDK_INT >= 21) {
+                    Window window = this.getWindow();
+                    window.setStatusBarColor(this.getResources().getColor(R.color.color_primary));
+                }
+                mainLayout.setBackgroundColor(this.getResources().getColor(R.color.color_primary));//setBackgroundColor(#404040);
+                saveBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED, true);
+            }
+        });
 
         scanButton.setOnClickListener(v -> {
             mLeDevices.clear();
@@ -691,6 +715,13 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     private void initUI() {
         filteringOursDevices = loadBool(PreferenceKeys.FILTERING_OUR_DEVISES);
         acteveteRssiShow = loadBool(PreferenceKeys.ACTIVATE_RSSI_SHOW);
+        if (loadBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED)) {
+            if (android.os.Build.VERSION.SDK_INT >= 21) {
+                Window window = this.getWindow();
+                window.setStatusBarColor(this.getResources().getColor(R.color.color_primary));
+            }
+            mainLayout.setBackgroundColor(this.getResources().getColor(R.color.color_primary));
+        }
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

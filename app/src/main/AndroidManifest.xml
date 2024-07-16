@@ -35,7 +35,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.SplashScreen"
+        <activity android:name="com.bailout.stickk.intro.SplashScreen"
             android:exported="true"
             tools:node="merge">
             <intent-filter>
@@ -44,7 +44,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.PinActivity"
+            android:name="com.bailout.stickk.intro.PinActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"/>
         <activity
@@ -77,7 +77,7 @@
         </activity>
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.StartActivity"
+            android:name="com.bailout.stickk.intro.StartActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
         <activity

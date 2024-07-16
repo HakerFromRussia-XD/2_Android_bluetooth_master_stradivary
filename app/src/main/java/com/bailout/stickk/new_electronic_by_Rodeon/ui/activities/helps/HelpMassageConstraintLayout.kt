@@ -14,7 +14,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.res.ResourcesCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.ubi3.main.ChartFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.textColor
 

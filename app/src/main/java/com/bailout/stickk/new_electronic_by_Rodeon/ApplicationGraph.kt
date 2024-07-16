@@ -16,14 +16,14 @@ package com.bailout.stickk.new_electronic_by_Rodeon
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.GripperScreenPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.test_encoders.GripperTestScreenWithEncodersActivity
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.intro.StartActivity
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.ubi3.account.customerServiceFragment.AccountFragmentCustomerService
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.ubi3.account.mainFragment.AccountFragmentMain
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.ubi3.account.prosthesisInformationFragment.AccountFragmentProsthesisInformation
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.ubi3.help.*
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.ubi3.main.*
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.ubi3.main.ChartFragment
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.ubi3.main.AdvancedSettingsFragment
+import com.bailout.stickk.intro.StartActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.customerServiceFragment.AccountFragmentCustomerService
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountFragmentMain
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.prosthesisInformationFragment.AccountFragmentProsthesisInformation
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.*
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.AdvancedSettingsFragment
 
 
 interface ApplicationGraph {

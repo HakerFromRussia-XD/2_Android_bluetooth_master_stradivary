@@ -233,7 +233,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.correlatorNoiseThreshold2Tv.isEnabled = enabled
     // этот дурик не такой как все. Если его невозможно вытащить из неактивного состояния поэтому
     // в его случае мы скрываем весь лэйаут
-    if (enabled) {
+    if (enabled ) {
       binding.chartCompressionForceRl.visibility = View.VISIBLE
     } else {
       binding.chartCompressionForceRl.visibility = View.GONE

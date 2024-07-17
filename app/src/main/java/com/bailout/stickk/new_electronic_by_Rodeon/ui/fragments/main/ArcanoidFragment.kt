@@ -1096,6 +1096,9 @@ class ArcanoidFragment(private val chartFragmentClass: ChartFragment): Fragment(
     }
     private suspend fun moveSaverVelocity() {
         System.err.println("activationMoveBallSaver = $activationMoveBallSaver")
+        if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) != 1) {
+            directionSaver *= -1
+        }
         while (activationMoveBallSaver) {
             main?.runOnUiThread {
                 if (!reverse) {

@@ -1324,6 +1324,7 @@ class AdvancedSettingsFragment : Fragment() {
       } else {
         binding.leftRightSideSwapTv.text = resources.getString(R.string.left)
         saveInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 0)
+
       }
 
 

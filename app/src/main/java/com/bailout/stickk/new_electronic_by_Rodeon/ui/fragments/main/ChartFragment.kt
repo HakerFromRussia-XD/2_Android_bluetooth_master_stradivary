@@ -233,7 +233,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.correlatorNoiseThreshold2Tv.isEnabled = enabled
     // этот дурик не такой как все. Если его невозможно вытащить из неактивного состояния поэтому
     // в его случае мы скрываем весь лэйаут
-    if (enabled ) {
+    if (enabled && checkINDYVersionMoreThan120()) {
       binding.chartCompressionForceRl.visibility = View.VISIBLE
     } else {
       binding.chartCompressionForceRl.visibility = View.GONE
@@ -1103,5 +1103,16 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         }
       }
     }
+  }
+  private fun checkINDYVersionMoreThan120():Boolean {
+    val indyVersion = (mSettings!!.getInt(
+      main?.mDeviceAddress + PreferenceKeys.DRIVER_NUM,
+      1
+    ))
+    System.err.println("driverVersion indy $indyVersion")
+    if (indyVersion >= 120) {
+      return true
+    }
+    return false
   }
 }

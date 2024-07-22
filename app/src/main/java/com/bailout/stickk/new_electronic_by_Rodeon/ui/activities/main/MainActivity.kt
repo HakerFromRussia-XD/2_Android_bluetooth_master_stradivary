@@ -27,7 +27,7 @@ import androidx.viewpager.widget.ViewPager
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.ActivityMainBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.BluetoothLeService
+import com.bailout.stickk.ubi4.ble.BluetoothLeService
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.*
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
@@ -252,25 +252,40 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 //              if(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA) != null) System.err.println("mDeviceType ACTION_DATA_AVAILABLE X:$mDeviceType. DRIVER_VERSION_NEW_DATA")
 
 
-              if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW))
-              if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensAndBMSVersionNew(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) displayDataCloseThresholdNew(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA) != null) displayDataSensOptionsNew(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA) != null) displayDataSetGestureNew(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA) != null) displayDataSetReverseNew(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA) != null) displayDataAddGestureNew(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.SERIAL_NUMBER_NEW_DATA) != null) displayDataSerialNumberNew(intent.getByteArrayExtra(BluetoothLeService.SERIAL_NUMBER_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA_NEW) != null) displayDataNew(intent.getByteArrayExtra(
+                BluetoothLeService.MIO_DATA_NEW))
+              if(intent.getByteArrayExtra(BluetoothLeService.SENS_VERSION_NEW_DATA) != null) displayDataSensAndBMSVersionNew(intent.getByteArrayExtra(
+                BluetoothLeService.SENS_VERSION_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.OPEN_THRESHOLD_NEW_DATA) != null) displayDataOpenThresholdNew(intent.getByteArrayExtra(
+                BluetoothLeService.OPEN_THRESHOLD_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA) != null) displayDataCloseThresholdNew(intent.getByteArrayExtra(
+                BluetoothLeService.CLOSE_THRESHOLD_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SENS_OPTIONS_NEW_DATA) != null) displayDataSensOptionsNew(intent.getByteArrayExtra(
+                BluetoothLeService.SENS_OPTIONS_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SET_GESTURE_NEW_DATA) != null) displayDataSetGestureNew(intent.getByteArrayExtra(
+                BluetoothLeService.SET_GESTURE_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SET_REVERSE_NEW_DATA) != null) displayDataSetReverseNew(intent.getByteArrayExtra(
+                BluetoothLeService.SET_REVERSE_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.ADD_GESTURE_NEW_DATA) != null) displayDataAddGestureNew(intent.getByteArrayExtra(
+                BluetoothLeService.ADD_GESTURE_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SERIAL_NUMBER_NEW_DATA) != null) displayDataSerialNumberNew(intent.getByteArrayExtra(
+                BluetoothLeService.SERIAL_NUMBER_NEW_DATA))
               if(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA) != null) {
                 intent.getStringExtra(BluetoothLeService.ACTION_STATE)?.let { setActionState(it) }
                 displayDataCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.CALIBRATION_NEW_DATA))
               }
-              if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) displayDataSetOneChannelNew(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA) != null) displayDataStatusCalibrationNew(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.CHANGE_GESTURE_NEW_DATA) != null) displayDataChangeGestureNew(intent.getByteArrayExtra(BluetoothLeService.CHANGE_GESTURE_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA) != null) displayDataShutdownCurrentNew(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.ROTATION_GESTURE_NEW_VM_DATA) != null) displayDataRotationGesture(intent.getByteArrayExtra(BluetoothLeService.ROTATION_GESTURE_NEW_VM_DATA))
-              if(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA) != null) displayDataDriverVersionNew(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA) != null) displayDataSetOneChannelNew(intent.getByteArrayExtra(
+                BluetoothLeService.SET_ONE_CHANNEL_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.STATUS_CALIBRATION_NEW_DATA) != null) displayDataStatusCalibrationNew(intent.getByteArrayExtra(
+                BluetoothLeService.STATUS_CALIBRATION_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.CHANGE_GESTURE_NEW_DATA) != null) displayDataChangeGestureNew(intent.getByteArrayExtra(
+                BluetoothLeService.CHANGE_GESTURE_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA) != null) displayDataShutdownCurrentNew(intent.getByteArrayExtra(
+                BluetoothLeService.SHUTDOWN_CURRENT_NEW_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.ROTATION_GESTURE_NEW_VM_DATA) != null) displayDataRotationGesture(intent.getByteArrayExtra(
+                BluetoothLeService.ROTATION_GESTURE_NEW_VM_DATA))
+              if(intent.getByteArrayExtra(BluetoothLeService.DRIVER_VERSION_NEW_DATA) != null) displayDataDriverVersionNew(intent.getByteArrayExtra(
+                BluetoothLeService.DRIVER_VERSION_NEW_DATA))
             } else {
               System.err.println("mDeviceType ACTION_DATA_AVAILABLE I:$mDeviceType.")
               displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA))
@@ -1322,7 +1337,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
 
     binding.mainactivityViewpager.offscreenPageLimit = 3
-    System.err.println("setComponents ${NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)}")
+    NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)
     optimizationNavi()
   }
 

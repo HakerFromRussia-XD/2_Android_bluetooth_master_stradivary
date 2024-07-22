@@ -77,6 +77,12 @@
         </activity>
         <activity
             android:theme="@style/AppTheme.NoActionBar"
+            android:name="com.bailout.stickk.ubi4.ui.main.MainActivityUBI4"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
+        </activity>
+        <activity
+            android:theme="@style/AppTheme.NoActionBar"
             android:name="com.bailout.stickk.intro.StartActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
@@ -96,7 +102,7 @@
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
 
-        <service android:name="com.bailout.stickk.new_electronic_by_Rodeon.ble.BluetoothLeService"
+        <service android:name="com.bailout.stickk.ubi4.ble.BluetoothLeService"
             android:enabled="true"/>
 <!--        <service-->
 <!--            android:name="com.bailout.stickk.new_electronic_by_Rodeon.services.MyService"-->

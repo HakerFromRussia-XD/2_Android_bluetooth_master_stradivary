@@ -415,7 +415,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }
 
         //здесь мы принимаем решение добавлять ли новое устройство в список отсканированных
-
         if (canAdd) {
             System.err.println("--> my addLEDeviceToLeDevicesList name = "+device.getName() + " Address: " + device.getAddress());
             mLeDevices.add(device);
@@ -492,6 +491,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     public void navigateToLEChart(String extraName, BluetoothDevice extraDevice) {
         if (firstNavigateToActivity) {
             firstNavigateToActivity = false;
+            if (extraDevice == null) return;
+
             mHandler.postDelayed(() -> {
                 for (int k = 0; k < MAX_NUMBER_DETAILS; k++) {
                     final int finalK = k;
@@ -501,13 +502,10 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 }
             }, 500);
 
-
-            if (extraDevice == null) return;
             Intent intent = new Intent(ScanActivity.this, StartActivity.class);
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, NameUtil.INSTANCE.getCleanName(extraDevice.getName()));//NameUtil.INSTANCE.getCleanName(
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, extraDevice.getAddress());
             intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, getProtocolType(extraDevice.getName()));//getProtocolType()
-
 
             if (mScanning) {
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
@@ -705,6 +703,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                     deviceName.contains("STAND") ||
                     deviceName.contains("BT05") ||
                     deviceName.contains("FEST") ||
+                    deviceName.contains("UBIv4") ||
                     !filteringOursDevices;
         } else {
             return false;

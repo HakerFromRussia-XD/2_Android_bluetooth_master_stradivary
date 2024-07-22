@@ -15,7 +15,10 @@ package com.bailout.stickk.ubi4.persistence.preference
 
 object PreferenceKeysUBI4 {
     const val DEVICE_NAME = "DEVICE_NAME"
-    const val DEVICE_ADDR = "DEVICE_ADDR"
+    const val CONNECTED_DEVICE_ADDRESS = "CONNECTED_DEVICE_ADDRESS"
+    const val CONNECTED_DEVICE = "CONNECTED_DEVICE"
+
+    const val APP_PREFERENCES = "APP_PREFERENCES_UBI4"
     const val UBI4_MODE_ACTIVATED = "UBI4_MODE_ACTIVATED"
 
 }

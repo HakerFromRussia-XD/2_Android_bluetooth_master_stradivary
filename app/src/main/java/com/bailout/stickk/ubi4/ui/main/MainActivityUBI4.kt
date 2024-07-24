@@ -21,7 +21,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.bailout.stickk.R
-import com.bailout.stickk.databinding.ActivityMainUbi4Binding
+import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
 import com.bailout.stickk.new_electronic_by_Rodeon.services.receivers.BlockingQueue
@@ -35,11 +35,23 @@ import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.ui.fragments.ChartFragment
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.testSignal
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.properties.Delegates
 
 class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
-    private lateinit var binding: ActivityMainUbi4Binding
+    private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     // Очередь для задач работы с BLE
     private var mBluetoothAdapter: BluetoothAdapter? = null
@@ -69,7 +81,8 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
                 finish()
             }
             if (!flagScanWithoutConnect) {
-                mBluetoothLeService?.connect(connectedDeviceAddress)
+                //TODO раскомментировать когда не нужно быстрое подключение
+//                mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
 
@@ -77,11 +90,15 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
             mBluetoothLeService = null
         }
     }
+    private lateinit var incrementTestSignalJob: Job
+
+    private var testSignalInc = 0
+    val chatFlow = MutableStateFlow<Int>(0)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainUbi4Binding.inflate(layoutInflater).also { setContentView(it.root) }
+        binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
         mSettings = this.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         mGattServicesList = findViewById(R.id.gatt_services_list)
         val view = binding.root
@@ -99,6 +116,24 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
             }
         }
         worker.start()
+
+
+        GlobalScope.launch() {
+            testSignal = MutableStateFlow<Int>(0)
+        }
+
+
+        supportFragmentManager
+            .beginTransaction()
+            .add(R.id.fragmentContainer, ChartFragment())
+            .commit()
+
+        GlobalScope.launch() {
+            incrementTestSignal()
+            incrementTestSignal()
+            incrementTestSignal()
+            incrementTestSignal()
+        }
     }
     override fun onResume() {
         super.onResume()
@@ -114,6 +149,14 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
             reconnectThreadFlag = true
             reconnectThread()
         }
+    }
+    private suspend fun incrementTestSignal() = runBlocking {
+        sendMessage(testSignalInc)
+        testSignalInc += 1
+        delay(1000)
+    }
+    suspend fun sendMessage(message: Int) {
+        testSignal.value = message
     }
 
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
@@ -396,6 +439,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
     }
 
     companion object {
+        var  testSignal by Delegates.notNull<MutableStateFlow<Int>>()
 
         var connectedDeviceName by Delegates.notNull<String>()
         var connectedDeviceAddress by Delegates.notNull<String>()

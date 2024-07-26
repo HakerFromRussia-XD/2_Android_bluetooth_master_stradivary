@@ -154,6 +154,7 @@
     <string name="off_sw">off</string>
     <string name="on_sw">on</string>
     <string name="dialog_pin_app_varning">Enter 4 digits</string>
+    <string name="min_shutdown_current">min compression force</string>
     <string name="shutdown_current">compression force</string>
     <string name="rotation_thumb">rotation thumb</string>
     <string name="thumb">thumb</string>

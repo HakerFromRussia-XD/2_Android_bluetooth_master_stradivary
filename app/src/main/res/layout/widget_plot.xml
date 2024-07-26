@@ -9,6 +9,7 @@
     android:background="@color/black">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/EMG_chart_cv"
         android:layout_width="match_parent"
         android:layout_height="320dp"
         app:cardCornerRadius="20dp"

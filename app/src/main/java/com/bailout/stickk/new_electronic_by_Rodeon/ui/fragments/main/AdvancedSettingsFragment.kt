@@ -97,7 +97,6 @@ class AdvancedSettingsFragment : Fragment() {
     if (activity != null) { main = activity as MainActivity? }
     this.mContext = context
     scale = resources.displayMetrics.density
-
     main?.startScrollForAdvancedSettingsFragment = {
       System.err.println("AdvancedSettingsFragment startScroll")
       binding.EMGModeSwapPsv.dismiss()
@@ -164,7 +163,21 @@ class AdvancedSettingsFragment : Fragment() {
       preferenceManager.putBoolean(main?.mDeviceAddress + PreferenceKeys.SWAP_OPEN_CLOSE_NUM, false)
 
       preferenceManager.putInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
-      ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+
+      if (checkINDYCanControlEMGModes()) {
+        binding.shutdownCurrentSb.max = 50
+        System.err.println("resetUI 50")
+      } else {
+        binding.shutdownCurrentSb.max = 100
+        System.err.println("resetUI 100")
+      }
+
+      if (checkINDYCanControlEMGModes()) {
+        ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, 25)).setDuration(200).start()
+      } else {
+        ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)).setDuration(200).start()
+      }
+
 
       binding.singleChannelControlSw.isChecked = false
       binding.singleChannelControlTv.text = resources.getString(R.string.off_sw)
@@ -193,6 +206,12 @@ class AdvancedSettingsFragment : Fragment() {
   @SuppressLint("SetTextI18n", "CheckResult", "Recycle")
   private fun initializeUI() {
     mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+
+    if (checkINDYCanControlEMGModes()) {
+      binding.shutdownCurrentSb.max = 50
+    } else {
+      binding.shutdownCurrentSb.max = 100
+    }
 
     binding.EMGModeSwapPsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
 
@@ -288,8 +307,15 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          main?.bleCommandConnector(byteArrayOf((seekBar.progress).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-          saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
+          //TODO
+          if (checkINDYCanControlEMGModes()) {
+            val compressionForce = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
+            main?.bleCommandConnector(byteArrayOf(compressionForce.toByte(), (seekBar.progress).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            saveInt(main?.mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, seekBar.progress)
+          } else {
+            main?.bleCommandConnector(byteArrayOf((seekBar.progress).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
+          }
         }
         RxUpdateMainEvent.getInstance().updateUIChart(true)
       }
@@ -1146,9 +1172,20 @@ class AdvancedSettingsFragment : Fragment() {
     main?.runOnUiThread {
       System.err.println("Принятые данные состояния токов ОБНОВЛЕНИЕ")
 
-      var compressionForce = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
+      val compressionForce = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
+      val minCompressionForce = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, 25)
 //      if (compressionForce - 30 < 0 ) { compressionForce = 30 }
-      ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", compressionForce).setDuration(200).start()
+      if (checkINDYCanControlEMGModes()) {
+        binding.shutdownCurrentSb.max = 50
+        binding.shutdownCurrentTextTv.text = resources.getString(R.string.min_shutdown_current)
+        ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", minCompressionForce).setDuration(200).start()
+        System.err.println("resetUI 50     updateAllParameters")
+      } else {
+        binding.shutdownCurrentSb.max = 100
+        binding.shutdownCurrentTextTv.text = resources.getString(R.string.shutdown_current)
+        ObjectAnimator.ofInt(binding.shutdownCurrentSb, "progress", compressionForce).setDuration(200).start()
+        System.err.println("resetUI 100  updateAllParameters")
+      }
 
       ObjectAnimator.ofInt(binding.shutdownCurrent1Sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80)).setDuration(200).start()
       ObjectAnimator.ofInt(binding.shutdownCurrent2Sb, "progress", mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80)).setDuration(200).start()

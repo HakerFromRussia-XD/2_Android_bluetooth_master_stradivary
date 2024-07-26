@@ -35,17 +35,12 @@ import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
-import com.bailout.stickk.ubi4.ui.fragments.ChartFragment
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.testSignal
+import com.bailout.stickk.ubi4.ui.fragments.HomeFragment
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.properties.Delegates
@@ -118,20 +113,18 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
         worker.start()
 
 
-        GlobalScope.launch() {
+//        GlobalScope.launch() {
             testSignal = MutableStateFlow<Int>(0)
-        }
+//        }
 
-
+        System.err.println("MainActivityUBI4 do")
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragmentContainer, ChartFragment())
+            .add(R.id.fragmentContainer, HomeFragment())
             .commit()
+        System.err.println("MainActivityUBI4 posle")
 
         GlobalScope.launch() {
-            incrementTestSignal()
-            incrementTestSignal()
-            incrementTestSignal()
             incrementTestSignal()
         }
     }
@@ -150,10 +143,14 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
             reconnectThread()
         }
     }
-    private suspend fun incrementTestSignal() = runBlocking {
-        sendMessage(testSignalInc)
+    private suspend fun incrementTestSignal()  {
+        System.err.println("incrementTestSignal $testSignalInc")
+        sendMessage(testSignalInc + (0..10).random())
         testSignalInc += 1
-        delay(1000)
+
+        if (testSignalInc == 245) { testSignalInc = 0 }
+        delay(25)
+        incrementTestSignal()
     }
     suspend fun sendMessage(message: Int) {
         testSignal.value = message

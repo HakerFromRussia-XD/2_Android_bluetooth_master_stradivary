@@ -89,12 +89,12 @@
                             android:id="@+id/shutdown_current_sb"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:max="100"
                             android:paddingStart="16dp"
                             android:paddingEnd="0dp"
                             android:progress="0"
                             android:progressDrawable="@drawable/track_le"
                             android:thumb="@drawable/thumb_le"/>
+<!--                        android:max="100"-->
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>

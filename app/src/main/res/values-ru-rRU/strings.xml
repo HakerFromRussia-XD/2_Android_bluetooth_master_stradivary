@@ -155,6 +155,7 @@
     <string name="off_sw">выкл</string>
     <string name="on_sw">вкл</string>
     <string name="dialog_pin_app_varning">Введите 4 цифры</string>
+    <string name="min_shutdown_current">минимальная сила сжатия</string>
     <string name="shutdown_current">сила сжатия</string>
     <string name="rotation_thumb">ротация</string>
     <string name="thumb">большой палец</string>

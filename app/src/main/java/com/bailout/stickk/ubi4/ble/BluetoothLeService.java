@@ -77,7 +77,7 @@ public class BluetoothLeService extends Service {
     public final static String DRIVER_VERSION_NEW_DATA = "com.example.bluetooth.le.DRIVER_VERSION_NEW_DATA";
 
     //ubi4
-    public final static String NOTIFICATION_TEST_MTU = "com.example.bluetooth.le.NOTIFICATION_TEST_MTU";
+    public final static String NOTIFICATION_DATA = "com.example.bluetooth.le.NOTIFICATION_DATA";
 
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
         final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
@@ -85,8 +85,8 @@ public class BluetoothLeService extends Service {
         final byte[] data = characteristic.getValue();
 
         if (data != null && data.length > 0) {
-            if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFICATION_TEST_MTU)){
-                intent.putExtra(NOTIFICATION_TEST_MTU, data);
+            if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFICATION_DATA)){
+                intent.putExtra(NOTIFICATION_DATA, data);
             }
             if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }
             if (String.valueOf(characteristic.getUuid()).equals(SampleGattAttributes.MIO_MEASUREMENT)){

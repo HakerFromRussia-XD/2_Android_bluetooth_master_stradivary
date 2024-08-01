@@ -8,7 +8,7 @@ import java.util.HashMap;
  */
 public class SampleGattAttributes {
     private static final HashMap<String, String> attributes = new HashMap();
-    public static String NOTIFICATION_TEST_MTU = "43680201-4d74-1001-726b-526f64696f6e";
+    public static String NOTIFICATION_DATA = "43680201-4d74-1001-726b-526f64696f6e";
 
     // Sample Commands.
     public static Boolean SHOW_EVERYONE_RECEIVE_BYTE = false;

@@ -25,8 +25,9 @@ import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
 import com.bailout.stickk.new_electronic_by_Rodeon.services.receivers.BlockingQueue
+import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BluetoothLeService
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFICATION_TEST_MTU
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFICATION_DATA
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -42,7 +43,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlin.properties.Delegates
 
 class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
@@ -60,7 +60,9 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
     private var dataSortSemaphore = "" // строчка, показывающая с каким регистром мы сейчас работаем, чтобы однозначно понять кому пердназначаются принятые данные
 
     private var readRegisterPointer: ByteArray? = null
-    var reconnectThreadFlag: Boolean = false
+    var reconnectThreadFlag = false
+    private var scanWithoutConnectFlag = false
+    private var firstNotificationRequestFlag = true
     private var mConnected = false
     private var endFlag = false
     var percentSynchronize = 0
@@ -68,16 +70,15 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
     private val listName = "NAME"
     private val listUUID = "UUID"
     private var actionState = WRITE
-    private var flagScanWithoutConnect = false
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
             if (!mBluetoothLeService?.initialize()!!) {
                 finish()
             }
-            if (!flagScanWithoutConnect) {
+            if (!scanWithoutConnectFlag) {
                 //TODO раскомментировать когда не нужно быстрое подключение
-//                mBluetoothLeService?.connect(connectedDeviceAddress)
+                mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
 
@@ -235,30 +236,38 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
 
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
-//                        bleCommand(null, NOTIFICATION_TEST_MTU, NOTIFY)
 
-//                        bleCommand(byteArrayOf(0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x02) ,NOTIFICATION_TEST_MTU, WRITE)
-//                        bleCommand(byteArrayOf(0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x02) ,NOTIFICATION_TEST_MTU, WRITE)
-//                        bleCommand(byteArrayOf(0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x02) ,NOTIFICATION_TEST_MTU, WRITE)
-
-                        System.err.println("BLE debug bleCommand")
-                        bleCommand(byteArrayOf(0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x02) ,NOTIFICATION_TEST_MTU, WRITE)
-                        bleCommand(null, NOTIFICATION_TEST_MTU, NOTIFY)
-                        bleCommand(byteArrayOf(0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x02) ,NOTIFICATION_TEST_MTU, WRITE)
-                        bleCommand(null, NOTIFICATION_TEST_MTU, NOTIFY)
+                        GlobalScope.launch {
+                            firstNotificationRequest()
+                        }
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-                    System.err.println("BLE debug ACTION_DATA_AVAILABLE")
-                    if(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_TEST_MTU) != null) displayFirstNotify (intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_TEST_MTU))
+//                    System.err.println("BLE debug ACTION_DATA_AVAILABLE")
+                    if(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA) != null) displayNotify (intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))
                 }
             }
         }
     }
+    private suspend fun firstNotificationRequest()  {
+        System.err.println("BLE debug firstNotificationRequest")
+        System.err.println("BLE debug DEVICE_INFORMATION = ${PreferenceKeysUBI4.BaseCommands.DEVICE_INFORMATION.number}")
+
+        bleCommand(BLECommands.requestInicializeInformation(), NOTIFICATION_DATA, WRITE)
+        bleCommand(null, NOTIFICATION_DATA, NOTIFY)
+        delay(1000)
+        if (firstNotificationRequestFlag) {
+            firstNotificationRequest()
+        }
+    }
     fun setActionState(value: String) { actionState = value }
-    private fun displayFirstNotify (data: ByteArray?) {
+    private fun displayNotify (data: ByteArray?) {
         if (data != null) {
+            firstNotificationRequestFlag = false
+
+            val testString = data.toString(Charsets.UTF_8)
             val logString = String(data, charset("UTF-8"))
+
 
             System.err.println("BLE debug displayFirstNotify data.size = ${data.size}  $logString")
         }
@@ -368,7 +377,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
             reconnectThreadFlag = true
             reconnectThread()
         }
-        flagScanWithoutConnect = true
+        scanWithoutConnectFlag = true
     }
     private fun makeGattUpdateIntentFilter(): IntentFilter {
         val intentFilter = IntentFilter()
@@ -392,8 +401,8 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
             if (device.name != null) {
                 System.err.println("------->   ===============найден девайс: ${device.address} - ${device.name}  ищем $connectedDeviceAddress ==============")
                 if (device.address == connectedDeviceAddress) {
-                    System.err.println("------->   ==========это нужный нам девайс $device  $flagScanWithoutConnect ==============")
-                    if (!flagScanWithoutConnect) {
+                    System.err.println("------->   ==========это нужный нам девайс $device  $scanWithoutConnectFlag ==============")
+                    if (!scanWithoutConnectFlag) {
                         scanLeDevice(false)
                         reconnectThreadFlag = true
                         reconnectThread()
@@ -409,7 +418,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
                     mCharacteristic = mGattCharacteristics[i][j]
                     if (typeCommand == WRITE){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-                            System.err.println("BLE debug попытка подписки записи")
+                            System.err.println("BLE debug попытка записи")
                             mCharacteristic?.value = byteArray
                             mBluetoothLeService?.writeCharacteristic(mCharacteristic)
                         }

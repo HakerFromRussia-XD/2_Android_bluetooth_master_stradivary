@@ -307,10 +307,9 @@ class AdvancedSettingsFragment : Fragment() {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         if (!main?.lockWriteBeforeFirstRead!!) {
-          //TODO
           if (checkINDYCanControlEMGModes()) {
-            val compressionForce = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
-            main?.bleCommandConnector(byteArrayOf(compressionForce.toByte(), (seekBar.progress).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.bleCommandConnector(byteArrayOf((seekBar.progress).toByte(), (seekBar.progress).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, seekBar.progress)
             saveInt(main?.mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, seekBar.progress)
           } else {
             main?.bleCommandConnector(byteArrayOf((seekBar.progress).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
@@ -1174,7 +1173,6 @@ class AdvancedSettingsFragment : Fragment() {
 
       val compressionForce = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)
       val minCompressionForce = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, 25)
-//      if (compressionForce - 30 < 0 ) { compressionForce = 30 }
       if (checkINDYCanControlEMGModes()) {
         binding.shutdownCurrentSb.max = 50
         binding.shutdownCurrentTextTv.text = resources.getString(R.string.min_shutdown_current)

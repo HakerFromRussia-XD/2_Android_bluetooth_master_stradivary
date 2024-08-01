@@ -734,17 +734,18 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       System.err.println("chartCompressionForceRl id $position")
       if (!dontMove) {
         System.err.println("chartCompressionForceRl with ble command id $position")
+        val minShutdownCurrentNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, 0)
         when (position) {
           0 -> {
-            main?.bleCommandConnector(byteArrayOf((1).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 1)
+            main?.bleCommandConnector(byteArrayOf(minShutdownCurrentNum.toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, minShutdownCurrentNum)
           }
           1 -> {
-            main?.bleCommandConnector(byteArrayOf((50).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.bleCommandConnector(byteArrayOf((50).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 50)
           }
           2 -> {
-            main?.bleCommandConnector(byteArrayOf((100).toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.bleCommandConnector(byteArrayOf((100).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 100)
           }
         }
@@ -1033,12 +1034,12 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       }
     }
     when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)) {
-      in 1..39   -> {
+      in 1..50   -> {
         dontMove = true
         binding.compressionForceBtn.selectedTab = 0
         dontMove = false
       }
-      in 40..69  -> {
+      in 51..69  -> {
         dontMove = true
         binding.compressionForceBtn.selectedTab = 1
         dontMove = false

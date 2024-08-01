@@ -488,9 +488,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
                 mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM,
                 (castUnsignedCharToInt(data[17]))
               )
+              RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
+              System.err.println("MIN_SHUTDOWN_CURRENT_NUM приём = ${castUnsignedCharToInt(data[17])}")
             }
-            RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
-            System.err.println("MIN_SHUTDOWN_CURRENT_NUM приём = ${castUnsignedCharToInt(data[17])}")
           }
         }
         lockWriteBeforeFirstRead = false

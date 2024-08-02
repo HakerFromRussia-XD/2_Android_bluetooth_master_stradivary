@@ -39,15 +39,22 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECT
 import com.bailout.stickk.ubi4.ui.fragments.HomeFragment
 import com.bailout.stickk.ubi4.utility.Color
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
+import com.bailout.stickk.ubi4.utility.SingleColorSerializer
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
 import okhttp3.internal.toHexString
 import kotlin.properties.Delegates
 
@@ -131,37 +138,18 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
             .commit()
         System.err.println("MainActivityUBI4 posle")
 
-        GlobalScope.launch() {
-            incrementTestSignal()
-        }
+//        GlobalScope.launch() {
+//            incrementTestSignal()
+//        }
 
 
         val myColor = Color(1, 255, 254)
-//        val myEncoder: Encoder =
 
-//        System.err.println("TEST Serializer: ${SingleColorSerializer.serialize(myEncoder, myColor)}")
+
+//        System.err.println("TEST Serializer 1: ${Json.decodeFromString<Color>("010203")}")
+        System.err.println("TEST Serializer 2: ${Json.encodeToString(SingleColorSerializer, myColor)}")
     }
 
-    object SingleColorSerializer : KSerializer<Color> {
-        override val descriptor: SerialDescriptor
-            get() = TODO("Not yet implemented")
-//        override val descriptor: SerialDescriptor
-//            get() = "Not yet implemented"
-
-        override fun deserialize(decoder: Decoder): Color {
-            return Color(1, 1, 1)
-        }
-
-        override fun serialize(encoder: Encoder, value: Color) {
-            val code: String =
-                value.r.toHexString() +
-                value.g.toHexString() +
-                value.b.toHexString()
-
-            encoder.encodeString("#$code")
-        }
-
-    }
 
 
 

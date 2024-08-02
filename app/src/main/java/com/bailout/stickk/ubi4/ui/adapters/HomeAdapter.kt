@@ -72,9 +72,9 @@ class HomeAdapter(private val typeCellsList: ArrayList<String>,
         println("onBindViewHolder selectedProfile = " + MainActivityUBI4.connectedDeviceName)
         val typeCell = typeCellsList[position]
         initializedSensorGraph(holder.emgChart)
-        GlobalScope.launch(CoroutineName("onBindViewHolder $bindingCount")) {
-            startGraphEnteringDataThreadNew(holder.emgChart)
-        }
+//        GlobalScope.launch(CoroutineName("onBindViewHolder $bindingCount")) {
+//            startGraphEnteringDataThreadNew(holder.emgChart)
+//        }
         bindingCount += 1
     }
     override fun getItemCount(): Int {

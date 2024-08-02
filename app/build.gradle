@@ -2,6 +2,10 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+
+//    id 'org.jetbrains.kotlin.multiplatform' version '2.0.0'
+//    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0'
+//    id 'kotlinx-serialization'
 }
 
 
@@ -28,7 +32,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 7
-        versionName "2.4.732"
+        versionName "2.4.733"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -99,7 +103,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.5.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1'
     //gson
     implementation 'com.google.code.gson:gson:2.9.0'
 
@@ -195,3 +199,4 @@ dependencies {
 }
 
 apply from: '../spotless.gradle'
+//apply plugin: 'kotlin-android-extensions'

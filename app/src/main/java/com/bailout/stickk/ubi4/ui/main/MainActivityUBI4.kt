@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -144,10 +145,10 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
 
 
         val myColor = Color(1, 255, 254)
+        val testString: String = "00ff00"
 
-
-//        System.err.println("TEST Serializer 1: ${Json.decodeFromString<Color>("010203")}")
-        System.err.println("TEST Serializer 2: ${Json.encodeToString(SingleColorSerializer, myColor)}")
+        System.err.println("TEST Serializer 1: ${Json.decodeFromString<Color>("\"$testString\"").toString()}")
+        System.err.println("TEST Serializer 2: ${Json.encodeToString(myColor)}")
     }
 
 

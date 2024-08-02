@@ -10,7 +10,7 @@ import kotlinx.serialization.encoding.Encoder
 import okhttp3.internal.toHexString
 
 //@Suppress("PLUGIN_IS_NOT_ENABLED")
-@Serializable//(with = SingleColorSerializer::class)
+@Serializable(with = SingleColorSerializer::class)
 data class Color(val r: Int, val g: Int, val b: Int)
 
 object SingleColorSerializer : KSerializer<Color> {

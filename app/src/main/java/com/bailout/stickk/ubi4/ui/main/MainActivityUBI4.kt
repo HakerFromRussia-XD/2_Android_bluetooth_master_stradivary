@@ -37,12 +37,18 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.fragments.HomeFragment
+import com.bailout.stickk.ubi4.utility.Color
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import okhttp3.internal.toHexString
 import kotlin.properties.Delegates
 
 class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
@@ -128,7 +134,48 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
         GlobalScope.launch() {
             incrementTestSignal()
         }
+
+
+        val myColor = Color(1, 255, 254)
+//        val myEncoder: Encoder =
+
+//        System.err.println("TEST Serializer: ${SingleColorSerializer.serialize(myEncoder, myColor)}")
     }
+
+    object SingleColorSerializer : KSerializer<Color> {
+        override val descriptor: SerialDescriptor
+            get() = TODO("Not yet implemented")
+//        override val descriptor: SerialDescriptor
+//            get() = "Not yet implemented"
+
+        override fun deserialize(decoder: Decoder): Color {
+            return Color(1, 1, 1)
+        }
+
+        override fun serialize(encoder: Encoder, value: Color) {
+            val code: String =
+                value.r.toHexString() +
+                value.g.toHexString() +
+                value.b.toHexString()
+
+            encoder.encodeString("#$code")
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     override fun onResume() {
         super.onResume()
         if (!mBluetoothAdapter!!.isEnabled) {
@@ -244,7 +291,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
 //                    System.err.println("BLE debug ACTION_DATA_AVAILABLE")
-                    if(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA) != null) displayNotify (intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))
+                    if(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA) != null) displayReceivedData (intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))
                 }
             }
         }
@@ -261,12 +308,13 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
         }
     }
     fun setActionState(value: String) { actionState = value }
-    private fun displayNotify (data: ByteArray?) {
+    private fun displayReceivedData (data: ByteArray?) {
         if (data != null) {
             firstNotificationRequestFlag = false
 
             val testString = data.toString(Charsets.UTF_8)
             val logString = String(data, charset("UTF-8"))
+
 
 
             System.err.println("BLE debug displayFirstNotify data.size = ${data.size}  $logString")

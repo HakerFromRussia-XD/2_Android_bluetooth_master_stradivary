@@ -741,7 +741,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, minShutdownCurrentNum)
           }
           1 -> {
-            main?.bleCommandConnector(byteArrayOf((50).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.bleCommandConnector(byteArrayOf((51).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
             main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 50)
           }
           2 -> {

@@ -396,7 +396,9 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
                   mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM,
                   castUnsignedCharToInt(data[10])
                 )
+                System.err.println("SHUTDOWN_CURRENT_NUM приём = ${castUnsignedCharToInt(data[10])}")
                 RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
+                RxUpdateMainEvent.getInstance().updateUIChart(enableInterfaceStatus)
               }
 
               if (((castUnsignedCharToInt(data[11]) shr 0 and 0b00000001) == 1) != mSettings!!.getBoolean(

@@ -236,10 +236,10 @@ class AdvancedSettingsFragment : Fragment() {
 
       if (useNewSystemSendCommand() && sendFlag) {
         sendEMGMode(modeEMGSend)
-        System.err.println("TEST отправляем блютуз команду")
+        System.err.println("TEST отправляем блютуз команду $sendFlag")
       } else {
         sendFlag = true
-        System.err.println("TEST просто меняем значение в спиннере")
+        System.err.println("TEST просто меняем значение в спиннере $sendFlag")
       }
     }
 //    recursia(0)
@@ -1625,7 +1625,7 @@ class AdvancedSettingsFragment : Fragment() {
       } catch (_: Exception) { }
     }
     if (main?.driverVersionINDY != null) {
-      useNewSystemSendCommand = main?.driverVersionINDY!! > 120
+      useNewSystemSendCommand = main?.driverVersionINDY!! >= 120
     }
     return useNewSystemSendCommand
   }

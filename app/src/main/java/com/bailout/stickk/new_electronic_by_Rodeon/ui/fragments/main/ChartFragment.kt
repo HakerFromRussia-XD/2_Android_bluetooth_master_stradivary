@@ -742,7 +742,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           }
           1 -> {
             main?.bleCommandConnector(byteArrayOf((51).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 50)
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 51)
           }
           2 -> {
             main?.bleCommandConnector(byteArrayOf((100).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
@@ -1033,6 +1033,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         changeSyncProgress()
       }
     }
+    System.err.println("SHUTDOWN_CURRENT_NUM из памяти: ${mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)}")
     when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)) {
       in 1..50   -> {
         dontMove = true

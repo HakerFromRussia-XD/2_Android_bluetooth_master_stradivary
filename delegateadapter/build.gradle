@@ -27,6 +27,7 @@ android {
     viewBinding {
         enabled = true
     }
+    namespace 'com.livermor.delegateadapter'
 }
 
 dependencies {

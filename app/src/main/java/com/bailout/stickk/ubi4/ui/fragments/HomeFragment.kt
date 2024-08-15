@@ -9,11 +9,11 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.bailout.stickk.ubi4.contract.OnChatClickListener
 import com.bailout.stickk.ubi4.ui.adapters.HomeAdapter
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.testSignal
+//import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
@@ -78,4 +78,16 @@ class HomeFragment : Fragment() {
 //        dataChart.add(100)
         return dataChart
     }
+
+
+
+
+
+
+    // для тестов
+//    private val adapter2 = CompositeDelegateAdapter(
+//        TxtDelegateAdapter(),
+//        CheckDelegateAdapter(),
+//        GenerateItemsDelegateAdapter { generateNewData() }
+//    )
 }

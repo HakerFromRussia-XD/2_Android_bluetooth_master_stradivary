@@ -83,6 +83,26 @@ repositories {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     compileOnly 'com.github.pengrad:jdk9-deps:1.0'
+
+    /////////////////////
+    implementation 'androidx.core:core-ktx:1.13.1'
+//    def supportLibVersion = safeExtGet('supportLibVersion', null)
+//    def androidXVersion = safeExtGet('androidXVersion', null)
+//
+//    implementation fileTree(include: ['*.jar'], dir: 'libs')
+//    implementation('com.facebook.react:react-native:+') {
+//        exclude group: 'com.android.support'
+//    }
+//    if (supportLibVersion && androidXVersion == null) {
+//        implementation "com.android.support:appcompat-v7:$supportLibVersion"
+//    } else {
+//        def defaultAndroidXVersion = "1.+"
+//        implementation "androidx.appcompat:appcompat:${safeExtGet(androidXVersion, defaultAndroidXVersion)}"
+//    }
+//    implementation "com.google.android.gms:play-services-auth:${safeExtGet('authVersion', '+')}"
+//    implementation "com.google.android.gms:play-services-fitness:${safeExtGet('fitnessVersion', '+')}"
+    /////////////////////
+
     //noinspection GradleDependency
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'com.google.android.material:material:1.12.0'
@@ -155,6 +175,7 @@ dependencies {
     implementation 'com.android.support:support-v4:34.0.0'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation project(path: ':bluetooth')
+//    implementation project(path: ':delegateadapter')
 
     // dexter (permissions)
     implementation 'com.karumi:dexter:6.2.3'

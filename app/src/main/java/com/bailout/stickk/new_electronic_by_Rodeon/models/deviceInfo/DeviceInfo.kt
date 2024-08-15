@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class DeviceInfo (
   @SerializedName("id"                   ) var id                 :            Int?               = null,
-  @SerializedName("serial_number         " )   var                serialNumber                    : String?       = null,
+  @SerializedName("serial_number       " ) var serialNumber       :            String?            = null,
   @SerializedName("model"                ) var model              :            Model?             = Model(),
   @SerializedName("version"              ) var version            :            Version?           = Version(),
   @SerializedName("status"               ) var status             :            Status?            = Status(),

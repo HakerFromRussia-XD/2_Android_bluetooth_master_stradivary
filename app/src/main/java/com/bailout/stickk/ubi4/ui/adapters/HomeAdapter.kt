@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -46,11 +47,10 @@ class HomeAdapter(private val typeCellsList: ArrayList<String>,
         val emgChart: LineChart = view.findViewById(R.id.EMG_chart_lc) as LineChart
     }
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.widget_plot, parent, false)
-        test()
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.widget_plot, parent, false)
+
+//        test()
         System.err.println("HomeAdapter onCreateViewHolder")
         return ChatViewHolder(itemView)
     }
@@ -125,34 +125,6 @@ class HomeAdapter(private val typeCellsList: ArrayList<String>,
         set3.valueTextColor = Color.TRANSPARENT
         return set3
     }
-//    private fun createSet4(): LineDataSet {
-//        val set4 = LineDataSet(null, null)
-//        set4.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
-//        set4.lineWidth = 2f
-////        set4.setDrawFilled(true)
-////        set4.fillDrawable = ContextCompat.getDrawable(main.baseContext,R.drawable.fade_green)
-//        set4.color = Color.rgb(198, 241, 88)
-//        set4.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
-//        set4.setCircleColor(Color.TRANSPARENT)
-//        set4.circleHoleColor = Color.TRANSPARENT
-//        set4.fillColor = ColorTemplate.getHoloBlue()
-////        set4.highLightColor = Color.rgb(244, 117, 177)
-//        set4.valueTextColor = Color.TRANSPARENT
-//        return set4
-//    }
-//    private fun createSet5(): LineDataSet {
-//        val set5 = LineDataSet(null, null)
-//        set5.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
-//        set5.lineWidth = 2f
-//        set5.color = Color.rgb(90, 200, 250)
-//        set5.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
-//        set5.setCircleColor(Color.TRANSPARENT)
-//        set5.circleHoleColor = Color.TRANSPARENT
-//        set5.fillColor = ColorTemplate.getHoloBlue()
-//        set5.highLightColor = Color.rgb(244, 117, 177)
-//        set5.valueTextColor = Color.TRANSPARENT
-//        return set5
-//    }
     private fun addEntry(sens1: Int, sens2: Int, emgChart: LineChart) {
         val data: LineData =  emgChart.data //binding.chartMainchart.data!!
         var set = data.getDataSetByIndex(0)

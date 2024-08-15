@@ -1,0 +1,44 @@
+package com.bailout.stickk.ubi4.data.widget
+
+import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
+
+
+@Serializable(with = BaseParameterWidgetESerializer::class)
+data class BaseParameterWidgetEStruct(
+    val baseParameterWidgetStruct: BaseParameterWidgetStruct,
+    val labelCode: Int
+)
+
+object BaseParameterWidgetESerializer: KSerializer<BaseParameterWidgetEStruct> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): BaseParameterWidgetEStruct {
+        val string = decoder.decodeString()
+        val baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${string.substring(0, 8)}\"")
+        var labelCode = 0
+
+
+        if (string.length >= 10) {
+            labelCode = castUnsignedCharToInt(string.substring(8, 10).toInt(16).toByte())
+        }
+
+        return BaseParameterWidgetEStruct (
+            baseParameterWidgetStruct = baseParameterWidgetStruct,
+            labelCode = labelCode
+        )
+    }
+
+    override fun serialize(encoder: Encoder, value: BaseParameterWidgetEStruct) {
+        val code = ""
+        encoder.encodeString("$code")
+    }
+}

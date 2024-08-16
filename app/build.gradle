@@ -175,7 +175,7 @@ dependencies {
     implementation 'com.android.support:support-v4:34.0.0'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation project(path: ':bluetooth')
-//    implementation project(path: ':delegateadapter')
+    implementation project(path: ':delegateadapter')
 
     // dexter (permissions)
     implementation 'com.karumi:dexter:6.2.3'

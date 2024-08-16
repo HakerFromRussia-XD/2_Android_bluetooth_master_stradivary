@@ -279,7 +279,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
 
         //TODO закомментить быстрый вход после завершения экспериментов
-//        testNavigate();
+        testNavigate();
     }
     public void onWindowFocusChanged(boolean hasFocus){
         super.onWindowFocusChanged(hasFocus);
@@ -526,9 +526,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         }, 500);
 
         Intent intent = new Intent(ScanActivity.this, StartActivity.class);
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "UBIv4_CPU_Roma");
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "FEST-X");
         intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, "lol");
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, "UBIv4_CPU_Roma");//FEST-X INDY
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, "FEST-X");//FEST-X INDY  UBIv4_CPU_Roma
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;

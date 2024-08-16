@@ -26,7 +26,7 @@ import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
-import org.jetbrains.anko.backgroundColor
+//import org.jetbrains.anko.backgroundColor
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreen : AppCompatActivity() {
@@ -50,7 +50,7 @@ class SplashScreen : AppCompatActivity() {
         if (loadBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED) == true) {
             window.statusBarColor = this.resources.getColor(R.color.color_primary, theme)
             runOnUiThread {
-                backgroundRl!!.backgroundColor = this.getColor(R.color.color_primary)
+                backgroundRl!!.setBackgroundColor(this.getColor(R.color.color_primary))
             }
         } else {
             window.statusBarColor = this.resources.getColor(R.color.blue_status_bar, theme)

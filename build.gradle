@@ -7,8 +7,8 @@ buildscript {
     }
     repositories {
         //noinspection JcenterRepositoryObsolete
-        jcenter()
         mavenCentral()
+        jcenter()
         google()
         gradlePluginPortal()
     }
@@ -28,7 +28,8 @@ buildscript {
 allprojects {
     repositories {
         //noinspection JcenterRepositoryObsolete
-        jcenter()
+        mavenCentral()
+//        jcenter()
         maven {
             url "https://jitpack.io"
         }

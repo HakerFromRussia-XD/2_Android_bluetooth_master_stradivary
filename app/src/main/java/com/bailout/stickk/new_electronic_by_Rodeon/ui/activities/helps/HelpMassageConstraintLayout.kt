@@ -15,8 +15,8 @@ import androidx.core.content.res.ResourcesCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
-import org.jetbrains.anko.backgroundColor
-import org.jetbrains.anko.textColor
+//import org.jetbrains.anko.backgroundColor
+//import org.jetbrains.anko.textColor
 
 
 @SuppressLint("ViewConstructor")
@@ -60,8 +60,8 @@ internal class HelpMassageConstraintLayout(
         buttonNext.text = resources.getText(R.string.got_it)
         buttonNext.isAllCaps = false
         buttonNext.typeface = typeface
-        buttonNext.textColor = resources.getColor(R.color.dark)
-        buttonNext.backgroundColor = Color.TRANSPARENT
+        buttonNext.setTextColor(resources.getColor(R.color.dark))
+        buttonNext.setBackgroundColor(Color.TRANSPARENT)
         buttonNext.setOnClickListener(this)
 
         val backgroundImage = ImageView(context)
@@ -151,8 +151,8 @@ internal class HelpMassageConstraintLayout(
         buttonNext.text = resources.getText(R.string.got_it)
         buttonNext.isAllCaps = false
         buttonNext.typeface = typeface
-        buttonNext.textColor = resources.getColor(R.color.dark)
-        buttonNext.backgroundColor = Color.TRANSPARENT
+        buttonNext.setTextColor(resources.getColor(R.color.dark))
+        buttonNext.setBackgroundColor(Color.TRANSPARENT)
         buttonNext.setOnClickListener(this)
 
         val backgroundImage = ImageView(context)
@@ -242,8 +242,8 @@ internal class HelpMassageConstraintLayout(
         buttonNext.text = resources.getText(R.string.got_it)
         buttonNext.isAllCaps = false
         buttonNext.typeface = typeface
-        buttonNext.textColor = resources.getColor(R.color.dark)
-        buttonNext.backgroundColor = Color.TRANSPARENT
+        buttonNext.setTextColor(resources.getColor(R.color.dark))
+        buttonNext.setBackgroundColor(Color.TRANSPARENT)
         buttonNext.setOnClickListener(this)
 
         val backgroundImage = ImageView(context)
@@ -334,8 +334,8 @@ internal class HelpMassageConstraintLayout(
         buttonNext.text = resources.getText(R.string.got_it)
         buttonNext.isAllCaps = false
         buttonNext.typeface = typeface
-        buttonNext.textColor = resources.getColor(R.color.dark)
-        buttonNext.backgroundColor = Color.TRANSPARENT
+        buttonNext.setTextColor(resources.getColor(R.color.dark))
+        buttonNext.setBackgroundColor(Color.TRANSPARENT)
         buttonNext.setOnClickListener(this)
 
         val backgroundImage = ImageView(context)

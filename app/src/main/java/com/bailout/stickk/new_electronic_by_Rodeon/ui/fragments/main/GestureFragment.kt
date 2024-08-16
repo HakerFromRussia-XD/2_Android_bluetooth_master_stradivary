@@ -28,8 +28,8 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.skydoves.powerspinner.IconSpinnerAdapter
 import com.skydoves.powerspinner.IconSpinnerItem
 import io.reactivex.android.schedulers.AndroidSchedulers
-import org.jetbrains.anko.backgroundDrawable
-import org.jetbrains.anko.textColor
+//import org.jetbrains.anko.backgroundDrawable
+//import org.jetbrains.anko.textColor
 
 
 @Suppress("DEPRECATION")
@@ -459,34 +459,34 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     }
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
     private fun resetStateButtons() {
-        binding.gesture1Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture2Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture3Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture4Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture5Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture6Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture7Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture8Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture9Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture10Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture11Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture12Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture13Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture14Btn.backgroundDrawable = resources.getDrawable(custom_button_le)
-        binding.gesture1Btn.textColor = WHITE
-        binding.gesture2Btn.textColor = WHITE
-        binding.gesture3Btn.textColor = WHITE
-        binding.gesture4Btn.textColor = WHITE
-        binding.gesture5Btn.textColor = WHITE
-        binding.gesture6Btn.textColor = WHITE
-        binding.gesture7Btn.textColor = WHITE
-        binding.gesture8Btn.textColor = WHITE
-        binding.gesture9Btn.textColor = WHITE
-        binding.gesture10Btn.textColor = WHITE
-        binding.gesture11Btn.textColor = WHITE
-        binding.gesture12Btn.textColor = WHITE
-        binding.gesture13Btn.textColor = WHITE
-        binding.gesture14Btn.textColor = WHITE
+        binding.gesture1Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture2Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture3Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture4Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture5Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture6Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture7Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture8Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture9Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture10Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture11Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture12Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture13Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture14Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture1Btn.setTextColor(WHITE)
+        binding.gesture2Btn.setTextColor(WHITE)
+        binding.gesture3Btn.setTextColor(WHITE)
+        binding.gesture4Btn.setTextColor(WHITE)
+        binding.gesture5Btn.setTextColor(WHITE)
+        binding.gesture6Btn.setTextColor(WHITE)
+        binding.gesture7Btn.setTextColor(WHITE)
+        binding.gesture8Btn.setTextColor(WHITE)
+        binding.gesture9Btn.setTextColor(WHITE)
+        binding.gesture10Btn.setTextColor(WHITE)
+        binding.gesture11Btn.setTextColor(WHITE)
+        binding.gesture12Btn.setTextColor(WHITE)
+        binding.gesture13Btn.setTextColor(WHITE)
+        binding.gesture14Btn.setTextColor(WHITE)
         binding.gestureSettings1Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureSettings2Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureSettings3Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
@@ -622,60 +622,60 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     private fun selectActiveGesture(active: Int) {
         resetStateButtons()
         when (active) {
-            1 -> { binding.gesture1Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture1Btn.textColor = resources.getColor(R.color.orange)
+            1 -> { binding.gesture1Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture1Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings1Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop1Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            2 -> { binding.gesture2Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture2Btn.textColor = resources.getColor(R.color.orange)
+            2 -> { binding.gesture2Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture2Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings2Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop2Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            3 -> { binding.gesture3Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture3Btn.textColor = resources.getColor(R.color.orange)
+            3 -> { binding.gesture3Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture3Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings3Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop3Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            4 -> { binding.gesture4Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture4Btn.textColor = resources.getColor(R.color.orange)
+            4 -> { binding.gesture4Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture4Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings4Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop4Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            5 -> { binding.gesture5Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture5Btn.textColor = resources.getColor(R.color.orange)
+            5 -> { binding.gesture5Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture5Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings5Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop5Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            6 -> { binding.gesture6Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture6Btn.textColor = resources.getColor(R.color.orange)
+            6 -> { binding.gesture6Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture6Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings6Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop6Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            7 -> { binding.gesture7Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture7Btn.textColor = resources.getColor(R.color.orange)
+            7 -> { binding.gesture7Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture7Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings7Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop7Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            8 -> { binding.gesture8Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture8Btn.textColor = resources.getColor(R.color.orange)
+            8 -> { binding.gesture8Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture8Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings8Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop8Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            9 -> { binding.gesture9Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture9Btn.textColor = resources.getColor(R.color.orange)
+            9 -> { binding.gesture9Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture9Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings9Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop9Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            10 -> { binding.gesture10Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture10Btn.textColor = resources.getColor(R.color.orange)
+            10 -> { binding.gesture10Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture10Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings10Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop10Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            11 -> { binding.gesture11Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture11Btn.textColor = resources.getColor(R.color.orange)
+            11 -> { binding.gesture11Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture11Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings11Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop11Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            12 -> { binding.gesture12Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture12Btn.textColor = resources.getColor(R.color.orange)
+            12 -> { binding.gesture12Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture12Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings12Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop12Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            13 -> { binding.gesture13Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture13Btn.textColor = resources.getColor(R.color.orange)
+            13 -> { binding.gesture13Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture13Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings13Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop13Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
-            14 -> { binding.gesture14Btn.backgroundDrawable = resources.getDrawable(custom_button_le_selected)
-                binding.gesture14Btn.textColor = resources.getColor(R.color.orange)
+            14 -> { binding.gesture14Btn.background = resources.getDrawable(custom_button_le_selected)
+                binding.gesture14Btn.setTextColor(resources.getColor(R.color.orange))
                 binding.gestureSettings14Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)
                 binding.gestureLoop14Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.orange)}
         }

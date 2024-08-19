@@ -1,19 +1,24 @@
 buildscript {
     ext {
-        kotlinVersion = '1.9.0'
+        kotlinVersion = '1.9.22'
         ankoVersion = '0.10.1'
         daggerVersion = '2.30.1'
-        spotlessVersion = '3.22.0'
+        spotlessVersion = '6.25.0'
     }
     repositories {
-        //noinspection JcenterRepositoryObsolete
         mavenCentral()
 //        jcenter()
+        //noinspection JcenterRepositoryObsolete
+//        jcenter {
+//            url "http://jcenter.bintray.com/"
+//            allowInsecureProtocol = true
+//        }
+        maven { url = uri('https://jitpack.io') }
         google()
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.2'
+        classpath 'com.android.tools.build:gradle:8.1.4'
 //        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -27,14 +32,11 @@ buildscript {
 
 allprojects {
     repositories {
-        //noinspection JcenterRepositoryObsolete
         mavenCentral()
-        jcenter()
-        maven {
-            url "https://jitpack.io"
-        }
         google()
         gradlePluginPortal()
+//        jcenter()
+        maven { url = uri('https://jitpack.io') }
     }
 }
 

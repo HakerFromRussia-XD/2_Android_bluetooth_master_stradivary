@@ -3,8 +3,8 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlinx-serialization'
+    id 'com.diffplug.spotless'
 }
-
 
 android {
     signingConfigs {
@@ -47,8 +47,8 @@ android {
 
     lint { checkReleaseBuilds false }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     packagingOptions {
         resources {
@@ -59,7 +59,7 @@ android {
             merges += "META-INF/LICENSE-notice.md"
         }
     }
-    kotlinOptions { jvmTarget = '1.8' }
+    kotlinOptions { jvmTarget = "1.8" }
     viewBinding { enabled true }
     kapt { generateStubs = true }
 
@@ -82,28 +82,10 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    compileOnly 'com.github.pengrad:jdk9-deps:1.0'
+//    compileOnly 'com.github.pengrad:jdk9-deps:1.0'
 
-    /////////////////////
     implementation 'androidx.core:core-ktx:1.13.1'
-//    def supportLibVersion = safeExtGet('supportLibVersion', null)
-//    def androidXVersion = safeExtGet('androidXVersion', null)
-//
-//    implementation fileTree(include: ['*.jar'], dir: 'libs')
-//    implementation('com.facebook.react:react-native:+') {
-//        exclude group: 'com.android.support'
-//    }
-//    if (supportLibVersion && androidXVersion == null) {
-//        implementation "com.android.support:appcompat-v7:$supportLibVersion"
-//    } else {
-//        def defaultAndroidXVersion = "1.+"
-//        implementation "androidx.appcompat:appcompat:${safeExtGet(androidXVersion, defaultAndroidXVersion)}"
-//    }
-//    implementation "com.google.android.gms:play-services-auth:${safeExtGet('authVersion', '+')}"
-//    implementation "com.google.android.gms:play-services-fitness:${safeExtGet('fitnessVersion', '+')}"
-    /////////////////////
 
-    //noinspection GradleDependency
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'com.google.android.material:material:1.12.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.32"
@@ -134,11 +116,10 @@ dependencies {
     implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.2'
 
     // custom views
-    implementation 'com.github.devlight.navigationtabbar:navigationtabbar:1.2.5'
+//    implementation 'com.github.devlight.navigationtabbar:navigationtabbar:1.2.5'
     implementation 'com.github.jorgecastilloprz:fillableloaders:1.03@aar'
     implementation 'com.github.paolorotolo:appintro:4.1.0'
     implementation 'com.skyfishjy.ripplebackground:library:1.0.1'
-    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
     implementation "com.github.skydoves:elasticviews:2.0.3"
     implementation "com.github.skydoves:colorpickerview:2.1.3"
     implementation 'com.github.shchurov:horizontalwheelview:0.9.5'
@@ -146,9 +127,8 @@ dependencies {
     implementation 'com.github.SimformSolutionsPvtLtd:SSPullToRefresh:1.5.2'
     // pin
     implementation 'online.devliving:passcodeview:1.0.3'
-
     // new
-    implementation 'lib.kingja.switchbutton:switchbutton:1.1.8'
+//    implementation 'lib.kingja.switchbutton:switchbutton:1.1.8'
 
     // butter knife
     implementation 'com.jakewharton:butterknife:10.2.3'
@@ -174,8 +154,8 @@ dependencies {
     implementation 'com.android.support:support-v13:34.0.0'
     implementation 'com.android.support:support-v4:34.0.0'
     implementation 'com.google.code.gson:gson:2.9.0'
-    implementation project(path: ':bluetooth')
-    implementation project(path: ':delegateadapter')
+//    implementation project(path: ':bluetooth')
+//    implementation project(path: ':delegateadapter')
 
     // dexter (permissions)
     implementation 'com.karumi:dexter:6.2.3'
@@ -211,5 +191,5 @@ dependencies {
 //    testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.2.1'
 }
 
-apply from: '../spotless.gradle'
+//apply from: '../spotless.gradle'
 //apply plugin: 'kotlin-android-extensions'

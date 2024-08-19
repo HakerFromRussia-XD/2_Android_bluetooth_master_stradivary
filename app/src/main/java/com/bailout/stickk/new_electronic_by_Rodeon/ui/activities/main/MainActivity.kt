@@ -1258,17 +1258,17 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun getBackStackEntryCount():Int { return supportFragmentManager.backStackEntryCount }
   override fun goingBack() { onBackPressed() }
   @SuppressLint("MissingSuperCall")
-  override fun onBackPressed() {
-    System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
-    //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи
-    if (supportFragmentManager.backStackEntryCount != 0) {
-      super.onBackPressed()
-    }
-    if (supportFragmentManager.backStackEntryCount == 0) {
-      showWhiteStatusBar(false)
-      showGrayStatusBar(false)
-    }
-  }
+//  override fun onBackPressed() {
+//    System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
+//    //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи
+//    if (supportFragmentManager.backStackEntryCount != 0) {
+//      super.onBackPressed()
+//    }
+//    if (supportFragmentManager.backStackEntryCount == 0) {
+//      showWhiteStatusBar(false)
+//      showGrayStatusBar(false)
+//    }
+//  }
 
 
   @SuppressLint("CommitTransaction")

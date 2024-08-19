@@ -18,6 +18,7 @@ import android.os.IBinder
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.bailout.stickk.R
@@ -187,16 +188,29 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
 
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
     override fun goingBack() { onBackPressed() }
-    @SuppressLint("MissingSuperCall")
-    override fun onBackPressed() {
-        System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
-        //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи
-        if (supportFragmentManager.backStackEntryCount != 0) {
-            super.onBackPressed()
-        }
-        if (supportFragmentManager.backStackEntryCount == 0) {
-        }
-    }
+//    @SuppressLint("MissingSuperCall")
+//    override fun onBackPressed() {
+//        System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
+//        //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи
+//        if (supportFragmentManager.backStackEntryCount != 0) {
+//            super.onBackPressed()
+//        }
+//        if (supportFragmentManager.backStackEntryCount == 0) {
+//        }
+//    }
+
+
+//    onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+//        override fun handleOnBackPressed() {
+//            System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
+//            //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи
+//            if (supportFragmentManager.backStackEntryCount != 0) {
+//                super.onBackPressed()
+//            }
+//            if (supportFragmentManager.backStackEntryCount == 0) {
+//            }
+//        }
+//    })
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }

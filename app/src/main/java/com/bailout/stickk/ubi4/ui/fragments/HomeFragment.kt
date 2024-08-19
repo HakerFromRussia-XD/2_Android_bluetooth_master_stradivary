@@ -14,6 +14,10 @@ import com.bailout.stickk.ubi4.ui.adapters.HomeAdapter
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.testSignal
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
+import com.bailout.stickk.ubi4.ui.fragments.testDelegateAdapter.MockDataFactory
+import com.bailout.stickk.ubi4.ui.adapters.testDelegeteAdapter.CheckDelegateAdapter
+import com.bailout.stickk.ubi4.ui.adapters.testDelegeteAdapter.GenerateItemsDelegateAdapter
+import com.bailout.stickk.ubi4.ui.adapters.testDelegeteAdapter.TxtDelegateAdapter
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
@@ -31,8 +35,11 @@ class HomeFragment : Fragment() {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
 //        test()
+//        initAdapter(binding.homeRv, main!!)
 
-        initAdapter(binding.homeRv, main!!)
+        binding.homeRv.layoutManager = LinearLayoutManager(context)
+        binding.homeRv.adapter = adapter2
+        adapter2.swapData(MockDataFactory.prepareData())
 
         return binding.root
     }
@@ -86,8 +93,14 @@ class HomeFragment : Fragment() {
 
     // для тестов
     private val adapter2 = CompositeDelegateAdapter(
-//        TxtDelegateAdapter(),
-//        CheckDelegateAdapter(),
-//        GenerateItemsDelegateAdapter { generateNewData() }
+        TxtDelegateAdapter(),
+        CheckDelegateAdapter(),
+        GenerateItemsDelegateAdapter { generateNewData() }
     )
+
+
+    private fun generateNewData() {
+        adapter2.swapData(MockDataFactory.prepareData())
+        binding.homeRv.scrollToPosition(0)
+    }
 }

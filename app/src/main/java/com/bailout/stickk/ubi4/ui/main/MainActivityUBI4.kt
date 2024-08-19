@@ -97,7 +97,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
             }
             if (!scanWithoutConnectFlag) {
                 //TODO раскомментировать когда не нужно быстрое подключение
-                mBluetoothLeService?.connect(connectedDeviceAddress)
+//                mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
 

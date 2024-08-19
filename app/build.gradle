@@ -152,7 +152,7 @@ dependencies {
 
     // butter knife
     implementation 'com.jakewharton:butterknife:10.2.3'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'//kapt
+    kapt 'com.jakewharton:butterknife-compiler:10.2.3'//kapt  annotationProcessor
 
     // BLE connection
     implementation "com.android.support:cardview-v7:34.0.0"

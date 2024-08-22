@@ -253,7 +253,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.thresholdsBlockingSw.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
     enabledSensorsUIBeforeConnection(false)
-    binding.compressionForceBtn.selectedTab = 1
+//    binding.compressionForceBtn.selectedTab = 1
     //скрываем текстовое отображение версий для протезов с прошитым серийным номером и включаем отображение кнопки личного кабинета
     if (main?.mDeviceName?.length ?: 0 < 12) {
       binding.bmsTv.visibility = View.VISIBLE
@@ -730,28 +730,28 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       false
     }
 
-    binding.compressionForceBtn.setOnSwitchListener { position, _ ->
-      System.err.println("chartCompressionForceRl id $position")
-      if (!dontMove) {
-        System.err.println("chartCompressionForceRl with ble command id $position")
-        val minShutdownCurrentNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, 0)
-        when (position) {
-          0 -> {
-            main?.bleCommandConnector(byteArrayOf(minShutdownCurrentNum.toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, minShutdownCurrentNum)
-          }
-          1 -> {
-            main?.bleCommandConnector(byteArrayOf((51).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 51)
-          }
-          2 -> {
-            main?.bleCommandConnector(byteArrayOf((100).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 100)
-          }
-        }
-        RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
-      }
-    }
+//    binding.compressionForceBtn.setOnSwitchListener { position, _ ->
+//      System.err.println("chartCompressionForceRl id $position")
+//      if (!dontMove) {
+//        System.err.println("chartCompressionForceRl with ble command id $position")
+//        val minShutdownCurrentNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, 0)
+//        when (position) {
+//          0 -> {
+//            main?.bleCommandConnector(byteArrayOf(minShutdownCurrentNum.toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+//            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, minShutdownCurrentNum)
+//          }
+//          1 -> {
+//            main?.bleCommandConnector(byteArrayOf((51).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+//            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 51)
+//          }
+//          2 -> {
+//            main?.bleCommandConnector(byteArrayOf((100).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+//            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 100)
+//          }
+//        }
+//        RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
+//      }
+//    }
 
     binding.helpBtn.setOnClickListener {
       graphThreadFlag = false
@@ -1037,17 +1037,17 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)) {
       in 1..50   -> {
         dontMove = true
-        binding.compressionForceBtn.selectedTab = 0
+//        binding.compressionForceBtn.selectedTab = 0
         dontMove = false
       }
       in 51..69  -> {
         dontMove = true
-        binding.compressionForceBtn.selectedTab = 1
+//        binding.compressionForceBtn.selectedTab = 1
         dontMove = false
       }
       in 70..100 -> {
         dontMove = true
-        binding.compressionForceBtn.selectedTab = 2
+//        binding.compressionForceBtn.selectedTab = 2
         dontMove = false
       }
     }

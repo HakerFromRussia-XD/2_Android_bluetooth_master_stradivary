@@ -726,30 +726,30 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
 
-    binding.modeNewSw.setOnSwitchListener { position, _ ->
-      if (position == 0) {
-//        Toast.makeText(main?.baseContext,  "0", Toast.LENGTH_SHORT).show()
-        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
-        mode = 0
-        if (sensorGestureSwitching.toInt() == 1) binding.downtimeRl.visibility = View.VISIBLE
-        main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, WRITE)
-      }
-      if (position == 1) {
-//        Toast.makeText(main?.baseContext, "1", Toast.LENGTH_SHORT).show()
-        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 1)
-        mode = 1
-        binding.downtimeRl.visibility = View.GONE
-        main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, WRITE)
-      }
-      if (position == 2) {
-//        Toast.makeText(main?.baseContext, "2", Toast.LENGTH_SHORT).show()
-        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 2)
-        mode = 2
-        binding.downtimeRl.visibility = View.GONE
-        main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, WRITE)
-      }
-    }
-    binding.modeNewSw.selectedTab = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
+//    binding.modeNewSw.setOnSwitchListener { position, _ ->
+//      if (position == 0) {
+////        Toast.makeText(main?.baseContext,  "0", Toast.LENGTH_SHORT).show()
+//        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
+//        mode = 0
+//        if (sensorGestureSwitching.toInt() == 1) binding.downtimeRl.visibility = View.VISIBLE
+//        main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, WRITE)
+//      }
+//      if (position == 1) {
+////        Toast.makeText(main?.baseContext, "1", Toast.LENGTH_SHORT).show()
+//        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 1)
+//        mode = 1
+//        binding.downtimeRl.visibility = View.GONE
+//        main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, WRITE)
+//      }
+//      if (position == 2) {
+////        Toast.makeText(main?.baseContext, "2", Toast.LENGTH_SHORT).show()
+//        saveInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 2)
+//        mode = 2
+//        binding.downtimeRl.visibility = View.GONE
+//        main?.runWriteData(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, WRITE)
+//      }
+//    }
+//    binding.modeNewSw.selectedTab = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_NEW_NUM, 0)
 
     binding.peakTimeVmSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {

@@ -56,28 +56,28 @@
                 app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left1"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <lib.kingja.switchbutton.SwitchMultiButton
-                android:id="@+id/dialog_select_scale_sw"
-                android:layout_width="match_parent"
-                android:layout_height="34dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginTop="32dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:padding="8dp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dialog_select_scale_title_tv"
-                app:selectedColor="@color/system_blue"
-                app:selectedTab="0"
-                app:strokeRadius="5dp"
-                app:strokeWidth="2dp"
-                app:switchTabs="@array/switch_tabs_scale"
-                app:textSize="11sp" />
+<!--            <lib.kingja.switchbutton.SwitchMultiButton-->
+<!--                android:id="@+id/dialog_select_scale_sw"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="34dp"-->
+<!--                android:layout_alignParentStart="true"-->
+<!--                android:layout_alignParentTop="true"-->
+<!--                android:layout_alignParentEnd="true"-->
+<!--                android:layout_alignParentBottom="true"-->
+<!--                android:layout_marginTop="32dp"-->
+<!--                android:layout_marginStart="16dp"-->
+<!--                android:layout_marginEnd="16dp"-->
+<!--                android:padding="8dp"-->
+<!--                android:textStyle="bold"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/dialog_select_scale_title_tv"-->
+<!--                app:selectedColor="@color/system_blue"-->
+<!--                app:selectedTab="0"-->
+<!--                app:strokeRadius="5dp"-->
+<!--                app:strokeWidth="2dp"-->
+<!--                app:switchTabs="@array/switch_tabs_scale"-->
+<!--                app:textSize="11sp" />-->
 
             <View
                 android:id="@+id/view4"

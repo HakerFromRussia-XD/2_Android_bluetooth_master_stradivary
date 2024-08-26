@@ -38,15 +38,4 @@
             android:backgroundTint="@color/white"/>
     </androidx.cardview.widget.CardView>
 
-<!--        <Button-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"/>-->
-<!--        <com.github.mikephil.charting.charts.LineChart-->
-<!--            android:id="@+id/EMG_chart_lc"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_marginStart="-14dp"-->
-<!--            android:layout_marginEnd="-19dp"/>-->
-<!--    </androidx.cardview.widget.CardView>-->
-
 </androidx.constraintlayout.widget.ConstraintLayout>

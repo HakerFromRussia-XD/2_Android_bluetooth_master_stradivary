@@ -1290,7 +1290,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_TEST)) {
         val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
         binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-//        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
 
         val myIntent = Intent(this, MyService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -1307,12 +1307,12 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         ) {
           val mSectionsPagerAdapter = SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
           binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-//          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)//1//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)//1//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
         } else {
           val mSectionsPagerAdapter =
             SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
           binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-//          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
         }
       }
       NavigationUtils.showAdvancedSettings = true
@@ -1320,7 +1320,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       if (mDeviceType?.contains(DEVICE_TYPE_FEST_TEST) == true) {
         val mSectionsPagerAdapter =  SelectionsPagerAdapterKibi(supportFragmentManager)
         binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-//        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
 
         val myIntent = Intent(this, MyService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -1337,41 +1337,40 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         ) {
           val mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
           binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-//          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)//1
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)//1
         } else {
           val mSectionsPagerAdapter = SectionsPagerAdapterMonograb(supportFragmentManager)
           binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
           //здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
-//          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
+          binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
         }
       }
     }
 
 
     binding.mainactivityViewpager.offscreenPageLimit = 3
-//    NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)
+    NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)
     optimizationNavi()
   }
 
   private fun optimizationNavi() {
     var increment = 0
-//    binding.mainactivityNavi.setOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-//      TODO добавить сюда оптимизацию при переходе по страницам
-//      override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-//        if (increment != 0) {
-//          startScrollForGesturesFragment?.invoke()
-//          startScrollForChartFragment?.invoke(false)
-//          startScrollForAdvancedSettingsFragment?.invoke()
-//        }
-//        increment = 1
-//      }
+    binding.mainactivityNavi.setOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+      override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+        if (increment != 0) {
+          startScrollForGesturesFragment?.invoke()
+          startScrollForChartFragment?.invoke(false)
+          startScrollForAdvancedSettingsFragment?.invoke()
+        }
+        increment = 1
+      }
 
-//      override fun onPageSelected(position: Int) {
-//        startScrollForChartFragment?.invoke(true)
-//      }
-//
-//      override fun onPageScrollStateChanged(state: Int) {}
-//    })
+      override fun onPageSelected(position: Int) {
+        startScrollForChartFragment?.invoke(true)
+      }
+
+      override fun onPageScrollStateChanged(state: Int) {}
+    })
   }
 
 
@@ -2287,11 +2286,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapterWithAdvancedSettings(supportFragmentManager)
         binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-//        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)
       } else {
         val mSectionsPagerAdapter =  SectionsPagerAdapterMonograbWithAdvancedSettings(supportFragmentManager)
         binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-//        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)
       }
     } else {
       if ( mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
@@ -2301,18 +2300,18 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         val mSectionsPagerAdapter =  SectionsPagerAdapter(supportFragmentManager)
         binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-//        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 1)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
       } else {
         val mSectionsPagerAdapter =  SectionsPagerAdapterMonograb(supportFragmentManager)
         binding.mainactivityViewpager.adapter = mSectionsPagerAdapter
-//        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
+        binding.mainactivityNavi.setViewPager(binding.mainactivityViewpager, 0)//здесь можно настроить номер вью из боттом бара, открывающейся при страте приложения
       }
     }
 
     Toast.makeText(this, "Advanced settings: $showAdvancedSettings", Toast.LENGTH_SHORT).show()
 
     binding.mainactivityViewpager.offscreenPageLimit = 3
-//    System.err.println("setComponents ${NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)}")
+    System.err.println("setComponents ${NavigationUtils.setComponents(baseContext, binding.mainactivityNavi)}")
     updateUIChart(40)
   }
   @SuppressLint("InflateParams", "SetTextI18n", "StringFormatInvalid")

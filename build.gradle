@@ -7,13 +7,12 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        flatDir {
+            dirs 'libs'
+        }
 //        jcenter()
-        //noinspection JcenterRepositoryObsolete
-//        jcenter {
-//            url "http://jcenter.bintray.com/"
-//            allowInsecureProtocol = true
-//        }
         maven { url = uri('https://jitpack.io') }
+        maven { url 'https://plugins.gradle.org/m2' }
         google()
         gradlePluginPortal()
     }
@@ -33,10 +32,14 @@ buildscript {
 allprojects {
     repositories {
         mavenCentral()
-        google()
-        gradlePluginPortal()
+        flatDir {
+            dirs 'libs'
+        }
 //        jcenter()
         maven { url = uri('https://jitpack.io') }
+        maven { url 'https://plugins.gradle.org/m2' }
+        google()
+        gradlePluginPortal()
     }
 }
 

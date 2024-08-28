@@ -57,7 +57,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
-//import lib.kingja.switchbutton.SwitchMultiButton
+import lib.kingja.switchbutton.SwitchMultiButton
 import online.devliving.passcodeview.PasscodeView
 import timber.log.Timber
 import java.util.*
@@ -167,7 +167,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_H)
         || mDeviceType!!.contains(DEVICE_TYPE_FEST_X))
       {} else {
-//        binding.mainactivityNavi.visibility = View.GONE
+        binding.mainactivityNavi.visibility = View.GONE
       }
     }
 
@@ -2384,20 +2384,20 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     myDialog.show()
 
 
-//    myDialog.findViewById<SwitchMultiButton>(R.id.dialog_select_scale_sw).setOnSwitchListener { position, _ ->
-//      System.err.println("scaleProstheses = ${myDialog.findViewById<SwitchMultiButton>(R.id.dialog_select_scale_sw).selectedTab}")
-//      when (position) {
-//        0 -> { scaleProstheses = 0 }
-//        1 -> { scaleProstheses = 1 }
-//        2 -> { scaleProstheses = 2 }
-//        3 -> { scaleProstheses = 3 }
-//      }
-//    }
+    myDialog.findViewById<SwitchMultiButton>(R.id.dialog_select_scale_sw).setOnSwitchListener { position, _ ->
+      System.err.println("scaleProstheses = ${myDialog.findViewById<SwitchMultiButton>(R.id.dialog_select_scale_sw).selectedTab}")
+      when (position) {
+        0 -> { scaleProstheses = 0 }
+        1 -> { scaleProstheses = 1 }
+        2 -> { scaleProstheses = 2 }
+        3 -> { scaleProstheses = 3 }
+      }
+    }
 
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_select_scale_confirm)
     yesBtn.setOnClickListener {
-//      scaleProstheses = myDialog.findViewById<SwitchMultiButton>(R.id.dialog_select_scale_sw).selectedTab
+      scaleProstheses = myDialog.findViewById<SwitchMultiButton>(R.id.dialog_select_scale_sw).selectedTab
       System.err.println("scaleProstheses = $scaleProstheses")
       showConfirmChangeSideDialog()
       myDialog.dismiss()

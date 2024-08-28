@@ -1022,26 +1022,26 @@
                 android:paddingTop="8dp"
                 android:visibility="gone">
 
-<!--                <lib.kingja.switchbutton.SwitchMultiButton-->
-<!--                    android:id="@+id/mode_new_sw"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="42dp"-->
-<!--                    android:layout_alignParentStart="true"-->
-<!--                    android:layout_alignParentTop="true"-->
-<!--                    android:layout_alignParentEnd="true"-->
-<!--                    android:layout_alignParentBottom="true"-->
-<!--                    android:layout_marginStart="16dp"-->
-<!--                    android:layout_marginTop="4dp"-->
-<!--                    android:layout_marginEnd="16dp"-->
-<!--                    android:layout_marginBottom="4dp"-->
-<!--                    android:padding="8dp"-->
-<!--                    android:textStyle="bold"-->
-<!--                    app:selectedColor="@color/orange"-->
-<!--                    app:selectedTab="0"-->
-<!--                    app:strokeRadius="5dp"-->
-<!--                    app:strokeWidth="2dp"-->
-<!--                    app:switchTabs="@array/switch_tabs"-->
-<!--                    app:textSize="11sp" />-->
+                <lib.kingja.switchbutton.SwitchMultiButton
+                    android:id="@+id/mode_new_sw"
+                    android:layout_width="wrap_content"
+                    android:layout_height="42dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:padding="8dp"
+                    android:textStyle="bold"
+                    app:selectedColor="@color/orange"
+                    app:selectedTab="0"
+                    app:strokeRadius="5dp"
+                    app:strokeWidth="2dp"
+                    app:switchTabs="@array/switch_tabs"
+                    app:textSize="11sp" />
             </RelativeLayout>
 
             <RelativeLayout

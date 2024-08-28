@@ -993,27 +993,27 @@
                             android:layout_height="match_parent"
                             android:layout_weight="3">
 
-<!--                            <lib.kingja.switchbutton.SwitchMultiButton-->
-<!--                                android:id="@+id/compression_force_btn"-->
-<!--                                android:layout_width="wrap_content"-->
-<!--                                android:layout_height="37dp"-->
-<!--                                android:layout_alignParentStart="true"-->
-<!--                                android:layout_alignParentTop="true"-->
-<!--                                android:layout_alignParentEnd="true"-->
-<!--                                android:layout_alignParentBottom="true"-->
-<!--                                android:layout_marginStart="0dp"-->
-<!--                                android:layout_marginTop="8dp"-->
-<!--                                android:layout_marginEnd="0dp"-->
-<!--                                android:layout_marginBottom="3dp"-->
-<!--                                android:padding="8dp"-->
-<!--                                android:textStyle="bold"-->
-<!--                                style="@style/Text"-->
-<!--                                app:selectedColor="@color/orange"-->
-<!--                                app:selectedTab="0"-->
-<!--                                app:strokeRadius="22dp"-->
-<!--                                app:strokeWidth="2dp"-->
-<!--                                app:switchTabs="@array/switch_force"-->
-<!--                                app:textSize="11sp" />-->
+                            <lib.kingja.switchbutton.SwitchMultiButton
+                                android:id="@+id/compression_force_btn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="37dp"
+                                android:layout_alignParentStart="true"
+                                android:layout_alignParentTop="true"
+                                android:layout_alignParentEnd="true"
+                                android:layout_alignParentBottom="true"
+                                android:layout_marginStart="0dp"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="0dp"
+                                android:layout_marginBottom="3dp"
+                                android:padding="8dp"
+                                android:textStyle="bold"
+                                style="@style/Text"
+                                app:selectedColor="@color/orange"
+                                app:selectedTab="0"
+                                app:strokeRadius="22dp"
+                                app:strokeWidth="2dp"
+                                app:switchTabs="@array/switch_force"
+                                app:textSize="11sp" />
                         </RelativeLayout>
                     </LinearLayout>
 

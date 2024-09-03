@@ -251,9 +251,9 @@ class AdvancedSettingsFragment : Fragment() {
       7 -> {
         sendFlag = false
         binding.EMGModeSwapPsv.selectItemByIndex(1) }
-//      10 -> {
-//        sendFlag = false
-//        binding.EMGModeSwapPsv.selectItemByIndex(2) }
+      10 -> {
+        sendFlag = false
+        binding.EMGModeSwapPsv.selectItemByIndex(2) }
     }
 
 

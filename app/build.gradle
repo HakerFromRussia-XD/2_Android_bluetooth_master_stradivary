@@ -21,11 +21,11 @@ android {
             keyPassword '89157719183'
         }
     }
-    namespace 'com.bailout.stickk_dev'
+    namespace 'com.bailout.stickk'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.bailout.stickk"
+        applicationId "com.bailout.stickk_dev"
         minSdk 24
         targetSdk 33
         versionCode 7

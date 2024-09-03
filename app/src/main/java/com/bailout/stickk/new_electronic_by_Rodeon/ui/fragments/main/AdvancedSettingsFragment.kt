@@ -1039,6 +1039,11 @@ class AdvancedSettingsFragment : Fragment() {
       //end
     }
 
+    binding.autocalibrationPsv.setOnSpinnerItemSelectedListener<String> { _, _, autocalibration, _ ->
+      main?.saveInt(main?.mDeviceAddress + PreferenceKeys.AUTOCALIBRATION_MODE, autocalibration)
+      main?.bleCommandConnector(byteArrayOf(autocalibration.toByte()), SET_AUTOCALIBRATION, WRITE, 19)
+    }
+
     //Скрывает настройки, которые не актуальны для многосхватной бионики
     if ( main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_A)
       || main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_BT05)
@@ -1198,6 +1203,10 @@ class AdvancedSettingsFragment : Fragment() {
       ObjectAnimator.ofInt(binding.peakTimeSb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_PEAK_TIME_NUM, 15)).setDuration(200).start()
       ObjectAnimator.ofInt(binding.downtimeSb, "progress", preferenceManager.getInt(main?.mDeviceAddress + PreferenceKeys.SET_DOWNTIME_NUM, 15)).setDuration(200).start()
     }
+
+    //DEV
+    binding.shutdownCurrentMinOpenTv.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_MIN_OPEN_NUM, 10).toString()
+    binding.shutdownCurrentMinCloseTv.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_MIN_CLOSE_NUM, 10).toString()
 
     binding.shutdownCurrent1Tv.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_1, 80).toString()
     binding.shutdownCurrent2Tv.text = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM_2, 80).toString()

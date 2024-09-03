@@ -21,7 +21,7 @@ android {
             keyPassword '89157719183'
         }
     }
-    namespace 'com.bailout.stickk'
+    namespace 'com.bailout.stickk_dev'
     compileSdk 34
 
     defaultConfig {
@@ -29,7 +29,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 7
-        versionName "2.4.737"
+        versionName "2.4.752"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

@@ -483,6 +483,33 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
               System.err.println("SET_MODE_EMG_SENSORS приём = ${castUnsignedCharToInt(data[14])}")
             }
           }
+          if (data.size >= 17) {
+            System.err.println("SHUTDOWN_CURRENT_MIN_OPEN_NUM приём = ${castUnsignedCharToInt(data[15])}")
+            System.err.println("SHUTDOWN_CURRENT_MIN_CLOSE_NUM приём = ${castUnsignedCharToInt(data[16])}")
+            if (castUnsignedCharToInt(data[15]) != mSettings!!.getInt(
+                mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_MIN_OPEN_NUM,
+                0
+              )
+            ) {
+              saveInt(
+                mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_MIN_OPEN_NUM,
+                castUnsignedCharToInt(data[15])
+              )
+              RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
+            }
+            if (castUnsignedCharToInt(data[16]) != mSettings!!.getInt(
+                mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_MIN_CLOSE_NUM,
+                0
+              )
+            ) {
+              saveInt(
+                mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_MIN_CLOSE_NUM,
+                castUnsignedCharToInt(data[16])
+              )
+              RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(enableInterfaceStatus)
+            }
+
+          }
           if (data.size >= 18) {
             if (castUnsignedCharToInt(data[17]) != mSettings!!.getInt(
                 mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, 0)) {

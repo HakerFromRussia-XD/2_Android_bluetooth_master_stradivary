@@ -2,11 +2,9 @@ package com.bailout.stickk.ubi4.ui.adapters.testDelegeteAdapter
 
 import com.bailout.stickk.databinding.TextItemBinding
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
-import com.livermor.dumchev.delegateadapters.base.TextItem
+import com.bailout.stickk.ubi4.ui.fragments.testDelegateAdapter.TextItem
 
-/**
- * @author dumchev on 05.11.17.
- */
+
 class TxtDelegateAdapter : ViewBindingDelegateAdapter<TextItem, TextItemBinding>(TextItemBinding::inflate) {
 
     override fun TextItemBinding.onBind(item: TextItem) {

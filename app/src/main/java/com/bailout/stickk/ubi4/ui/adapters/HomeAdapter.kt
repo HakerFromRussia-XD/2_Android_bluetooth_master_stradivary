@@ -5,9 +5,6 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
@@ -28,7 +25,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 import kotlin.coroutines.coroutineContext
 
 class HomeAdapter(private val typeCellsList: ArrayList<String>,
@@ -54,16 +50,16 @@ class HomeAdapter(private val typeCellsList: ArrayList<String>,
         System.err.println("HomeAdapter onCreateViewHolder")
         return ChatViewHolder(itemView)
     }
-    fun test() {
-        GlobalScope.launch(Dispatchers.Main) {
-            withContext(Dispatchers.Default) {
-                MainActivityUBI4.testSignal.collectLatest { value ->
-                    dataSens1 = value
-                    dataSens2 = 255 - value
-                }
-            }
-        }
-    }
+//    fun test() {
+//        GlobalScope.launch(Dispatchers.Main) {
+//            withContext(Dispatchers.Default) {
+//                MainActivityUBI4.testSignal.collectLatest { value ->
+//                    dataSens1 = value
+//                    dataSens2 = 255 - value
+//                }
+//            }
+//        }
+//    }
 
 
     @SuppressLint("SetTextI18n")

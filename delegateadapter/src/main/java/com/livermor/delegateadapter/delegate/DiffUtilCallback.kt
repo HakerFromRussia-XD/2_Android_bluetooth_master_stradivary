@@ -2,9 +2,7 @@ package com.livermor.delegateadapter.delegate
 
 import androidx.recyclerview.widget.DiffUtil
 
-/**
- * @author dumchev on 16.11.17.
- */
+
 class DiffUtilCallback(
     private val oldState: AdaptersState,
     private val newState: AdaptersState

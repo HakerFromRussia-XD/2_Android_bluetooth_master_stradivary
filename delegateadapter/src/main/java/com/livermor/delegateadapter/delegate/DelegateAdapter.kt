@@ -3,9 +3,7 @@ package com.livermor.delegateadapter.delegate
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
-/**
- * @author dumchev on 03.11.17.
- */
+
 interface DelegateAdapter {
     // same rv.adapter methods to delegate
     fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder

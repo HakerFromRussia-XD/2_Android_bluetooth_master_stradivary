@@ -2,7 +2,7 @@ package com.bailout.stickk.ubi4.ui.adapters.testDelegeteAdapter
 
 import com.bailout.stickk.databinding.ImageItemBinding
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
-import com.livermor.dumchev.delegateadapters.base.ImageItem
+import com.bailout.stickk.ubi4.ui.fragments.testDelegateAdapter.ImageItem
 
 class GenerateItemsDelegateAdapter(private val generateNewItems: () -> Unit) :
     ViewBindingDelegateAdapter<ImageItem, ImageItemBinding>(ImageItemBinding::inflate) {

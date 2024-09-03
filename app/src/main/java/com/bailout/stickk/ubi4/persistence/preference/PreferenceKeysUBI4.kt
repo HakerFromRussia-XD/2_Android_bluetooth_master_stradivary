@@ -62,6 +62,7 @@ object PreferenceKeysUBI4 {
         SAVE_DATA (0x06)
     }
 
+    //используется для определения типов данных в определённых вью
     enum class ParameterWidgetType(val number: Byte) {
         PWTE_UNKNOW (0x00),
         PWTE_COMMAND (0x01),
@@ -79,6 +80,7 @@ object PreferenceKeysUBI4 {
         PWTE_SCALAR (0x0d)
     }
 
+    //используется для отрисовки вью
     enum class ParameterWidgetCode(val number: Byte) {
         PWCE_UNKNOW (0x00),
         PWCE_BUTTON (0x01),
@@ -113,5 +115,9 @@ object PreferenceKeysUBI4 {
     enum class ParameterWidgetLabelType(val number: Byte) {
         PWLTE_CODE_LABEL(0x00),
         PWLTE_STRING_LABEL(0x01)
+    }
+
+    enum class AdditionalParameterInfoType(val number: Byte) {
+        WIDGET(0x05)
     }
 }

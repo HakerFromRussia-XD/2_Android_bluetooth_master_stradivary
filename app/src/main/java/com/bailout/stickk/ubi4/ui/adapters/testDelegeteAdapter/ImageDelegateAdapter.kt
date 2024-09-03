@@ -3,11 +3,9 @@ package com.bailout.stickk.ubi4.ui.adapters.testDelegeteAdapter
 import android.view.View
 import com.bailout.stickk.databinding.ImageItemBinding
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
-import com.livermor.dumchev.delegateadapters.base.ImageItem
+import com.bailout.stickk.ubi4.ui.fragments.testDelegateAdapter.ImageItem
 
-/**
- * @author dumchev on 04.11.17.
- */
+
 class ImageDelegateAdapter(private val clickListener: View.OnClickListener) :
     ViewBindingDelegateAdapter<ImageItem, ImageItemBinding>(ImageItemBinding::inflate) {
 

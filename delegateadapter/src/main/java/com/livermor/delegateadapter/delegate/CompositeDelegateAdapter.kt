@@ -5,9 +5,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
-/**
- * @author dumchev on 03.11.17.
- */
+
 open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : RecyclerView.Adapter<ViewHolder>() {
 
     //  Contract is: adapters position is used as ViewType.
@@ -28,8 +26,12 @@ open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : Recycler
     open fun swapData(data: List<Any>) {
         val newAdapterState = adapterState.copy(data = data)
         val diffCallback = DiffUtilCallback(adapterState, newAdapterState)
+        System.err.println("MockDataFactory.prepareData(): diffCallback отработал")
         val diffResult = DiffUtil.calculateDiff(diffCallback)
+        System.err.println("MockDataFactory.prepareData(): diffResult отработал")
         adapterState = newAdapterState
+        System.err.println("MockDataFactory.prepareData(): adapterState изменён")
+        //adds animation at the moment of re-building
         diffResult.dispatchUpdatesTo(this)
     }
 

@@ -1,3 +1,5 @@
+@file:OptIn(DelicateCoroutinesApi::class)
+
 package com.bailout.stickk.ubi4.ui.main
 
 import android.annotation.SuppressLint
@@ -18,7 +20,6 @@ import android.os.IBinder
 import android.widget.ExpandableListView
 import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.bailout.stickk.R
@@ -51,16 +52,19 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceI
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.HEADER_BLE_OFFSET
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.ui.fragments.HomeFragment
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlin.properties.Delegates
@@ -107,6 +111,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
         }
     }
     private lateinit var incrementTestSignalJob: Job
+    private val listWidgets = ArrayList<String>()
 
     private var testSignalInc = 0
     val chatFlow = MutableStateFlow<Int>(0)
@@ -134,10 +139,6 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
         worker.start()
 
 
-//        GlobalScope.launch() {
-            testSignal = MutableStateFlow<Int>(0)
-//        }
-
         System.err.println("MainActivityUBI4 do")
         supportFragmentManager
             .beginTransaction()
@@ -145,16 +146,27 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
             .commit()
         System.err.println("MainActivityUBI4 posle")
 
-//        GlobalScope.launch() {
-//            incrementTestSignal()
-//        }
 
 
-//        val myColor = Color(1, 255, 254)
-//        val testString: String = "00ff00"
 
-//        System.err.println("TEST Serializer 1: ${Json.decodeFromString<Color>("\"$testString\"").toString()}")
-//        System.err.println("TEST Serializer 2: ${Json.encodeToString(myColor)}")
+        testSignalArray = MutableStateFlow<ArrayList<String>>(arrayListOf())
+        binding.buttonFlow.setOnClickListener {
+            sendWidgetsArray(listWidgets)
+        }
+
+        GlobalScope.launch { collectLatest() }
+    }
+    private fun sendWidgetsArray(_listWidgets: ArrayList<String>) {
+        val newCollectionWdgets = _listWidgets
+        newCollectionWdgets.add("newWidget")
+        testSignalArray.value = newCollectionWdgets
+//        GlobalScope.launch { collectLatest() }
+//        System.err.println("Изначальная коллекция: ${listWidgets} testSignal")
+    }
+    suspend fun collectLatest() {
+        testSignalArray.collectLatest { value ->
+            println("$value testSignal3")
+        }
     }
 
 
@@ -173,44 +185,10 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
             reconnectThread()
         }
     }
-    private suspend fun incrementTestSignal()  {
-        System.err.println("incrementTestSignal $testSignalInc")
-        sendMessage(testSignalInc + (0..10).random())
-        testSignalInc += 1
 
-        if (testSignalInc == 245) { testSignalInc = 0 }
-        delay(25)
-        incrementTestSignal()
-    }
-    suspend fun sendMessage(message: Int) {
-        testSignal.value = message
-    }
 
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
     override fun goingBack() { onBackPressed() }
-//    @SuppressLint("MissingSuperCall")
-//    override fun onBackPressed() {
-//        System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
-//        //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи
-//        if (supportFragmentManager.backStackEntryCount != 0) {
-//            super.onBackPressed()
-//        }
-//        if (supportFragmentManager.backStackEntryCount == 0) {
-//        }
-//    }
-
-
-//    onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-//        override fun handleOnBackPressed() {
-//            System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
-//            //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи
-//            if (supportFragmentManager.backStackEntryCount != 0) {
-//                super.onBackPressed()
-//            }
-//            if (supportFragmentManager.backStackEntryCount == 0) {
-//            }
-//        }
-//    })
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
@@ -318,13 +296,12 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
     private fun displayReceivedData (data: ByteArray?) {
         if (data != null) {
             firstNotificationRequestFlag = false
-            val receiveDataString2 = data.toString(Charsets.UTF_8)
-            val receiveDataString = EncodeByteToHex.bytesToHexString(data)
+            val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
             val dataTransmissionDirection = data[0]
             val codeRequest = data[1]
             val dataLenght = castUnsignedCharToInt(data[3]) + castUnsignedCharToInt(data[4])*256
             val packageCodeRequest = data[7]
-            val typeRequest = data[8]
+            var ID = castUnsignedCharToInt(data[8])
             System.err.println("TEST dataLenght = $dataLenght")
 
             when (codeRequest){
@@ -360,18 +337,17 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
                         DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETR.number -> {
                             // показ отправленной и принятой посылки
 //                            System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR $receiveDataString")
-                            baseParametrInfoStructArray.size
                             if (dataLenght > READ_DEVICE_ADDITIONAL_PARAMETR_DATA) {
                                 //показ только принятой посылки
 //                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR $receiveDataString")
                                 val offset = HEADER_BLE_OFFSET * 2 + READ_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
                                 var dataOffset = 0
-                                var ID = castUnsignedCharToInt(data[8])
-
 
                                 if (baseParametrInfoStructArray[ID].additionalInfoSize != 0) {
                                     for (i in 0 until baseParametrInfoStructArray[ID].additionalInfoSize) {
+                                        //каждый новый цикл вычитываем следующий addInfoSeg
                                         val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*16, offset+(i+1)*16)}\"")
+                                        //каждый новый цикл вычитываем данные следующего сегмента
                                         val receiveDataStringForParse = receiveDataString.substring(
                                             offset + //отступ на header + отправленные данные (отправленный запрос целиком)
                                             baseParametrInfoStructArray[ID].additionalInfoSize*ADDITIONAL_INFO_SEG*2 + //отступ на n кол-во additionalInfoSeg в конкретном параметре
@@ -380,38 +356,53 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
                                             baseParametrInfoStructArray[ID].additionalInfoSize*ADDITIONAL_INFO_SEG*2 +
                                             dataOffset*2 +
                                             additionalInfoSizeStruct.infoSize*2) // оступ на кол-во байт в считываемом сегменте
-//                                        System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID  ${additionalInfoSizeStruct}")
+//                                        System.err.println("TEST parser READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID     infoType: ${additionalInfoSizeStruct.infoType}")
                                         dataOffset = additionalInfoSizeStruct.infoSize
 
 
                                         val baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${receiveDataStringForParse}\"")
-                                        when (baseParameterWidgetStruct.widgetLabelType) {
-                                            ParameterWidgetLabelType.PWLTE_CODE_LABEL.number.toInt() -> {
-                                                val baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                                                when (baseParameterWidgetEStruct.labelCode) {
-                                                    ParameterWidgetLabel.PWLE_UNKNOW.number.toInt() -> {}
-                                                    ParameterWidgetLabel.PWLE_OPEN.number.toInt() -> {}
-                                                    ParameterWidgetLabel.PWLE_CLOSE.number.toInt() -> {}
-                                                }
-                                                when (baseParameterWidgetStruct.widgetType) {
-                                                    ParameterWidgetType.PWTE_COMMAND.number.toInt() -> {
-                                                        val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                                                        System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID  ${commandParameterWidgetEStruct}")
+                                        when (additionalInfoSizeStruct.infoType) {
+                                            AdditionalParameterInfoType.WIDGET.number.toInt() -> {
+                                                when (baseParameterWidgetStruct.widgetLabelType) {
+                                                    ParameterWidgetLabelType.PWLTE_CODE_LABEL.number.toInt() -> {
+                                                        val baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+                                                        when (baseParameterWidgetEStruct.labelCode) {
+                                                            ParameterWidgetLabel.PWLE_UNKNOW.number.toInt() -> {}
+                                                            ParameterWidgetLabel.PWLE_OPEN.number.toInt() -> {}
+                                                            ParameterWidgetLabel.PWLE_CLOSE.number.toInt() -> {}
+                                                        }
+                                                        System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID    widgetType: ${baseParameterWidgetStruct.widgetType}   widgetCode: ${baseParameterWidgetStruct.widgetCode} $receiveDataString $receiveDataStringForParse")
+                                                        when (baseParameterWidgetStruct.widgetType) {
+                                                            ParameterWidgetType.PWTE_COMMAND.number.toInt() -> {
+                                                                val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+                                                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID  ${commandParameterWidgetEStruct}")
+                                                            }
+                                                        }
+//                                                        _listWidgets.add(receiveDataString)
+                                                        GlobalScope.launch() {
+//                                                            sendMessage(testSignalInc + (0..10).random())
+                                                            sendWidgetsArray(listWidgets)
+                                                        }
+                                                    }
+                                                    ParameterWidgetLabelType.PWLTE_STRING_LABEL.number.toInt() -> {
+                                                        val baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                                                        System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID  ${baseParameterWidgetSStruct}")
                                                     }
                                                 }
-                                            }
-                                            ParameterWidgetLabelType.PWLTE_STRING_LABEL.number.toInt() -> {
-                                                val baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
-                                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID  ${baseParameterWidgetSStruct}")
                                             }
                                         }
                                     }
                                 }
+//                                listWidgets = _listWidgets
+//                                GlobalScope.launch() {
+//                                    sendWidgetsArray(listWidgets)
+//                                }
+//                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR testSignal listWidgets:$listWidgets")
 
                                 //проход по остальным параметрам
                                 ID = getNextID(ID) //если additionalInfoSize = 0 то мы пропустим несколько ID
 
-//                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR baseParametrInfoStructArray.size-1=${baseParametrInfoStructArray.size-1} > ID=$ID")
+                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR baseParametrInfoStructArray.size-1=${baseParametrInfoStructArray.size-1} > ID=$ID")
                                 if (ID != 0) {
                                     bleCommand(
                                         BLECommands.requestAdditionalParametrInfo(
@@ -645,10 +636,13 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
     }
 
     companion object {
-        var  testSignal by Delegates.notNull<MutableStateFlow<Int>>()
+//        var testSignal by Delegates.notNull<MutableStateFlow<Int>>()
+        var testSignalArray by Delegates.notNull<MutableStateFlow<ArrayList<String>>>()
+//        var testIntSignalArray by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParametrInfoStruct>>()
+//        var listWidgets by Delegates.notNull<ArrayList<String>>()
 
         var connectedDeviceName by Delegates.notNull<String>()
         var connectedDeviceAddress by Delegates.notNull<String>()

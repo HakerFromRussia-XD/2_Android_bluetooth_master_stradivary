@@ -84,7 +84,7 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-//    compileOnly 'com.github.pengrad:jdk9-deps:1.0'
+//    releaseImplementation 'com.github.pengrad:jdk9-deps:1.0'
 
     implementation 'androidx.core:core-ktx:1.13.1'
 

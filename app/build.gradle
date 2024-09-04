@@ -130,8 +130,6 @@ dependencies {
     implementation 'com.github.SimformSolutionsPvtLtd:SSPullToRefresh:1.5.2'
     // pin
     implementation 'online.devliving:passcodeview:1.0.3'
-    // new
-//    implementation 'lib.kingja.switchbutton:switchbutton:1.1.8'
 
     // butter knife
     implementation 'com.jakewharton:butterknife:10.2.3'

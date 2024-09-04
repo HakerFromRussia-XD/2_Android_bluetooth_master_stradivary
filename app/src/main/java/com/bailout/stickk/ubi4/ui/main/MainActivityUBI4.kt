@@ -163,7 +163,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4 {
 //        GlobalScope.launch { collectLatest() }
 //        System.err.println("Изначальная коллекция: ${listWidgets} testSignal")
     }
-    suspend fun collectLatest() {
+    private suspend fun collectLatest() {
         testSignalArray.collectLatest { value ->
             println("$value testSignal3")
         }

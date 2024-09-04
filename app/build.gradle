@@ -64,7 +64,11 @@ android {
     }
     viewBinding { enabled true }
     kapt { generateStubs = true }
-
+//    sourceSets {
+//        main {
+//            jniLibs.srcDirs = ['libs']
+//        }
+//    }
 
     testOptions {
         unitTests.includeAndroidResources = true
@@ -88,10 +92,10 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.13.1'
 
-    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.32"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.22"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.9.22"
 //    implementation "org.jetbrains.anko:anko:$ankoVersion"
 
     // retrofit
@@ -101,7 +105,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.5.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1'
     //gson
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     // dagger
     implementation "com.google.dagger:dagger:2.47"
@@ -118,6 +122,8 @@ dependencies {
     implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.2'
 
     // custom views
+//    implementation (files("libs/navigationtabbar-1.2.5.aar"))
+//    implementation (files("libs/switchbutton.aar"))
     implementation (name: 'navigationtabbar-1.2.5', ext:'aar')
     implementation (name: 'switchbutton', ext:'aar')
     implementation 'com.github.jorgecastilloprz:fillableloaders:1.03@aar'

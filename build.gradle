@@ -10,7 +10,7 @@ buildscript {
         flatDir {
             dirs 'libs'
         }
-        maven { url 'https://repo.spring.io/plugins-release/'}
+        maven { url 'https://repo.spring.io/plugins-release/' }
         maven { url = uri('https://jitpack.io') }
         maven { url 'https://plugins.gradle.org/m2' }
         google()
@@ -34,7 +34,7 @@ allprojects {
         flatDir {
             dirs 'libs'
         }
-        maven { url 'https://repo.spring.io/plugins-release/'}
+        maven { url 'https://repo.spring.io/plugins-release/' }
         maven { url = uri('https://jitpack.io') }
         maven { url 'https://plugins.gradle.org/m2' }
         google()

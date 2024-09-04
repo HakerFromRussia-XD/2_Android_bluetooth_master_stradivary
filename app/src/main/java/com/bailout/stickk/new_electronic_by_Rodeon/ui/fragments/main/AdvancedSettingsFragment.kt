@@ -33,7 +33,8 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.bailout.stickk.BuildConfig
+import androidx.multidex.BuildConfig
+//import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.LayoutAdvancedSettingsBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication

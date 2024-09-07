@@ -9,11 +9,7 @@ fun Fragment.navigator(): NavigatorUBI4 {
 interface NavigatorUBI4 {
 
     fun saveString(key: String, text: String)
-    fun initBLEStructure()
-    fun scanLeDevice(enable: Boolean)
-    fun disconnect ()
-    fun reconnect ()
-    fun bleCommand(byteArray: ByteArray?, command: String, typeCommand: String)
+
 
     fun getBackStackEntryCount():Int
     fun goingBack()

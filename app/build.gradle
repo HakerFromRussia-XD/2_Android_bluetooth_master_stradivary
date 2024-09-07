@@ -64,11 +64,11 @@ android {
     }
     viewBinding { enabled true }
     kapt { generateStubs = true }
-//    sourceSets {
-//        main {
-//            jniLibs.srcDirs = ['libs']
-//        }
-//    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 
     testOptions {
         unitTests.includeAndroidResources = true
@@ -79,6 +79,9 @@ android {
                 html.enabled = false
             }
         }
+    }
+    buildFeatures {
+        buildConfig true
     }
 }
 
@@ -122,10 +125,10 @@ dependencies {
     implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.2'
 
     // custom views
-//    implementation (files("libs/navigationtabbar-1.2.5.aar"))
-//    implementation (files("libs/switchbutton.aar"))
-    implementation (name: 'navigationtabbar-1.2.5', ext:'aar')
-    implementation (name: 'switchbutton', ext:'aar')
+    implementation (files("libs/navigationtabbar-1.2.5.aar"))
+    implementation (files("libs/switchbutton.aar"))
+//    implementation (name: 'navigationtabbar-1.2.5', ext:'aar')
+//    implementation (name: 'switchbutton', ext:'aar')
     implementation 'com.github.jorgecastilloprz:fillableloaders:1.03@aar'
     implementation 'com.github.paolorotolo:appintro:4.1.0'
     implementation 'com.skyfishjy.ripplebackground:library:1.0.1'

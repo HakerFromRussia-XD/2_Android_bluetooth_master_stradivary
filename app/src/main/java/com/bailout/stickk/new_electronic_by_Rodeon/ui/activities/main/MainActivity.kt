@@ -52,6 +52,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ArcanoidFra
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.NeuralFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.SecretSettingsFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.utils.BlockingQueue
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
@@ -111,7 +112,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var firstRead = true
   private var speedFinger = 0
   // Очередь для задачь работы с BLE
-  private val queue = com.bailout.stickk.new_electronic_by_Rodeon.services.receivers.BlockingQueue()
+  private val queue =
+    BlockingQueue()
   private var readDataFlag = true
   private var globalSemaphore = false // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
   private var endFlag = false

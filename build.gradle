@@ -7,10 +7,6 @@ buildscript {
     }
     repositories {
         mavenCentral()
-        flatDir {
-            dirs 'libs'
-        }
-        maven { url 'https://repo.spring.io/plugins-release/' }
         maven { url = uri('https://jitpack.io') }
         maven { url 'https://plugins.gradle.org/m2' }
         google()
@@ -22,19 +18,12 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
         classpath "com.diffplug.spotless:spotless-plugin-gradle:$spotlessVersion"
-
-//        classpath(kotlin("gradle-plugin", version = "2.0.0"))
-//        classpath(kotlin("serialization", version = "2.0.0"))
     }
 }
 
 allprojects {
     repositories {
         mavenCentral()
-        flatDir {
-            dirs 'libs'
-        }
-        maven { url 'https://repo.spring.io/plugins-release/' }
         maven { url = uri('https://jitpack.io') }
         maven { url 'https://plugins.gradle.org/m2' }
         google()

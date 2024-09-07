@@ -5,9 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.multidex.BuildConfig
 import androidx.recyclerview.widget.RecyclerView
-//import com.bailout.stickk.BuildConfig
+import com.bailout.stickk.BuildConfig
 import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountFragmentMain.Companion.accountMainList
 

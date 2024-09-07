@@ -39,12 +39,11 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-import androidx.multidex.BuildConfig;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
-//import com.bailout.stickk.BuildConfig;
+import com.bailout.stickk.BuildConfig;
 import com.bailout.stickk.R;
 import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication;
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager;

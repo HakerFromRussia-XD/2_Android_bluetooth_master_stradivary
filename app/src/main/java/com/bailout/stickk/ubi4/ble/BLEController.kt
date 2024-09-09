@@ -14,7 +14,6 @@ import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.IBinder
-import android.widget.SimpleExpandableListAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
@@ -25,13 +24,11 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
-import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.inScanFragmentFlag
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.GlobalScope
@@ -72,6 +69,23 @@ class BLEController (main: MainActivityUBI4 ) {
         }
     }
 
+
+
+    private val nums = arrayOfNulls<Int>(3)
+    private val sortedNums : ArrayList<Int> = arrayListOf(1, 3)
+
+    fun test() {
+        sortedNums.add(2)
+//        for(i in 0 until 3) {
+//            nums[i] = 1
+//            sortedNums.add(1)
+//        }
+
+//        nums.sortedDescending()
+//        nums.sortedBy()
+        println("sortedmass: ${sortedNums.sorted()[1]}")
+    }
+
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     internal fun initBLEStructure() {
         if (!mMain.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -106,7 +120,7 @@ class BLEController (main: MainActivityUBI4 ) {
                     mMain.invalidateOptionsMenu()
 //                    percentSynchronize = 0
 
-                    if(!reconnectThreadFlag && !mScanning && !inScanFragmentFlag){
+                    if(!reconnectThreadFlag && !mScanning){
                         reconnectThreadFlag = true
                         reconnectThread()
                     }

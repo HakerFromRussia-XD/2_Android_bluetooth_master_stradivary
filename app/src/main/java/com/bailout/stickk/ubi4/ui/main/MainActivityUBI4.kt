@@ -45,6 +45,8 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
 
         // инициализация блютуз
         mBLEController = BLEController(this)
+
+        mBLEController.test()
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
 

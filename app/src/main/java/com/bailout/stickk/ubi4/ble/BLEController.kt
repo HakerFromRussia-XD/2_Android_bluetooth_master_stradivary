@@ -15,6 +15,7 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.IBinder
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
@@ -24,6 +25,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
+import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -35,9 +37,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class BLEController (main: MainActivityUBI4 ) {
+class BLEController (main: AppCompatActivity) {
     private val mContext: Context = main.applicationContext
-    private val mMain: MainActivityUBI4 = main
+    private val mMain: MainActivityUBI4 = main as MainActivityUBI4
+    private var mBLEParser: BLEParser? = null
 
 
     private var mBluetoothAdapter: BluetoothAdapter? = null
@@ -69,23 +72,6 @@ class BLEController (main: MainActivityUBI4 ) {
         }
     }
 
-
-
-    private val nums = arrayOfNulls<Int>(3)
-    private val sortedNums : ArrayList<Int> = arrayListOf(1, 3)
-
-    fun test() {
-        sortedNums.add(2)
-//        for(i in 0 until 3) {
-//            nums[i] = 1
-//            sortedNums.add(1)
-//        }
-
-//        nums.sortedDescending()
-//        nums.sortedBy()
-        println("sortedmass: ${sortedNums.sorted()[1]}")
-    }
-
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     internal fun initBLEStructure() {
         if (!mMain.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -98,11 +84,12 @@ class BLEController (main: MainActivityUBI4 ) {
             Toast.makeText(mContext, "ошибка 2", Toast.LENGTH_SHORT).show()
             mMain.finish()
         } else {
-            Toast.makeText(mContext, "mBluetoothAdapter != null", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(mContext, "mBluetoothAdapter != null", Toast.LENGTH_SHORT).show()
         }
         val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
         mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+        mBLEParser = BLEParser(mMain)
     }
 
     private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -148,7 +135,7 @@ class BLEController (main: MainActivityUBI4 ) {
                             0xff.toByte(), 0x0b, 0x0c,
                             0xff.toByte(), 0x01, 0x02, 0x03)
                         //TODO переренести парсинг принятых данных в отдельный класс
-                        displayReceivedData(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))//fakeData2)//intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))
+                        parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))//fakeData2)//intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))
                     }
                 }
             }
@@ -166,31 +153,11 @@ class BLEController (main: MainActivityUBI4 ) {
             firstNotificationRequest()
         }
     }
-    private fun displayReceivedData (data: ByteArray?) {
+    private fun parseReceivedData (data: ByteArray?) {
         if (data != null) {
             firstNotificationRequestFlag = false
-            val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
-            val dataTransmissionDirection = data[0]
-            val codeRequest = data[1]
-            val dataLength = castUnsignedCharToInt(data[3]) + castUnsignedCharToInt(data[4]) * 256
-            val packageCodeRequest = data[7]
-            var ID = castUnsignedCharToInt(data[8])
-            System.err.println("TEST dataLength = $dataLength")
+            mBLEParser?.parseReceivedData(data)
         }
-    }
-    private fun getNextID(ID: Int): Int{
-        var result = 0
-        for (i in baseParametrInfoStructArray.indices) {
-//            System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR ID=$ID")
-            if (ID < baseParametrInfoStructArray[i].ID ) {
-//                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR ID=$ID")
-                if (baseParametrInfoStructArray[i].additionalInfoSize != 0) {
-                    return baseParametrInfoStructArray[i].ID
-                }
-            }
-        }
-//        System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR ID=$ID")
-        return result
     }
     private fun displayGattServices(gattServices: List<BluetoothGattService>?) {
         System.err.println("DeviceControlActivity------->   момент начала выстраивания списка параметров")

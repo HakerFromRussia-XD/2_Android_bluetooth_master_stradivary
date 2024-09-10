@@ -26,11 +26,11 @@ open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : Recycler
     open fun swapData(data: List<Any>) {
         val newAdapterState = adapterState.copy(data = data)
         val diffCallback = DiffUtilCallback(adapterState, newAdapterState)
-        System.err.println("MockDataFactory.prepareData(): diffCallback отработал")
+//        System.err.println("prepareData(): diffCallback отработал")
         val diffResult = DiffUtil.calculateDiff(diffCallback)
-        System.err.println("MockDataFactory.prepareData(): diffResult отработал")
+//        System.err.println("prepareData(): diffResult отработал")
         adapterState = newAdapterState
-        System.err.println("MockDataFactory.prepareData(): adapterState изменён")
+//        System.err.println("prepareData(): adapterState изменён")
         //adds animation at the moment of re-building
         diffResult.dispatchUpdatesTo(this)
     }

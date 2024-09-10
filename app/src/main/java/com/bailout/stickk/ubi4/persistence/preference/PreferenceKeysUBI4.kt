@@ -18,6 +18,8 @@ object PreferenceKeysUBI4 {
     const val HEADER_BLE_OFFSET = 7
     const val READ_DEVICE_ADDITIONAL_PARAMETR_DATA = 2
     const val ADDITIONAL_INFO_SEG = 8
+    const val BASE_PARAMETER_INFO_STRUCT_SIZE = 32
+
 
     const val END_PARAMETERS_ARRAY_KEY = 23654328
     const val DEVICE_NAME = "DEVICE_NAME"
@@ -120,4 +122,13 @@ object PreferenceKeysUBI4 {
     enum class AdditionalParameterInfoType(val number: Byte) {
         WIDGET(0x05)
     }
+
+    enum class ParameterLimitTypeEnum(val number: Byte) {
+        PLTE_LIMIT_NO_LIMIT(0x00),
+        PLTE_LIMIT_BY_TYPE(0x01),
+        PLTE_LIMIT_CUSTOM(0x02),
+        PLTE_LIMIT_100(0x03),
+        PLTE_LIMIT_NUM(0x04)
+    }
+
 }

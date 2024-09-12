@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
-import com.bailout.stickk.ubi4.adapters.testDelegeteAdapter.CheckDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.testDelegeteAdapter.ImageDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.testDelegeteAdapter.TxtDelegateAdapter
+//import com.bailout.stickk.ubi4.adapters.testDelegeteAdapter.CheckDelegateAdapter
+//import com.bailout.stickk.ubi4.adapters.testDelegeteAdapter.ImageDelegateAdapter
+//import com.bailout.stickk.ubi4.adapters.testDelegeteAdapter.TxtDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.DataFactory
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.MockDataFactory
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
@@ -37,7 +37,7 @@ class HomeFragment : Fragment() {
         if (activity != null) { main = activity as MainActivityUBI4? }
         widgetListUpdater()
 
-        binding.buttonFlow.setOnClickListener { generateNewData() }
+//        binding.buttonFlow.setOnClickListener { generateNewData() }
         binding.homeRv.layoutManager = LinearLayoutManager(context)
         binding.homeRv.adapter = adapterWidgets
         adapterWidgets.swapData(listOf())
@@ -47,7 +47,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    // 1) Мне необходимо получить тут список виджетов для отрисовки (в формате строк со всей необходимой инфой внутри)
+    // 1) Мне необходимо получить тут список виджетов для отрисовки
     // 1.1)
     // 2) DataFactory возвращает список из ячеек разных типов для отрисовки
 
@@ -57,7 +57,7 @@ class HomeFragment : Fragment() {
         GlobalScope.launch(Main) {
             withContext(Default) {
                 updateFlow.collect { value ->
-                    println("$value testSignal $listWidgets")
+                    println("$value testSignal before prepareData $listWidgets")
                     main?.runOnUiThread {
                         adapterWidgets.swapData(DataFactory.prepareData())
                     }
@@ -67,9 +67,6 @@ class HomeFragment : Fragment() {
     }
 
     private val adapterWidgets = CompositeDelegateAdapter(
-        TxtDelegateAdapter(),
-        CheckDelegateAdapter(),
-        ImageDelegateAdapter {  },
         OneButtonDelegateAdapter { title ->  buttonClick(title) }
     )
 
@@ -81,8 +78,5 @@ class HomeFragment : Fragment() {
         if (title.title.contains("Open 1")) {
             System.err.println("buttonClick Open 1")
             transmitter().bleCommand(byteArrayOf(0x40, 0x80.toByte(), 0x00, 0x01, 0x00, 0x00, 0x00, 0x02), NOTIFICATION_DATA, WRITE)}
-    }
-    private fun generateNewData() {
-        adapterWidgets.swapData(DataFactory.prepareData())
     }
 }

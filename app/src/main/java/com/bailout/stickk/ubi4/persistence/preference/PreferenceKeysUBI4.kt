@@ -14,13 +14,6 @@ package com.bailout.stickk.ubi4.persistence.preference
 
 
 object PreferenceKeysUBI4 {
-    //кол-во байт в посылках
-    const val HEADER_BLE_OFFSET = 7
-    const val READ_DEVICE_ADDITIONAL_PARAMETR_DATA = 2
-    const val ADDITIONAL_INFO_SEG = 8
-    const val BASE_PARAMETER_INFO_STRUCT_SIZE = 32
-
-
     const val END_PARAMETERS_ARRAY_KEY = 23654328
     const val DEVICE_NAME = "DEVICE_NAME"
     const val CONNECTED_DEVICE_ADDRESS = "CONNECTED_DEVICE_ADDRESS"
@@ -95,7 +88,9 @@ object PreferenceKeysUBI4 {
         PWCE_GESTURE_SETTINGS (0x08),
         PWCE_CALIB_STATUS (0x09),
         PWCE_CONTROL_MODE (0x0a),
-        PWCE_OPEN_CLOSE_THRESHOLD (0x0b)
+        PWCE_OPEN_CLOSE_THRESHOLD (0x0b),
+        PWCE_PLOT_AND_1_THRESHOLD (0x0c),
+        PWCE_PLOT_AND_2_THRESHOLD (0x0d)
     }
 
     enum class ParameterWidgetLabel(val number: Byte) {

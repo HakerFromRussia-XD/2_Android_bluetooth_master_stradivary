@@ -29,7 +29,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
-    val chatFlow = MutableStateFlow<Int>(0)
+    val chartFlow = MutableStateFlow(0)
 
 
     @SuppressLint("CommitTransaction")
@@ -114,7 +114,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
 
     companion object {
         var updateFlow by Delegates.notNull<MutableStateFlow<Int>>()
-        var listWidgets by Delegates.notNull<ArrayList<String>>()
+        var listWidgets by Delegates.notNull<ArrayList<Any>>()
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()

@@ -6,27 +6,35 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFICATION_DATA
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.data.OneButtonWidget
+import com.bailout.stickk.ubi4.data.TestSpinnerButtonWidget
+import com.bailout.stickk.ubi4.data.TestTwoButtonWidget
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
-import com.bailout.stickk.ubi4.data.widget.BaseParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.BaseParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.BaseParameterWidgetStruct
-import com.bailout.stickk.ubi4.data.widget.CommandParameterWidgetEStruct
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ADDITIONAL_INFO_SEG
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BASE_PARAMETER_INFO_STRUCT_SIZE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetType
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.HEADER_BLE_OFFSET
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SEG
+import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
+import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.BASE_PARAMETER_INFO_STRUCT_SIZE
+import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFSET
+import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -35,6 +43,8 @@ import kotlinx.serialization.json.Json
 class BLEParser(main: AppCompatActivity) {
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
     private var mConnected = false
+
+//    val listWidgets = ArrayList<Any>()
 
 
     internal fun parseReceivedData (data: ByteArray?) {
@@ -68,7 +78,7 @@ class BLEParser(main: AppCompatActivity) {
                                 val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
                                 for(i in 0 until fullInicializeConnectionStruct.parametrsNum) {
                                     listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(20+i*BASE_PARAMETER_INFO_STRUCT_SIZE, 20+(i+1)*BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
-                                    System.err.println("TEST parser 2 READ_DEVICE_PARAMETRS $i ")
+//                                    System.err.println("TEST parser 2 READ_DEVICE_PARAMETRS $i ")
                                 }
                                 baseParametrInfoStructArray = listA
                                 baseParametrInfoStructArray.forEach { println("READ_DEVICE_PARAMETRS $it") }
@@ -78,63 +88,43 @@ class BLEParser(main: AppCompatActivity) {
                                         baseParametrInfoStructArray[0].ID.toByte()
                                     ), NOTIFICATION_DATA, WRITE
                                 )
-                                System.err.println("TEST parser 2 READ_DEVICE_PARAMETRS ${baseParametrInfoStructArray.toString()}" )
+//                                System.err.println("TEST parser 2 READ_DEVICE_PARAMETRS ${baseParametrInfoStructArray.toString()}" )
+                                listWidgets.clear()
                             }
                         }
                         DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETR.number -> {
+                            // читает каждый параметр отдельно по его ID
                             // показ отправленной и принятой посылки
-//                            System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR $receiveDataString")
+                            System.err.println("TEST parser 2 отправленная и принятая посылка READ_DEVICE_ADDITIONAL_PARAMETR $receiveDataString")
                             if (dataLength > READ_DEVICE_ADDITIONAL_PARAMETR_DATA) {
                                 //показ только принятой посылки
-                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR $receiveDataString additionalInfoSize=${baseParametrInfoStructArray[ID].additionalInfoSize}")
-                                val offset = HEADER_BLE_OFFSET * 2 + READ_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
+                                System.err.println("TEST parser 2 принятая посылка READ_DEVICE_ADDITIONAL_PARAMETR $receiveDataString additionalInfoSize=${baseParametrInfoStructArray[ID].additionalInfoSize}")
+                                val offset = HEADER_BLE_OFFSET + READ_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
                                 var dataOffset = 0
 
                                 if (baseParametrInfoStructArray[ID].additionalInfoSize != 0) {
                                     for (i in 0 until baseParametrInfoStructArray[ID].additionalInfoSize) {
                                         //каждый новый цикл вычитываем следующий addInfoSeg
-                                        val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*16, offset+(i+1)*16)}\"")
+                                        val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset+(i+1)*ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\"")
                                         //каждый новый цикл вычитываем данные следующего сегмента
                                         val receiveDataStringForParse = receiveDataString.substring(
                                             offset + //отступ на header + отправленные данные (отправленный запрос целиком)
-                                            baseParametrInfoStructArray[ID].additionalInfoSize*ADDITIONAL_INFO_SEG*2 + //отступ на n кол-во additionalInfoSeg в конкретном параметре
+                                            baseParametrInfoStructArray[ID].additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
                                             dataOffset*2, // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
                                             offset +
-                                            baseParametrInfoStructArray[ID].additionalInfoSize*ADDITIONAL_INFO_SEG*2 +
+                                            baseParametrInfoStructArray[ID].additionalInfoSize*ADDITIONAL_INFO_SEG +
                                             dataOffset*2 +
                                             additionalInfoSizeStruct.infoSize*2) // оступ на кол-во байт в считываемом сегменте
-//                                        System.err.println("TEST parser READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID     infoType: ${additionalInfoSizeStruct.infoType}")
 //                                        System.err.println("testSignal 0 $receiveDataStringForParse")
                                         dataOffset = additionalInfoSizeStruct.infoSize
 
 
-                                        val baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${receiveDataStringForParse}\"")
                                         when (additionalInfoSizeStruct.infoType) {
                                             AdditionalParameterInfoType.WIDGET.number.toInt() -> {
-                                                when (baseParameterWidgetStruct.widgetLabelType) {
-                                                    ParameterWidgetLabelType.PWLTE_CODE_LABEL.number.toInt() -> {
-                                                        val baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                                                        when (baseParameterWidgetEStruct.labelCode) {
-                                                            ParameterWidgetLabel.PWLE_UNKNOW.number.toInt() -> {}
-                                                            ParameterWidgetLabel.PWLE_OPEN.number.toInt() -> {}
-                                                            ParameterWidgetLabel.PWLE_CLOSE.number.toInt() -> {}
-                                                        }
-//                                                        System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID    widgetType: ${baseParameterWidgetStruct.widgetType}   widgetCode: ${baseParameterWidgetStruct.widgetCode} $receiveDataString $receiveDataStringForParse")
-                                                        when (baseParameterWidgetStruct.widgetType) {
-                                                            ParameterWidgetType.PWTE_COMMAND.number.toInt() -> {
-                                                                val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-//                                                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID  ${commandParameterWidgetEStruct}")
-                                                            }
-                                                        }
-                                                        listWidgets.add(receiveDataString)
-                                                        GlobalScope.launch {
-                                                            mMain.sendWidgetsArray()
-                                                        }
-                                                    }
-                                                    ParameterWidgetLabelType.PWLTE_STRING_LABEL.number.toInt() -> {
-                                                        val baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
-//                                                        System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR  ID=$ID  ${baseParameterWidgetSStruct}")
-                                                    }
+                                                parseWidgets(receiveDataStringForParse)
+
+                                                GlobalScope.launch {
+                                                    mMain.sendWidgetsArray()
                                                 }
                                             }
                                         }
@@ -201,7 +191,75 @@ class BLEParser(main: AppCompatActivity) {
 //        System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR ID=$ID")
         return result
     }
-
+    private var count = 0
+    private fun parseWidgets(receiveDataStringForParse: String) {
+        val baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${receiveDataStringForParse}\"")
+        count += 1
+//        val SEZE = 1
+//
+        when (baseParameterWidgetStruct.widgetLabelType) {
+            ParameterWidgetLabelType.PWLTE_CODE_LABEL.number.toInt() -> {
+//                val baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+//                when (baseParameterWidgetEStruct.labelCode) {
+//                    ParameterWidgetLabel.PWLE_UNKNOW.number.toInt() -> {}
+//                    ParameterWidgetLabel.PWLE_OPEN.number.toInt() -> {}
+//                    ParameterWidgetLabel.PWLE_CLOSE.number.toInt() -> {}
+//                }
+                when (baseParameterWidgetStruct.widgetCode) {
+                    ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { System.err.println("parseWidgets UNKNOW") }
+                    ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
+                        System.err.println("parseWidgets BUTTON CODE_LABEL")
+                        listWidgets.add(Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\""))
+                    }
+                    ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { System.err.println("parseWidgets SWITCH") }
+                    ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { System.err.println("parseWidgets COMBOBOX") }
+                    ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { System.err.println("parseWidgets SLIDER") }
+                    ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
+                        System.err.println("parseWidgets PLOT CODE_LABEL")
+                        listWidgets.add(Json.decodeFromString<PlotParameterWidgetEStruct>("\"${receiveDataStringForParse}\""))
+                    }
+                    ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { System.err.println("parseWidgets SPINBOX") }
+                    ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets EMG_GESTURE_CHANGE_SETTINGS") }
+                    ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets GESTURE_SETTINGS") }
+                    ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { System.err.println("parseWidgets CALIB_STATUS") }
+                    ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { System.err.println("parseWidgets CONTROL_MODE") }
+                    ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
+                        System.err.println("parseWidgets OPEN_CLOSE_THRESHOLD CODE_LABEL")
+                        listWidgets.add(TestSpinnerButtonWidget(arrayListOf("button"), 0))
+                    }
+                    ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_1_THRESHOLD") }
+                    ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_2_THRESHOLD") }
+                }
+            }
+            ParameterWidgetLabelType.PWLTE_STRING_LABEL.number.toInt() -> {
+                when (baseParameterWidgetStruct.widgetCode) {
+                    ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { System.err.println("parseWidgets UNKNOW") }
+                    ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
+                        System.err.println("parseWidgets BUTTON STRING_LABEL")
+                        listWidgets.add(Json.decodeFromString<CommandParameterWidgetSStruct>("\"${receiveDataStringForParse}\""))
+                    }
+                    ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { System.err.println("parseWidgets SWITCH") }
+                    ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { System.err.println("parseWidgets COMBOBOX") }
+                    ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { System.err.println("parseWidgets SLIDER") }
+                    ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
+                        System.err.println("parseWidgets PLOT STRING_LABEL")
+                        listWidgets.add(Json.decodeFromString<PlotParameterWidgetSStruct>("\"${receiveDataStringForParse}\""))
+                    }
+                    ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { System.err.println("parseWidgets SPINBOX") }
+                    ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets EMG_GESTURE_CHANGE_SETTINGS") }
+                    ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets GESTURE_SETTINGS") }
+                    ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { System.err.println("parseWidgets CALIB_STATUS") }
+                    ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { System.err.println("parseWidgets CONTROL_MODE") }
+                    ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
+                        System.err.println("parseWidgets OPEN_CLOSE_THRESHOLD STRING_LABEL")
+                        listWidgets.add(TestSpinnerButtonWidget(arrayListOf("button"), 0))
+                    }
+                    ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_1_THRESHOLD") }
+                    ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_2_THRESHOLD") }
+                }
+            }
+        }
+    }
 
     internal fun getStatusConnected() : Boolean { return mConnected }
 }

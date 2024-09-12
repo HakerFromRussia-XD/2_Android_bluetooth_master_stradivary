@@ -15,9 +15,9 @@ internal object MockDataFactory {
             var item: Any
             val type = random.nextInt(4)
             item = when (type) {
-                0 -> { TextItem("Title $i", "Description $i") }
-                1 -> { ImageItem("Title $i", R.drawable.circle_64) }
-                2 -> { CheckItem("Widget 2", true) }
+//                0 -> { TextItem("Title $i", "Description $i") }
+//                1 -> { ImageItem("Title $i", R.drawable.circle_64) }
+//                2 -> { CheckItem("Widget 2", true) }
                 else -> { OneButtonItem("Open $i", "description") }
 //                else -> {
 //                    OneButtonItem("Open $i", "description")

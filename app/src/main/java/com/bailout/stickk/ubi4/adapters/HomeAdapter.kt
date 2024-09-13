@@ -10,6 +10,7 @@ import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.ubi4.contract.OnChatClickListener
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -30,7 +31,7 @@ import kotlin.coroutines.coroutineContext
 class HomeAdapter(private val typeCellsList: ArrayList<String>,
                   private val initList: ArrayList<Int>,
                   private val onChatClickListener: OnChatClickListener,
-                  private val main: MainActivityUBI4
+//                  private val main: MainActivityUBI4
 ) : RecyclerView.Adapter<HomeAdapter.ChatViewHolder>() {
     private var count: Int = 0
     private var graphThreadFlag = true
@@ -126,19 +127,13 @@ class HomeAdapter(private val typeCellsList: ArrayList<String>,
         var set = data.getDataSetByIndex(0)
         var set2 = data.getDataSetByIndex(1)
         val set3: ILineDataSet
-//        var set4 = data.getDataSetByIndex(3)
-//        var set5 = data.getDataSetByIndex(4)
         if (set == null) {
             set = createSet()
             set2 = createSet2()
             set3 = createSet3()
-//            set4 = createSet4()
-//            set5 = createSet5()
             data.addDataSet(set)
             data.addDataSet(set2)
             data.addDataSet(set3)
-//            data.addDataSet(set4)
-//            data.addDataSet(set5)
         }
         System.err.println("addEntry entryCount 1 = ${set.entryCount} entryCount 2 = ${set2.entryCount}")
 
@@ -147,8 +142,6 @@ class HomeAdapter(private val typeCellsList: ArrayList<String>,
             main.runOnUiThread {
                 set.removeFirst()
                 set2.removeFirst()
-//                set4.removeFirst()
-//                set5.removeFirst()
                 set.addEntryOrdered(Entry(1f, 255f))
             }
         } else {
@@ -161,8 +154,6 @@ class HomeAdapter(private val typeCellsList: ArrayList<String>,
         main.runOnUiThread {
             data.addEntry(Entry(count.toFloat(), sens1.toFloat()), 0)
             data.addEntry(Entry(count.toFloat(), sens2.toFloat()), 1)
-//            data.addEntry(Entry(count.toFloat(), sens1.toFloat()/2), 3)
-//            data.addEntry(Entry(count.toFloat(), sens2.toFloat()/2), 4)
             data.notifyDataChanged()
 
             emgChart.notifyDataSetChanged()

@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import com.bailout.stickk.databinding.Widget1ButtonBinding
+import com.bailout.stickk.ubi4.adapters.models.OneButtonItem
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class OneButtonDelegateAdapter(private val onButtonClick: (title: OneButtonItem) -> Unit) :

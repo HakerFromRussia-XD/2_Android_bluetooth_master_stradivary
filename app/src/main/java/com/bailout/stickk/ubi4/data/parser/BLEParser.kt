@@ -169,7 +169,11 @@ class BLEParser(main: AppCompatActivity) {
                 BaseCommands.ECHO_COMMAND.number -> {System.err.println("TEST parser ECHO_COMMAND")}
                 BaseCommands.SUB_DEVICE_MANAGER.number -> {System.err.println("TEST parser SUB_DEVICE_MANAGER")}
                 BaseCommands.GET_DEVICE_STATUS.number -> {System.err.println("TEST parser GET_DEVICE_STATUS")}
-                BaseCommands.DATA_TRANSFER_SETTINGS.number -> {System.err.println("TEST parser DATA_TRANSFER_SETTINGS")}
+                BaseCommands.DATA_TRANSFER_SETTINGS.number -> { System.err.println("TEST parser DATA_TRANSFER_SETTINGS") }
+                BaseCommands.COMPLEX_PARAMETER_TRANSFER.number -> {
+                    System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER")
+
+                }
             }
 
 

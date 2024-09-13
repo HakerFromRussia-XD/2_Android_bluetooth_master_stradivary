@@ -22,6 +22,7 @@ object PreferenceKeysUBI4 {
     const val APP_PREFERENCES = "APP_PREFERENCES_UBI4"
     const val UBI4_MODE_ACTIVATED = "UBI4_MODE_ACTIVATED"
 
+
     enum class BaseCommands(val number: Byte) {
         DEVICE_INFORMATION (0x01),
         DATA_MANAGER (0x02),
@@ -30,7 +31,8 @@ object PreferenceKeysUBI4 {
         ECHO_COMMAND (0x05),
         SUB_DEVICE_MANAGER (0x06),
         GET_DEVICE_STATUS (0x07),
-        DATA_TRANSFER_SETTINGS (0x08)
+        DATA_TRANSFER_SETTINGS (0x08),
+        COMPLEX_PARAMETER_TRANSFER (0x09),
     }
 
     enum class DeviceInformationCommand(val number: Byte) {
@@ -114,8 +116,8 @@ object PreferenceKeysUBI4 {
         PWLTE_STRING_LABEL(0x01)
     }
 
-    enum class AdditionalParameterInfoType(val number: Byte) {
-        WIDGET(0x05)
+    enum class AdditionalParameterInfoType(val number: Int) {
+        WIDGET(5)
     }
 
     enum class ParameterLimitTypeEnum(val number: Byte) {
@@ -126,4 +128,50 @@ object PreferenceKeysUBI4 {
         PLTE_LIMIT_NUM(0x04)
     }
 
+    enum class ParameterTypeEnum (val number: Int, val sizeOf: Int) {
+        PARTE_UNKNOW (0, 0),
+        PARTE_BOOL_TYPE (1, 0),
+        PARTE_BOOL_ARRAY_TYPE (2,0),
+        PARTE_BOOL_MAP_TYPE (3, 0),
+
+        // INTEGER TYPE
+        PARTE_INT32_TYPE (4, 4),
+        PARTE_INT32_ARRAY_TYPE (5, 0),
+        PARTE_INT32_MAP_TYPE (6,0),
+
+        PARTE_INT16_TYPE (7,2),
+        PARTE_INT16_ARRAY_TYPE (8,0),
+        PARTE_INT16_MAP_TYPE (9,0),
+
+        PARTE_INT8_TYPE (10,1),
+        PARTE_INT8_ARRAY_TYPE (11,0),
+        PARTE_INT8_MAP_TYPE (12,0),
+
+        // UNSIGNED INTEGER TYPE
+        PARTE_UINT32_TYPE (13,4),
+        PARTE_UINT32_ARRAY_TYPE (14,0),
+        PARTE_UINT32_MAP_TYPE (15,0),
+
+        PARTE_UINT16_TYPE (16, 2),
+        PARTE_UINT16_ARRAY_TYPE (17,0),
+        PARTE_UINT16_MAP_TYPE (18,0),
+
+        PARTE_UINT8_TYPE (19,1),
+        PARTE_UINT8_ARRAY_TYPE (20, 0),
+        PARTE_UINT8_MAP_TYPE (21,0),
+
+        // FLOAT TYPE
+        PARTE_FLOAT_TYPE (22,4),
+        PARTE_FLOAT_ARRAY_TYPE (23,0),
+        PARTE_FLOAT_MAP_TYPE (24,0),
+
+        // STRUCT TYPE
+        PARTE_STRUCT_TYPE (25,0),
+        PARTE_STRUCT_ARRAY_TYPE (26,0),
+        PARTE_STRUCT_MAP_TYPE (27,0),
+
+        PARTE_CHAR_TYPE (28,0),
+        PARTE_NUM (29,0)
+
+    }
 }

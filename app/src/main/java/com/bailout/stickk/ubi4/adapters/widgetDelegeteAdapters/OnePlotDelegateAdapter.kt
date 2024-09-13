@@ -29,10 +29,10 @@ class OnePlotDelegateAdapter :
         System.err.println("OnePlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("OnePlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
 
-//        initializedSensorGraph(EMGChartLc)
-//        GlobalScope.launch {
-//            startGraphEnteringDataThread(EMGChartLc)
-//        }
+        initializedSensorGraph(EMGChartLc)
+        GlobalScope.launch {
+            startGraphEnteringDataCoroutine(EMGChartLc)
+        }
     }
     override fun isForViewType(item: Any): Boolean = item is PlotItem
     override fun PlotItem.getItemId(): Any = title
@@ -70,8 +70,8 @@ class OnePlotDelegateAdapter :
     private fun createSet3(): LineDataSet {
         val set3 = LineDataSet(null, null)
         set3.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
-        set3.lineWidth = 2f
-        set3.color = Color.TRANSPARENT
+        set3.lineWidth = 0.1f
+        set3.color = Color.WHITE
         set3.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
         set3.setCircleColor(Color.TRANSPARENT)
         set3.circleHoleColor = Color.TRANSPARENT
@@ -170,7 +170,7 @@ class OnePlotDelegateAdapter :
         emgChart.axisRight.textColor = Color.TRANSPARENT
     }
 
-    private suspend fun startGraphEnteringDataThread(emgChart: LineChart)  {
+    private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
         dataSens1 += 1
         dataSens2 += 1
         if (dataSens1 > 255 ) {
@@ -180,6 +180,6 @@ class OnePlotDelegateAdapter :
         addEntry(dataSens1, dataSens2, emgChart)
         delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         System.err.println("I'm working in coroutine addEntry  dataSens1 = $dataSens1  dataSens2 = $dataSens2")
-        if (graphThreadFlag) {startGraphEnteringDataThread(emgChart)}
+        if (graphThreadFlag) {startGraphEnteringDataCoroutine(emgChart)}
     }
 }

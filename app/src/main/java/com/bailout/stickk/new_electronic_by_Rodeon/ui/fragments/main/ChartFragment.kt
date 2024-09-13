@@ -846,7 +846,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     val set3 = LineDataSet(null, null)
     set3.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
     set3.lineWidth = 0.1f
-    set3.color = Color.TRANSPARENT
+    set3.color = Color.WHITE
     set3.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
     set3.setCircleColor(Color.TRANSPARENT)
     set3.circleHoleColor = Color.TRANSPARENT

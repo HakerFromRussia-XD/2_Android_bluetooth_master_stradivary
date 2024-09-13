@@ -1,15 +1,12 @@
 package com.bailout.stickk.ubi4.adapters.models
 
-import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.ubi4.data.OneButtonWidget
 import com.bailout.stickk.ubi4.data.TestSpinnerButtonWidget
 import com.bailout.stickk.ubi4.data.TestTwoButtonWidget
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
-import com.github.mikephil.charting.charts.LineChart
 
 
 internal object DataFactory {
@@ -51,7 +48,6 @@ internal object DataFactory {
             ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { OneButtonItem("PWCE_UNKNOW", "Description") }
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                 OneButtonItem("BUTTON", "description")
-
             }
             ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { OneButtonItem("SWITCH", "description") }
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description") }

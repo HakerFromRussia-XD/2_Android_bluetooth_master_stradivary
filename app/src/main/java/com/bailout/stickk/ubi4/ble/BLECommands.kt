@@ -5,6 +5,17 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceI
 
 class BLECommands {
     companion object {
+        fun requestPlotFlow(): ByteArray {
+            return byteArrayOf(0x00,
+                DATA_TRANSFER_SETTINGS.number,
+                0x00,
+                0x01,
+                0x00,
+                0x00,
+                0x00,
+                0x01)
+        }
+
         fun requestInicializeInformation(): ByteArray {
             return byteArrayOf(
                 0x00,

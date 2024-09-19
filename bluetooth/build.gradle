@@ -54,7 +54,7 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    releaseImplementation 'com.github.pengrad:jdk9-deps:1.0'
+//    compileOnly 'com.github.pengrad:jdk9-deps:1.0'
 
     testImplementation 'junit:junit:4.13.2'
     implementation 'com.android.support:appcompat-v7:27.1.1'

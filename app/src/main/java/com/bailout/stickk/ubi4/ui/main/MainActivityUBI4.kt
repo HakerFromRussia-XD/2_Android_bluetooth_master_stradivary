@@ -13,6 +13,7 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.GRAPH_UPDATE_DELAY
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
@@ -47,7 +48,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
-        mSettings = this.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
+        mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
         main = this
         setContentView(view)
@@ -57,7 +58,6 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         mBLEController = BLEController(this)
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
-//        binding.buttonFlow.setOnClickListener { mBLEController.generateNewData() }
 
 
         supportFragmentManager
@@ -78,6 +78,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         if (mBLEController.getBluetoothLeService() != null) {
             connectedDeviceName = getString(CONNECTED_DEVICE)
             connectedDeviceAddress =  getString(CONNECTED_DEVICE_ADDRESS)
+            System.err.println("onResume ${getString(CONNECTED_DEVICE_ADDRESS)}")
         }
         if (!mBLEController.getStatusConnected()) {
             mBLEController.setReconnectThreadFlag(true)
@@ -87,13 +88,15 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
     private fun littleFun() {
         listWidgets = arrayListOf()
         updateFlow = MutableStateFlow(0)
-//        binding.buttonFlow.setOnClickListener {
-//            sendWidgetsArray()
-//        }
+        plotArrayFlow = MutableStateFlow(arrayListOf())
+        plot = MutableStateFlow(0)
+        plotArray = arrayListOf()
+        countBinding = 0
+        graphThreadFlag = true
     }
     internal fun sendWidgetsArray() {
         //событие эммитится только в случае если size отличается от предыдущего
-        updateFlow.value = listWidgets.size
+        updateFlow.value += 1
     }
 
 
@@ -117,10 +120,12 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         editor.apply()
     }
     fun getString(key: String) :String {
+//        System.err.println("getString test key: $key  value: ${mSettings!!.getString(key, "NOT SET!").toString()}")
         return mSettings!!.getString(key, "NOT SET!").toString()
     }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
+        System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
     }
 
@@ -130,6 +135,10 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         var updateFlow by Delegates.notNull<MutableStateFlow<Int>>()
         var listWidgets by Delegates.notNull<ArrayList<Any>>()
 
+        var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
+        var plotArray by Delegates.notNull<ArrayList<Int>>()
+        var plot by Delegates.notNull<MutableStateFlow<Int>>()
+
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
 
@@ -137,6 +146,8 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         var connectedDeviceName by Delegates.notNull<String>()
         var connectedDeviceAddress by Delegates.notNull<String>()
 
+        var countBinding by Delegates.notNull<Int>()
+        var graphThreadFlag by Delegates.notNull<Boolean>()
         var inScanFragmentFlag by Delegates.notNull<Boolean>()
     }
 }

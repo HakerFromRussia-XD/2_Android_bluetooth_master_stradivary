@@ -29,6 +29,9 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArray
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArrayFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SEG
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
@@ -43,18 +46,17 @@ import kotlinx.serialization.json.Json
 class BLEParser(main: AppCompatActivity) {
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
     private var mConnected = false
-
-//    val listWidgets = ArrayList<Any>()
+    private var count = 0
 
 
     internal fun parseReceivedData (data: ByteArray?) {
         if (data != null) {
             val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
-//            System.err.println("BLE debug TEST displayFirstNotify data.size = ${data.size}  $receiveDataString")
+            System.err.println("BLE debug TEST displayFirstNotify data.size = ${data.size}  $receiveDataString")
             val dataTransmissionDirection = data[0]
             val codeRequest = data[1]
             val dataLength = castUnsignedCharToInt(data[3]) + castUnsignedCharToInt(data[4])*256
-            System.err.println("TEST dataLength = $dataLength")
+            System.err.println("TEST dataLength = $dataLength  codeRequest = $codeRequest")
             val packageCodeRequest = data[7]
             var ID = 0
             if (dataLength > 8 ) { ID = castUnsignedCharToInt(data[8])}
@@ -134,7 +136,7 @@ class BLEParser(main: AppCompatActivity) {
                                 //проход по остальным параметрам
                                 ID = getNextID(ID) //если additionalInfoSize = 0 то мы пропустим несколько ID
 
-//                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR baseParametrInfoStructArray.size-1=${baseParametrInfoStructArray.size-1} > ID=$ID")
+                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR baseParametrInfoStructArray.size=${baseParametrInfoStructArray.size} > ID=$ID")
                                 if (ID != 0) {
                                     mMain.bleCommand(
                                         BLECommands.requestAdditionalParametrInfo(
@@ -151,6 +153,7 @@ class BLEParser(main: AppCompatActivity) {
                         DeviceInformationCommand.GET_DEVICE_ROLE.number -> {System.err.println("TEST parser 2 GET_DEVICE_ROLE")}
                         DeviceInformationCommand.SET_DEVICE_ROLE.number -> {System.err.println("TEST parser 2 SET_DEVICE_ROLE")}
                     }
+
                 }
                 BaseCommands.DATA_MANAGER.number -> {
                     System.err.println("TEST parser DATA_MANAGER")
@@ -171,8 +174,9 @@ class BLEParser(main: AppCompatActivity) {
                 BaseCommands.GET_DEVICE_STATUS.number -> {System.err.println("TEST parser GET_DEVICE_STATUS")}
                 BaseCommands.DATA_TRANSFER_SETTINGS.number -> { System.err.println("TEST parser DATA_TRANSFER_SETTINGS") }
                 BaseCommands.COMPLEX_PARAMETER_TRANSFER.number -> {
-                    System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER")
-
+                    System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER $receiveDataString")
+                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]),castUnsignedCharToInt(data[11]),castUnsignedCharToInt(data[12]),castUnsignedCharToInt(data[13]),castUnsignedCharToInt(data[14]))
+                    plotArrayFlow.value = plotArray
                 }
             }
 
@@ -195,7 +199,6 @@ class BLEParser(main: AppCompatActivity) {
 //        System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR ID=$ID")
         return result
     }
-    private var count = 0
     private fun parseWidgets(receiveDataStringForParse: String) {
         val baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${receiveDataStringForParse}\"")
         count += 1
@@ -264,6 +267,10 @@ class BLEParser(main: AppCompatActivity) {
             }
         }
     }
+//    fun sendPlotFlow() {
+//        //событие эммитится только в случае если size отличается от предыдущего
+//        updateFlow.value = listWidgets.size
+//    }
 
     internal fun getStatusConnected() : Boolean { return mConnected }
 }

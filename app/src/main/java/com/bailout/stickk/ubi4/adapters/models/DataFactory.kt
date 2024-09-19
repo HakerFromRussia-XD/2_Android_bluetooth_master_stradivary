@@ -9,7 +9,20 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 
 
-internal object DataFactory {
+internal class DataFactory {
+
+    fun fakeData(): List<Any> {
+        val objects = ArrayList<Any>()
+        addElement(1, objects, "")
+        addElement(1, objects, "")
+        addElement(11, objects, "")
+        addElement(5, objects, "")
+        return objects
+    }
+    fun fakeDataClear(): List<Any> {
+        val objects = ArrayList<Any>()
+        return objects
+    }
 
     fun prepareData(): List<Any> {
         System.err.println("DataFactory prepareData  size: ${listWidgets.size}")

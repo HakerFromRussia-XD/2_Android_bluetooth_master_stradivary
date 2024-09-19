@@ -27,12 +27,9 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
-import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
-import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -63,7 +60,9 @@ class BLEController (main: AppCompatActivity) {
             }
             if (!scanWithoutConnectFlag) {
                 //TODO раскомментировать когда не нужно быстрое подключение
-                mBluetoothLeService?.connect(connectedDeviceAddress)
+                System.err.println("connectedDeviceAddress $connectedDeviceAddress")
+                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")
+//                mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
 
@@ -104,6 +103,7 @@ class BLEController (main: AppCompatActivity) {
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
                     mConnected = false
                     endFlag = true
+                    graphThreadFlag = false
                     mMain.invalidateOptionsMenu()
 //                    percentSynchronize = 0
 
@@ -123,7 +123,6 @@ class BLEController (main: AppCompatActivity) {
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-//                    System.err.println("BLE debug ACTION_DATA_AVAILABLE")
                     if(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA) != null) {
                         val fakeData = byteArrayOf(0x00,0x01,0x00,0x02,0x01,0x00,0x00,0x01,0x02)
                         val fakeData2 = byteArrayOf(0x00, 0x01, 0x00, 0x4c, 0x00, 0x74, 0x00, 0x01, 0x02, 0x43, 0x50, 0x55, 0x20, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -135,7 +134,7 @@ class BLEController (main: AppCompatActivity) {
                             0xff.toByte(), 0x0b, 0x0c,
                             0xff.toByte(), 0x01, 0x02, 0x03)
                         //TODO переренести парсинг принятых данных в отдельный класс
-                        parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))//fakeData2)//intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))
+                        parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))
                     }
                 }
             }
@@ -232,8 +231,7 @@ class BLEController (main: AppCompatActivity) {
 //        BLE
         mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
         if (mBluetoothLeService != null) {
-            //TODO перенести getString в класс репозиторий
-            mBluetoothLeService!!.connect(mMain.getString(CONNECTED_DEVICE_ADDRESS))
+            mBluetoothLeService!!.connect(connectedDeviceAddress)
         } else {
 //            println("--> вызываем функцию коннекта к устройству $connectedDeviceName = null")
         }
@@ -277,6 +275,7 @@ class BLEController (main: AppCompatActivity) {
         }
     }
     internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
+        System.err.println("BLE debug")
         for (i in mGattCharacteristics.indices) {
             for (j in mGattCharacteristics[i].indices) {
                 if (mGattCharacteristics[i][j].uuid.toString() == uuid) {

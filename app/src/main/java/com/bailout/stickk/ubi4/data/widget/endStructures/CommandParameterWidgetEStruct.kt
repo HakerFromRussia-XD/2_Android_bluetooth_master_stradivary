@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.widget.endStructures
 
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -26,16 +27,19 @@ object CommandParameterWidgetESerializer: KSerializer<CommandParameterWidgetEStr
 
     override fun deserialize(decoder: Decoder): CommandParameterWidgetEStruct {
         val string = decoder.decodeString()
-        val baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${string.substring(0, 10)}\"")
+        val baseParameterWidgetEStruct: BaseParameterWidgetEStruct
         var clickCommand = 0
         var pressedCommand = 0
         var releasedCommand = 0
 
 
-        if (string.length >= 16) {
-            clickCommand = castUnsignedCharToInt(string.substring(10, 12).toInt(16).toByte())
-            pressedCommand = castUnsignedCharToInt(string.substring(12, 14).toInt(16).toByte())
-            releasedCommand = castUnsignedCharToInt(string.substring(14, 16).toInt(16).toByte())
+        if (string.length >= 24) {
+            baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${string.substring(0, 18)}\"")
+            clickCommand = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
+            pressedCommand = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
+            releasedCommand = castUnsignedCharToInt(string.substring(22, 24).toInt(16).toByte())
+        } else {
+            baseParameterWidgetEStruct = BaseParameterWidgetEStruct (BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),0)
         }
 
         return CommandParameterWidgetEStruct (

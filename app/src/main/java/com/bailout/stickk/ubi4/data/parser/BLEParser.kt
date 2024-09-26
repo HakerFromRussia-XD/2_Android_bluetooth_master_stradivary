@@ -2,16 +2,12 @@ package com.bailout.stickk.ubi4.data.parser
 
 import androidx.appcompat.app.AppCompatActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFICATION_DATA
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
-import com.bailout.stickk.ubi4.data.OneButtonWidget
 import com.bailout.stickk.ubi4.data.TestSpinnerButtonWidget
-import com.bailout.stickk.ubi4.data.TestTwoButtonWidget
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -21,8 +17,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCom
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -31,7 +25,6 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.fullInicialize
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArrayFlow
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SEG
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
@@ -40,6 +33,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFS
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
@@ -59,7 +53,7 @@ class BLEParser(main: AppCompatActivity) {
             System.err.println("TEST dataLength = $dataLength  codeRequest = $codeRequest")
             val packageCodeRequest = data[7]
             var ID = 0
-            if (dataLength > 8 ) { ID = castUnsignedCharToInt(data[8])}
+            if (data.size > 8 ) { ID = castUnsignedCharToInt(data[8])}
 
 
             when (codeRequest){
@@ -69,81 +63,78 @@ class BLEParser(main: AppCompatActivity) {
                     when (packageCodeRequest) {
                         (0x00).toByte() -> { System.err.println("TEST parser 2 DEFOULT") }
                         DeviceInformationCommand.INICIALIZE_INFORMATION.number -> {
-                            if (dataLength > 2) {
-                                fullInicializeConnectionStruct = Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18,receiveDataString.length)}\"")
-                                System.err.println("TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct" )
-                                mMain.bleCommand(BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()), NOTIFICATION_DATA, WRITE)
-                            }
+                            fullInicializeConnectionStruct = Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18,receiveDataString.length)}\"")
+                            System.err.println("TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct" )
+                            mMain.bleCommand(BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()), MAIN_CHANNEL, WRITE)
                         }
                         DeviceInformationCommand.READ_DEVICE_PARAMETRS.number -> {
-                            if (dataLength > 3) {
-                                val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
-                                for(i in 0 until fullInicializeConnectionStruct.parametrsNum) {
-                                    listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(20+i*BASE_PARAMETER_INFO_STRUCT_SIZE, 20+(i+1)*BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
+                            val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
+                            for(i in 0 until fullInicializeConnectionStruct.parametrsNum) {
+                                listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(20+i*BASE_PARAMETER_INFO_STRUCT_SIZE, 20+(i+1)*BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
 //                                    System.err.println("TEST parser 2 READ_DEVICE_PARAMETRS $i ")
-                                }
-                                baseParametrInfoStructArray = listA
-                                baseParametrInfoStructArray.forEach { println("READ_DEVICE_PARAMETRS $it") }
+                            }
+                            baseParametrInfoStructArray = listA
+                            var widgetCount = 0
+                            baseParametrInfoStructArray.forEach {
+                                widgetCount += it.additionalInfoSize
+                                println("READ_DEVICE_PARAMETRS $it $widgetCount")
+                            }
 
+                            //TODO будет-ли работать система если у параметра с ID=0 не окажется виджетов?
+                            if (baseParametrInfoStructArray.size != 0) {
                                 mMain.bleCommand(
                                     BLECommands.requestAdditionalParametrInfo(
                                         baseParametrInfoStructArray[0].ID.toByte()
-                                    ), NOTIFICATION_DATA, WRITE
+                                    ), MAIN_CHANNEL, WRITE
                                 )
-//                                System.err.println("TEST parser 2 READ_DEVICE_PARAMETRS ${baseParametrInfoStructArray.toString()}" )
-                                listWidgets.clear()
                             }
+//                                System.err.println("TEST parser 2 READ_DEVICE_PARAMETRS ${baseParametrInfoStructArray.toString()}" )
+                            listWidgets.clear()
                         }
                         DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETR.number -> {
                             // читает каждый параметр отдельно по его ID
-                            // показ отправленной и принятой посылки
-                            System.err.println("TEST parser 2 отправленная и принятая посылка READ_DEVICE_ADDITIONAL_PARAMETR $receiveDataString")
-                            if (dataLength > READ_DEVICE_ADDITIONAL_PARAMETR_DATA) {
-                                //показ только принятой посылки
-                                System.err.println("TEST parser 2 принятая посылка READ_DEVICE_ADDITIONAL_PARAMETR $receiveDataString additionalInfoSize=${baseParametrInfoStructArray[ID].additionalInfoSize}")
-                                val offset = HEADER_BLE_OFFSET + READ_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
-                                var dataOffset = 0
+                            System.err.println("TEST parser 2 принятая посылка READ_DEVICE_ADDITIONAL_PARAMETR $receiveDataString additionalInfoSize=${baseParametrInfoStructArray[ID].additionalInfoSize}")
+                            val offset = HEADER_BLE_OFFSET + READ_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
+                            var dataOffset = 0
 
-                                if (baseParametrInfoStructArray[ID].additionalInfoSize != 0) {
-                                    for (i in 0 until baseParametrInfoStructArray[ID].additionalInfoSize) {
-                                        //каждый новый цикл вычитываем следующий addInfoSeg
-                                        val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset+(i+1)*ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\"")
-                                        //каждый новый цикл вычитываем данные следующего сегмента
-                                        val receiveDataStringForParse = receiveDataString.substring(
-                                            offset + //отступ на header + отправленные данные (отправленный запрос целиком)
-                                            baseParametrInfoStructArray[ID].additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
-                                            dataOffset*2, // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
-                                            offset +
-                                            baseParametrInfoStructArray[ID].additionalInfoSize*ADDITIONAL_INFO_SEG +
-                                            dataOffset*2 +
-                                            additionalInfoSizeStruct.infoSize*2) // оступ на кол-во байт в считываемом сегменте
+                            if (baseParametrInfoStructArray[ID].additionalInfoSize != 0) {
+                                for (i in 0 until baseParametrInfoStructArray[ID].additionalInfoSize) {
+                                    //каждый новый цикл вычитываем следующий addInfoSeg
+                                    val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset+(i+1)*ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\"")
+                                    //каждый новый цикл вычитываем данные следующего сегмента
+                                    val receiveDataStringForParse = receiveDataString.substring(
+                                        offset + //отступ на header + отправленные данные (отправленный запрос целиком)
+                                        baseParametrInfoStructArray[ID].additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
+                                        dataOffset*2, // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
+                                        offset +
+                                        baseParametrInfoStructArray[ID].additionalInfoSize*ADDITIONAL_INFO_SEG +
+                                        dataOffset*2 +
+                                        additionalInfoSizeStruct.infoSize*2) // оступ на кол-во байт в считываемом сегменте
 //                                        System.err.println("testSignal 0 $receiveDataStringForParse")
-                                        dataOffset = additionalInfoSizeStruct.infoSize
+                                    dataOffset = additionalInfoSizeStruct.infoSize
 
 
-                                        when (additionalInfoSizeStruct.infoType) {
-                                            AdditionalParameterInfoType.WIDGET.number.toInt() -> {
-                                                parseWidgets(receiveDataStringForParse)
-
-                                                GlobalScope.launch {
-                                                    mMain.sendWidgetsArray()
-                                                }
+                                    when (additionalInfoSizeStruct.infoType) {
+                                        AdditionalParameterInfoType.WIDGET.number.toInt() -> {
+                                            parseWidgets(receiveDataStringForParse, parameterID = ID)
+                                            GlobalScope.launch {
+                                                mMain.sendWidgetsArray()
                                             }
                                         }
                                     }
                                 }
+                            }
 
-                                //проход по остальным параметрам
-                                ID = getNextID(ID) //если additionalInfoSize = 0 то мы пропустим несколько ID
+                            //проход по остальным параметрам
+                            System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR ID=$ID BLE debug запись")
+                            ID = getNextID(ID) //если additionalInfoSize = 0 то мы пропустим несколько ID
 
-                                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR baseParametrInfoStructArray.size=${baseParametrInfoStructArray.size} > ID=$ID")
-                                if (ID != 0) {
-                                    mMain.bleCommand(
-                                        BLECommands.requestAdditionalParametrInfo(
-                                            baseParametrInfoStructArray[ID].ID.toByte()
-                                        ), NOTIFICATION_DATA, WRITE
-                                    )
-                                }
+                            if (ID != 0) {
+                                mMain.bleCommand(
+                                    BLECommands.requestAdditionalParametrInfo(
+                                        baseParametrInfoStructArray[ID].ID.toByte()
+                                    ), MAIN_CHANNEL, WRITE
+                                )
                             }
                         }
                         DeviceInformationCommand.GET_SERIAL_NUMBER.number -> {System.err.println("TEST parser 2 GET_SERIAL_NUMBER")}
@@ -190,28 +181,22 @@ class BLEParser(main: AppCompatActivity) {
         for (i in baseParametrInfoStructArray.indices) {
 //            System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR ID=$ID")
             if (ID < baseParametrInfoStructArray[i].ID ) {
-//                System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR ID=$ID")
                 if (baseParametrInfoStructArray[i].additionalInfoSize != 0) {
+                    System.err.println("getNextID = ${baseParametrInfoStructArray[i].ID}      BLE debug запись")
                     return baseParametrInfoStructArray[i].ID
                 }
             }
         }
-//        System.err.println("TEST parser 2 READ_DEVICE_ADDITIONAL_PARAMETR ID=$ID")
         return result
     }
-    private fun parseWidgets(receiveDataStringForParse: String) {
-        val baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${receiveDataStringForParse}\"")
+    private fun parseWidgets(receiveDataStringForParse: String, parameterID: Int) {
+        var baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${receiveDataStringForParse}\"")//+parameterID.toString()
+        baseParameterWidgetStruct.parentIDParameter = parameterID
         count += 1
-//        val SEZE = 1
-//
+
+        System.err.println("parseWidgets ID:${baseParameterWidgetStruct}")
         when (baseParameterWidgetStruct.widgetLabelType) {
             ParameterWidgetLabelType.PWLTE_CODE_LABEL.number.toInt() -> {
-//                val baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-//                when (baseParameterWidgetEStruct.labelCode) {
-//                    ParameterWidgetLabel.PWLE_UNKNOW.number.toInt() -> {}
-//                    ParameterWidgetLabel.PWLE_OPEN.number.toInt() -> {}
-//                    ParameterWidgetLabel.PWLE_CLOSE.number.toInt() -> {}
-//                }
                 when (baseParameterWidgetStruct.widgetCode) {
                     ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { System.err.println("parseWidgets UNKNOW") }
                     ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
@@ -267,10 +252,6 @@ class BLEParser(main: AppCompatActivity) {
             }
         }
     }
-//    fun sendPlotFlow() {
-//        //событие эммитится только в случае если size отличается от предыдущего
-//        updateFlow.value = listWidgets.size
-//    }
 
     internal fun getStatusConnected() : Boolean { return mConnected }
 }

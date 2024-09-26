@@ -175,7 +175,7 @@ class OnePlotDelegateAdapter :
         }
 
 
-        System.err.println("addEntry set2.entryCount: ${set2.entryCount}    set.entryCount: ${set.entryCount}    count: $count")
+//        System.err.println("addEntry set2.entryCount: ${set2.entryCount}    set.entryCount: ${set.entryCount}    count: $count")
         main.runOnUiThread {
             if (set2.entryCount > 200) {
                 set.removeFirst()
@@ -207,7 +207,7 @@ class OnePlotDelegateAdapter :
             emgChart.moveViewToX(set2.entryCount - 200.toFloat())
         }
         count += 1
-        System.err.println("count = $count")
+//        System.err.println("count = $count")
     }
     private fun initializedSensorGraph(emgChart: LineChart) {
         emgChart.contentDescription
@@ -269,9 +269,9 @@ class OnePlotDelegateAdapter :
 
 
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
-        System.err.println("startGraphEnteringDataCoroutine ${coroutineContext[CoroutineName.Key]}")
-        dataSens1 += 1
-        if (dataSens1 > 250) { dataSens1 = 0 }
+//        System.err.println("startGraphEnteringDataCoroutine ${coroutineContext[CoroutineName.Key]}")
+//        dataSens1 += 1
+        if (dataSens1 > 255) { dataSens1 = 0 }
         addEntry(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6, emgChart)
         delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         if (graphThreadFlag) {

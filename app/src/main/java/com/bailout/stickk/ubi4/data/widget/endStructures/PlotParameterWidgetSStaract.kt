@@ -26,16 +26,16 @@ object PlotParameterWidgetSSerializer: KSerializer<PlotParameterWidgetSStruct> {
 
     override fun deserialize(decoder: Decoder): PlotParameterWidgetSStruct {
         val string = decoder.decodeString()
-        val baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 72)}\"")
+        val baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 80)}\"")
         var color = 0
         var maxSize = 0
         var minSize = 0
 
 
-        if (string.length >= 16) {
-            color = castUnsignedCharToInt(string.substring(72, 74).toInt(16).toByte())
-            maxSize = castUnsignedCharToInt(string.substring(74, 76).toInt(16).toByte())
-            minSize = castUnsignedCharToInt(string.substring(76, 78).toInt(16).toByte())
+        if (string.length >= 86) {
+            color = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte())
+            maxSize = castUnsignedCharToInt(string.substring(82, 84).toInt(16).toByte())
+            minSize = castUnsignedCharToInt(string.substring(84, 86).toInt(16).toByte())
         }
 
         return PlotParameterWidgetSStruct (

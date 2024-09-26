@@ -23,12 +23,12 @@ object BaseParameterWidgetESerializer: KSerializer<BaseParameterWidgetEStruct> {
 
     override fun deserialize(decoder: Decoder): BaseParameterWidgetEStruct {
         val string = decoder.decodeString()
-        val baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${string.substring(0, 8)}\"")
+        val baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${string.substring(0, 16)}\"")
         var labelCode = 0
 
 
-        if (string.length >= 10) {
-            labelCode = castUnsignedCharToInt(string.substring(8, 10).toInt(16).toByte())
+        if (string.length >= 18) {
+            labelCode = castUnsignedCharToInt(string.substring(16, 18).toInt(16).toByte())
         }
 
         return BaseParameterWidgetEStruct (

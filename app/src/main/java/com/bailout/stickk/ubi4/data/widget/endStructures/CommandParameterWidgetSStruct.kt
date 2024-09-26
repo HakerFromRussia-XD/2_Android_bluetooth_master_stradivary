@@ -26,16 +26,16 @@ object CommandParameterWidgetSSerializer: KSerializer<CommandParameterWidgetSStr
 
     override fun deserialize(decoder: Decoder): CommandParameterWidgetSStruct {
         val string = decoder.decodeString()
-        val baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 72)}\"")
+        val baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 80)}\"")
         var clickCommand = 0
         var pressedCommand = 0
         var releasedCommand = 0
 
 
-        if (string.length >= 78) {
-            clickCommand = castUnsignedCharToInt(string.substring(72, 74).toInt(16).toByte())
-            pressedCommand = castUnsignedCharToInt(string.substring(74, 76).toInt(16).toByte())
-            releasedCommand = castUnsignedCharToInt(string.substring(76, 78).toInt(16).toByte())
+        if (string.length >= 86) {
+            clickCommand = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte())
+            pressedCommand = castUnsignedCharToInt(string.substring(82, 84).toInt(16).toByte())
+            releasedCommand = castUnsignedCharToInt(string.substring(84, 86).toInt(16).toByte())
         }
 
         return CommandParameterWidgetSStruct (

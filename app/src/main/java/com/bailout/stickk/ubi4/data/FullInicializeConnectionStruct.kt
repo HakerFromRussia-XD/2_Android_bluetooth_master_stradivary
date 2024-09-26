@@ -54,7 +54,6 @@ object FullInicializeConnectionSerializer: KSerializer<FullInicializeConnectionS
         var defaultPort = 0
 
         System.err.println("TEST deserialize  count ${string.length}")
-//        System.err.println("TEST deserialize ${castUnsignedCharToInt("ff".toInt(16).toByte())}")
         if (string.length >= 154) {//
             deviceName = string.substring(0, 64).decodeHex() // 32
             deviceVersion = castUnsignedCharToInt(string.substring(64, 66).toInt(16).toByte())

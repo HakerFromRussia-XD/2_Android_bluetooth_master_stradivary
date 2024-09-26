@@ -135,7 +135,7 @@ class HomeAdapter(private val typeCellsList: ArrayList<String>,
             data.addDataSet(set2)
             data.addDataSet(set3)
         }
-        System.err.println("addEntry entryCount 1 = ${set.entryCount} entryCount 2 = ${set2.entryCount}")
+//        System.err.println("addEntry entryCount 1 = ${set.entryCount} entryCount 2 = ${set2.entryCount}")
 
 
         if (set.entryCount >= 200 ) {

@@ -26,6 +26,10 @@ internal class DataFactory {
 
     fun prepareData(): List<Any> {
         System.err.println("DataFactory prepareData  size: ${listWidgets.size}")
+        System.err.println("DataFactory listWidgets =====================")
+        listWidgets.forEach {
+            System.err.println("DataFactory listWidgets: $it")
+        }
         val objects = ArrayList<Any>(listWidgets.size)
         listWidgets.forEach {
             when (it::class.simpleName) {

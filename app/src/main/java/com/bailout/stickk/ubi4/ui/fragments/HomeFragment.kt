@@ -12,7 +12,7 @@ import com.bailout.stickk.ubi4.adapters.models.OneButtonItem
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OnePlotDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFICATION_DATA
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -56,7 +56,7 @@ class HomeFragment : Fragment() {
     }
     private fun refreshWidgetsList() {
         graphThreadFlag = false
-        transmitter().bleCommand(BLECommands.requestInicializeInformation(), NOTIFICATION_DATA, WRITE)
+        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
 
 
@@ -94,7 +94,7 @@ class HomeFragment : Fragment() {
 //        mDataFactory = DataFactory()
 //        adapterWidgets.swapData(mDataFactory.prepareData())
 //        transmitter().bleCommand(BLECommands.requestInicializeInformation(), NOTIFICATION_DATA, WRITE)
-        transmitter().bleCommand(BLECommands.requestPlotFlow(), NOTIFICATION_DATA, WRITE)
+        transmitter().bleCommand(BLECommands.requestPlotFlow(), MAIN_CHANNEL, WRITE)
 //        if (title.title.contains("Open 0")) {
 //            System.err.println("buttonClick Open 0")
 //            transmitter().bleCommand(byteArrayOf(0x00, 0x08, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01), NOTIFICATION_DATA, WRITE)

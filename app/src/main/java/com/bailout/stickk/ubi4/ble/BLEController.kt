@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFICATION_DATA
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -30,6 +30,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCom
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -123,7 +124,7 @@ class BLEController (main: AppCompatActivity) {
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-                    if(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA) != null) {
+                    if(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         val fakeData = byteArrayOf(0x00,0x01,0x00,0x02,0x01,0x00,0x00,0x01,0x02)
                         val fakeData2 = byteArrayOf(0x00, 0x01, 0x00, 0x4c, 0x00, 0x74, 0x00, 0x01, 0x02, 0x43, 0x50, 0x55, 0x20, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                             0x83.toByte(),
@@ -134,7 +135,7 @@ class BLEController (main: AppCompatActivity) {
                             0xff.toByte(), 0x0b, 0x0c,
                             0xff.toByte(), 0x01, 0x02, 0x03)
                         //TODO переренести парсинг принятых данных в отдельный класс
-                        parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.NOTIFICATION_DATA))
+                        parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL))
                     }
                 }
             }
@@ -144,8 +145,8 @@ class BLEController (main: AppCompatActivity) {
         System.err.println("BLE debug firstNotificationRequest")
         System.err.println("BLE debug DEVICE_INFORMATION = ${BaseCommands.DEVICE_INFORMATION.number}")
 
-        bleCommand(BLECommands.requestInicializeInformation(), NOTIFICATION_DATA, WRITE)
-        bleCommand(null, NOTIFICATION_DATA, NOTIFY)
+        bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
+        bleCommand(null, MAIN_CHANNEL, NOTIFY)
         delay(1000)
 
         if (firstNotificationRequestFlag) {
@@ -282,7 +283,7 @@ class BLEController (main: AppCompatActivity) {
                     mCharacteristic = mGattCharacteristics[i][j]
                     if (typeCommand == WRITE){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-                            System.err.println("BLE debug попытка записи")
+                            System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
                             mCharacteristic?.value = byteArray
                             mBluetoothLeService?.writeCharacteristic(mCharacteristic)
                         }

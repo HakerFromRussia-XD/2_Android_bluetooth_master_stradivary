@@ -1,7 +1,5 @@
 package com.bailout.stickk.ubi4.utility
 
-import kotlin.math.abs
-
 class CastToUnsignedInt {
     object Companion {
         fun castUnsignedCharToInt(Ubyte: Byte): Int {

@@ -36,7 +36,7 @@ object PreferenceKeysUBI4 {
     enum class DeviceInformationCommand(val number: Byte) {
         INICIALIZE_INFORMATION (0x01),
         READ_DEVICE_PARAMETRS (0x02),
-        READ_DEVICE_ADDITIONAL_PARAMETR (0x03),
+        READ_DEVICE_ADDITIONAL_PARAMETRS (0x03),
 
         GET_SERIAL_NUMBER (0x04),
         SET_SERIAL_NUMBER (0x05),

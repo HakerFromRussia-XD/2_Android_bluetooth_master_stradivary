@@ -40,14 +40,13 @@ internal class DataFactory {
         listWidgets.forEach {
             when (it) {
                 is CommandParameterWidgetEStruct -> {
-                    //TODO вернуть раскидку по экранам
-//                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
+                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
                         addElement(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
                             _listWidgets,
                             it
                         )
-//                    }
+                    }
                     System.err.println("prepareData CommandParameterWidgetEStruct widgetPosition: ${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}")
                 }
                 is PlotParameterWidgetEStruct -> {

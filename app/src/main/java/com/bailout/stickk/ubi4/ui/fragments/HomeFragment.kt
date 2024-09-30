@@ -8,9 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.models.DataFactory
-import com.bailout.stickk.ubi4.adapters.models.OneButtonItem
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OnePlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -72,7 +71,7 @@ class HomeFragment : Fragment() {
     }
 
     private val adapterWidgets = CompositeDelegateAdapter(
-        OnePlotDelegateAdapter(),
+        PlotDelegateAdapter(),
         OneButtonDelegateAdapter (
             onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
             onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }

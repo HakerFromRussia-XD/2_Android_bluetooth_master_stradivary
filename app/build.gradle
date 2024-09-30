@@ -29,7 +29,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 7
-        versionName "2.4.763"
+        versionName "2.4.764"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -82,10 +82,6 @@ android {
     buildFeatures {
         buildConfig true
     }
-}
-
-repositories {
-    maven { url "https://dl.bintray.com/shabankamel/android" }
 }
 
 dependencies {

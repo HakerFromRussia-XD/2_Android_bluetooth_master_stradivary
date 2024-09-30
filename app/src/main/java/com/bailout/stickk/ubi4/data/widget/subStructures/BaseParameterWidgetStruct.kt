@@ -21,7 +21,7 @@ data class BaseParameterWidgetStruct(
     val widgetId: Int,
     val dataOffset: Int,
     var dataSize: Int,
-    var parentIDParameter: Int // ID родительского параметра
+    var parentParameterID: Int // ID родительского параметра
 )
 
 object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
@@ -63,7 +63,7 @@ object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
             widgetId = widgetId,
             dataOffset = dataOffset,
             dataSize = dataSize,
-            parentIDParameter = parentIDParameter,
+            parentParameterID = parentIDParameter,
         )
     }
 

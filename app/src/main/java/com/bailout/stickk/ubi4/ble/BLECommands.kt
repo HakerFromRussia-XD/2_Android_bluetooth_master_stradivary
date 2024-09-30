@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.*
+import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFSET
 
 class BLECommands {

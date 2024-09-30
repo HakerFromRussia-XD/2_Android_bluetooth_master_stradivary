@@ -203,7 +203,7 @@ class BLEParser(main: AppCompatActivity) {
     }
     private fun parseWidgets(receiveDataStringForParse: String, parameterID: Int) {
         var baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${receiveDataStringForParse}\"")//+parameterID.toString()
-        baseParameterWidgetStruct.parentIDParameter = parameterID
+        baseParameterWidgetStruct.parentParameterID = parameterID
         count += 1
 
         System.err.println("parseWidgets ID:${baseParameterWidgetStruct}")
@@ -213,14 +213,18 @@ class BLEParser(main: AppCompatActivity) {
                     ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { System.err.println("parseWidgets UNKNOW") }
                     ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                         System.err.println("parseWidgets BUTTON CODE_LABEL")
-                        listWidgets.add(Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\""))
+                        val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+                        commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID = parameterID
+                        listWidgets.add(commandParameterWidgetEStruct)
                     }
                     ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { System.err.println("parseWidgets SWITCH") }
                     ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { System.err.println("parseWidgets COMBOBOX") }
                     ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { System.err.println("parseWidgets SLIDER") }
                     ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                         System.err.println("parseWidgets PLOT CODE_LABEL")
-                        listWidgets.add(Json.decodeFromString<PlotParameterWidgetEStruct>("\"${receiveDataStringForParse}\""))
+                        val plotParameterWidgetEStruct = Json.decodeFromString<PlotParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+                        plotParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID = parameterID
+                        listWidgets.add(plotParameterWidgetEStruct)
                     }
                     ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { System.err.println("parseWidgets SPINBOX") }
                     ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets EMG_GESTURE_CHANGE_SETTINGS") }
@@ -230,7 +234,9 @@ class BLEParser(main: AppCompatActivity) {
                     ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
                         System.err.println("parseWidgets OPEN_CLOSE_THRESHOLD CODE_LABEL")
                         //TODO пока тестовая заглушка кнопкой
-                        listWidgets.add(Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\""))
+                        val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+                        commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID = parameterID
+                        listWidgets.add(commandParameterWidgetEStruct)
                     }
                     ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_1_THRESHOLD") }
                     ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_2_THRESHOLD") }

@@ -72,6 +72,23 @@ class BLECommands {
         }
 
 
+        fun oneButtonCommand(parameterID: Int, command: Int): ByteArray {
+            val code:Byte = (128 + parameterID).toByte()
+            val result = byteArrayOf(
+                0x40,
+                code,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                command.toByte()
+            )
+            result[3] = calculateDataSize(result).toByte()
+            result[4] = (calculateDataSize(result)/256).toByte()
+            return result
+        }
+
         private fun calculateDataSize(massage: ByteArray): Int {
             return massage.size - HEADER_BLE_OFFSET
         }

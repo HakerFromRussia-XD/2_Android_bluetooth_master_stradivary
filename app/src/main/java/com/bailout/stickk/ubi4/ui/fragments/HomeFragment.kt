@@ -45,10 +45,7 @@ class HomeFragment : Fragment() {
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
-        binding.refreshLayout.setOnRefreshListener {
-//            System.err.println("TEST REFRESH")
-            refreshWidgetsList()
-        }
+        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
 
         binding.homeRv.layoutManager = LinearLayoutManager(context)
         binding.homeRv.adapter = adapterWidgets
@@ -76,33 +73,20 @@ class HomeFragment : Fragment() {
 
     private val adapterWidgets = CompositeDelegateAdapter(
         OnePlotDelegateAdapter(),
-        OneButtonDelegateAdapter { oneButtonItem ->  buttonClick(oneButtonItem) }
+        OneButtonDelegateAdapter (
+            onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
+            onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
+        )
     )
 
-    private fun buttonClick(oneButtonItem: OneButtonItem) {
-        System.err.println("buttonClick title: ${oneButtonItem.title}  description: ${oneButtonItem.description}" +
-                "widget: ${oneButtonItem.widget}")
-//        graphThreadFlag = false
-//        GlobalScope.launch {
-//            fakeUpdateWidgets()
-//        }
-//        listWidgets.clear()
-//        adapterWidgets.swapData(DataFactory().prepareData())
 
-//        mDataFactory = null
-//        listWidgets.clear()
-//        mDataFactory = DataFactory()
-//        adapterWidgets.swapData(mDataFactory.prepareData())
-//        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-//        transmitter().bleCommand(BLECommands.requestPlotFlow(), MAIN_CHANNEL, WRITE)
-//        if (title.title.contains("Open 0")) {
-//            System.err.println("buttonClick Open 0")
-            transmitter().bleCommand(byteArrayOf(0x40, 0x88.toByte(), 0x00, 0x01, 0x00, 0x00, 0x00, 0x01), MAIN_CHANNEL, WRITE)
-//        }
-//        if (title.title.contains("Open 1")) {
-//            System.err.println("buttonClick Open 1")
-            transmitter().bleCommand(byteArrayOf(0x40, 0x88.toByte(), 0x00, 0x01, 0x00, 0x00, 0x00, 0x01), MAIN_CHANNEL, WRITE)
-//        }
+    private fun oneButtonPressed(parameterID: Int, command: Int) {
+        System.err.println("oneButtonPressed    parameterID: $parameterID   command: $command")
+        transmitter().bleCommand(BLECommands.oneButtonCommand(parameterID, command), MAIN_CHANNEL, WRITE)
+    }
+    private fun oneButtonReleased(parameterID: Int, command: Int) {
+        System.err.println("oneButtonPressed    parameterID: $parameterID   command: $command")
+        transmitter().bleCommand(BLECommands.oneButtonCommand(parameterID, command), MAIN_CHANNEL, WRITE)
     }
 
     private suspend fun fakeUpdateWidgets() {

@@ -44,4 +44,13 @@
     <color name="rssi_gray">#b6b6b6</color>
     <color name="background_title_fragment">#FFF2F2F7</color>
     <color name="edit_text_disabled">#9a9a9a</color>
+
+    <color name="ubi4_gray">#373737</color>
+    <color name="ubi4_gray_border">#444444</color>
+    <color name="ubi4_deactivate_text">#838383</color>
+    <color name="ubi4_yes_system_blue">#0A84FF</color>
+    <color name="ubi4_no_system_red">#FF453A</color>
+    <color name="ubi4_back">#2A2A2A</color>
+    <color name="ubi4_dark_back">#212121</color>
+    <color name="ubi4_active">#C6F158</color>
 </resources>

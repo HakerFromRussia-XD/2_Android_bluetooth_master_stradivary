@@ -224,9 +224,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             } else {
                 if (android.os.Build.VERSION.SDK_INT >= 21) {
                     Window window = this.getWindow();
-                    window.setStatusBarColor(this.getResources().getColor(R.color.color_primary));
+                    window.setStatusBarColor(this.getResources().getColor(R.color.ubi4_back));
                 }
-                mainLayout.setBackgroundColor(this.getResources().getColor(R.color.color_primary));//setBackgroundColor(#404040);
+                mainLayout.setBackgroundColor(this.getResources().getColor(R.color.ubi4_back));//setBackgroundColor(#404040);
                 saveBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED, true);
             }
         });
@@ -279,7 +279,9 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
 
         //TODO закомментить быстрый вход после завершения экспериментов
-        testNavigate();
+        mHandler.postDelayed(() -> {
+            testNavigate();
+        }, 1000);
     }
     public void onWindowFocusChanged(boolean hasFocus){
         super.onWindowFocusChanged(hasFocus);

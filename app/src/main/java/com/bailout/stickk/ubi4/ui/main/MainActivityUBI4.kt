@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
@@ -39,6 +40,9 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
         val view = binding.root
         main = this
+        val window = this.window
+        window.statusBarColor = this.resources.getColor(R.color.ubi4_back)
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_back)
         setContentView(view)
         initAllVariables()
 
@@ -54,7 +58,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
             .commit()
 
 
-        littleFun()
+        setStaticVariables()
     }
     @SuppressLint("MissingPermission")
     override fun onResume() {
@@ -73,7 +77,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
             mBLEController.reconnectThread()
         }
     }
-    private fun littleFun() {
+    private fun setStaticVariables() {
         listWidgets = arrayListOf()
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
@@ -127,6 +131,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()
 
+//        var
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
 

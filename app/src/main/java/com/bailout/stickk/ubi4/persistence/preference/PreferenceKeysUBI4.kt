@@ -38,14 +38,21 @@ object PreferenceKeysUBI4 {
         READ_DEVICE_PARAMETRS (0x02),
         READ_DEVICE_ADDITIONAL_PARAMETRS (0x03),
 
-        GET_SERIAL_NUMBER (0x04),
-        SET_SERIAL_NUMBER (0x05),
+        READ_SUB_DEVICES_FIRST_INFO          (0x04),
+        READ_SUB_DEVICE_INFO                 (0x05),
+        READ_SUB_DEVICE_PARAMETERS           (0x06),
+        READ_SUB_DEVICE_ADDITIONAL_PARAMETER (0x07),
+        SUB_DEVICE_PARAMETER_INIT_READ       (0x08),
+        SUB_DEVICE_PARAMETER_INIT_WRITE      (0x09),
 
-        GET_DEVICE_NAME (0x06),
-        SET_DEVICE_NAME (0x07),
+        GET_SERIAL_NUMBER (0x0a),
+        SET_SERIAL_NUMBER (0x0b),
 
-        GET_DEVICE_ROLE (0x08),
-        SET_DEVICE_ROLE (0x09)
+        GET_DEVICE_NAME (0x0c),
+        SET_DEVICE_NAME (0x0d),
+
+        GET_DEVICE_ROLE (0x0e),
+        SET_DEVICE_ROLE (0x0f)
     }
 
     enum class DataManagerCommand(val number: Byte) {
@@ -170,6 +177,26 @@ object PreferenceKeysUBI4 {
 
         PARTE_CHAR_TYPE (28,0),
         PARTE_NUM (29,0)
+    }
 
+    enum class DataTableSlotsEnum (val number: Byte) {
+        DTE_UNKNOW  (0x00),
+        DTE_BOOTLOADER_INFO_TYPE (0x01),
+        DTE_FW_INFO_TYPE (0x02),
+        DTE_DEVICE_INFO_TYPE (0x03),
+        DTE_BOARD_INFO_TYPE (0x04),
+        DTE_PRODUCT_INFO_TYPE (0x05),
+        DTE_SERVICE_INFO (0x06),
+        DTE_SYSTEM_DEVICES (0x07),
+
+        DTE_GESTURE_COLLECTION (0x08),
+        DTE_DRIVE_SETTINGS (0x09),
+
+        DTE_EMG_SETTINGS (0x0a),
+        DTE_INDY_SETTINGS (0x0b),
+        DTE_BMS_SETTING (0x0c),
+        DTE_FEST_X_SETTINGS (0x0d),
+
+        DTE_FREE_SLOT (0xff.toByte()),
     }
 }

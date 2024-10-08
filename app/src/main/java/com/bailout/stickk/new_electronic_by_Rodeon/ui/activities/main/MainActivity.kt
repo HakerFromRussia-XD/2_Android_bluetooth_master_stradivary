@@ -1667,6 +1667,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       while (sensorsDataThreadFlag) {
         runOnUiThread {
           bleCommand(null, MIO_MEASUREMENT, NOTIFY)
+//          bleCommand(null, "ауацуацацацац", NOTIFY)
           System.err.println("startSubscribeSensorsDataThread попытка подписки")
         }
         percentSynchronize = 100

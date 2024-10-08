@@ -27,7 +27,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class PlotDelegateAdapter :
+class PlotDelegateAdapter (
+    val plotIsReadyToData:(num: Int) -> Unit) :
     ViewBindingDelegateAdapter<PlotItem, WidgetPlotBinding>(WidgetPlotBinding::inflate) {
     private var count: Int = 0
     private var dataSens1 = 0
@@ -37,6 +38,8 @@ class PlotDelegateAdapter :
     private var dataSens5 = 0
     private var dataSens6 = 0
     private var numberOfCharts = 1
+
+    private var firstInit = true
 
     override fun WidgetPlotBinding.onBind(plotItem: PlotItem) {
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
@@ -57,6 +60,8 @@ class PlotDelegateAdapter :
         GlobalScope.launch(CoroutineName("startGraphEnteringDataCoroutine $countBinding")) {
             startGraphEnteringDataCoroutine(EMGChartLc)
         }
+//        System.err.println("plotIsReadyToData")
+        plotIsReadyToData(0)
     }
     override fun isForViewType(item: Any): Boolean = item is PlotItem
     override fun PlotItem.getItemId(): Any = title
@@ -69,7 +74,7 @@ class PlotDelegateAdapter :
         set.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
         set.lineWidth = 0.1f
         set.color = Color.WHITE
-        set.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        set.mode = LineDataSet.Mode.LINEAR
         set.setCircleColor(Color.TRANSPARENT)
         set.circleHoleColor = Color.TRANSPARENT
         set.fillColor = ColorTemplate.getHoloBlue()
@@ -82,7 +87,7 @@ class PlotDelegateAdapter :
         set1.axisDependency = YAxis.AxisDependency.LEFT
         set1.lineWidth = 2f
         set1.color = Color.WHITE
-        set1.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        set1.mode = LineDataSet.Mode.LINEAR
         set1.setCircleColor(Color.TRANSPARENT)
         set1.circleHoleColor = Color.TRANSPARENT
         set1.fillColor = ColorTemplate.getHoloBlue()
@@ -95,7 +100,7 @@ class PlotDelegateAdapter :
         set2.axisDependency = YAxis.AxisDependency.LEFT
         set2.lineWidth = 2f
         set2.color = Color.RED
-        set2.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        set2.mode = LineDataSet.Mode.LINEAR
         set2.setCircleColor(Color.TRANSPARENT)
         set2.circleHoleColor = Color.TRANSPARENT
         set2.fillColor = ColorTemplate.getHoloBlue()
@@ -105,10 +110,10 @@ class PlotDelegateAdapter :
     }
     private fun createSet3(): LineDataSet {
         val set3 = LineDataSet(null, null)
-        set3.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
+        set3.axisDependency = YAxis.AxisDependency.LEFT
         set3.lineWidth = 2f
         set3.color = Color.rgb(255, 171, 0)
-        set3.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        set3.mode = LineDataSet.Mode.LINEAR
         set3.setCircleColor(Color.TRANSPARENT)
         set3.circleHoleColor = Color.TRANSPARENT
         set3.fillColor = ColorTemplate.getHoloBlue()
@@ -119,10 +124,10 @@ class PlotDelegateAdapter :
     }
     private fun createSet4(): LineDataSet {
         val set4 = LineDataSet(null, null)
-        set4.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
+        set4.axisDependency = YAxis.AxisDependency.LEFT
         set4.lineWidth = 2f
         set4.color = Color.GREEN
-        set4.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        set4.mode = LineDataSet.Mode.LINEAR
         set4.setCircleColor(Color.TRANSPARENT)
         set4.circleHoleColor = Color.TRANSPARENT
         set4.fillColor = ColorTemplate.getHoloBlue()
@@ -132,10 +137,10 @@ class PlotDelegateAdapter :
     }
     private fun createSet5(): LineDataSet {
         val set5 = LineDataSet(null, null)
-        set5.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
+        set5.axisDependency = YAxis.AxisDependency.LEFT
         set5.lineWidth = 2f
         set5.color = Color.BLUE
-        set5.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        set5.mode = LineDataSet.Mode.LINEAR
         set5.setCircleColor(Color.TRANSPARENT)
         set5.circleHoleColor = Color.TRANSPARENT
         set5.fillColor = ColorTemplate.getHoloBlue()
@@ -145,10 +150,10 @@ class PlotDelegateAdapter :
     }
     private fun createSet6(): LineDataSet {
         val set6 = LineDataSet(null, null)
-        set6.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
+        set6.axisDependency = YAxis.AxisDependency.LEFT
         set6.lineWidth = 2f
         set6.color = Color.YELLOW
-        set6.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        set6.mode = LineDataSet.Mode.LINEAR
         set6.setCircleColor(Color.TRANSPARENT)
         set6.circleHoleColor = Color.TRANSPARENT
         set6.fillColor = ColorTemplate.getHoloBlue()
@@ -187,8 +192,9 @@ class PlotDelegateAdapter :
         }
 
 
-        main.runOnUiThread {
-            if (set1.entryCount > 200) {
+
+        if (set1.entryCount > 200) {
+            main.runOnUiThread {
                 set.removeFirst()
                 set1.removeFirst()
                 if (numberOfCharts >= 2) { set2.removeFirst() }
@@ -207,14 +213,16 @@ class PlotDelegateAdapter :
             if (numberOfCharts >= 4) {data.addEntry(Entry(count.toFloat(), sens4.toFloat()), 4)}
             if (numberOfCharts >= 5) {data.addEntry(Entry(count.toFloat(), sens5.toFloat()), 5)}
             if (numberOfCharts >= 5) {data.addEntry(Entry(count.toFloat(), sens6.toFloat()), 6)}
-            data.notifyDataChanged()
 
+            data.notifyDataChanged()
             emgChart.notifyDataSetChanged()
-            emgChart.setVisibleXRangeMaximum(200f)
-            emgChart.moveViewToX(set1.entryCount - 200.toFloat())
+            if (firstInit) {
+                emgChart.setVisibleXRangeMaximum(200f)
+                firstInit = false
+            }
         }
+        emgChart.moveViewToX(set1.entryCount - 200.toFloat())
         count += 1
-//        System.err.println("count = $count")
     }
     private fun initializedSensorGraph(emgChart: LineChart) {
         emgChart.contentDescription
@@ -276,12 +284,12 @@ class PlotDelegateAdapter :
 
 
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
-        dataSens1 += 1
-        dataSens2 += 2
-        dataSens3 += 3
-        dataSens4 += 4
-        dataSens5 += 5
-        dataSens6 += 6
+//        dataSens1 += 1
+//        dataSens2 += 1
+//        dataSens3 += 1
+//        dataSens4 += 2
+//        dataSens5 += 2
+//        dataSens6 += 2
         if (dataSens1 > 255) { dataSens1 = 0 }
         if (dataSens2 > 255) { dataSens2 = 0 }
         if (dataSens3 > 255) { dataSens3 = 0 }

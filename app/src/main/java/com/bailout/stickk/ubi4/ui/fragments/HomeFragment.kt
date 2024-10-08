@@ -17,6 +17,7 @@ import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
+import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -71,7 +72,9 @@ class HomeFragment : Fragment() {
     }
 
     private val adapterWidgets = CompositeDelegateAdapter(
-        PlotDelegateAdapter(),
+        PlotDelegateAdapter(
+            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+        ),
         OneButtonDelegateAdapter (
             onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
             onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
@@ -84,8 +87,13 @@ class HomeFragment : Fragment() {
         transmitter().bleCommand(BLECommands.oneButtonCommand(parameterID, command), MAIN_CHANNEL, WRITE)
     }
     private fun oneButtonReleased(parameterID: Int, command: Int) {
-        System.err.println("oneButtonPressed    parameterID: $parameterID   command: $command")
-        transmitter().bleCommand(BLECommands.oneButtonCommand(parameterID, command), MAIN_CHANNEL, WRITE)
+        System.err.println("oneButtonReleased    parameterID: $parameterID   command: $command")
+        BLECommands.requestSubDevices().forEach { i ->
+            System.err.println("oneButtonReleased ${castUnsignedCharToInt(i)}")
+        }
+//        transmitter().bleCommand(BLECommands.oneButtonCommand(parameterID, command), MAIN_CHANNEL, WRITE)
+//        transmitter().bleCommand(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommand(BLECommands.requestSubDeviceParametrs(6, 0, 2), MAIN_CHANNEL, WRITE)
     }
 
     private suspend fun fakeUpdateWidgets() {

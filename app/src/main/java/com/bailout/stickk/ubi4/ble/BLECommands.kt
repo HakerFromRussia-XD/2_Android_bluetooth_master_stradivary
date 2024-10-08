@@ -1,12 +1,61 @@
 package com.bailout.stickk.ubi4.ble
 
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.*
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.*
-import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_MANAGER
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_TRANSFER_SETTINGS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DEVICE_INFORMATION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand.READ_DATA
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.INICIALIZE_INFORMATION
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_DEVICE_PARAMETRS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFSET
 
 class BLECommands {
     companion object {
+        // чтение слота сабдевайсов
+        fun requestSubDevices(): ByteArray {
+            val header = byteArrayOf(
+                0x00,
+                DATA_MANAGER.number,
+                0x00,
+                0x00,//0x01
+                0x00,
+                0x00,
+                0x00
+            )
+            val data = byteArrayOf(
+                READ_DATA.number,
+                DTE_SYSTEM_DEVICES.number
+            )
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
+            return result
+        }
+
+        fun requestSubDeviceParametrs(addressDevice: Int, startIndex: Int, readNum: Int): ByteArray {
+            val header = byteArrayOf(
+                0x00,
+                DEVICE_INFORMATION.number,
+                0x00,
+                0x00,//0x01
+                0x00,
+                0x00,
+                0x00
+            )
+            val data = byteArrayOf(
+                READ_SUB_DEVICE_PARAMETERS.number,
+                addressDevice.toByte(),
+                startIndex.toByte(),
+                readNum.toByte(),
+            )
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
+            return result
+        }
+
         fun requestPlotFlow(): ByteArray {
             val result = byteArrayOf(
                 0x00,

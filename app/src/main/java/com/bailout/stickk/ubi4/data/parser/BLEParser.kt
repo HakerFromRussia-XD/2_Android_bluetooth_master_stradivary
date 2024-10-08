@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
+import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -61,7 +62,7 @@ class BLEParser(main: AppCompatActivity) {
                 }
                 BaseCommands.DATA_MANAGER.number -> {
                     System.err.println("TEST parser DATA_MANAGER")
-                    parseDataManger(packageCodeRequest)
+                    parseDataManger(packageCodeRequest, receiveDataString)
                 }
                 BaseCommands.WRITE_FW_COMMAND.number -> {System.err.println("TEST parser WRITE_FW_COMMAND")}
                 BaseCommands.DEVICE_ACCESS_COMMAND.number -> {System.err.println("TEST parser DEVICE_ACCESS_COMMAND")}
@@ -103,12 +104,15 @@ class BLEParser(main: AppCompatActivity) {
             DeviceInformationCommand.SET_DEVICE_ROLE.number -> {System.err.println("TEST parser 2 SET_DEVICE_ROLE")}
         }
     }
-    private fun parseDataManger(packageCodeRequest: Byte) {
+    private fun parseDataManger(packageCodeRequest: Byte, receiveDataString: String) {
         when (packageCodeRequest) {
             (0x00).toByte() -> { System.err.println("TEST parser 2 DEFOULT") }
             DataManagerCommand.READ_AVAILABLE_SLOTS.number -> {System.err.println("TEST parser 2 READ_AVAILABLE_SLOTS")}
             DataManagerCommand.WRITE_SLOT.number -> {System.err.println("TEST parser 2 WRITE_SLOT")}
-            DataManagerCommand.READ_DATA.number -> {System.err.println("TEST parser 2 READ_DATA")}
+            DataManagerCommand.READ_DATA.number -> {
+                System.err.println("TEST parser 2 READ_DATA")
+                parseReadData(receiveDataString)
+            }
             DataManagerCommand.WRITE_DATA.number -> {System.err.println("TEST parser 2 WRITE_DATA")}
             DataManagerCommand.RESET_TO_FACTORY.number -> {System.err.println("TEST parser 2 RESET_TO_FACTORY")}
             DataManagerCommand.SAVE_DATA.number -> {System.err.println("TEST parser 2 SAVE_DATA")}
@@ -190,6 +194,13 @@ class BLEParser(main: AppCompatActivity) {
         }
     }
 
+    // DataManger parsers
+    private fun parseReadData(receiveDataString: String) {
+        System.err.println("TEST parser 2 READ_DATA befo parse test")
+        val test = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
+        System.err.println("TEST parser 2 READ_DATA $test")
+    }
+
     private fun getNextID(ID: Int): Int{
         val result = 0
         for (i in baseParametrInfoStructArray.indices) {
@@ -212,9 +223,9 @@ class BLEParser(main: AppCompatActivity) {
                 when (baseParameterWidgetStruct.widgetCode) {
                     ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { System.err.println("parseWidgets UNKNOW") }
                     ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
-                        System.err.println("parseWidgets BUTTON CODE_LABEL")
                         val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
                         commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID = parameterID
+                        System.err.println("parseWidgets BUTTON CODE_LABEL $commandParameterWidgetEStruct")
                         listWidgets.add(commandParameterWidgetEStruct)
                     }
                     ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { System.err.println("parseWidgets SWITCH") }

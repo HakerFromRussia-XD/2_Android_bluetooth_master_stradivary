@@ -1527,7 +1527,7 @@ public class ChartActivity extends AppCompatActivity implements ChartView, Gesst
         set.setAxisDependency(YAxis.AxisDependency.LEFT);//.AxisDependency.LEFT
         set.setLineWidth(2f);
         set.setColor(Color.GREEN);
-        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set.setMode(LineDataSet.Mode.LINEAR);
 
         set.setCircleColor(Color.GREEN);
         set.setCircleHoleColor(Color.GREEN);

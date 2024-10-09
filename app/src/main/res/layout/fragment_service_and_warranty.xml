@@ -314,11 +314,11 @@
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
-                        app:layout_constraintTop_toTopOf="@+id/wfjksbfjknsklemfklsmflkw"
+                        app:layout_constraintTop_toTopOf="@+id/testTextView11"
                         tools:ignore="HardcodedText" />
 
                     <TextView
-                        android:id="@+id/wfjksbfjknsklemfklsmflkw"
+                        android:id="@+id/testTextView11"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -338,11 +338,11 @@
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
-                        app:layout_constraintTop_toTopOf="@+id/wfjksbfjknsklemfklsdmflkw"
+                        app:layout_constraintTop_toTopOf="@+id/testTextView22"
                         tools:ignore="HardcodedText" />
 
                     <TextView
-                        android:id="@+id/wfjksbfjknsklemfklsdmflkw"
+                        android:id="@+id/testTextView22"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -352,7 +352,7 @@
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
                         app:layout_constraintStart_toEndOf="@+id/textView20"
-                        app:layout_constraintTop_toBottomOf="@+id/wfjksbfjknsklemfklsmflkw" />
+                        app:layout_constraintTop_toBottomOf="@+id/testTextView11" />
 
 
                     <TextView
@@ -366,7 +366,7 @@
                         android:textSize="18sp"
                         app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
                         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
-                        app:layout_constraintTop_toBottomOf="@+id/wfjksbfjknsklemfklsdmflkw" />
+                        app:layout_constraintTop_toBottomOf="@+id/testTextView22" />
 
                     <TextView
                         android:id="@+id/textView20d"
@@ -402,11 +402,11 @@
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
-                        app:layout_constraintTop_toTopOf="@+id/wfjksbfjknsklemfklsmflkwf"
+                        app:layout_constraintTop_toTopOf="@+id/testTextView33"
                         tools:ignore="HardcodedText" />
 
                     <TextView
-                        android:id="@+id/wfjksbfjknsklemfklsmflkwf"
+                        android:id="@+id/testTextView33"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -440,7 +440,7 @@
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
                         app:layout_constraintStart_toEndOf="@+id/textView20d"
-                        app:layout_constraintTop_toBottomOf="@+id/wfjksbfjknsklemfklsmflkwf" />
+                        app:layout_constraintTop_toBottomOf="@+id/testTextView33" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -621,6 +621,7 @@
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
+                        app:layout_constraintHorizontal_bias="1.0"
                         app:layout_constraintStart_toEndOf="@+id/textView20dt"
                         app:layout_constraintTop_toBottomOf="@+id/textView80" />
 
@@ -1126,9 +1127,9 @@
                                     android:layout_alignParentTop="true"
                                     android:layout_alignParentBottom="true"
                                     android:layout_centerVertical="true"
-                                    android:layout_marginStart="18dp"
-                                    android:layout_marginTop="18dp"
-                                    android:layout_marginBottom="18dp"
+                                    android:layout_marginStart="13dp"
+                                    android:layout_marginTop="20dp"
+                                    android:layout_marginBottom="16dp"
                                     android:fontFamily="@font/font_open_sans_regular"
                                     android:text="@string/prostheses_charge"
                                     android:textColor="@color/black"

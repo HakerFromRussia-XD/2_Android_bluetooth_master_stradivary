@@ -20,8 +20,10 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.fragments.HomeFragment
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
 
@@ -41,10 +43,11 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         val view = binding.root
         main = this
         val window = this.window
-        window.statusBarColor = this.resources.getColor(R.color.ubi4_back)
-        window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_back)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.ubi4_back)
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_dark_back)
         setContentView(view)
         initAllVariables()
+        BottomNavigationController(bottomNavigation = binding.bottomNavigation)
 
         // инициализация блютуз
         mBLEController = BLEController(this)

@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:background="@color/color_primary">
+    android:background="@color/ubi4_back">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/EMG_chart_cv"
@@ -19,8 +19,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:backgroundTint="@color/ubi4_back">
+        app:layout_constraintTop_toTopOf="parent">
 
         <Button
             android:id="@+id/widget_1_button"

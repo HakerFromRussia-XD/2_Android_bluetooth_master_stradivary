@@ -279,9 +279,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
 
         //TODO закомментить быстрый вход после завершения экспериментов
-        mHandler.postDelayed(() -> {
-            testNavigate();
-        }, 1000);
+        testNavigate();
     }
     public void onWindowFocusChanged(boolean hasFocus){
         super.onWindowFocusChanged(hasFocus);

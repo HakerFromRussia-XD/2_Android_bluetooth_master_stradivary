@@ -3,6 +3,7 @@ package com.bailout.stickk.old_electronic_by_Misha.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,12 +42,15 @@ public class SplashScreen extends AppCompatActivity {
                     if(report.areAllPermissionsGranted()){
                         Intent intent = new Intent(SplashScreen.this, ScanActivity.class);
                         startActivity(intent);
+                        Log.d("onPermissionsChecked", "Success");
                         finish();
                     }
                     else{
                         Toast.makeText(SplashScreen.this, R.string.we_need_these_permissions, Toast.LENGTH_SHORT).show();
                         askPermissions();
+                        Log.d("onPermissionsChecked", "Fail");
                     }
+
                 }
 
                 @Override
@@ -54,5 +58,6 @@ public class SplashScreen extends AppCompatActivity {
                     token.continuePermissionRequest();
                 }
             }).check();
+
     }
 }

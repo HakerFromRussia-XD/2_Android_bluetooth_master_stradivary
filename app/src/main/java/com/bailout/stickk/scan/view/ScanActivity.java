@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -164,11 +165,13 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        System.err.println(" LOLOLOEFWEF --->  ScanActivity onCreate");
+        Log.d("ScanActivity", "Starting to set content view");
         DaggerScanComponent.builder()
                 .bluetoothModule(Objects.requireNonNull(WDApplication.app()).bluetoothModule())
                 .scanModule(new ScanModule(this))
                 .build().inject(this);
         setContentView(R.layout.activity_scan_new);
+        Log.d("ScanActivity", "Content view set successfully");
         //changing statusbar
         if (android.os.Build.VERSION.SDK_INT >= 21){
             Window window = this.getWindow();
@@ -214,13 +217,16 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         versionAppText.setText((this.getResources().getString(R.string.version_app)) + " " + versionName);
 
         devModeBtn.setOnClickListener(v -> {
+            Log.d("DevMode", "devModeBtn clicked");
             if (loadBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED)) {
+                Log.d("DevMode", "UBI4_MODE_ACTIVATED is true");
                 if (android.os.Build.VERSION.SDK_INT >= 21) {
                     Window window = this.getWindow();
                     window.setStatusBarColor(this.getResources().getColor(R.color.blue_status_bar));
                 }
                 mainLayout.setBackgroundResource(R.drawable.gradient_background);
                 saveBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED, false);
+                Log.d("DevMode", "UBI4_MODE_ACTIVATED set to false");
             } else {
                 if (android.os.Build.VERSION.SDK_INT >= 21) {
                     Window window = this.getWindow();
@@ -228,6 +234,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 }
                 mainLayout.setBackgroundColor(this.getResources().getColor(R.color.color_primary));//setBackgroundColor(#404040);
                 saveBool(PreferenceKeysUBI4.UBI4_MODE_ACTIVATED, true);
+                Log.d("DevMode", "UBI4_MODE_ACTIVATED set to true");
             }
         });
 
@@ -279,7 +286,8 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 
 
         //TODO закомментить быстрый вход после завершения экспериментов
-        testNavigate();
+        //testNavigate();
+        Log.d("ScanActivity", "onCreate");
     }
     public void onWindowFocusChanged(boolean hasFocus){
         super.onWindowFocusChanged(hasFocus);
@@ -293,6 +301,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
 //                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
         presenter.onStart(this);
 //        }
+        Log.d("ScanActivity", "onStart");
     }
     @Override
     protected void onResume() {
@@ -309,6 +318,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         showScanList(mLeDevices, mRssisList);
         scanLeDevice(true);
         presenter.startScanning();
+        Log.d("ScanActivity", "onResume");
     }
     @Override
     protected void onPause() {
@@ -324,6 +334,7 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
             presenter.onStop();
         }
+        Log.d("ScanActivity", "onStop");
     }
 
 
@@ -515,27 +526,27 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
             finish();
         }
     }
-    private void testNavigate() {
-        mHandler.postDelayed(() -> {
-            for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
-                final int finalK = k;
-                System.err.println("Запуск загрузки: " + finalK);
-                threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
-                threadFunction[k].start();
-            }
-        }, 500);
-
-        Intent intent = new Intent(ScanActivity.this, StartActivity.class);
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "UBIv4_CPU_Roma");
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, "lol");
-        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, "UBIv4_CPU_Roma");//FEST-X INDY  UBIv4_CPU_Roma
-        if (mScanning) {
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            mScanning = false;
-        }
-        startActivity(intent);
-        finish();
-    }
+//    private void testNavigate() {
+//        mHandler.postDelayed(() -> {
+//            for (int k = 0; k<MAX_NUMBER_DETAILS; k++) {
+//                final int finalK = k;
+//                System.err.println("Запуск загрузки: " + finalK);
+//                threadFunction[k] = new Thread(() -> mLoad3DModelNew.loadSTR2(finalK));
+//                threadFunction[k].start();
+//            }
+//        }, 500);
+//
+//        Intent intent = new Intent(ScanActivity.this, StartActivity.class);
+//        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, "UBIv4_CPU_Roma");
+//        intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, "lol");
+//        intent.putExtra(ConstantManager.EXTRAS_DEVICE_TYPE, "UBIv4_CPU_Roma");//FEST-X INDY  UBIv4_CPU_Roma
+//        if (mScanning) {
+//            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+//            mScanning = false;
+//        }
+//        startActivity(intent);
+//        finish();
+//    }
 
     public boolean isFirstStart() {
         return firstStart;
@@ -804,15 +815,20 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         boolean gps_enabled = false;
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            Log.d("LocationPermission", "GPS enabled: " + gps_enabled);
         } catch(Exception ignored) {}
         if(!gps_enabled) {
+            Log.d("LocationPermission", "GPS is disabled, showing dialog to enable.");
             // notify user
             new AlertDialog.Builder(this)
                     .setMessage(R.string.gps_network_not_enabled)
                     .setPositiveButton(R.string.open_location_settings, (paramDialogInterface, paramInt) -> startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)))
+
                     .setCancelable(false)
                     .show();
+
         }
+        else Log.d("LocationPermission", "GPS is enabled.");
     }
 
 

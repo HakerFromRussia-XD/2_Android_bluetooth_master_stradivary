@@ -15,6 +15,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.nfc.NfcAdapter
 import android.os.*
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
@@ -2938,6 +2939,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     resetLastMAC()
     val intent = Intent(this@MainActivity, ScanActivity::class.java)
     startActivity(intent)
+    Log.d("TestStartActivity", "ScanActivity started")
     finish()
   }
   private fun resetLastMAC() {

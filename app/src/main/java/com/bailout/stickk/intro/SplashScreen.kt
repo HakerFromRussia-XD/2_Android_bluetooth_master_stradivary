@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.RelativeLayout
@@ -26,6 +27,7 @@ import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+
 //import org.jetbrains.anko.backgroundColor
 
 @SuppressLint("CustomSplashScreen")
@@ -62,9 +64,12 @@ class SplashScreen : AppCompatActivity() {
     private fun askPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             Handler().postDelayed({
-                requestMultiplePermissions.launch(arrayOf(
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_CONNECT))
+                requestMultiplePermissions.launch(
+                    arrayOf(
+                        Manifest.permission.BLUETOOTH_SCAN,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    )
+                )
                 if (mSettings?.getBoolean(PreferenceKeys.USE_APP_PIN_CODE, false) == true) {
                     System.err.println("SplashScreen USE_APP_PIN_CODE true")
                     launchPinActivity()
@@ -73,8 +78,7 @@ class SplashScreen : AppCompatActivity() {
                     launchScanActivity()
                 }
             }, 300)
-        }
-        else{
+        } else {
 //            System.err.println(" LOLOLOEFWEF --->  askPermissions()  Build.VERSION_CODES.S  false")
             Dexter.withActivity(this).withPermissions(
                 Manifest.permission.BLUETOOTH,
@@ -91,7 +95,10 @@ class SplashScreen : AppCompatActivity() {
                             finish()
                         } else {
 //                            System.err.println(" LOLOLOEFWEF --->  onPermissionsChecked false")
-                            Toast.makeText(this@SplashScreen, R.string.we_need_these_permissions, Toast.LENGTH_SHORT
+                            Toast.makeText(
+                                this@SplashScreen,
+                                R.string.we_need_these_permissions,
+                                Toast.LENGTH_SHORT
                             ).show()
                             askPermissions()
                         }
@@ -124,16 +131,27 @@ class SplashScreen : AppCompatActivity() {
     }
 
     private fun launchScanActivity() {
-        if ((ContextCompat.checkSelfPermission(this,
-                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+        Log.d("SplashScreen", "launchScanActivity() called")
+        if ((ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_SCAN
+            ) == PackageManager.PERMISSION_GRANTED)
+        ) {
+            Log.d("SplashScreen", "Permission granted, starting ScanActivity")
+
             val intent = Intent(this@SplashScreen, ScanActivity::class.java)
             startActivity(intent)
             finish()
         }
+        else Log.d("SplashScreen", "Permission not granted")
     }
+
     private fun launchPinActivity() {
-        if ((ContextCompat.checkSelfPermission(this,
-                Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED)) {
+        if ((ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_SCAN
+            ) == PackageManager.PERMISSION_GRANTED)
+        ) {
             val intent = Intent(this@SplashScreen, PinActivity::class.java)
             startActivity(intent)
             finish()
@@ -143,10 +161,12 @@ class SplashScreen : AppCompatActivity() {
     private fun loadBool(key: String): Boolean? {
         return mSettings!!.getBoolean(key, false)
     }
+
     @SuppressLint("LogNotTimber")
-    private val requestMultiplePermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+    private val requestMultiplePermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
 //        permissions.entries.forEach {
 //            System.err.println("LOLOLOEFWEF --->  ${it.key} = ${it.value}")
 //        }
-    }
+        }
 }

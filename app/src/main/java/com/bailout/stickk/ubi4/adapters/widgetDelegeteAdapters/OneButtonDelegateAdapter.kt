@@ -3,7 +3,7 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.View
-import com.bailout.stickk.databinding.Widget1ButtonBinding
+import com.bailout.stickk.databinding.Ubi4Widget1ButtonBinding
 import com.bailout.stickk.ubi4.adapters.models.OneButtonItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -12,10 +12,10 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 class OneButtonDelegateAdapter(
     val onButtonPressed: (parameterID: Int, command: Int) -> Unit,
     val onButtonReleased: (parameterID: Int, command: Int) -> Unit) :
-    ViewBindingDelegateAdapter<OneButtonItem, Widget1ButtonBinding>(Widget1ButtonBinding::inflate) {
+    ViewBindingDelegateAdapter<OneButtonItem, Ubi4Widget1ButtonBinding>(Ubi4Widget1ButtonBinding::inflate) {
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun Widget1ButtonBinding.onBind(item: OneButtonItem) {
+    override fun Ubi4Widget1ButtonBinding.onBind(item: OneButtonItem) {
         widget1Button.text = item.title
         var parameterID = 0
         var clickCommand = 0

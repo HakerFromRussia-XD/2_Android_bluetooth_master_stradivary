@@ -11,10 +11,8 @@ internal class DataFactory {
 
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
-        addElement(1, objects, objects)
-        addElement(1, objects, objects)
-        addElement(11, objects, objects)
-        addElement(5, objects, objects)
+        addElement(8, objects, objects)
+        addElement(8, objects, objects)
         return objects
     }
     fun fakeDataClear(): List<Any> {
@@ -81,7 +79,10 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem("PLOT", widget)  }
             ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
-            ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> { OneButtonItem("GESTURE_SETTINGS", "description", widget)  }
+            ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
+//                OneButtonItem("GESTURE_SETTINGS", "description", widget)
+                GesturesItem("GESTURE_SETTINGS", widget)
+            }
             ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { OneButtonItem("CALIB_STATUS", "description", widget)  }
             ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { OneButtonItem("CONTROL_MODE", "description", widget)  }
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }

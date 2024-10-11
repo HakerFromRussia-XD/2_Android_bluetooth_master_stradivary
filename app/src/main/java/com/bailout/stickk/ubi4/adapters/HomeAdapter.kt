@@ -20,12 +20,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.coroutineContext
 
 class HomeAdapter(private val typeCellsList: ArrayList<String>,
@@ -45,7 +40,7 @@ class HomeAdapter(private val typeCellsList: ArrayList<String>,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.widget_plot, parent, false)
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.ubi4_widget_plot, parent, false)
 
 //        test()
         System.err.println("HomeAdapter onCreateViewHolder")

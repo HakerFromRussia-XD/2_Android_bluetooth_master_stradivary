@@ -23,7 +23,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECT
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.fragments.HomeFragment
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
 
@@ -49,6 +48,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         initAllVariables()
         BottomNavigationController(bottomNavigation = binding.bottomNavigation)
 
+
         // инициализация блютуз
         mBLEController = BLEController(this)
         mBLEController.initBLEStructure()
@@ -59,9 +59,6 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
             .beginTransaction()
             .add(R.id.fragmentContainer, HomeFragment())
             .commit()
-
-
-        setStaticVariables()
     }
     @SuppressLint("MissingPermission")
     override fun onResume() {
@@ -89,10 +86,6 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         countBinding = 0
         graphThreadFlag = true
     }
-    internal fun sendWidgetsArray() {
-        //событие эммитится только в случае если size отличается от предыдущего
-        updateFlow.value += 1
-    }
 
 
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
@@ -104,8 +97,12 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
     private fun initAllVariables() {
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
-
+        setStaticVariables()
         //settings
+    }
+    internal fun sendWidgetsArray() {
+        //событие эммитится только в случае если size отличается от предыдущего
+        updateFlow.value += 1
     }
 
     // сохранение и загрузка данных

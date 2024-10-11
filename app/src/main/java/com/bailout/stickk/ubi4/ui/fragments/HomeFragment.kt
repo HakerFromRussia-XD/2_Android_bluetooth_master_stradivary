@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.models.DataFactory
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -38,9 +40,9 @@ class HomeFragment : Fragment() {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
         //настоящие виджеты
-        widgetListUpdater()
+//        widgetListUpdater()
         //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.fakeData())
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -54,6 +56,10 @@ class HomeFragment : Fragment() {
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
+        //TODO только для демонстрации
+        Handler().postDelayed({
+            binding.refreshLayout.setRefreshing(false)
+        }, 1000)
     }
 
 
@@ -78,7 +84,8 @@ class HomeFragment : Fragment() {
         OneButtonDelegateAdapter (
             onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
             onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
-        )
+        ) ,
+        GesturesDelegateAdapter {}
     )
 
 
@@ -96,15 +103,15 @@ class HomeFragment : Fragment() {
         transmitter().bleCommand(BLECommands.requestSubDeviceParametrs(6, 0, 2), MAIN_CHANNEL, WRITE)
     }
 
-    private suspend fun fakeUpdateWidgets() {
-        main?.runOnUiThread {
-            adapterWidgets.swapData(DataFactory().fakeDataClear())
-        }
-
-        delay(1000)
-
-        main?.runOnUiThread {
-            adapterWidgets.swapData(DataFactory().fakeData())
-        }
-    }
+//    private suspend fun fakeUpdateWidgets() {
+//        main?.runOnUiThread {
+//            adapterWidgets.swapData(DataFactory().fakeData())
+//        }
+//
+//        delay(1000)
+//
+//        main?.runOnUiThread {
+//            adapterWidgets.swapData(DataFactory().fakeData())
+//        }
+//    }
 }

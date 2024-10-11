@@ -1,7 +1,7 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.graphics.Color
-import com.bailout.stickk.databinding.WidgetPlotBinding
+import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.ubi4.adapters.models.PlotItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
@@ -29,7 +29,7 @@ import kotlinx.coroutines.withContext
 
 class PlotDelegateAdapter (
     val plotIsReadyToData:(num: Int) -> Unit) :
-    ViewBindingDelegateAdapter<PlotItem, WidgetPlotBinding>(WidgetPlotBinding::inflate) {
+    ViewBindingDelegateAdapter<PlotItem, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private var count: Int = 0
     private var dataSens1 = 0
     private var dataSens2 = 0
@@ -41,7 +41,7 @@ class PlotDelegateAdapter (
 
     private var firstInit = true
 
-    override fun WidgetPlotBinding.onBind(plotItem: PlotItem) {
+    override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItem) {
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
 

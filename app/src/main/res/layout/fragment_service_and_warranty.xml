@@ -314,11 +314,11 @@
                         android:textColor="@color/unselected_filter"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
-                        app:layout_constraintTop_toTopOf="@+id/wfjksbfjknsklemfklsmflkw"
+                        app:layout_constraintTop_toTopOf="@+id/textView112203"
                         tools:ignore="HardcodedText" />
 
                     <TextView
-                        android:id="@+id/wfjksbfjknsklemfklsmflkw"
+                        android:id="@+id/textView112203"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -352,7 +352,7 @@
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="@+id/endGuideline_2"
                         app:layout_constraintStart_toEndOf="@+id/textView20"
-                        app:layout_constraintTop_toBottomOf="@+id/wfjksbfjknsklemfklsmflkw" />
+                        app:layout_constraintTop_toBottomOf="@+id/textView112203" />
 
 
                     <TextView

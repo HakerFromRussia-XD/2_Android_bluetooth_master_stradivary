@@ -224,7 +224,7 @@
                         tools:ignore="HardcodedText" />
 
                     <TextView
-                        android:id="@+id/wfjksbfjknsklemfklsmflkw"
+                        android:id="@+id/textView110033"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/font_open_sans_regular"
@@ -243,7 +243,7 @@
                         app:layout_constraintBottom_toTopOf="@+id/bottomGuideline_2"
                         app:layout_constraintEnd_toStartOf="@+id/endGuideline_2"
                         app:layout_constraintStart_toStartOf="@+id/beginGuideline_2"
-                        app:layout_constraintTop_toBottomOf="@+id/wfjksbfjknsklemfklsmflkw" />
+                        app:layout_constraintTop_toBottomOf="@+id/textView110033" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>

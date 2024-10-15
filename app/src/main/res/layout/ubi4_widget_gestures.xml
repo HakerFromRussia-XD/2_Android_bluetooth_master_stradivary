@@ -59,20 +59,21 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:fontFamily="@font/sf_pro_display_light"
-        android:text="@string/rotation_group"
+        android:text="@string/spr_gestures"
         android:textColor="@color/ubi4_deactivate_text"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintEnd_toEndOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintStart_toStartOf="@+id/guidline_mid"
         app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV" />
+
     <View
         android:id="@+id/collectionOfGesturesSelectBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clickable="true"
-        android:focusable="true"
         android:elevation="5dp"
+        android:focusable="true"
         app:layout_constraintBottom_toBottomOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintEnd_toEndOf="@+id/guidline_mid"
         app:layout_constraintHorizontal_bias="0.0"
@@ -80,8 +81,9 @@
         app:layout_constraintTop_toTopOf="@+id/ubi4GesturesSelectorV"
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="SpeakableTextPresentCheck" />
+
     <View
-        android:id="@+id/rotationGroupSelectBtn"
+        android:id="@+id/sprGesturesSelectBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clickable="true"
@@ -104,7 +106,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/ubi4GesturesSelectorV">
 
         <androidx.constraintlayout.widget.Guideline
@@ -623,30 +625,401 @@
             app:layout_constraintTop_toTopOf="@+id/gesture8Btn" />
     </androidx.constraintlayout.widget.ConstraintLayout>
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/rotationGroupCl"
+        android:id="@+id/sprGestureGroupCl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/ubi4_back"
         android:orientation="horizontal"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ubi4GesturesSelectorV">
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidline_mid_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+
+        <View
+            android:id="@+id/gestureSprCollection1Btn"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/ubi4_view_with_corners_gray"
+            android:elevation="3dp"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageGesture1"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/koza"
+            app:layout_constraintBottom_toBottomOf="@+id/gestureSprCollection1Btn"
+            app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection1Btn"
+            app:layout_constraintStart_toStartOf="@+id/gestureSprCollection1Btn"
+            app:layout_constraintTop_toTopOf="@+id/gestureSprCollection1Btn" />
+
+
+        <ImageView
+            android:id="@+id/dotsThreeBtn1Spr"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="4dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/dotsthree"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/gestureNumber1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginTop="100dp"
-            android:layout_marginBottom="100dp"
+            android:elevation="4dp"
             android:fontFamily="@font/sf_pro_display_light"
-            android:text="@string/rotation_group"
-            android:textColor="@color/ubi4_deactivate_text"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="@string/gesture_1_btn"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="@+id/gestureSprCollection1Btn"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintHorizontal_bias="0.489"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageGesture1" />
+
+        <View
+            android:id="@+id/gestureSprCollection2Btn"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ubi4_view_with_corners_gray"
+            android:elevation="3dp"
+            app:layout_constraintDimensionRatio="H,1:1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <ImageView
+            android:id="@+id/imageGesture2"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ok"
+            app:layout_constraintBottom_toBottomOf="@+id/gestureSprCollection2Btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toTopOf="@+id/gestureSprCollection2Btn" />
+
+        <TextView
+            android:id="@+id/gestureNumber2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:text="@string/gesture_2_btn"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="@+id/gestureSprCollection2Btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toBottomOf="@+id/imageGesture2" />
+
+        <ImageView
+            android:id="@+id/dotsThreeBtn2Spr"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="16dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/dotsthree"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/gestureSprCollection3Btn"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/ubi4_view_with_corners_gray"
+            android:elevation="3dp"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/gestureSprCollection1Btn" />
+
+        <ImageView
+            android:id="@+id/imageGesture3"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/koza"
+            app:layout_constraintBottom_toBottomOf="@+id/gestureSprCollection3Btn"
+            app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection3Btn"
+            app:layout_constraintStart_toStartOf="@+id/gestureSprCollection3Btn"
+            app:layout_constraintTop_toTopOf="@+id/gestureSprCollection3Btn"
+            app:layout_constraintTop_toBottomOf="@id/imageGesture1"/>
+
+        <ImageView
+            android:id="@+id/dotsThreeBtn3Spr"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="4dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/dotsthree"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toTopOf="@+id/gestureSprCollection3Btn" />
+
+        <TextView
+            android:id="@+id/gestureNumber3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:text="@string/gesture_3_btn"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="@id/gestureSprCollection3Btn"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageGesture3" />
+
+        <View
+            android:id="@+id/gestureSprCollection4Btn"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/ubi4_view_with_corners_gray"
+            android:elevation="3dp"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toBottomOf="@+id/gestureSprCollection2Btn" />
+
+        <ImageView
+            android:id="@+id/imageGesture4"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ok"
+            app:layout_constraintBottom_toBottomOf="@+id/gestureSprCollection4Btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toTopOf="@+id/gestureSprCollection4Btn" />
+
+        <TextView
+            android:id="@+id/gestureNumber4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:text="@string/gesture_4_btn"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="@id/gestureSprCollection4Btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.502"
+            app:layout_constraintStart_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toBottomOf="@+id/imageGesture4" />
+
+        <ImageView
+            android:id="@+id/dotsThreeBtnSpr4"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="16dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/dotsthree"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/gestureSprCollection4Btn" />
+
+        <View
+            android:id="@+id/gestureSprCollection5Btn"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/ubi4_view_with_corners_gray"
+            android:elevation="3dp"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/gestureSprCollection3Btn"
+            tools:ignore="DuplicateIds" />
+
+        <ImageView
+            android:id="@+id/imageGesture5"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/koza"
+            app:layout_constraintBottom_toBottomOf="@+id/gestureSprCollection5Btn"
+            app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection5Btn"
+            app:layout_constraintStart_toStartOf="@+id/gestureSprCollection5Btn"
+            app:layout_constraintTop_toTopOf="@+id/gestureSprCollection5Btn"
+            app:layout_constraintTop_toBottomOf="@id/imageGesture1"/>
+
+        <ImageView
+            android:id="@+id/dotsThreeBtn5Spr"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="4dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/dotsthree"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toTopOf="@+id/gestureSprCollection5Btn" />
+
+        <TextView
+            android:id="@+id/gestureNumber5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:text="@string/gesture_5_btn"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="@id/gestureSprCollection5Btn"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageGesture5" />
+
+        <View
+            android:id="@+id/gestureSprCollection6Btn"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ubi4_view_with_corners_gray"
+            android:elevation="3dp"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toBottomOf="@id/gestureSprCollection4Btn"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <ImageView
+            android:id="@+id/imageGesture6"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/koza"
+            app:layout_constraintBottom_toBottomOf="@id/gestureSprCollection6Btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toTopOf="@+id/gestureSprCollection6Btn" />
+
+        <TextView
+            android:id="@+id/gestureNumber6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:text="@string/gesture_6_btn"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.502"
+            app:layout_constraintStart_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toBottomOf="@+id/imageGesture6"
+            app:layout_constraintBottom_toBottomOf="@id/gestureSprCollection6Btn"
+            />
+
+        <ImageView
+            android:id="@+id/dotsThreeBtnSpr6"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="16dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/dotsthree"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/gestureSprCollection6Btn" />
+
+        <View
+            android:id="@+id/gestureSprCollection7Btn"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/ubi4_view_with_corners_gray"
+            android:elevation="3dp"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/gestureSprCollection5Btn"
+            tools:ignore="DuplicateIds" />
+
+        <ImageView
+            android:id="@+id/imageGesture7"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/koza"
+            app:layout_constraintBottom_toBottomOf="@+id/gestureSprCollection7Btn"
+            app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection7Btn"
+            app:layout_constraintStart_toStartOf="@+id/gestureSprCollection7Btn"
+            app:layout_constraintTop_toTopOf="@+id/gestureSprCollection7Btn"
+            app:layout_constraintTop_toBottomOf="@id/imageGesture1"/>
+
+        <ImageView
+            android:id="@+id/dotsThreeBtn7Spr"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="4dp"
+            android:elevation="3dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/dotsthree"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintTop_toTopOf="@+id/gestureSprCollection7Btn" />
+
+        <TextView
+            android:id="@+id/gestureNumber7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:fontFamily="@font/sf_pro_display_light"
+            android:text="@string/gesture_7_btn"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="@id/gestureSprCollection7Btn"
+            app:layout_constraintEnd_toStartOf="@+id/guidline_mid_1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageGesture7" />
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

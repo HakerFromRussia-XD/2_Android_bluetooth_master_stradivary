@@ -46,7 +46,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_dark_back)
         setContentView(view)
         initAllVariables()
-        BottomNavigationController(bottomNavigation = binding.bottomNavigation)
+        //BottomNavigationController(bottomNavigation = binding.bottomNavigation)
 
 
         // инициализация блютуз

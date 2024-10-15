@@ -526,6 +526,7 @@
     <string name="fist">Fist</string>
     <string name="grip_the_ball">Grip the ball</string>
     <string name="that_rocks">That rocks</string>
+    <string name="spr_gestures">SPR gestures</string>
 
 
     <string-array name="numbers">

@@ -44,8 +44,8 @@ class GesturesDelegateAdapter(
                 releasedCommand = item.widget.releasedCommand
             }
         }
-        collectionOfGesturesSelectBtn.setOnClickListener { moveFilterSelection(1, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl) }
-        rotationGroupSelectBtn.setOnClickListener { moveFilterSelection(2, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl) }
+        collectionOfGesturesSelectBtn.setOnClickListener { moveFilterSelection(1, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, sprGestureGroupCl) }
+        sprGesturesSelectBtn.setOnClickListener { moveFilterSelection(2, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, sprGestureGroupCl) }
 
 
         gesture1Btn.setOnClickListener { System.err.println("setOnClickListener gesture1Btn") }
@@ -59,7 +59,7 @@ class GesturesDelegateAdapter(
         rotationGroupTv: TextView,
         ubi4GesturesSelectorV: View,
         collectionGesturesCl: ConstraintLayout,
-        rotationGroupCl: ConstraintLayout
+        sprGestureGroupCl: ConstraintLayout
     ) {
         System.err.println("moveFilterSelection")
         val displayMetrics: DisplayMetrics = main.getResources().displayMetrics
@@ -81,7 +81,7 @@ class GesturesDelegateAdapter(
                 colorAnim3.setEvaluator(ArgbEvaluator())
                 colorAnim3.start()
                 showCollectionGestures(true, collectionGesturesCl)
-                showRotationGroup(false, rotationGroupCl)
+                showRotationGroup(false, sprGestureGroupCl)
             }
             2 -> {
                 ObjectAnimator.ofFloat(
@@ -102,7 +102,7 @@ class GesturesDelegateAdapter(
                 colorAnim4.setEvaluator(ArgbEvaluator())
                 colorAnim4.start()
                 showCollectionGestures(false, collectionGesturesCl)
-                showRotationGroup(true, rotationGroupCl)
+                showRotationGroup(true, sprGestureGroupCl)
             }
 
             else -> throw IllegalStateException("Unexpected value: $position")

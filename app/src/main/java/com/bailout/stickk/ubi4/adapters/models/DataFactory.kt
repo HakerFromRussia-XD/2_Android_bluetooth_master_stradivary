@@ -12,7 +12,7 @@ internal class DataFactory {
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
         addElement(8, objects, objects)
-        addElement(8, objects, objects)
+        //addElement(8, objects, objects)
         return objects
     }
     fun fakeDataClear(): List<Any> {

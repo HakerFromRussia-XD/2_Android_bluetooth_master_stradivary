@@ -526,8 +526,10 @@
     <string name="collection_of_gestures">Коллекция жестов</string>
     <string name="rotation_group">Группа ротации</string>
     <string name="fist">Кулак</string>
+    <string name="spr_gestures">СПР Жесты</string>
     <string name="grip_the_ball">Хват мяча</string>
     <string name="that_rocks">Коза</string>
+
 
     <string-array name="numbers">
         <item>0</item>

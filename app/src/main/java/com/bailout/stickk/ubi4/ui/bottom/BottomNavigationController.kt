@@ -14,7 +14,7 @@ class BottomNavigationController(bottomNavigation: BottomNavigationView) {
         bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.page_1 -> {
-//                    loadFragment(HomeFragment.newInstance())
+//                    loadFragment(SensorsFragment.newInstance())
                     System.err.println("bottomNavigation item1")
                     return@setOnItemSelectedListener true
                 }

@@ -528,6 +528,9 @@
     <string name="fist">Кулак</string>
     <string name="grip_the_ball">Хват мяча</string>
     <string name="that_rocks">Коза</string>
+    <string name="remove_the_gesture_from_the_group">Удалить жест из группы?</string>
+    <string name="delete">Удалить</string>
+    <string name="the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group">Жест “Коза” останется доступным в коллекции жестов, но будет исключён из группы ротации.</string>
 
     <string-array name="numbers">
         <item>0</item>

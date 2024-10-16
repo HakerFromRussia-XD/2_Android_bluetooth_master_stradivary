@@ -64,14 +64,14 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   private var count: Int = 0
   private var callbackFromDialogChangeValue: ChartFragmentCallback = object: ChartFragmentCallback {
     override fun changeCorrelatorNoiseThreshold1(value: Int) {
-      System.err.println("lol sendCommandToBLE CORRELATOR_NOISE_THRESHOLD_1_NUM TestCallback from HomeFragment!!!!")
+      System.err.println("lol sendCommandToBLE CORRELATOR_NOISE_THRESHOLD_1_NUM TestCallback from SensorsFragment!!!!")
       main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_1_NUM, (255 - value))
       sendCorrelatorNoiseThreshold(1)
       updateAllParameters()
     }
 
     override fun changeCorrelatorNoiseThreshold2(value: Int) {
-      System.err.println("lol sendCommandToBLE CORRELATOR_NOISE_THRESHOLD_2_NUM TestCallback from HomeFragment!!!!")
+      System.err.println("lol sendCommandToBLE CORRELATOR_NOISE_THRESHOLD_2_NUM TestCallback from SensorsFragment!!!!")
       main?.saveInt(main?.mDeviceAddress + PreferenceKeys.CORRELATOR_NOISE_THRESHOLD_2_NUM, (255 - value))
       sendCorrelatorNoiseThreshold(2)
       updateAllParameters()
@@ -773,7 +773,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   @SuppressLint("CheckResult")
   override fun onResume() {
     super.onResume()
-    System.err.println("HomeFragment onResume")
+    System.err.println("SensorsFragment onResume")
     graphThreadFlag = true
     testThreadFlag = true
     startGraphEnteringDataThread()
@@ -788,7 +788,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           //показываем индикацию выбранной группы ротации
           if (main?.driverVersionS != null) {
             val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
-//            System.err.println("context HomeFragment NULL! ${mSettings!!.getBoolean(PreferenceKeys.SHOW_SECRET_SETTINGS, false)}")
+//            System.err.println("context SensorsFragment NULL! ${mSettings!!.getBoolean(PreferenceKeys.SHOW_SECRET_SETTINGS, false)}")
             if (driverNum.toInt() >= 237) {
               showUIRotationGroup(mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.SET_SENSORS_GESTURE_SWITCHES_NUM, false))
             } else {
@@ -798,14 +798,14 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             showUIRotationGroup(false)
           }
         } else {
-          System.err.println("context HomeFragment NULL!")
+          System.err.println("context SensorsFragment NULL!")
         }
       }
   }
   override fun onPause() {
     super.onPause()
     graphThreadFlag = false
-    System.err.println("HomeFragment onPause")
+    System.err.println("SensorsFragment onPause")
   }
   override fun onDestroy() {
     super.onDestroy()

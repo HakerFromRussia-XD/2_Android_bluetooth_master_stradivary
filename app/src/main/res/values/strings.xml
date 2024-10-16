@@ -528,7 +528,7 @@
     <string name="that_rocks">That rocks</string>
     <string name="remove_the_gesture_from_the_group">Remove the gesture from the group?</string>
     <string name="delete">Delete</string>
-    <string name="the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group">The “That rocks” gesture will remain available in the gesture collection, but will be removed from the rotation group.</string>
+    <string name="the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group">The %s gesture will remain available in the gesture collection, but will be removed from the rotation group.</string>
 
 
     <string-array name="numbers">

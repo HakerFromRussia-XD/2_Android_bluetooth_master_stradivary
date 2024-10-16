@@ -62,8 +62,6 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
         String text = mItemList.get(position).second;
         holder.gestureInRotationGroupTv.setText(text);
         holder.itemView.setTag(mItemList.get(position).first);
-//        System.err.println("setTag ==========================");
-//        System.err.println("setTag = "+mItemList.get(position));
     }
 
     @Override
@@ -82,14 +80,11 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
             gestureInRotationGroupTv = itemView.findViewById(R.id.gestureInRotationGroupTv);
             deleteBtn = itemView.findViewById(R.id.deleteBtn);
             deleteBtn.setOnClickListener(v -> {
-//                Toast.makeText(v.getContext(), "DELETE! "+ itemView.getTag(), Toast.LENGTH_SHORT).show();
                 int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
-//                removeItem(getIndexItem(Long.parseLong(itemView.getTag().toString())));
                 onDeleteClickRotationGroupListener.onDeleteClickCb(position);
             });
             copyBtn = itemView.findViewById(R.id.copyBtn);
             copyBtn.setOnClickListener(v -> {
-//                Toast.makeText(v.getContext(), "COPY! " + itemView.getTag(), Toast.LENGTH_SHORT).show();
                 int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
                 Long setUniqueItemId = (long)mItemList.size();
                 addItem(mItemList.size(), new Pair<>(setUniqueItemId, mItemList.get(position).second));

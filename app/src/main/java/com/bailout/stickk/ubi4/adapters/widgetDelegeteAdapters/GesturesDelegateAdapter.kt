@@ -24,7 +24,7 @@ import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
 
 class GesturesDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
-    val onDeleteClick: (resultCb: ((result: Int)->Unit)) -> Unit
+    val onDeleteClick: (resultCb: ((result: Int)->Unit), gestureName: String) -> Unit
 ) : RotationGroupItemAdapter.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
@@ -202,6 +202,6 @@ class GesturesDelegateAdapter(
             itemsGesturesRotationArray?.removeAt(position)
             setupListRecyclerView()
         }
-        onDeleteClick(resultCb)
+        onDeleteClick(resultCb, itemsGesturesRotationArray?.get(position)?.second.toString())
     }
 }

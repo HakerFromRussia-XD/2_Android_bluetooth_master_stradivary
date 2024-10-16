@@ -9,7 +9,6 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.util.Consumer
 import androidx.core.util.Pair
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
@@ -25,13 +24,13 @@ import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
 
 class GesturesDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
-    val onDeleteClick: (position: Int, resultCb: ((result: Int)->Unit)) -> Unit
+    val onDeleteClick: (resultCb: ((result: Int)->Unit)) -> Unit
 ) : RotationGroupItemAdapter.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
 
     private val ANIMATION_DURATION = 200
-    private var mItemArray: ArrayList<Pair<Long, String>>? = null
+    private var itemsGesturesRotationArray: ArrayList<Pair<Long, String>>? = null
     private var listRotationGroupAdapter: RotationGroupItemAdapter? = null
     private var mRotationGroupDragLv: DragListView? = null
 
@@ -78,29 +77,16 @@ class GesturesDelegateAdapter(
         rotationGroupDragLv.setScrollingEnabled(false)
         rotationGroupDragLv.setOnClickListener {  }
         rotationGroupDragLv.setDragListListener(object : DragListListenerAdapter() {
-            override fun onItemDragStarted(position: Int) {
-//                Toast.makeText(
-//                    rotationGroupDragLv.context,
-//                    "Start - position: $position", Toast.LENGTH_SHORT
-//                ).show()
-            }
+            override fun onItemDragStarted(position: Int) { }
 
             override fun onItemDragEnded(fromPosition: Int, toPosition: Int) {
-                if (fromPosition != toPosition) {
-//                    Toast.makeText(
-//                        rotationGroupDragLv.context,
-//                        "End - position: $toPosition", Toast.LENGTH_SHORT
-//                    ).show()
-//                    mItemArray?.forEach { i ->
-//                        System.err.println("Item ${i.first}")
-//                    }
-                }
+                if (fromPosition != toPosition) { }
             }
         })
 
-        mItemArray = ArrayList()
+        itemsGesturesRotationArray = ArrayList()
         for (i in 0..4) {
-            mItemArray!!.add(Pair<Long, String>(i.toLong(), "Item $i"))
+            itemsGesturesRotationArray!!.add(Pair<Long, String>(i.toLong(), "Item $i"))
         }
         setupListRecyclerView()
     }
@@ -109,7 +95,7 @@ class GesturesDelegateAdapter(
         mRotationGroupDragLv?.setLayoutManager(LinearLayoutManager(main.applicationContext))
         listRotationGroupAdapter =
             RotationGroupItemAdapter(
-                mItemArray,
+                itemsGesturesRotationArray,
                 R.layout.ubi4_item_rotation_group,
                 R.id.swapIv,
                 false,
@@ -211,9 +197,11 @@ class GesturesDelegateAdapter(
         listRotationGroupAdapter?.notifyDataSetChanged()
     }
     @SuppressLint("NotifyDataSetChanged")
-    override fun onDeleteClickCb(position: Int, resultCb: ((result: Int)->Unit)) {
-        onDeleteClick(position, resultCb)
-        mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
-        listRotationGroupAdapter?.notifyDataSetChanged()
+    override fun onDeleteClickCb(position: Int) {
+        val resultCb: ((result: Int)->Unit) = {
+            itemsGesturesRotationArray?.removeAt(position)
+            setupListRecyclerView()
+        }
+        onDeleteClick(resultCb)
     }
 }

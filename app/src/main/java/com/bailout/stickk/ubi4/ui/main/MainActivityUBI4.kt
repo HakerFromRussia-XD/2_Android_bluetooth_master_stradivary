@@ -131,7 +131,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()
 
-//        var
+
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
 

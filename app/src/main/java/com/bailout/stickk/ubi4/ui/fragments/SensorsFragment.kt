@@ -45,9 +45,9 @@ class SensorsFragment : Fragment() {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
         //настоящие виджеты
-//        widgetListUpdater()
+        widgetListUpdater()
         //фейковые виджеты
-        adapterWidgets.swapData(mDataFactory.fakeData())
+//        adapterWidgets.swapData(mDataFactory.fakeData())
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -88,33 +88,23 @@ class SensorsFragment : Fragment() {
         ),
         OneButtonDelegateAdapter (
             onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
-//            onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
             onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
         ) ,
         GesturesDelegateAdapter (
             onSelectorClick = {},
-            onDeleteClick = { position, resultCb -> onDeletePressedTest(position, resultCb) }
+            onDeleteClick = { resultCb -> showDeleteGestureFromRotationGroupDialog(resultCb) }
         )
     )
-    
-    private fun onDeletePressedTest(position: Int, resultCb: ((result: Int)->Unit)) {
-        System.err.println("onDeletePressed $position")
-        resultCb.invoke(1)
-        showDeleteGestureFromRotationGroupDialog()
-    }
-    private fun onDeletePressed(position: Int) {
-        System.err.println("onDeletePressed $position")
-        showDeleteGestureFromRotationGroupDialog()
-    }
+
+
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
-    private fun showDeleteGestureFromRotationGroupDialog() {
+    private fun showDeleteGestureFromRotationGroupDialog(resultCb: ((result: Int)->Unit)) {
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_delete_gesture_from_rotation_group, null)
         val myDialog = Dialog(requireContext())
         myDialog.setContentView(dialogBinding)
         myDialog.setCancelable(false)
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         myDialog.show()
-
 
 
         //заполнение текстовых данных диалога
@@ -126,6 +116,7 @@ class SensorsFragment : Fragment() {
         val deleteBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogRotationGroupConfirmBtn)
         deleteBtn.setOnClickListener {
             myDialog.dismiss()
+            resultCb.invoke(2)
         }
     }
     private fun oneButtonPressed(parameterID: Int, command: Int) {

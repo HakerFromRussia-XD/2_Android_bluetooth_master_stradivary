@@ -628,7 +628,7 @@
         android:layout_height="wrap_content"
         android:background="@color/ubi4_back"
         android:orientation="horizontal"
-        android:visibility="gone"
+        android:visibility="gonex"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -529,6 +529,21 @@
     <string name="spr_gestures">СПР Жесты</string>
     <string name="grip_the_ball">Хват мяча</string>
     <string name="that_rocks">Коза</string>
+    <string name="title_gestures_learned">Изученные жесты</string>
+    <string name="neutral_position">Нейтральная позиция</string>
+    <string name="thumb_bend">Сгиб большого пальца</string>
+    <string name="clenching_fist">Сжатие в кулак</string>
+    <string name="palm_opening">Раскрытие ладони</string>
+    <string name="ok_pinch">Жест Оk/Щипок</string>
+    <string name="gesture_key">Жест Ключ</string>
+    <string name="pistol_pointer_gesture">Жест Пистолет/Указатель</string>
+    <string name="flexion">Флексия</string>
+    <string name="extension">Экстензия</string>
+    <string name="adduction">Аддукция</string>
+    <string name="abduction">Абдукция</string>
+    <string name="pronation">Пронация</string>
+    <string name="supination">Супинация</string>
+    <string name="gesture_used">Используемый жест</string>
 
 
     <string-array name="numbers">

@@ -106,7 +106,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintTop_toBottomOf="@+id/ubi4GesturesSelectorV">
 
         <androidx.constraintlayout.widget.Guideline
@@ -630,7 +630,7 @@
         android:layout_height="wrap_content"
         android:background="@color/ubi4_back"
         android:orientation="horizontal"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -771,7 +771,7 @@
             android:layout_height="100dp"
             android:elevation="3dp"
             android:importantForAccessibility="no"
-            android:src="@drawable/koza"
+            android:src="@drawable/kulak"
             app:layout_constraintBottom_toBottomOf="@+id/gestureSprCollection3Btn"
             app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection3Btn"
             app:layout_constraintStart_toStartOf="@+id/gestureSprCollection3Btn"

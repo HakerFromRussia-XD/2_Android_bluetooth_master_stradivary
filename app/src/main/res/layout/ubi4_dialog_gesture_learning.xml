@@ -1,0 +1,802 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="32dp"
+    tools:viewBindingIgnore="true">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/CLMain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/ubi4_back">
+
+
+            <TextView
+                android:id="@+id/dialog_fingers_delay_title_tv"
+                android:layout_width="match_parent"
+                android:layout_height="22dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/sf_pro_text_bold"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="@string/title_gestures_learned"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="HardcodedText" />
+
+            <ScrollView
+                android:id="@+id/scrollViewDialog"
+                android:layout_width="match_parent"
+                android:layout_height="383dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/ubi4_view_with_corners_back"
+                android:elevation="0dp"
+                app:cardCornerRadius="16dp"
+                app:cardUseCompatPadding="true"
+                app:layout_constraintTop_toBottomOf="@+id/dialog_fingers_delay_title_tv">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    app:layout_constraintTop_toBottomOf="@+id/dialog_fingers_delay_title_tv">
+
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture1CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginBottom="2dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture1tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/neutral_position"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <ImageView
+                            android:id="@+id/check1Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture2CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+
+                        >
+
+                        <TextView
+                            android:id="@+id/dialog_gesture2tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/thumb_bend"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <ImageView
+                            android:id="@+id/check2Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture3CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+
+                        >
+
+                        <TextView
+                            android:id="@+id/dialog_gesture3tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/clenching_fist"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <ImageView
+                            android:id="@+id/check3Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture4CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture5tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/palm_opening"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <ImageView
+                            android:id="@+id/check5Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture5CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture5tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/ok_pinch"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <ImageView
+                            android:id="@+id/check5Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture6CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture6tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/gesture_key"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <ImageView
+                            android:id="@+id/check6Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture7CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture7tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/pistol_pointer_gesture"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <ImageView
+                            android:id="@+id/check7Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture8CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture8tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/flexion"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.0" />
+
+                        <ImageView
+                            android:id="@+id/check8Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture9CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture9tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/extension"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.4" />
+
+                        <ImageView
+                            android:id="@+id/check9Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/ubi4_view_with_corners_gray" />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture10CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture10tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/adduction"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.4" />
+
+                        <ImageView
+                            android:id="@+id/check10Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture11CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture11tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/abduction"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.4" />
+
+                        <ImageView
+                            android:id="@+id/check11Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture12CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture12tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/pronation"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.4" />
+
+                        <ImageView
+                            android:id="@+id/check12Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/ubi4_view_with_corners_gray"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/learnedGesture13CL"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp">
+
+                        <TextView
+                            android:id="@+id/dialog_gesture13tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="49dp"
+                            android:fontFamily="@font/sf_pro_display_light"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingTop="2dp"
+                            android:paddingBottom="4dp"
+                            android:text="@string/supination"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/_2_1"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.4" />
+
+                        <ImageView
+                            android:id="@+id/check13Btn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:paddingTop="12dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="12dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/check"
+                            android:visibility="visible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                </LinearLayout>
+
+            </ScrollView>
+
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="88dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintStart_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/scrollViewDialog">
+
+                <TextView
+                    android:id="@+id/tv_andex_alert_dialog_save_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/font_inter_semi_bold"
+                    android:text="@string/save"
+                    android:textColor="@color/ubi4_yes_system_blue"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent" />
+
+                <View
+                    android:id="@+id/dialogFingersDelaySaveBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="SpeakableTextPresentCheck" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+
+                    android:background="@drawable/ubi4_view_with_corners_gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_andex_alert_dialog_cancel_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/font_inter_semi_bold"
+                    android:text="@string/cancel"
+                    android:textColor="@color/ubi4_yes_system_blue"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent" />
+
+                <View
+                    android:id="@+id/dialogFingersDelayCancelBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="SpeakableTextPresentCheck" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

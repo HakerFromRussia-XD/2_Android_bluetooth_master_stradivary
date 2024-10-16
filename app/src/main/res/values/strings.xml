@@ -527,6 +527,21 @@
     <string name="grip_the_ball">Grip the ball</string>
     <string name="that_rocks">That rocks</string>
     <string name="spr_gestures">SPR gestures</string>
+    <string name="title_gestures_learned">Gestures learned\n</string>
+    <string name="neutral_position">Neutral position</string>
+    <string name="thumb_bend">Thumb bend</string>
+    <string name="clenching_fist">Clenching into a fist</string>
+    <string name="palm_opening">Palm opening</string>
+    <string name="ok_pinch">Ok/Pinch Gesture</string>
+    <string name="gesture_key">Gesture Key</string>
+    <string name="pistol_pointer_gesture">Pistol/Pointer Gesture</string>
+    <string name="flexion">Flexion</string>
+    <string name="extension">Extension</string>
+    <string name="adduction">Adduction</string>
+    <string name="abduction">Abduction</string>
+    <string name="pronation">Pronation</string>
+    <string name="supination">Supination</string>
+    <string name="gesture_used">Gesture used</string>
 
 
     <string-array name="numbers">

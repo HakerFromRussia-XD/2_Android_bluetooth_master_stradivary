@@ -13,8 +13,11 @@ import android.widget.TextView
 import androidx.core.util.Consumer
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
+import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
+import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.models.DataFactory
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
@@ -93,11 +96,64 @@ class SensorsFragment : Fragment() {
         ) ,
         GesturesDelegateAdapter (
             onSelectorClick = {},
-            onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) }
+            onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
+            onAddGesturesToRotationGroup = { resultCb -> showAddGestureToRotationGroupDialog(resultCb) }
         )
     )
 
 
+    @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
+    private fun showAddGestureToRotationGroupDialog(resultCb: (()->Unit)) {
+        System.err.println("showAddGestureToRotationGroupDialog")
+        val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_rotation_group, null)
+        val myDialog = Dialog(requireContext())
+        val gesturesRv = dialogBinding.findViewById<RecyclerView>(R.id.dialogAddGesturesToGroupRv)
+        val linearLayoutManager = LinearLayoutManager(context)
+        myDialog.setContentView(dialogBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+
+        val listN: ArrayList<String> = ArrayList()
+        listN.add("First profile")
+        listN.add("2 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("3 profile")
+        listN.add("add")
+        linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
+        gesturesRv.layoutManager = linearLayoutManager
+        val adapter = GesturesCheckAdapter(listN, object :
+            OnCheckGestureListener {
+            override fun onGestureClicked(position: Int) {
+                System.err.println("onGestureClicked $position")
+
+            }
+        })
+        gesturesRv.adapter = adapter
+
+
+
+        val cancelBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToGroupCancelBtn)
+        cancelBtn.setOnClickListener {
+            myDialog.dismiss()
+        }
+
+        val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToGroupSaveBtn)
+        saveBtn.setOnClickListener {
+            myDialog.dismiss()
+            resultCb.invoke()
+        }
+    }
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     private fun showDeleteGestureFromRotationGroupDialog(resultCb: ((result: Int)->Unit), gestureName: String) {
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_delete_gesture_from_rotation_group, null)
@@ -110,7 +166,7 @@ class SensorsFragment : Fragment() {
         val ubi4DialogRotationGroupMessageTv = dialogBinding.findViewById<TextView>(R.id.ubi4DialogRotationGroupMessageTv)
         ubi4DialogRotationGroupMessageTv.text = getString(R.string.the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group, "\"$gestureName\"")
 
-        //заполнение текстовых данных диалога
+
         val cancelBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogRotationGroupCancelBtn)
         cancelBtn.setOnClickListener {
             myDialog.dismiss()

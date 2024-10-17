@@ -22,9 +22,11 @@ import com.woxthebox.draglistview.DragItem
 import com.woxthebox.draglistview.DragListView
 import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
 
+
 class GesturesDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
-    val onDeleteClick: (resultCb: ((result: Int)->Unit), gestureName: String) -> Unit
+    val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
+    val onAddGesturesToRotationGroup: (resultCb: (() -> Unit)) -> Unit
 ) : RotationGroupItemAdapter.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
@@ -33,6 +35,7 @@ class GesturesDelegateAdapter(
     private var itemsGesturesRotationArray: ArrayList<Pair<Long, String>>? = null
     private var listRotationGroupAdapter: RotationGroupItemAdapter? = null
     private var mRotationGroupDragLv: DragListView? = null
+    private var hideFactoryCollectionGestures = true
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -61,10 +64,38 @@ class GesturesDelegateAdapter(
         }
         collectionOfGesturesSelectBtn.setOnClickListener { moveFilterSelection(1, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl) }
         rotationGroupSelectBtn.setOnClickListener { moveFilterSelection(2, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl) }
+        hideCollectionBtn.setOnClickListener {
+            System.err.println("collectionFactoryGesturesCl.layoutParams.height = ${collectionFactoryGesturesCl.layoutParams.height}")
 
-        Handler().postDelayed({
-            moveFilterSelection(2, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl)
-        }, 100)
+            if (hideFactoryCollectionGestures) {
+                hideFactoryCollectionGestures = false
+                hideCollectionBtn.animate().rotation(180F).duration = ANIMATION_DURATION.toLong()
+                collectionUserGesturesCl.animate().translationY(-(collectionFactoryGesturesCl.height).toFloat()).duration = ANIMATION_DURATION.toLong()
+                collectionFactoryGesturesCl.animate()
+                    .alpha(0.0f)
+                    .setDuration(ANIMATION_DURATION.toLong())
+                Handler().postDelayed({
+                    collectionFactoryGesturesCl.visibility = View.GONE
+                    collectionUserGesturesCl.animate().translationY(0F).duration = 0
+                }, ANIMATION_DURATION.toLong())
+            } else {
+                hideFactoryCollectionGestures = true
+                hideCollectionBtn.animate().rotation(0F).duration = ANIMATION_DURATION.toLong()
+                collectionUserGesturesCl.animate().translationY(-(collectionFactoryGesturesCl.height).toFloat()).duration = 0
+                collectionFactoryGesturesCl.visibility = View.VISIBLE
+                Handler().postDelayed({
+                    collectionUserGesturesCl.animate().translationY(0F).duration = ANIMATION_DURATION.toLong()
+                    collectionFactoryGesturesCl.animate()
+                        .alpha(1.0f)
+                        .setDuration(ANIMATION_DURATION.toLong())
+                }, ANIMATION_DURATION.toLong())
+            }
+        }
+
+        gestureCollection1Btn.setOnClickListener { System.err.println("setOnClickListener gestureCollection1Btn") }
+        gestureCollection2Btn.setOnClickListener { System.err.println("setOnClickListener gestureCollection2Btn") }
+        gestureCollection3Btn.setOnClickListener { System.err.println("setOnClickListener gestureCollection3Btn") }
+        gestureCollection4Btn.setOnClickListener { System.err.println("setOnClickListener gestureCollection4Btn") }
 
         gesture1Btn.setOnClickListener { System.err.println("setOnClickListener gesture1Btn") }
         gesture1SettingsBtn.setOnClickListener { System.err.println("setOnClickListener gesture1SettingsBtn") }
@@ -72,10 +103,14 @@ class GesturesDelegateAdapter(
 
 
 
+        addGestureToRotationGroupBtn.setOnClickListener {
+            val resultCb: (()->Unit) = {
 
+            }
+            onAddGesturesToRotationGroup(resultCb) }
         rotationGroupDragLv.recyclerView.isVerticalScrollBarEnabled = false
         rotationGroupDragLv.setScrollingEnabled(false)
-        rotationGroupDragLv.setOnClickListener {  }
+        rotationGroupDragLv.setOnClickListener {}
         rotationGroupDragLv.setDragListListener(object : DragListListenerAdapter() {
             override fun onItemDragStarted(position: Int) { }
 

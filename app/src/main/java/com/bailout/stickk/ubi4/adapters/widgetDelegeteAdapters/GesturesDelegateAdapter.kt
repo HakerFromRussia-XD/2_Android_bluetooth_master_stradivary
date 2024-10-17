@@ -26,7 +26,7 @@ import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
 class GesturesDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
     val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
-    val onAddGesturesToRotationGroup: (resultCb: (() -> Unit)) -> Unit
+    val onAddGesturesToRotationGroup: (onSaveDialogClick: (() -> Unit)) -> Unit
 ) : RotationGroupItemAdapter.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {

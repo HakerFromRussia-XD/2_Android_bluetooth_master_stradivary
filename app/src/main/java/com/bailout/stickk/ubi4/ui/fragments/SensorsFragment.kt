@@ -4,13 +4,13 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.icu.text.CaseMap.Title
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.util.Consumer
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +19,7 @@ import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.models.DataFactory
+import com.bailout.stickk.ubi4.adapters.models.DialogGestureItem
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
@@ -97,13 +98,13 @@ class SensorsFragment : Fragment() {
         GesturesDelegateAdapter (
             onSelectorClick = {},
             onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
-            onAddGesturesToRotationGroup = { resultCb -> showAddGestureToRotationGroupDialog(resultCb) }
+            onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) }
         )
     )
 
 
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
-    private fun showAddGestureToRotationGroupDialog(resultCb: (()->Unit)) {
+    private fun showAddGestureToRotationGroupDialog(onSaveDialogClick: (()->Unit)) {
         System.err.println("showAddGestureToRotationGroupDialog")
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_rotation_group, null)
         val myDialog = Dialog(requireContext())
@@ -114,29 +115,38 @@ class SensorsFragment : Fragment() {
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         myDialog.show()
 
-        val listN: ArrayList<String> = ArrayList()
-        listN.add("First profile")
-        listN.add("2 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("3 profile")
-        listN.add("add")
+        val listN: ArrayList<DialogGestureItem> = ArrayList()
+        listN.add(DialogGestureItem("First profile", true))
+        listN.add(DialogGestureItem("2 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("add", true))
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         gesturesRv.layoutManager = linearLayoutManager
         val adapter = GesturesCheckAdapter(listN, object :
             OnCheckGestureListener {
-            override fun onGestureClicked(position: Int) {
+            override fun onGestureClicked(position: Int, title: String) {
                 System.err.println("onGestureClicked $position")
+                if (listN[position].check) {
+                    listN.removeAt(position)
+                    listN.add(position, DialogGestureItem(title, false))
+                } else {
+                    listN.removeAt(position)
+                    listN.add(position, DialogGestureItem(title, true))
+                }
 
+
+                gesturesRv.adapter?.notifyItemChanged(position)
             }
         })
         gesturesRv.adapter = adapter
@@ -151,7 +161,7 @@ class SensorsFragment : Fragment() {
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToGroupSaveBtn)
         saveBtn.setOnClickListener {
             myDialog.dismiss()
-            resultCb.invoke()
+            onSaveDialogClick.invoke()
         }
     }
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")

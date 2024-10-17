@@ -27,7 +27,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="HardcodedText" />
-
     <ImageView
         android:id="@+id/swapIv"
         android:layout_width="wrap_content"
@@ -45,7 +44,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
     <ImageView
         android:id="@+id/copyIv"
         android:layout_width="22dp"
@@ -63,7 +61,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/swapBtn"
         app:layout_constraintTop_toTopOf="parent" />
-
     <ImageView
         android:id="@+id/deleteIv"
         android:layout_width="wrap_content"
@@ -81,7 +78,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/copyBtn"
         app:layout_constraintTop_toTopOf="parent" />
-
     <View
         android:id="@+id/divider_v"
         android:layout_width="match_parent"

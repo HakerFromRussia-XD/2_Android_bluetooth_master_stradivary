@@ -11,6 +11,7 @@
         android:layout_width="270dp"
         android:layout_height="wrap_content"
         app:cardCornerRadius="14dp"
+        android:backgroundTint="@color/ubi4_back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,8 +20,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/mainDialogCl"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/ubi4_back">
+            android:layout_height="wrap_content">
 
 
             <TextView

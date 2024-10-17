@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/gestureUsedCL"
     android:layout_width="match_parent"
-    android:layout_height="44dp"
-    android:background="@color/ubi4_gray">
+    android:layout_height="44dp">
 
     <View
         android:id="@+id/ubi4DialogGestureItemBtn"
@@ -34,12 +33,13 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/usedGestureCheckBtn"
+        android:id="@+id/usedGestureCheckIv"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="10dp"
         android:padding="4dp"
         android:src="@drawable/check"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

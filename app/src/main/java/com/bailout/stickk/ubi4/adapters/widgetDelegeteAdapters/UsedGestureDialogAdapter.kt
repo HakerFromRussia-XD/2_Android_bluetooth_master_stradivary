@@ -11,6 +11,7 @@ import com.bailout.stickk.R
 class UsedGestureDialogAdapter(
     private val gestures: List<String>,
     private val onItemClick: (String) -> Unit
+    //открывает диалоговое окно
 ) : RecyclerView.Adapter<UsedGestureDialogAdapter.DialogViewHolder>() {
 
     class DialogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

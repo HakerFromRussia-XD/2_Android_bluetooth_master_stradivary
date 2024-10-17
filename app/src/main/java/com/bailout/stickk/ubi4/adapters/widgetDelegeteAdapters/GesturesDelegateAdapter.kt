@@ -8,7 +8,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bailout.stickk.R
-import com.bailout.stickk.databinding.Ubi4WidgetGesturesBinding
+import com.bailout.stickk.databinding.Ubi4WidgetGesturesOpticBinding
 import com.bailout.stickk.ubi4.adapters.models.GesturesItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -18,12 +18,12 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 class GesturesDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
 ) :
-    ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
+    ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOpticBinding>(Ubi4WidgetGesturesOpticBinding::inflate) {
     private val ANIMATION_DURATION = 200
 //    private val collectionGesturesCl
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun Ubi4WidgetGesturesBinding.onBind(item: GesturesItem) {
+    override fun Ubi4WidgetGesturesOpticBinding.onBind(item: GesturesItem) {
         var parameterID = 0
         var clickCommand = 0
         var pressedCommand = 0

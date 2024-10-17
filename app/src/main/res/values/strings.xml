@@ -542,6 +542,7 @@
     <string name="pronation">Pronation</string>
     <string name="supination">Supination</string>
     <string name="gesture_used">Gesture used</string>
+    <string name="control_gestures">Control Gestures</string>
 
 
     <string-array name="numbers">

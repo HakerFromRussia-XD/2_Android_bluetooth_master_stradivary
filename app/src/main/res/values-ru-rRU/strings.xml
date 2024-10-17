@@ -544,6 +544,7 @@
     <string name="pronation">Пронация</string>
     <string name="supination">Супинация</string>
     <string name="gesture_used">Используемый жест</string>
+    <string name="control_gestures">Жесты контроля</string>
 
 
     <string-array name="numbers">

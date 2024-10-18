@@ -545,6 +545,8 @@
     <string name="supination">Супинация</string>
     <string name="gesture_used">Используемый жест</string>
     <string name="control_gestures">Жесты контроля</string>
+    <string name="select_learned_gestures">Выберите изученные жесты</string>
+    <string name="assign_gesture">Назначьте жест</string>
 
 
     <string-array name="numbers">

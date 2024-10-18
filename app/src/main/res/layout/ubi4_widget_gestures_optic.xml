@@ -662,8 +662,8 @@
 
             <View
                 android:id="@+id/gestureSprCollection1Btn"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="187dp"
+                android:layout_height="180dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
@@ -890,7 +890,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/imageGesture4" />
 
             <ImageView
-                android:id="@+id/dotsThreeBtnSpr4"
+                android:id="@+id/dotsThreeBtn4Spr"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginTop="8dp"
@@ -1027,7 +1027,7 @@
             />
 
             <ImageView
-                android:id="@+id/dotsThreeBtnSpr6"
+                android:id="@+id/dotsThreeBtn6Spr"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginTop="8dp"

@@ -1,8 +1,5 @@
-package com.bailout.stickk.ubi4.ui.fragments
-
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.app.Fragment
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -10,10 +7,17 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
+import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
+import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.models.DataFactory
+import com.bailout.stickk.ubi4.adapters.models.DialogGestureItem
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
@@ -34,10 +38,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 @Suppress("DEPRECATION")
-class SprGestureFragment(): Fragment() {
-
+class SprGestureFragment() : Fragment() {
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
@@ -96,46 +98,164 @@ class SprGestureFragment(): Fragment() {
         ),
         OneButtonDelegateAdapter(
             onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
-//            onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
             onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
         ),
         GesturesDelegateAdapter(
             onSelectorClick = {},
-            onDeleteClick = { position, resultCb -> onDeletePressedTest(position, resultCb) }
+            onAddGesturesToSprScreen = { onSaveClick -> showControlGesturesDialog(onSaveClick) },
+            onsetCustomGesture = { onSaveClick -> showCustomGesturesDialog(onSaveClick) }
+
         )
     )
 
-    private fun onDeletePressedTest(position: Int, resultCb: ((result: Int) -> Unit)) {
-        System.err.println("onDeletePressed $position")
-        resultCb.invoke(1)
-        showDeleteGestureFromRotationGroupDialog()
-    }
 
-    private fun onDeletePressed(position: Int) {
-        System.err.println("onDeletePressed $position")
-        showDeleteGestureFromRotationGroupDialog()
-    }
+    @SuppressLint("MissingInflatedId")
+    private fun showCustomGesturesDialog(onSaveClick: (() -> Unit)) {
 
-    @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
-    private fun showDeleteGestureFromRotationGroupDialog() {
+
+        System.err.println("showAddGestureToSprScreen")
         val dialogBinding =
-            layoutInflater.inflate(R.layout.ubi4_dialog_delete_gesture_from_rotation_group, null)
+            layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_spr_screen, null)
         val myDialog = Dialog(requireContext())
+        val gesturesRv = dialogBinding.findViewById<RecyclerView>(R.id.dialogAddGesturesRv)
+        val linearLayoutManager = LinearLayoutManager(context)
+        myDialog.setContentView(dialogBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+        val titleText = dialogBinding.findViewById<TextView>(R.id.dialogTitleBindingTv)
+        titleText.setText(R.string.assign_gesture)
+
+        val listN: ArrayList<DialogGestureItem> = ArrayList()
+        listN.add(DialogGestureItem("First profile", false))
+        listN.add(DialogGestureItem("2 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("3 profile", false))
+        listN.add(DialogGestureItem("add", false))
+
+        var selectedPosition = -1
+
+
+        linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
+        gesturesRv.layoutManager = linearLayoutManager
+        val adapter = GesturesCheckAdapter(listN, object :
+            OnCheckGestureListener {
+            override fun onGestureClicked(position: Int, title: String) {
+                System.err.println("onGestureClicked $position")
+                if (selectedPosition != position) {
+
+                    if (selectedPosition != -1) {
+
+                        listN[selectedPosition] =
+                            DialogGestureItem(listN[selectedPosition].title, false)
+                        gesturesRv.adapter?.notifyItemChanged(selectedPosition)
+                    }
+
+                    selectedPosition = position
+                    listN[position] = DialogGestureItem(title, true)
+                    gesturesRv.adapter?.notifyItemChanged(selectedPosition)
+
+                }
+
+
+                gesturesRv.adapter?.notifyItemChanged(position)
+            }
+        })
+        gesturesRv.adapter = adapter
+
+
+        val cancelBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToCancelBtn)
+        cancelBtn.setOnClickListener {
+            myDialog.dismiss()
+        }
+
+        val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToSaveBtn)
+        saveBtn.setOnClickListener {
+            if (selectedPosition != -1) {
+                myDialog.dismiss()
+                onSaveClick.invoke()
+            } else {
+                Toast.makeText(
+                    context,
+                    "Please select at least one gesture before saving",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+
+    @SuppressLint("MissingInflatedId")
+    private fun showControlGesturesDialog(onSaveClick: (() -> Unit)) {
+        System.err.println("showAddGestureToSprScreen")
+        val dialogBinding =
+            layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_spr_screen, null)
+        val myDialog = Dialog(requireContext())
+        val gesturesRv = dialogBinding.findViewById<RecyclerView>(R.id.dialogAddGesturesRv)
+
+
+        val linearLayoutManager = LinearLayoutManager(context)
         myDialog.setContentView(dialogBinding)
         myDialog.setCancelable(false)
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         myDialog.show()
 
 
-        //заполнение текстовых данных диалога
-        val cancelBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogRotationGroupCancelBtn)
+        val listN: ArrayList<DialogGestureItem> = ArrayList()
+        listN.add(DialogGestureItem("Gesture №1", true))
+        listN.add(DialogGestureItem("Gesture №2", false))
+        listN.add(DialogGestureItem("Gesture №3", false))
+        listN.add(DialogGestureItem("Gesture №4", false))
+        listN.add(DialogGestureItem("Gesture №5", false))
+        listN.add(DialogGestureItem("Gesture №6", false))
+        listN.add(DialogGestureItem("Gesture №7", false))
+        listN.add(DialogGestureItem("Gesture №8", false))
+        listN.add(DialogGestureItem("Gesture №9", false))
+        listN.add(DialogGestureItem("Gesture №10", false))
+        listN.add(DialogGestureItem("Gesture №11", false))
+        listN.add(DialogGestureItem("Gesture №12", false))
+        listN.add(DialogGestureItem("Gesture №13", false))
+
+        linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
+        gesturesRv.layoutManager = linearLayoutManager
+        val adapter = GesturesCheckAdapter(listN, object :
+            OnCheckGestureListener {
+            override fun onGestureClicked(position: Int, title: String) {
+                System.err.println("onGestureClicked $position")
+                if (listN[position].check) {
+                    listN.removeAt(position)
+                    listN.add(position, DialogGestureItem(title, false))
+                } else {
+                    listN.removeAt(position)
+                    listN.add(position, DialogGestureItem(title, true))
+                }
+
+
+                gesturesRv.adapter?.notifyItemChanged(position)
+            }
+        })
+        gesturesRv.adapter = adapter
+
+
+        val cancelBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToCancelBtn)
         cancelBtn.setOnClickListener {
             myDialog.dismiss()
         }
 
-        val deleteBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogRotationGroupConfirmBtn)
-        deleteBtn.setOnClickListener {
+        val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToSaveBtn)
+        saveBtn.setOnClickListener {
             myDialog.dismiss()
+            onSaveClick.invoke()
         }
     }
 
@@ -161,4 +281,16 @@ class SprGestureFragment(): Fragment() {
             WRITE
         )
     }
+
+//    private suspend fun fakeUpdateWidgets() {
+//        main?.runOnUiThread {
+//            adapterWidgets.swapData(DataFactory().fakeData())
+//        }
+//
+//        delay(1000)
+//
+//        main?.runOnUiThread {
+//            adapterWidgets.swapData(DataFactory().fakeData())
+//        }
+//    }
 }

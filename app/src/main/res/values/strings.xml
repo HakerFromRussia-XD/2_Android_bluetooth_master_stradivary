@@ -543,6 +543,8 @@
     <string name="supination">Supination</string>
     <string name="gesture_used">Gesture used</string>
     <string name="control_gestures">Control Gestures</string>
+    <string name="select_learned_gestures">Select learned gestures</string>
+    <string name="assign_gesture">Assign a gesture</string>
 
 
     <string-array name="numbers">

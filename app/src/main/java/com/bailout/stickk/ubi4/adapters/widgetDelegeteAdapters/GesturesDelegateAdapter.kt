@@ -17,6 +17,8 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class GesturesDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
+    val onAddGesturesToSprScreen: (onSaveClick: (() -> Unit)) -> Unit,
+    val onsetCustomGesture: (onSaveClick: (() -> Unit)) -> Unit
 ) :
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOpticBinding>(Ubi4WidgetGesturesOpticBinding::inflate) {
     private val ANIMATION_DURATION = 200
@@ -44,12 +46,70 @@ class GesturesDelegateAdapter(
                 releasedCommand = item.widget.releasedCommand
             }
         }
+
         collectionOfGesturesSelectBtn.setOnClickListener { moveFilterSelection(1, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, sprGestureGroupCl) }
         sprGesturesSelectBtn.setOnClickListener { moveFilterSelection(2, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, sprGestureGroupCl) }
 
 
         gesture1Btn.setOnClickListener { System.err.println("setOnClickListener gesture1Btn") }
         gesture1SettingsBtn.setOnClickListener { System.err.println("setOnClickListener gesture1SettingsBtn") }
+
+
+        chooseLearningGesturesBtn.setOnClickListener {
+            val onSaveClick:(()->Unit) = {
+
+            }
+            onAddGesturesToSprScreen(onSaveClick)
+        }
+
+        dotsThreeBtn1Spr.setOnClickListener {
+            val onSaveClick:(()->Unit) = {
+
+            }
+            onsetCustomGesture(onSaveClick)
+        }
+        dotsThreeBtn1Spr.setOnClickListener {
+            val onSaveClick:(()->Unit) = {
+
+            }
+            onsetCustomGesture(onSaveClick)
+        }
+        dotsThreeBtn2Spr.setOnClickListener {
+            val onSaveClick:(()->Unit) = {
+
+            }
+            onsetCustomGesture(onSaveClick)
+        }
+        dotsThreeBtn3Spr.setOnClickListener {
+            val onSaveClick:(()->Unit) = {
+
+            }
+            onsetCustomGesture(onSaveClick)
+        }
+        dotsThreeBtn4Spr.setOnClickListener {
+            val onSaveClick:(()->Unit) = {
+
+            }
+            onsetCustomGesture(onSaveClick)
+        }
+        dotsThreeBtn5Spr.setOnClickListener {
+            val onSaveClick:(()->Unit) = {
+
+            }
+            onsetCustomGesture(onSaveClick)
+        }
+        dotsThreeBtn6Spr.setOnClickListener {
+            val onSaveClick:(()->Unit) = {
+
+            }
+            onsetCustomGesture(onSaveClick)
+        }
+        dotsThreeBtn7Spr.setOnClickListener {
+            val onSaveClick:(()->Unit) = {
+
+            }
+            onsetCustomGesture(onSaveClick)
+        }
     }
 
     private fun moveFilterSelection(
@@ -108,6 +168,8 @@ class GesturesDelegateAdapter(
             else -> throw IllegalStateException("Unexpected value: $position")
         }
     }
+
+
 
     private fun showRotationGroup(show: Boolean, collectionGesturesCl: ConstraintLayout) {
         if (show) {

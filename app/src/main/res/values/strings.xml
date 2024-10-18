@@ -532,6 +532,7 @@
     <string name="thumb_bend">Thumb bend</string>
     <string name="clenching_fist">Clenching into a fist</string>
     <string name="palm_opening">Palm opening</string>
+    <string name="palm_closing">Closing palm</string>
     <string name="ok_pinch">Ok/Pinch Gesture</string>
     <string name="gesture_key">Gesture Key</string>
     <string name="pistol_pointer_gesture">Pistol/Pointer Gesture</string>
@@ -545,6 +546,8 @@
     <string name="control_gestures">Control Gestures</string>
     <string name="select_learned_gestures">Select learned gestures</string>
     <string name="assign_gesture">Assign a gesture</string>
+    <string name="neutral">Neutral</string>
+
 
 
     <string-array name="numbers">

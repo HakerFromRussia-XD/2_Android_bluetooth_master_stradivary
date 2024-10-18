@@ -10,10 +10,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
+import com.bailout.stickk.ubi4.adapters.SelectedGesturesAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.models.DataFactory
@@ -43,6 +45,9 @@ class SprGestureFragment() : Fragment() {
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
+    private lateinit var selectedGesturesAdapter: SelectedGesturesAdapter
+
+    private var selectedGesturesList: List<DialogGestureItem> = listOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +58,9 @@ class SprGestureFragment() : Fragment() {
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
+
+
+
         //настоящие виджеты
 //        widgetListUpdater()
         //фейковые виджеты
@@ -213,18 +221,22 @@ class SprGestureFragment() : Fragment() {
 
         val listN: ArrayList<DialogGestureItem> = ArrayList()
         listN.add(DialogGestureItem("Gesture №1", true))
-        listN.add(DialogGestureItem("Gesture №2", false))
-        listN.add(DialogGestureItem("Gesture №3", false))
-        listN.add(DialogGestureItem("Gesture №4", false))
-        listN.add(DialogGestureItem("Gesture №5", false))
-        listN.add(DialogGestureItem("Gesture №6", false))
-        listN.add(DialogGestureItem("Gesture №7", false))
-        listN.add(DialogGestureItem("Gesture №8", false))
-        listN.add(DialogGestureItem("Gesture №9", false))
-        listN.add(DialogGestureItem("Gesture №10", false))
-        listN.add(DialogGestureItem("Gesture №11", false))
-        listN.add(DialogGestureItem("Gesture №12", false))
-        listN.add(DialogGestureItem("Gesture №13", false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.thumb_bend), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.palm_closing), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.palm_opening), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.ok_pinch), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.flexion), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.extension), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_1_btn), true))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_2_btn), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_3_btn), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_4_btn), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_5_btn), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_6_btn), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_7_btn), false))
+        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_8_btn), false))
+
+
 
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         gesturesRv.layoutManager = linearLayoutManager
@@ -247,6 +259,8 @@ class SprGestureFragment() : Fragment() {
         gesturesRv.adapter = adapter
 
 
+
+
         val cancelBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToCancelBtn)
         cancelBtn.setOnClickListener {
             myDialog.dismiss()
@@ -254,6 +268,8 @@ class SprGestureFragment() : Fragment() {
 
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToSaveBtn)
         saveBtn.setOnClickListener {
+            val selectedGestures = listN.filter { it.check }
+
             myDialog.dismiss()
             onSaveClick.invoke()
         }

@@ -7,9 +7,13 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
-import com.bailout.stickk.databinding.Ubi4WidgetGesturesOpticBinding
+import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
+import com.bailout.stickk.ubi4.adapters.SelectedGesturesAdapter
 import com.bailout.stickk.ubi4.adapters.models.GesturesItem
+import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -20,12 +24,12 @@ class GesturesDelegateAdapter(
     val onAddGesturesToSprScreen: (onSaveClick: (() -> Unit)) -> Unit,
     val onsetCustomGesture: (onSaveClick: (() -> Unit)) -> Unit
 ) :
-    ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOpticBinding>(Ubi4WidgetGesturesOpticBinding::inflate) {
+    ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOptic1Binding>(Ubi4WidgetGesturesOptic1Binding::inflate) {
     private val ANIMATION_DURATION = 200
 //    private val collectionGesturesCl
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun Ubi4WidgetGesturesOpticBinding.onBind(item: GesturesItem) {
+    override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {
         var parameterID = 0
         var clickCommand = 0
         var pressedCommand = 0
@@ -55,61 +59,48 @@ class GesturesDelegateAdapter(
         gesture1SettingsBtn.setOnClickListener { System.err.println("setOnClickListener gesture1SettingsBtn") }
 
 
-        chooseLearningGesturesBtn.setOnClickListener {
+        chooseLearningGesturesBtn1.setOnClickListener {
             val onSaveClick:(()->Unit) = {
 
             }
             onAddGesturesToSprScreen(onSaveClick)
         }
 
-        dotsThreeBtn1Spr.setOnClickListener {
-            val onSaveClick:(()->Unit) = {
 
-            }
-            onsetCustomGesture(onSaveClick)
-        }
-        dotsThreeBtn1Spr.setOnClickListener {
-            val onSaveClick:(()->Unit) = {
 
-            }
-            onsetCustomGesture(onSaveClick)
-        }
-        dotsThreeBtn2Spr.setOnClickListener {
-            val onSaveClick:(()->Unit) = {
+        //////
 
-            }
-            onsetCustomGesture(onSaveClick)
-        }
-        dotsThreeBtn3Spr.setOnClickListener {
-            val onSaveClick:(()->Unit) = {
+        val listSprItems: ArrayList<SprGestureItem> = ArrayList()
+        listSprItems.add(SprGestureItem("Gesture №1", R.drawable.kulak))
+        listSprItems.add(SprGestureItem("Gesture №2", R.drawable.ok))
+        listSprItems.add(SprGestureItem("Gesture №3", R.drawable.koza))
+        listSprItems.add(SprGestureItem("Gesture №4", R.drawable.grip_the_ball))
+        listSprItems.add(SprGestureItem("Gesture №5", R.drawable.kulak))
 
-            }
-            onsetCustomGesture(onSaveClick)
-        }
-        dotsThreeBtn4Spr.setOnClickListener {
-            val onSaveClick:(()->Unit) = {
 
+        val gridLayoutManager = GridLayoutManager(root.context,2)
+        gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
+        selectedSprGesturesRv.layoutManager = gridLayoutManager
+        val adapter = SelectedGesturesAdapter(
+            selectedGesturesList = listSprItems,
+            onCheckGestureSprListener = object : SelectedGesturesAdapter.OnCheckSprGestureListener {
+                override fun onGestureSprClicked(position: Int, title: String) {
+                    System.err.println("Gesture clicked: $title at position: $position")
+                }
+            },
+            onDotsClickListener = { position ->
+                System.err.println("Dots clicked at position: $position")
+                // Здесь ты можешь вызвать диалог или выполнить нужное действие
+                onsetCustomGesture {
+                    // Обработать сохранение данных из диалога
+                }
             }
-            onsetCustomGesture(onSaveClick)
-        }
-        dotsThreeBtn5Spr.setOnClickListener {
-            val onSaveClick:(()->Unit) = {
+        )
 
-            }
-            onsetCustomGesture(onSaveClick)
-        }
-        dotsThreeBtn6Spr.setOnClickListener {
-            val onSaveClick:(()->Unit) = {
 
-            }
-            onsetCustomGesture(onSaveClick)
-        }
-        dotsThreeBtn7Spr.setOnClickListener {
-            val onSaveClick:(()->Unit) = {
+        selectedSprGesturesRv.adapter = adapter
 
-            }
-            onsetCustomGesture(onSaveClick)
-        }
+
     }
 
     private fun moveFilterSelection(

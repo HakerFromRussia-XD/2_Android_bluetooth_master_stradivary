@@ -534,6 +534,7 @@
     <string name="thumb_bend">Сгиб большого пальца</string>
     <string name="clenching_fist">Сжатие в кулак</string>
     <string name="palm_opening">Раскрытие ладони</string>
+    <string name="palm_closing">Закрытие ладони</string>
     <string name="ok_pinch">Жест Оk/Щипок</string>
     <string name="gesture_key">Жест Ключ</string>
     <string name="pistol_pointer_gesture">Жест Пистолет/Указатель</string>
@@ -547,6 +548,8 @@
     <string name="control_gestures">Жесты контроля</string>
     <string name="select_learned_gestures">Выберите изученные жесты</string>
     <string name="assign_gesture">Назначьте жест</string>
+    <string name="neutral">Нейтральный</string>
+
 
 
     <string-array name="numbers">

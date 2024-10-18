@@ -662,8 +662,8 @@
 
             <View
                 android:id="@+id/gestureSprCollection1Btn"
-                android:layout_width="187dp"
-                android:layout_height="180dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="6dp"
@@ -1024,8 +1024,6 @@
                 app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection6Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureSprCollection6Btn" />
 
-            />
-
             <ImageView
                 android:id="@+id/dotsThreeBtn6Spr"
                 android:layout_width="24dp"
@@ -1037,10 +1035,12 @@
                 android:src="@drawable/dotsthree"
                 app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection6Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureSprCollection6Btn" />
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/sprGestureGroupCl5"
+            android:id="@+id/sprGestureGroupCl4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/ubi4_back"
@@ -1111,6 +1111,63 @@
                 app:layout_constraintBottom_toBottomOf="@id/gestureSprCollection7Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection7Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureSprCollection7Btn" />
+
+
+            <View
+                android:id="@+id/gestureSprCollection8Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guidline_mid_6"
+                app:layout_constraintTop_toTopOf="parent"
+
+                />
+
+            <ImageView
+                android:id="@+id/imageGesture8"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/koza"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureSprCollection8Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection8Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureSprCollection8Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureSprCollection8Btn" />
+
+            <TextView
+                android:id="@+id/gestureNumber8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:elevation="4dp"
+
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/gesture_8_btn"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                app:layout_constraintBottom_toBottomOf="@id/gestureSprCollection8Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection8Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureSprCollection8Btn" />
+
+            <ImageView
+                android:id="@+id/dotsThreeBtn8Spr"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/dotsthree"
+                app:layout_constraintEnd_toEndOf="@+id/gestureSprCollection8Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureSprCollection8Btn" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -1125,7 +1182,7 @@
             android:elevation="3dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sprGestureGroupCl5"
+            app:layout_constraintTop_toBottomOf="@+id/sprGestureGroupCl4"
             app:layout_goneMarginTop="16dp"
             tools:ignore="DuplicateIds" />
 

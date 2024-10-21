@@ -4,6 +4,7 @@ import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -21,14 +22,35 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class GesturesDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
-    val onAddGesturesToSprScreen: (onSaveClick: (() -> Unit)) -> Unit,
+    val onAddGesturesToSprScreen: (onSaveClickDialog: (List<SprGestureItem>) -> Unit, List<SprGestureItem>) -> Unit,
     val onsetCustomGesture: (onSaveClick: (() -> Unit)) -> Unit
 ) :
-    ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOptic1Binding>(Ubi4WidgetGesturesOptic1Binding::inflate) {
+    ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOptic1Binding>(
+        Ubi4WidgetGesturesOptic1Binding::inflate
+    ) {
     private val ANIMATION_DURATION = 200
-//    private val collectionGesturesCl
 
-    @SuppressLint("ClickableViewAccessibility")
+
+    private val listSprItems: ArrayList<SprGestureItem> = ArrayList()
+
+    val adapter = SelectedGesturesAdapter(
+        selectedGesturesList = listSprItems,
+        onCheckGestureSprListener = object : SelectedGesturesAdapter.OnCheckSprGestureListener {
+            override fun onGestureSprClicked(position: Int, title: String) {
+                System.err.println("Gesture clicked: $title at position: $position")
+            }
+
+        },
+        onDotsClickListener = { position ->
+            System.err.println("Dots clicked at position: $position")
+            // Здесь  вызвать диалог или выполнить нужное действие
+            onsetCustomGesture {
+                // Обработать сохранение данных из диалога
+            }
+        }
+    )
+
+    @SuppressLint("ClickableViewAccessibility", "LogNotTimber")
     override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {
         var parameterID = 0
         var clickCommand = 0
@@ -38,21 +60,44 @@ class GesturesDelegateAdapter(
 
         when (item.widget) {
             is CommandParameterWidgetEStruct -> {
-                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID
+                parameterID =
+                    item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand
             }
+
             is CommandParameterWidgetSStruct -> {
-                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parentParameterID
+                parameterID =
+                    item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parentParameterID
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand
             }
         }
 
-        collectionOfGesturesSelectBtn.setOnClickListener { moveFilterSelection(1, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, sprGestureGroupCl) }
-        sprGesturesSelectBtn.setOnClickListener { moveFilterSelection(2, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, sprGestureGroupCl) }
+        collectionOfGesturesSelectBtn.setOnClickListener {
+            moveFilterSelection(
+                1,
+                gesturesSelectV,
+                collectionOfGesturesTv,
+                rotationGroupTv,
+                ubi4GesturesSelectorV,
+                collectionGesturesCl,
+                sprGestureGroupCl
+            )
+        }
+        sprGesturesSelectBtn.setOnClickListener {
+            moveFilterSelection(
+                2,
+                gesturesSelectV,
+                collectionOfGesturesTv,
+                rotationGroupTv,
+                ubi4GesturesSelectorV,
+                collectionGesturesCl,
+                sprGestureGroupCl
+            )
+        }
 
 
         gesture1Btn.setOnClickListener { System.err.println("setOnClickListener gesture1Btn") }
@@ -60,48 +105,27 @@ class GesturesDelegateAdapter(
 
 
         chooseLearningGesturesBtn1.setOnClickListener {
-            val onSaveClick:(()->Unit) = {
 
+            val selectedGestures: (List<SprGestureItem>) -> Unit = { listSprItems ->
+                adapter.updateGestures(listSprItems)
+                Log.d("GesturesDelegateAdapter", "$listSprItems")
             }
-            onAddGesturesToSprScreen(onSaveClick)
+            onAddGesturesToSprScreen(selectedGestures,listSprItems)
         }
 
 
 
-        //////
-
-        val listSprItems: ArrayList<SprGestureItem> = ArrayList()
-        listSprItems.add(SprGestureItem("Gesture №1", R.drawable.kulak))
-        listSprItems.add(SprGestureItem("Gesture №2", R.drawable.ok))
-        listSprItems.add(SprGestureItem("Gesture №3", R.drawable.koza))
-        listSprItems.add(SprGestureItem("Gesture №4", R.drawable.grip_the_ball))
-        listSprItems.add(SprGestureItem("Gesture №5", R.drawable.kulak))
-
-
-        val gridLayoutManager = GridLayoutManager(root.context,2)
+        val gridLayoutManager = GridLayoutManager(root.context, 2)
         gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
         selectedSprGesturesRv.layoutManager = gridLayoutManager
-        val adapter = SelectedGesturesAdapter(
-            selectedGesturesList = listSprItems,
-            onCheckGestureSprListener = object : SelectedGesturesAdapter.OnCheckSprGestureListener {
-                override fun onGestureSprClicked(position: Int, title: String) {
-                    System.err.println("Gesture clicked: $title at position: $position")
-                }
-            },
-            onDotsClickListener = { position ->
-                System.err.println("Dots clicked at position: $position")
-                // Здесь ты можешь вызвать диалог или выполнить нужное действие
-                onsetCustomGesture {
-                    // Обработать сохранение данных из диалога
-                }
-            }
-        )
+
 
 
         selectedSprGesturesRv.adapter = adapter
 
 
     }
+
 
     private fun moveFilterSelection(
         position: Int,
@@ -134,6 +158,7 @@ class GesturesDelegateAdapter(
                 showCollectionGestures(true, collectionGesturesCl)
                 showRotationGroup(false, sprGestureGroupCl)
             }
+
             2 -> {
                 ObjectAnimator.ofFloat(
                     gesturesSelectV,
@@ -169,6 +194,7 @@ class GesturesDelegateAdapter(
             collectionGesturesCl.visibility = View.GONE
         }
     }
+
     private fun showCollectionGestures(show: Boolean, rotationGroupCl: ConstraintLayout) {
         if (show) {
             rotationGroupCl.visibility = View.VISIBLE
@@ -176,6 +202,7 @@ class GesturesDelegateAdapter(
             rotationGroupCl.visibility = View.GONE
         }
     }
+
 
     override fun isForViewType(item: Any): Boolean = item is GesturesItem
 

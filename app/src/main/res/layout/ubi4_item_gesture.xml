@@ -4,27 +4,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="12dp"
-    android:background="@color/ubi4_back"
+    android:layout_margin="6dp"
+    android:background="@color/transparent"
     android:elevation="3dp"
     app:layout_constraintDimensionRatio="H,1:1">
 
-    <!-- Фоновый View -->
     <View
         android:id="@+id/gestureSprCollection1Btn"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="6dp"
         android:background="@drawable/ubi4_view_with_corners_gray"
         android:elevation="3dp"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/gestureNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/gesture_1_btn"
+        android:textColor="@color/white"
+        android:elevation="3dp"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageGesture" />
 
-    <!-- Остальные элементы -->
+
     <ImageView
         android:id="@+id/imageGesture"
         android:layout_width="100dp"
@@ -37,18 +46,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/gestureNumber"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/gesture_1_btn"
-        android:textColor="@color/white"
-        android:textSize="17sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageGesture" />
 
     <ImageView
         android:id="@+id/dotsThreeBtnSpr"

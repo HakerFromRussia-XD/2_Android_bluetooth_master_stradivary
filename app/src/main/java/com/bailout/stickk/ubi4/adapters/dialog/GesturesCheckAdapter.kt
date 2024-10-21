@@ -8,10 +8,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.adapters.models.DialogGestureItem
+import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
 
 class GesturesCheckAdapter(
-    private val gesturesList: ArrayList<DialogGestureItem>,
+    private val gesturesList: ArrayList<SprGestureItem>,
     private val onCheckGestureListener: OnCheckGestureListener,
 ) : RecyclerView.Adapter<GesturesCheckAdapter.ScanViewHolder>() {
 

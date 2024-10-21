@@ -4,13 +4,13 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
@@ -19,7 +19,7 @@ import com.bailout.stickk.ubi4.adapters.SelectedGesturesAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.models.DataFactory
-import com.bailout.stickk.ubi4.adapters.models.DialogGestureItem
+import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
@@ -47,7 +47,6 @@ class SprGestureFragment() : Fragment() {
     private var mDataFactory: DataFactory = DataFactory()
     private lateinit var selectedGesturesAdapter: SelectedGesturesAdapter
 
-    private var selectedGesturesList: List<DialogGestureItem> = listOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,7 +57,6 @@ class SprGestureFragment() : Fragment() {
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
-
 
 
         //настоящие виджеты
@@ -110,7 +108,9 @@ class SprGestureFragment() : Fragment() {
         ),
         GesturesDelegateAdapter(
             onSelectorClick = {},
-            onAddGesturesToSprScreen = { onSaveClick -> showControlGesturesDialog(onSaveClick) },
+            onAddGesturesToSprScreen = { onSaveClickDialog, listSprItem ->
+                showControlGesturesDialog(onSaveClickDialog, listSprItem)
+            },
             onsetCustomGesture = { onSaveClick -> showCustomGesturesDialog(onSaveClick) }
 
         )
@@ -134,22 +134,21 @@ class SprGestureFragment() : Fragment() {
         val titleText = dialogBinding.findViewById<TextView>(R.id.dialogTitleBindingTv)
         titleText.setText(R.string.assign_gesture)
 
-        val listN: ArrayList<DialogGestureItem> = ArrayList()
-        listN.add(DialogGestureItem("First profile", false))
-        listN.add(DialogGestureItem("2 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("add", false))
+        val listN: ArrayList<SprGestureItem> = ArrayList()
+        listN.add(SprGestureItem("First profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("2 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("1 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("3 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("4 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("5 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("6 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("7 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("8 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("9 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("10 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("11 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("12 profile", R.drawable.ok, false))
+        listN.add(SprGestureItem("add", R.drawable.ok, false))
 
         var selectedPosition = -1
 
@@ -165,12 +164,16 @@ class SprGestureFragment() : Fragment() {
                     if (selectedPosition != -1) {
 
                         listN[selectedPosition] =
-                            DialogGestureItem(listN[selectedPosition].title, false)
+                            SprGestureItem(
+                                listN[selectedPosition].title,
+                                listN[selectedPosition].image,
+                                false
+                            )
                         gesturesRv.adapter?.notifyItemChanged(selectedPosition)
                     }
 
                     selectedPosition = position
-                    listN[position] = DialogGestureItem(title, true)
+                    listN[position] = SprGestureItem(title, listN[position].image, true)
                     gesturesRv.adapter?.notifyItemChanged(selectedPosition)
 
                 }
@@ -203,8 +206,11 @@ class SprGestureFragment() : Fragment() {
     }
 
 
-    @SuppressLint("MissingInflatedId")
-    private fun showControlGesturesDialog(onSaveClick: (() -> Unit)) {
+    @SuppressLint("MissingInflatedId", "LogNotTimber")
+    private fun showControlGesturesDialog(
+        onSaveClick: (List<SprGestureItem>) -> Unit,
+        selectedGestures: List<SprGestureItem>
+    ) {
         System.err.println("showAddGestureToSprScreen")
         val dialogBinding =
             layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_spr_screen, null)
@@ -219,23 +225,88 @@ class SprGestureFragment() : Fragment() {
         myDialog.show()
 
 
-        val listN: ArrayList<DialogGestureItem> = ArrayList()
-        listN.add(DialogGestureItem("Gesture №1", true))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.thumb_bend), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.palm_closing), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.palm_opening), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.ok_pinch), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.flexion), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.extension), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_1_btn), true))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_2_btn), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_3_btn), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_4_btn), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_5_btn), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_6_btn), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_7_btn), false))
-        listN.add(DialogGestureItem(requireContext().getString(R.string.gesture_8_btn), false))
-
+        val listN: ArrayList<SprGestureItem> = ArrayList()
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.neutral), R.drawable.ok, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.thumb_bend), R.drawable.grip_the_ball, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.palm_closing), R.drawable.koza, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.palm_opening), R.drawable.grip_the_ball, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.ok_pinch), R.drawable.ok, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.flexion), R.drawable.koza, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.extension), R.drawable.grip_the_ball, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.gesture_1_btn), R.drawable.kulak, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.gesture_2_btn), R.drawable.ok, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.gesture_3_btn), R.drawable.grip_the_ball, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.gesture_4_btn), R.drawable.koza, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.gesture_5_btn), R.drawable.kulak, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.gesture_6_btn), R.drawable.grip_the_ball, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.gesture_7_btn), R.drawable.ok, false
+            )
+        )
+        listN.add(
+            SprGestureItem(
+                requireContext().getString(R.string.gesture_8_btn), R.drawable.koza, false
+            )
+        )
+        for (gesture in listN) {
+            selectedGestures.find { it.title == gesture.title }?.let {
+                gesture.check = true
+            }
+        }
+        Log.d("showControlGesturesDialog", "$listN")
 
 
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
@@ -244,21 +315,13 @@ class SprGestureFragment() : Fragment() {
             OnCheckGestureListener {
             override fun onGestureClicked(position: Int, title: String) {
                 System.err.println("onGestureClicked $position")
-                if (listN[position].check) {
-                    listN.removeAt(position)
-                    listN.add(position, DialogGestureItem(title, false))
-                } else {
-                    listN.removeAt(position)
-                    listN.add(position, DialogGestureItem(title, true))
-                }
-
-
+                Log.d("onGestureClicked","$listN")
+                listN[position] = listN[position].copy(check = !listN[position].check)
+                Log.d("onGestureClicked","$listN")
                 gesturesRv.adapter?.notifyItemChanged(position)
             }
         })
         gesturesRv.adapter = adapter
-
-
 
 
         val cancelBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToCancelBtn)
@@ -268,10 +331,12 @@ class SprGestureFragment() : Fragment() {
 
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToSaveBtn)
         saveBtn.setOnClickListener {
-            val selectedGestures = listN.filter { it.check }
-
+            val selectedGestures = listN.filter { it.check }.map { gestureItem ->
+                SprGestureItem(gestureItem.title, gestureItem.image, true)
+            }
             myDialog.dismiss()
-            onSaveClick.invoke()
+            onSaveClick.invoke(selectedGestures)
+            Log.d("SprGestureFragment", "$selectedGestures")
         }
     }
 
@@ -289,8 +354,7 @@ class SprGestureFragment() : Fragment() {
         BLECommands.requestSubDevices().forEach { i ->
             System.err.println("oneButtonReleased ${castUnsignedCharToInt(i)}")
         }
-//        transmitter().bleCommand(BLECommands.oneButtonCommand(parameterID, command), MAIN_CHANNEL, WRITE)
-//        transmitter().bleCommand(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
+
         transmitter().bleCommand(
             BLECommands.requestSubDeviceParametrs(6, 0, 2),
             MAIN_CHANNEL,
@@ -298,15 +362,5 @@ class SprGestureFragment() : Fragment() {
         )
     }
 
-//    private suspend fun fakeUpdateWidgets() {
-//        main?.runOnUiThread {
-//            adapterWidgets.swapData(DataFactory().fakeData())
-//        }
-//
-//        delay(1000)
-//
-//        main?.runOnUiThread {
-//            adapterWidgets.swapData(DataFactory().fakeData())
-//        }
-//    }
+
 }

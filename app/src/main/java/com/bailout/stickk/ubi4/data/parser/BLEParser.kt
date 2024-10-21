@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
+import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoDataStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
@@ -21,6 +22,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseSubDevicesInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArray
@@ -96,6 +98,20 @@ class BLEParser(main: AppCompatActivity) {
             DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS.number -> {
                 parseReadDeviceAdditionalParameters(ID, receiveDataString)
             }
+
+            DeviceInformationCommand.READ_SUB_DEVICES_FIRST_INFO.number -> {System.err.println("TEST parser 2 READ_SUB_DEVICES_FIRST_INFO")}
+            DeviceInformationCommand.READ_SUB_DEVICE_INFO.number -> {
+                System.err.println("TEST parser 2 READ_SUB_DEVICE_INFO")
+                parseReadSubDeviceInfo(receiveDataString)
+            }
+            DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS.number -> {
+                System.err.println("TEST parser 2 READ_SUB_DEVICE_PARAMETERS")
+                parseReadSubDeviceParameters(receiveDataString, 0)
+            }
+            DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER.number -> {System.err.println("TEST parser 2 READ_SUB_DEVICE_ADDITIONAL_PARAMETER")}
+            DeviceInformationCommand.SUB_DEVICE_PARAMETER_INIT_READ.number -> {System.err.println("TEST parser 2 SUB_DEVICE_PARAMETER_INIT_READ")}
+            DeviceInformationCommand.SUB_DEVICE_PARAMETER_INIT_WRITE.number -> {System.err.println("TEST parser 2 SUB_DEVICE_PARAMETER_INIT_WRITE")}
+
             DeviceInformationCommand.GET_SERIAL_NUMBER.number -> {System.err.println("TEST parser 2 GET_SERIAL_NUMBER")}
             DeviceInformationCommand.SET_SERIAL_NUMBER.number -> {System.err.println("TEST parser 2 SET_SERIAL_NUMBER")}
             DeviceInformationCommand.GET_DEVICE_NAME.number -> {System.err.println("TEST parser 2 GET_DEVICE_NAME")}
@@ -109,9 +125,8 @@ class BLEParser(main: AppCompatActivity) {
             (0x00).toByte() -> { System.err.println("TEST parser 2 DEFOULT") }
             DataManagerCommand.READ_AVAILABLE_SLOTS.number -> {System.err.println("TEST parser 2 READ_AVAILABLE_SLOTS")}
             DataManagerCommand.WRITE_SLOT.number -> {System.err.println("TEST parser 2 WRITE_SLOT")}
-            DataManagerCommand.READ_DATA.number -> {
-                System.err.println("TEST parser 2 READ_DATA")
-                parseReadData(receiveDataString)
+            DataManagerCommand.READ_DATA.number -> { System.err.println("TEST parser 2 READ_DATA")
+                parseReadSubDeviceInfoData(receiveDataString)
             }
             DataManagerCommand.WRITE_DATA.number -> {System.err.println("TEST parser 2 WRITE_DATA")}
             DataManagerCommand.RESET_TO_FACTORY.number -> {System.err.println("TEST parser 2 RESET_TO_FACTORY")}
@@ -127,6 +142,7 @@ class BLEParser(main: AppCompatActivity) {
     }
     private fun parseReadDeviceParameters(receiveDataString: String) {
         val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
+        System.err.println("TEST parser 2 READ_DEVICE_PARAMETRS $receiveDataString" )
         for(i in 0 until fullInicializeConnectionStruct.parametrsNum) {
             listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(20+i*BASE_PARAMETER_INFO_STRUCT_SIZE, 20+(i+1)*BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
         }
@@ -145,7 +161,7 @@ class BLEParser(main: AppCompatActivity) {
             )
         }
 //                                System.err.println("TEST parser 2 READ_DEVICE_PARAMETRS ${baseParametrInfoStructArray.toString()}" )
-        listWidgets.clear()
+        listWidgets
     }
     private fun parseReadDeviceAdditionalParameters(ID: Int, receiveDataString: String) {
         // читает каждый параметр отдельно по его ID
@@ -193,11 +209,30 @@ class BLEParser(main: AppCompatActivity) {
             )
         }
     }
+    private fun parseReadSubDeviceInfo(receiveDataString: String) {
+        val test = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
+        baseSubDevicesInfoStructArray = test.baseSubDeviceInfoStructArray
+        System.err.println("TEST parser 2 READ_SUB_DEVICE_INFO $test")
+    }
+    private fun parseReadSubDeviceParameters(receiveDataString: String, positionSubDevice: Int) {
+//        val test = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(22,receiveDataString.length)}\"") // 11 байт заголовок и отправленные данные
+        val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
+//        System.err.println("TEST parser 2 READ_SUB_DEVICE_PARAMETRS $receiveDataString")
+        baseSubDevicesInfoStructArray.forEach {
+            System.err.println("TEST parser 2 baseSubDevicesInfoStructArray $it")
+        }
+        for(i in 0 until baseSubDevicesInfoStructArray[positionSubDevice].parametrsNum) {
+            listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(22+i*BASE_PARAMETER_INFO_STRUCT_SIZE, 22+(i+1)*BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
+        }
+        listA.forEach {
+            System.err.println("TEST parser 2 READ_SUB_DEVICE_PARAMETRS $it")
+        }
+    }
 
     // DataManger parsers
-    private fun parseReadData(receiveDataString: String) {
-        System.err.println("TEST parser 2 READ_DATA befo parse test")
-        val test = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
+    private fun parseReadSubDeviceInfoData(receiveDataString: String) {
+        System.err.println("TEST parser 2 READ_DATA befo parse test $receiveDataString")
+        val test = Json.decodeFromString<BaseSubDeviceArrayInfoDataStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
         System.err.println("TEST parser 2 READ_DATA $test")
     }
 

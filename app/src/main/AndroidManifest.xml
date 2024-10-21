@@ -72,7 +72,7 @@
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="waterdays_nfc/*" />
+                <data android:mimeType="waterways_nfc/*" />
             </intent-filter>
         </activity>
         <activity
@@ -112,6 +112,7 @@
 <!--            </intent-filter>-->
 <!--        </service>-->
 
+<!--        включить для трансляции данных в игру-->
 <!--        <service-->
 <!--            android:name="com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService"-->
 <!--            android:exported="true">-->

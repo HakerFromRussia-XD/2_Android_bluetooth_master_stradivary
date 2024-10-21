@@ -100,15 +100,15 @@ object PreferenceKeysUBI4 {
         PWCE_PLOT_AND_2_THRESHOLD (0x0d)
     }
 
-    enum class ParameterWidgetLabel(val number: Byte) {
-        PWLE_UNKNOW (0x00),
-        PWLE_OPEN (0x01),
-        PWLE_CLOSE (0x02),
-        PWLE_CALIBRATE (0x03),
-        PWLE_RESET (0x04),
-        PWLE_CONTROL_SETTINGS (0x05),
-        PWLE_OPEN_CLOSE_THRESHOLD (0x06),
-        PWLE_SELECT_GESTURE (0x07)
+    enum class ParameterWidgetLabel(val number: Int, val label: String) {
+        PWLE_UNKNOW (0x00, "UNKNOW"),
+        PWLE_OPEN (0x01, "OPEN"),
+        PWLE_CLOSE (0x02, "CLOSE"),
+        PWLE_CALIBRATE (0x03, "CALIBRATE"),
+        PWLE_RESET (0x04, "RESET"),
+        PWLE_CONTROL_SETTINGS (0x05, "CONTROL SETTINGS"),
+        PWLE_OPEN_CLOSE_THRESHOLD (0x06, "OPEN CLOSE THRESHOLD"),
+        PWLE_SELECT_GESTURE (0x07, "SELECT GESTURE")
     }
 
     enum class ParameterWidgetDisplayCode(val number: Byte) {

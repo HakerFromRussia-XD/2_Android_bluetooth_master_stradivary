@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data.subdevices
 
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.BASE_SUB_DEVICE_STRUCT_SIZE
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -12,10 +13,8 @@ import kotlinx.serialization.json.Json
 
 @Serializable(with = BaseSubDeviceArrayInfoSerializer::class)
 data class BaseSubDeviceArrayInfoStruct(
-    val size: Int,
     val count: Int,
-    val itemSize: Int, //2 байта
-    val baseSubDeviceInfoStruct: ArrayList<BaseSubDeviceInfoStruct>
+    val baseSubDeviceInfoStructArray: ArrayList<BaseSubDeviceInfoStruct>
 )
 
 object BaseSubDeviceArrayInfoSerializer: KSerializer<BaseSubDeviceArrayInfoStruct> {
@@ -24,25 +23,19 @@ object BaseSubDeviceArrayInfoSerializer: KSerializer<BaseSubDeviceArrayInfoStruc
 
     override fun deserialize(decoder: Decoder): BaseSubDeviceArrayInfoStruct {
         val string = decoder.decodeString()
-        var size = 0
         var count = 0
-        var itemSize = 0
-        val baseSubDeviceInfoStruct = ArrayList<BaseSubDeviceInfoStruct>()
+        val baseSubDeviceInfoStructArray = ArrayList<BaseSubDeviceInfoStruct>()
 
-        if (string.length >= 8) {
-            size = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte())
-            count = castUnsignedCharToInt(string.substring(2, 4).toInt(16).toByte())
-            itemSize = castUnsignedCharToInt(string.substring(4, 6).toInt(16).toByte())
-            for (i in 0 until size) {
-                baseSubDeviceInfoStruct.add(Json.decodeFromString<BaseSubDeviceInfoStruct>("\"${string.substring(i*itemSize*2,(i+1)*itemSize*2)}\""))
+        if (string.length >= 4) {
+            count = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte())
+            for (i in 0 until count) {
+                baseSubDeviceInfoStructArray.add(Json.decodeFromString<BaseSubDeviceInfoStruct>("\"${string.substring(i*BASE_SUB_DEVICE_STRUCT_SIZE*2,(i+1)*BASE_SUB_DEVICE_STRUCT_SIZE*2)}\""))
             }
         }
 
         return BaseSubDeviceArrayInfoStruct (
-            size = size,
             count = count,
-            itemSize = itemSize,
-            baseSubDeviceInfoStruct = baseSubDeviceInfoStruct
+            baseSubDeviceInfoStructArray = baseSubDeviceInfoStructArray
         )
     }
 

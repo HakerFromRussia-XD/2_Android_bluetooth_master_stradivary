@@ -13,7 +13,7 @@ import androidx.core.util.Pair
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesBinding
-import com.bailout.stickk.ubi4.adapters.models.GesturesItem
+import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -107,7 +107,8 @@ class GesturesDelegateAdapter(
             val resultCb: (()->Unit) = {
 
             }
-            onAddGesturesToRotationGroup(resultCb) }
+            onAddGesturesToRotationGroup(resultCb)
+        }
         rotationGroupDragLv.recyclerView.isVerticalScrollBarEnabled = false
         rotationGroupDragLv.setScrollingEnabled(false)
         rotationGroupDragLv.setOnClickListener {}

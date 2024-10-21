@@ -18,6 +18,10 @@ import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -54,6 +58,17 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
 
+        val baseParameterWidgetStruct = BaseParameterWidgetStruct(1, 1,1,1,1,1,1,1,1,1)
+        val baseParameterWidgetEStruct = BaseParameterWidgetEStruct(baseParameterWidgetStruct, 1)
+        val commandParameterWidgetEStruct = CommandParameterWidgetEStruct(baseParameterWidgetEStruct, 1,1,1)
+        val commandParameterWidgetEStruct2 = CommandParameterWidgetEStruct(baseParameterWidgetEStruct, 1,1,1)
+        val commandParameterWidgetEStruct3 = CommandParameterWidgetEStruct(baseParameterWidgetEStruct, 2,1,1)
+        val commandParameterWidgetEStruct4 = CommandParameterWidgetEStruct(baseParameterWidgetEStruct, 3,1,1)
+        val testWidgets: List<Any> = listOf(commandParameterWidgetEStruct, commandParameterWidgetEStruct2, commandParameterWidgetEStruct3, commandParameterWidgetEStruct4)
+        val set: Set<Any> = testWidgets.toSet()
+        println("convertToSet $set")
+
+
 
         supportFragmentManager
             .beginTransaction()
@@ -77,15 +92,6 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
             mBLEController.reconnectThread()
         }
     }
-    private fun setStaticVariables() {
-        listWidgets = arrayListOf()
-        updateFlow = MutableStateFlow(0)
-        plotArrayFlow = MutableStateFlow(arrayListOf())
-        plot = MutableStateFlow(0)
-        plotArray = arrayListOf()
-        countBinding = 0
-        graphThreadFlag = true
-    }
 
 
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
@@ -103,6 +109,16 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
     internal fun sendWidgetsArray() {
         //событие эммитится только в случае если size отличается от предыдущего
         updateFlow.value += 1
+    }
+    private fun setStaticVariables() {
+        listWidgets = mutableSetOf()
+        updateFlow = MutableStateFlow(0)
+        plotArrayFlow = MutableStateFlow(arrayListOf())
+        baseSubDevicesInfoStructArray = arrayListOf()
+        plot = MutableStateFlow(0)
+        plotArray = arrayListOf()
+        countBinding = 0
+        graphThreadFlag = true
     }
 
     // сохранение и загрузка данных
@@ -125,7 +141,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         var main by Delegates.notNull<MainActivityUBI4>()
 
         var updateFlow by Delegates.notNull<MutableStateFlow<Int>>()
-        var listWidgets by Delegates.notNull<ArrayList<Any>>()
+        var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
@@ -134,6 +150,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
+        var baseSubDevicesInfoStructArray by Delegates.notNull<ArrayList<BaseSubDeviceInfoStruct>>()
 
 
         var connectedDeviceName by Delegates.notNull<String>()

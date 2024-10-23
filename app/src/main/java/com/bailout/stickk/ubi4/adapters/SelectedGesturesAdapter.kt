@@ -8,10 +8,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.adapters.models.BindingGestureItem
 import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
 
 class SelectedGesturesAdapter(
-    private var selectedGesturesList: MutableList<SprGestureItem>,
+    private var selectedGesturesList: MutableList<BindingGestureItem>,
     private val onCheckGestureSprListener: OnCheckSprGestureListener,
     private val onDotsClickListener: (Int) -> Unit
 ) : RecyclerView.Adapter<SelectedGesturesAdapter.SprGesturesViewHolder>() {
@@ -34,17 +35,18 @@ class SelectedGesturesAdapter(
     }
 
     override fun onBindViewHolder(holder: SprGesturesViewHolder, position: Int) {
-        val gesture = selectedGesturesList[position]
-        holder.gestureName.text = gesture.title
-        holder.gestureImage.setImageResource(gesture.image)
+        val bindingGesture = selectedGesturesList[position]
+        holder.gestureName.text = bindingGesture.nameOfUserGesture
+        holder.gestureImage.setImageResource(bindingGesture.sprGestureItem.image)
         holder.dotsThreeBtnSpr.setOnClickListener {
             onDotsClickListener(position)
+            holder.gestureName.text = bindingGesture.nameOfUserGesture
         }
 
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateGestures(newGestures: List<SprGestureItem>) {
+    fun updateGestures(newGestures: List<BindingGestureItem>) {
         selectedGesturesList.clear()
         selectedGesturesList.addAll(newGestures)
         notifyDataSetChanged()

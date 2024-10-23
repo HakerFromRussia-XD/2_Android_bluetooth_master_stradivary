@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
 import com.bailout.stickk.ubi4.adapters.SelectedGesturesAdapter
+import com.bailout.stickk.ubi4.adapters.models.BindingGestureItem
 import com.bailout.stickk.ubi4.adapters.models.GesturesItem
 import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
@@ -23,35 +24,42 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 class GesturesDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
     val onAddGesturesToSprScreen: (onSaveClickDialog: (List<SprGestureItem>) -> Unit, List<SprGestureItem>) -> Unit,
-    val onsetCustomGesture: (onSaveClick: (() -> Unit)) -> Unit
+    val onsetCustomGesture: (onSaveDotsClick: ((name: String, position: Int) -> Unit), selectedPosition: Int,name:String) -> Unit
 ) :
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOptic1Binding>(
         Ubi4WidgetGesturesOptic1Binding::inflate
     ) {
+
     private val ANIMATION_DURATION = 200
+    private var listBindingGesture: MutableList<BindingGestureItem> = mutableListOf()
 
-
-    private val listSprItems: ArrayList<SprGestureItem> = ArrayList()
-
+    @SuppressLint("LogNotTimber")
     val adapter = SelectedGesturesAdapter(
-        selectedGesturesList = listSprItems,
+        selectedGesturesList = ArrayList(),
         onCheckGestureSprListener = object : SelectedGesturesAdapter.OnCheckSprGestureListener {
             override fun onGestureSprClicked(position: Int, title: String) {
                 System.err.println("Gesture clicked: $title at position: $position")
             }
 
         },
-        onDotsClickListener = { position ->
-            System.err.println("Dots clicked at position: $position")
-            // Здесь  вызвать диалог или выполнить нужное действие
-            onsetCustomGesture {
-                // Обработать сохранение данных из диалога
-            }
+        onDotsClickListener = { selectedPosition ->
+            onsetCustomGesture({ name, position ->
+                val bindingGesture = listBindingGesture[position].copy(nameOfUserGesture = name)
+                listBindingGesture[position] = bindingGesture
+                updateGestureName(bindingGesture.position, bindingGesture.nameOfUserGesture)
+                Log.d("GestureAdapter", "$bindingGesture")
+            }, selectedPosition,listBindingGesture[selectedPosition].nameOfUserGesture)
         }
+
+
     )
 
     @SuppressLint("ClickableViewAccessibility", "LogNotTimber")
     override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {
+
+        var listSpr: List<SprGestureItem> = ArrayList()
+
+
         var parameterID = 0
         var clickCommand = 0
         var pressedCommand = 0
@@ -105,14 +113,23 @@ class GesturesDelegateAdapter(
 
 
         chooseLearningGesturesBtn1.setOnClickListener {
-
             val selectedGestures: (List<SprGestureItem>) -> Unit = { listSprItems ->
-                adapter.updateGestures(listSprItems)
-                Log.d("GesturesDelegateAdapter", "$listSprItems")
-            }
-            onAddGesturesToSprScreen(selectedGestures,listSprItems)
-        }
+                listSpr = listSprItems
+                listBindingGesture = listSprItems.mapIndexed { position, sprGestureItem ->
+                    //проверяем уже выбранные жесты
+                    val existingBindingGesture = listBindingGesture.find { it.position == position }
+                    BindingGestureItem(
+                        position = position,
+                        nameOfUserGesture = existingBindingGesture?.nameOfUserGesture ?: "",
+                        sprGestureItem = sprGestureItem
+                    )
+                }.toMutableList()
+                Log.d("GesturesDelegateAdapter", "$listBindingGesture")
+                adapter.updateGestures(listBindingGesture)
 
+            }
+            onAddGesturesToSprScreen(selectedGestures, listSpr)
+        }
 
 
         val gridLayoutManager = GridLayoutManager(root.context, 2)
@@ -126,6 +143,13 @@ class GesturesDelegateAdapter(
 
     }
 
+    @SuppressLint("LogNotTimber")
+    private fun updateGestureName(position: Int, newName: String) {
+        val newList = listBindingGesture.toMutableList()
+        newList[position] = newList[position].copy(nameOfUserGesture = newName)
+        listBindingGesture = newList
+        adapter.updateGestures(listBindingGesture)
+    }
 
     private fun moveFilterSelection(
         position: Int,
@@ -184,7 +208,6 @@ class GesturesDelegateAdapter(
             else -> throw IllegalStateException("Unexpected value: $position")
         }
     }
-
 
 
     private fun showRotationGroup(show: Boolean, collectionGesturesCl: ConstraintLayout) {

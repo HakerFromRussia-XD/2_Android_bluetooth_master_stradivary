@@ -547,7 +547,7 @@
     <string name="select_learned_gestures">Select learned gestures</string>
     <string name="assign_gesture">Assign a gesture</string>
     <string name="neutral">Neutral</string>
-
+    <string name="annotation_main_text">Here you can select gestures for everyday use in the rotation group</string>
 
 
     <string-array name="numbers">

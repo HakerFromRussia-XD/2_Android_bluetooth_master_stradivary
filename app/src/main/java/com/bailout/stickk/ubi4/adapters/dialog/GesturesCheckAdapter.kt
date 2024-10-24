@@ -8,10 +8,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.adapters.models.BindingGestureItem
 import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
 
 class GesturesCheckAdapter(
     private val gesturesList: ArrayList<SprGestureItem>,
+    //private val bindingGestureList: List<BindingGestureItem>,
     private val onCheckGestureListener: OnCheckGestureListener,
 ) : RecyclerView.Adapter<GesturesCheckAdapter.ScanViewHolder>() {
 
@@ -40,7 +42,7 @@ class GesturesCheckAdapter(
         holder.gestureCheckImage.setVisibility(if (gesturesList[position].check) View.VISIBLE else View.GONE)
 
         holder.selectGestureBtn.setOnClickListener {
-            onCheckGestureListener.onGestureClicked(position, gesturesList[position].title)
+            onCheckGestureListener.onGestureClicked(position,gesturesList[position].title)
         }
     }
 
@@ -50,5 +52,5 @@ class GesturesCheckAdapter(
 }
 
 interface OnCheckGestureListener {
-    fun onGestureClicked(position: Int, title: String)
+    fun onGestureClicked(position: Int, title:String)
 }

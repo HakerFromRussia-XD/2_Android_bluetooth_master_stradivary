@@ -549,7 +549,7 @@
     <string name="select_learned_gestures">Выберите изученные жесты</string>
     <string name="assign_gesture">Назначьте жест</string>
     <string name="neutral">Нейтральный</string>
-
+    <string name="annotation_main_text">Здесь можно выбрать жесты для повседневного использования в группе ротации</string>
 
 
     <string-array name="numbers">

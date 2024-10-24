@@ -1,77 +1,73 @@
 package com.bailout.stickk.ubi4.utility
 
+import android.content.Context
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
 
 class SprGestureItemsProvider {
-    fun getSprGestureItemList(): ArrayList<SprGestureItem> {
+
+    fun getSprGestureItemList(context: Context): ArrayList<SprGestureItem> {
         val sprGestureItemList: ArrayList<SprGestureItem> = ArrayList()
         sprGestureItemList.add(
             SprGestureItem(
-                "Neutral", R.drawable.ok, false
+                context.getString(R.string.thumb_bend), R.drawable.grip_the_ball, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "Thumb Bend", R.drawable.grip_the_ball, false
+                context.getString(R.string.palm_closing), R.drawable.koza, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "Palm Closing", R.drawable.koza, false
+                context.getString(R.string.palm_opening), R.drawable.grip_the_ball, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "Palm Opening", R.drawable.grip_the_ball, false
+                context.getString(R.string.ok_pinch), R.drawable.ok, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "OK Pinch", R.drawable.ok, false
+                context.getString(R.string.flexion), R.drawable.koza, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "Flexion", R.drawable.koza, false
+                context.getString(R.string.extension), R.drawable.grip_the_ball, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "Extension", R.drawable.grip_the_ball, false
+                context.getString(R.string.gesture_key), R.drawable.kulak, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "Gesture Key", R.drawable.kulak, false
+                context.getString(R.string.pistol_pointer_gesture), R.drawable.ok, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "Pistol Pointer", R.drawable.ok, false
+                context.getString(R.string.adduction), R.drawable.grip_the_ball, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "Adduction", R.drawable.grip_the_ball, false
+                context.getString(R.string.abduction), R.drawable.koza, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "Abduction", R.drawable.koza, false
+                context.getString(R.string.pronation), R.drawable.kulak, false
             )
         )
         sprGestureItemList.add(
             SprGestureItem(
-                "Pronation", R.drawable.kulak, false
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                "Supination", R.drawable.grip_the_ball, false
+                context.getString(R.string.supination), R.drawable.grip_the_ball, false
             )
         )
         return sprGestureItemList
     }
-
 }

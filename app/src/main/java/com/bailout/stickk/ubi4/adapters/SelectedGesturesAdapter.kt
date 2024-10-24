@@ -56,4 +56,13 @@ class SelectedGesturesAdapter(
     interface OnCheckSprGestureListener {
         fun onGestureSprClicked(position: Int, title: String)
     }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun removeGestureByName(gestureTitle: String) {
+        val index = selectedGesturesList.indexOfFirst { it.nameOfUserGesture == gestureTitle }
+        if (index != -1) {
+            selectedGesturesList.removeAt(index)
+            notifyItemRemoved(index)
+        }
+    }
 }

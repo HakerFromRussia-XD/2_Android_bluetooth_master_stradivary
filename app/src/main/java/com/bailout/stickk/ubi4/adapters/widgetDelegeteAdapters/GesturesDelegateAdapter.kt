@@ -23,8 +23,8 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class GesturesDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
-    val onAddGesturesToSprScreen: (onSaveClickDialog: (List<SprGestureItem>) -> Unit, List<SprGestureItem>) -> Unit,
-    val onsetCustomGesture: (onSaveDotsClick: ((name: String, position: Int) -> Unit), selectedPosition: Int,name:String) -> Unit
+    val onAddGesturesToSprScreen: (onSaveClickDialog: (List<SprGestureItem>) -> Unit, List<SprGestureItem>, List<BindingGestureItem>) -> Unit,
+    val onsetCustomGesture: (onSaveDotsClick: ((name: String, position: Int) -> Unit), selectedPosition: Int, name: String) -> Unit
 ) :
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOptic1Binding>(
         Ubi4WidgetGesturesOptic1Binding::inflate
@@ -32,6 +32,7 @@ class GesturesDelegateAdapter(
 
     private val ANIMATION_DURATION = 200
     private var listBindingGesture: MutableList<BindingGestureItem> = mutableListOf()
+
 
     @SuppressLint("LogNotTimber")
     val adapter = SelectedGesturesAdapter(
@@ -48,11 +49,21 @@ class GesturesDelegateAdapter(
                 listBindingGesture[position] = bindingGesture
                 updateGestureName(bindingGesture.position, bindingGesture.nameOfUserGesture)
                 Log.d("GestureAdapter", "$bindingGesture")
-            }, selectedPosition,listBindingGesture[selectedPosition].nameOfUserGesture)
+            }, selectedPosition, listBindingGesture[selectedPosition].nameOfUserGesture)
         }
 
 
     )
+
+    fun removeGesture(gestureTitle: String) {
+        // Ищем все привязки этого жеста и очищаем их
+        listBindingGesture.forEach { bindingGestureItem ->
+            if (bindingGestureItem.nameOfUserGesture == gestureTitle) {
+                bindingGestureItem.nameOfUserGesture = ""
+            }
+        }
+
+    }
 
     @SuppressLint("ClickableViewAccessibility", "LogNotTimber")
     override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {
@@ -108,6 +119,7 @@ class GesturesDelegateAdapter(
         }
 
 
+
         gesture1Btn.setOnClickListener { System.err.println("setOnClickListener gesture1Btn") }
         gesture1SettingsBtn.setOnClickListener { System.err.println("setOnClickListener gesture1SettingsBtn") }
 
@@ -115,6 +127,7 @@ class GesturesDelegateAdapter(
         chooseLearningGesturesBtn1.setOnClickListener {
             val selectedGestures: (List<SprGestureItem>) -> Unit = { listSprItems ->
                 listSpr = listSprItems
+
                 listBindingGesture = listSprItems.mapIndexed { position, sprGestureItem ->
                     //проверяем уже выбранные жесты
                     val existingBindingGesture = listBindingGesture.find { it.position == position }
@@ -125,23 +138,30 @@ class GesturesDelegateAdapter(
                     )
                 }.toMutableList()
                 Log.d("GesturesDelegateAdapter", "$listBindingGesture")
+                Log.d("GesturesDelegateAdapter", "$listSprItems")
                 adapter.updateGestures(listBindingGesture)
 
+                if (adapter.itemCount > 1) {
+                    annotationTv.visibility = View.GONE
+                    annotationIv.visibility = View.GONE
+                } else {
+                    annotationTv.visibility = View.VISIBLE
+                    annotationIv.visibility = View.VISIBLE
+                }
+
             }
-            onAddGesturesToSprScreen(selectedGestures, listSpr)
+            onAddGesturesToSprScreen(selectedGestures, listSpr, listBindingGesture)
         }
 
 
         val gridLayoutManager = GridLayoutManager(root.context, 2)
         gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
         selectedSprGesturesRv.layoutManager = gridLayoutManager
-
-
-
         selectedSprGesturesRv.adapter = adapter
 
 
     }
+
 
     @SuppressLint("LogNotTimber")
     private fun updateGestureName(position: Int, newName: String) {

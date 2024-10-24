@@ -701,7 +701,39 @@
             app:layout_constraintTop_toTopOf="@+id/chooseLearningGesturesBtn1" />
 
 
-    ></androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/annotationTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:fontFamily="@font/sf_pro_text_bold"
+            android:text="@string/annotation_main_text"
+            android:textColor="@color/ubi4_deactivate_text"
+            android:textSize="15sp"
+            android:textAlignment="center"
+            android:layout_marginTop="129dp"
+            android:paddingStart="40dp"
+            android:paddingEnd="40dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chooseLearningGesturesBtn1"/>
+
+        <ImageView
+            android:id="@+id/annotationIv"
+            android:layout_width="147dp"
+            android:layout_height="161dp"
+            android:visibility="visible"
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:src="@drawable/annotationman"
+            app:layout_constraintTop_toBottomOf="@id/annotationTv"/>
+
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 

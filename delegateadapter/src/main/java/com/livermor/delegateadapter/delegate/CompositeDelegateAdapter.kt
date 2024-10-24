@@ -11,6 +11,7 @@ open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : Recycler
     //  Contract is: adapters position is used as ViewType.
     protected open var adapterState = AdaptersState(adapters.toList())
 
+
     override fun getItemViewType(itemPosition: Int): Int = adapterState.getAdapterPosition(itemPosition)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
@@ -42,6 +43,7 @@ open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : Recycler
     override fun onViewDetachedFromWindow(holder: ViewHolder) {
         adapterState.getAdapter(holder.itemViewType).onDetachedFromWindow(holder)
     }
+
 
     override fun getItemCount(): Int = adapterState.data.size
 }

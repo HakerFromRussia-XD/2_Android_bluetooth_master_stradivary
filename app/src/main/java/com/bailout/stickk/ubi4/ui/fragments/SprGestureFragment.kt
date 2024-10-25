@@ -153,6 +153,8 @@ class SprGestureFragment() : Fragment() {
         }
 
         var selectedGesturePosition = sprGestureItemList.indexOfFirst { it.check }
+        Log.d("selectedGesturesSet", "Selected gesture: $selectedGesturePosition")
+
 
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         gesturesRv.layoutManager = linearLayoutManager
@@ -167,15 +169,18 @@ class SprGestureFragment() : Fragment() {
                     gesturesRv.adapter?.notifyItemChanged(clickedPosition)
 
                     selectedGesturesSet.remove(title)
+                    Log.d("showCustomGesturesDialog1", " remove1: $selectedGesturesSet")
+
                     return
                 }
 
-                if (selectedGesturesSet.contains(title)) {
+                if (selectedGesturesSet.contains(title) && selectedGesturePosition != clickedPosition) {
                     Toast.makeText(
                         context,
-                        "This gesture is already in use. Choose another.",
+                        getString(R.string.toast_notification_gesture_in_use),
                         Toast.LENGTH_SHORT
                     ).show()
+                    Log.d("selectedGesturesSet", "$selectedGesturesSet")
                     return
                 }
 
@@ -183,6 +188,8 @@ class SprGestureFragment() : Fragment() {
                     sprGestureItemList[selectedGesturePosition] =
                         sprGestureItemList[selectedGesturePosition].copy(check = false)
                     selectedGesturesSet.remove(sprGestureItemList[selectedGesturePosition].title)
+                    Log.d("showCustomGesturesDialog1", " remove2: $selectedGesturesSet")
+
                     gesturesRv.adapter?.notifyItemChanged(selectedGesturePosition)
                 }
 
@@ -190,11 +197,6 @@ class SprGestureFragment() : Fragment() {
                 sprGestureItemList[clickedPosition] =
                     sprGestureItemList[clickedPosition].copy(check = true)
                 gesturesRv.adapter?.notifyItemChanged(clickedPosition)
-
-                //selectedGesturesSet.add(title)
-                selectedGesturesSet.forEach {
-                    Log.d("selectedGesturesSet", "$it")
-                }
 
             }
         })
@@ -213,20 +215,21 @@ class SprGestureFragment() : Fragment() {
                 null
             }
 
-//            if (name != ""){
-//                selectedGesturesSet.add()
-//            }
-
             if (selectedGesture != null) {
                 selectedGesturesSet.add(selectedGesture)
+                Log.d("showCustomGesturesDialog1", " add: $selectedGesturesSet")
             } else {
 
-                name?.let { selectedGesturesSet.remove(it) }
+                name.let { selectedGesturesSet.remove(it)
+                    Log.d("showCustomGesturesDialog1", " remove3: $selectedGesturesSet")
+
+                }
 
             }
             myDialog.dismiss()
             onSaveClick.invoke(selectedGesture ?: "", position)
-            Log.d("showCustomGesturesDialog", "$selectedGesture")
+
+
         }
     }
 
@@ -272,8 +275,10 @@ class SprGestureFragment() : Fragment() {
                 val checkedItems = sprGestureItemList.mapIndexedNotNull { index, item ->
                     if (item.check) index else null
                 }
-                var unselectedPosition = 0
+                var unselectedPosition = bindingGestureList.indexOfFirst { it.sprGestureItem.title == title }
                 sprGestureItemList[position] = sprGestureItemList[position].copy(check = !sprGestureItemList[position].check)
+
+
 
                 if (!sprGestureItemList[position].check) {
                    unselectedPosition = checkedItems.indexOf(position)
@@ -281,23 +286,17 @@ class SprGestureFragment() : Fragment() {
                 }
 
                 // Удаление безопасным способом
-                val iterator = selectedGesturesSet.iterator()
-                while (iterator.hasNext()) {
-                    val gesture = iterator.next()
-                    if (gesture == bindingGestureList[unselectedPosition].nameOfUserGesture) {
-                        iterator.remove()
+                if (unselectedPosition >= 0 && unselectedPosition < bindingGestureList.size) {
+                    val iterator = selectedGesturesSet.iterator()
+                    while (iterator.hasNext()) {
+                        val gesture = iterator.next()
+                        if (gesture == bindingGestureList[unselectedPosition].nameOfUserGesture) {
+                            iterator.remove()
+                        }
                     }
+                } else {
+                    Log.e("onGestureClicked1", "Index $unselectedPosition is out of bounds for bindingGestureList with size ${bindingGestureList.size}")
                 }
-//                if (!sprGestureItemList[unselectedPosition].check) {
-//                    selectedGesturesSet.forEach {
-//                        if (it == bindingGestureList[unselectedPosition].nameOfUserGesture){
-//                            selectedGesturesSet.remove(it)
-//                        }
-//
-//                    }
-//
-//                }
-
 
                 Log.d("onGestureClicked", "$sprGestureItemList")
                 gesturesRv.adapter?.notifyItemChanged(position)

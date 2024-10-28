@@ -1,16 +1,16 @@
 package com.bailout.stickk.ubi4.ble
 
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_MANAGER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_TRANSFER_SETTINGS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DEVICE_INFORMATION
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_MANAGER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand.READ_DATA
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.INICIALIZE_INFORMATION
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_DEVICE_ADDITIONAL_PARAMETRS
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_DEVICE_PARAMETRS
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_INFO
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataTableSlotsEnum.DTE_SYSTEM_DEVICES
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFSET
 
 class BLECommands {
@@ -54,7 +54,7 @@ class BLECommands {
             return result
         }
 
-        fun requestSubDeviceParametrs(addressDevice: Int, startIndex: Int, readNum: Int): ByteArray {
+        fun requestSubDeviceParametrs(subDeviceAddress: Int, startIndex: Int, readNum: Int): ByteArray {
             val header = byteArrayOf(
                 0x00,
                 DEVICE_INFORMATION.number,
@@ -66,7 +66,7 @@ class BLECommands {
             )
             val data = byteArrayOf(
                 READ_SUB_DEVICE_PARAMETERS.number,
-                addressDevice.toByte(),
+                subDeviceAddress.toByte(),
                 startIndex.toByte(),
                 readNum.toByte(),
             )
@@ -76,7 +76,28 @@ class BLECommands {
             return result
         }
 
-        fun requestPlotFlow(): ByteArray {
+        fun requestSubDeviceAdditionalParametrs(subDeviceAddress: Int, idParameter: Int): ByteArray {
+            val header = byteArrayOf(
+                0x00,
+                DEVICE_INFORMATION.number,
+                0x00,
+                0x00,//0x01
+                0x00,
+                0x00,
+                0x00
+            )
+            val data = byteArrayOf(
+                READ_SUB_DEVICE_ADDITIONAL_PARAMETER.number,
+                subDeviceAddress.toByte(),
+                idParameter.toByte(),
+            )
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
+            return result
+        }
+
+        fun requestTransferFlow(startTransfer: Int): ByteArray {
             val result = byteArrayOf(
                 0x00,
                 DATA_TRANSFER_SETTINGS.number,
@@ -85,7 +106,7 @@ class BLECommands {
                 0x00,
                 0x00,
                 0x00,
-                0x01)
+                startTransfer.toByte()) // 1 - start     2 - stop
             result[3] = calculateDataSize(result).toByte()
             result[4] = (calculateDataSize(result)/256).toByte()
             return result
@@ -141,8 +162,7 @@ class BLECommands {
             return result
         }
 
-
-        fun oneButtonCommand(parameterID: Int, command: Int): ByteArray {
+        fun oneButtonCommand(addressDevice: Int, parameterID: Int, command: Int): ByteArray {
             val code:Byte = (128 + parameterID).toByte()
             val result = byteArrayOf(
                 0x40,
@@ -151,7 +171,7 @@ class BLECommands {
                 0x00,
                 0x00,
                 0x00,
-                0x00,
+                addressDevice.toByte(),
                 command.toByte()
             )
             result[3] = calculateDataSize(result).toByte()

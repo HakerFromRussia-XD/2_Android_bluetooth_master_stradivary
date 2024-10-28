@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data.parser
 
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
@@ -22,7 +23,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Paramet
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseSubDevicesInfoStructArray
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseSubDevicesInfoStructSet
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.fullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArray
@@ -33,6 +34,7 @@ import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.BASE_PARAMETER_INFO_STRUCT_SIZE
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFSET
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
+import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -42,6 +44,9 @@ class BLEParser(main: AppCompatActivity) {
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
     private var mConnected = false
     private var count = 0
+    private var numerSubDevice = 0
+    private var subDeviceCounter = 0
+    private var subDeviceAdditionalCounter = 1
 
 
     internal fun parseReceivedData (data: ByteArray?) {
@@ -74,7 +79,10 @@ class BLEParser(main: AppCompatActivity) {
                 BaseCommands.DATA_TRANSFER_SETTINGS.number -> { System.err.println("TEST parser DATA_TRANSFER_SETTINGS") }
                 BaseCommands.COMPLEX_PARAMETER_TRANSFER.number -> {
                     System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER $receiveDataString")
-                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]),castUnsignedCharToInt(data[11]),castUnsignedCharToInt(data[12]),castUnsignedCharToInt(data[13]),castUnsignedCharToInt(data[14]))
+                    System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER data.size = ${data.size}")
+
+                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]))
+//                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]),castUnsignedCharToInt(data[11]),castUnsignedCharToInt(data[12]),castUnsignedCharToInt(data[13]),castUnsignedCharToInt(data[14]))
                     plotArrayFlow.value = plotArray
                 }
             }
@@ -106,9 +114,14 @@ class BLEParser(main: AppCompatActivity) {
             }
             DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS.number -> {
                 System.err.println("TEST parser 2 READ_SUB_DEVICE_PARAMETERS")
-                parseReadSubDeviceParameters(receiveDataString, 0)
+                parseReadSubDeviceParameters(receiveDataString)
             }
-            DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER.number -> {System.err.println("TEST parser 2 READ_SUB_DEVICE_ADDITIONAL_PARAMETER")}
+            DeviceInformationCommand.READ_SUB_DEVICE_ADDITIONAL_PARAMETER.number -> {
+                System.err.println("TEST parser 2 READ_SUB_DEVICE_ADDITIONAL_PARAMETER")
+                val addressSubDevice = castUnsignedCharToInt(receiveDataString.substring(16, 18).toInt(16).toByte()) // хедер 7 + 1 байта данные до addressSubDevice (адрес сабдевайса передаётся в возращаемых данных вторым байтом)
+                val parameterID = castUnsignedCharToInt(receiveDataString.substring(18, 20).toInt(16).toByte()) // хедер 7 + 2 байта данные до ID (ID-параметра передаётся в возращаемых данных третьим байтом)
+                parseReadSubDeviceAdditionalParameters(addressSubDevice, parameterID, receiveDataString)
+            }
             DeviceInformationCommand.SUB_DEVICE_PARAMETER_INIT_READ.number -> {System.err.println("TEST parser 2 SUB_DEVICE_PARAMETER_INIT_READ")}
             DeviceInformationCommand.SUB_DEVICE_PARAMETER_INIT_WRITE.number -> {System.err.println("TEST parser 2 SUB_DEVICE_PARAMETER_INIT_WRITE")}
 
@@ -154,14 +167,31 @@ class BLEParser(main: AppCompatActivity) {
         }
 
         if (baseParametrInfoStructArray.size != 0) {
-            mMain.bleCommand(
-                BLECommands.requestAdditionalParametrInfo(
-                    baseParametrInfoStructArray[0].ID.toByte()
-                ), MAIN_CHANNEL, WRITE
-            )
+            // если у запрашиваемого параметра нет адишнл параметров, то на этом алгоритм опроса остановится
+            Log.d("getNextIDParameter", "запрос адшнл параметра")
+            if (baseParametrInfoStructArray[0].additionalInfoSize != 0) {
+                mMain.bleCommand(
+                    BLECommands.requestAdditionalParametrInfo(
+                        baseParametrInfoStructArray[0].ID.toByte()
+                    ), MAIN_CHANNEL, WRITE
+                )
+            } else {
+                //проход по остальным параметрам
+                val ID =
+                    getNextIDParameter(0) //если у параметра additionalInfoSize = 0 то его пропустим
+                if (ID != 0) {
+                    Log.d("getNextIDParameter", "запроса адшнл параметра")
+                    mMain.bleCommand(
+                        BLECommands.requestAdditionalParametrInfo(
+                            baseParametrInfoStructArray[ID].ID.toByte()
+                        ), MAIN_CHANNEL, WRITE
+                    )
+                } else {
+                    Log.d("getNextIDParameter", "конец запроса параметров")
+                    mMain.bleCommand(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
+                }
+            }
         }
-//                                System.err.println("TEST parser 2 READ_DEVICE_PARAMETRS ${baseParametrInfoStructArray.toString()}" )
-        listWidgets
     }
     private fun parseReadDeviceAdditionalParameters(ID: Int, receiveDataString: String) {
         // читает каждый параметр отдельно по его ID
@@ -169,6 +199,8 @@ class BLEParser(main: AppCompatActivity) {
         System.err.println("TEST parser 2 принятая посылка READ_DEVICE_ADDITIONAL_PARAMETRS $receiveDataString additionalInfoSize=${baseParametrInfoStructArray[ID].additionalInfoSize}")
         val offset = HEADER_BLE_OFFSET * 2 + READ_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
         var dataOffset = 0
+        // TODO почему я не инициализировал ID здесь, а передал извне?
+        // потому что в ответе есть ID обрабатываемого параметра
         var ID = ID
 
         if (baseParametrInfoStructArray[ID].additionalInfoSize != 0) {
@@ -199,33 +231,138 @@ class BLEParser(main: AppCompatActivity) {
         }
 
         //проход по остальным параметрам
-        ID = getNextID(ID) //если у параметра additionalInfoSize = 0 то его пропустим
-
+        ID = getNextIDParameter(ID) //если у параметра additionalInfoSize = 0 то его пропустим
         if (ID != 0) {
+            Log.d("getNextIDParameter", "запроса адшнл параметра")
             mMain.bleCommand(
                 BLECommands.requestAdditionalParametrInfo(
                     baseParametrInfoStructArray[ID].ID.toByte()
                 ), MAIN_CHANNEL, WRITE
             )
+        } else {
+            Log.d("getNextIDParameter", "конец запроса адшнл параметров")
+            mMain.bleCommand(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
         }
     }
     private fun parseReadSubDeviceInfo(receiveDataString: String) {
-        val test = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
-        baseSubDevicesInfoStructArray = test.baseSubDeviceInfoStructArray
-        System.err.println("TEST parser 2 READ_SUB_DEVICE_INFO $test")
+//        Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
+        val subDevices = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
+        baseSubDevicesInfoStructSet = subDevices.baseSubDeviceInfoStructArray
+        numerSubDevice = subDevices.count
+
+
+        // тут нам нужно запустить цепную реакцию сабдевайсов (читаем параметры первого сабдевайса)
+        Log.d("SubDeviceSubDevice", "subDevices=$baseSubDevicesInfoStructSet  numerSubDevice=$numerSubDevice")
+        mMain.bleCommand(BLECommands.requestSubDeviceParametrs(
+            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
+            0,
+            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum), MAIN_CHANNEL, WRITE)
     }
-    private fun parseReadSubDeviceParameters(receiveDataString: String, positionSubDevice: Int) {
-//        val test = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(22,receiveDataString.length)}\"") // 11 байт заголовок и отправленные данные
+    private fun parseReadSubDeviceParameters(receiveDataString: String) {
+        // пробегаемся по всем параметрам, формируя их список
         val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
-//        System.err.println("TEST parser 2 READ_SUB_DEVICE_PARAMETRS $receiveDataString")
-        baseSubDevicesInfoStructArray.forEach {
-            System.err.println("TEST parser 2 baseSubDevicesInfoStructArray $it")
+        for (i in 0 until baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum) {
+            listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(22 + i * BASE_PARAMETER_INFO_STRUCT_SIZE, 22 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
         }
-        for(i in 0 until baseSubDevicesInfoStructArray[positionSubDevice].parametrsNum) {
-            listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(22+i*BASE_PARAMETER_INFO_STRUCT_SIZE, 22+(i+1)*BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
+
+        // присваиваем этот список соответствующему полю сабдевайса parametrsList
+        baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList = listA
+        Log.d(
+            "SubDeviceAdditionalParameters",
+            "прочитали параметры из сабдевайса ${
+                baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress
+            } их ${baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList.size} listA=${listA.size} subDeviceCounter=$subDeviceCounter"
+        )
+
+        // берём следующий сабдевайс у которого количество параметров не равно 0
+        if (getNextSubDevice(subDeviceCounter) != 0) {
+            mMain.bleCommand(
+                BLECommands.requestSubDeviceParametrs(
+                    baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
+                    0,
+                    baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
+                ), MAIN_CHANNEL, WRITE
+            )
+        } else {
+            Log.d(
+                "SubDeviceAdditionalParameters",
+                "закончили чтение всех параметров во всех сабдевайсах"
+            )
+            Log.d("SubDeviceAdditionalParameters", "subDeviceCounter = $subDeviceCounter")
+            subDeviceCounter = 0
+
+            Log.d("SubDeviceAdditionalParameters", "6 = ${getSubDeviceParameterWithAdditionalParameters(1).first}  0 = ${getSubDeviceParameterWithAdditionalParameters(1).second}")
+            if (getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).third == 0) {
+                Log.d("SubDeviceAdditionalParameters", "у сабдевайсов нет ни одного виджета")
+                Log.d("SubDeviceAdditionalParameters", "конец запроса параметров сабдевайса")
+                subDeviceAdditionalCounter = 1
+            } else {
+                Log.d("SubDeviceAdditionalParameters", "запроса адишнл параметра")
+                mMain.bleCommand(
+                    BLECommands.requestSubDeviceAdditionalParametrs(
+                        getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).first,
+                        getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).second
+                    ), MAIN_CHANNEL, WRITE
+                )
+                subDeviceAdditionalCounter ++
+            }
         }
-        listA.forEach {
-            System.err.println("TEST parser 2 READ_SUB_DEVICE_PARAMETRS $it")
+    }
+    private fun parseReadSubDeviceAdditionalParameters(addressSubDevice: Int, parameterID: Int, receiveDataString: String) {
+        val offset = HEADER_BLE_OFFSET * 2 + READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
+        var dataOffset = 0
+
+
+        // читает каждый параметр отдельно по его ID
+        // за один заход обрабатывает все ADDITIONAL_PARAMETR определённого параметра
+        baseSubDevicesInfoStructSet.forEach { subDevice ->
+            subDevice.parametersList.forEach { parametrSubDevice ->
+                if (subDevice.deviceAddress == addressSubDevice) {
+                    if (parametrSubDevice.ID == parameterID) {
+                        Log.d("parseReadSubDeviceAdditionalParameters", "deviceAddress=${subDevice.deviceAddress}   additionalInfoSize=${parametrSubDevice.additionalInfoSize}")
+                        for (i in 0 until parametrSubDevice.additionalInfoSize) {
+                            //каждый новый цикл вычитываем данные следующего сегмента (следующий addInfoSeg)
+                            val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset+(i+1)*ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\"")
+                            val receiveDataStringForParse = receiveDataString.substring(
+                                offset + //отступ на header + отправленные данные (отправленный запрос целиком)
+                                        parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
+                                        dataOffset*2, // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
+                                offset +
+                                        parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG +
+                                        dataOffset*2 +
+                                        additionalInfoSizeStruct.infoSize*2) // оступ на кол-во байт в считываемом сегменте
+//                                        System.err.println("testSignal 0 $receiveDataStringForParse")
+                            dataOffset = additionalInfoSizeStruct.infoSize
+
+
+                            when (additionalInfoSizeStruct.infoType) {
+                                AdditionalParameterInfoType.WIDGET.number.toInt() -> {
+                                    parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID)
+                                    GlobalScope.launch {
+                                        mMain.sendWidgetsArray()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        //проход по остальным параметрам
+        if (getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).third != 0) {
+            Log.d("SubDeviceAdditionalParameters", "запроса адишнл параметра")
+            mMain.bleCommand(
+                BLECommands.requestSubDeviceAdditionalParametrs(
+                    getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).first,
+                    getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).second
+                ), MAIN_CHANNEL, WRITE
+            )
+            subDeviceAdditionalCounter ++
+        } else {
+            subDeviceAdditionalCounter = 1
+            Log.d("SubDeviceAdditionalParameters", "конец запроса адишнл параметров сабдевайса")
         }
     }
 
@@ -236,20 +373,46 @@ class BLEParser(main: AppCompatActivity) {
         System.err.println("TEST parser 2 READ_DATA $test")
     }
 
-    private fun getNextID(ID: Int): Int{
-        val result = 0
-        for (i in baseParametrInfoStructArray.indices) {
-            if (ID < baseParametrInfoStructArray[i].ID ) {
-                if (baseParametrInfoStructArray[i].additionalInfoSize != 0) {
-                    return baseParametrInfoStructArray[i].ID
+    private fun getNextIDParameter(ID: Int): Int{
+        for (item in baseParametrInfoStructArray.indices) {
+            if (ID < baseParametrInfoStructArray[item].ID ) {
+                if (baseParametrInfoStructArray[item].additionalInfoSize != 0) {
+                    return baseParametrInfoStructArray[item].ID
                 }
             }
         }
-        return result
+        return 0
+    }
+    private fun getNextSubDevice(subDeviceCounter: Int):Int {
+        // TODO функция не проверена в бою на множестве сабдевайсов, есть подозрение что возникнет рассинхрон subDeviceCounter
+        Log.d("SubDeviceSubDevice", "baseSubDevicesInfoStructArray=${baseSubDevicesInfoStructSet.size}")
+        for ((index, item) in baseSubDevicesInfoStructSet.withIndex()) {
+            Log.d("SubDeviceSubDevice", "index=$index subDeviceCounter=$subDeviceCounter")
+            if (index > subDeviceCounter) {
+                this.subDeviceCounter ++
+                if (item.parametrsNum != 0) {
+                   return item.deviceAddress
+                }
+            }
+        }
+        return 0
+    }
+    private fun getNextSubDeviceParameter(subDeviceParameterCounter: Int):Int {
+        // TODO функция не проверена в бою на множестве сабдевайсов, есть подозрение что возникнет рассинхрон subDeviceCounter
+        Log.d("SubDeviceSubDevice", "baseSubDevicesInfoStructArray=${baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList.size}")
+//        baseSubDevicesInfoStructArray[subDeviceCounter].parametrsList
+        for (index in baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList.indices) {
+            if (subDeviceParameterCounter < baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList[index].ID ) {
+                if (baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList[index].additionalInfoSize != 0) {
+                    return baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList[index].ID
+                }
+            }
+        }
+        return 0
     }
     private fun parseWidgets(receiveDataStringForParse: String, parameterID: Int) {
         var baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${receiveDataStringForParse}\"")//+parameterID.toString()
-        baseParameterWidgetStruct.parentParameterID = parameterID
+        baseParameterWidgetStruct.parameterID = parameterID
         count += 1
 
         System.err.println("parseWidgets ID:${baseParameterWidgetStruct}")
@@ -259,7 +422,7 @@ class BLEParser(main: AppCompatActivity) {
                     ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { System.err.println("parseWidgets UNKNOW") }
                     ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                         val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID = parameterID
+                        commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterID = parameterID
                         System.err.println("parseWidgets BUTTON CODE_LABEL $commandParameterWidgetEStruct")
                         listWidgets.add(commandParameterWidgetEStruct)
                     }
@@ -269,7 +432,7 @@ class BLEParser(main: AppCompatActivity) {
                     ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                         System.err.println("parseWidgets PLOT CODE_LABEL")
                         val plotParameterWidgetEStruct = Json.decodeFromString<PlotParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        plotParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID = parameterID
+                        plotParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterID = parameterID
                         listWidgets.add(plotParameterWidgetEStruct)
                     }
                     ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { System.err.println("parseWidgets SPINBOX") }
@@ -281,7 +444,7 @@ class BLEParser(main: AppCompatActivity) {
                         System.err.println("parseWidgets OPEN_CLOSE_THRESHOLD CODE_LABEL")
                         //TODO пока тестовая заглушка кнопкой
                         val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID = parameterID
+                        commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterID = parameterID
                         listWidgets.add(commandParameterWidgetEStruct)
                     }
                     ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_1_THRESHOLD") }
@@ -317,18 +480,31 @@ class BLEParser(main: AppCompatActivity) {
                 }
             }
         }
-
-
-//        listWidgets.forEach {
-//            when (it) {
-//                is CommandParameterWidgetEStruct -> {
-//                    it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
-//                }
-//                is PlotParameterWidgetEStruct -> {
-//                    it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
-//                }
-//            }
-//        }
+    }
+    private fun getSubDeviceParameterWithAdditionalParameters(itemPosition: Int): Triple<Int,Int,Int>  {
+        // в itemPosition мы передаём номер того параметра у которго мы заберём адишнл
+        // параметры. Например, если у нас есть три параметра с адишнл параметрами, то
+        // передав этой функции itemPosition = 3 мы получим на выходе первым параметром
+        // subDevice.deviceAddress и вторым параметром parameterSubDevice.ID для запроса
+        // адишнл параметров именно у третьего параметра с адишнл параметрами. Если передаём
+        // itemPosition = 1, то функция выдаст параметры для запроса адишнл параметров у первого
+        // параметра с адишнл параметрами
+        var count = 1
+        baseSubDevicesInfoStructSet.forEach { subDevice ->
+            subDevice.parametersList.forEach { parameterSubDevice ->
+                if (subDevice.parametersList.size != 0 ) {
+                    if (parameterSubDevice.additionalInfoSize != 0 && count == itemPosition) {
+                        return Triple(subDevice.deviceAddress, parameterSubDevice.ID, itemPosition)
+                    }
+                    if (parameterSubDevice.additionalInfoSize != 0) {
+                        // мы инкриментируем count каждый раз, когда встречаем параметр у которого
+                        // есть адишнл параметры (виджеты)
+                        count ++
+                    }
+                }
+            }
+        }
+        return Triple(0, 0, 0)
     }
 
     internal fun getStatusConnected() : Boolean { return mConnected }

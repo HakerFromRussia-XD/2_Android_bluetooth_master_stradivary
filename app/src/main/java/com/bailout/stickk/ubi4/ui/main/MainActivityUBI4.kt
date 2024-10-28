@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
@@ -19,9 +21,6 @@ import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -52,21 +51,14 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         initAllVariables()
         BottomNavigationController(bottomNavigation = binding.bottomNavigation)
 
+        val tsLong = System.currentTimeMillis() / 1000
+        val ts = tsLong.toString()
+        Log.d("Timestamp", "ts = $ts")
 
         // инициализация блютуз
         mBLEController = BLEController(this)
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
-
-        val baseParameterWidgetStruct = BaseParameterWidgetStruct(1, 1,1,1,1,1,1,1,1,1)
-        val baseParameterWidgetEStruct = BaseParameterWidgetEStruct(baseParameterWidgetStruct, 1)
-        val commandParameterWidgetEStruct = CommandParameterWidgetEStruct(baseParameterWidgetEStruct, 1,1,1)
-        val commandParameterWidgetEStruct2 = CommandParameterWidgetEStruct(baseParameterWidgetEStruct, 1,1,1)
-        val commandParameterWidgetEStruct3 = CommandParameterWidgetEStruct(baseParameterWidgetEStruct, 2,1,1)
-        val commandParameterWidgetEStruct4 = CommandParameterWidgetEStruct(baseParameterWidgetEStruct, 3,1,1)
-        val testWidgets: List<Any> = listOf(commandParameterWidgetEStruct, commandParameterWidgetEStruct2, commandParameterWidgetEStruct3, commandParameterWidgetEStruct4)
-        val set: Set<Any> = testWidgets.toSet()
-        println("convertToSet $set")
 
 
 
@@ -94,11 +86,15 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
     }
 
 
+    override fun showToast(massage: String) {
+        Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
+    }
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
     override fun goingBack() { onBackPressed() }
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
+
 
     private fun initAllVariables() {
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
@@ -114,7 +110,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         listWidgets = mutableSetOf()
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
-        baseSubDevicesInfoStructArray = arrayListOf()
+        baseSubDevicesInfoStructSet = mutableSetOf()
         plot = MutableStateFlow(0)
         plotArray = arrayListOf()
         countBinding = 0
@@ -150,7 +146,7 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
-        var baseSubDevicesInfoStructArray by Delegates.notNull<ArrayList<BaseSubDeviceInfoStruct>>()
+        var baseSubDevicesInfoStructSet by Delegates.notNull<MutableSet<BaseSubDeviceInfoStruct>>()
 
 
         var connectedDeviceName by Delegates.notNull<String>()

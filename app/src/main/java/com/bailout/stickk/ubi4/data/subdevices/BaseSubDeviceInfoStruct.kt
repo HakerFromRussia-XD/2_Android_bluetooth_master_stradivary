@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data.subdevices
 
+import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -19,12 +20,11 @@ data class BaseSubDeviceInfoStruct(
     val deviceSubVersion: Int,
 
     val deviceAddress: Int,
-
     val parametrsNum: Int,
-
     val subDeviceNum: Int,
+    val defaultPort: Int,
 
-    val defaultPort: Int
+    var parametersList: ArrayList<BaseParameterInfoStruct>
 )
 
 object BaseSubDeviceInfoSerializer: KSerializer<BaseSubDeviceInfoStruct> {
@@ -44,6 +44,8 @@ object BaseSubDeviceInfoSerializer: KSerializer<BaseSubDeviceInfoStruct> {
         var parametrsNum = 0
         var subDeviceNum = 0
         var defaultPort = 0
+
+        val parametrsList = ArrayList<BaseParameterInfoStruct>()
 
         if (string.length >= 18) {
             deviceType = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte())
@@ -68,7 +70,8 @@ object BaseSubDeviceInfoSerializer: KSerializer<BaseSubDeviceInfoStruct> {
             deviceAddress = deviceAddress,
             parametrsNum = parametrsNum,
             subDeviceNum = subDeviceNum,
-            defaultPort = defaultPort
+            defaultPort = defaultPort,
+            parametersList = parametrsList
         )
     }
 

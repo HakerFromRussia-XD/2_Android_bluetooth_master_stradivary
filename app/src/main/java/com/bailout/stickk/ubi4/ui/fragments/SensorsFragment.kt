@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,11 +23,13 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapt
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.models.DialogGestureItem
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
@@ -62,6 +65,7 @@ class SensorsFragment : Fragment() {
     }
     private fun refreshWidgetsList() {
         graphThreadFlag = false
+        listWidgets.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
         //TODO только для демонстрации
 //        Handler().postDelayed({
@@ -89,8 +93,8 @@ class SensorsFragment : Fragment() {
             plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
         ),
         OneButtonDelegateAdapter (
-            onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
-            onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
+            onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
+            onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
         ) ,
         GesturesDelegateAdapter (
             onSelectorClick = {},
@@ -130,6 +134,7 @@ class SensorsFragment : Fragment() {
         listN.add(DialogGestureItem("add", true))
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         gesturesRv.layoutManager = linearLayoutManager
+
         val adapter = GesturesCheckAdapter(listN, object :
             OnCheckGestureListener {
             override fun onGestureClicked(position: Int, title: String) {
@@ -183,18 +188,22 @@ class SensorsFragment : Fragment() {
             resultCb.invoke(2)
         }
     }
-    private fun oneButtonPressed(parameterID: Int, command: Int) {
-        System.err.println("oneButtonPressed    parameterID: $parameterID   command: $command")
-        transmitter().bleCommand(BLECommands.oneButtonCommand(parameterID, command), MAIN_CHANNEL, WRITE)
+    private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
+        Log.d("ButtonClick", "oneButtonPressed  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
+        transmitter().bleCommand(BLECommands.oneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
     }
-    private fun oneButtonReleased(parameterID: Int, command: Int) {
-        System.err.println("oneButtonReleased    parameterID: $parameterID   command: $command")
+    private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
+        Log.d("ButtonClick", "oneButtonReleased  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
+        transmitter().bleCommand(BLECommands.oneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+
+//        transmitter().bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
+
 //        BLECommands.requestSubDeviceParametrs(6, 0, 2).forEach { i ->
 //            // проверка правильности сформированной команды
 //            System.err.println("oneButtonReleased ${castUnsignedCharToInt(i)}")
 //        }
-//        transmitter().bleCommand(BLECommands.oneButtonCommand(parameterID, command), MAIN_CHANNEL, WRITE)
 //        transmitter().bleCommand(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
-        transmitter().bleCommand(BLECommands.requestSubDeviceParametrs(6, 0, 2), MAIN_CHANNEL, WRITE)
+//        transmitter().bleCommand(BLECommands.requestSubDeviceParametrs(6, 0, 1), MAIN_CHANNEL, WRITE)
+//        transmitter().bleCommand(BLECommands.requestSubDeviceAdditionalParametrs(6, 0), MAIN_CHANNEL, WRITE)
     }
 }

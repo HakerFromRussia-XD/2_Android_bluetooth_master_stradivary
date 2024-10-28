@@ -7,6 +7,7 @@ import android.content.Context
 import android.os.Handler
 import android.util.DisplayMetrics
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.Pair
@@ -31,11 +32,17 @@ class GesturesDelegateAdapter(
     RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
 
+    private lateinit var binding: Ubi4WidgetGesturesBinding
     private val ANIMATION_DURATION = 200
     private var itemsGesturesRotationArray: ArrayList<Pair<Long, String>>? = null
     private var listRotationGroupAdapter: RotationGroupItemAdapter? = null
     private var mRotationGroupDragLv: DragListView? = null
     private var hideFactoryCollectionGestures = true
+
+    private lateinit var mRotationGroupExplanationTv: TextView
+    private lateinit var mRotationGroupExplanation2Tv: TextView
+    private lateinit var mRotationGroupExplanationIv: ImageView
+    private lateinit var mRotationGroupExplanation2Iv: ImageView
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -50,13 +57,13 @@ class GesturesDelegateAdapter(
 
         when (item.widget) {
             is CommandParameterWidgetEStruct -> {
-                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID
+                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterID
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand
             }
             is CommandParameterWidgetSStruct -> {
-                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parentParameterID
+                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterID
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand
@@ -124,6 +131,18 @@ class GesturesDelegateAdapter(
         for (i in 0..4) {
             itemsGesturesRotationArray!!.add(Pair<Long, String>(i.toLong(), "Item $i"))
         }
+
+
+
+        mRotationGroupExplanationTv = rotationGroupExplanationTv
+        mRotationGroupExplanation2Tv = rotationGroupExplanation2Tv
+        mRotationGroupExplanationIv = rotationGroupExplanationIv
+        mRotationGroupExplanation2Iv = rotationGroupExplanation2Iv
+        if (itemsGesturesRotationArray?.size == 0) {
+            showIntroduction(true)
+        } else {
+            showIntroduction(false)
+        }
         setupListRecyclerView()
     }
 
@@ -160,7 +179,7 @@ class GesturesDelegateAdapter(
         rotationGroupCl: ConstraintLayout,
     ) {
         System.err.println("moveFilterSelection")
-        val displayMetrics: DisplayMetrics = main.getResources().displayMetrics
+        val displayMetrics: DisplayMetrics = main.resources.displayMetrics
         val filterWidth = (ubi4GesturesSelectorV.width / displayMetrics.density).toInt()
         when (position) {
             1 -> {
@@ -214,6 +233,19 @@ class GesturesDelegateAdapter(
             collectionGesturesCl.visibility = View.GONE
         }
     }
+    private fun showIntroduction (show: Boolean) {
+        if  (show) {
+            mRotationGroupExplanationTv.visibility = View.VISIBLE
+            mRotationGroupExplanation2Tv.visibility = View.VISIBLE
+            mRotationGroupExplanationIv.visibility = View.VISIBLE
+            mRotationGroupExplanation2Iv.visibility = View.VISIBLE
+        } else {
+            mRotationGroupExplanationTv.visibility = View.GONE
+            mRotationGroupExplanation2Tv.visibility = View.GONE
+            mRotationGroupExplanationIv.visibility = View.GONE
+            mRotationGroupExplanation2Iv.visibility = View.GONE
+        }
+    }
 
     override fun isForViewType(item: Any): Boolean = item is GesturesItem
     override fun GesturesItem.getItemId(): Any = title
@@ -237,6 +269,10 @@ class GesturesDelegateAdapter(
         val resultCb: ((result: Int)->Unit) = {
             itemsGesturesRotationArray?.removeAt(position)
             setupListRecyclerView()
+            // отрисовывать тут интродакшн если в списке нет элементов
+            if (itemsGesturesRotationArray?.size == 0) {
+                showIntroduction(true)
+            }
         }
         onDeleteClick(resultCb, itemsGesturesRotationArray?.get(position)?.second.toString())
     }

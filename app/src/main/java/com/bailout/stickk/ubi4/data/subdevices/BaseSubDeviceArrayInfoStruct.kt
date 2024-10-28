@@ -14,7 +14,7 @@ import kotlinx.serialization.json.Json
 @Serializable(with = BaseSubDeviceArrayInfoSerializer::class)
 data class BaseSubDeviceArrayInfoStruct(
     val count: Int,
-    val baseSubDeviceInfoStructArray: ArrayList<BaseSubDeviceInfoStruct>
+    val baseSubDeviceInfoStructArray: MutableSet<BaseSubDeviceInfoStruct>
 )
 
 object BaseSubDeviceArrayInfoSerializer: KSerializer<BaseSubDeviceArrayInfoStruct> {
@@ -29,13 +29,13 @@ object BaseSubDeviceArrayInfoSerializer: KSerializer<BaseSubDeviceArrayInfoStruc
         if (string.length >= 4) {
             count = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte())
             for (i in 0 until count) {
-                baseSubDeviceInfoStructArray.add(Json.decodeFromString<BaseSubDeviceInfoStruct>("\"${string.substring(i*BASE_SUB_DEVICE_STRUCT_SIZE*2,(i+1)*BASE_SUB_DEVICE_STRUCT_SIZE*2)}\""))
+                baseSubDeviceInfoStructArray.add(Json.decodeFromString<BaseSubDeviceInfoStruct>("\"${string.substring(i*BASE_SUB_DEVICE_STRUCT_SIZE*2+2,(i+1)*BASE_SUB_DEVICE_STRUCT_SIZE*2+2)}\""))
             }
         }
 
         return BaseSubDeviceArrayInfoStruct (
             count = count,
-            baseSubDeviceInfoStructArray = baseSubDeviceInfoStructArray
+            baseSubDeviceInfoStructArray = baseSubDeviceInfoStructArray.toMutableSet()
         )
     }
 

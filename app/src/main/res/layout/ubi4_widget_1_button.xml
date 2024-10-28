@@ -7,33 +7,46 @@
     android:orientation="horizontal"
     android:background="@color/ubi4_back">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/EMG_chart_cv"
+
+    <View
+        android:id="@+id/backgroundBtn"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        app:cardCornerRadius="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_height="48dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/ubi4_view_with_corners_gray"
+        android:elevation="3dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/widget1ButtonTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:fontFamily="@font/sf_pro_display_light"
+        android:text="@string/gesture_1_btn"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn"
+        app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
+        app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
+        app:layout_constraintTop_toTopOf="@+id/backgroundBtn" />
+    <View
+        android:id="@+id/widget1Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn"
+        app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
+        app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
+        app:layout_constraintTop_toTopOf="@+id/backgroundBtn" />
 
-        <Button
-            android:id="@+id/widget_1_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="-8dp"
-            android:layout_marginBottom="-8dp"
-            android:layout_marginStart="-8dp"
-            android:layout_marginEnd="-8dp"
-            app:cardCornerRadius="20dp"
-            android:text="@string/open"
-            android:fontFamily="@font/font_open_sans_bold"
-            android:textColor="@color/black"
-            android:backgroundTint="@color/white"/>
-    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

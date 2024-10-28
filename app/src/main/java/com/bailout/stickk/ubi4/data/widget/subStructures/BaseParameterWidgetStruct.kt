@@ -17,11 +17,11 @@ data class BaseParameterWidgetStruct(
     val widgetCode: Int,
     val display: Int, // номер экрана, на котором виджет располагается
     val widgetPosition: Int, // позиция этого виджета
-    val deviceId: Int,
+    var deviceId: Int,
     val widgetId: Int,
     val dataOffset: Int,
     var dataSize: Int,
-    var parentParameterID: Int // ID родительского параметра
+    var parameterID: Int // ID родительского параметра
 )
 
 object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
@@ -47,10 +47,10 @@ object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
             widgetCode = castUnsignedCharToInt(string.substring(2, 4).toInt(16).toByte())
             display = castUnsignedCharToInt(string.substring(4, 6).toInt(16).toByte())
             widgetPosition = castUnsignedCharToInt(string.substring(6, 8).toInt(16).toByte())
-//            deviceId = castUnsignedCharToInt(string.substring(8, 10).toInt(16).toByte())
-//            widgetId = castUnsignedCharToInt(string.substring(10, 12).toInt(16).toByte())
-//            dataOffset = castUnsignedCharToInt(string.substring(12, 14).toInt(16).toByte())
-//            dataSize = castUnsignedCharToInt(string.substring(14, 16).toInt(16).toByte())
+            deviceId = castUnsignedCharToInt(string.substring(8, 10).toInt(16).toByte())
+            widgetId = castUnsignedCharToInt(string.substring(10, 12).toInt(16).toByte())
+            dataOffset = castUnsignedCharToInt(string.substring(12, 14).toInt(16).toByte())
+            dataSize = castUnsignedCharToInt(string.substring(14, 16).toInt(16).toByte())
         }
 
         return BaseParameterWidgetStruct (
@@ -63,7 +63,7 @@ object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
             widgetId = widgetId,
             dataOffset = dataOffset,
             dataSize = dataSize,
-            parentParameterID = parentIDParameter,
+            parameterID = parentIDParameter,
         )
     }
 

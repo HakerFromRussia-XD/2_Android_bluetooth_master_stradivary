@@ -700,6 +700,7 @@
             app:layout_constraintTop_toBottomOf="@+id/rotationGroupDragLv" />
 
         <ImageView
+            android:id="@+id/imageView8"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:background="@drawable/ic_add"
@@ -708,8 +709,51 @@
             app:layout_constraintBottom_toBottomOf="@+id/addGestureToRotationGroupBtn"
             app:layout_constraintEnd_toEndOf="@+id/addGestureToRotationGroupBtn"
             app:layout_constraintStart_toStartOf="@+id/addGestureToRotationGroupBtn"
-            app:layout_constraintTop_toTopOf="@+id/addGestureToRotationGroupBtn"/>
+            app:layout_constraintTop_toTopOf="@+id/addGestureToRotationGroupBtn" />
 
+        <TextView
+            android:id="@+id/rotationGroupExplanationTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="120dp"
+            android:gravity="center"
+            android:text="Здесь можно выбрать жесты для\nповседневного использования в\nгруппе ротации.\n
+            Переключение внутри этой группы\nможно осуществлять датчиками или\nкнопками на протезе."
+            android:textColor="@color/ubi4_deactivate_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/addGestureToRotationGroupBtn" />
+
+        <ImageView
+            android:id="@+id/rotationGroupExplanationIv"
+            android:layout_width="140dp"
+            android:layout_height="160dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/annotationman"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rotationGroupExplanationTv" />
+
+        <ImageView
+            android:id="@+id/rotationGroupExplanation2Iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_long_arrow"
+            android:layout_marginTop="-24dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@+id/addGestureToRotationGroupBtn"
+            app:layout_constraintTop_toBottomOf="@+id/addGestureToRotationGroupBtn" />
+
+        <TextView
+            android:id="@+id/rotationGroupExplanation2Tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:gravity="center"
+            android:text="Нажми меня"
+            android:textColor="@color/ubi4_deactivate_text"
+            app:layout_constraintEnd_toEndOf="@+id/rotationGroupExplanation2Iv"
+            app:layout_constraintTop_toBottomOf="@+id/rotationGroupExplanation2Iv" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -2,7 +2,9 @@ package com.bailout.stickk.ubi4.data
 
 
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.models.OneButtonItem
 import com.bailout.stickk.ubi4.models.PlotItem
@@ -29,7 +31,9 @@ internal class DataFactory {
         // сортировка всех виджетов по возрастанию
         sortWidgets(listWidgets.sortedWith ( compareBy {
             when (it) {
+                is CommandParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
                 is CommandParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
+                is PlotParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
                 is PlotParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
                 else -> {""}
             }
@@ -44,6 +48,16 @@ internal class DataFactory {
         val _listWidgets = ArrayList<Any>(setWidgets.size)
         setWidgets.forEach {
             when (it) {
+                is CommandParameterWidgetSStruct -> {
+                    if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
+                        addElementS(
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetSStruct.label,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                }
                 is CommandParameterWidgetEStruct -> {
                     if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
                         addElement(
@@ -54,6 +68,18 @@ internal class DataFactory {
                         )
                     }
                     System.err.println("prepareData CommandParameterWidgetEStruct widgetPosition: ${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}")
+                }
+                is PlotParameterWidgetSStruct -> {
+                    if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
+                        addElementS(
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetSStruct.label,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                    System.err.println("prepareData PlotParameterWidgetEStruct widgetPosition: ${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}")
+                    System.err.println("prepareData PlotParameterWidgetEStruct dataSize: ${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.dataSize}")
                 }
                 is PlotParameterWidgetEStruct -> {
                     if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
@@ -90,12 +116,36 @@ internal class DataFactory {
                     PWLE_SELECT_GESTURE.number -> {OneButtonItem(PWLE_SELECT_GESTURE.label, "description", widget)}
                     else -> { OneButtonItem("BUTTON", "description", widget) }
                 }
-
             }
             ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { OneButtonItem("SWITCH", "description", widget) }
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
             ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { OneButtonItem("SLIDER", "description", widget) }
             ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem("PLOT", widget)  }
+            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
+            ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
+            ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
+//                OneButtonItem("GESTURE_SETTINGS", "description", widget)
+                GesturesItem("GESTURE_SETTINGS", widget)
+            }
+            ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { OneButtonItem("CALIB_STATUS", "description", widget)  }
+            ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { OneButtonItem("CONTROL_MODE", "description", widget)  }
+            ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
+            ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
+            ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
+            else -> { OneButtonItem("Open", "description", widget) }
+        }
+        widgets.add(item)
+    }
+    private fun addElementS(widgetCode: Int, label: String, widgets: ArrayList<Any>, widget: Any) {
+        val item: Any = when (widgetCode) {
+            ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { OneButtonItem("PWCE_UNKNOW", "Description", widget) }
+            ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
+                OneButtonItem(label, "description", widget)
+            }
+            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { OneButtonItem("SWITCH", "description", widget) }
+            ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
+            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { OneButtonItem("SLIDER", "description", widget) }
+            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem(label, widget)  }
             ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {

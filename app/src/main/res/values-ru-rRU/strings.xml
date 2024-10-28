@@ -551,6 +551,8 @@
     <string name="neutral">Нейтральный</string>
     <string name="annotation_main_text">Здесь можно выбрать жесты для повседневного использования в группе ротации</string>
     <string name="toast_notification_gesture_in_use">Этот жест уже используется. Выберите другой.</string>
+    <string name="training">Обучение</string>
+
 
 
     <string-array name="numbers">

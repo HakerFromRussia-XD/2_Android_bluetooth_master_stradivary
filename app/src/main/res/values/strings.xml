@@ -549,6 +549,8 @@
     <string name="neutral">Neutral</string>
     <string name="annotation_main_text">Here you can select gestures for everyday use in the rotation group</string>
     <string name="toast_notification_gesture_in_use">This gesture is already in use. Choose another.</string>
+    <string name="training">Training</string>
+
 
 
     <string-array name="numbers">

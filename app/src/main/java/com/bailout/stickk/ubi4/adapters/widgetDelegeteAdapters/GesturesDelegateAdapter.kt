@@ -141,7 +141,7 @@ class GesturesDelegateAdapter(
                 Log.d("GesturesDelegateAdapter", "$listSprItems")
                 adapter.updateGestures(listBindingGesture)
 
-                if (adapter.itemCount > 1) {
+                if (adapter.itemCount > 0) {
                     annotationTv.visibility = View.GONE
                     annotationIv.visibility = View.GONE
                 } else {

@@ -16,18 +16,13 @@
 
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters;
 
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bailout.stickk.R;
-
 import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
-import androidx.core.util.Pair;
-
 import com.woxthebox.draglistview.DragItemAdapter;
 
 import java.util.ArrayList;

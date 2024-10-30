@@ -8,6 +8,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import android.util.Pair
 
 
 @Serializable(with = BaseParameterWidgetSerializer::class)
@@ -21,7 +22,7 @@ data class BaseParameterWidgetStruct(
     val widgetId: Int,
     val dataOffset: Int,
     var dataSize: Int,
-    var parameterID: Int // ID родительского параметра
+    var parametersIDAndDataCodes: MutableSet<Pair<Int, Int>>, // ID родительских параметров и их датакоды
 )
 
 object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
@@ -39,7 +40,7 @@ object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
         var widgetId = 0
         var dataOffset = 0
         var dataSize = 0
-        val parentIDParameter = 0
+        val parentIDParameter = mutableSetOf<Pair<Int, Int>>()
 
         if (string.length >= 16) {
             widgetType = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte()) shr 0 and 0b01111111
@@ -63,7 +64,7 @@ object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
             widgetId = widgetId,
             dataOffset = dataOffset,
             dataSize = dataSize,
-            parameterID = parentIDParameter,
+            parametersIDAndDataCodes = parentIDParameter,
         )
     }
 

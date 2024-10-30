@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.ui.fragments
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -23,22 +24,34 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapt
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.models.DialogGestureItem
+import com.bailout.stickk.ubi4.models.Gesture
+import com.bailout.stickk.ubi4.models.RotationGroup
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.sql.Timestamp
+import java.util.Calendar
+import java.util.Date
+
 
 @Suppress("DEPRECATION")
 class SensorsFragment : Fragment() {
@@ -46,9 +59,15 @@ class SensorsFragment : Fragment() {
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
+    @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
+
+        //фейковые данные принимаемого потока
+        val mBLEParser = main?.let { BLEParser(it) }
+        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+
         //настоящие виджеты
         widgetListUpdater()
         //фейковые виджеты
@@ -58,6 +77,27 @@ class SensorsFragment : Fragment() {
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
         binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+
+        RxUpdateMainEventUbi4.getInstance().gestureStateWithEncodersObservable
+            .compose(main?.bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { parameters ->
+                Log.d("gestureStateWithEncodersObservable", "parameters = ${parameters.gesture.openPosition1}")
+                val gesture = Gesture(parameters.gesture.gestureId,
+                    parameters.gesture.openPosition1, parameters.gesture.openPosition2,
+                    parameters.gesture.openPosition3, parameters.gesture.openPosition4,
+                    parameters.gesture.openPosition5, parameters.gesture.openPosition6,
+                    parameters.gesture.closePosition1, parameters.gesture.closePosition2,
+                    parameters.gesture.closePosition3, parameters.gesture.closePosition4,
+                    parameters.gesture.closePosition5, parameters.gesture.closePosition6,
+                    parameters.gesture.openToCloseTimeShift1, parameters.gesture.openToCloseTimeShift2,
+                    parameters.gesture.openToCloseTimeShift3, parameters.gesture.openToCloseTimeShift4,
+                    parameters.gesture.openToCloseTimeShift5, parameters.gesture.openToCloseTimeShift6,
+                    parameters.gesture.closeToOpenTimeShift1, parameters.gesture.closeToOpenTimeShift2,
+                    parameters.gesture.closeToOpenTimeShift3, parameters.gesture.closeToOpenTimeShift4,
+                    parameters.gesture.closeToOpenTimeShift5, parameters.gesture.closeToOpenTimeShift6)
+                transmitter().bleCommand(BLECommands.sendGestureInfo (parameters.deviceAddress, parameters.parameterID, gesture), MAIN_CHANNEL, WRITE)
+            }
 
         binding.homeRv.layoutManager = LinearLayoutManager(context)
         binding.homeRv.adapter = adapterWidgets
@@ -72,15 +112,13 @@ class SensorsFragment : Fragment() {
 //            binding.refreshLayout.setRefreshing(false)
 //        }, 1000)
     }
-
-
     @OptIn(DelicateCoroutinesApi::class)
     fun widgetListUpdater() {
         GlobalScope.launch(Main) {
             withContext(Default) {
                 updateFlow.collect { value ->
                     main?.runOnUiThread {
-                        adapterWidgets.swapData(mDataFactory.prepareData(1))
+                        adapterWidgets.swapData(mDataFactory.prepareData(0))
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }
@@ -99,11 +137,27 @@ class SensorsFragment : Fragment() {
         GesturesDelegateAdapter (
             onSelectorClick = {},
             onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
-            onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) }
+            onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) },
+            onSendBLERotationGroup = {deviceAddress, parameterID -> sendBLERotationGroup(deviceAddress, parameterID) },
+            onShowGestureSettings = { deviceAddress, parameterID, gestureID -> showGestureSettings(deviceAddress, parameterID, gestureID) },
+            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)}
         )
     )
 
-
+    private fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
+        transmitter().bleCommand(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE)
+    }
+    private fun showGestureSettings (deviceAddress: Int, parameterID: Int, gestureID: Int) {
+        val intent = Intent(context, UBI4GripperScreenWithEncodersActivity::class.java)
+        intent.putExtra(DEVICE_ID_IN_SYSTEM_UBI4, deviceAddress)
+        intent.putExtra(PARAMETER_ID_IN_SYSTEM_UBI4, parameterID)
+        intent.putExtra(GESTURE_ID_IN_SYSTEM_UBI4, gestureID)
+        startActivity(intent)
+    }
+    private fun sendBLERotationGroup(deviceAddress: Int, parameterID: Int) {
+        Log.d("sendBLERotationGroup", "deviceAddress = $deviceAddress   parameterID = $parameterID")
+        transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, RotationGroup(1,1,2,2,3,3,5,5,6,6,0,0,0,0,0,0)), MAIN_CHANNEL, WRITE)
+    }
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     private fun showAddGestureToRotationGroupDialog(onSaveDialogClick: (()->Unit)) {
         System.err.println("showAddGestureToRotationGroupDialog")
@@ -176,7 +230,6 @@ class SensorsFragment : Fragment() {
         val ubi4DialogRotationGroupMessageTv = dialogBinding.findViewById<TextView>(R.id.ubi4DialogRotationGroupMessageTv)
         ubi4DialogRotationGroupMessageTv.text = getString(R.string.the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group, "\"$gestureName\"")
 
-
         val cancelBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogRotationGroupCancelBtn)
         cancelBtn.setOnClickListener {
             myDialog.dismiss()
@@ -190,11 +243,21 @@ class SensorsFragment : Fragment() {
     }
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         Log.d("ButtonClick", "oneButtonPressed  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
-        transmitter().bleCommand(BLECommands.oneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
     }
     private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         Log.d("ButtonClick", "oneButtonReleased  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
-        transmitter().bleCommand(BLECommands.oneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+//        transmitter().bleCommand(BLECommands.oneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+
+
+        val stamp = Timestamp(System.currentTimeMillis())
+        val calendar: Calendar = Calendar.getInstance()
+        calendar.setTimeInMillis(System.currentTimeMillis())
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH) + 1
+        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+        transmitter().bleCommand(BLECommands.sendTimestampInfo(7,1, year, month, dayOfMonth, Date(stamp.time).day, Date(stamp.time).hours, Date(stamp.time).minutes, Date(stamp.time).seconds), MAIN_CHANNEL, WRITE)
+
 
 //        transmitter().bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
 

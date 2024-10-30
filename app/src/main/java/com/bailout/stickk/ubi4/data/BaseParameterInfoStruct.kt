@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.data
 
-import android.util.Log
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -36,7 +35,9 @@ data class BaseParameterInfoStruct(
     val additionalInfoSize: Int,
 
     val relatedParametrID: Int,
-    val relatedDataCode: Int)
+    val relatedDataCode: Int,
+
+    var data: String)
 
 object BaseParametrInfoSerializer: KSerializer<BaseParameterInfoStruct> {
     override val descriptor: SerialDescriptor =
@@ -68,6 +69,8 @@ object BaseParametrInfoSerializer: KSerializer<BaseParameterInfoStruct> {
 
         var relatedParametrID = 0
         var relatedDataCode = 0
+
+        val data = ""
 
         System.err.println("TEST deserialize BaseParametrInfoSerializer count ${string.length}")
         if (string.length >= 32) {
@@ -123,7 +126,9 @@ object BaseParametrInfoSerializer: KSerializer<BaseParameterInfoStruct> {
             additionalInfoSize = additionalInfoSize,
 
             relatedParametrID = relatedParametrID,
-            relatedDataCode = relatedDataCode
+            relatedDataCode = relatedDataCode,
+
+            data = data
         )
     }
 

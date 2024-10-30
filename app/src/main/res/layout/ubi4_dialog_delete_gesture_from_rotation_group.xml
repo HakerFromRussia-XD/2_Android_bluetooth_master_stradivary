@@ -38,8 +38,8 @@
                 android:textColor="@color/white"
                 android:textSize="17sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@+id/gl_andex_alert_dialog_layout_image_right2"
-                app:layout_constraintStart_toStartOf="@+id/gl_andex_alert_dialog_layout_image_left1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView

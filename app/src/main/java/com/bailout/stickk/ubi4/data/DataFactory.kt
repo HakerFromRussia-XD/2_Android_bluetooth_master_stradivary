@@ -1,10 +1,13 @@
 package com.bailout.stickk.ubi4.data
 
 
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.models.OneButtonItem
 import com.bailout.stickk.ubi4.models.PlotItem
@@ -19,7 +22,6 @@ internal class DataFactory {
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
         addElement(8, 2, objects, objects)
-//        addElement(8, objects, objects)
         return objects
     }
     fun fakeDataClear(): List<Any> {
@@ -31,6 +33,7 @@ internal class DataFactory {
         // сортировка всех виджетов по возрастанию
         sortWidgets(listWidgets.sortedWith ( compareBy {
             when (it) {
+                is BaseParameterWidgetEStruct -> {it.baseParameterWidgetStruct.widgetPosition}
                 is CommandParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
                 is CommandParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
                 is PlotParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
@@ -48,6 +51,16 @@ internal class DataFactory {
         val _listWidgets = ArrayList<Any>(setWidgets.size)
         setWidgets.forEach {
             when (it) {
+                is BaseParameterWidgetEStruct -> {
+                    if (it.baseParameterWidgetStruct.display == display) {
+                        addElement(
+                            it.baseParameterWidgetStruct.widgetCode,
+                            it.labelCode,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                }
                 is CommandParameterWidgetSStruct -> {
                     if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
                         addElementS(
@@ -132,6 +145,7 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
+            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)
@@ -157,6 +171,7 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
+            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)

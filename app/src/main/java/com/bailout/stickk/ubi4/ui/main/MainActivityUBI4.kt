@@ -14,7 +14,11 @@ import androidx.fragment.app.FragmentManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
+import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
@@ -23,14 +27,17 @@ import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
 
 
-class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
+@RequirePresenter(MainPresenter::class)
+class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4, TransmitterUBI4 {
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
@@ -51,16 +58,10 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         initAllVariables()
         BottomNavigationController(bottomNavigation = binding.bottomNavigation)
 
-        val tsLong = System.currentTimeMillis() / 1000
-        val ts = tsLong.toString()
-        Log.d("Timestamp", "ts = $ts")
-
         // инициализация блютуз
         mBLEController = BLEController(this)
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
-
-
 
         supportFragmentManager
             .beginTransaction()

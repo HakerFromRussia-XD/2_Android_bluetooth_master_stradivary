@@ -17,6 +17,9 @@ object PreferenceKeysUBI4 {
     const val END_PARAMETERS_ARRAY_KEY = 23654328
     const val CONNECTED_DEVICE_ADDRESS = "CONNECTED_DEVICE_ADDRESS"
     const val CONNECTED_DEVICE = "CONNECTED_DEVICE"
+    const val DEVICE_ID_IN_SYSTEM_UBI4 = "DEVICE_ID_IN_SYSTEM_UBI4"
+    const val PARAMETER_ID_IN_SYSTEM_UBI4 = "PARAMETER_ID_IN_SYSTEM_UBI4"
+    const val GESTURE_ID_IN_SYSTEM_UBI4 = "GESTURE_ID_IN_SYSTEM_UBI4"
 
     const val UBI4_MODE_ACTIVATED = "UBI4_MODE_ACTIVATED"
 
@@ -91,13 +94,16 @@ object PreferenceKeysUBI4 {
         PWCE_SLIDER (0x04),
         PWCE_PLOT (0x05),
         PWCE_SPINBOX (0x06), //окно ввода цифр со стрелочками инкриментации/декрементации
+
         PWCE_EMG_GESTURE_CHANGE_SETTINGS (0x07),
         PWCE_GESTURE_SETTINGS (0x08),
         PWCE_CALIB_STATUS (0x09),
         PWCE_CONTROL_MODE (0x0a),
         PWCE_OPEN_CLOSE_THRESHOLD (0x0b),
         PWCE_PLOT_AND_1_THRESHOLD (0x0c),
-        PWCE_PLOT_AND_2_THRESHOLD (0x0d)
+        PWCE_PLOT_AND_2_THRESHOLD (0x0d),
+
+        PWCE_GESTURES_WINDOW (0x0e)
     }
 
     enum class ParameterWidgetLabel(val number: Int, val label: String) {
@@ -198,5 +204,56 @@ object PreferenceKeysUBI4 {
         DTE_FEST_X_SETTINGS (0x0d),
 
         DTE_FREE_SLOT (0xff.toByte()),
+    }
+
+    enum class ParameterDataCodeEnum (val number: Int) {
+        PDCE_SIMPLE_COMMAND (0),
+        PDCE_ACTION_REQUEST (30),
+
+        //Global settings
+        PDCE_SELECT_GESTURE (1),          // uint8_t select_gesture;
+        PDCE_SELECT_PROFILE (2),          // uint8_t select_profile;
+        PDCE_GLOBAL_FORCE (3),            // uint8_t global_force;
+        PDCE_GLOBAL_SENSITIVITY (4),        // uint8_t global_sensitivity;
+        PDCE_GLOBAL_THRESHOLD (5),          // uint8_t global_threshold;
+
+        PDCE_UNIVERSAL_CONTROL_INPUT (6),
+        PDCE_OPEN_CLOSE_SIGNAL (7),                 // uint8_t open uint8_t close signal
+
+        PDCE_EMG_CH_1_3_VAL (8),
+        PDCE_EMG_CH_4_6_VAL (9),
+        PDCE_EMG_CH_7_9_VAL (10),
+
+        PDCE_EMG_CH_1_3_GAIN (11),
+        PDCE_EMG_CH_4_6_GAIN (12),
+        PDCE_EMG_CH_7_9_GAIN (13),
+
+        // Drive control set group
+        PDCE_MOVE_DRIVE_PERCENT (14),          //int8_t move_drive[DRIVE_NUM]; // drive forward: 1-100(speed percent) | drive stop 0 | drive reverse: (-1)-(-100)(speed percent)
+        PDCE_TARGET_DRIVE_POSITION_PERCENT (15),    //int8_t drive_pos[DRIVE_NUM]; // drive forward: 0-100(pos percent) 0 - open, 100-close
+        PDCE_TARGET_DRIVE_SPEED_PERCENT (16),      //
+        PDCE_TARGET_DRIVE_FORCE_PERCENT (17),      //
+
+        // Drive control get group
+        PDCE_CURRENT_DRIVE_POSITION (18),      //
+        PDCE_CURRENT_DRIVE_CURRENT_UINT8 (19),    //
+        PDCE_CURRENT_DRIVE_CURRENT_UINT16 (20),    //
+        PDCE_CURRENT_DRIVE_FORCE_UINT8 (21),    //
+        PDCE_CURRENT_DRIVE_FORCE_UINT16 (22),    //
+
+        PDCE_GESTURES_CHANGE_SETTINGS (23),        //
+        PDCE_CONTROL_MODE_SETTINGS (24),        //
+        PDCE_DRIVE_SETTINGS (25),            //
+        PDCE_OPEN_CLOSE_THRESHOLD (26),          // open_close_threshold_param_struct
+
+        PDCE_CALIB_STATUS (27),              //
+        PDCE_CURRENT_LIMITS (28),            //
+        PDCE_BMS_STATUS_COMBINED_PARAM (29),             //
+        PDCE_GESTURE_SETTINGS (31),
+        PDCE_GESTURE_GROUP (32),
+        PDCE_OPTIC_LEARNING_DATA (33),
+        PDCE_EMG_ENV_E_VAL (34),
+        PDCE_DMS_OUTPUT (35),
+        PDCE_DATE_AND_TIME (36)
     }
 }

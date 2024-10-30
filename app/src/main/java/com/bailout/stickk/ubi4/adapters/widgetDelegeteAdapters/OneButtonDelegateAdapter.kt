@@ -8,10 +8,12 @@ import com.bailout.stickk.ubi4.adapters.models.OneButtonItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
+import java.io.File
 
 class OneButtonDelegateAdapter(
     val onButtonPressed: (parameterID: Int, command: Int) -> Unit,
-    val onButtonReleased: (parameterID: Int, command: Int) -> Unit) :
+    val onButtonReleased: (parameterID: Int, command: Int) -> Unit,
+) :
     ViewBindingDelegateAdapter<OneButtonItem, Ubi4Widget1ButtonBinding>(Ubi4Widget1ButtonBinding::inflate) {
 
     @SuppressLint("ClickableViewAccessibility")
@@ -25,13 +27,16 @@ class OneButtonDelegateAdapter(
 
         when (item.widget) {
             is CommandParameterWidgetEStruct -> {
-                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID
+                parameterID =
+                    item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand
             }
+
             is CommandParameterWidgetSStruct -> {
-                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parentParameterID
+                parameterID =
+                    item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parentParameterID
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand
@@ -39,13 +44,20 @@ class OneButtonDelegateAdapter(
         }
         widget1Button.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
             if (clickCommand == 0) {
-                when (motionEvent.action){
-                    MotionEvent.ACTION_DOWN -> { onButtonPressed(parameterID, pressedCommand) }
-                    MotionEvent.ACTION_UP -> { onButtonReleased(parameterID, releasedCommand) }
+                when (motionEvent.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        onButtonPressed(parameterID, pressedCommand)
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        onButtonReleased(parameterID, releasedCommand)
+                    }
                 }
             } else {
-                when (motionEvent.action){
-                    MotionEvent.ACTION_UP -> { onButtonReleased(parameterID, clickCommand) }
+                when (motionEvent.action) {
+                    MotionEvent.ACTION_UP -> {
+                        onButtonReleased(parameterID, clickCommand)
+                    }
                 }
             }
 

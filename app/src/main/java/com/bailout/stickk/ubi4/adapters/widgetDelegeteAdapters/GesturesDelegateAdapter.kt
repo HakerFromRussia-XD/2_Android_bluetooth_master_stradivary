@@ -55,15 +55,6 @@ class GesturesDelegateAdapter(
 
     )
 
-    fun removeGesture(gestureTitle: String) {
-        // Ищем все привязки этого жеста и очищаем их
-        listBindingGesture.forEach { bindingGestureItem ->
-            if (bindingGestureItem.nameOfUserGesture == gestureTitle) {
-                bindingGestureItem.nameOfUserGesture = ""
-            }
-        }
-
-    }
 
     @SuppressLint("ClickableViewAccessibility", "LogNotTimber")
     override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {

@@ -58,12 +58,9 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
 
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragmentContainer, SprGestureFragment())
+            .add(R.id.fragmentContainer, SprTrainingFragment())
             .commit()
 
-//            .beginTransaction()
-//            .add(R.id.fragmentContainer, SprGestureFragment())
-//            .commit()
     }
     @SuppressLint("MissingPermission")
     override fun onResume() {

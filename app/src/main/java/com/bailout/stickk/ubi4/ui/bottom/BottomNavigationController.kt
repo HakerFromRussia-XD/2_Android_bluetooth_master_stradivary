@@ -26,7 +26,7 @@ class BottomNavigationController(bottomNavigation: BottomNavigationView) {
                 }
 
                 R.id.page_3 -> {
-//                    loadFragment(NotificationsFragment.newInstance())
+ //                  loadFragment(NotificationsFragment.newInstance())
                     System.err.println("bottomNavigation item3")
                     return@setOnItemSelectedListener true
                 }

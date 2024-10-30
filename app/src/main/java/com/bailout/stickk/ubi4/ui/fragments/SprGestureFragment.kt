@@ -8,14 +8,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
-import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
+import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.models.BindingGestureItem
@@ -45,7 +44,7 @@ import kotlinx.coroutines.withContext
 
 @Suppress("DEPRECATION")
 class SprGestureFragment() : Fragment() {
-    private lateinit var binding: Ubi4FragmentHomeBinding
+    private lateinit var binding: Ubi4FragmentSprGesturesBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
@@ -60,11 +59,14 @@ class SprGestureFragment() : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
+        binding = Ubi4FragmentSprGesturesBinding.inflate(inflater, container, false)
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
 
+        //настоящие виджеты
+//        widgetListUpdater()
+        //фейковые виджеты
         adapterWidgets.swapData(mDataFactory.fakeData())
 
 
@@ -74,8 +76,8 @@ class SprGestureFragment() : Fragment() {
         binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
 
 
-        binding.homeRv.layoutManager = LinearLayoutManager(context)
-        binding.homeRv.adapter = adapterWidgets
+        binding.sprGesturesRv.layoutManager = LinearLayoutManager(context)
+        binding.sprGesturesRv.adapter = adapterWidgets
         return binding.root
     }
 

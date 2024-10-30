@@ -1,14 +1,35 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
 import android.annotation.SuppressLint
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
 import android.os.SystemClock
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Chronometer
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
+import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
+import com.bailout.stickk.databinding.Ubi4FragmentSprTrainingBinding
+import com.bailout.stickk.ubi4.adapters.models.DataFactory
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
+import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.contract.transmitter
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
+import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.Hyperparameters.AUTO_SHIFT_RANGE
 import com.bailout.stickk.ubi4.utility.Hyperparameters.BATCH_SIZE
 import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_START_FEATURES
@@ -22,9 +43,12 @@ import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_TIMESTEPS
 import com.bailout.stickk.ubi4.utility.Hyperparameters.N_EMG_CH
 import com.bailout.stickk.ubi4.utility.Hyperparameters.N_LP_ALPHAS
 import com.bailout.stickk.ubi4.utility.Hyperparameters.N_OMG_CH
+import com.bailout.stickk.ubi4.utility.Hyperparameters.SCALE_EMG
 import com.bailout.stickk.ubi4.utility.Hyperparameters.SCALE_OMG
 import com.bailout.stickk.ubi4.utility.Hyperparameters.USE_EMG
 import com.bailout.stickk.ubi4.utility.Hyperparameters.WIN_SHIFT
+import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
+import com.simform.refresh.SSPullToRefreshLayout
 import org.tensorflow.lite.Interpreter
 import java.io.File
 import java.io.FileInputStream
@@ -34,23 +58,97 @@ import java.nio.channels.FileChannel
 import java.util.Vector
 
 
-class SprTrainingFragment : Fragment(R.layout.ubi4_fragment_spr_training) {
+class SprTrainingFragment : Fragment() {
+    private lateinit var binding: Ubi4FragmentSprTrainingBinding
+    private var main: MainActivityUBI4? = null
+    private var mDataFactory: DataFactory = DataFactory()
 
     private lateinit var tflite: Interpreter
     private lateinit var modelInfo: String
     private var thread: Thread = Thread()
+    private val path: File by lazy {
+        requireContext().getExternalFilesDir(null)
+            ?: throw IllegalStateException("External files directory not available")
+    }
+    private lateinit var preprocessedX: Array<FloatArray>
+    private lateinit var targetArray: Array<FloatArray>
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = Ubi4FragmentSprTrainingBinding.inflate(inflater, container, false)
+        if (activity != null) {
+            main = activity as MainActivityUBI4?
+        }
+
+        //настоящие виджеты
+//        widgetListUpdater()
+        //фейковые виджеты
+        adapterWidgets.swapData(mDataFactory.fakeData())
+
+
+        binding.refreshLayout.setLottieAnimation("loader_3.json")
+        binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
+        binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
+        binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
+
+
+        binding.sprTrainingRv.layoutManager = LinearLayoutManager(context)
+        binding.sprTrainingRv.adapter = adapterWidgets
+        return binding.root
+    }
+
+    private fun refreshWidgetsList() {
+        graphThreadFlag = false
+        transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
+        //TODO только для демонстрации
+        Handler().postDelayed({
+            binding.refreshLayout.setRefreshing(false)
+        }, 1000)
+    }
+
+    private val adapterWidgets = CompositeDelegateAdapter(
+        PlotDelegateAdapter(
+            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+        ),
+        OneButtonDelegateAdapter(
+            onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
+            onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
+        ),
+        GesturesDelegateAdapter(
+            onSelectorClick = {},
+            onAddGesturesToSprScreen = { onSaveClickDialog, listSprItem, bindingGestureList ->
+                {}
+            },
+            onsetCustomGesture = { _, _, _ -> }
+
+        ),
+        TrainingFragmentDelegateAdapter(
+
+            onConfirmClick = { showConfirmTrainingDialog {
+
+            } }
+
+        )
+    )
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val path = requireContext().getExternalFilesDir(null)
+
+//        path = requireContext().getExternalFilesDir(null)
+//            ?: throw IllegalStateException("External files directory not available")
         val modelFile = File(path, "model.ckpt")
 
         //////////////////////////// [LOAD DATA] /////////////////////////////
         val assetManager = requireContext().assets
         val importData = mutableListOf<List<String>>()
 
-        assetManager.open("2024-10-10_18-10-11.csv").bufferedReader().useLines { lines ->
+        assetManager.open("2024-10-28_12-43-48.emg8").bufferedReader().useLines { lines ->
             // drop header
             lines.drop(1).forEach { line ->
                 val lineData = line.split(" ")
@@ -89,7 +187,7 @@ class SprTrainingFragment : Fragment(R.layout.ubi4_fragment_spr_training) {
 
         println()
         // Log initFeatures to file
-        val logFileData = File(path, "log_2024-10-10_18-10-11.csv")
+        val logFileData = File(path, "log_2024-10-28_12-43-48.emg8")
         logFileData.bufferedWriter().use { writer ->
             for (row in renumeratedImportData) {
                 writer.write(row.joinToString(" "))
@@ -137,12 +235,13 @@ class SprTrainingFragment : Fragment(R.layout.ubi4_fragment_spr_training) {
             }
         }
 
-        val targetArray = Array(initFeatures.size) { FloatArray(NUM_CLASSES) }
+        targetArray = Array(initFeatures.size) { FloatArray(NUM_CLASSES) }
         for (i in 0 until initFeatures.size) {
             targetArray[i][targetArray1D[i]] = 1.0f
         }
 
-        val preprocessedX = Array(initFeatures.size) { FloatArray(NUM_FEATURES) }
+        preprocessedX = Array(initFeatures.size) { FloatArray(NUM_FEATURES) }
+
         var n_lp_ch = N_OMG_CH
         if (USE_EMG) {
             n_lp_ch += N_EMG_CH
@@ -155,11 +254,11 @@ class SprTrainingFragment : Fragment(R.layout.ubi4_fragment_spr_training) {
             for (k in 0 until N_OMG_CH) {
                 x_features[k] = initFeatures[i][k] / SCALE_OMG
             }
-//            if (USE_EMG) {
-//                for (k in 0 until N_EMG_CH) {
-//                    x_features[N_OMG_CH + k] = initFeatures[i][N_OMG_CH + k]
-//                }
-//            }
+            if (USE_EMG) {
+                for (k in 0 until N_EMG_CH) {
+                    x_features[N_OMG_CH + k] = initFeatures[i][N_OMG_CH + k] / SCALE_EMG
+                }
+            }
             // HP compute
             for (j in 0 until N_LP_ALPHAS) {
                 for (k in 0 until n_lp_ch) {
@@ -195,15 +294,6 @@ class SprTrainingFragment : Fragment(R.layout.ubi4_fragment_spr_training) {
         println("Loaded data hase ${preprocessedX.size} rows and ${initFeatures[0].size} columns")
         ///////////////////////// [\PREPROCESS DATA] /////////////////////////
 
-        // Load the model file
-        modelFile.writeBytes(requireContext().assets.open("model.ckpt").readBytes())
-        tflite = loadModelFile("model.tflite")
-        modelInfo = getModelInfo(tflite)
-
-        // Setup buttons for actions
-        view.findViewById<Button>(R.id.btnTrain).setOnClickListener {
-            runModel(path, preprocessedX, targetArray)
-        }
 
         //////////////////////////// [LOAD MODEL] ////////////////////////////
         // Import prior weights from a checkpoint file.
@@ -224,9 +314,10 @@ class SprTrainingFragment : Fragment(R.layout.ubi4_fragment_spr_training) {
         Log.i("parse", data.toString())
 
         //////////////////////////// [WORK WITH MODEL] /////////////////////////////
-        runModel(path, preprocessedX, targetArray)
-        val btnTrain = view.findViewById<Button>(R.id.btnTrain)
-        btnTrain.setOnClickListener { runModel(path, preprocessedX, targetArray) }
+        runModel()
+        //val btnTrain = view.findViewById<Button>(R.id.btnTrain)
+
+        //btnTrain.setOnClickListener { runModel() }
         //////////////////////////// [\WORK WITH MODEL] ////////////////////////////
 //        view.findViewById<Button>(R.id.btnValidate).setOnClickListener {
 //            validate()
@@ -235,6 +326,52 @@ class SprTrainingFragment : Fragment(R.layout.ubi4_fragment_spr_training) {
 
     private fun validate() {
         // Validation logic here
+    }
+
+
+    @SuppressLint("MissingInflatedId")
+    fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
+        val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_training, null)
+        val myDialog = Dialog(requireContext())
+        myDialog.setContentView(dialogBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+
+        val cancelBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogTrainingCancelBtn)
+        cancelBtn.setOnClickListener {
+            myDialog.dismiss()
+        }
+
+        val confirmBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogConfirmTrainingBtn)
+        confirmBtn.setOnClickListener {
+            myDialog.dismiss()
+            confirmClick()
+        }
+
+
+    }
+
+    private fun oneButtonPressed(parameterID: Int, command: Int) {
+        System.err.println("oneButtonPressed    parameterID: $parameterID   command: $command")
+        transmitter().bleCommand(
+            BLECommands.oneButtonCommand(parameterID, command),
+            MAIN_CHANNEL,
+            WRITE
+        )
+    }
+
+    private fun oneButtonReleased(parameterID: Int, command: Int) {
+        System.err.println("oneButtonReleased    parameterID: $parameterID   command: $command")
+        BLECommands.requestSubDevices().forEach { i ->
+            System.err.println("oneButtonReleased ${castUnsignedCharToInt(i)}")
+        }
+
+        transmitter().bleCommand(
+            BLECommands.requestSubDeviceParametrs(6, 0, 2),
+            MAIN_CHANNEL,
+            WRITE
+        )
     }
 
     private fun loadModelFile(modelPath: String): Interpreter {
@@ -312,11 +449,7 @@ class SprTrainingFragment : Fragment(R.layout.ubi4_fragment_spr_training) {
         return data
     }
 
-    private fun runModel(
-        path: File?,
-        preprocessedX: Array<FloatArray>,
-        targetArray: Array<FloatArray>
-    ) {
+    private fun runModel() {
         if (!thread.isAlive) {
             thread = Thread {
                 train(path, preprocessedX, targetArray)

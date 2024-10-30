@@ -97,7 +97,8 @@ object PreferenceKeysUBI4 {
         PWCE_CONTROL_MODE (0x0a),
         PWCE_OPEN_CLOSE_THRESHOLD (0x0b),
         PWCE_PLOT_AND_1_THRESHOLD (0x0c),
-        PWCE_PLOT_AND_2_THRESHOLD (0x0d)
+        PWCE_PLOT_AND_2_THRESHOLD (0x0d),
+        PWCE_TRAINING (0x0e)
     }
 
     enum class ParameterWidgetLabel(val number: Byte) {

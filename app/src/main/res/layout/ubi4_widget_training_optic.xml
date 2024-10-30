@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/ubi4_back"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/trainingTitleTv"
+        android:layout_width="311dp"
+        android:layout_height="wrap_content"
+        android:text="Let's start training SPR"
+        android:layout_marginTop="12dp"
+        android:textSize="22sp"
+        android:textAlignment="center"
+        android:fontFamily="@font/sf_pro_text_bold"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+    <TextView
+        android:id="@+id/trainingSubTitleTv"
+        android:layout_width="311dp"
+        android:layout_height="44dp"
+        android:text="Follow the gestures on the screen and keep track of the time"
+        android:layout_marginTop="12dp"
+        android:textSize="15sp"
+        android:textAlignment="center"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="34dp"
+        android:fontFamily="@font/sf_pro_display_light"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/trainingTitleTv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+    <ImageView
+        android:id="@+id/trainingAnnotationIv"
+        android:layout_width="195dp"
+        android:layout_height="342dp"
+        android:layout_marginTop="44dp"
+        android:src="@drawable/testimageannotation"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/trainingSubTitleTv" />
+
+    <View
+        android:id="@+id/trainingBtn"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="68dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/ubi4_viwe_with_corners_white"
+        android:elevation="3dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/trainingAnnotationIv" />
+
+    <TextView
+        android:id="@+id/trainingBtnTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:fontFamily="@font/sf_pro_text_bold"
+        android:text="@string/training"
+        android:textColor="@color/ubi4_dark_back"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@id/trainingBtn"
+        app:layout_constraintEnd_toEndOf="@id/trainingBtn"
+        app:layout_constraintStart_toStartOf="@id/trainingBtn"
+        app:layout_constraintTop_toTopOf="@id/trainingBtn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

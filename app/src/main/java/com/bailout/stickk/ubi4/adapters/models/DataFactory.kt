@@ -11,8 +11,8 @@ internal class DataFactory {
 
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
-        addElement(8, objects, objects)
         //addElement(8, objects, objects)
+        addElementS(14, label = "Start training", objects,objects)
         return objects
     }
     fun fakeDataClear(): List<Any> {
@@ -88,6 +88,33 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
+            else -> { OneButtonItem("Open", "description", widget) }
+        }
+        widgets.add(item)
+    }
+
+    private fun addElementS(widgetCode: Int, label: String, widgets: ArrayList<Any>, widget: Any) {
+        val item: Any = when (widgetCode) {
+            ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { OneButtonItem("PWCE_UNKNOW", "Description", widget) }
+            ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
+                OneButtonItem(label, "description", widget)
+            }
+            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { OneButtonItem("SWITCH", "description", widget) }
+            ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
+            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { OneButtonItem("SLIDER", "description", widget) }
+            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem(label, widget)  }
+            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
+            ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
+            ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
+//                OneButtonItem("GESTURE_SETTINGS", "description", widget)
+                GesturesItem("GESTURE_SETTINGS", widget)
+            }
+            ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { OneButtonItem("CALIB_STATUS", "description", widget)  }
+            ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { OneButtonItem("CONTROL_MODE", "description", widget)  }
+            ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
+            ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
+            ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
+            ParameterWidgetCode.PWCE_TRAINING.number.toInt() -> { TrainingGestureItem(label, widget)  }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)

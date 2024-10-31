@@ -25,13 +25,13 @@
 
             <TextView
                 android:id="@+id/ubi4DialogConfirmTrainingTitleTv"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:paddingBottom="16dp"
-                android:fontFamily="@font/sf_pro_text_bold"
+                android:fontFamily="@font/sf_pro_display_light"
                 android:gravity="center"
                 android:maxLines="3"
                 android:text="Are you sure you want to start training?"

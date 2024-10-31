@@ -128,9 +128,12 @@ class SprTrainingFragment : Fragment() {
         ),
         TrainingFragmentDelegateAdapter(
 
-            onConfirmClick = { showConfirmTrainingDialog {
-
-            } }
+            onConfirmClick = {
+                showConfirmTrainingDialog {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, MotionTrainingFragment()).commit()
+                }
+            }
 
         )
     )
@@ -314,7 +317,7 @@ class SprTrainingFragment : Fragment() {
         Log.i("parse", data.toString())
 
         //////////////////////////// [WORK WITH MODEL] /////////////////////////////
-        runModel()
+            //runModel()
         //val btnTrain = view.findViewById<Button>(R.id.btnTrain)
 
         //btnTrain.setOnClickListener { runModel() }
@@ -511,7 +514,7 @@ class SprTrainingFragment : Fragment() {
         val epochsTimerArr = Vector<Number>()
 
         for (epoch in 0 until NUM_EPOCHS) {
-            val epochsTimer = Chronometer(requireContext())
+            val epochsTimer = Chronometer(context)
             epochsTimer.base = SystemClock.elapsedRealtime()
             epochsTimer.start()
             val shuffledIndexes = indexes.shuffled()
@@ -535,7 +538,7 @@ class SprTrainingFragment : Fragment() {
             }
 
             for (batchIdx in 0 until num_batches) {
-                val batchesTimer = Chronometer(requireContext())
+                val batchesTimer = Chronometer(context)
                 batchesTimer.base = SystemClock.elapsedRealtime()
                 batchesTimer.start()
 

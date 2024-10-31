@@ -550,7 +550,8 @@
     <string name="annotation_main_text">Here you can select gestures for everyday use in the rotation group</string>
     <string name="toast_notification_gesture_in_use">This gesture is already in use. Choose another.</string>
     <string name="training">Training</string>
-
+    <string name="you_can_now_customize_your_gestures">You can now customize your gestures</string>
+    <string name="training_completed">Training completed</string>
 
 
     <string-array name="numbers">

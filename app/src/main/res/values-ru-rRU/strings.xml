@@ -552,7 +552,8 @@
     <string name="annotation_main_text">Здесь можно выбрать жесты для повседневного использования в группе ротации</string>
     <string name="toast_notification_gesture_in_use">Этот жест уже используется. Выберите другой.</string>
     <string name="training">Обучение</string>
-
+    <string name="you_can_now_customize_your_gestures">Теперь вы можете настроить ваши жесты</string>
+    <string name="training_completed">Обучение завершено</string>
 
 
     <string-array name="numbers">

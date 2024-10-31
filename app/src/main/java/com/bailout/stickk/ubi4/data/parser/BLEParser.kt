@@ -22,6 +22,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.Additio
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseSubDevicesInfoStructSet
@@ -42,6 +43,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import kotlin.experimental.and
 
 class BLEParser(main: AppCompatActivity) {
@@ -59,7 +61,7 @@ class BLEParser(main: AppCompatActivity) {
             val dataTransmissionDirection = data[0]
             val bridgeIndicator = castUnsignedCharToInt(data[0] and 0b10000000.toByte())/128
             val requestType = castUnsignedCharToInt(data[0] and 0b01000000.toByte())/64
-//            val requestType = 1
+            val waitingAnsver = castUnsignedCharToInt(data[0] and 0b00100000.toByte())/32
             val codeRequest = if (data.size > 1) data[1] else 0
             val dataLength = if (data.size > 3) { castUnsignedCharToInt(data[3]) + castUnsignedCharToInt(data[4])*256} else 0
             val CRC = if (data.size > 5) castUnsignedCharToInt(data[5]) else 0
@@ -69,14 +71,10 @@ class BLEParser(main: AppCompatActivity) {
             System.err.println("BLE debug TEST displayFirstNotify data.size = ${data.size}  $receiveDataString  requestType=$requestType")
 
             if (requestType == 1) {
-//            if (bridgeIndicator == 1) {
                 // парсим параметры
                 val parameterID = codeRequest.toInt()
-
-                Log.d("ParameterProviderTest", "до изменения ${ParameterProvider.getParameter(deviceAddress, parameterID)}")
-                ParameterProvider.getParameter(deviceAddress, parameterID).data = "0100"
-                Log.d("ParameterProviderTest", "после изменения ${ParameterProvider.getParameter(deviceAddress, parameterID)}")
-
+                ParameterProvider.getParameter(deviceAddress, parameterID).data = receiveDataString.substring(HEADER_BLE_OFFSET*2, receiveDataString.length)
+                uplateAllUI(ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)
             } else {
                 // парсим команды
                 when (codeRequest){
@@ -100,12 +98,19 @@ class BLEParser(main: AppCompatActivity) {
                         System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER data.size = ${data.size}   dataLength = $dataLength")
                         dataLength
 
+
 //                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]))
 //                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]),castUnsignedCharToInt(data[11]),castUnsignedCharToInt(data[12]),castUnsignedCharToInt(data[13]),castUnsignedCharToInt(data[14]))
                         plotArrayFlow.value = plotArray
                     }
                 }
             }
+        }
+    }
+
+    private fun uplateAllUI(dataCode: Int) {
+        when (dataCode) {
+            ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> { RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(0) }
         }
     }
 

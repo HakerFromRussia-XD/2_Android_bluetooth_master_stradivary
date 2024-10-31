@@ -12,10 +12,13 @@ public class RxUpdateMainEventUbi4 {
   private final PublishSubject<FingerAngle> fingerAngle;
   private final PublishSubject<GestureWithAddress> gestureStateWithEncoders;
 
+  // ui
+  private final PublishSubject<Integer> uiGestureSettings;
 
   private RxUpdateMainEventUbi4() {
     fingerAngle = PublishSubject.create();
     gestureStateWithEncoders = PublishSubject.create();
+    uiGestureSettings = PublishSubject.create();
   }
   public static RxUpdateMainEventUbi4 getInstance() {
     if (instance == null) {
@@ -26,8 +29,10 @@ public class RxUpdateMainEventUbi4 {
 
   public void updateFingerAngle(FingerAngle parameters) { fingerAngle.onNext(parameters); }
   public void updateGestureWithEncodersState(GestureWithAddress parameters) { gestureStateWithEncoders.onNext(parameters); }
+  public void updateUiGestureSettings(Integer parameters) { uiGestureSettings.onNext(parameters); }
 
 
   public Observable<FingerAngle> getFingerAngleObservable() { return fingerAngle; }
   public Observable<GestureWithAddress> getGestureStateWithEncodersObservable() { return gestureStateWithEncoders; }
+  public Observable<Integer> getUiGestureSettingsObservable() { return uiGestureSettings; }
 }

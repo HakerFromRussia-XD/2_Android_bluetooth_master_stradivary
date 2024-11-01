@@ -126,7 +126,7 @@
             <View
                 android:id="@+id/ubi4DialogRotationGroupCancelBtn"
                 android:layout_width="0dp"
-                android:layout_height="46dp"
+                android:layout_height="52dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"

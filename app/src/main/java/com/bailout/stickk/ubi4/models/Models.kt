@@ -1,5 +1,7 @@
 package com.bailout.stickk.ubi4.models
 
+import com.bailout.stickk.ubi4.data.local.Gesture
+
 
 data class DialogGestureItem(val title: String, val check: Boolean)
 data class GesturesItem(val title: String, val widget: Any)
@@ -18,23 +20,11 @@ data class RotationGroup (
     val gesture8Id: Int, val gesture8ImageId: Int,
 )
 
+data class GestureInfo (
+    val deviceAddress: Int, val parameterID: Int, val gestureID: Int
+)
 data class GestureWithAddress (
     val deviceAddress: Int, val parameterID: Int,
-    val gesture: Gesture
-)
-data class Gesture (
-    val gestureId: Int,
-    val openPosition1: Int, val openPosition2: Int,
-    val openPosition3: Int, val openPosition4: Int,
-    val openPosition5: Int, val openPosition6: Int,
-    val closePosition1: Int, val closePosition2: Int,
-    val closePosition3: Int, val closePosition4: Int,
-    val closePosition5: Int, val closePosition6: Int,
-    val openToCloseTimeShift1: Int, val openToCloseTimeShift2: Int,
-    val openToCloseTimeShift3: Int, val openToCloseTimeShift4: Int,
-    val openToCloseTimeShift5: Int, val openToCloseTimeShift6: Int,
-    val closeToOpenTimeShift1: Int, val closeToOpenTimeShift2: Int,
-    val closeToOpenTimeShift3: Int, val closeToOpenTimeShift4: Int,
-    val closeToOpenTimeShift5: Int, val closeToOpenTimeShift6: Int
+    val gesture: Gesture, val gestureState: Int
 )
 

@@ -185,9 +185,10 @@
     <string name="rotation_state_open">outside</string>
     <string name="rotation_state_close">inside</string>
     <string name="gesture_state_open">open state</string>
-    <string name="delay_state_open">Setting open finger delays</string>
+    <string name="delay_state">Setting delays</string>
+    <string name="delay_state_open_description">Finger delays when moving from open to closed state</string>
     <string name="gesture_state_close">off-state</string>
-    <string name="delay_state_close">Setting close finger delays</string>
+    <string name="delay_state_close_description">Setting close finger delays</string>
     <string name="prostheses_calibrating">Prostheses calibrating</string>
     <string name="waiting">waiting…</string>
     <string name="get">get</string>

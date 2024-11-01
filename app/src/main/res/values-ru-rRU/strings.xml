@@ -186,9 +186,10 @@
     <string name="rotation_state_open">наружу</string>
     <string name="rotation_state_close">внутрь</string>
     <string name="gesture_state_open">открытое</string>
-    <string name="delay_state_open">Настройка задержек пальцев открытого состояния</string>
+    <string name="delay_state">Задержки пальцев</string>
+    <string name="delay_state_open_description">Настройка задержек пальцев при переходе из открытого состояния в закрытое</string>
     <string name="gesture_state_close">закрытое</string>
-    <string name="delay_state_close">Настройка задержек пальцев закрытого состояния</string>
+    <string name="delay_state_close_description">Настройка задержек пальцев при переходе из закрытого состояния в отрытое</string>
     <string name="prostheses_calibrating">Калибровка протеза</string>
     <string name="waiting">ожидайте…</string>
     <string name="get">считать</string>

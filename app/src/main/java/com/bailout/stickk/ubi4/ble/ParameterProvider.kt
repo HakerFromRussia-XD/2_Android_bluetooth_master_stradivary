@@ -24,5 +24,14 @@ class ParameterProvider {
             }
             return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, "")
         }
+
+        fun getParameter(dataCode: Int): BaseParameterInfoStruct {
+            baseSubDevicesInfoStructSet.forEach { subDevice ->
+                subDevice.parametersList.forEach { parameter ->
+                    if (parameter.dataCode == dataCode) return parameter
+                }
+            }
+            return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, "")
+        }
     }
 }

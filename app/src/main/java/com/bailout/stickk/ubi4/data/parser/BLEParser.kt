@@ -72,6 +72,7 @@ class BLEParser(main: AppCompatActivity) {
 
             if (requestType == 1) {
                 // парсим параметры
+                Log.d("uiGestureSettingsObservable", "парсим параметры вход")
                 val parameterID = codeRequest.toInt()
                 ParameterProvider.getParameter(deviceAddress, parameterID).data = receiveDataString.substring(HEADER_BLE_OFFSET*2, receiveDataString.length)
                 uplateAllUI(ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)
@@ -109,8 +110,9 @@ class BLEParser(main: AppCompatActivity) {
     }
 
     private fun uplateAllUI(dataCode: Int) {
+        Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
         when (dataCode) {
-            ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> { RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(0) }
+            ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> { RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(dataCode) }
         }
     }
 

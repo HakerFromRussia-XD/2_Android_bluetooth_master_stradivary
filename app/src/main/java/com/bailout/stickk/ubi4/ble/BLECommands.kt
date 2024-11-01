@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.ble
 
-import com.bailout.stickk.ubi4.models.Gesture
+import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.models.GestureWithAddress
 import com.bailout.stickk.ubi4.models.RotationGroup
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands.DATA_MANAGER
@@ -238,8 +239,8 @@ class BLECommands {
             val result = header + data
             return result
         }
-        fun sendGestureInfo(addressDevice: Int, parameterID: Int, gesture: Gesture): ByteArray {
-            val code:Byte = (128 + parameterID).toByte()
+        fun sendGestureInfo(gestureWithAddress: GestureWithAddress): ByteArray {
+            val code:Byte = (128 + gestureWithAddress.parameterID).toByte()
             val header = byteArrayOf(
                 0x60,
                 code,
@@ -247,34 +248,35 @@ class BLECommands {
                 0x00,
                 0x00,
                 0x00,
-                addressDevice.toByte()
+                gestureWithAddress.deviceAddress.toByte()
             )
             val data = byteArrayOf(
-                gesture.gestureId.toByte(),
-                gesture.openPosition1.toByte(),
-                gesture.openPosition2.toByte(),
-                gesture.openPosition3.toByte(),
-                gesture.openPosition4.toByte(),
-                gesture.openPosition5.toByte(),
-                gesture.openPosition6.toByte(),
-                gesture.closePosition1.toByte(),
-                gesture.closePosition2.toByte(),
-                gesture.closePosition3.toByte(),
-                gesture.closePosition4.toByte(),
-                gesture.closePosition5.toByte(),
-                gesture.closePosition6.toByte(),
-                gesture.openToCloseTimeShift1.toByte(),
-                gesture.openToCloseTimeShift2.toByte(),
-                gesture.openToCloseTimeShift3.toByte(),
-                gesture.openToCloseTimeShift4.toByte(),
-                gesture.openToCloseTimeShift5.toByte(),
-                gesture.openToCloseTimeShift6.toByte(),
-                gesture.closeToOpenTimeShift1.toByte(),
-                gesture.closeToOpenTimeShift2.toByte(),
-                gesture.closeToOpenTimeShift3.toByte(),
-                gesture.closeToOpenTimeShift4.toByte(),
-                gesture.closeToOpenTimeShift5.toByte(),
-                gesture.closeToOpenTimeShift6.toByte(),
+                gestureWithAddress.gesture.gestureId.toByte(),
+                gestureWithAddress.gesture.openPosition1.toByte(),
+                gestureWithAddress.gesture.openPosition2.toByte(),
+                gestureWithAddress.gesture.openPosition3.toByte(),
+                gestureWithAddress.gesture.openPosition4.toByte(),
+                gestureWithAddress.gesture.openPosition5.toByte(),
+                gestureWithAddress.gesture.openPosition6.toByte(),
+                gestureWithAddress.gesture.closePosition1.toByte(),
+                gestureWithAddress.gesture.closePosition2.toByte(),
+                gestureWithAddress.gesture.closePosition3.toByte(),
+                gestureWithAddress.gesture.closePosition4.toByte(),
+                gestureWithAddress.gesture.closePosition5.toByte(),
+                gestureWithAddress.gesture.closePosition6.toByte(),
+                gestureWithAddress.gesture.openToCloseTimeShift1.toByte(),
+                gestureWithAddress.gesture.openToCloseTimeShift2.toByte(),
+                gestureWithAddress.gesture.openToCloseTimeShift3.toByte(),
+                gestureWithAddress.gesture.openToCloseTimeShift4.toByte(),
+                gestureWithAddress.gesture.openToCloseTimeShift5.toByte(),
+                gestureWithAddress.gesture.openToCloseTimeShift6.toByte(),
+                gestureWithAddress.gesture.closeToOpenTimeShift1.toByte(),
+                gestureWithAddress.gesture.closeToOpenTimeShift2.toByte(),
+                gestureWithAddress.gesture.closeToOpenTimeShift3.toByte(),
+                gestureWithAddress.gesture.closeToOpenTimeShift4.toByte(),
+                gestureWithAddress.gesture.closeToOpenTimeShift5.toByte(),
+                gestureWithAddress.gesture.closeToOpenTimeShift6.toByte(),
+                gestureWithAddress.gestureState.toByte(),
             )
             header[3] = data.size.toByte()
             header[4] = (data.size/256).toByte()

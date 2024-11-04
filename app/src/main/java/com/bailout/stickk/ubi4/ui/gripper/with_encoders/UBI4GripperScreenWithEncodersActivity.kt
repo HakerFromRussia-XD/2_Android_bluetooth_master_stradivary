@@ -985,12 +985,4 @@ class UBI4GripperScreenWithEncodersActivity
                 PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 6, 0)
         }
     }
-//    private fun myLoadGesturesList() {
-//        val text = "load not work"
-//        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, text)
-//        System.err.println("7 LAST_CONNECTION_MAC: $macKey")
-//        for (i in 0 until PreferenceKeys.NUM_GESTURES) {
-//            gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM  + macKey + i, text).toString())
-//        }
-//    }
 }

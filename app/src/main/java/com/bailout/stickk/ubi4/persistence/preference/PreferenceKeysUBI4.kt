@@ -256,4 +256,37 @@ object PreferenceKeysUBI4 {
         PDCE_DMS_OUTPUT (35),
         PDCE_DATE_AND_TIME (36)
     }
+
+    enum class GestureEnum (val number: Int) {
+        GESTURE_NO_GESTURE (0),
+        GESTURE_FIST (1),
+        GESTURE_POINT (2),
+        GESTURE_PINCH (3),
+        GESTURE_FIST_THUMB_OVER (4),
+        GESTURE_KEY (5),
+        GESTURE_ROCK (6),
+        GESTURE_TWIZZERS (7),
+        GESTURE_CUPHOLDER (8),
+        GESTURE_HALF_GRAB (9),
+        GESTURE_OK (10),
+        GESTURE_THUMB_UP (11),
+        GESTURE_MIDDLE_FINGER (12),
+        GESTURE_DOUBLE_POINT (13),
+        GESTURE_CALL_ME (14),
+        GESTURE_NATURAL_POSITION (15),
+        GESTURE_CUSTOM_0 (64),
+        GESTURE_CUSTOM_1 (65),
+        GESTURE_CUSTOM_2 (66),
+        GESTURE_CUSTOM_3 (67),
+        GESTURE_CUSTOM_4 (68),
+        GESTURE_CUSTOM_5 (69),
+        GESTURE_CUSTOM_6 (70),
+        GESTURE_CUSTOM_7 (71),
+        GESTURE_CUSTOM_8 (72),
+        GESTURE_CUSTOM_9 (73),
+        GESTURE_CUSTOM_10 (74),
+        GESTURE_CUSTOM_11 (75),
+        GESTURE_CUSTOM_12 (76),
+        GESTURE_CUSTOM_13 (77)
+    }
 }

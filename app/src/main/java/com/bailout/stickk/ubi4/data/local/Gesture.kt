@@ -23,7 +23,8 @@ data class Gesture (
     val openToCloseTimeShift5: Int, val openToCloseTimeShift6: Int,
     val closeToOpenTimeShift1: Int, val closeToOpenTimeShift2: Int,
     val closeToOpenTimeShift3: Int, val closeToOpenTimeShift4: Int,
-    val closeToOpenTimeShift5: Int, val closeToOpenTimeShift6: Int
+    val closeToOpenTimeShift5: Int, val closeToOpenTimeShift6: Int,
+    var gestureName: String , var gestureImage: Int,
 )
 
 object GestureSerializer: KSerializer<Gesture> {
@@ -61,6 +62,9 @@ object GestureSerializer: KSerializer<Gesture> {
         var closeToOpenTimeShift4 = 0
         var closeToOpenTimeShift5 = 0
         var closeToOpenTimeShift6 = 0
+
+        var gestureName = ""
+        var gestureImage = 0
 
 
         if (string.length >= 50) {
@@ -124,7 +128,10 @@ object GestureSerializer: KSerializer<Gesture> {
             closeToOpenTimeShift3 = closeToOpenTimeShift3,
             closeToOpenTimeShift4 = closeToOpenTimeShift4,
             closeToOpenTimeShift5 = closeToOpenTimeShift5,
-            closeToOpenTimeShift6 = closeToOpenTimeShift6
+            closeToOpenTimeShift6 = closeToOpenTimeShift6,
+
+            gestureName = gestureName,
+            gestureImage = gestureImage,
         )
     }
 

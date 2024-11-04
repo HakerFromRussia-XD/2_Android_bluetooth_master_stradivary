@@ -694,14 +694,13 @@ class UBI4GripperScreenWithEncodersActivity
     }
 
     private fun compileBLEMassage () {
-
         val gestureStateModel = GestureWithAddress(deviceAddress, parameterID, Gesture(gestureID, // проверить тут -2
             validationRange(fingerOpenState4), validationRange(fingerOpenState3), validationRange(fingerOpenState2),
             validationRange(fingerOpenState1), validationRange(inverseRangConversion(fingerOpenState5, 85, -53)), validationRange(inverseRangConversion(fingerOpenState6, 85, 15)),
             validationRange(fingerCloseState4), validationRange(fingerCloseState3), validationRange(fingerCloseState2),
             validationRange(fingerCloseState1), validationRange(inverseRangConversion(fingerCloseState5, 85, -53)), validationRange(inverseRangConversion(fingerCloseState6, 85, 15)),
             fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
-            fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6), gestureState)
+            fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[(gestureNumber)],0), gestureState)
         Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
         main.bleCommand(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL, WRITE)
     }

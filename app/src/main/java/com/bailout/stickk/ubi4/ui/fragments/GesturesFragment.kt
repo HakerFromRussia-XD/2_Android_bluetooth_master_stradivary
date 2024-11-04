@@ -176,7 +176,6 @@ class GesturesFragment : Fragment() {
         listN.add(DialogGestureItem("3 profile", false))
         listN.add(DialogGestureItem("3 profile", false))
         listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("add", true))
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         gesturesRv.layoutManager = linearLayoutManager
 

@@ -11,15 +11,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Chronometer
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
-import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
 import com.bailout.stickk.databinding.Ubi4FragmentSprTrainingBinding
 import com.bailout.stickk.ubi4.adapters.models.DataFactory
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
@@ -30,22 +28,12 @@ import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
-import com.bailout.stickk.ubi4.utility.Hyperparameters.AUTO_SHIFT_RANGE
 import com.bailout.stickk.ubi4.utility.Hyperparameters.BATCH_SIZE
-import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_START_FEATURES
 import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_TARGET_ID
-import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_TARGET_STATE
-import com.bailout.stickk.ubi4.utility.Hyperparameters.LP_ALPHAS
 import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_CLASSES
 import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_EPOCHS
 import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_FEATURES
 import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_TIMESTEPS
-import com.bailout.stickk.ubi4.utility.Hyperparameters.N_EMG_CH
-import com.bailout.stickk.ubi4.utility.Hyperparameters.N_LP_ALPHAS
-import com.bailout.stickk.ubi4.utility.Hyperparameters.N_OMG_CH
-import com.bailout.stickk.ubi4.utility.Hyperparameters.SCALE_EMG
-import com.bailout.stickk.ubi4.utility.Hyperparameters.SCALE_OMG
-import com.bailout.stickk.ubi4.utility.Hyperparameters.USE_EMG
 import com.bailout.stickk.ubi4.utility.Hyperparameters.WIN_SHIFT
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
@@ -118,7 +106,7 @@ class SprTrainingFragment : Fragment() {
             onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
             onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
         ),
-        GesturesDelegateAdapter(
+        GesturesOpticDelegateAdapter(
             onSelectorClick = {},
             onAddGesturesToSprScreen = { onSaveClickDialog, listSprItem, bindingGestureList ->
                 {}

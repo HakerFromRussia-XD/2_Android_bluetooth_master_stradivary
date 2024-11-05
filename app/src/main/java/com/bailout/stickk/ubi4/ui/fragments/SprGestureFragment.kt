@@ -20,7 +20,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.models.BindingGestureItem
 import com.bailout.stickk.ubi4.adapters.models.DataFactory
 import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -113,7 +113,7 @@ class SprGestureFragment() : Fragment() {
             onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
             onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
         ),
-        GesturesDelegateAdapter(
+        GesturesOpticDelegateAdapter(
             onSelectorClick = {},
             onAddGesturesToSprScreen = { onSaveClickDialog, listSprItem, bindingGestureList ->
                 showControlGesturesDialog(onSaveClickDialog, listSprItem, bindingGestureList)

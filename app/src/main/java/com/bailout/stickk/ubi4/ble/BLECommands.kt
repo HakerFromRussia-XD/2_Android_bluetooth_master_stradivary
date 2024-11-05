@@ -29,12 +29,16 @@ class BLECommands {
                 DTE_SYSTEM_DEVICES.number
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
 
-        fun requestSubDeviceParametrs(addressDevice: Int, startIndex: Int, readNum: Int): ByteArray {
+        fun requestSubDeviceParametrs(
+            addressDevice: Int,
+            startIndex: Int,
+            readNum: Int
+        ): ByteArray {
             val header = byteArrayOf(
                 0x00,
                 DEVICE_INFORMATION.number,
@@ -51,7 +55,7 @@ class BLECommands {
                 readNum.toByte(),
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
@@ -65,9 +69,10 @@ class BLECommands {
                 0x00,
                 0x00,
                 0x00,
-                0x01)
+                0x01
+            )
             result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
 
@@ -81,9 +86,10 @@ class BLECommands {
                 0x00,
                 0x00,
                 INICIALIZE_INFORMATION.number,
-                0x02)
+                0x02
+            )
             result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
 
@@ -98,9 +104,10 @@ class BLECommands {
                 0x00,
                 READ_DEVICE_PARAMETRS.number,
                 startParametrNum,
-                countReadParameters)
+                countReadParameters
+            )
             result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
 
@@ -117,13 +124,13 @@ class BLECommands {
                 idParameter
             )
             result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
 
 
         fun oneButtonCommand(parameterID: Int, command: Int): ByteArray {
-            val code:Byte = (128 + parameterID).toByte()
+            val code: Byte = (128 + parameterID).toByte()
             val result = byteArrayOf(
                 0x40,
                 code,
@@ -135,7 +142,7 @@ class BLECommands {
                 command.toByte()
             )
             result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
 

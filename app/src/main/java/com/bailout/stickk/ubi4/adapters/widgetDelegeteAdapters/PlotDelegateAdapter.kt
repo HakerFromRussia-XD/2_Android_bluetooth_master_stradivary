@@ -3,7 +3,7 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 import android.graphics.Color
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
-import com.bailout.stickk.ubi4.adapters.models.PlotItem
+import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4

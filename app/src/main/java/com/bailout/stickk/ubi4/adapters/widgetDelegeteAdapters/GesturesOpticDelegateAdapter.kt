@@ -12,10 +12,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
-import com.bailout.stickk.ubi4.adapters.SelectedGesturesAdapter
-import com.bailout.stickk.ubi4.adapters.models.BindingGestureItem
-import com.bailout.stickk.ubi4.adapters.models.GesturesItem
-import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
+import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
+import com.bailout.stickk.ubi4.models.BindingGestureItem
+import com.bailout.stickk.ubi4.models.GesturesItem
+import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main

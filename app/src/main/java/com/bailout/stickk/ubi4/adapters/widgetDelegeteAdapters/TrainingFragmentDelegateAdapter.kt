@@ -3,7 +3,7 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 import android.annotation.SuppressLint
 import android.util.Log
 import com.bailout.stickk.databinding.Ubi4WidgetTrainingOpticBinding
-import com.bailout.stickk.ubi4.adapters.models.TrainingGestureItem
+import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class TrainingFragmentDelegateAdapter(

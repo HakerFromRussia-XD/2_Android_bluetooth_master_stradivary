@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.adapters.models
+package com.bailout.stickk.ubi4.models
 
 
 data class GesturesItem(val title: String, val widget: Any)

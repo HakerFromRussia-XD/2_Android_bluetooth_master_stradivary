@@ -12,7 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
-import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
+import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 
 class MotionTrainingFragment() : Fragment() {

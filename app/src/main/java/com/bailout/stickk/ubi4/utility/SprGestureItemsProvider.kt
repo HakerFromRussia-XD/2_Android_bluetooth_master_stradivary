@@ -2,7 +2,7 @@ package com.bailout.stickk.ubi4.utility
 
 import android.content.Context
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
+import com.bailout.stickk.ubi4.models.SprGestureItem
 
 class SprGestureItemsProvider {
 

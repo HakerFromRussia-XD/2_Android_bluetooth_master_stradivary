@@ -1,4 +1,4 @@
-package com.bailout.stickk.ubi4.adapters
+package com.bailout.stickk.ubi4.adapters.dialog
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -8,8 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.adapters.models.BindingGestureItem
-import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
+import com.bailout.stickk.ubi4.models.BindingGestureItem
 
 class SelectedGesturesAdapter(
     private var selectedGesturesList: MutableList<BindingGestureItem>,

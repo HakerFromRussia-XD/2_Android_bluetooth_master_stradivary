@@ -17,9 +17,9 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
-import com.bailout.stickk.ubi4.adapters.models.BindingGestureItem
-import com.bailout.stickk.ubi4.adapters.models.DataFactory
-import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
+import com.bailout.stickk.ubi4.models.BindingGestureItem
+import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter

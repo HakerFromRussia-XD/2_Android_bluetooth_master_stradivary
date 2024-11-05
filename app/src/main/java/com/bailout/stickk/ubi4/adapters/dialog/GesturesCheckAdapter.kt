@@ -8,8 +8,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.adapters.models.BindingGestureItem
-import com.bailout.stickk.ubi4.adapters.models.SprGestureItem
+import com.bailout.stickk.ubi4.models.BindingGestureItem
+import com.bailout.stickk.ubi4.models.SprGestureItem
 
 class GesturesCheckAdapter(
     private val gesturesList: ArrayList<SprGestureItem>,

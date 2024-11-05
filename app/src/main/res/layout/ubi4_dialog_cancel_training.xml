@@ -22,66 +22,36 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/successIv"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:src="@drawable/training_compleat"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/ubi4DialogRotationGroupTitleTv"/>
 
             <TextView
-                android:id="@+id/ubi4DialogRotationGroupTitleTv"
-                android:layout_width="wrap_content"
+                android:id="@+id/ubi4DialogConfirmCancelTrainingTitleTv"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/sf_pro_text_bold"
+                android:layout_marginEnd="16dp"
+                android:paddingBottom="16dp"
+                android:fontFamily="@font/sf_pro_display_light"
                 android:gravity="center"
                 android:maxLines="3"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/training_completed"
+                android:text="@string/are_you_sure_you_want_to_cancel_your_training"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="17sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/successIv"
-                />
-
-            <TextView
-                android:id="@+id/ubi4DialogRotationGroupMessageTv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/sf_pro_display_light"
-                android:gravity="center"
-                android:layout_marginTop="2dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/you_can_now_customize_your_gestures"
-                android:textColor="@color/white"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ubi4DialogRotationGroupTitleTv"
-                tools:ignore="RtlHardcoded,SmallSp"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <View
                 android:id="@+id/view4"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="16dp"
                 android:background="@color/ubi4_gray_border"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ubi4DialogRotationGroupMessageTv" />
+                app:layout_constraintTop_toBottomOf="@+id/ubi4DialogConfirmCancelTrainingTitleTv"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -91,14 +61,14 @@
                 android:textColor="@color/ubi4_yes_system_blue"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@+id/ubi4CompletedTrainingBtn"
+                app:layout_constraintBottom_toBottomOf="@+id/ubi4DialogConfirmCancelTrainingBtn"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/view4" />
 
             <View
-                android:id="@+id/ubi4CompletedTrainingBtn"
+                android:id="@+id/ubi4DialogConfirmCancelTrainingBtn"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="?android:attr/selectableItemBackground"
@@ -106,10 +76,8 @@
                 android:focusable="true"
                 app:layout_constraintBottom_toTopOf="@+id/view5"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/view4"
-                app:layout_constraintVertical_bias="0.0"
                 tools:ignore="SpeakableTextPresentCheck" />
 
             <View
@@ -123,7 +91,31 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/view4" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/cancel"
+                android:textColor="@color/ubi4_yes_system_blue"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@+id/ubi4DialogCancelTrainingCancelBtn"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view5"
+                tools:ignore="TextContrastCheck" />
 
+            <View
+                android:id="@+id/ubi4DialogCancelTrainingCancelBtn"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view5"
+                tools:ignore="SpeakableTextPresentCheck" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

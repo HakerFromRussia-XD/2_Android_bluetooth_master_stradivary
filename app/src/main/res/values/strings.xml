@@ -552,6 +552,11 @@
     <string name="training">Training</string>
     <string name="you_can_now_customize_your_gestures">You can now customize your gestures</string>
     <string name="training_completed">Training completed</string>
+    <string name="prepare_to_perform_the_gesture_in">prepare to perform the gesture in :</string>
+    <string name="are_you_sure_you_want_to_start_training">Are you sure you want to start training?</string>
+    <string name="are_you_sure_you_want_to_cancel_your_training">Are you sure you want to cancel your training?</string>
+    <string name="start_training">Start training</string>
+    <string name="cancel_training">Cancel training</string>
 
 
     <string-array name="numbers">

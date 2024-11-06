@@ -200,7 +200,7 @@ class GesturesDelegateAdapter(
                 val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
                 Log.d("uiRotationGroupObservable", "rotationGroup = $rotationGroup")
 //                loadGestureState(gestureSettings)
-                rotationGroup.
+//                rotationGroup.
             }
     }
 

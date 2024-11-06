@@ -8,15 +8,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.models.DialogGestureItem
+import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
 
 class GesturesCheckAdapter(
-    private val gesturesList: ArrayList<DialogGestureItem>,
+    private val gesturesList: ArrayList<DialogCollectionGestureItem>,
     private val onCheckGestureListener: OnCheckGestureListener,
 ) : RecyclerView.Adapter<GesturesCheckAdapter.ScanViewHolder>() {
 
     inner class ScanViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val selectGestureBtn: View = view.findViewById(R.id.ubi4DialogGestureItemBtn)
+        val selectGestureBtn: View = view.findViewById(R.id.ubi4DialogCollectionGestureItemBtn)
         val gestureName: TextView = view.findViewById(R.id.ubi4DialogTitleItemTv)
         val gestureCheckImage: ImageView = view.findViewById(R.id.usedGestureCheckIv)
     }
@@ -32,17 +32,18 @@ class GesturesCheckAdapter(
         holder: ScanViewHolder,
         @SuppressLint("RecyclerView") position: Int
     ) {
-        holder.gestureName.text = gesturesList[position].title
+        holder.gestureName.text = gesturesList[position].gesture.gestureName
         holder.gestureCheckImage.setVisibility(if (gesturesList[position].check) View.VISIBLE else View.GONE)
         holder.selectGestureBtn.setOnClickListener {
-            onCheckGestureListener.onGestureClicked(position, gesturesList[position].title)
+            onCheckGestureListener.onGestureClicked(position, gesturesList[position])
         }
     }
+
     override fun getItemCount(): Int {
         return gesturesList.size
     }
 }
 
 interface OnCheckGestureListener {
-    fun onGestureClicked(position : Int, title: String)
+    fun onGestureClicked(position: Int, dialogGesture: DialogCollectionGestureItem)
 }

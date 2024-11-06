@@ -6,7 +6,7 @@
     android:layout_height="44dp">
 
     <View
-        android:id="@+id/ubi4DialogGestureItemBtn"
+        android:id="@+id/ubi4DialogCollectionGestureItemBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="?android:attr/selectableItemBackground"

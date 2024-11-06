@@ -16,12 +16,14 @@ public class RxUpdateMainEventUbi4 {
 
   // ui
   private final PublishSubject<Integer> uiGestureSettings;
+  private final PublishSubject<Integer> uiRotationGroup;
 
 
   private RxUpdateMainEventUbi4() {
     fingerAngle = PublishSubject.create();
     gestureStateWithEncoders = PublishSubject.create();
     uiGestureSettings = PublishSubject.create();
+    uiRotationGroup = PublishSubject.create();
     readCharacteristicBLE = PublishSubject.create();
   }
   public static RxUpdateMainEventUbi4 getInstance() {
@@ -34,11 +36,15 @@ public class RxUpdateMainEventUbi4 {
   public void updateFingerAngle(FingerAngle parameters) { fingerAngle.onNext(parameters); }
   public void updateGestureWithEncodersState(GestureWithAddress parameters) { gestureStateWithEncoders.onNext(parameters); }
   public void updateUiGestureSettings(Integer parameters) { uiGestureSettings.onNext(parameters); }
+  public void updateUiRotationGroup(Integer parameters) { uiRotationGroup.onNext(parameters); }
   public void updateReadCharacteristicBLE(GestureInfo parameters) { readCharacteristicBLE.onNext(parameters); }
 
 
   public Observable<FingerAngle> getFingerAngleObservable() { return fingerAngle; }
   public Observable<GestureWithAddress> getGestureStateWithEncodersObservable() { return gestureStateWithEncoders; }
   public Observable<Integer> getUiGestureSettingsObservable() { return uiGestureSettings; }
+  public Observable<Integer> getUiRotationGroupObservable() { return uiRotationGroup; }
   public Observable<GestureInfo> getReadCharacteristicBLE() { return readCharacteristicBLE; }
 }
+
+

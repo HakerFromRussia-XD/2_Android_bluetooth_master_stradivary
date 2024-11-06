@@ -21,8 +21,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.bailout.stickk.R;
+
 import androidx.annotation.NonNull;
+
+import com.bailout.stickk.R;
 import com.woxthebox.draglistview.DragItemAdapter;
 
 import java.util.ArrayList;
@@ -54,7 +56,7 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        String text = mItemList.get(position).second;
+        String text = mItemList.get(position).second.split("™")[0];
         holder.gestureInRotationGroupTv.setText(text);
         holder.itemView.setTag(mItemList.get(position).first);
     }
@@ -83,7 +85,7 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
                 int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
                 Long setUniqueItemId = (long)mItemList.size();
                 addItem(mItemList.size(), new Pair<>(setUniqueItemId, mItemList.get(position).second));
-                onCopyClickRotationGroupListener.onCopyClick(position);
+                onCopyClickRotationGroupListener.onCopyClick(position, mItemList.get(position).second);
             });
         }
 
@@ -109,6 +111,6 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
         }
     }
 
-    public interface OnCopyClickRotationGroupListener { void onCopyClick(int position); }
+    public interface OnCopyClickRotationGroupListener { void onCopyClick(int position, String gestureName); }
     public interface OnDeleteClickRotationGroupListener { void onDeleteClickCb(int position); }
 }

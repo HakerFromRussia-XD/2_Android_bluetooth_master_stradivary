@@ -27,6 +27,7 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
@@ -49,8 +50,6 @@ class SprGestureFragment() : Fragment() {
     private var mDataFactory: DataFactory = DataFactory()
 
     private val selectedGesturesSet = mutableSetOf<String>()
-
-
 
 
     @SuppressLint("CutPasteId")
@@ -110,8 +109,20 @@ class SprGestureFragment() : Fragment() {
             plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
         ),
         OneButtonDelegateAdapter(
-            onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
-            onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
+            onButtonPressed = { addressDevice, parameterID, command ->
+                oneButtonPressed(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            },
+            onButtonReleased = { addressDevice, parameterID, command ->
+                oneButtonReleased(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            }
         ),
         GesturesOpticDelegateAdapter(
             onSelectorClick = {},
@@ -146,7 +157,8 @@ class SprGestureFragment() : Fragment() {
         titleText.setText(R.string.assign_gesture)
 
         val gestureItemsProvider = GestureSprAndCustomItemsProvider()
-        val sprGestureItemList = gestureItemsProvider.getSprAndCustomGestureItemList(requireContext())
+        val sprGestureItemList =
+            gestureItemsProvider.getSprAndCustomGestureItemList(requireContext())
 
         sprGestureItemList.forEach { gesture ->
             if (gesture.title == name) {
@@ -222,7 +234,8 @@ class SprGestureFragment() : Fragment() {
                 Log.d("showCustomGesturesDialog1", " add: $selectedGesturesSet")
             } else {
 
-                name.let { selectedGesturesSet.remove(it)
+                name.let {
+                    selectedGesturesSet.remove(it)
                     Log.d("showCustomGesturesDialog1", " remove3: $selectedGesturesSet")
 
                 }
@@ -256,8 +269,8 @@ class SprGestureFragment() : Fragment() {
         myDialog.show()
 
 
-        val gestureItemsProvider = SprGestureItemsProvider()
-        val sprGestureItemList = gestureItemsProvider.getSprGestureItemList(requireContext())
+        val gestureItemsProvider = CollectionGesturesProvider()
+        val sprGestureItemList = gestureItemsProvider.getCollectionGestures()
 
         for (gesture in sprGestureItemList) {
             selectedGestures.find { it.title == gesture.title }?.let {
@@ -277,14 +290,19 @@ class SprGestureFragment() : Fragment() {
                 val checkedItems = sprGestureItemList.mapIndexedNotNull { index, item ->
                     if (item.check) index else null
                 }
-                var unselectedPosition = bindingGestureList.indexOfFirst { it.sprGestureItem.title == title }
-                sprGestureItemList[position] = sprGestureItemList[position].copy(check = !sprGestureItemList[position].check)
+                var unselectedPosition =
+                    bindingGestureList.indexOfFirst { it.sprGestureItem.title == title }
+                sprGestureItemList[position] =
+                    sprGestureItemList[position].copy(check = !sprGestureItemList[position].check)
 
 
 
                 if (!sprGestureItemList[position].check) {
-                   unselectedPosition = checkedItems.indexOf(position)
-                    Log.d("GestureUnselected", "Position of unselected gesture: $unselectedPosition")
+                    unselectedPosition = checkedItems.indexOf(position)
+                    Log.d(
+                        "GestureUnselected",
+                        "Position of unselected gesture: $unselectedPosition"
+                    )
                 }
 
                 // Удаление безопасным способом
@@ -297,7 +315,10 @@ class SprGestureFragment() : Fragment() {
                         }
                     }
                 } else {
-                    Log.e("onGestureClicked1", "Index $unselectedPosition is out of bounds for bindingGestureList with size ${bindingGestureList.size}")
+                    Log.e(
+                        "onGestureClicked1",
+                        "Index $unselectedPosition is out of bounds for bindingGestureList with size ${bindingGestureList.size}"
+                    )
                 }
 
                 Log.d("onGestureClicked", "$sprGestureItemList")
@@ -328,23 +349,21 @@ class SprGestureFragment() : Fragment() {
         }
     }
 
-    private fun oneButtonPressed(parameterID: Int, command: Int) {
+    private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         System.err.println("oneButtonPressed    parameterID: $parameterID   command: $command")
         transmitter().bleCommand(
-            BLECommands.oneButtonCommand(parameterID, command),
+            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
             MAIN_CHANNEL,
             WRITE
         )
     }
 
-    private fun oneButtonReleased(parameterID: Int, command: Int) {
-        System.err.println("oneButtonReleased    parameterID: $parameterID   command: $command")
-        BLECommands.requestSubDevices().forEach { i ->
-            System.err.println("oneButtonReleased ${castUnsignedCharToInt(i)}")
-        }
+    private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
+
+
 
         transmitter().bleCommand(
-            BLECommands.requestSubDeviceParametrs(6, 0, 2),
+            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
             MAIN_CHANNEL,
             WRITE
         )

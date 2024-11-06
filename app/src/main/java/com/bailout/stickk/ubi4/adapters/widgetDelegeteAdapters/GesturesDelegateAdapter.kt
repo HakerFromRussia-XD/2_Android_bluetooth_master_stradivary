@@ -6,6 +6,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
 import android.util.DisplayMetrics
+import android.util.Log
+import android.util.Pair
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,25 +15,34 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesBinding
+import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getGesture
+import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.woxthebox.draglistview.DragItem
 import com.woxthebox.draglistview.DragListView
 import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
-import android.util.Pair
+import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.serialization.json.Json
+import java.util.stream.Collectors
 
 
 class GesturesDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
     val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
-    val onAddGesturesToRotationGroup: (onSaveDialogClick: (() -> Unit)) -> Unit,
+    val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
     val onSendBLERotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
     val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
+    val onRequestRotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
 ) : RotationGroupItemAdapter.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
@@ -47,13 +58,15 @@ class GesturesDelegateAdapter(
     private lateinit var mRotationGroupExplanation2Tv: TextView
     private lateinit var mRotationGroupExplanationIv: ImageView
     private lateinit var mRotationGroupExplanation2Iv: ImageView
-    private var parameterIDSet = mutableSetOf<Pair<Int, Int>>()
 
+    private lateinit var mAddGestureToRotationGroupBtn: View
+    private lateinit var mPlusIv: ImageView
+    private var parameterIDSet = mutableSetOf<Pair<Int, Int>>()
+    private var deviceAddress = 0
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetGesturesBinding.onBind(item: GesturesItem) {
         mRotationGroupDragLv = rotationGroupDragLv
-        var deviceAddress = 0
 
         when (item.widget) {
             is BaseParameterWidgetEStruct -> {
@@ -67,7 +80,10 @@ class GesturesDelegateAdapter(
             }
         }
         collectionOfGesturesSelectBtn.setOnClickListener { moveFilterSelection(1, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl) }
-        rotationGroupSelectBtn.setOnClickListener { moveFilterSelection(2, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl) }
+        rotationGroupSelectBtn.setOnClickListener {
+            moveFilterSelection(2, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl)
+            onRequestRotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number))
+        }
         hideCollectionBtn.setOnClickListener {
             System.err.println("collectionFactoryGesturesCl.layoutParams.height = ${collectionFactoryGesturesCl.layoutParams.height}")
 
@@ -103,7 +119,6 @@ class GesturesDelegateAdapter(
 
 
 
-
         gesture1Btn.setOnClickListener {
             System.err.println("setOnClickListener gesture1Btn")
             onRequestGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt())
@@ -135,10 +150,20 @@ class GesturesDelegateAdapter(
 
 
 
-
         addGestureToRotationGroupBtn.setOnClickListener {
-            val resultCb: (()->Unit) = {
+            val resultCb: ((selectedGestures: ArrayList<Gesture>)->Unit) = { selectedGestures ->
+                // проверка что элемент из selectedGestures содержится в rotationGroupGestures
+                // если да, то не меняем его положение и добавляем новых в конец списка
+                val notContainsList = selectedGestures.stream().filter{element -> !rotationGroupGestures.contains(element)}.collect(Collectors.toList())//rotationGroupGestures.add())
+                notContainsList.forEach { rotationGroupGestures.add(it) }
+                // удаляем те элементы, которые были отчекнуты
+                val finalList = rotationGroupGestures.stream().filter{element -> selectedGestures.contains(element)}.collect(Collectors.toList())
+                rotationGroupGestures = ArrayList(finalList)
 
+                showIntroduction()
+                setupListRecyclerView()
+                synhronizeRotationGroup()
+                calculatingShowAddButton()
             }
             onAddGesturesToRotationGroup(resultCb)
         }
@@ -150,30 +175,53 @@ class GesturesDelegateAdapter(
 
             override fun onItemDragEnded(fromPosition: Int, toPosition: Int) {
                 if (fromPosition != toPosition) {
-                    onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number))
+                    synhronizeRotationGroup()
                 }
             }
         })
-
-        itemsGesturesRotationArray = ArrayList()
-        for (i in 0..4) {
-            itemsGesturesRotationArray!!.add(Pair<Long, String>(i.toLong(), "Item $i"))
-        }
-
-
 
         mRotationGroupExplanationTv = rotationGroupExplanationTv
         mRotationGroupExplanation2Tv = rotationGroupExplanation2Tv
         mRotationGroupExplanationIv = rotationGroupExplanationIv
         mRotationGroupExplanation2Iv = rotationGroupExplanation2Iv
-        if (itemsGesturesRotationArray?.size == 0) {
-            showIntroduction(true)
-        } else {
-            showIntroduction(false)
-        }
+        mAddGestureToRotationGroupBtn = addGestureToRotationGroupBtn
+        mPlusIv = plusIv
+        showIntroduction()
         setupListRecyclerView()
+
+
+        RxUpdateMainEventUbi4.getInstance().uiRotationGroupObservable
+            .compose(main.bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { dataCode ->
+                val parameter = ParameterProvider.getParameter(dataCode)
+                Log.d("uiRotationGroupObservable", "data = ${parameter.data}")
+                val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
+                Log.d("uiRotationGroupObservable", "rotationGroup = $rotationGroup")
+//                loadGestureState(gestureSettings)
+//                rotationGroup.
+            }
     }
 
+    private fun calculatingShowAddButton() {
+        if (rotationGroupGestures.size >= 8) {
+            mAddGestureToRotationGroupBtn.visibility = View.GONE
+            mPlusIv.visibility = View.GONE
+        } else {
+            mAddGestureToRotationGroupBtn.visibility = View.VISIBLE
+            mPlusIv.visibility = View.VISIBLE
+        }
+    }
+    private fun synhronizeRotationGroup() {
+        rotationGroupGestures.clear()
+        itemsGesturesRotationArray?.forEach {
+            rotationGroupGestures.add(getGesture(it.second.split("™")[1].toInt()))
+        }
+        rotationGroupGestures.forEach {
+            Log.d("onItemDragEnded","${it.gestureId}")
+        }
+        onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number))
+    }
     private fun getParameterIDByCode(dataCode: Int): Int {
         parameterIDSet.forEach {
             if (it.second == dataCode) {
@@ -184,6 +232,7 @@ class GesturesDelegateAdapter(
     }
     private fun setupListRecyclerView() {
         mRotationGroupDragLv?.setLayoutManager(LinearLayoutManager(main.applicationContext))
+        itemsGesturesRotationArray = ArrayList(rotationGroupGestures.mapIndexed { index, gesture -> Pair(index.toLong(), gesture.gestureName+"™"+gesture.gestureId.toString()) })
         listRotationGroupAdapter =
             RotationGroupItemAdapter(
                 itemsGesturesRotationArray,
@@ -269,8 +318,8 @@ class GesturesDelegateAdapter(
             collectionGesturesCl.visibility = View.GONE
         }
     }
-    private fun showIntroduction (show: Boolean) {
-        if  (show) {
+    private fun showIntroduction () {
+        if (rotationGroupGestures.size == 0) {
             mRotationGroupExplanationTv.visibility = View.VISIBLE
             mRotationGroupExplanation2Tv.visibility = View.VISIBLE
             mRotationGroupExplanationIv.visibility = View.VISIBLE
@@ -295,21 +344,24 @@ class GesturesDelegateAdapter(
     }
 
 
-    @SuppressLint("NotifyDataSetChanged")
-    override fun onCopyClick(position: Int) {
-        mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
-        listRotationGroupAdapter?.notifyDataSetChanged()
-    }
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onDeleteClickCb(position: Int) {
         val resultCb: ((result: Int)->Unit) = {
-            itemsGesturesRotationArray?.removeAt(position)
+            rotationGroupGestures.removeAt(position)
+            showIntroduction()
             setupListRecyclerView()
-            // отрисовывать тут интродакшн если в списке нет элементов
-            if (itemsGesturesRotationArray?.size == 0) {
-                showIntroduction(true)
-            }
+            synhronizeRotationGroup()
+            calculatingShowAddButton()
         }
-        onDeleteClick(resultCb, itemsGesturesRotationArray?.get(position)?.second.toString())
+        onDeleteClick(resultCb, rotationGroupGestures.get(position).gestureName)
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onCopyClick(position: Int, gestureId: String) {
+        mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
+        listRotationGroupAdapter?.notifyDataSetChanged()
+        synhronizeRotationGroup()
+        calculatingShowAddButton()
     }
 }

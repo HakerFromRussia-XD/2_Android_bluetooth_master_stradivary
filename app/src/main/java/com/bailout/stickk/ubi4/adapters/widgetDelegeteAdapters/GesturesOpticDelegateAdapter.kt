@@ -69,21 +69,7 @@ class GesturesOpticDelegateAdapter(
 
 
         when (item.widget) {
-            is CommandParameterWidgetEStruct -> {
-                parameterID =
-                    item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID
-                clickCommand = item.widget.clickCommand
-                pressedCommand = item.widget.pressedCommand
-                releasedCommand = item.widget.releasedCommand
-            }
 
-            is CommandParameterWidgetSStruct -> {
-                parameterID =
-                    item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parentParameterID
-                clickCommand = item.widget.clickCommand
-                pressedCommand = item.widget.pressedCommand
-                releasedCommand = item.widget.releasedCommand
-            }
         }
 
         collectionOfGesturesSelectBtn.setOnClickListener {

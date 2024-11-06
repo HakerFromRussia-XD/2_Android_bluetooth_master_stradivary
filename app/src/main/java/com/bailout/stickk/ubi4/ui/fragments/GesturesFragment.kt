@@ -26,10 +26,10 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
-import com.bailout.stickk.ubi4.data.parser.BLEParser
-import com.bailout.stickk.ubi4.models.DialogGestureItem
-import com.bailout.stickk.ubi4.models.RotationGroup
+import com.bailout.stickk.ubi4.data.local.RotationGroup
+import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
@@ -38,6 +38,7 @@ import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEnc
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
@@ -48,6 +49,9 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.stream.Collectors
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.full.memberProperties
 
 
 @Suppress("DEPRECATION")
@@ -62,8 +66,8 @@ class GesturesFragment : Fragment() {
         if (activity != null) { main = activity as MainActivityUBI4? }
 
         //фейковые данные принимаемого потока
-        val mBLEParser = main?.let { BLEParser(it) }
-        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+//        val mBLEParser = main?.let { BLEParser(it) }
+//        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
 
         //настоящие виджеты
         widgetListUpdater()
@@ -100,7 +104,6 @@ class GesturesFragment : Fragment() {
         graphThreadFlag = false
         listWidgets.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-        //TODO только для демонстрации
     }
     @OptIn(DelicateCoroutinesApi::class)
     fun widgetListUpdater() {
@@ -130,12 +133,17 @@ class GesturesFragment : Fragment() {
             onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) },
             onSendBLERotationGroup = {deviceAddress, parameterID -> sendBLERotationGroup(deviceAddress, parameterID) },
             onShowGestureSettings = { deviceAddress, parameterID, gestureID -> showGestureSettings(deviceAddress, parameterID, gestureID) },
-            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)}
+            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)},
+            onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)}
         )
     )
 
+    private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
+        Log.d("uiRotationGroupObservable", "считывание данных в фрагменте")
+        transmitter().bleCommand(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE)
+    }
     private fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
-        Log.d("uiGestureSettingsObservable", "считывание данных в фрагменте")
+        Log.d("requestGestureSettings", "считывание данных в фрагменте")
         transmitter().bleCommand(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE)
     }
     private fun showGestureSettings (deviceAddress: Int, parameterID: Int, gestureID: Int) {
@@ -145,12 +153,25 @@ class GesturesFragment : Fragment() {
         intent.putExtra(GESTURE_ID_IN_SYSTEM_UBI4, gestureID)
         startActivity(intent)
     }
-    private fun sendBLERotationGroup(deviceAddress: Int, parameterID: Int) {
-        Log.d("sendBLERotationGroup", "deviceAddress = $deviceAddress   parameterID = $parameterID")
-        transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, RotationGroup(1,1,2,2,3,3,5,5,6,6,0,0,0,0,0,0)), MAIN_CHANNEL, WRITE)
+    private fun sendBLERotationGroup (deviceAddress: Int, parameterID: Int) {
+        val rotationGroup = RotationGroup()
+        rotationGroupGestures.forEachIndexed { index, item ->
+            // Используем рефлексию, чтобы найти и изменить свойства
+            val idProperty = RotationGroup::class.memberProperties.find { it.name == "gesture${index + 1}Id" } as? KMutableProperty1<RotationGroup, Int>
+            val imageIdProperty = RotationGroup::class.memberProperties.find { it.name == "gesture${index + 1}ImageId" } as? KMutableProperty1<RotationGroup, Int>
+
+            // Устанавливаем значения, если свойства найдены
+            idProperty?.set(rotationGroup, item.gestureId)
+            imageIdProperty?.set(rotationGroup, item.gestureId)
+        }
+
+        // Проверяем результат
+        Log.d("sendBLERotationGroup", "deviceAddress = $deviceAddress  parameterID = $parameterID   rotationGroup = $rotationGroup")
+
+        transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, rotationGroup), MAIN_CHANNEL, WRITE)
     }
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
-    private fun showAddGestureToRotationGroupDialog(onSaveDialogClick: (()->Unit)) {
+    private fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
         System.err.println("showAddGestureToRotationGroupDialog")
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_rotation_group, null)
         val myDialog = Dialog(requireContext())
@@ -161,34 +182,38 @@ class GesturesFragment : Fragment() {
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         myDialog.show()
 
-        val listN: ArrayList<DialogGestureItem> = ArrayList()
-        listN.add(DialogGestureItem("First profile", true))
-        listN.add(DialogGestureItem("2 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
-        listN.add(DialogGestureItem("3 profile", false))
+
+        val dialogCollectionGestures: ArrayList<DialogCollectionGestureItem> =
+            ArrayList(CollectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
+
+        // установка галочек в списке соответственно текущей группе ротации
+        for (dialogGesture in dialogCollectionGestures) {
+            rotationGroupGestures.find { it.gestureId == dialogGesture.gesture.gestureId }?.let {
+                dialogGesture.check = true
+            }
+        }
+
+
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         gesturesRv.layoutManager = linearLayoutManager
 
-        val adapter = GesturesCheckAdapter(listN, object :
+        // инвертация галочек в списке при клике на элементы
+        val adapter = GesturesCheckAdapter(dialogCollectionGestures, object :
             OnCheckGestureListener {
-            override fun onGestureClicked(position: Int, title: String) {
+            override fun onGestureClicked(position: Int, dialogGesture: DialogCollectionGestureItem) {
                 System.err.println("onGestureClicked $position")
-                if (listN[position].check) {
-                    listN.removeAt(position)
-                    listN.add(position, DialogGestureItem(title, false))
+                if (dialogCollectionGestures[position].check) {
+                    dialogCollectionGestures.removeAt(position)
+                    dialogCollectionGestures.add(position, DialogCollectionGestureItem(dialogGesture.gesture, false))
                 } else {
-                    listN.removeAt(position)
-                    listN.add(position, DialogGestureItem(title, true))
+                    // в dialogCollectionGestures посчитать количество элементов с галочкой
+                    val checkedElements = dialogCollectionGestures.stream().filter{element -> element.check}.collect(Collectors.toList())
+                    if (checkedElements.size >= 8) {
+                        main?.showToast("Нельзя добавить больше 8-ми жестов")
+                    } else {
+                        dialogCollectionGestures.removeAt(position)
+                        dialogCollectionGestures.add(position, DialogCollectionGestureItem(dialogGesture.gesture, true))
+                    }
                 }
                 gesturesRv.adapter?.notifyItemChanged(position)
             }
@@ -204,8 +229,11 @@ class GesturesFragment : Fragment() {
 
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToGroupSaveBtn)
         saveBtn.setOnClickListener {
+            val selectedGestures = dialogCollectionGestures.filter { it.check }.map { dialogCollectionGestureItem ->
+                dialogCollectionGestureItem.gesture
+            }
+            onSaveDialogClick.invoke(ArrayList(selectedGestures))
             myDialog.dismiss()
-            onSaveDialogClick.invoke()
         }
     }
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")

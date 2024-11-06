@@ -103,8 +103,20 @@ class SprTrainingFragment : Fragment() {
             plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
         ),
         OneButtonDelegateAdapter(
-            onButtonPressed = { parameterID, command -> oneButtonPressed(parameterID, command) },
-            onButtonReleased = { parameterID, command -> oneButtonReleased(parameterID, command) }
+            onButtonPressed = { addressDevice, parameterID, command ->
+                oneButtonPressed(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            },
+            onButtonReleased = { addressDevice, parameterID, command ->
+                oneButtonReleased(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            }
         ),
         GesturesOpticDelegateAdapter(
             onSelectorClick = {},
@@ -343,23 +355,22 @@ class SprTrainingFragment : Fragment() {
 
     }
 
-    private fun oneButtonPressed(parameterID: Int, command: Int) {
+    private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         System.err.println("oneButtonPressed    parameterID: $parameterID   command: $command")
         transmitter().bleCommand(
-            BLECommands.oneButtonCommand(parameterID, command),
+            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
             MAIN_CHANNEL,
             WRITE
         )
     }
 
-    private fun oneButtonReleased(parameterID: Int, command: Int) {
+    private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         System.err.println("oneButtonReleased    parameterID: $parameterID   command: $command")
-        BLECommands.requestSubDevices().forEach { i ->
-            System.err.println("oneButtonReleased ${castUnsignedCharToInt(i)}")
-        }
+
+
 
         transmitter().bleCommand(
-            BLECommands.requestSubDeviceParametrs(6, 0, 2),
+            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
             MAIN_CHANNEL,
             WRITE
         )

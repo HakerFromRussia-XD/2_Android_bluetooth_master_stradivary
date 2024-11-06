@@ -16,6 +16,7 @@
 
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters;
 
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,7 +55,7 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        String text = mItemList.get(position).second;
+        String text = mItemList.get(position).second.split("™")[0];
         holder.gestureInRotationGroupTv.setText(text);
         holder.itemView.setTag(mItemList.get(position).first);
     }
@@ -83,7 +84,7 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
                 int position = getIndexItem(Long.parseLong(itemView.getTag().toString()));
                 Long setUniqueItemId = (long)mItemList.size();
                 addItem(mItemList.size(), new Pair<>(setUniqueItemId, mItemList.get(position).second));
-                onCopyClickRotationGroupListener.onCopyClick(position);
+                onCopyClickRotationGroupListener.onCopyClick(position, mItemList.get(position).second);
             });
         }
 
@@ -109,6 +110,6 @@ class RotationGroupItemAdapter extends DragItemAdapter<Pair<Long, String>, Rotat
         }
     }
 
-    public interface OnCopyClickRotationGroupListener { void onCopyClick(int position); }
+    public interface OnCopyClickRotationGroupListener { void onCopyClick(int position, String gestureName); }
     public interface OnDeleteClickRotationGroupListener { void onDeleteClickCb(int position); }
 }

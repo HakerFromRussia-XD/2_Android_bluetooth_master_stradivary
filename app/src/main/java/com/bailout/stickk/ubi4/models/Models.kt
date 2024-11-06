@@ -8,19 +8,10 @@ data class OneButtonItem(val title: String, val description: String, val widget:
 data class PlotItem(val title: String, val widget: Any)
 
 // dialogs
-data class DialogGestureItem(val title: String, val check: Boolean)
+data class DialogCollectionGestureItem(val gesture: Gesture, var check: Boolean = false)
+
 
 // 3D конфигуратор и передача информации о группе ротации
-data class RotationGroup (
-    val gesture1Id: Int, val gesture1ImageId: Int,
-    val gesture2Id: Int, val gesture2ImageId: Int,
-    val gesture3Id: Int, val gesture3ImageId: Int,
-    val gesture4Id: Int, val gesture4ImageId: Int,
-    val gesture5Id: Int, val gesture5ImageId: Int,
-    val gesture6Id: Int, val gesture6ImageId: Int,
-    val gesture7Id: Int, val gesture7ImageId: Int,
-    val gesture8Id: Int, val gesture8ImageId: Int,
-)
 data class GestureInfo (
     val deviceAddress: Int, val parameterID: Int, val gestureID: Int
 )

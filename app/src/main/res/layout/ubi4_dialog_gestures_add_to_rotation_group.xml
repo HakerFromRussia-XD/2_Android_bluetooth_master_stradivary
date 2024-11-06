@@ -34,7 +34,7 @@
                 android:fontFamily="@font/sf_pro_text_bold"
                 android:gravity="center"
                 android:maxLines="2"
-                android:text="Add gestures to the group"
+                android:text="@string/add_gestures_to_the_group"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="18sp"

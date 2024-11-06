@@ -110,9 +110,14 @@ class BLEParser(main: AppCompatActivity) {
     }
 
     private fun uplateAllUI(dataCode: Int) {
-        Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
+
         when (dataCode) {
-            ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> { RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(dataCode) }
+            ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
+                Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
+                RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(dataCode) }
+            ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
+                Log.d("uiRotationGroupObservable", "dataCode = $dataCode")
+                RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(dataCode) }
         }
     }
 
@@ -188,6 +193,7 @@ class BLEParser(main: AppCompatActivity) {
             widgetCount += it.additionalInfoSize
             println("READ_DEVICE_PARAMETRS $it $widgetCount")
         }
+
 
         if (baseParametrInfoStructArray.size != 0) {
             // если у запрашиваемого параметра нет адишнл параметров, то на этом алгоритм опроса остановится

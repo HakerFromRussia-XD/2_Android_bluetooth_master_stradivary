@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.data.local
 
-import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GestureEnum
 
 class CollectionGesturesProvider() {
@@ -23,6 +22,7 @@ class CollectionGesturesProvider() {
             collectionGesturesList.add(Gesture(GestureEnum.GESTURE_DOUBLE_POINT.number, gestureName = "Пистолет(уточнить)"))
             collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CALL_ME.number, gestureName = "Позвони мне"))
             collectionGesturesList.add(Gesture(GestureEnum.GESTURE_NATURAL_POSITION.number, gestureName = "Натуральное положение"))
+
             collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_0.number, gestureName = "Жест №1"))
             collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_1.number, gestureName = "Жест №2"))
             collectionGesturesList.add(Gesture(GestureEnum.GESTURE_CUSTOM_2.number, gestureName = "Жест №3"))

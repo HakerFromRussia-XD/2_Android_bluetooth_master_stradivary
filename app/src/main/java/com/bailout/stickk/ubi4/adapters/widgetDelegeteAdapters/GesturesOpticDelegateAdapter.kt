@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.util.DisplayMetrics
 import android.util.Log
+import android.util.Pair
 import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -13,18 +14,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
 import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.BindingGestureItem
 import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.models.SprGestureItem
-import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class GesturesOpticDelegateAdapter(
     val onSelectorClick: (selectedPage: Int) -> Unit,
     val onAddGesturesToSprScreen: (onSaveClickDialog: (List<SprGestureItem>) -> Unit, List<SprGestureItem>, List<BindingGestureItem>) -> Unit,
-    val onsetCustomGesture: (onSaveDotsClick: ((name: String, position: Int) -> Unit), selectedPosition: Int, name: String) -> Unit
+    val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
+    val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
+    val onSetCustomGesture: (onSaveDotsClick: ((name: String, position: Int) -> Unit), selectedPosition: Int, name: String) -> Unit
 ) :
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOptic1Binding>(
         Ubi4WidgetGesturesOptic1Binding::inflate
@@ -32,6 +36,8 @@ class GesturesOpticDelegateAdapter(
 
     private val ANIMATION_DURATION = 200
     private var listBindingGesture: MutableList<BindingGestureItem> = mutableListOf()
+    private var parameterIDSet = mutableSetOf<Pair<Int, Int>>()
+    private var deviceAddress = 0
 
 
     @SuppressLint("LogNotTimber")
@@ -44,7 +50,7 @@ class GesturesOpticDelegateAdapter(
 
         },
         onDotsClickListener = { selectedPosition ->
-            onsetCustomGesture({ name, position ->
+            onSetCustomGesture({ name, position ->
                 val bindingGesture = listBindingGesture[position].copy(nameOfUserGesture = name)
                 listBindingGesture[position] = bindingGesture
                 updateGestureName(bindingGesture.position, bindingGesture.nameOfUserGesture)
@@ -69,7 +75,14 @@ class GesturesOpticDelegateAdapter(
 
 
         when (item.widget) {
-
+            is BaseParameterWidgetEStruct -> {
+                deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
+                parameterIDSet = item.widget.baseParameterWidgetStruct.parametersIDAndDataCodes
+            }
+            is BaseParameterWidgetSStruct -> {
+                deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
+                parameterIDSet = item.widget.baseParameterWidgetStruct.parametersIDAndDataCodes
+            }
         }
 
         collectionOfGesturesSelectBtn.setOnClickListener {
@@ -97,8 +110,35 @@ class GesturesOpticDelegateAdapter(
 
 
 
-        gesture1Btn.setOnClickListener { System.err.println("setOnClickListener gesture1Btn") }
-        gesture1SettingsBtn.setOnClickListener { System.err.println("setOnClickListener gesture1SettingsBtn") }
+        gesture1Btn.setOnClickListener {
+            System.err.println("setOnClickListener gesture1Btn")
+            onRequestGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt())
+        }
+        gesture1SettingsBtn.setOnClickListener {
+            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt())
+        }
+        gesture2SettingsBtn.setOnClickListener {
+            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x41).toInt())
+        }
+        gesture3SettingsBtn.setOnClickListener {
+            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x42).toInt())
+        }
+        gesture4SettingsBtn.setOnClickListener {
+            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x43).toInt())
+        }
+        gesture5SettingsBtn.setOnClickListener {
+            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x44).toInt())
+        }
+        gesture6SettingsBtn.setOnClickListener {
+            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x45).toInt())
+        }
+        gesture7SettingsBtn.setOnClickListener {
+            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x46).toInt())
+        }
+        gesture8SettingsBtn.setOnClickListener {
+            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x47).toInt())
+        }
+
 
 
         chooseLearningGesturesBtn1.setOnClickListener {
@@ -146,6 +186,14 @@ class GesturesOpticDelegateAdapter(
         newList[position] = newList[position].copy(nameOfUserGesture = newName)
         listBindingGesture = newList
         adapter.updateGestures(listBindingGesture)
+    }
+    private fun getParameterIDByCode(dataCode: Int): Int {
+        parameterIDSet.forEach {
+            if (it.second == dataCode) {
+                return it.first
+            }
+        }
+        return 0
     }
 
     private fun moveFilterSelection(

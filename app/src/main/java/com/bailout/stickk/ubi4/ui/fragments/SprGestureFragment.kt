@@ -1,5 +1,6 @@
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -17,9 +18,6 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
-import com.bailout.stickk.ubi4.models.BindingGestureItem
-import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
@@ -27,13 +25,18 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
+import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
+import com.bailout.stickk.ubi4.models.BindingGestureItem
+import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
+import com.bailout.stickk.ubi4.models.SprGestureItem
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
-import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
-import com.bailout.stickk.ubi4.utility.GestureSprAndCustomItemsProvider
-import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -129,13 +132,29 @@ class SprGestureFragment() : Fragment() {
             onAddGesturesToSprScreen = { onSaveClickDialog, listSprItem, bindingGestureList ->
                 showControlGesturesDialog(onSaveClickDialog, listSprItem, bindingGestureList)
             },
-            onsetCustomGesture = { onSaveDotsClick, position, name ->
+            onShowGestureSettings = { deviceAddress, parameterID, gestureID -> showGestureSettings(deviceAddress, parameterID, gestureID) },
+            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)},
+            onSetCustomGesture = { onSaveDotsClick, position, name ->
                 showCustomGesturesDialog(onSaveDotsClick, position, name)
 
-            }
+            },
+
+
 
         )
     )
+
+    private fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
+        Log.d("requestGestureSettings", "считывание данных в фрагменте")
+        transmitter().bleCommand(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE)
+    }
+    private fun showGestureSettings (deviceAddress: Int, parameterID: Int, gestureID: Int) {
+        val intent = Intent(context, UBI4GripperScreenWithEncodersActivity::class.java)
+        intent.putExtra(DEVICE_ID_IN_SYSTEM_UBI4, deviceAddress)
+        intent.putExtra(PARAMETER_ID_IN_SYSTEM_UBI4, parameterID)
+        intent.putExtra(GESTURE_ID_IN_SYSTEM_UBI4, gestureID)
+        startActivity(intent)
+    }
 
     @SuppressLint("MissingInflatedId", "LogNotTimber")
     private fun showCustomGesturesDialog(
@@ -156,15 +175,18 @@ class SprGestureFragment() : Fragment() {
         val titleText = dialogBinding.findViewById<TextView>(R.id.dialogTitleBindingTv)
         titleText.setText(R.string.assign_gesture)
 
-        val gestureItemsProvider = GestureSprAndCustomItemsProvider()
-        val sprGestureItemList =
-            gestureItemsProvider.getSprAndCustomGestureItemList(requireContext())
+//        val gestureItemsProvider = GestureSprAndCustomItemsProvider()
+//        val sprGestureItemList =
+//            gestureItemsProvider.getSprAndCustomGestureItemList(requireContext())
+        val sprGestureItemList: ArrayList<DialogCollectionGestureItem> =
+            ArrayList(CollectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
 
-        sprGestureItemList.forEach { gesture ->
-            if (gesture.title == name) {
-                gesture.check = true
+        sprGestureItemList.forEach { dialogGesture ->
+            if (dialogGesture.gesture.gestureName == name) {
+                dialogGesture.check = true
             }
         }
+
 
         var selectedGesturePosition = sprGestureItemList.indexOfFirst { it.check }
         Log.d("selectedGesturesSet", "Selected gesture: $selectedGesturePosition")
@@ -174,7 +196,7 @@ class SprGestureFragment() : Fragment() {
         gesturesRv.layoutManager = linearLayoutManager
         val adapter = GesturesCheckAdapter(sprGestureItemList, object :
             OnCheckGestureListener {
-            override fun onGestureClicked(clickedPosition: Int, title: String) {
+            override fun onGestureClicked(clickedPosition: Int, dialogGesture: DialogCollectionGestureItem) {
 
                 if (selectedGesturePosition != -1 && selectedGesturePosition == clickedPosition) {
                     sprGestureItemList[selectedGesturePosition] =
@@ -182,13 +204,13 @@ class SprGestureFragment() : Fragment() {
                     selectedGesturePosition = -1
                     gesturesRv.adapter?.notifyItemChanged(clickedPosition)
 
-                    selectedGesturesSet.remove(title)
+                    selectedGesturesSet.remove(dialogGesture.gesture.gestureName)
                     Log.d("showCustomGesturesDialog1", " remove1: $selectedGesturesSet")
 
                     return
                 }
 
-                if (selectedGesturesSet.contains(title) && selectedGesturePosition != clickedPosition) {
+                if (selectedGesturesSet.contains(dialogGesture.gesture.gestureName) && selectedGesturePosition != clickedPosition) {
                     Toast.makeText(
                         context,
                         getString(R.string.toast_notification_gesture_in_use),
@@ -201,7 +223,7 @@ class SprGestureFragment() : Fragment() {
                 if (selectedGesturePosition != -1) {
                     sprGestureItemList[selectedGesturePosition] =
                         sprGestureItemList[selectedGesturePosition].copy(check = false)
-                    selectedGesturesSet.remove(sprGestureItemList[selectedGesturePosition].title)
+                    selectedGesturesSet.remove(sprGestureItemList[selectedGesturePosition].gesture.gestureName)
                     Log.d("showCustomGesturesDialog1", " remove2: $selectedGesturesSet")
 
                     gesturesRv.adapter?.notifyItemChanged(selectedGesturePosition)
@@ -224,7 +246,7 @@ class SprGestureFragment() : Fragment() {
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToSaveBtn)
         saveBtn.setOnClickListener {
             val selectedGesture = if (selectedGesturePosition != -1) {
-                sprGestureItemList[selectedGesturePosition].title
+                sprGestureItemList[selectedGesturePosition].gesture.gestureName
             } else {
                 null
             }
@@ -269,12 +291,15 @@ class SprGestureFragment() : Fragment() {
         myDialog.show()
 
 
-        val gestureItemsProvider = CollectionGesturesProvider()
-        val sprGestureItemList = gestureItemsProvider.getCollectionGestures()
 
-        for (gesture in sprGestureItemList) {
-            selectedGestures.find { it.title == gesture.title }?.let {
-                gesture.check = true
+        val sprGestureItemList: ArrayList<DialogCollectionGestureItem> =
+            ArrayList(CollectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
+
+
+
+        for (dialogGesture in sprGestureItemList) {
+            selectedGestures.find { it.title == dialogGesture.gesture.gestureName }?.let {
+                dialogGesture.check = true
             }
         }
         Log.d("showControlGesturesDialog", "$sprGestureItemList")
@@ -283,7 +308,7 @@ class SprGestureFragment() : Fragment() {
         gesturesRv.layoutManager = linearLayoutManager
         val adapter = GesturesCheckAdapter(sprGestureItemList, object :
             OnCheckGestureListener {
-            override fun onGestureClicked(position: Int, title: String) {
+            override fun onGestureClicked(position: Int, dialogGesture: DialogCollectionGestureItem) {
                 System.err.println("onGestureClicked $position")
                 Log.d("onGestureClicked", "$sprGestureItemList")
 
@@ -291,7 +316,7 @@ class SprGestureFragment() : Fragment() {
                     if (item.check) index else null
                 }
                 var unselectedPosition =
-                    bindingGestureList.indexOfFirst { it.sprGestureItem.title == title }
+                    bindingGestureList.indexOfFirst { it.sprGestureItem.title == dialogGesture.gesture.gestureName }
                 sprGestureItemList[position] =
                     sprGestureItemList[position].copy(check = !sprGestureItemList[position].check)
 
@@ -336,7 +361,7 @@ class SprGestureFragment() : Fragment() {
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToSaveBtn)
         saveBtn.setOnClickListener {
             val selectedGestures = sprGestureItemList.filter { it.check }.map { gestureItem ->
-                SprGestureItem(gestureItem.title, gestureItem.image, true)
+                SprGestureItem(gestureItem.gesture.gestureName, gestureItem.gesture.gestureImage, true)
             }
 
 

@@ -6,7 +6,10 @@ import com.bailout.stickk.ubi4.models.OneButtonItem
 import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode

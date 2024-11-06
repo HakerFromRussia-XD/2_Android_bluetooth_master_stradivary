@@ -66,11 +66,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
 
+        showOpticGesturesScreen()
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.fragmentContainer, SprTrainingFragment())
-            .commit()
+//        supportFragmentManager
+//            .beginTransaction()
+//            .add(R.id.fragmentContainer, SprGestureFragment())
+//            .commit()
 
     }
     @SuppressLint("MissingPermission")
@@ -92,6 +93,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
 
+
+    override fun showOpticGesturesScreen() { launchFragmentWithoutStack(SprGestureFragment()) }
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
     override fun showToast(massage: String) {
@@ -160,9 +163,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
         var baseSubDevicesInfoStructSet by Delegates.notNull<MutableSet<BaseSubDeviceInfoStruct>>()
-
-        var rotationGroupGestures by Delegates.notNull<ArrayList<Gesture>>()
-
 
         var rotationGroupGestures by Delegates.notNull<ArrayList<Gesture>>()
 

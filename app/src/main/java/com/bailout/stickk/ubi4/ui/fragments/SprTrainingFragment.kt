@@ -27,7 +27,6 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
-import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.Hyperparameters.BATCH_SIZE
 import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_TARGET_ID
 import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_CLASSES
@@ -117,14 +116,6 @@ class SprTrainingFragment : Fragment() {
                     command
                 )
             }
-        ),
-        GesturesOpticDelegateAdapter(
-            onSelectorClick = {},
-            onAddGesturesToSprScreen = { onSaveClickDialog, listSprItem, bindingGestureList ->
-                {}
-            },
-            onsetCustomGesture = { _, _, _ -> }
-
         ),
         TrainingFragmentDelegateAdapter(
 

@@ -74,7 +74,7 @@ class SprTrainingFragment : Fragment() {
         //настоящие виджеты
 //        widgetListUpdater()
         //фейковые виджеты
-        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.fakeData2())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")

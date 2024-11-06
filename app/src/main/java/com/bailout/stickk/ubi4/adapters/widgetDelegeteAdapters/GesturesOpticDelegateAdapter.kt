@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Pair
@@ -38,6 +39,8 @@ class GesturesOpticDelegateAdapter(
     private var listBindingGesture: MutableList<BindingGestureItem> = mutableListOf()
     private var parameterIDSet = mutableSetOf<Pair<Int, Int>>()
     private var deviceAddress = 0
+    private var hideFactoryCollectionGestures = true
+
 
 
     @SuppressLint("LogNotTimber")
@@ -139,6 +142,34 @@ class GesturesOpticDelegateAdapter(
             onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x47).toInt())
         }
 
+
+        hideCollectionBtn.setOnClickListener {
+            System.err.println("collectionFactoryGesturesCl.layoutParams.height = ${collectionFactoryGesturesCl.layoutParams.height}")
+
+            if (hideFactoryCollectionGestures) {
+                hideFactoryCollectionGestures = false
+                hideCollectionBtn.animate().rotation(180F).duration = ANIMATION_DURATION.toLong()
+                collectionUserGesturesCl.animate().translationY(-(collectionFactoryGesturesCl.height).toFloat()).duration = ANIMATION_DURATION.toLong()
+                collectionFactoryGesturesCl.animate()
+                    .alpha(0.0f)
+                    .setDuration(ANIMATION_DURATION.toLong())
+                Handler().postDelayed({
+                    collectionFactoryGesturesCl.visibility = View.GONE
+                    collectionUserGesturesCl.animate().translationY(0F).duration = 0
+                }, ANIMATION_DURATION.toLong())
+            } else {
+                hideFactoryCollectionGestures = true
+                hideCollectionBtn.animate().rotation(0F).duration = ANIMATION_DURATION.toLong()
+                collectionUserGesturesCl.animate().translationY(-(collectionFactoryGesturesCl.height).toFloat()).duration = 0
+                collectionFactoryGesturesCl.visibility = View.VISIBLE
+                Handler().postDelayed({
+                    collectionUserGesturesCl.animate().translationY(0F).duration = ANIMATION_DURATION.toLong()
+                    collectionFactoryGesturesCl.animate()
+                        .alpha(1.0f)
+                        .setDuration(ANIMATION_DURATION.toLong())
+                }, ANIMATION_DURATION.toLong())
+            }
+        }
 
 
         chooseLearningGesturesBtn1.setOnClickListener {

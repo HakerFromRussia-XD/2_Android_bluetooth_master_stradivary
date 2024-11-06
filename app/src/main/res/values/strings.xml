@@ -562,6 +562,8 @@
     <string name="delete">Delete</string>
     <string name="the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group">The %s gesture will remain available in the gesture collection, but will be removed from the rotation group.</string>
     <string name="add_gestures_to_the_group">Add gestures to the rotation group</string>
+    <string name="follow_the_gestures_on_the_screen_and_keep_track_of_the_time">Follow the gestures on the screen and keep track of the time</string>
+    <string name="let_s_start_training_spr">Let\'s start training SPR</string>
 
 
     <string-array name="numbers">

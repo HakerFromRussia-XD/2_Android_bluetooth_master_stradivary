@@ -22,12 +22,13 @@ class BottomNavigationController(bottomNavigation: BottomNavigationView) {
                 }
 
                 R.id.page_2 -> {
-                    main.showSensorsScreen()
+                    main.showOpticGesturesScreen()
                     System.err.println("bottomNavigation item2")
                     return@setOnItemSelectedListener true
                 }
 
                 R.id.page_3 -> {
+                    main.showOpticTrainingGesturesScreen()
                     System.err.println("bottomNavigation item3")
                     return@setOnItemSelectedListener true
                 }

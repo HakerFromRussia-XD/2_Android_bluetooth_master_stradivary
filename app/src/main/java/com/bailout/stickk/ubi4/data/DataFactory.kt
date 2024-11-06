@@ -20,10 +20,21 @@ internal class DataFactory {
 
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
-        //addElement(8, objects, objects)
+        //addElement(8, 0,objects, objects)
+        //addElementS(15, label = "Start training", objects,objects)
         addElementS(14, label = "Start training", objects,objects)
         return objects
     }
+
+    fun fakeData2(): List<Any> {
+        val objects = ArrayList<Any>()
+        //addElement(8, objects, objects)
+        addElementS(15, label = "Start training", objects,objects)
+        //addElementS(14, label = "Start training", objects,objects)
+        return objects
+    }
+
+
     fun fakeDataClear(): List<Any> {
         val objects = ArrayList<Any>()
         return objects

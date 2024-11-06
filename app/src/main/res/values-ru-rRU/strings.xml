@@ -560,11 +560,12 @@
     <string name="are_you_sure_you_want_to_cancel_your_training">Вы уверены, что хотите отменить обучение?</string>
     <string name="start_training">Начать обучение</string>
     <string name="cancel_training">Отменить обучение</string>
-
     <string name="remove_the_gesture_from_the_group">Удалить жест из группы?</string>
     <string name="delete">Удалить</string>
     <string name="the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group">Жест %s останется доступным в коллекции жестов, но будет исключён из группы ротации.</string>
     <string name="add_gestures_to_the_group">Добавление жестов в группу ротации</string>
+    <string name="follow_the_gestures_on_the_screen_and_keep_track_of_the_time">Следуйте жестам на экране и следите за временем</string>
+    <string name="let_s_start_training_spr">Начнем обучение SPR</string>
 
     <string-array name="numbers">
         <item>0</item>

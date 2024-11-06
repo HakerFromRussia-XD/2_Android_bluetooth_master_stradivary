@@ -13,6 +13,7 @@ interface NavigatorUBI4 {
     fun showGesturesScreen()
     fun showOpticGesturesScreen()
     fun showSensorsScreen()
+    fun showOpticTrainingGesturesScreen()
 
     fun showToast(massage: String)
     fun saveString(key: String, text: String)

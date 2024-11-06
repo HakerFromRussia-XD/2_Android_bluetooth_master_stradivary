@@ -67,6 +67,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.scanLeDevice(true)
 
         showOpticGesturesScreen()
+        //showOpticTrainingGesturesScreen()
 
 //        supportFragmentManager
 //            .beginTransaction()
@@ -95,6 +96,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
     override fun showOpticGesturesScreen() { launchFragmentWithoutStack(SprGestureFragment()) }
+    override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
     override fun showToast(massage: String) {

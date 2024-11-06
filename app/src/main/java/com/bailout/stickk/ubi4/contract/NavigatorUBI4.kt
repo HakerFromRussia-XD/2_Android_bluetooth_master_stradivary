@@ -8,6 +8,10 @@ fun Fragment.navigator(): NavigatorUBI4 {
 
 interface NavigatorUBI4 {
 
+    fun showGesturesScreen()
+    fun showSensorsScreen()
+
+    fun showToast(massage: String)
     fun saveString(key: String, text: String)
 
 

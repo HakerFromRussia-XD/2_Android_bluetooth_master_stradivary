@@ -38,6 +38,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService
 import com.bailout.stickk.new_electronic_by_Rodeon.services.MyService
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Decorator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Navigator
@@ -497,6 +498,20 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             }
           }
         }
+
+//        включить для трансляции данных в игру
+//        if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
+//          dataSensPrevious1 = dataSens1
+//          dataSensPrevious2 = dataSens2
+//
+//          val transferIntent = Intent(this, DataTransferToService::class.java)
+//          transferIntent.putExtra("sensor_level_1", dataSens1)
+//          transferIntent.putExtra("sensor_level_2", dataSens2)
+//          transferIntent.putExtra("open_ch_num", openChNum)
+//          transferIntent.putExtra("close_ch_num", closeChNum)
+//          startService(transferIntent)
+//        }
+
         lockWriteBeforeFirstRead = false
       } else {
         if(countCommand.get() > 0) {
@@ -559,6 +574,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         }
       }
 
+//      включить для трансляции данных в игру
 //      if (dataSensPrevious1 != dataSens1 || dataSensPrevious2 != dataSens2) {
 //        dataSensPrevious1 = dataSens1
 //        dataSensPrevious2 = dataSens2

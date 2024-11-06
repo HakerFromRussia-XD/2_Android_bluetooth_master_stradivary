@@ -11,14 +11,14 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import java.io.File
 
 class OneButtonDelegateAdapter(
-    val onButtonPressed: (parameterID: Int, command: Int) -> Unit,
-    val onButtonReleased: (parameterID: Int, command: Int) -> Unit,
-) :
+    val onButtonPressed: (addressDevice: Int, parameterID: Int, command: Int) -> Unit,
+    val onButtonReleased: (addressDevice: Int, parameterID: Int, command: Int) -> Unit) :
     ViewBindingDelegateAdapter<OneButtonItem, Ubi4Widget1ButtonBinding>(Ubi4Widget1ButtonBinding::inflate) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4Widget1ButtonBinding.onBind(item: OneButtonItem) {
-        widget1Button.text = item.title
+        widget1ButtonTv.text = item.title
+        var addressDevice = 0
         var parameterID = 0
         var clickCommand = 0
         var pressedCommand = 0
@@ -27,16 +27,15 @@ class OneButtonDelegateAdapter(
 
         when (item.widget) {
             is CommandParameterWidgetEStruct -> {
-                parameterID =
-                    item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID
+                addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand
             }
-
             is CommandParameterWidgetSStruct -> {
-                parameterID =
-                    item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parentParameterID
+                addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand
@@ -44,20 +43,13 @@ class OneButtonDelegateAdapter(
         }
         widget1Button.setOnTouchListener(View.OnTouchListener { _, motionEvent ->
             if (clickCommand == 0) {
-                when (motionEvent.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        onButtonPressed(parameterID, pressedCommand)
-                    }
-
-                    MotionEvent.ACTION_UP -> {
-                        onButtonReleased(parameterID, releasedCommand)
-                    }
+                when (motionEvent.action){
+                    MotionEvent.ACTION_DOWN -> { onButtonPressed(addressDevice, parameterID, pressedCommand) }
+                    MotionEvent.ACTION_UP -> { onButtonReleased(addressDevice, parameterID, releasedCommand) }
                 }
             } else {
-                when (motionEvent.action) {
-                    MotionEvent.ACTION_UP -> {
-                        onButtonReleased(parameterID, clickCommand)
-                    }
+                when (motionEvent.action){
+                    MotionEvent.ACTION_UP -> { onButtonReleased(addressDevice, parameterID, clickCommand) }
                 }
             }
 

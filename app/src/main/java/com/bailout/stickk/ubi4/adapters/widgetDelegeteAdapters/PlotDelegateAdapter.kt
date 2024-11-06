@@ -1,14 +1,19 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.graphics.Color
+import android.util.Log
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
+import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.countBinding
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -46,11 +51,23 @@ class PlotDelegateAdapter (
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
 
         var parameterID = 0
+        var deviceAddress = 0
         when (plotItem.widget) {
-            is PlotParameterWidgetEStruct -> {parameterID = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parentParameterID}
-            is PlotParameterWidgetSStruct -> {parameterID = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parentParameterID}
+            is PlotParameterWidgetEStruct -> {
+                parameterID = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                deviceAddress = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+            }
+            is PlotParameterWidgetSStruct -> {
+                parameterID = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                deviceAddress = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+            }
         }
-        numberOfCharts = baseParametrInfoStructArray[parameterID].parametrSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[baseParametrInfoStructArray[parameterID].type].sizeOf
+
+
+//        Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
+        // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
+        numberOfCharts = ParameterProvider.getParameter(deviceAddress, parameterID).parametrSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf
+        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parametrSize}   type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
 
         plotArrayFlowCollect()
 
@@ -60,9 +77,12 @@ class PlotDelegateAdapter (
         GlobalScope.launch(CoroutineName("startGraphEnteringDataCoroutine $countBinding")) {
             startGraphEnteringDataCoroutine(EMGChartLc)
         }
+
+        main.bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
 //        System.err.println("plotIsReadyToData")
         plotIsReadyToData(0)
     }
+
     override fun isForViewType(item: Any): Boolean = item is PlotItem
     override fun PlotItem.getItemId(): Any = title
 
@@ -99,7 +119,7 @@ class PlotDelegateAdapter (
         val set2 = LineDataSet(null, null)
         set2.axisDependency = YAxis.AxisDependency.LEFT
         set2.lineWidth = 2f
-        set2.color = Color.RED
+        set2.color = Color.GRAY
         set2.mode = LineDataSet.Mode.LINEAR
         set2.setCircleColor(Color.TRANSPARENT)
         set2.circleHoleColor = Color.TRANSPARENT
@@ -267,15 +287,14 @@ class PlotDelegateAdapter (
         GlobalScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
                 MainActivityUBI4.plotArrayFlow.collect { value ->
-//                    System.err.println("FLOW TEST plotArrayFlow ${value.size}")
                     if (value.size != 0) {
-                        System.err.println("FLOW TEST plotArrayFlow ${value[0]}")
-                        dataSens1 = value[0]
-                        dataSens2 = value[1]
-                        dataSens3 = value[2]
-                        dataSens4 = value[3]
-                        dataSens5 = value[4]
-                        dataSens6 = value[5]
+                        System.err.println("FLOW TEST plotArrayFlow ${value.size}")
+                        if (value.size >= 1) { dataSens1 = value[0] }
+                        if (value.size >= 2) { dataSens2 = value[1] }
+                        if (value.size >= 3) { dataSens3 = value[2] }
+                        if (value.size >= 4) { dataSens4 = value[3] }
+                        if (value.size >= 5) { dataSens5 = value[4] }
+                        if (value.size >= 6) { dataSens6 = value[5] }
                     }
                 }
             }

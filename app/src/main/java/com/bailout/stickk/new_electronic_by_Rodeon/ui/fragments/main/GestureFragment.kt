@@ -19,7 +19,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
+import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.github.mikephil.charting.data.Entry
@@ -776,7 +776,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     override fun onClick(v: View?) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
             main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
+            val intent = Intent(context, UBI4GripperScreenWithEncodersActivity::class.java)
             startActivity(intent)
         } else {
             val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)

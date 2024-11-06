@@ -7,28 +7,38 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
+import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
+import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
+import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
 
 
-class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
+@RequirePresenter(MainPresenter::class)
+class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4, TransmitterUBI4 {
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
@@ -79,21 +89,22 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
             mBLEController.reconnectThread()
         }
     }
-    private fun setStaticVariables() {
-        listWidgets = arrayListOf()
-        updateFlow = MutableStateFlow(0)
-        plotArrayFlow = MutableStateFlow(arrayListOf())
-        plot = MutableStateFlow(0)
-        plotArray = arrayListOf()
-        countBinding = 0
-        graphThreadFlag = true
+
+
+    override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
+    override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
+    override fun showToast(massage: String) {
+        Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
     }
-
-
     override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
     override fun goingBack() { onBackPressed() }
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    }
+    private fun launchFragmentWithoutStack(fragment: Fragment) {
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.fragmentContainer, fragment)
+        if (!supportFragmentManager.isDestroyed) transaction.commit()
     }
 
     private fun initAllVariables() {
@@ -105,6 +116,16 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
     internal fun sendWidgetsArray() {
         //событие эммитится только в случае если size отличается от предыдущего
         updateFlow.value += 1
+    }
+    private fun setStaticVariables() {
+        listWidgets = mutableSetOf()
+        updateFlow = MutableStateFlow(0)
+        plotArrayFlow = MutableStateFlow(arrayListOf())
+        baseSubDevicesInfoStructSet = mutableSetOf()
+        plot = MutableStateFlow(0)
+        plotArray = arrayListOf()
+        countBinding = 0
+        graphThreadFlag = true
     }
 
     // сохранение и загрузка данных
@@ -127,15 +148,16 @@ class MainActivityUBI4 : AppCompatActivity(), NavigatorUBI4, TransmitterUBI4 {
         var main by Delegates.notNull<MainActivityUBI4>()
 
         var updateFlow by Delegates.notNull<MutableStateFlow<Int>>()
-        var listWidgets by Delegates.notNull<ArrayList<Any>>()
+        var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()
 
-//        var
+
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
+        var baseSubDevicesInfoStructSet by Delegates.notNull<MutableSet<BaseSubDeviceInfoStruct>>()
 
 
         var connectedDeviceName by Delegates.notNull<String>()

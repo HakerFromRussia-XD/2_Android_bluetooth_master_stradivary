@@ -1,6 +1,9 @@
 package com.bailout.stickk.ubi4.ui.bottom
 
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
+import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class BottomNavigationController(bottomNavigation: BottomNavigationView) {
@@ -14,19 +17,18 @@ class BottomNavigationController(bottomNavigation: BottomNavigationView) {
         bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.page_1 -> {
-//                    loadFragment(HomeFragment.newInstance())
+                    main.showGesturesScreen()
                     System.err.println("bottomNavigation item1")
                     return@setOnItemSelectedListener true
                 }
 
                 R.id.page_2 -> {
-//                    loadFragment(DashboardFragment.newInstance())
+                    main.showSensorsScreen()
                     System.err.println("bottomNavigation item2")
                     return@setOnItemSelectedListener true
                 }
 
                 R.id.page_3 -> {
- //                  loadFragment(NotificationsFragment.newInstance())
                     System.err.println("bottomNavigation item3")
                     return@setOnItemSelectedListener true
                 }

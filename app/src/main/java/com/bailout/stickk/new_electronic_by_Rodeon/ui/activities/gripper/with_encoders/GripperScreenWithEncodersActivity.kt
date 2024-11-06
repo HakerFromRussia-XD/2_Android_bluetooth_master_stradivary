@@ -751,7 +751,7 @@ class GripperScreenWithEncodersActivity
 
                 loadFingersDelay()
                 if (gestureState == 1) {
-                    myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_title_tv).text = getString(R.string.delay_state_open)
+                    myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_title_tv).text = getString(R.string.delay_state_open_description)
                     myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_1_sb).progress = fingerOpenStateDelay1
                     myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_2_sb).progress = fingerOpenStateDelay2
                     myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_3_sb).progress = fingerOpenStateDelay3
@@ -759,7 +759,7 @@ class GripperScreenWithEncodersActivity
                     myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_5_sb).progress = fingerOpenStateDelay5
                     myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_6_sb).progress = fingerOpenStateDelay6
                 } else {
-                    myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_title_tv).text = getString(R.string.delay_state_close)
+                    myDialog.findViewById<TextView>(R.id.dialog_fingers_delay_title_tv).text = getString(R.string.delay_state_close_description)
                     myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_1_sb).progress = fingerCloseStateDelay1
                     myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_2_sb).progress = fingerCloseStateDelay2
                     myDialog.findViewById<SeekBar>(R.id.dialog_fingers_delay_3_sb).progress = fingerCloseStateDelay3

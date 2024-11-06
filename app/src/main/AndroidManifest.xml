@@ -72,7 +72,7 @@
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="waterdays_nfc/*" />
+                <data android:mimeType="waterways_nfc/*" />
             </intent-filter>
         </activity>
         <activity
@@ -88,7 +88,7 @@
             tools:ignore="LockedOrientationActivity" />
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity"
+            android:name="com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
         <activity
@@ -112,6 +112,7 @@
 <!--            </intent-filter>-->
 <!--        </service>-->
 
+<!--        включить для трансляции данных в игру-->
 <!--        <service-->
 <!--            android:name="com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService"-->
 <!--            android:exported="true">-->

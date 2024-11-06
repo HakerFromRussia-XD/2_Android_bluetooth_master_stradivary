@@ -33,6 +33,7 @@ open class CompositeDelegateAdapter(vararg adapters: DelegateAdapter) : Recycler
         adapterState = newAdapterState
 //        System.err.println("prepareData(): adapterState изменён")
         //adds animation at the moment of re-building
+        //TODO тут отключено анимированное обновление адаптера потому что в связре с Лёшиным девайсом оно стало ложить приложение
         diffResult.dispatchUpdatesTo(this)
     }
 

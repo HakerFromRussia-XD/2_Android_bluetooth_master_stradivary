@@ -185,9 +185,10 @@
     <string name="rotation_state_open">outside</string>
     <string name="rotation_state_close">inside</string>
     <string name="gesture_state_open">open state</string>
-    <string name="delay_state_open">Setting open finger delays</string>
+    <string name="delay_state">Setting delays</string>
+    <string name="delay_state_open_description">Finger delays when moving from open to closed state</string>
     <string name="gesture_state_close">off-state</string>
-    <string name="delay_state_close">Setting close finger delays</string>
+    <string name="delay_state_close_description">Setting close finger delays</string>
     <string name="prostheses_calibrating">Prostheses calibrating</string>
     <string name="waiting">waiting…</string>
     <string name="get">get</string>
@@ -557,6 +558,9 @@
     <string name="are_you_sure_you_want_to_cancel_your_training">Are you sure you want to cancel your training?</string>
     <string name="start_training">Start training</string>
     <string name="cancel_training">Cancel training</string>
+    <string name="remove_the_gesture_from_the_group">Remove the gesture from the group?</string>
+    <string name="delete">Delete</string>
+    <string name="the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group">The %s gesture will remain available in the gesture collection, but will be removed from the rotation group.</string>
 
 
     <string-array name="numbers">

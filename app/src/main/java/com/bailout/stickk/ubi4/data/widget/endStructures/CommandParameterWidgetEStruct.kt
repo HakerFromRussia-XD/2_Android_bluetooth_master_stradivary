@@ -11,6 +11,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import android.util.Pair
 
 
 @Serializable(with = CommandParameterWidgetESerializer::class)
@@ -18,7 +19,7 @@ data class CommandParameterWidgetEStruct(
     val baseParameterWidgetEStruct: BaseParameterWidgetEStruct,
     val clickCommand: Int,
     val pressedCommand: Int,
-    val releasedCommand: Int
+    val releasedCommand: Int,
 )
 
 object CommandParameterWidgetESerializer: KSerializer<CommandParameterWidgetEStruct> {
@@ -39,7 +40,7 @@ object CommandParameterWidgetESerializer: KSerializer<CommandParameterWidgetEStr
             pressedCommand = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
             releasedCommand = castUnsignedCharToInt(string.substring(22, 24).toInt(16).toByte())
         } else {
-            baseParameterWidgetEStruct = BaseParameterWidgetEStruct (BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),0)
+            baseParameterWidgetEStruct = BaseParameterWidgetEStruct (BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(Pair(0,0))),0)
         }
 
         return CommandParameterWidgetEStruct (

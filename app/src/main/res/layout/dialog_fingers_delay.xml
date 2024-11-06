@@ -89,6 +89,7 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:lottie_autoPlay="true"
                         app:lottie_loop="true"
+                        android:visibility="gone"
                         tools:ignore="ImageContrastCheck" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout

@@ -98,18 +98,19 @@ object PreferenceKeysUBI4 {
         PWCE_OPEN_CLOSE_THRESHOLD (0x0b),
         PWCE_PLOT_AND_1_THRESHOLD (0x0c),
         PWCE_PLOT_AND_2_THRESHOLD (0x0d),
-        PWCE_TRAINING (0x0e)
+        PWCE_GESTURES_WINDOW (0x0e),
+        //TODO согласовать с Алексеем
+        PWCE_TRAINING (0x0f),
     }
-
-    enum class ParameterWidgetLabel(val number: Byte) {
-        PWLE_UNKNOW (0x00),
-        PWLE_OPEN (0x01),
-        PWLE_CLOSE (0x02),
-        PWLE_CALIBRATE (0x03),
-        PWLE_RESET (0x04),
-        PWLE_CONTROL_SETTINGS (0x05),
-        PWLE_OPEN_CLOSE_THRESHOLD (0x06),
-        PWLE_SELECT_GESTURE (0x07)
+    enum class ParameterWidgetLabel(val number: Int, val label: String) {
+        PWLE_UNKNOW (0x00, "UNKNOW"),
+        PWLE_OPEN (0x01, "OPEN"),
+        PWLE_CLOSE (0x02, "CLOSE"),
+        PWLE_CALIBRATE (0x03, "CALIBRATE"),
+        PWLE_RESET (0x04, "RESET"),
+        PWLE_CONTROL_SETTINGS (0x05, "CONTROL SETTINGS"),
+        PWLE_OPEN_CLOSE_THRESHOLD (0x06, "OPEN CLOSE THRESHOLD"),
+        PWLE_SELECT_GESTURE (0x07, "SELECT GESTURE")
     }
 
     enum class ParameterWidgetDisplayCode(val number: Byte) {
@@ -199,5 +200,89 @@ object PreferenceKeysUBI4 {
         DTE_FEST_X_SETTINGS (0x0d),
 
         DTE_FREE_SLOT (0xff.toByte()),
+    }
+
+    enum class ParameterDataCodeEnum (val number: Int) {
+        PDCE_SIMPLE_COMMAND (0),
+        PDCE_ACTION_REQUEST (30),
+
+        //Global settings
+        PDCE_SELECT_GESTURE (1),          // uint8_t select_gesture;
+        PDCE_SELECT_PROFILE (2),          // uint8_t select_profile;
+        PDCE_GLOBAL_FORCE (3),            // uint8_t global_force;
+        PDCE_GLOBAL_SENSITIVITY (4),        // uint8_t global_sensitivity;
+        PDCE_GLOBAL_THRESHOLD (5),          // uint8_t global_threshold;
+
+        PDCE_UNIVERSAL_CONTROL_INPUT (6),
+        PDCE_OPEN_CLOSE_SIGNAL (7),                 // uint8_t open uint8_t close signal
+
+        PDCE_EMG_CH_1_3_VAL (8),
+        PDCE_EMG_CH_4_6_VAL (9),
+        PDCE_EMG_CH_7_9_VAL (10),
+
+        PDCE_EMG_CH_1_3_GAIN (11),
+        PDCE_EMG_CH_4_6_GAIN (12),
+        PDCE_EMG_CH_7_9_GAIN (13),
+
+        // Drive control set group
+        PDCE_MOVE_DRIVE_PERCENT (14),          //int8_t move_drive[DRIVE_NUM]; // drive forward: 1-100(speed percent) | drive stop 0 | drive reverse: (-1)-(-100)(speed percent)
+        PDCE_TARGET_DRIVE_POSITION_PERCENT (15),    //int8_t drive_pos[DRIVE_NUM]; // drive forward: 0-100(pos percent) 0 - open, 100-close
+        PDCE_TARGET_DRIVE_SPEED_PERCENT (16),      //
+        PDCE_TARGET_DRIVE_FORCE_PERCENT (17),      //
+
+        // Drive control get group
+        PDCE_CURRENT_DRIVE_POSITION (18),      //
+        PDCE_CURRENT_DRIVE_CURRENT_UINT8 (19),    //
+        PDCE_CURRENT_DRIVE_CURRENT_UINT16 (20),    //
+        PDCE_CURRENT_DRIVE_FORCE_UINT8 (21),    //
+        PDCE_CURRENT_DRIVE_FORCE_UINT16 (22),    //
+
+        PDCE_GESTURES_CHANGE_SETTINGS (23),        //
+        PDCE_CONTROL_MODE_SETTINGS (24),        //
+        PDCE_DRIVE_SETTINGS (25),            //
+        PDCE_OPEN_CLOSE_THRESHOLD (26),          // open_close_threshold_param_struct
+
+        PDCE_CALIB_STATUS (27),              //
+        PDCE_CURRENT_LIMITS (28),            //
+        PDCE_BMS_STATUS_COMBINED_PARAM (29),             //
+        PDCE_GESTURE_SETTINGS (31),
+        PDCE_GESTURE_GROUP (32),
+        PDCE_OPTIC_LEARNING_DATA (33),
+        PDCE_EMG_ENV_E_VAL (34),
+        PDCE_DMS_OUTPUT (35),
+        PDCE_DATE_AND_TIME (36)
+    }
+
+    enum class GestureEnum (val number: Int) {
+        GESTURE_NO_GESTURE (0),
+        GESTURE_FIST (1),
+        GESTURE_POINT (2),
+        GESTURE_PINCH (3),
+        GESTURE_FIST_THUMB_OVER (4),
+        GESTURE_KEY (5),
+        GESTURE_ROCK (6),
+        GESTURE_TWIZZERS (7),
+        GESTURE_CUPHOLDER (8),
+        GESTURE_HALF_GRAB (9),
+        GESTURE_OK (10),
+        GESTURE_THUMB_UP (11),
+        GESTURE_MIDDLE_FINGER (12),
+        GESTURE_DOUBLE_POINT (13),
+        GESTURE_CALL_ME (14),
+        GESTURE_NATURAL_POSITION (15),
+        GESTURE_CUSTOM_0 (64),
+        GESTURE_CUSTOM_1 (65),
+        GESTURE_CUSTOM_2 (66),
+        GESTURE_CUSTOM_3 (67),
+        GESTURE_CUSTOM_4 (68),
+        GESTURE_CUSTOM_5 (69),
+        GESTURE_CUSTOM_6 (70),
+        GESTURE_CUSTOM_7 (71),
+        GESTURE_CUSTOM_8 (72),
+        GESTURE_CUSTOM_9 (73),
+        GESTURE_CUSTOM_10 (74),
+        GESTURE_CUSTOM_11 (75),
+        GESTURE_CUSTOM_12 (76),
+        GESTURE_CUSTOM_13 (77)
     }
 }

@@ -561,6 +561,7 @@
     <string name="remove_the_gesture_from_the_group">Remove the gesture from the group?</string>
     <string name="delete">Delete</string>
     <string name="the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group">The %s gesture will remain available in the gesture collection, but will be removed from the rotation group.</string>
+    <string name="add_gestures_to_the_group">Add gestures to the rotation group</string>
 
 
     <string-array name="numbers">

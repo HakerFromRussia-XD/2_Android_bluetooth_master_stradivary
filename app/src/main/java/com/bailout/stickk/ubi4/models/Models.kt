@@ -16,7 +16,6 @@ data class DialogCollectionGestureItem(val gesture: Gesture, var check: Boolean 
 
 
 // 3D конфигуратор и передача информации о группе ротации
-
 data class GestureInfo (
     val deviceAddress: Int, val parameterID: Int, val gestureID: Int
 )

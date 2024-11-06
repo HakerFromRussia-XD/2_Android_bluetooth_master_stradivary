@@ -125,6 +125,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         baseSubDevicesInfoStructSet = mutableSetOf()
         plot = MutableStateFlow(0)
         plotArray = arrayListOf()
+        rotationGroupGestures = arrayListOf()
         countBinding = 0
         graphThreadFlag = true
     }
@@ -159,6 +160,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
         var baseSubDevicesInfoStructSet by Delegates.notNull<MutableSet<BaseSubDeviceInfoStruct>>()
+
+        var rotationGroupGestures by Delegates.notNull<ArrayList<Gesture>>()
 
 
         var rotationGroupGestures by Delegates.notNull<ArrayList<Gesture>>()

@@ -11,20 +11,20 @@ import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = GestureSerializer::class)
 data class Gesture (
-    val gestureId: Int,
-    val openPosition1: Int, val openPosition2: Int,
-    val openPosition3: Int, val openPosition4: Int,
-    val openPosition5: Int, val openPosition6: Int,
-    val closePosition1: Int, val closePosition2: Int,
-    val closePosition3: Int, val closePosition4: Int,
-    val closePosition5: Int, val closePosition6: Int,
-    val openToCloseTimeShift1: Int, val openToCloseTimeShift2: Int,
-    val openToCloseTimeShift3: Int, val openToCloseTimeShift4: Int,
-    val openToCloseTimeShift5: Int, val openToCloseTimeShift6: Int,
-    val closeToOpenTimeShift1: Int, val closeToOpenTimeShift2: Int,
-    val closeToOpenTimeShift3: Int, val closeToOpenTimeShift4: Int,
-    val closeToOpenTimeShift5: Int, val closeToOpenTimeShift6: Int,
-    var gestureName: String , var gestureImage: Int,
+    var gestureId: Int,
+    var openPosition1: Int = 0, var openPosition2: Int = 0,
+    var openPosition3: Int = 0, var openPosition4: Int = 0,
+    var openPosition5: Int = 0, var openPosition6: Int = 0,
+    var closePosition1: Int = 0, var closePosition2: Int = 0,
+    var closePosition3: Int = 0, var closePosition4: Int = 0,
+    var closePosition5: Int = 0, var closePosition6: Int = 0,
+    var openToCloseTimeShift1: Int = 0, var openToCloseTimeShift2: Int = 0,
+    var openToCloseTimeShift3: Int = 0, var openToCloseTimeShift4: Int = 0,
+    var openToCloseTimeShift5: Int = 0, var openToCloseTimeShift6: Int = 0,
+    var closeToOpenTimeShift1: Int = 0, var closeToOpenTimeShift2: Int = 0,
+    var closeToOpenTimeShift3: Int = 0, var closeToOpenTimeShift4: Int = 0,
+    var closeToOpenTimeShift5: Int = 0, var closeToOpenTimeShift6: Int = 0,
+    var gestureName: String = "", var gestureImage: Int = 0,
 )
 
 object GestureSerializer: KSerializer<Gesture> {

@@ -559,7 +559,7 @@ class UBI4GripperScreenWithEncodersActivity
         myDialog.show()
 //        myDialog.findViewById<LottieAnimationView>(R.id.delay_fingers_animation_view).setAnimation(R.raw.loader_calibrating)
 
-        if (gestureState == States.GESTURE_STATE_OPEN.number) {
+        if (gestureState == States.GESTURE_STATE_CLOSE.number) {
             myDialog.findViewById<TextView>(R.id.ubi4DialogFingersDelayDescriptionTv).text = getString(R.string.delay_state_open_description)
             Log.d("uiGestureSettingsObservable", "fingerOpenStateDelay1 = $fingerOpenStateDelay1   fingerOpenStateDelay4 = $fingerOpenStateDelay4")
             myDialog.findViewById<SeekBar>(R.id.dialogFingersDelay1Sb).progress = fingerOpenStateDelay1
@@ -595,7 +595,7 @@ class UBI4GripperScreenWithEncodersActivity
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
-                    if (gestureState == States.GESTURE_STATE_OPEN.number) {
+                    if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay1 = seekBar.progress
                     } else {
                         fingerCloseStateDelay1 = seekBar.progress
@@ -611,7 +611,7 @@ class UBI4GripperScreenWithEncodersActivity
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
-                    if (gestureState == States.GESTURE_STATE_OPEN.number) {
+                    if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay2 = seekBar.progress
                     } else {
                         fingerCloseStateDelay2 = seekBar.progress
@@ -627,7 +627,7 @@ class UBI4GripperScreenWithEncodersActivity
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
-                    if (gestureState == States.GESTURE_STATE_OPEN.number) {
+                    if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay3 = seekBar.progress
                     } else {
                         fingerCloseStateDelay3 = seekBar.progress
@@ -643,7 +643,7 @@ class UBI4GripperScreenWithEncodersActivity
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
-                    if (gestureState == States.GESTURE_STATE_OPEN.number) {
+                    if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay4 = seekBar.progress
                     } else {
                         fingerCloseStateDelay4 = seekBar.progress
@@ -659,7 +659,7 @@ class UBI4GripperScreenWithEncodersActivity
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
-                    if (gestureState == States.GESTURE_STATE_OPEN.number) {
+                    if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay5 = seekBar.progress
                     } else {
                         fingerCloseStateDelay5 = seekBar.progress
@@ -675,7 +675,7 @@ class UBI4GripperScreenWithEncodersActivity
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (seekBar != null) {
-                    if (gestureState == States.GESTURE_STATE_OPEN.number) {
+                    if (gestureState == States.GESTURE_STATE_CLOSE.number) {
                         fingerOpenStateDelay6 = seekBar.progress
                     } else {
                         fingerCloseStateDelay6 = seekBar.progress

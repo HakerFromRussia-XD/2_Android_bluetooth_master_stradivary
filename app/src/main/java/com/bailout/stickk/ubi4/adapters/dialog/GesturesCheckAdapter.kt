@@ -38,12 +38,11 @@ class GesturesCheckAdapter(
             onCheckGestureListener.onGestureClicked(position, gesturesList[position])
         }
     }
-
     override fun getItemCount(): Int {
         return gesturesList.size
     }
 }
 
 interface OnCheckGestureListener {
-    fun onGestureClicked(position: Int, dialogGesture: DialogCollectionGestureItem)
+    fun onGestureClicked(position : Int, gesture: DialogCollectionGestureItem)
 }

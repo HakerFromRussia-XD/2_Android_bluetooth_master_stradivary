@@ -113,7 +113,7 @@ class BLECommands {
             return result
         }
         fun requestInicializeInformation(): ByteArray {
-            val result = byteArrayOf(
+            val header = byteArrayOf(
                 0x20,
                 DEVICE_INFORMATION.number,
                 0x00,
@@ -121,10 +121,13 @@ class BLECommands {
                 0x00,
                 0x00,
                 0x00,
+            )
+            val data = byteArrayOf(
                 INICIALIZE_INFORMATION.number,
                 0x02)
-            result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
             return result
         }
         fun requestBaseParametrInfo(startParametrNum: Byte, countReadParameters: Byte): ByteArray {
@@ -132,7 +135,7 @@ class BLECommands {
                 0x20,
                 DEVICE_INFORMATION.number,
                 0x00,
-                0x00,//0x03
+                0x00,
                 0x00,
                 0x00,
                 0x00,
@@ -220,7 +223,6 @@ class BLECommands {
             val result = header + data
             return result
         }
-
         fun requestRotationGroup(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),

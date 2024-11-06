@@ -16,6 +16,7 @@
 
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters;
 
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;

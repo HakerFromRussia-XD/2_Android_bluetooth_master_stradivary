@@ -7,7 +7,6 @@ import android.content.Context
 import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.Log
-import android.util.Pair
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -15,10 +14,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesBinding
-import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getGesture
-import com.bailout.stickk.ubi4.data.local.Gesture
-import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
@@ -30,6 +25,13 @@ import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import com.woxthebox.draglistview.DragItem
 import com.woxthebox.draglistview.DragListView
 import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
+import android.util.Pair
+import android.widget.Button
+import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getGesture
+import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.local.RotationGroup
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
@@ -147,6 +149,7 @@ class GesturesDelegateAdapter(
         gesture8SettingsBtn.setOnClickListener {
             onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x47).toInt())
         }
+
 
 
 
@@ -344,7 +347,13 @@ class GesturesDelegateAdapter(
     }
 
 
-
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onCopyClick(position: Int, gestureId: String) {
+        mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
+        listRotationGroupAdapter?.notifyDataSetChanged()
+        synhronizeRotationGroup()
+        calculatingShowAddButton()
+    }
     @SuppressLint("NotifyDataSetChanged")
     override fun onDeleteClickCb(position: Int) {
         val resultCb: ((result: Int)->Unit) = {
@@ -355,13 +364,5 @@ class GesturesDelegateAdapter(
             calculatingShowAddButton()
         }
         onDeleteClick(resultCb, rotationGroupGestures.get(position).gestureName)
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    override fun onCopyClick(position: Int, gestureId: String) {
-        mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
-        listRotationGroupAdapter?.notifyDataSetChanged()
-        synhronizeRotationGroup()
-        calculatingShowAddButton()
     }
 }

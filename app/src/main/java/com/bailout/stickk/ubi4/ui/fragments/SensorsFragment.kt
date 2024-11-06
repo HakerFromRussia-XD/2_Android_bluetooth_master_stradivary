@@ -87,10 +87,7 @@ class SensorsFragment : Fragment() {
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
             onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
         ) ,
-
     )
-
-
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         Log.d("ButtonClick", "oneButtonPressed  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")

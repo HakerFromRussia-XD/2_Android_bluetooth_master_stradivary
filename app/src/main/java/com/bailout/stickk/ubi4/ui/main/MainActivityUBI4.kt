@@ -133,6 +133,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         rotationGroupGestures = arrayListOf()
         countBinding = 0
         graphThreadFlag = true
+        baseParametrInfoStructArray = arrayListOf(BaseParameterInfoStruct())
     }
 
     // сохранение и загрузка данных

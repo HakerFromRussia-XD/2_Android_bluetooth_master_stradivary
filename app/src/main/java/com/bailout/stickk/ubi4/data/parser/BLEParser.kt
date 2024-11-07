@@ -55,6 +55,7 @@ class BLEParser(main: AppCompatActivity) {
     private var subDeviceAdditionalCounter = 1
 
 
+    val byteArray = byteArrayOf(0x01,0x02,0x31,0x29,0x11)
     internal fun parseReceivedData (data: ByteArray?) {
         if (data != null) {
             val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
@@ -75,6 +76,8 @@ class BLEParser(main: AppCompatActivity) {
                 Log.d("uiGestureSettingsObservable", "парсим параметры вход")
                 val parameterID = codeRequest.toInt()
                 ParameterProvider.getParameter(deviceAddress, parameterID).data = receiveDataString.substring(HEADER_BLE_OFFSET*2, receiveDataString.length)
+                ParameterProvider.getParameter(deviceAddress, parameterID).dataCode = 33
+                Log.d("TestOptic"," parameter: ${ParameterProvider.getParameter(deviceAddress, parameterID)}")
                 uplateAllUI(ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)
             } else {
                 // парсим команды
@@ -118,6 +121,9 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
                 Log.d("uiRotationGroupObservable", "dataCode = $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(dataCode) }
+            ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
+                Log.d("TestOptic"," dataCode: $dataCode")
+                RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
         }
     }
 

@@ -32,6 +32,7 @@ internal class DataFactory {
     fun prepareData(display: Int): List<Any> {
         // сортировка всех виджетов по возрастанию
         sortWidgets(listWidgets.sortedWith ( compareBy {
+            System.err.println("DataFactory sorted listWidgets===========> $it")
             when (it) {
                 is BaseParameterWidgetEStruct -> {it.baseParameterWidgetStruct.widgetPosition}
                 is CommandParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}

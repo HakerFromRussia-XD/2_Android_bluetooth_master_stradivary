@@ -11,6 +11,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
@@ -26,6 +28,7 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
+import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -38,6 +41,7 @@ import kotlin.properties.Delegates
 
 @RequirePresenter(MainPresenter::class)
 class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4, TransmitterUBI4 {
+    private lateinit var viewModel: MyViewModel
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
@@ -49,6 +53,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         super.onCreate(savedInstanceState)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
         mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+        viewModel = ViewModelProvider(this)[MyViewModel::class.java]
         val view = binding.root
         main = this
         val window = this.window
@@ -59,13 +64,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         BottomNavigationController(bottomNavigation = binding.bottomNavigation)
 
         // инициализация блютуз
-        mBLEController = BLEController(this)
+        mBLEController = BLEController(viewModel,this)
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
 
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragmentContainer, GesturesFragment())
+            .add(R.id.fragmentContainer, SensorsFragment())
             .commit()
     }
     @SuppressLint("MissingPermission")
@@ -117,6 +122,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         listWidgets = mutableSetOf()
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
+        rotationGroupFlow = MutableStateFlow(0)
         baseSubDevicesInfoStructSet = mutableSetOf()
         plot = MutableStateFlow(0)
         plotArray = arrayListOf()
@@ -148,6 +154,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
+        var rotationGroupFlow by Delegates.notNull<MutableStateFlow<Int>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()
 

@@ -24,19 +24,25 @@ import com.woxthebox.draglistview.DragItem
 import com.woxthebox.draglistview.DragListView
 import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
 import android.util.Pair
-import android.widget.Button
+import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
-import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.models.MyViewModel
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
-import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
 
 
 class GesturesDelegateAdapter(
+//    private val viewModel: MyViewModel,
     val onSelectorClick: (selectedPage: Int) -> Unit,
     val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
     val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
@@ -190,19 +196,41 @@ class GesturesDelegateAdapter(
         showIntroduction()
         setupListRecyclerView()
 
+//        viewModel.items
 
-        RxUpdateMainEventUbi4.getInstance().uiRotationGroupObservable
-            .compose(main.bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { dataCode ->
-                val parameter = ParameterProvider.getParameter(dataCode)
-                Log.d("uiRotationGroupObservable", "data = ${parameter.data}")
-                val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
-                Log.d("uiRotationGroupObservable", "rotationGroup = $rotationGroup")
-//                loadGestureState(gestureSettings)
-//                rotationGroup.
-            }
+//        gestureFlowCollect()
+        // Подписываемся на обновления данных из StateFlow
+//        GlobalScope.launch(Dispatchers.IO) {
+//            viewModel.items.collect { newItems ->
+//                Log.d("uiRotationGroupObservable", "data = ${newItems}")
+//            }
+//        }
+
     }
+//    private fun gestureFlowCollect() {
+//        GlobalScope.launch(Dispatchers.IO) {
+//            withContext(Dispatchers.Main) {
+//                MainActivityUBI4.rotationGroupFlow.collect { _ ->
+//                    val parameter = ParameterProvider.getParameter(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number)
+////                    Log.d("uiRotationGroupObservable", "data = ${parameter.data}")
+//                    val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
+////                    Log.d("uiRotationGroupObservable", "rotationGroup = $rotationGroup")
+//                    val testList = rotationGroup.toGestureList()
+//                    Log.d("uiRotationGroupObservable", "testList = $testList  size = ${testList.size}")
+//                    rotationGroupGestures.clear()
+//                    testList.forEach{ item ->
+//                        if (item.first != 0 )
+//                            rotationGroupGestures.add(CollectionGesturesProvider.getGesture(item.first))
+//                    }
+//
+//                    showIntroduction()
+//                    setupListRecyclerView()
+//                    synhronizeRotationGroup()
+//                    calculatingShowAddButton()
+//                }
+//            }
+//        }
+//    }
 
     private fun calculatingShowAddButton() {
         if (rotationGroupGestures.size >= 8) {

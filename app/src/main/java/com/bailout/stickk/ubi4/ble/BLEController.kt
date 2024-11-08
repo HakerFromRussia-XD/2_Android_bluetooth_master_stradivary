@@ -26,6 +26,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
+import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
@@ -35,7 +36,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class BLEController (main: AppCompatActivity) {
+class BLEController (private val viewModel: MyViewModel,
+                     main: AppCompatActivity) {
     private val mContext: Context = main.applicationContext
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
     private var mBLEParser: BLEParser? = null
@@ -62,9 +64,9 @@ class BLEController (main: AppCompatActivity) {
             if (!scanWithoutConnectFlag) {
                 //TODO раскомментировать когда не нужно быстрое подключение
                 System.err.println("connectedDeviceAddress $connectedDeviceAddress")
-//                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
+                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:0E:8E")       // Моя плата
-                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
+//                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
 //                mBluetoothLeService?.connect("34:85:18:98:0F:D2")       // Mike плата
 //                mBluetoothLeService?.connect(connectedDeviceAddress)
             }
@@ -92,7 +94,7 @@ class BLEController (main: AppCompatActivity) {
         val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
         mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-        mBLEParser = BLEParser(mMain)
+        mBLEParser = BLEParser(viewModel, mMain)
     }
 
     private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {

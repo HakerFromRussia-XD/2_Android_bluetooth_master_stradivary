@@ -43,8 +43,8 @@ class SensorsFragment : Fragment() {
         if (activity != null) { main = activity as MainActivityUBI4? }
 
         //фейковые данные принимаемого потока
-        val mBLEParser = main?.let { BLEParser(it) }
-        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+//        val mBLEParser = main?.let { BLEParser(it) }
+//        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
 
         //настоящие виджеты
         widgetListUpdater()

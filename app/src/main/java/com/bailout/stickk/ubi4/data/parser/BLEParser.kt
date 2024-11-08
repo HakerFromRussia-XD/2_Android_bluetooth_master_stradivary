@@ -43,10 +43,12 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.models.MyItem
+import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import kotlin.experimental.and
 
-class BLEParser(main: AppCompatActivity) {
+class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
     private var mConnected = false
     private var count = 0
@@ -75,7 +77,7 @@ class BLEParser(main: AppCompatActivity) {
                 Log.d("uiGestureSettingsObservable", "парсим параметры вход")
                 val parameterID = codeRequest.toInt()
                 ParameterProvider.getParameter(deviceAddress, parameterID).data = receiveDataString.substring(HEADER_BLE_OFFSET*2, receiveDataString.length)
-                uplateAllUI(ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)
+                updateAllUI(ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)//
             } else {
                 // парсим команды
                 when (codeRequest){
@@ -95,9 +97,19 @@ class BLEParser(main: AppCompatActivity) {
                     BaseCommands.GET_DEVICE_STATUS.number -> {System.err.println("TEST parser GET_DEVICE_STATUS")}
                     BaseCommands.DATA_TRANSFER_SETTINGS.number -> { System.err.println("TEST parser DATA_TRANSFER_SETTINGS") }
                     BaseCommands.COMPLEX_PARAMETER_TRANSFER.number -> {
-                        System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER $receiveDataString")
+//                        System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER $receiveDataString")
                         System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER data.size = ${data.size}   dataLength = $dataLength")
-                        dataLength
+                        var dataLength = dataLength
+
+                        while (dataLength > 0) {
+                            val deviceAddress = castUnsignedCharToInt(receiveDataString.substring(HEADER_BLE_OFFSET*2, (HEADER_BLE_OFFSET+1)*2).toInt(16).toByte())
+                            val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+1)*2, (HEADER_BLE_OFFSET+2)*2).toInt(16).toByte())
+                            val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
+                            parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+2)*2, (HEADER_BLE_OFFSET+2+parameter.parameterDataSize)*2)
+                            updateAllUI(parameter.dataCode)
+                            dataLength -= (parameter.parameterDataSize + 2)*2
+                            Log.d("COMPLEX_PARAMETER_TRANSFER", "dataLength = $dataLength  parameter = $parameter")
+                        }
 
 
 //                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]))
@@ -109,15 +121,17 @@ class BLEParser(main: AppCompatActivity) {
         }
     }
 
-    private fun uplateAllUI(dataCode: Int) {
-
+    private fun updateAllUI(dataCode: Int) {
         when (dataCode) {
             ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(dataCode) }
             ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
                 Log.d("uiRotationGroupObservable", "dataCode = $dataCode")
-                RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(dataCode) }
+//                RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(dataCode)
+//                rotationGroupFlow.value = Random.nextInt()//dataCode
+                viewModel.updateItem(MyItem(dataCode, ""))
+            }
         }
     }
 

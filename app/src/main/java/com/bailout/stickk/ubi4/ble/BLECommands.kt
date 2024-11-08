@@ -316,19 +316,31 @@ class BLECommands {
 
         fun testDataTransfer(): ByteArray {
             val header = byteArrayOf(
-                0x00,
+                0xE0.toByte(),
                 PreferenceKeysUBI4.BaseCommands.COMPLEX_PARAMETER_TRANSFER.number,
                 0x00,
-                0x00,//0x01
+                0x00,
                 0x00,
                 0x00,
                 0x00
             )
             val data = byteArrayOf(
-                0x06,
                 0x01,
                 0x01,
-                0x02
+                0x02,
+                0x02,
+                0x04,
+                0x04,
+                0x03,
+                0x03,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
             )
             header[3] = data.size.toByte()
             header[4] = (data.size/256).toByte()

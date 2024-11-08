@@ -58,6 +58,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import io.reactivex.android.schedulers.AndroidSchedulers
 import lib.kingja.switchbutton.SwitchMultiButton
 import online.devliving.passcodeview.PasscodeView
@@ -163,6 +164,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
       // Automatically connects to the device upon successful start-up initialization.
       //TODO закомментить быстрый вход после завершения экспериментов
+      System.err.println("connectedDeviceAddress $mDeviceAddress")
       mBluetoothLeService?.connect(mDeviceAddress)
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_A)
         || mDeviceType!!.contains(DEVICE_TYPE_BT05)

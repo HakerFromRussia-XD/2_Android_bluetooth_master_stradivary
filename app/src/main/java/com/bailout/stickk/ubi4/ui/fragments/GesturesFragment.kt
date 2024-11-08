@@ -6,12 +6,15 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
@@ -22,6 +25,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateA
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
@@ -29,13 +33,16 @@ import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
+import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
+import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
@@ -50,6 +57,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
@@ -57,6 +65,7 @@ import kotlin.reflect.full.memberProperties
 
 @Suppress("DEPRECATION")
 class GesturesFragment : Fragment() {
+    private val viewModel: MyViewModel by viewModels()
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
@@ -67,15 +76,16 @@ class GesturesFragment : Fragment() {
         if (activity != null) { main = activity as MainActivityUBI4? }
 
         //фейковые данные принимаемого потока
-//        val mBLEParser = main?.let { BLEParser(it) }
-//        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+//        Handler().postDelayed({
+//            val mBLEParser = main?.let { BLEParser(it) }
+//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+//        }, 1000)
+
 
         //настоящие виджеты
         widgetListUpdater()
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
-
-//        showGestureSettings(6,11,64)
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -96,6 +106,33 @@ class GesturesFragment : Fragment() {
             .subscribe { parameters ->
                 requestGestureSettings(parameters.deviceAddress, parameters.parameterID, parameters.gestureID)
             }
+//        RxUpdateMainEventUbi4.getInstance().uiRotationGroupObservable
+//            .compose(MainActivityUBI4.main.bindToLifecycle())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe { dataCode ->
+//                val parameter = ParameterProvider.getParameter(dataCode)
+////                Log.d("uiRotationGroupObservable", "data = ${parameter.data}")
+//                val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
+////                Log.d("uiRotationGroupObservable", "rotationGroup = $rotationGroup")
+//                val testList = rotationGroup.toGestureList()
+//                Log.d("uiRotationGroupObservable", "RX testList = $testList  size = ${testList.size}")
+//                rotationGroupGestures.clear()
+//                testList.forEach{ item ->
+//                    if (item.first != 0 )
+//                        rotationGroupGestures.add(CollectionGesturesProvider.getGesture(item.first))
+//                }
+////                showIntroduction()
+////                setupListRecyclerView()
+////                synhronizeRotationGroup()
+////                calculatingShowAddButton()
+//            }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.items.collect { newItem ->
+                Log.d("uiRotationGroupObservable", "data = ${newItem}")
+            }
+        }
+
+
 
         binding.homeRv.layoutManager = LinearLayoutManager(context)
         binding.homeRv.adapter = adapterWidgets

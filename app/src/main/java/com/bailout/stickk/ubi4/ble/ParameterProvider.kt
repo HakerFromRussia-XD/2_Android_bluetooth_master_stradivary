@@ -2,13 +2,16 @@ package com.bailout.stickk.ubi4.ble
 
 import android.util.Log
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
+import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseSubDevicesInfoStructSet
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.opticTrainingStructArray
 
 class ParameterProvider {
     companion object {
         fun getParameter(deviceAddress: Int, parameterID: Int): BaseParameterInfoStruct {
-            if (baseSubDevicesInfoStructSet.size != 0){
+            if (baseParametrInfoStructArray.size != 0){
+                Log.d("TestOptic","baseSubDevicesInfoStructSet.size != 0")
                 if (deviceAddress == 0 ) {
                     // значит мы ищем параметр на мастере
                     baseParametrInfoStructArray.forEach {
@@ -24,6 +27,8 @@ class ParameterProvider {
                         }
                     }
                 }
+            } else {
+                Log.d("TestOptic","baseSubDevicesInfoStructSet.size == 0")
             }
             return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, "")
         }
@@ -39,6 +44,8 @@ class ParameterProvider {
             }
             return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, "")
         }
+
+
 
     }
 }

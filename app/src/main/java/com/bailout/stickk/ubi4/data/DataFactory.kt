@@ -10,7 +10,6 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetS
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
@@ -182,7 +181,7 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_TRAINING.number.toInt() -> { TrainingGestureItem(label, widget)  }
+            ParameterWidgetCode.PWCE_OPTIC_LERNING_WIDGET.number.toInt() -> { TrainingGestureItem(label, widget)  }
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
             else -> { OneButtonItem("Open", "description", widget) }
         }

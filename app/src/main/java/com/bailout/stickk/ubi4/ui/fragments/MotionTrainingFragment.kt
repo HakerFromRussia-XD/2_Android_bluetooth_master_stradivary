@@ -16,11 +16,13 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex.Companion.decodeHex
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex.Companion.decodeHexUTF8
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -79,9 +81,12 @@ class MotionTrainingFragment() : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {  dataCode ->
                 val parameter = ParameterProvider.getParameter(dataCode)
-                //val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
-                Log.d("TestOptic","data = ${parameter.data}")
-                writeToFile(parameter.data.decodeHexUTF8())
+                parameter.data = "1293847561038475612938475610394857612039847561203948576120394857612093485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120"
+                val test = Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
+                val dataString = test.data.joinToString(separator = " ") { it.toString() }
+                Log.d("TestOptic","param = $test")
+
+                writeToFile(dataString)
             }
         disposables.add(opticStreamDisposable)
 
@@ -239,6 +244,7 @@ class MotionTrainingFragment() : Fragment() {
             startPreparationCountDown()
         }
     }
+
 
     private fun writeToFile(data: String, isAppend: Boolean = false) {
         try {

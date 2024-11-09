@@ -38,7 +38,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
-import com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService
 import com.bailout.stickk.new_electronic_by_Rodeon.services.MyService
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Decorator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Navigator
@@ -58,7 +57,6 @@ import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import io.reactivex.android.schedulers.AndroidSchedulers
 import lib.kingja.switchbutton.SwitchMultiButton
 import online.devliving.passcodeview.PasscodeView
@@ -1259,7 +1257,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
   override fun showSecretSettingsScreen() { launchFragment(SecretSettingsFragment()) }
   override fun showHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(HelpFragment(chartFragmentClass)) }
-  override fun showSensorsHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(SensorsFragment(chartFragmentClass)) }
+  override fun showSensorsHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(SensorsFragmentHelp(chartFragmentClass)) }
   override fun showGesturesHelpScreen(chartFragmentClass: ChartFragment) { launchFragment(GestureCustomizationFragment(chartFragmentClass)) }
   override fun showHelpMonoAdvancedSettingsScreen(chartFragmentClass: ChartFragment) { launchFragment(AdvancedSettingsFragmentMono(chartFragmentClass)) }
   override fun showHelpMultyAdvancedSettingsScreen(chartFragmentClass: ChartFragment) { launchFragment(AdvancedSettingsFragmentMulty(chartFragmentClass)) }

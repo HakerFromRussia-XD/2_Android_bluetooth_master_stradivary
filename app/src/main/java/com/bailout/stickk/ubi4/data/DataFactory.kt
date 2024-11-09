@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data
 
 
+import android.util.Log
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -21,7 +22,7 @@ internal class DataFactory {
 
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
-        addElement(8, 2, objects, objects)
+        addElement(14, 2, objects, objects)
         return objects
     }
     fun fakeDataClear(): List<Any> {
@@ -42,7 +43,7 @@ internal class DataFactory {
                 else -> {""}
             }
         }))
-        System.err.println("DataFactory sorted listWidgets==============")
+        System.err.println("DataFactory sorted listWidgets============== ${listWidgets.size}")
         listWidgets.forEach {
             System.err.println("DataFactory sorted listWidgets: $it")
         }
@@ -71,6 +72,7 @@ internal class DataFactory {
                             it
                         )
                     }
+//                    Log.d("parseWidgets_rx", "2 listWidgets = ${listWidgets}  ${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display} ${display}")
                 }
                 is CommandParameterWidgetEStruct -> {
                     if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
@@ -146,12 +148,16 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
+            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {
+//                GesturesItem("GESTURE_SETTINGS", widget)
+            }
+            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { OneButtonItem("PWCE_OPTIC_LEARNING_WIDGET", "description", widget) }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)
     }
     private fun addElementS(widgetCode: Int, label: String, widgets: ArrayList<Any>, widget: Any) {
+        Log.d("parseWidgets_rx", "widgetCode = ${widgetCode}  label = ${label} widget = ${widget}")
         val item: Any = when (widgetCode) {
             ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { OneButtonItem("PWCE_UNKNOW", "Description", widget) }
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
@@ -172,7 +178,10 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
+            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {
+//                GesturesItem("GESTURE_SETTINGS", widget)
+            }
+            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { OneButtonItem(label, "description", widget) }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)

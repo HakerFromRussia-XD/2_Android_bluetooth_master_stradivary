@@ -6,7 +6,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +24,6 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateA
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
@@ -33,7 +31,6 @@ import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
-import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
@@ -42,22 +39,14 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMET
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.GlobalScope
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
@@ -69,6 +58,9 @@ class GesturesFragment : Fragment() {
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
+
+    private val disposables = CompositeDisposable()
+    private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -83,7 +75,8 @@ class GesturesFragment : Fragment() {
 
 
         //настоящие виджеты
-        widgetListUpdater()
+//        widgetListUpdater()
+        widgetListUpdaterRx()
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -143,19 +136,31 @@ class GesturesFragment : Fragment() {
         listWidgets.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
-    @OptIn(DelicateCoroutinesApi::class)
-    fun widgetListUpdater() {
-        GlobalScope.launch(Main) {
-            withContext(Default) {
-                updateFlow.collect { value ->
-                    main?.runOnUiThread {
-                        adapterWidgets.swapData(mDataFactory.prepareData(0))
-                        binding.refreshLayout.setRefreshing(false)
-                    }
-                }
+
+    private fun widgetListUpdaterRx() {
+        adapterWidgets.swapData(mDataFactory.prepareData(0))
+        val sensorsFragmentStreamDisposable = rxUpdateMainEvent.allFragmentUiObservable
+            .compose(main?.bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { _ ->
+                Log.d("parseWidgets_rx", "приём команды Rx  listWidgets = ${mDataFactory.prepareData(0)}")
+                adapterWidgets.swapData(mDataFactory.prepareData(0))
+                binding.refreshLayout.setRefreshing(false)
             }
-        }
+        disposables.add(sensorsFragmentStreamDisposable)
     }
+//    private fun widgetListUpdater() {
+//        viewLifecycleOwner.lifecycleScope.launch(Main) {
+//            withContext(Default) {
+//                updateFlow.collect { value ->
+//                    main?.runOnUiThread (Runnable {
+//                        adapterWidgets.swapData(mDataFactory.prepareData(0))
+//                        binding.refreshLayout.setRefreshing(false)
+//                    })
+//                }
+//            }
+//        }
+//    }
 
     private val adapterWidgets = CompositeDelegateAdapter(
         PlotDelegateAdapter(

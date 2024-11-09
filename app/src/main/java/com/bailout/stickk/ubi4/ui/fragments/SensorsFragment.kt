@@ -2,11 +2,13 @@ package com.bailout.stickk.ubi4.ui.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
@@ -16,17 +18,16 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.data.parser.BLEParser
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers.Default
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -36,6 +37,12 @@ class SensorsFragment : Fragment() {
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
+
+    private val disposables = CompositeDisposable()
+    private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
+
+    private var count = 0
+    private val display = 1
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -47,7 +54,20 @@ class SensorsFragment : Fragment() {
 //        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
 
         //настоящие виджеты
-        widgetListUpdater()
+//        widgetListUpdater()
+        widgetListUpdaterRx()
+//        if (binding.homeRv.isComputingLayout.not()) {
+//            if (Looper.myLooper() != Looper.getMainLooper()) {
+//                // If BG thread,then post task to recycler view
+//                Log.d("parseWidgets", "1 приём команды Rx  listWidgets = $listWidgets")
+//                binding.homeRv.post { adapterWidgets.swapData(mDataFactory.prepareData(display)) }
+//            } else {
+//                Log.d("parseWidgets", "2 приём команды Rx  listWidgets = $listWidgets")
+//                adapterWidgets.swapData(mDataFactory.prepareData(display))
+//            }
+//        } else {
+//            Log.d("parseWidgets", "3 приём команды Rx  isComputingLayout = ${binding.homeRv.isComputingLayout}   scrollState  = ${binding.homeRv.scrollState}$")
+//        }
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -60,6 +80,12 @@ class SensorsFragment : Fragment() {
         binding.homeRv.adapter = adapterWidgets
         return binding.root
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
+    }
+
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         listWidgets.clear()
@@ -69,15 +95,46 @@ class SensorsFragment : Fragment() {
 //            binding.refreshLayout.setRefreshing(false)
 //        }, 1000)
     }
-    @OptIn(DelicateCoroutinesApi::class)
-    fun widgetListUpdater() {
-        GlobalScope.launch(Main) {
-            withContext(Default) {
-                updateFlow.collect { value ->
-                    main?.runOnUiThread {
-                        adapterWidgets.swapData(mDataFactory.prepareData(1))
-                        binding.refreshLayout.setRefreshing(false)
+
+    private fun widgetListUpdaterRx() {
+        adapterWidgets.swapData(mDataFactory.prepareData(1))
+        val sensorsFragmentStreamDisposable = rxUpdateMainEvent.allFragmentUiObservable
+            .compose(main?.bindToLifecycle())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { _ ->
+//                if ( count < 4 ) {
+////                    Log.d("parseWidgets", "приём команды Rx  listWidgets = $listWidgets")
+//                    Log.d("parseWidgets_rx", "приём команды Rx  listWidgets = ${mDataFactory.prepareData(1)}")
+//                    count += 1
+//                    adapterWidgets.swapData(mDataFactory.prepareData(1))
+//                    binding.refreshLayout.setRefreshing(false)
+//                }
+
+                if (binding.homeRv.isComputingLayout.not()) {
+                    if (Looper.myLooper() != Looper.getMainLooper()) {
+                        // If BG thread,then post task to recycler view
+                        Log.d("parseWidgets", "1 приём команды Rx  listWidgets = $listWidgets")
+                        binding.homeRv.post { adapterWidgets.swapData(mDataFactory.prepareData(display)) }
+                    } else {
+                        Log.d("parseWidgets", "2 приём команды Rx  listWidgets = $listWidgets")
+                        adapterWidgets.swapData(mDataFactory.prepareData(display))
                     }
+                } else {
+                    Log.d("parseWidgets", "3 приём команды Rx  isComputingLayout = ${binding.homeRv.isComputingLayout}   scrollState  = ${binding.homeRv.scrollState}$")
+                }
+                binding.refreshLayout.setRefreshing(false)
+            }
+        disposables.add(sensorsFragmentStreamDisposable)
+    }
+    private fun widgetListUpdater() {
+        viewLifecycleOwner.lifecycleScope.launch(Main) {
+            withContext(Main) {
+                updateFlow.collect { value ->
+//                    main?.runOnUiThread (Runnable {
+                    adapterWidgets.swapData(mDataFactory.prepareData(1))
+//                        adapterWidgets.swapData(mDataFactory.fakeData())
+                    binding.refreshLayout.setRefreshing(false)
+//                    })
                 }
             }
         }
@@ -91,6 +148,15 @@ class SensorsFragment : Fragment() {
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
             onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
         ) ,
+//        GesturesDelegateAdapter (
+//            onSelectorClick = {},
+//            onDeleteClick = { resultCb, gestureName -> },
+//            onAddGesturesToRotationGroup = { onSaveDialogClick -> },
+//            onSendBLERotationGroup = {deviceAddress, parameterID -> },
+//            onShowGestureSettings = { deviceAddress, parameterID, gestureID -> },
+//            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> },
+//            onRequestRotationGroup = {deviceAddress, parameterID -> }
+//        )
     )
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {

@@ -32,7 +32,7 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
 
-class MotionTrainingFragment() : Fragment() {
+class MotionTrainingFragment : Fragment() {
 
 
     private var _bindig: Ubi4FragmentMotionTrainingBinding? = null

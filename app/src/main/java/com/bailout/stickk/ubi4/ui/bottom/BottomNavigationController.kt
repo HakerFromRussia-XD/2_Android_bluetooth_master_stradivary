@@ -16,13 +16,15 @@ class BottomNavigationController(bottomNavigation: BottomNavigationView) {
         bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.page_1 -> {
-                    main.showGesturesScreen()
+//                    main.showGesturesScreen()
+                    main.showOpticGesturesScreen()
                     System.err.println("bottomNavigation item1")
                     return@setOnItemSelectedListener true
                 }
 
                 R.id.page_2 -> {
-                    main.showOpticGesturesScreen()
+//                    main.showOpticGesturesScreen()
+                    main.showSensorsScreen()
                     System.err.println("bottomNavigation item2")
                     return@setOnItemSelectedListener true
                 }

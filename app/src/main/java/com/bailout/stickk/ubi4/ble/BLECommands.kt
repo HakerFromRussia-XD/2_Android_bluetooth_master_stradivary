@@ -100,7 +100,7 @@ class BLECommands {
         }
         fun requestTransferFlow(startTransfer: Int): ByteArray {
             val result = byteArrayOf(
-                0x20,
+                0x00,
                 DATA_TRANSFER_SETTINGS.number,
                 0x00,
                 0x00,//0x01
@@ -373,7 +373,6 @@ class BLECommands {
                 0x01,
                 0x01,
                 0x02,
-
             )
             header[3] = data.size.toByte()
             header[4] = (data.size/256).toByte()

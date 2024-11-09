@@ -21,6 +21,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -33,6 +34,7 @@ import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
+import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
@@ -67,9 +69,9 @@ class SprGestureFragment() : Fragment() {
         }
 
         //настоящие виджеты
-//        widgetListUpdater()
+        widgetListUpdater()
         //фейковые виджеты
-        adapterWidgets.swapData(mDataFactory.fakeData())
+//        adapterWidgets.swapData(mDataFactory.fakeData())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -99,7 +101,8 @@ class SprGestureFragment() : Fragment() {
             withContext(Default) {
                 updateFlow.collect { value ->
                     main?.runOnUiThread {
-                        adapterWidgets.swapData(mDataFactory.prepareData(1))
+                        Log.d("widgetListUpdater","${mDataFactory.prepareData(0)}")
+                        adapterWidgets.swapData(mDataFactory.prepareData(0))
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }
@@ -136,12 +139,8 @@ class SprGestureFragment() : Fragment() {
             onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)},
             onSetCustomGesture = { onSaveDotsClick, position, name ->
                 showCustomGesturesDialog(onSaveDotsClick, position, name)
-
             },
-
-
-
-        )
+        ),
     )
 
     private fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {

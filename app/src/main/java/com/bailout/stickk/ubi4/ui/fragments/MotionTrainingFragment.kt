@@ -34,7 +34,6 @@ import java.io.IOException
 
 class MotionTrainingFragment : Fragment() {
 
-
     private var _bindig: Ubi4FragmentMotionTrainingBinding? = null
     private val binding get() = _bindig!!
 
@@ -58,47 +57,38 @@ class MotionTrainingFragment : Fragment() {
 
         val mBLEParser = main?.let { BLEParser(it) }
         //фейковые данные принимаемого потока
-        Handler().postDelayed({
+//        Handler().postDelayed({
+//
+//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+//        }, 1000)
+//        Handler().postDelayed({
+//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+//        }, 2000)
+//        Handler().postDelayed({
+//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+//        }, 3000)
+//        Handler().postDelayed({
+//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+//        }, 4000)
+//        Handler().postDelayed({
+//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+//        }, 5000)
 
-            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-        }, 1000)
-        Handler().postDelayed({
-            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-        }, 2000)
-        Handler().postDelayed({
-            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-        }, 3000)
-        Handler().postDelayed({
-            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-        }, 4000)
-        Handler().postDelayed({
-            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-        }, 5000)
-
-
+        val parameter = ParameterProvider.getParameter(6,15)
+        Log.d("TestOptic","OpticTrainingStruct = ${parameter.parameterDataSize}")
         val opticStreamDisposable = rxUpdateMainEvent.uiOpticTrainingObservable
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {  dataCode ->
-                val parameter = ParameterProvider.getParameter(dataCode)
-                parameter.data = "1293847561038475612938475610394857612039847561203948576120394857612093485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120"
-                val test = Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
-                val dataString = test.data.joinToString(separator = " ") { it.toString() }
-                Log.d("TestOptic","param = $test")
+//                Log.d("TestOptic","OpticTrainingStruct = ${parameter.parameterDataSize}")
+//                parameter.data = "1293847561038475612938475610394857612039847561203948576120394857612093485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120"
+                val opticTrainingStruct = Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
+                val dataString = opticTrainingStruct.data.joinToString(separator = " ") { it.toString() }
+                Log.d("TestOptic","OpticTrainingStruct = $opticTrainingStruct")
 
-                writeToFile(dataString)
+//                writeToFile(dataString)
             }
         disposables.add(opticStreamDisposable)
-
-//        opticStream = RxUpdateMainEventUbi4.getInstance().uiOpticTrainingObservable
-//            .compose(main.bindToLifecycle())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { dataCode ->
-//                val parameter = ParameterProvider.getParameter(dataCode)
-//                //val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
-//                Log.d("TestOptic","data = ${parameter.data}")
-//                writeToFile(parameter.data.decodeHexUTF8())
-//            }
     }
 
 

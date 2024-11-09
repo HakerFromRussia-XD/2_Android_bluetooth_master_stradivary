@@ -16,7 +16,7 @@ data class BaseParameterInfoStruct(
     val broadcastID: Int = 0,
     var dataCode: Int = 0,
     val dataInstance: Int = 0,
-    val parametrSize: Int = 0,//2 байта
+    val parameterDataSize: Int = 0,//2 байта
     val flagShift: Int = 0,
     val optimisation: Int = 0,
     val valueLimit: Int = 0,
@@ -106,7 +106,7 @@ object BaseParametrInfoSerializer: KSerializer<BaseParameterInfoStruct> {
             broadcastID = broadcastID,
             dataCode = dataCode,
             dataInstance = dataInstance,
-            parametrSize = parametrSize,
+            parameterDataSize = parametrSize,
 
             flagShift = flagShift,
             optimisation = optimisation,

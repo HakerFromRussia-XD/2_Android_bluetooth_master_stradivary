@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
@@ -48,6 +49,7 @@ internal class DataFactory {
                 is CommandParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
                 is PlotParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
                 is PlotParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
+                is OpticStartLearningWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
                 else -> {""}
             }
         }))
@@ -115,6 +117,16 @@ internal class DataFactory {
                     }
                     System.err.println("prepareData PlotParameterWidgetEStruct widgetPosition: ${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}")
                 }
+                is OpticStartLearningWidgetEStruct -> {
+                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
+                        addElement(
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetEStruct.labelCode,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                }
             }
         }
         return _listWidgets
@@ -156,6 +168,7 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
+            ParameterWidgetCode.PWCE_OPTIC_LERNING_WIDGET.number.toInt() -> { TrainingGestureItem("labelCode = $labelCode", widget)  }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)
@@ -181,8 +194,8 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_OPTIC_LERNING_WIDGET.number.toInt() -> { TrainingGestureItem(label, widget)  }
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
+            ParameterWidgetCode.PWCE_OPTIC_LERNING_WIDGET.number.toInt() -> { TrainingGestureItem(label, widget)  }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)

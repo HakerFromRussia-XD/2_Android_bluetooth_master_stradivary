@@ -30,17 +30,17 @@ object OpticTrainingSerializer : KSerializer<OpticTrainingStruct> {
         var data = arrayListOf<Float>()
 
 
+        Log.d("TestOptic","OpticTrainingStruct length = ${string.length}")
         if (string.length >= 808) {
-             numberOfFrame =
-                castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte()).toLong() +
-                        castUnsignedCharToInt(string.substring(2, 4).toInt(16).toByte()).toLong()*256 +
-                        castUnsignedCharToInt(string.substring(4, 6).toInt(16).toByte()).toLong()*256*256 +
-                        castUnsignedCharToInt(string.substring(6, 8).toInt(16).toByte()).toLong()*256*256*256
+             numberOfFrame = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte()).toLong() +
+                             castUnsignedCharToInt(string.substring(2, 4).toInt(16).toByte()).toLong()*256 +
+                             castUnsignedCharToInt(string.substring(4, 6).toInt(16).toByte()).toLong()*256*256 +
+                             castUnsignedCharToInt(string.substring(6, 8).toInt(16).toByte()).toLong()*256*256*256
 
 
             val byteList  = mutableListOf<Byte>()
             for (i in 0 until 400) {
-                val oneByteValue = string.substring(i * 2+ 8, i * 2 + 10).toInt(16).toByte()
+                val oneByteValue = string.substring(i * 2 + 8, i * 2 + 10).toInt(16).toByte()
                 byteList.add(oneByteValue)
             }
             val byteArrayData = byteList.toByteArray()

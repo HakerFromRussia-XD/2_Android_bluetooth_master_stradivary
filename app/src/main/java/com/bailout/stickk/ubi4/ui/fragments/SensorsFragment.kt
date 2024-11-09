@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -21,6 +22,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
+import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -71,6 +73,7 @@ class SensorsFragment : Fragment() {
             withContext(Default) {
                 updateFlow.collect { value ->
                     main?.runOnUiThread {
+                        Log.d("widgetListUpdater","${mDataFactory.prepareData(1)}")
                         adapterWidgets.swapData(mDataFactory.prepareData(1))
                         binding.refreshLayout.setRefreshing(false)
                     }
@@ -87,14 +90,24 @@ class SensorsFragment : Fragment() {
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
             onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
         ) ,
+        TrainingFragmentDelegateAdapter(
+            onConfirmClick = {}
+        ),
     )
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         Log.d("ButtonClick", "oneButtonPressed  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
+
+        BLECommands.sendOneButtonCommand(addressDevice, parameterID, command).forEach {
+            Log.d("ButtonClick", "comanda  addressDevice=${castUnsignedCharToInt(it)}")
+        }
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
     }
     private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         Log.d("ButtonClick", "oneButtonReleased  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
+        BLECommands.sendOneButtonCommand(addressDevice, parameterID, command).forEach {
+            Log.d("ButtonClick", "comanda  addressDevice=${castUnsignedCharToInt(it)}")
+        }
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
 
 

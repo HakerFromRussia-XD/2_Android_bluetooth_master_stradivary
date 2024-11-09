@@ -39,7 +39,7 @@ interface ApplicationGraph {
   fun inject(target_: KibiFragment)
 
   fun inject(settingsFragment: HelpFragment)
-  fun inject(sensorsFragment: SensorsFragment) {}
+  fun inject(sensorsFragment: SensorsFragmentHelp) {}
   fun inject(gestureCustomizationFragment: GestureCustomizationFragment) {}
 
   fun inject(howProsthesesWorksFragment: HowProsthesesWorksFragment)

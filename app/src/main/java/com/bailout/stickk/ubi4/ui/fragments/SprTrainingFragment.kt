@@ -27,6 +27,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.bailout.stickk.ubi4.utility.Hyperparameters.BATCH_SIZE
 import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_TARGET_ID
 import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_CLASSES
@@ -36,7 +37,12 @@ import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_TIMESTEPS
 import com.bailout.stickk.ubi4.utility.Hyperparameters.WIN_SHIFT
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
-import org.tensorflow.lite.Interpreter
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+//import org.tensorflow.lite.Interpreter
 import java.io.File
 import java.io.FileInputStream
 import java.nio.ByteBuffer
@@ -50,7 +56,7 @@ class SprTrainingFragment : Fragment() {
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
-    private lateinit var tflite: Interpreter
+//    private lateinit var tflite: Interpreter
     private lateinit var modelInfo: String
     private var thread: Thread = Thread()
     private val path: File by lazy {
@@ -72,9 +78,9 @@ class SprTrainingFragment : Fragment() {
         }
 
         //настоящие виджеты
-//        widgetListUpdater()
+        widgetListUpdater()
         //фейковые виджеты
-        adapterWidgets.swapData(mDataFactory.fakeData2())
+//        adapterWidgets.swapData(mDataFactory.fakeData2())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -91,10 +97,19 @@ class SprTrainingFragment : Fragment() {
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-        //TODO только для демонстрации
-        Handler().postDelayed({
-            binding.refreshLayout.setRefreshing(false)
-        }, 1000)
+    }
+    private fun widgetListUpdater() {
+        GlobalScope.launch(Main) {
+            withContext(Default) {
+                updateFlow.collect { value ->
+                    main?.runOnUiThread {
+                        Log.d("widgetListUpdater","${mDataFactory.prepareData(2)}")
+                        adapterWidgets.swapData(mDataFactory.prepareData(2))
+                        binding.refreshLayout.setRefreshing(false)
+                    }
+                }
+            }
+        }
     }
 
     private val adapterWidgets = CompositeDelegateAdapter(
@@ -118,17 +133,14 @@ class SprTrainingFragment : Fragment() {
             }
         ),
         TrainingFragmentDelegateAdapter(
-
             onConfirmClick = {
                 showConfirmTrainingDialog {
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragmentContainer, MotionTrainingFragment()).commit()
                 }
             }
-
-        )
+        ),
     )
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -318,11 +330,6 @@ class SprTrainingFragment : Fragment() {
 ////        }
     }
 
-    private fun validate() {
-        // Validation logic here
-    }
-
-
     @SuppressLint("MissingInflatedId")
     fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_training, null)
@@ -367,348 +374,347 @@ class SprTrainingFragment : Fragment() {
         )
     }
 
-    private fun loadModelFile(modelPath: String): Interpreter {
-        val assetFileDescriptor = requireContext().assets.openFd(modelPath)
-        val fileInputStream = FileInputStream(assetFileDescriptor.fileDescriptor)
-        val fileChannel = fileInputStream.channel
-        val startOffset = assetFileDescriptor.startOffset
-        val declaredLength = assetFileDescriptor.declaredLength
-        val model = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
-        return Interpreter(model)
-    }
+//    private fun loadModelFile(modelPath: String): Interpreter {
+//        val assetFileDescriptor = requireContext().assets.openFd(modelPath)
+//        val fileInputStream = FileInputStream(assetFileDescriptor.fileDescriptor)
+//        val fileChannel = fileInputStream.channel
+//        val startOffset = assetFileDescriptor.startOffset
+//        val declaredLength = assetFileDescriptor.declaredLength
+//        val model = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+//        return Interpreter(model)
+//    }
+//
+//    private fun getModelInfo(interpreter: Interpreter): String {
+//        val inputTensorCount = interpreter.inputTensorCount
+//        val outputTensorCount = interpreter.outputTensorCount
+//
+//        val inputDetails = (0 until inputTensorCount).joinToString("\n") { i ->
+//            val tensor = interpreter.getInputTensor(i)
+//            val shape = tensor.shape().joinToString(", ")
+//            val type = tensor.dataType()
+//            "Input Tensor $i: shape=[$shape], type=$type"
+//        }
+//
+//        val outputDetails = (0 until outputTensorCount).joinToString("\n") { i ->
+//            val tensor = interpreter.getOutputTensor(i)
+//            val shape = tensor.shape().joinToString(", ")
+//            val type = tensor.dataType()
+//            "Output Tensor $i: shape=[$shape], type=$type"
+//        }
+//        val weightDetails = (0 until interpreter.inputTensorCount).joinToString("\n") { i ->
+//            val tensor = interpreter.getInputTensor(i)
+//            val buffer = tensor.asReadOnlyBuffer()
+//            val shape = tensor.shape().joinToString(", ")
+//            val type = tensor.dataType()
+//            "Weight Tensor $i: shape=[$shape], type=$type, values=${bufferToString(buffer, type)}"
+//
+//
+//        }
+//        return "Model Info:\n$inputDetails\n$outputDetails\n\nWeight Details:\n$weightDetails"
+//    }
 
-    private fun getModelInfo(interpreter: Interpreter): String {
-        val inputTensorCount = interpreter.inputTensorCount
-        val outputTensorCount = interpreter.outputTensorCount
-
-        val inputDetails = (0 until inputTensorCount).joinToString("\n") { i ->
-            val tensor = interpreter.getInputTensor(i)
-            val shape = tensor.shape().joinToString(", ")
-            val type = tensor.dataType()
-            "Input Tensor $i: shape=[$shape], type=$type"
-        }
-
-        val outputDetails = (0 until outputTensorCount).joinToString("\n") { i ->
-            val tensor = interpreter.getOutputTensor(i)
-            val shape = tensor.shape().joinToString(", ")
-            val type = tensor.dataType()
-            "Output Tensor $i: shape=[$shape], type=$type"
-        }
-        val weightDetails = (0 until interpreter.inputTensorCount).joinToString("\n") { i ->
-            val tensor = interpreter.getInputTensor(i)
-            val buffer = tensor.asReadOnlyBuffer()
-            val shape = tensor.shape().joinToString(", ")
-            val type = tensor.dataType()
-            "Weight Tensor $i: shape=[$shape], type=$type, values=${bufferToString(buffer, type)}"
-
-
-        }
-        return "Model Info:\n$inputDetails\n$outputDetails\n\nWeight Details:\n$weightDetails"
-    }
-
-    private fun bufferToString(buffer: ByteBuffer, type: org.tensorflow.lite.DataType): String {
-        return when (type) {
-            org.tensorflow.lite.DataType.FLOAT32 -> {
-                val floatBuffer = buffer.asFloatBuffer()
-                val array = FloatArray(floatBuffer.remaining())
-                floatBuffer.get(array)
-                array.joinToString(", ")
-            }
-
-            org.tensorflow.lite.DataType.INT32 -> {
-                val intBuffer = buffer.asIntBuffer()
-                val array = IntArray(intBuffer.remaining())
-                intBuffer.get(array)
-                array.joinToString(", ")
-            }
-
-            org.tensorflow.lite.DataType.UINT8 -> {
-                val byteArray = ByteArray(buffer.remaining())
-                buffer.get(byteArray)
-                byteArray.joinToString(", ")
-            }
-
-            else -> "Unsupported data type"
-        }
-    }
-
-    private fun parseFile(filename: String): MutableList<MutableList<Double>> {
-        val data = mutableListOf<MutableList<Double>>()
-        requireContext().assets.open(filename).bufferedReader().useLines { lines ->
-            lines.forEach { str ->
-                data.add(str.split(" ").map { it.toDouble() }.toMutableList())
-            }
-        }
-        return data
-    }
-
-    private fun runModel() {
-        if (!thread.isAlive) {
-            thread = Thread {
-                train(path, preprocessedX, targetArray)
-                export(path)
-                run(path, preprocessedX)
-            }
-            thread.start()
-        }
-    }
-
-    @SuppressLint("LogNotTimber")
-    private fun train(
-        path: File?,
-        preprocessedX: Array<FloatArray>,
-        targetArray: Array<FloatArray>
-    ) {
-        //////////////////////////// [TRAIN MODEL] ////////////////////////////
-        // train the model
-        // https://ai.google.dev/edge/litert/models/ondevice_training
-        // Формирование индексов для формирования батчей
-        // TODO: need to be changed to random indexes
-        val indexes = IntRange(0, preprocessedX.size - NUM_TIMESTEPS - 1).step(WIN_SHIFT).toList()
-        // Shuffle the indexes
-        val num_batches = indexes.size / BATCH_SIZE
-        // TODO: удалить в будующем, тк используется только для логирования
-        val indexesAllBatches = Array(num_batches) { IntArray(BATCH_SIZE) }
-        for (i in 0 until num_batches) {
-            for (j in 0 until BATCH_SIZE) {
-                indexesAllBatches[i][j] = indexes[i * BATCH_SIZE + j]
-            }
-        }
-        // Log indexesAllBatches
-        val logFileIndexesAllBatches = File(path, "log_indexes_batches.txt")
-        logFileIndexesAllBatches.bufferedWriter().use { writer ->
-            for (row in indexesAllBatches) {
-                writer.write(row.joinToString(" "))
-                writer.newLine()
-            }
-        }
-        println("Results written to $logFileIndexesAllBatches")
-
-        // Run training for a few steps.
-        val losses = FloatArray(NUM_EPOCHS) // TODO: remove potentialy, useless val
-        val lossesEpoch = FloatArray(num_batches)
-        val lossesAll = FloatArray(num_batches * NUM_EPOCHS)
-
-        val lossCalc = FloatBuffer.allocate(1)
-        val inputsCalc = HashMap<String, Any>()
-        val outputsCalc = HashMap<String, Any>()
-        // холостая имитация действий в цикле обучения
-        // без нее самый первый lossCalc будет нулевым
-        // хотя в python он не нулевой
-        // возможно это из-за неверной инициализации lossCalc
-        outputsCalc["loss"] = lossCalc
-        lossCalc.rewind()
-        // конец имитации
-
-        var epochsTimerSum = 0
-        val epochsTimerArr = Vector<Number>()
-
-        for (epoch in 0 until NUM_EPOCHS) {
-            val epochsTimer = Chronometer(context)
-            epochsTimer.base = SystemClock.elapsedRealtime()
-            epochsTimer.start()
-            val shuffledIndexes = indexes.shuffled()
-            val shuffledIndexesAllBatches = Array(num_batches) { IntArray(BATCH_SIZE) }
-            for (i in 0 until num_batches) {
-                for (j in 0 until BATCH_SIZE) {
-                    shuffledIndexesAllBatches[i][j] = shuffledIndexes[i * BATCH_SIZE + j]
-                }
-            }
-            val logFileShuffledIndexesAllBatches =
-                File(path, "log_shuffled_indexes_batches_${epoch}.txt")
-            logFileShuffledIndexesAllBatches.bufferedWriter().use { writer ->
-                for (row in shuffledIndexesAllBatches) {
-                    writer.write(row.joinToString(" "))
-                    writer.newLine()
-                }
-            }
-            // flush lossesEpoch
-            for (i in 0 until num_batches) {
-                lossesEpoch[i] = 0.0f
-            }
-
-            for (batchIdx in 0 until num_batches) {
-                val batchesTimer = Chronometer(context)
-                batchesTimer.base = SystemClock.elapsedRealtime()
-                batchesTimer.start()
-
-                // construct batch frame
-                val batchIndexes = shuffledIndexesAllBatches[batchIdx]
-                val batchX = FloatBuffer.allocate(BATCH_SIZE * NUM_TIMESTEPS * NUM_FEATURES)
-                val batchLabels = FloatBuffer.allocate(BATCH_SIZE * NUM_TIMESTEPS * NUM_CLASSES)
-                batchX.rewind()
-                batchLabels.rewind()
-
-                // Fill the data
-                for (bIdx in 0 until BATCH_SIZE) {
-                    val batchIndex = batchIndexes[bIdx]
-                    for (tIdx in 0 until NUM_TIMESTEPS) {
-                        for (wIdx in 0 until NUM_FEATURES) {
-                            batchX.put(preprocessedX[batchIndex + tIdx][wIdx])
-                        }
-                        for (cIdx in 0 until NUM_CLASSES) {
-                            batchLabels.put(targetArray[batchIndex + tIdx][cIdx])
-                        }
-                    }
-                }
-
-                batchX.rewind()
-                batchLabels.rewind()
-
-                inputsCalc["x"] = batchX
-                inputsCalc["y"] = batchLabels
-
-                tflite.runSignature(inputsCalc, outputsCalc, "train")
-
-                outputsCalc["loss"] = lossCalc
-                lossesEpoch[batchIdx] = lossCalc.get(0)
-                lossesAll[epoch * num_batches + batchIdx] = lossCalc.get(0)
-                lossCalc.rewind()
-                batchesTimer.stop()
-                Log.i(
-                    "timer_batches",
-                    (SystemClock.elapsedRealtime() - batchesTimer.base).toString()
-                )
-            }
-
-            // Record the last loss.
-            losses[epoch] = lossCalc.get(0)
-
-            epochsTimer.stop()
-            epochsTimerArr.add(SystemClock.elapsedRealtime() - epochsTimer.base)
-            epochsTimerSum += (SystemClock.elapsedRealtime() - epochsTimer.base).toInt()
-            Log.i("timer_epochs", (SystemClock.elapsedRealtime() - epochsTimer.base).toString())
-
-            // Print the loss output for every 10 epochs.
-            if ((epoch + 1) % 1 == 0) { // DEBUG
-                // if ((epoch + 1) % 10 == 0) { // PROD
-                println("Finished ${epoch + 1} epochs, current loss: ${lossCalc.get(0)}")
-            }
-        }
-
-        // Log lossesAll to file
-        val logFileLosses = File(path, "log_losses.txt")
-        logFileLosses.bufferedWriter().use { writer ->
-            for (loss in lossesAll) {
-                writer.write(loss.toString())
-                writer.newLine()
-            }
-        }
-        println("Results written to $logFileLosses")
-        Log.i(
-            "timer_epochs_data",
-            epochsTimerSum.toString() + ' ' + (epochsTimerSum / epochsTimerArr.size.toDouble()).toString()
-        )
-
-    }
-
-    private fun export(path: File?) {
-        //////////////////////////// [EXPORT MODEL] ////////////////////////////
-        val outputFile = File(path, "checkpoint.ckpt")
-        val inputs = HashMap<String, Any>()
-        inputs["checkpoint_path"] = outputFile.absolutePath
-        val outputs = HashMap<String, Any>()
-        tflite.runSignature(inputs, outputs, "save")
-        //////////////////////////// [\EXPORT MODEL] ////////////////////////////
-    }
-
-    private fun run(path: File?, preprocessedX: Array<FloatArray>) {
-        // Unnecessary code block because we dont need to run model on android device
-        // we need only to export it
-        // Проблема с методом "infer" в том, что мы используем statefull модели,
-        // т.е. модель сохраняет внутреннее состояние между шагами инференса
-        // вопрос: как внутри экспортированной модели сохранить состояние?
-        //////////////////////////// [RUN MODEL] ////////////////////////////
-        // initialize inputs and outputs
-        val inputsRun = HashMap<String, Any>()
-        val outputsRun = HashMap<String, Any>()
-
-        // fill inputsRun
-        val inputData = FloatBuffer.allocate(BATCH_SIZE * NUM_TIMESTEPS * NUM_FEATURES)
-        inputData.rewind()
-        for (bIdx in 0 until BATCH_SIZE) {
-            for (tIdx in 0 until NUM_TIMESTEPS) {
-                for (wIdx in 0 until NUM_FEATURES) {
-                    inputData.put(preprocessedX[bIdx * NUM_TIMESTEPS + tIdx][wIdx])
-                }
-            }
-        }
-        inputData.rewind()
-
-        // Prepare output buffer
-        val outputData = FloatBuffer.allocate(BATCH_SIZE * NUM_TIMESTEPS * NUM_CLASSES)
-        outputsRun["output"] = outputData
-
-        inputsRun["x"] = inputData
-        tflite.runSignature(inputsRun, outputsRun, "infer") // MAX: why we need `outputsRun`?
-        // Write results
-        outputData.rewind()
-
-        // TODO: Broken
-        // val outputArray = Array(BATCH_SIZE) { Array(NUM_TIMESTEPS) { FloatArray(NUM_CLASSES) } }
-        // for (bIdx in 0 until BATCH_SIZE) {
-        //     for (tIdx in 0 until NUM_TIMESTEPS) {
-        //         for (cIdx in 0 until NUM_CLASSES) {
-        //             outputArray[bIdx][tIdx][cIdx] = outputData[bIdx * NUM_TIMESTEPS + tIdx * NUM_CLASSES + cIdx]
-        //         }
-        //     }
-        // }
-        // outputData.rewind()
-
-        // Log results to file
-        val logFileInputInfer = File(path, "log_input_infer.txt")
-        logFileInputInfer.bufferedWriter().use { writer ->
-            inputData.rewind()
-            while (inputData.hasRemaining()) {
-                writer.write(inputData.get().toString())
-                writer.newLine()
-            }
-        }
-        val logFileOutputInfer = File(path, "log_output_infer.txt")
-        logFileOutputInfer.bufferedWriter().use { writer ->
-            outputData.rewind()
-            while (outputData.hasRemaining()) {
-                writer.write(outputData.get().toString())
-                writer.newLine()
-            }
-        }
-        // TODO: Broken
-        // val logFileOutputInferArray = File(path, "log_output_infer_array.txt")
-        // logFileOutputInferArray.bufferedWriter().use { writer ->
-        //     for (bIdx in 0 until BATCH_SIZE) {
-        //         for (tIdx in 0 until NUM_TIMESTEPS) {
-        //             writer.write(outputArray[bIdx][tIdx].joinToString(" "))
-        //             writer.newLine()
-        //         }
-        //     }
-        // }
-        println("Results written to $logFileInputInfer, $logFileOutputInfer")
-        //////////////////////////// [\RUN MODEL] ////////////////////////////
-    }
-
-
-    private fun regionProps1D(renumeratedImportData: List<List<String>>): List<Triple<Int, Int, Int>> {
-        val targetSubseq = mutableListOf<Triple<Int, Int, Int>>()
-        var onset = -1
-        var length = 0
-        var currentId = -1
-        for (i in renumeratedImportData.indices) {
-            val id = renumeratedImportData[i][INDEX_TARGET_ID].toInt()
-            if (id != currentId) {
-                if (currentId > 0) {
-                    targetSubseq.add(Triple(onset, length, currentId))
-                }
-                onset = i
-                length = 1
-                currentId = id
-            } else {
-                length++
-            }
-        }
-        if (currentId > 0) {
-            targetSubseq.add(Triple(onset, length, currentId))
-        }
-        return targetSubseq
-    }
-
+//    private fun bufferToString(buffer: ByteBuffer, type: org.tensorflow.lite.DataType): String {
+//        return when (type) {
+//            org.tensorflow.lite.DataType.FLOAT32 -> {
+//                val floatBuffer = buffer.asFloatBuffer()
+//                val array = FloatArray(floatBuffer.remaining())
+//                floatBuffer.get(array)
+//                array.joinToString(", ")
+//            }
+//
+//            org.tensorflow.lite.DataType.INT32 -> {
+//                val intBuffer = buffer.asIntBuffer()
+//                val array = IntArray(intBuffer.remaining())
+//                intBuffer.get(array)
+//                array.joinToString(", ")
+//            }
+//
+//            org.tensorflow.lite.DataType.UINT8 -> {
+//                val byteArray = ByteArray(buffer.remaining())
+//                buffer.get(byteArray)
+//                byteArray.joinToString(", ")
+//            }
+//
+//            else -> "Unsupported data type"
+//        }
+//    }
+//
+//    private fun parseFile(filename: String): MutableList<MutableList<Double>> {
+//        val data = mutableListOf<MutableList<Double>>()
+//        requireContext().assets.open(filename).bufferedReader().useLines { lines ->
+//            lines.forEach { str ->
+//                data.add(str.split(" ").map { it.toDouble() }.toMutableList())
+//            }
+//        }
+//        return data
+//    }
+//
+//    private fun runModel() {
+//        if (!thread.isAlive) {
+//            thread = Thread {
+//                train(path, preprocessedX, targetArray)
+//                export(path)
+//                run(path, preprocessedX)
+//            }
+//            thread.start()
+//        }
+//    }
+//
+//    @SuppressLint("LogNotTimber")
+//    private fun train(
+//        path: File?,
+//        preprocessedX: Array<FloatArray>,
+//        targetArray: Array<FloatArray>
+//    ) {
+//        //////////////////////////// [TRAIN MODEL] ////////////////////////////
+//        // train the model
+//        // https://ai.google.dev/edge/litert/models/ondevice_training
+//        // Формирование индексов для формирования батчей
+//        // TODO: need to be changed to random indexes
+//        val indexes = IntRange(0, preprocessedX.size - NUM_TIMESTEPS - 1).step(WIN_SHIFT).toList()
+//        // Shuffle the indexes
+//        val num_batches = indexes.size / BATCH_SIZE
+//        // TODO: удалить в будующем, тк используется только для логирования
+//        val indexesAllBatches = Array(num_batches) { IntArray(BATCH_SIZE) }
+//        for (i in 0 until num_batches) {
+//            for (j in 0 until BATCH_SIZE) {
+//                indexesAllBatches[i][j] = indexes[i * BATCH_SIZE + j]
+//            }
+//        }
+//        // Log indexesAllBatches
+//        val logFileIndexesAllBatches = File(path, "log_indexes_batches.txt")
+//        logFileIndexesAllBatches.bufferedWriter().use { writer ->
+//            for (row in indexesAllBatches) {
+//                writer.write(row.joinToString(" "))
+//                writer.newLine()
+//            }
+//        }
+//        println("Results written to $logFileIndexesAllBatches")
+//
+//        // Run training for a few steps.
+//        val losses = FloatArray(NUM_EPOCHS) // TODO: remove potentialy, useless val
+//        val lossesEpoch = FloatArray(num_batches)
+//        val lossesAll = FloatArray(num_batches * NUM_EPOCHS)
+//
+//        val lossCalc = FloatBuffer.allocate(1)
+//        val inputsCalc = HashMap<String, Any>()
+//        val outputsCalc = HashMap<String, Any>()
+//        // холостая имитация действий в цикле обучения
+//        // без нее самый первый lossCalc будет нулевым
+//        // хотя в python он не нулевой
+//        // возможно это из-за неверной инициализации lossCalc
+//        outputsCalc["loss"] = lossCalc
+//        lossCalc.rewind()
+//        // конец имитации
+//
+//        var epochsTimerSum = 0
+//        val epochsTimerArr = Vector<Number>()
+//
+//        for (epoch in 0 until NUM_EPOCHS) {
+//            val epochsTimer = Chronometer(context)
+//            epochsTimer.base = SystemClock.elapsedRealtime()
+//            epochsTimer.start()
+//            val shuffledIndexes = indexes.shuffled()
+//            val shuffledIndexesAllBatches = Array(num_batches) { IntArray(BATCH_SIZE) }
+//            for (i in 0 until num_batches) {
+//                for (j in 0 until BATCH_SIZE) {
+//                    shuffledIndexesAllBatches[i][j] = shuffledIndexes[i * BATCH_SIZE + j]
+//                }
+//            }
+//            val logFileShuffledIndexesAllBatches =
+//                File(path, "log_shuffled_indexes_batches_${epoch}.txt")
+//            logFileShuffledIndexesAllBatches.bufferedWriter().use { writer ->
+//                for (row in shuffledIndexesAllBatches) {
+//                    writer.write(row.joinToString(" "))
+//                    writer.newLine()
+//                }
+//            }
+//            // flush lossesEpoch
+//            for (i in 0 until num_batches) {
+//                lossesEpoch[i] = 0.0f
+//            }
+//
+//            for (batchIdx in 0 until num_batches) {
+//                val batchesTimer = Chronometer(context)
+//                batchesTimer.base = SystemClock.elapsedRealtime()
+//                batchesTimer.start()
+//
+//                // construct batch frame
+//                val batchIndexes = shuffledIndexesAllBatches[batchIdx]
+//                val batchX = FloatBuffer.allocate(BATCH_SIZE * NUM_TIMESTEPS * NUM_FEATURES)
+//                val batchLabels = FloatBuffer.allocate(BATCH_SIZE * NUM_TIMESTEPS * NUM_CLASSES)
+//                batchX.rewind()
+//                batchLabels.rewind()
+//
+//                // Fill the data
+//                for (bIdx in 0 until BATCH_SIZE) {
+//                    val batchIndex = batchIndexes[bIdx]
+//                    for (tIdx in 0 until NUM_TIMESTEPS) {
+//                        for (wIdx in 0 until NUM_FEATURES) {
+//                            batchX.put(preprocessedX[batchIndex + tIdx][wIdx])
+//                        }
+//                        for (cIdx in 0 until NUM_CLASSES) {
+//                            batchLabels.put(targetArray[batchIndex + tIdx][cIdx])
+//                        }
+//                    }
+//                }
+//
+//                batchX.rewind()
+//                batchLabels.rewind()
+//
+//                inputsCalc["x"] = batchX
+//                inputsCalc["y"] = batchLabels
+//
+//                tflite.runSignature(inputsCalc, outputsCalc, "train")
+//
+//                outputsCalc["loss"] = lossCalc
+//                lossesEpoch[batchIdx] = lossCalc.get(0)
+//                lossesAll[epoch * num_batches + batchIdx] = lossCalc.get(0)
+//                lossCalc.rewind()
+//                batchesTimer.stop()
+//                Log.i(
+//                    "timer_batches",
+//                    (SystemClock.elapsedRealtime() - batchesTimer.base).toString()
+//                )
+//            }
+//
+//            // Record the last loss.
+//            losses[epoch] = lossCalc.get(0)
+//
+//            epochsTimer.stop()
+//            epochsTimerArr.add(SystemClock.elapsedRealtime() - epochsTimer.base)
+//            epochsTimerSum += (SystemClock.elapsedRealtime() - epochsTimer.base).toInt()
+//            Log.i("timer_epochs", (SystemClock.elapsedRealtime() - epochsTimer.base).toString())
+//
+//            // Print the loss output for every 10 epochs.
+//            if ((epoch + 1) % 1 == 0) { // DEBUG
+//                // if ((epoch + 1) % 10 == 0) { // PROD
+//                println("Finished ${epoch + 1} epochs, current loss: ${lossCalc.get(0)}")
+//            }
+//        }
+//
+//        // Log lossesAll to file
+//        val logFileLosses = File(path, "log_losses.txt")
+//        logFileLosses.bufferedWriter().use { writer ->
+//            for (loss in lossesAll) {
+//                writer.write(loss.toString())
+//                writer.newLine()
+//            }
+//        }
+//        println("Results written to $logFileLosses")
+//        Log.i(
+//            "timer_epochs_data",
+//            epochsTimerSum.toString() + ' ' + (epochsTimerSum / epochsTimerArr.size.toDouble()).toString()
+//        )
+//
+//    }
+//
+//    private fun export(path: File?) {
+//        //////////////////////////// [EXPORT MODEL] ////////////////////////////
+//        val outputFile = File(path, "checkpoint.ckpt")
+//        val inputs = HashMap<String, Any>()
+//        inputs["checkpoint_path"] = outputFile.absolutePath
+//        val outputs = HashMap<String, Any>()
+//        tflite.runSignature(inputs, outputs, "save")
+//        //////////////////////////// [\EXPORT MODEL] ////////////////////////////
+//    }
+//
+//    private fun run(path: File?, preprocessedX: Array<FloatArray>) {
+//        // Unnecessary code block because we dont need to run model on android device
+//        // we need only to export it
+//        // Проблема с методом "infer" в том, что мы используем statefull модели,
+//        // т.е. модель сохраняет внутреннее состояние между шагами инференса
+//        // вопрос: как внутри экспортированной модели сохранить состояние?
+//        //////////////////////////// [RUN MODEL] ////////////////////////////
+//        // initialize inputs and outputs
+//        val inputsRun = HashMap<String, Any>()
+//        val outputsRun = HashMap<String, Any>()
+//
+//        // fill inputsRun
+//        val inputData = FloatBuffer.allocate(BATCH_SIZE * NUM_TIMESTEPS * NUM_FEATURES)
+//        inputData.rewind()
+//        for (bIdx in 0 until BATCH_SIZE) {
+//            for (tIdx in 0 until NUM_TIMESTEPS) {
+//                for (wIdx in 0 until NUM_FEATURES) {
+//                    inputData.put(preprocessedX[bIdx * NUM_TIMESTEPS + tIdx][wIdx])
+//                }
+//            }
+//        }
+//        inputData.rewind()
+//
+//        // Prepare output buffer
+//        val outputData = FloatBuffer.allocate(BATCH_SIZE * NUM_TIMESTEPS * NUM_CLASSES)
+//        outputsRun["output"] = outputData
+//
+//        inputsRun["x"] = inputData
+//        tflite.runSignature(inputsRun, outputsRun, "infer") // MAX: why we need `outputsRun`?
+//        // Write results
+//        outputData.rewind()
+//
+//        // TODO: Broken
+//        // val outputArray = Array(BATCH_SIZE) { Array(NUM_TIMESTEPS) { FloatArray(NUM_CLASSES) } }
+//        // for (bIdx in 0 until BATCH_SIZE) {
+//        //     for (tIdx in 0 until NUM_TIMESTEPS) {
+//        //         for (cIdx in 0 until NUM_CLASSES) {
+//        //             outputArray[bIdx][tIdx][cIdx] = outputData[bIdx * NUM_TIMESTEPS + tIdx * NUM_CLASSES + cIdx]
+//        //         }
+//        //     }
+//        // }
+//        // outputData.rewind()
+//
+//        // Log results to file
+//        val logFileInputInfer = File(path, "log_input_infer.txt")
+//        logFileInputInfer.bufferedWriter().use { writer ->
+//            inputData.rewind()
+//            while (inputData.hasRemaining()) {
+//                writer.write(inputData.get().toString())
+//                writer.newLine()
+//            }
+//        }
+//        val logFileOutputInfer = File(path, "log_output_infer.txt")
+//        logFileOutputInfer.bufferedWriter().use { writer ->
+//            outputData.rewind()
+//            while (outputData.hasRemaining()) {
+//                writer.write(outputData.get().toString())
+//                writer.newLine()
+//            }
+//        }
+//        // TODO: Broken
+//        // val logFileOutputInferArray = File(path, "log_output_infer_array.txt")
+//        // logFileOutputInferArray.bufferedWriter().use { writer ->
+//        //     for (bIdx in 0 until BATCH_SIZE) {
+//        //         for (tIdx in 0 until NUM_TIMESTEPS) {
+//        //             writer.write(outputArray[bIdx][tIdx].joinToString(" "))
+//        //             writer.newLine()
+//        //         }
+//        //     }
+//        // }
+//        println("Results written to $logFileInputInfer, $logFileOutputInfer")
+//        //////////////////////////// [\RUN MODEL] ////////////////////////////
+//    }
+//
+//
+//    private fun regionProps1D(renumeratedImportData: List<List<String>>): List<Triple<Int, Int, Int>> {
+//        val targetSubseq = mutableListOf<Triple<Int, Int, Int>>()
+//        var onset = -1
+//        var length = 0
+//        var currentId = -1
+//        for (i in renumeratedImportData.indices) {
+//            val id = renumeratedImportData[i][INDEX_TARGET_ID].toInt()
+//            if (id != currentId) {
+//                if (currentId > 0) {
+//                    targetSubseq.add(Triple(onset, length, currentId))
+//                }
+//                onset = i
+//                length = 1
+//                currentId = id
+//            } else {
+//                length++
+//            }
+//        }
+//        if (currentId > 0) {
+//            targetSubseq.add(Triple(onset, length, currentId))
+//        }
+//        return targetSubseq
+//    }
 }

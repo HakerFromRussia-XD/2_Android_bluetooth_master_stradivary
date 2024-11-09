@@ -65,8 +65,8 @@ class PlotDelegateAdapter (
 
 //        Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
         // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
-        numberOfCharts = ParameterProvider.getParameter(deviceAddress, parameterID).parametrSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf
-        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parametrSize}   type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
+        numberOfCharts = ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf
+        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize}   type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
 
         plotArrayFlowCollect()
 

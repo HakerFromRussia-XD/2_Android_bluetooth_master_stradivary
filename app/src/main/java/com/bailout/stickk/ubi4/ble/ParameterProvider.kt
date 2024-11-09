@@ -11,7 +11,7 @@ class ParameterProvider {
     companion object {
         fun getParameter(deviceAddress: Int, parameterID: Int): BaseParameterInfoStruct {
             if (baseParametrInfoStructArray.size != 0){
-                Log.d("TestOptic","baseSubDevicesInfoStructSet.size != 0")
+//                Log.d("TestOptic","baseSubDevicesInfoStructSet.size != 0")
                 if (deviceAddress == 0 ) {
                     // значит мы ищем параметр на мастере
                     baseParametrInfoStructArray.forEach {
@@ -28,7 +28,7 @@ class ParameterProvider {
                     }
                 }
             } else {
-                Log.d("TestOptic","baseSubDevicesInfoStructSet.size == 0")
+//                Log.d("TestOptic","baseSubDevicesInfoStructSet.size == 0")
             }
             return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, "")
         }

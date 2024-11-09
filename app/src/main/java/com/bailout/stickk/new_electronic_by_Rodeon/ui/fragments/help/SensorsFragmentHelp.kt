@@ -19,7 +19,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivi
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 
 @Suppress("DEPRECATION")
-class SensorsFragment(private val chartFragmentClass: ChartFragment) : Fragment() {
+class SensorsFragmentHelp(private val chartFragmentClass: ChartFragment) : Fragment() {
     private var mContext: Context? = null
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null

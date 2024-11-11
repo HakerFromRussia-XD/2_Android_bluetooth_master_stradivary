@@ -78,7 +78,7 @@ class BLEParser(main: AppCompatActivity) {
                 ParameterProvider.getParameter(deviceAddress, parameterID).data = receiveDataString.substring(HEADER_BLE_OFFSET*2, receiveDataString.length)
                 ParameterProvider.getParameter(deviceAddress, parameterID).dataCode = 33
                 Log.d("TestOptic"," parameter: ${ParameterProvider.getParameter(deviceAddress, parameterID)}")
-                updateAllUI(ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)
+                updateAllUI(deviceAddress, parameterID, ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)
             } else {
                 // парсим команды
                 when (codeRequest){
@@ -109,24 +109,31 @@ class BLEParser(main: AppCompatActivity) {
                             val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2).toInt(16).toByte())
                             val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
                             parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2)
-                            updateAllUI(parameter.dataCode)
+                            updateAllUI(deviceAddress, parameterID, parameter.dataCode)
                             dataLength -= (parameter.parameterDataSize + 2)
 //                            Log.d("COMPLEX_PARAMETER_TRANSFER", "dataLength = $dataLength  counter = $counter  parameter = $parameter ")
                             counter += 1
                         }
 
 
-//                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]))
+//                        plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]))
+//                        plotArrayFlow.value = plotArray
 //                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]),castUnsignedCharToInt(data[11]),castUnsignedCharToInt(data[12]),castUnsignedCharToInt(data[13]),castUnsignedCharToInt(data[14]))
-                        plotArrayFlow.value = plotArray
+
                     }
                 }
             }
         }
     }
 
-    private fun updateAllUI(dataCode: Int) {
+    private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
         when (dataCode) {
+            ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number -> {
+                Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
+                val data = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                plotArray = arrayListOf(castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()))
+                plotArrayFlow.value = plotArray
+            }
             ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(dataCode) }

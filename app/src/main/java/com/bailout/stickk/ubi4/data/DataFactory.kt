@@ -23,6 +23,8 @@ internal class DataFactory {
         //addElement(8, 0,objects, objects)
         //addElementS(15, label = "Start training", objects,objects)
         addElementS(14, label = "Start training", objects,objects)
+        addElementS(14, label = "Start training", objects,objects)
+
         return objects
     }
 

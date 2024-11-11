@@ -86,7 +86,7 @@ class MotionTrainingFragment : Fragment() {
                 val dataString = opticTrainingStruct.data.joinToString(separator = " ") { it.toString() }
                 Log.d("TestOptic","OpticTrainingStruct = $opticTrainingStruct")
 
-//                writeToFile(dataString)
+                writeToFile(dataString)
             }
         disposables.add(opticStreamDisposable)
     }

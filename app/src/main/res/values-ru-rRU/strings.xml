@@ -550,7 +550,7 @@
     <string name="select_learned_gestures">Выберите изученные жесты</string>
     <string name="assign_gesture">Назначьте жест</string>
     <string name="neutral">Нейтральный</string>
-    <string name="annotation_main_text">Здесь можно выбрать жесты для повседневного использования в группе ротации</string>
+    <string name="annotation_main_text">Здесь можно выбрать жесты записанные во время обучения, а так же привязать к ним собственные  жесты.</string>
     <string name="toast_notification_gesture_in_use">Этот жест уже используется. Выберите другой.</string>
     <string name="training">Обучение</string>
     <string name="you_can_now_customize_your_gestures">Теперь вы можете настроить ваши жесты</string>

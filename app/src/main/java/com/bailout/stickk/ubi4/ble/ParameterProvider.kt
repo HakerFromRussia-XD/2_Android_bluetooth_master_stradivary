@@ -44,8 +44,5 @@ class ParameterProvider {
             }
             return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, "")
         }
-
-
-
     }
 }

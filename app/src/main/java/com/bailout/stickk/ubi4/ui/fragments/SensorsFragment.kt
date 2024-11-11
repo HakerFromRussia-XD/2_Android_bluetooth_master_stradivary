@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
@@ -92,7 +93,9 @@ class SensorsFragment : Fragment() {
         ) ,
         TrainingFragmentDelegateAdapter(
             onConfirmClick = {}
-        ),
+        ),SwitcherDelegateAdapter(
+            onSwitchClick = {}
+        )
     )
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {

@@ -9,13 +9,13 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('/Users/motoricallc/Keystore.jks')
+            storeFile file('/Users/urachiki/Documents/motorica/motorica_start/Keystore.jks')
             storePassword '89157719183'
             keyAlias 'key0'
             keyPassword '89157719183'
         }
         release {
-            storeFile file('/Users/motoricallc/Keystore.jks')
+        storeFile file('/Users/urachiki/Documents/motorica/motorica_start/Keystore.jks')
             storePassword '89157719183'
             keyAlias 'key0'
             keyPassword '89157719183'

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/blue_status_bar"
+    android:orientation="horizontal">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/EMG_chart_cv"
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/UBI4_button_dark"
+        app:cardCornerRadius="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/EMG_chart_lc"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="-14dp"
+            android:layout_marginEnd="-19dp"
+            android:clickable="false"
+            />
+
+
+        <RelativeLayout
+            android:id="@+id/limit_CH1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="80dp"
+            android:orientation="vertical"
+            tools:ignore="UseCompoundDrawables">
+
+            <View
+                android:id="@+id/open_threshold_help_v"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignEnd="@+id/subtitle_open_threshold_tv"
+                android:layout_alignBottom="@+id/touch_aria_open"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="@+id/subtitle_open_threshold_tv"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="-10dp"
+                android:layout_marginBottom="0dp"
+                android:background="@color/transparent" />
+
+            <View
+                android:id="@+id/touch_aria_open"
+                android:layout_width="30dp"
+                android:layout_height="15dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="0dp"
+                android:background="@drawable/touch_aria_open"/>
+
+
+
+            <ImageView
+                android:id="@+id/open_threshold_iv"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="6dp"
+                android:layout_marginStart="10dp"
+                android:background="@color/open_threshold"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/open_threshold_tv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignEnd="@+id/touch_aria_open"
+                android:layout_alignBottom="@+id/touch_aria_open"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="0dp"
+                android:textAlignment="center"
+                android:fontFamily="@font/font_open_sans_bold"
+                android:text="30"
+                android:textColor="@color/cream_white"
+                android:textSize="9sp"
+                tools:ignore="HardcodedText,RtlSymmetry,SmallSp" />
+
+            <TextView
+                android:id="@+id/subtitle_open_threshold_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/open_threshold_iv"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_toEndOf="@+id/touch_aria_open"
+                android:fontFamily="@font/font_open_sans_bold"
+                android:paddingStart="0dp"
+                android:text="@string/open_threshold"
+                android:textAlignment="viewStart"
+                android:textColor="@color/cream_white"
+                android:textSize="6sp"
+                tools:ignore="RtlSymmetry,SmallSp" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/limit_CH2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="94dp"
+            android:layout_marginEnd="0dp"
+            android:orientation="vertical"
+            tools:ignore="UseCompoundDrawables">
+
+            <View
+                android:id="@+id/touch_aria_close"
+                android:layout_width="30dp"
+                android:layout_height="15dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
+                android:background="@drawable/touch_aria_close" />
+
+            <ImageView
+                android:id="@+id/close_threshold_iv"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="10dp"
+                android:background="@color/close_threshold"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/close_threshold_tv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignStart="@+id/touch_aria_close"
+                android:layout_alignEnd="@+id/touch_aria_close"
+                android:layout_alignBottom="@+id/touch_aria_close"
+                android:layout_alignTop="@+id/touch_aria_close"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="0dp"
+                android:fontFamily="@font/font_open_sans_bold"
+                android:text="30"
+                android:textAlignment="center"
+                android:textColor="@color/open_threshold"
+                android:textSize="9sp"
+                tools:ignore="HardcodedText,RtlSymmetry,SmallSp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/close_threshold_iv"
+                android:layout_marginEnd="0dp"
+                android:layout_toStartOf="@+id/touch_aria_close"
+                android:fontFamily="@font/font_open_sans_bold"
+                android:paddingStart="0dp"
+                android:text="@string/close_threshold"
+                android:textAlignment="viewEnd"
+                android:textColor="@color/cream_white"
+                android:textSize="6sp"
+                tools:ignore="RtlSymmetry,SmallSp" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/all_CH_rl"
+
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="17dp"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            tools:ignore="DisableBaselineAlignment">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <View
+                    android:id="@+id/open_CH_v"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="0dp"
+                    android:layout_marginBottom="0dp"
+                    />
+
+
+
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+
+                <View
+                    android:id="@+id/close_CH_v"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="0dp"
+                    android:layout_marginBottom="0dp"
+                    android:background="@color/transparent" />
+
+
+            </RelativeLayout>
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

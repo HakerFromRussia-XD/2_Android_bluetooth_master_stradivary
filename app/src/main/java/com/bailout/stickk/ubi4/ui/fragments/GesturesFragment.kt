@@ -166,10 +166,22 @@ class GesturesFragment : Fragment() {
         PlotDelegateAdapter(
             plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
         ),
-        OneButtonDelegateAdapter (
-            onButtonPressed = { _, _, _ ->  },
-            onButtonReleased = { _, _, _ ->  }
-        ) ,
+        OneButtonDelegateAdapter(
+            onButtonPressed = { addressDevice, parameterID, command ->
+                oneButtonPressed(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            },
+            onButtonReleased = { addressDevice, parameterID, command ->
+                oneButtonReleased(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            }
+        ),
         GesturesDelegateAdapter (
             onSelectorClick = {},
             onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
@@ -181,6 +193,20 @@ class GesturesFragment : Fragment() {
         )
     )
 
+    private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
+        transmitter().bleCommand(
+            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
+            MAIN_CHANNEL,
+            WRITE
+        )
+    }
+    private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
+        transmitter().bleCommand(
+            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
+            MAIN_CHANNEL,
+            WRITE
+        )
+    }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         Log.d("uiRotationGroupObservable", "считывание данных в фрагменте")
         transmitter().bleCommand(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE)

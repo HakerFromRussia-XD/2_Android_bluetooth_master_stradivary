@@ -65,8 +65,17 @@ class PlotDelegateAdapter (
 
 //        Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
         // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
-        numberOfCharts = ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf
-        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize}   type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
+        if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf != 0) {
+            numberOfCharts = ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf
+        } else {
+            numberOfCharts = 0
+        }
+//        numberOfCharts = 0
+//        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts")
+//        Log.d("PlotDelegateAdapter", "getParameter = ${ParameterProvider.getParameter(deviceAddress, parameterID)}")
+//        Log.d("PlotDelegateAdapter", "type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
+//        Log.d("PlotDelegateAdapter", "parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize}")
+//        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize}   type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
 
         plotArrayFlowCollect()
 
@@ -78,8 +87,7 @@ class PlotDelegateAdapter (
         }
 
         main.bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
-        Log.d("BLECommand", "BLE command: ${BLECommands.requestTransferFlow(1)} to channel: $MAIN_CHANNEL with mode: $WRITE")
-        System.err.println("plotIsReadyToData")
+//        System.err.println("plotIsReadyToData")
         plotIsReadyToData(0)
     }
 
@@ -200,7 +208,6 @@ class PlotDelegateAdapter (
             set4 = createSet4()
             set5 = createSet5()
             set6 = createSet6()
-
 
             data.addDataSet(set)
             data.addDataSet(set1)

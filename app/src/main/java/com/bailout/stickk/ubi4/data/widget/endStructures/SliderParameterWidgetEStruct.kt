@@ -14,44 +14,36 @@ import kotlinx.serialization.json.Json
 import android.util.Pair
 
 
-@Serializable(with = CommandParameterWidgetESerializer::class)
-data class CommandParameterWidgetEStruct(
+@Serializable(with = SliderParameterWidgetESerializer::class)
+data class SliderParameterWidgetEStruct(
     val baseParameterWidgetEStruct: BaseParameterWidgetEStruct,
-    val clickCommand: Int = 0,
-    val pressedCommand: Int = 0,
-    val releasedCommand: Int = 0,
+    val progress: Int = 0,
 )
 
-object CommandParameterWidgetESerializer: KSerializer<CommandParameterWidgetEStruct> {
+object SliderParameterWidgetESerializer: KSerializer<SliderParameterWidgetEStruct> {
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("SliderParameterWidgetESerializer", PrimitiveKind.STRING)
 
-    override fun deserialize(decoder: Decoder): CommandParameterWidgetEStruct {
+    override fun deserialize(decoder: Decoder): SliderParameterWidgetEStruct {
         val string = decoder.decodeString()
         val baseParameterWidgetEStruct: BaseParameterWidgetEStruct
-        var clickCommand = 0
-        var pressedCommand = 0
-        var releasedCommand = 0
+        var progress = 0
 
 
-        if (string.length >= 24) {
+        if (string.length >= 20) {
             baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${string.substring(0, 18)}\"")
-            clickCommand = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
-            pressedCommand = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
-            releasedCommand = castUnsignedCharToInt(string.substring(22, 24).toInt(16).toByte())
+            progress = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
         } else {
             baseParameterWidgetEStruct = BaseParameterWidgetEStruct (BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(Pair(0,0))),0)
         }
 
-        return CommandParameterWidgetEStruct (
+        return SliderParameterWidgetEStruct (
             baseParameterWidgetEStruct = baseParameterWidgetEStruct,
-            clickCommand = clickCommand,
-            pressedCommand = pressedCommand,
-            releasedCommand = releasedCommand
+            progress = progress,
         )
     }
 
-    override fun serialize(encoder: Encoder, value: CommandParameterWidgetEStruct) {
+    override fun serialize(encoder: Encoder, value: SliderParameterWidgetEStruct) {
         val code = ""
         encoder.encodeString("$code")
     }

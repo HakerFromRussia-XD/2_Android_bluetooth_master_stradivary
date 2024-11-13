@@ -18,8 +18,21 @@ data class RotationGroup (
     var gesture5Id: Int = 0, var gesture5ImageId: Int = 0,
     var gesture6Id: Int = 0, var gesture6ImageId: Int = 0,
     var gesture7Id: Int = 0, var gesture7ImageId: Int = 0,
-    var gesture8Id: Int = 5, var gesture8ImageId: Int = 5,
-)
+    var gesture8Id: Int = 0, var gesture8ImageId: Int = 0,
+) {
+    fun toGestureList(): List<Pair<Int, Int>> {
+        return listOf(
+            gesture1Id to gesture1ImageId,
+            gesture2Id to gesture2ImageId,
+            gesture3Id to gesture3ImageId,
+            gesture4Id to gesture4ImageId,
+            gesture5Id to gesture5ImageId,
+            gesture6Id to gesture6ImageId,
+            gesture7Id to gesture7ImageId,
+            gesture8Id to gesture8ImageId
+        )
+    }
+}
 
 object RotationGroupSerializer: KSerializer<RotationGroup> {
     override val descriptor: SerialDescriptor =

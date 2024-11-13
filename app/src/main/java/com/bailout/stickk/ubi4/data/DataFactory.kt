@@ -1,17 +1,17 @@
 package com.bailout.stickk.ubi4.data
 
 
-import com.bailout.stickk.ubi4.models.GesturesItem
-import com.bailout.stickk.ubi4.models.OneButtonItem
-import com.bailout.stickk.ubi4.models.PlotItem
-import com.bailout.stickk.ubi4.models.TrainingGestureItem
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
-import com.bailout.stickk.ubi4.models.SwitchItem
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
+import com.bailout.stickk.ubi4.models.GesturesItem
+import com.bailout.stickk.ubi4.models.OneButtonItem
+import com.bailout.stickk.ubi4.models.PlotItem
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
@@ -21,24 +21,22 @@ internal class DataFactory {
 
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
-        //addElement(8, 0,objects, objects)
-        //addElementS(15, label = "Start training", objects,objects)
-        //addElementS(14, label = "Start training", objects,objects)
-        //addElement(2, 2, objects,objects)
+        val objectPlotE: Any = PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectPlotS: Any = PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+        val objectCommandE: Any = CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectCommandS: Any = CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+        val objectSliderE: Any = SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectSliderS: Any = SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
 
+//        addElement(1, 2, objects, objectCommandE)
+//        addElementS(1, "5", objects, objectCommandS)
+//        addElement(5, 3, objects, objectPlotE)
+//        addElementS(5, "3", objects, objectPlotS)
+//        addElement(4, 2, objects, objectSliderE)
+//        addElementS(4, "Описание слайдера", objects, objectSliderS)
 
         return objects
     }
-
-    fun fakeData2(): List<Any> {
-        val objects = ArrayList<Any>()
-        //addElement(8, objects, objects)
-        addElementS(15, label = "Start training", objects,objects)
-        //addElementS(14, label = "Start training", objects,objects)
-        return objects
-    }
-
-
     fun fakeDataClear(): List<Any> {
         val objects = ArrayList<Any>()
         return objects
@@ -158,13 +156,15 @@ internal class DataFactory {
             }
             ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { SwitchItem("SWITCH", widget) }
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
-            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { OneButtonItem("SLIDER", "description", widget) }
+            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+                SliderItem("SLIDER", widget)
+            }
             ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem("PLOT", widget)  }
             ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
 //                OneButtonItem("GESTURE_SETTINGS", "description", widget)
-                GesturesItem("GESTURE_SETTINGS", widget)
+//                GesturesItem("GESTURE_SETTINGS", widget)
             }
             ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { OneButtonItem("CALIB_STATUS", "description", widget)  }
             ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { OneButtonItem("CONTROL_MODE", "description", widget)  }
@@ -185,20 +185,23 @@ internal class DataFactory {
             }
             ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { SwitchItem(label, widget) }
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
-            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { OneButtonItem("SLIDER", "description", widget) }
-            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem(label, widget)  }
+            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { SliderItem(label, widget) }
+            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
+//                PlotItem(label, widget)
+                PlotItem("PLOT", widget)
+            }
             ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
-//                OneButtonItem("GESTURE_SETTINGS", "description", widget)
-                GesturesItem("GESTURE_SETTINGS", widget)
+                OneButtonItem("GESTURE_SETTINGS", "description", widget)
+//                GesturesItem("GESTURE_SETTINGS", widget)
             }
             ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { OneButtonItem("CALIB_STATUS", "description", widget)  }
             ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { OneButtonItem("CONTROL_MODE", "description", widget)  }
             ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> { OneButtonItem("OPEN_CLOSE_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
-            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
+            ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem(label, widget) }
             ParameterWidgetCode.PWCE_OPTIC_LERNING_WIDGET.number.toInt() -> { TrainingGestureItem(label, widget)  }
             else -> { OneButtonItem("Open", "description", widget) }
         }

@@ -50,5 +50,3 @@ public class RxUpdateMainEventUbi4 {
   public Observable<Integer> getUiOpticTrainingObservable() { return uiOpticTraining; }
   public Observable<GestureInfo> getReadCharacteristicBLE() { return readCharacteristicBLE; }
 }
-
-

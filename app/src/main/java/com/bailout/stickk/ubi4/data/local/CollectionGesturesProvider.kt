@@ -6,7 +6,7 @@ class CollectionGesturesProvider() {
     companion object {
         fun getCollectionGestures(): ArrayList<Gesture> {
             val collectionGesturesList: ArrayList<Gesture> = ArrayList()
-            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_NO_GESTURE.number, gestureName = "Нет жеста"))
+//            collectionGesturesList.add(Gesture(GestureEnum.GESTURE_NO_GESTURE.number, gestureName = "Нет жеста"))
             collectionGesturesList.add(Gesture(GestureEnum.GESTURE_FIST.number, gestureName = "Кулак"))
             collectionGesturesList.add(Gesture(GestureEnum.GESTURE_POINT.number, gestureName = "Указательный(уточнить)"))
             collectionGesturesList.add(Gesture(GestureEnum.GESTURE_PINCH.number, gestureName = "Указательный 2(уточнить)"))

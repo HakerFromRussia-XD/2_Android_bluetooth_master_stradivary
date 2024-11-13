@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.ui.main
 
-import SprGestureFragment
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
@@ -26,14 +25,12 @@ import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.local.Gesture
-import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
-import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
@@ -60,7 +57,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         setContentView(view)
         initAllVariables()
         BottomNavigationController(bottomNavigation = binding.bottomNavigation)
-
 
         // инициализация блютуз
         mBLEController = BLEController(this)
@@ -129,13 +125,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         listWidgets = mutableSetOf()
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
+        rotationGroupFlow = MutableStateFlow(0)
         baseSubDevicesInfoStructSet = mutableSetOf()
+        baseParametrInfoStructArray = arrayListOf()
         plot = MutableStateFlow(0)
         plotArray = arrayListOf()
         rotationGroupGestures = arrayListOf()
         countBinding = 0
         graphThreadFlag = true
-        baseParametrInfoStructArray = arrayListOf(BaseParameterInfoStruct())
     }
 
     // сохранение и загрузка данных
@@ -161,6 +158,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
+        var rotationGroupFlow by Delegates.notNull<MutableStateFlow<Int>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()
 
@@ -172,6 +170,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var baseSubDevicesInfoStructSet by Delegates.notNull<MutableSet<BaseSubDeviceInfoStruct>>()
 
         var rotationGroupGestures by Delegates.notNull<ArrayList<Gesture>>()
+
 
         var connectedDeviceName by Delegates.notNull<String>()
         var connectedDeviceAddress by Delegates.notNull<String>()

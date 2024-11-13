@@ -62,10 +62,10 @@ class BLEController (main: AppCompatActivity) {
             if (!scanWithoutConnectFlag) {
                 //TODO раскомментировать когда не нужно быстрое подключение
                 System.err.println("connectedDeviceAddress $connectedDeviceAddress")
-               mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
-//                mBluetoothLeService?.connect("DC:DA:0C:18:0E:8E")       // Моя 2плата
-//                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
-//                mBluetoothLeService?.connect("34:85:18:98:0F:D2")       // Mike платаw
+//                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
+//                mBluetoothLeService?.connect("DC:DA:0C:18:0E:8E")       // Моя плата
+                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
+//                mBluetoothLeService?.connect("34:85:18:98:0F:D2")       // Mike плата
 //                mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }

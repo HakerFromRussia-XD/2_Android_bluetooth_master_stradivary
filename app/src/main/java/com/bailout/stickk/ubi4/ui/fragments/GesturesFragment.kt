@@ -37,6 +37,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMET
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
@@ -47,6 +48,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.stream.Collectors
@@ -123,10 +125,22 @@ class GesturesFragment : Fragment() {
         PlotDelegateAdapter(
             plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
         ),
-        OneButtonDelegateAdapter (
-            onButtonPressed = { _, _, _ ->  },
-            onButtonReleased = { _, _, _ ->  }
-        ) ,
+        OneButtonDelegateAdapter(
+            onButtonPressed = { addressDevice, parameterID, command ->
+                oneButtonPressed(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            },
+            onButtonReleased = { addressDevice, parameterID, command ->
+                oneButtonReleased(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            }
+        ),
         GesturesDelegateAdapter (
             onSelectorClick = {},
             onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
@@ -138,6 +152,20 @@ class GesturesFragment : Fragment() {
         )
     )
 
+    private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
+        transmitter().bleCommand(
+            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
+            MAIN_CHANNEL,
+            WRITE
+        )
+    }
+    private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
+        transmitter().bleCommand(
+            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
+            MAIN_CHANNEL,
+            WRITE
+        )
+    }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         Log.d("uiRotationGroupObservable", "считывание данных в фрагменте")
         transmitter().bleCommand(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE)

@@ -94,6 +94,7 @@ object PreferenceKeysUBI4 {
         PWCE_SLIDER (0x04),
         PWCE_PLOT (0x05),
         PWCE_SPINBOX (0x06), //окно ввода цифр со стрелочками инкриментации/декрементации
+
         PWCE_EMG_GESTURE_CHANGE_SETTINGS (0x07),
         PWCE_GESTURE_SETTINGS (0x08),
         PWCE_CALIB_STATUS (0x09),
@@ -102,9 +103,9 @@ object PreferenceKeysUBI4 {
         PWCE_PLOT_AND_1_THRESHOLD (0x0c),
         PWCE_PLOT_AND_2_THRESHOLD (0x0d),
         PWCE_GESTURES_WINDOW (0x0e),
-        //TODO согласовать с Алексеем
         PWCE_OPTIC_LERNING_WIDGET (0x0f),
     }
+
     enum class ParameterWidgetLabel(val number: Int, val label: String) {
         PWLE_UNKNOW (0x00, "UNKNOW"),
         PWLE_OPEN (0x01, "OPEN"),

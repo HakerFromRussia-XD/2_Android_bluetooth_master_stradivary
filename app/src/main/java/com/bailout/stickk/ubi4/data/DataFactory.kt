@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.data
 
 
 import android.util.Log
+import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
@@ -22,7 +23,8 @@ internal class DataFactory {
 
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
-        addElement(14, 2, objects, objects)
+        val objectMy : Any = PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(parametersIDAndDataCodes = mutableSetOf(Pair(0, 0)))))
+        addElementS(5, "2", objects, objectMy)
         return objects
     }
     fun fakeDataClear(): List<Any> {

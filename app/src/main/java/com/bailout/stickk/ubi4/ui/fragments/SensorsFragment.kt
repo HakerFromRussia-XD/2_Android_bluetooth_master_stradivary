@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapterMy
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -55,7 +56,7 @@ class SensorsFragment : Fragment() {
 
         //настоящие виджеты
 //        widgetListUpdater()
-        widgetListUpdaterRx()
+//        widgetListUpdaterRx()
 //        if (binding.homeRv.isComputingLayout.not()) {
 //            if (Looper.myLooper() != Looper.getMainLooper()) {
 //                // If BG thread,then post task to recycler view
@@ -69,7 +70,7 @@ class SensorsFragment : Fragment() {
 //            Log.d("parseWidgets", "3 приём команды Rx  isComputingLayout = ${binding.homeRv.isComputingLayout}   scrollState  = ${binding.homeRv.scrollState}$")
 //        }
         //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.fakeData())
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -141,7 +142,10 @@ class SensorsFragment : Fragment() {
     }
 
     private val adapterWidgets = CompositeDelegateAdapter(
-        PlotDelegateAdapter(
+//        PlotDelegateAdapter(
+//            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+//        ),
+        PlotDelegateAdapterMy(
             plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
         ),
         OneButtonDelegateAdapter (

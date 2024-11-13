@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.os.Handler
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -14,16 +13,12 @@ import android.view.View
 import android.view.ViewGroup
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
-import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
-import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.EncodeByteToHex.Companion.decodeHex
-import com.bailout.stickk.ubi4.utility.EncodeByteToHex.Companion.decodeHexUTF8
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -32,12 +27,16 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
 
-class MotionTrainingFragment : Fragment() {
+class MotionTrainingFragment(
+    val onFinishTraining: () -> Unit,
+
+
+) : Fragment() {
 
     private var _bindig: Ubi4FragmentMotionTrainingBinding? = null
     private val binding get() = _bindig!!
 
-    private val countDownTime = 10000L
+    private val countDownTime = 1000L
     private val interval = 30L
     private val pauseBeforeStart = 1000L
     private lateinit var sprGestureItemList: ArrayList<SprGestureItem>
@@ -191,6 +190,8 @@ class MotionTrainingFragment : Fragment() {
         val confirmBtn = dialogBinding.findViewById<View>(R.id.ubi4CompletedTrainingBtn)
         confirmBtn.setOnClickListener {
             myDialog.dismiss()
+            onFinishTraining()
+
             confirmClick()
         }
 

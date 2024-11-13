@@ -16,7 +16,7 @@ data class BindingGestureItem(
 )
 
 data class TrainingGestureItem(val title: String, val widget: Any)
-data class SwitchItem(val text: String, val switch: Boolean)
+data class SwitchItem(val title: String, val widget: Any)
 
 // dialogs
 data class DialogCollectionGestureItem(val gesture: Gesture, var check: Boolean = false)

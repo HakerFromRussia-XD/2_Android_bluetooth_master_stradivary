@@ -78,7 +78,8 @@ class PlotDelegateAdapter (
         }
 
         main.bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
-//        System.err.println("plotIsReadyToData")
+        Log.d("BLECommand", "BLE command: ${BLECommands.requestTransferFlow(1)} to channel: $MAIN_CHANNEL with mode: $WRITE")
+        System.err.println("plotIsReadyToData")
         plotIsReadyToData(0)
     }
 

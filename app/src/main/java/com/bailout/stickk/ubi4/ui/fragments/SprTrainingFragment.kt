@@ -1,18 +1,20 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.Handler
 import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Chronometer
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSprTrainingBinding
@@ -27,18 +29,28 @@ import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
+import com.bailout.stickk.ubi4.utility.Hyperparameters.AUTO_SHIFT_RANGE
 import com.bailout.stickk.ubi4.utility.Hyperparameters.BATCH_SIZE
+import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_START_FEATURES
 import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_TARGET_ID
+import com.bailout.stickk.ubi4.utility.Hyperparameters.INDEX_TARGET_STATE
+import com.bailout.stickk.ubi4.utility.Hyperparameters.LP_ALPHAS
 import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_CLASSES
 import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_EPOCHS
 import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_FEATURES
 import com.bailout.stickk.ubi4.utility.Hyperparameters.NUM_TIMESTEPS
+import com.bailout.stickk.ubi4.utility.Hyperparameters.N_EMG_CH
+import com.bailout.stickk.ubi4.utility.Hyperparameters.N_LP_ALPHAS
+import com.bailout.stickk.ubi4.utility.Hyperparameters.N_OMG_CH
+import com.bailout.stickk.ubi4.utility.Hyperparameters.SCALE_EMG
+import com.bailout.stickk.ubi4.utility.Hyperparameters.SCALE_OMG
+import com.bailout.stickk.ubi4.utility.Hyperparameters.USE_EMG
 import com.bailout.stickk.ubi4.utility.Hyperparameters.WIN_SHIFT
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.tensorflow.lite.Interpreter
@@ -47,6 +59,9 @@ import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import java.nio.channels.FileChannel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.Vector
 
 
@@ -58,10 +73,6 @@ class SprTrainingFragment : Fragment() {
     private lateinit var tflite: Interpreter
     private lateinit var modelInfo: String
     private var thread: Thread = Thread()
-    private val path: File by lazy {
-        requireContext().getExternalFilesDir(null)
-            ?: throw IllegalStateException("External files directory not available")
-    }
     private lateinit var preprocessedX: Array<FloatArray>
     private lateinit var targetArray: Array<FloatArray>
 
@@ -97,12 +108,13 @@ class SprTrainingFragment : Fragment() {
         graphThreadFlag = false
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
+
     private fun widgetListUpdater() {
-        GlobalScope.launch(Main) {
+        viewLifecycleOwner.lifecycleScope.launch(Main) {
             withContext(Default) {
                 updateFlow.collect { value ->
                     main?.runOnUiThread {
-                        Log.d("widgetListUpdater","${mDataFactory.prepareData(2)}")
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(2)}")
                         adapterWidgets.swapData(mDataFactory.prepareData(2))
                         binding.refreshLayout.setRefreshing(false)
                     }
@@ -135,8 +147,17 @@ class SprTrainingFragment : Fragment() {
             onConfirmClick = {
                 showConfirmTrainingDialog {
                     parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, MotionTrainingFragment()).commit()
+                        .replace(R.id.fragmentContainer, MotionTrainingFragment(onFinishTraining = {
+                        })).commit()
                 }
+            },
+            generateClick = {
+                loadData()
+                generateCheckpointFile()
+                loadModelAndRestoreCheckpoint()
+            },
+            showFileClick = {
+                showFilesDialog()
             }
         ),
     )
@@ -145,188 +166,201 @@ class SprTrainingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-//        path = requireContext().getExternalFilesDir(null)
-//            ?: throw IllegalStateException("External files directory not available")
+        val path = requireContext().getExternalFilesDir(null)
+            ?: throw IllegalStateException("External files directory not available")
         val modelFile = File(path, "model.ckpt")
 
-//        //////////////////////////// [LOAD DATA] /////////////////////////////
-//        val assetManager = requireContext().assets
-//            val importData = mutableListOf<List<String>>()
-//
-//            assetManager.open("2024-10-28_12-43-48.emg8").bufferedReader().useLines { lines ->
-//                // drop header
-//                lines.drop(1).forEach { line ->
-//                    val lineData = line.split(" ")
-//                    val targetId = lineData[INDEX_TARGET_ID]
-//                    // drop baseline rows
-//                    if (targetId.toDoubleOrNull() != null && targetId.toDouble().toInt() != -1) {
-//                        importData.add(lineData)
-//                    }
-//                }
-//            }
-//
-//            // Create mapping from INDEX_TARGET_STATE to renumeration by order of appearance
-//            val stateToId = importData.map { it[INDEX_TARGET_STATE] }
-//                .distinct()
-//                .mapIndexed { index, state -> state to index }
-//                .toMap()
-//
-//            // Renumerate INDEX_TARGET_ID in importData according to stateToId
-//            val renumeratedImportData = importData.map { row ->
-//                row.toMutableList().apply {
-//                    this[INDEX_TARGET_ID] =
-//                        stateToId[this[INDEX_TARGET_STATE]]?.toString() ?: this[INDEX_TARGET_ID]
-//                }
-//            }
-//
-//            println("Max value of INDEX_TARGET_ID: ${renumeratedImportData.maxOf { it[INDEX_TARGET_ID].toInt() }}")
-//
-//            val initFeatures = Array(renumeratedImportData.size) { row ->
-//                var rowData =
-//                    renumeratedImportData[row].slice(INDEX_START_FEATURES until INDEX_START_FEATURES + N_OMG_CH)
-//                if (USE_EMG) {
-//                    rowData += renumeratedImportData[row].slice(INDEX_START_FEATURES + N_OMG_CH until INDEX_START_FEATURES + N_OMG_CH + N_EMG_CH)
-//                }
-//                rowData.map { it.toFloat() }.toFloatArray()
-//            }
-//
-//            println()
-//            // Log initFeatures to file
-//            val logFileData = File(path, "log_2024-10-28_12-43-48.emg8")
-//            logFileData.bufferedWriter().use { writer ->
-//                for (row in renumeratedImportData) {
-//                    writer.write(row.joinToString(" "))
-//                    writer.newLine()
-//                }
-//            }
-//            println("Results written to $logFileData")
-//            //////////////////////////// [\LOAD DATA] ////////////////////////////
-//
-//            ////////////////////////// [PREPROCESS DATA] /////////////////////////
-//            val omgStd = initFeatures.mapIndexed { index, row ->
-//                if (index == 0) {
-//                    0f // For the first row, we can't calculate the difference, so we use 0
-//                } else {
-//                    row.zip(initFeatures[index - 1]) { a, b -> Math.abs(a - b) }.sum()
-//                }
-//            }.toFloatArray()
-//
-//            val targetSubseq = regionProps1D(renumeratedImportData)
-//            val rectCoo = mutableMapOf<Int, Triple<Int, Int, Int>>()
-//
-//            for ((index, triple) in targetSubseq.withIndex()) {
-//                val (onset, length, targetId) = triple
-//                var maxArea = 0f
-//                var argmaxShift = 0
-//                for (shift in 0 until (AUTO_SHIFT_RANGE * length).toInt()) {
-//                    val area = omgStd.slice(onset + shift until onset + length + shift).let { slice ->
-//                        slice.zipWithNext { a, b -> (a + b) / 2 }.sum()
-//                    }
-//                    if (area > maxArea) {
-//                        maxArea = area
-//                        argmaxShift = shift
-//                    }
-//                }
-//                rectCoo[index] = Triple(onset + argmaxShift, length, targetId)
-//            }
-//
-//            val targetArray1D = IntArray(initFeatures.size)
-//            for ((_, triple) in rectCoo) {
-//                val (onset, length, targetId) = triple
-//                for (i in onset until onset + length) {
-//                    if (i < targetArray1D.size) {
-//                        targetArray1D[i] = targetId
-//                    }
-//                }
-//            }
-//
-//            targetArray = Array(initFeatures.size) { FloatArray(NUM_CLASSES) }
-//            for (i in 0 until initFeatures.size) {
-//                targetArray[i][targetArray1D[i]] = 1.0f
-//            }
-//
-//            preprocessedX = Array(initFeatures.size) { FloatArray(NUM_FEATURES) }
-//
-//            var n_lp_ch = N_OMG_CH
-//            if (USE_EMG) {
-//                n_lp_ch += N_EMG_CH
-//            }
-//            val x_lp = FloatArray(n_lp_ch * N_LP_ALPHAS)
-//            val x_curr = FloatArray(NUM_FEATURES)
-//            val x_features = FloatArray(n_lp_ch)
-//
-//            for (i in 0 until initFeatures.size) {
-//                for (k in 0 until N_OMG_CH) {
-//                    x_features[k] = initFeatures[i][k] / SCALE_OMG
-//                }
-//                if (USE_EMG) {
-//                    for (k in 0 until N_EMG_CH) {
-//                        x_features[N_OMG_CH + k] = initFeatures[i][N_OMG_CH + k] / SCALE_EMG
-//                    }
-//                }
-//                // HP compute
-//                for (j in 0 until N_LP_ALPHAS) {
-//                    for (k in 0 until n_lp_ch) {
-//                        x_lp[j * n_lp_ch + k] =
-//                            LP_ALPHAS[j] * x_features[k] + (1 - LP_ALPHAS[j]) * x_lp[j * NUM_FEATURES + k]
-//                        x_curr[j * n_lp_ch + k] = x_features[k] - x_lp[j * n_lp_ch + k]
-//                    }
-//                }
-//                for (k in 0 until n_lp_ch) {
-//                    x_curr[n_lp_ch * N_LP_ALPHAS + k] = x_features[k]
-//                }
-//                for (j in 0 until NUM_FEATURES) {
-//                    preprocessedX[i][j] = x_curr[j]
-//                }
-//        }
-//
-//        // Log preprocessedX to file
-//        val logFilePreprocessedX = File(path, "log_preprocessedX.txt")
-//        logFilePreprocessedX.bufferedWriter().use { writer ->
-//            for (row in preprocessedX) {
-//                writer.write(row.joinToString(" "))
-//                writer.newLine()
-//            }
-//        }
-//        // Log targetArray to file
-//        val logFileTargetArray = File(path, "log_targetArray.txt")
-//        logFileTargetArray.bufferedWriter().use { writer ->
-//            for (row in targetArray) {
-//                writer.write(row.joinToString(" "))
-//                writer.newLine()
-//            }
-//        }
-//        println("Loaded data hase ${preprocessedX.size} rows and ${initFeatures[0].size} columns")
-//        ///////////////////////// [\PREPROCESS DATA] /////////////////////////
-//
-//
-//        //////////////////////////// [LOAD MODEL] ////////////////////////////
-//        // Import prior weights from a checkpoint file.
-//        // populate with preset ckpt in assets directory
-//        modelFile.writeBytes(requireContext().assets.open("model.ckpt").readBytes())
-//        tflite = loadModelFile("model.tflite")
-//        modelInfo = getModelInfo(tflite)
-//
-//        // Restore the model from the checkpoint file
-//        val ckpt = modelFile.absolutePath
-//
-//        val inputs_ckpt = HashMap<String, Any>()
-//        inputs_ckpt.put("checkpoint_path", ckpt)
-//        val outputs_ckpt = HashMap<String, Any>()
-//        tflite.runSignature(inputs_ckpt, outputs_ckpt, "restore")
-//
-//        val data = parseFile("test_images.txt")
-//        Log.i("parse", data.toString())
-//
-//        //////////////////////////// [WORK WITH MODEL] /////////////////////////////
-//            //runModel()
-//        //val btnTrain = view.findViewById<Button>(R.id.btnTrain)
-//
-//        //btnTrain.setOnClickListener { runModel() }
-//        //////////////////////////// [\WORK WITH MODEL] ////////////////////////////
-////        view.findViewById<Button>(R.id.btnValidate).setOnClickListener {
-////            validate()
-////        }
+    }
+
+    private fun loadData() {
+
+        val path = requireContext().getExternalFilesDir(null)
+            ?: throw IllegalStateException("External files directory not available")
+
+
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val assetManager = requireContext().assets
+            val importData = mutableListOf<List<String>>()
+
+            assetManager.open("2024-10-28_12-43-48.emg8").bufferedReader().useLines { lines ->
+                // drop header
+                lines.drop(1).forEach { line ->
+                    val lineData = line.split(" ")
+                    val targetId = lineData[INDEX_TARGET_ID]
+                    // drop baseline rows
+                    if (targetId.toDoubleOrNull() != null && targetId.toDouble().toInt() != -1) {
+                        importData.add(lineData)
+                    }
+                }
+            }
+
+            // Create mapping from INDEX_TARGET_STATE to renumeration by order of appearance
+            val stateToId = importData.map { it[INDEX_TARGET_STATE] }
+                .distinct()
+                .mapIndexed { index, state -> state to index }
+                .toMap()
+
+            // Renumerate INDEX_TARGET_ID in importData according to stateToId
+            val renumeratedImportData = importData.map { row ->
+                row.toMutableList().apply {
+                    this[INDEX_TARGET_ID] =
+                        stateToId[this[INDEX_TARGET_STATE]]?.toString() ?: this[INDEX_TARGET_ID]
+                }
+            }
+
+            println("Max value of INDEX_TARGET_ID: ${renumeratedImportData.maxOf { it[INDEX_TARGET_ID].toInt() }}")
+
+            val initFeatures = Array(renumeratedImportData.size) { row ->
+                var rowData =
+                    renumeratedImportData[row].slice(INDEX_START_FEATURES until INDEX_START_FEATURES + N_OMG_CH)
+                if (USE_EMG) {
+                    rowData += renumeratedImportData[row].slice(INDEX_START_FEATURES + N_OMG_CH until INDEX_START_FEATURES + N_OMG_CH + N_EMG_CH)
+                }
+                rowData.map { it.toFloat() }.toFloatArray()
+            }
+
+            println()
+            // Log initFeatures to file
+            val logFileData = File(path, "log_2024-10-28_12-43-48.emg8")
+            logFileData.bufferedWriter().use { writer ->
+                for (row in renumeratedImportData) {
+                    writer.write(row.joinToString(" "))
+                    writer.newLine()
+                }
+            }
+            println("Results written to $logFileData")
+
+
+            val omgStd = initFeatures.mapIndexed { index, row ->
+                if (index == 0) {
+                    0f // For the first row, we can't calculate the difference, so we use 0
+                } else {
+                    row.zip(initFeatures[index - 1]) { a, b -> Math.abs(a - b) }.sum()
+                }
+            }.toFloatArray()
+
+            val targetSubseq = regionProps1D(renumeratedImportData)
+            val rectCoo = mutableMapOf<Int, Triple<Int, Int, Int>>()
+
+            for ((index, triple) in targetSubseq.withIndex()) {
+                val (onset, length, targetId) = triple
+                var maxArea = 0f
+                var argmaxShift = 0
+                for (shift in 0 until (AUTO_SHIFT_RANGE * length).toInt()) {
+                    val area =
+                        omgStd.slice(onset + shift until onset + length + shift).let { slice ->
+                            slice.zipWithNext { a, b -> (a + b) / 2 }.sum()
+                        }
+                    if (area > maxArea) {
+                        maxArea = area
+                        argmaxShift = shift
+                    }
+                }
+                rectCoo[index] = Triple(onset + argmaxShift, length, targetId)
+            }
+
+            val targetArray1D = IntArray(initFeatures.size)
+            for ((_, triple) in rectCoo) {
+                val (onset, length, targetId) = triple
+                for (i in onset until onset + length) {
+                    if (i < targetArray1D.size) {
+                        targetArray1D[i] = targetId
+                    }
+                }
+            }
+
+            targetArray = Array(initFeatures.size) { FloatArray(NUM_CLASSES) }
+            for (i in 0 until initFeatures.size) {
+                targetArray[i][targetArray1D[i]] = 1.0f
+            }
+
+            preprocessedX = Array(initFeatures.size) { FloatArray(NUM_FEATURES) }
+
+            var n_lp_ch = N_OMG_CH
+            if (USE_EMG) {
+                n_lp_ch += N_EMG_CH
+            }
+            val x_lp = FloatArray(n_lp_ch * N_LP_ALPHAS)
+            val x_curr = FloatArray(NUM_FEATURES)
+            val x_features = FloatArray(n_lp_ch)
+
+            for (i in 0 until initFeatures.size) {
+                for (k in 0 until N_OMG_CH) {
+                    x_features[k] = initFeatures[i][k] / SCALE_OMG
+                }
+                if (USE_EMG) {
+                    for (k in 0 until N_EMG_CH) {
+                        x_features[N_OMG_CH + k] = initFeatures[i][N_OMG_CH + k] / SCALE_EMG
+                    }
+                }
+                // HP compute
+                for (j in 0 until N_LP_ALPHAS) {
+                    for (k in 0 until n_lp_ch) {
+                        x_lp[j * n_lp_ch + k] =
+                            LP_ALPHAS[j] * x_features[k] + (1 - LP_ALPHAS[j]) * x_lp[j * NUM_FEATURES + k]
+                        x_curr[j * n_lp_ch + k] = x_features[k] - x_lp[j * n_lp_ch + k]
+                    }
+                }
+                for (k in 0 until n_lp_ch) {
+                    x_curr[n_lp_ch * N_LP_ALPHAS + k] = x_features[k]
+                }
+                for (j in 0 until NUM_FEATURES) {
+                    preprocessedX[i][j] = x_curr[j]
+                }
+            }
+
+            // Log preprocessedX to file
+            val logFilePreprocessedX = File(path, "log_preprocessedX.txt")
+            logFilePreprocessedX.bufferedWriter().use { writer ->
+                for (row in preprocessedX) {
+                    writer.write(row.joinToString(" "))
+                    writer.newLine()
+                }
+            }
+            // Log targetArray to file
+            val logFileTargetArray = File(path, "log_targetArray.txt")
+            logFileTargetArray.bufferedWriter().use { writer ->
+                for (row in targetArray) {
+                    writer.write(row.joinToString(" "))
+                    writer.newLine()
+                }
+            }
+            println("Loaded data hase ${preprocessedX.size} rows and ${initFeatures[0].size} columns")
+        }
+    }
+
+    private fun loadModelAndRestoreCheckpoint(onModelLoaded: () -> Unit = {}) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val path = requireContext().getExternalFilesDir(null)
+                    ?: throw IllegalStateException("External files directory not available")
+                val modelFile = File(path, "model.ckpt")
+
+                modelFile.writeBytes(requireContext().assets.open("model.ckpt").readBytes())
+
+                // Загрузка модели
+                tflite = loadModelFile("model.tflite")
+                modelInfo = getModelInfo(tflite)
+
+                // Восстановление модели из файла контрольной точки
+                val ckpt = modelFile.absolutePath
+                val inputs_ckpt = HashMap<String, Any>()
+                inputs_ckpt["checkpoint_path"] = ckpt
+                val outputs_ckpt = HashMap<String, Any>()
+                tflite.runSignature(inputs_ckpt, outputs_ckpt, "restore")
+
+                // Чтение тестовых данных (если это необходимо)
+                val data = parseFile("test_images.txt")
+                Log.i("parse", data.toString())
+
+
+                withContext(Dispatchers.Main) {
+                    onModelLoaded()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     @SuppressLint("MissingInflatedId")
@@ -355,7 +389,7 @@ class SprTrainingFragment : Fragment() {
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         System.err.println("oneButtonPressed    parameterID: $parameterID   command: $command")
         transmitter().bleCommand(
-            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
+            BLECommands.sendOneButtonCommand(addressDevice, parameterID, command),
             MAIN_CHANNEL,
             WRITE
         )
@@ -367,7 +401,7 @@ class SprTrainingFragment : Fragment() {
 
 
         transmitter().bleCommand(
-            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
+            BLECommands.sendOneButtonCommand(addressDevice, parameterID, command),
             MAIN_CHANNEL,
             WRITE
         )
@@ -448,15 +482,30 @@ class SprTrainingFragment : Fragment() {
         return data
     }
 
-    private fun runModel() {
-        if (!thread.isAlive) {
-            thread = Thread {
-                train(path, preprocessedX, targetArray)
-                export(path)
-                run(path, preprocessedX)
-            }
-            thread.start()
-        }
+//    private fun runModel() {
+//        if (!thread.isAlive) {
+//            thread = Thread {
+//                train(path, preprocessedX, targetArray)
+//                export(path)
+//                run(path, preprocessedX)
+//            }
+//            thread.start()
+//        }
+//    }
+
+    private fun generateCheckpointFile() {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
+        val currentDateTime = dateFormat.format(Date())
+
+        val path = requireContext().getExternalFilesDir(null)
+            ?: throw IllegalStateException("External files directory not available")
+
+        val checkpointFileName = "checkpoint_$currentDateTime.ckpt"
+        val checkpointFile = File(path, checkpointFileName)
+
+        checkpointFile.writeBytes(requireContext().assets.open("model.ckpt").readBytes())
+        println("Checkpoint file generated at: ${checkpointFile.absolutePath}")
+
     }
 
     @SuppressLint("LogNotTimber")
@@ -715,6 +764,27 @@ class SprTrainingFragment : Fragment() {
             targetSubseq.add(Triple(onset, length, currentId))
         }
         return targetSubseq
+    }
+
+    private fun showFilesDialog() {
+        val path = requireContext().getExternalFilesDir(null)
+        val files = path?.listFiles() ?: arrayOf<File>()
+
+        val fileName = files.map { it.name }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Saved files")
+            .setItems(fileName.toTypedArray()) { dialog, which ->
+                val selectedFile = files[which]
+                Toast.makeText(
+                    requireContext(),
+                    "Выбран файл: ${selectedFile.name}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .setNegativeButton("Отмена") { dialog, _ -> dialog.dismiss() }
+            .show()
+
     }
 
 }

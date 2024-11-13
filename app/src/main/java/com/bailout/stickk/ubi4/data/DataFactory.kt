@@ -11,6 +11,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidge
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.models.SwitchItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
@@ -22,8 +23,9 @@ internal class DataFactory {
         val objects = ArrayList<Any>()
         //addElement(8, 0,objects, objects)
         //addElementS(15, label = "Start training", objects,objects)
-        addElementS(14, label = "Start training", objects,objects)
-        addElementS(14, label = "Start training", objects,objects)
+        //addElementS(14, label = "Start training", objects,objects)
+        //addElement(2, 2, objects,objects)
+
 
         return objects
     }
@@ -154,7 +156,7 @@ internal class DataFactory {
                     else -> { OneButtonItem("BUTTON", "description", widget) }
                 }
             }
-            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { OneButtonItem("SWITCH", "description", widget) }
+            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { SwitchItem("SWITCH", widget) }
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
             ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { OneButtonItem("SLIDER", "description", widget) }
             ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem("PLOT", widget)  }
@@ -181,7 +183,7 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                 OneButtonItem(label, "description", widget)
             }
-            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { OneButtonItem("SWITCH", "description", widget) }
+            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { SwitchItem(label, widget) }
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
             ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { OneButtonItem("SLIDER", "description", widget) }
             ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem(label, widget)  }

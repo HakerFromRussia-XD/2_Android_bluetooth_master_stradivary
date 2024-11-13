@@ -7,9 +7,13 @@ import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class TrainingFragmentDelegateAdapter(
-    val onConfirmClick: () -> Unit
+    val onConfirmClick: () -> Unit,
+    val generateClick: () -> Unit,
+    val showFileClick: () -> Unit
 ) :
-    ViewBindingDelegateAdapter<TrainingGestureItem, Ubi4WidgetTrainingOpticBinding>(Ubi4WidgetTrainingOpticBinding::inflate) {
+    ViewBindingDelegateAdapter<TrainingGestureItem, Ubi4WidgetTrainingOpticBinding>(
+        Ubi4WidgetTrainingOpticBinding::inflate
+    ) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetTrainingOpticBinding.onBind(item: TrainingGestureItem) {
@@ -18,6 +22,13 @@ class TrainingFragmentDelegateAdapter(
 
         trainingBtn.setOnClickListener {
             onConfirmClick()
+        }
+        generateBtn.setOnClickListener {
+            generateClick()
+        }
+
+        showFileBtn.setOnClickListener {
+            showFileClick()
         }
     }
 

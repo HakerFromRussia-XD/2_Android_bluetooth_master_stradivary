@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
@@ -36,7 +37,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMET
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
@@ -47,7 +47,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.stream.Collectors
@@ -108,7 +107,7 @@ class GesturesFragment : Fragment() {
     }
     @OptIn(DelicateCoroutinesApi::class)
     fun widgetListUpdater() {
-        GlobalScope.launch(Main) {
+        viewLifecycleOwner.lifecycleScope.launch(Main) {
             withContext(Default) {
                 updateFlow.collect { value ->
                     main?.runOnUiThread {

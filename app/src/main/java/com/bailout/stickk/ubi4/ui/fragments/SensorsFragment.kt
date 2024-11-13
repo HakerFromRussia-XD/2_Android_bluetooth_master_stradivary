@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
@@ -18,7 +19,6 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
@@ -29,7 +29,6 @@ import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -46,13 +45,13 @@ class SensorsFragment : Fragment() {
         if (activity != null) { main = activity as MainActivityUBI4? }
 
         //фейковые данные принимаемого потока
-        val mBLEParser = main?.let { BLEParser(it) }
-        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
+//        val mBLEParser = main?.let { BLEParser(it) }
+//        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
 
         //настоящие виджеты
         widgetListUpdater()
         //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
+ //       adapterWidgets.swapData(mDataFactory.fakeData())
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -70,7 +69,7 @@ class SensorsFragment : Fragment() {
     }
     @OptIn(DelicateCoroutinesApi::class)
     fun widgetListUpdater() {
-        GlobalScope.launch(Main) {
+        viewLifecycleOwner.lifecycleScope.launch(Main) {
             withContext(Default) {
                 updateFlow.collect { value ->
                     main?.runOnUiThread {
@@ -92,9 +91,15 @@ class SensorsFragment : Fragment() {
             onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
         ) ,
         TrainingFragmentDelegateAdapter(
-            onConfirmClick = {}
-        ),SwitcherDelegateAdapter(
-            onSwitchClick = {}
+            onConfirmClick = {},
+            generateClick = {},
+            showFileClick = {}
+        ),
+        SwitcherDelegateAdapter(
+            onSwitchClick = {
+
+                Log.d("SwitcherDelegateAdapter", "$it")
+            }
         )
     )
 

@@ -123,6 +123,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         plotArrayFlow = MutableStateFlow(arrayListOf())
         rotationGroupFlow = MutableStateFlow(0)
         baseSubDevicesInfoStructSet = mutableSetOf()
+        baseParametrInfoStructArray = arrayListOf()
         plot = MutableStateFlow(0)
         plotArray = arrayListOf()
         rotationGroupGestures = arrayListOf()

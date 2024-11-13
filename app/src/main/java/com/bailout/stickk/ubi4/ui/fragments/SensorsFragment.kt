@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -55,7 +56,7 @@ class SensorsFragment : Fragment() {
 
         //настоящие виджеты
 //        widgetListUpdater()
-        widgetListUpdaterRx()
+//        widgetListUpdaterRx()
 //        if (binding.homeRv.isComputingLayout.not()) {
 //            if (Looper.myLooper() != Looper.getMainLooper()) {
 //                // If BG thread,then post task to recycler view
@@ -69,7 +70,8 @@ class SensorsFragment : Fragment() {
 //            Log.d("parseWidgets", "3 приём команды Rx  isComputingLayout = ${binding.homeRv.isComputingLayout}   scrollState  = ${binding.homeRv.scrollState}$")
 //        }
         //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.fakeData())
+
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -90,10 +92,6 @@ class SensorsFragment : Fragment() {
         graphThreadFlag = false
         listWidgets.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-        //TODO только для демонстрации
-//        Handler().postDelayed({
-//            binding.refreshLayout.setRefreshing(false)
-//        }, 1000)
     }
 
     private fun widgetListUpdaterRx() {
@@ -148,6 +146,9 @@ class SensorsFragment : Fragment() {
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
             onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
         ) ,
+        SliderDelegateAdapter(
+//            onSetProgress = { addressDevice, parameterID, command -> }
+        )
 //        GesturesDelegateAdapter (
 //            onSelectorClick = {},
 //            onDeleteClick = { resultCb, gestureName -> },

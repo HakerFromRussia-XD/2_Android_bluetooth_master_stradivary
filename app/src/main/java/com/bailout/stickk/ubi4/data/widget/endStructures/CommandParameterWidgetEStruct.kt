@@ -17,9 +17,9 @@ import android.util.Pair
 @Serializable(with = CommandParameterWidgetESerializer::class)
 data class CommandParameterWidgetEStruct(
     val baseParameterWidgetEStruct: BaseParameterWidgetEStruct,
-    val clickCommand: Int,
-    val pressedCommand: Int,
-    val releasedCommand: Int,
+    val clickCommand: Int = 0,
+    val pressedCommand: Int = 0,
+    val releasedCommand: Int = 0,
 )
 
 object CommandParameterWidgetESerializer: KSerializer<CommandParameterWidgetEStruct> {

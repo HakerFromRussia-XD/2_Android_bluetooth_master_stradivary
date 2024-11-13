@@ -14,7 +14,8 @@ import com.bailout.stickk.ubi4.models.SliderItem
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 
 class SliderDelegateAdapter(
-    val onButtonPressed: (addressDevice: Int, parameterID: Int, command: Int) -> Unit,) :
+//    val onSetProgress: (addressDevice: Int, parameterID: Int, command: Int) -> Unit
+) :
     ViewBindingDelegateAdapter<SliderItem, Ubi4WidgetSliderBinding>(Ubi4WidgetSliderBinding::inflate) {
 
     @SuppressLint("ClickableViewAccessibility")
@@ -38,7 +39,7 @@ class SliderDelegateAdapter(
             }
         }
 
-
+//        onSetProgress(addressDevice, parameterID, progress)
     }
 
     override fun isForViewType(item: Any): Boolean = item is SliderItem

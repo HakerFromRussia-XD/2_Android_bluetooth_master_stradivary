@@ -14,7 +14,7 @@ import kotlinx.serialization.json.Json
 @Serializable(with = BaseParameterWidgetESerializer::class)
 data class BaseParameterWidgetEStruct(
     val baseParameterWidgetStruct: BaseParameterWidgetStruct,
-    val labelCode: Int
+    val labelCode: Int = 0
 )
 
 object BaseParameterWidgetESerializer: KSerializer<BaseParameterWidgetEStruct> {

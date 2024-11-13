@@ -14,9 +14,9 @@ import kotlinx.serialization.json.Json
 @Serializable(with = PlotParameterWidgetESerializer::class)
 data class PlotParameterWidgetEStruct(
     val baseParameterWidgetEStruct: BaseParameterWidgetEStruct,
-    val color: Int,
-    val maxSize: Int,
-    val minSize: Int
+    val color: Int = 0,
+    val maxSize: Int = 0,
+    val minSize: Int = 0
 )
 
 object PlotParameterWidgetESerializer: KSerializer<PlotParameterWidgetEStruct> {

@@ -13,16 +13,16 @@ import android.util.Pair
 
 @Serializable(with = BaseParameterWidgetSerializer::class)
 data class BaseParameterWidgetStruct(
-    val widgetType: Int,      // 7 bit   младшие биты
-    val widgetLabelType: Int, // 1 bit, если 1, то парсим хвост как структуку с enum иначе как структуру с именем в виде char[32]
-    val widgetCode: Int,
-    val display: Int, // номер экрана, на котором виджет располагается
-    val widgetPosition: Int, // позиция этого виджета
-    var deviceId: Int,
-    val widgetId: Int,
-    val dataOffset: Int,
-    var dataSize: Int,
-    var parametersIDAndDataCodes: MutableSet<Pair<Int, Int>>, // ID родительских параметров и их датакоды
+    val widgetType: Int = 0,      // 7 bit   младшие биты
+    val widgetLabelType: Int = 0, // 1 bit, если 1, то парсим хвост как структуку с enum иначе как структуру с именем в виде char[32]
+    val widgetCode: Int = 0,
+    val display: Int = 0, // номер экрана, на котором виджет располагается
+    val widgetPosition: Int = 0, // позиция этого виджета
+    var deviceId: Int = 0,
+    val widgetId: Int = 0,
+    val dataOffset: Int = 0,
+    var dataSize: Int = 0,
+    var parametersIDAndDataCodes: MutableSet<Pair<Int, Int>> = mutableSetOf(Pair(0, 0)), // ID родительских параметров и их датакоды
 )
 
 object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {

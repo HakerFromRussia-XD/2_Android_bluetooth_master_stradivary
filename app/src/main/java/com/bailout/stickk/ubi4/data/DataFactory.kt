@@ -7,7 +7,10 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetE
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.models.OneButtonItem
@@ -23,10 +26,19 @@ internal class DataFactory {
 
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
-//        addElement(14, 2, objects, objects)
-//        addElement(14, 2, objects, objects)
-        addElement(14, 2, objects, objects)
-        addElement(14, 2, objects, objects)
+        val objectPlotE: Any = PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectPlotS: Any = PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+        val objectCommandE: Any = CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectCommandS: Any = CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+        val objectSliderE: Any = SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectSliderS: Any = SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+
+        addElement(1, 2, objects, objectCommandE)
+        addElementS(1, "5", objects, objectCommandS)
+        addElement(5, 3, objects, objectPlotE)
+//        addElementS(5, "3", objects, objectPlotS)
+        addElement(4, 2, objects, objectSliderE)
+        addElementS(4, "Описание слайдера", objects, objectSliderS)
 
         return objects
     }
@@ -159,7 +171,7 @@ internal class DataFactory {
                 GesturesItem("GESTURE_SETTINGS", widget)
             }
             ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { OneButtonItem("PWCE_OPTIC_LEARNING_WIDGET", "description", widget) }
-            else -> { OneButtonItem("ветка else", "ветка else", widget) }
+            else -> { OneButtonItem("ветка_else", "ветка_else", widget) }
         }
         widgets.add(item)
     }
@@ -173,7 +185,10 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { OneButtonItem("SWITCH", "description", widget) }
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
             ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { SliderItem(label, widget) }
-            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem(label, widget)  }
+            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
+//                PlotItem(label, widget)
+                PlotItem("PLOT", widget)
+            }
             ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
@@ -189,7 +204,7 @@ internal class DataFactory {
                 GesturesItem("GESTURE_SETTINGS", widget)
             }
             ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { OneButtonItem(label, "description", widget) }
-            else -> { OneButtonItem("ветка else", "ветка else", widget) }
+            else -> { OneButtonItem("ветка_else", "ветка_else", widget) }
         }
         widgets.add(item)
     }

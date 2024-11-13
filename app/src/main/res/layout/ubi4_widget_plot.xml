@@ -33,7 +33,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/EMG_chart_lc"
+            android:id="@+id/EMGChartLc"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginStart="-14dp"

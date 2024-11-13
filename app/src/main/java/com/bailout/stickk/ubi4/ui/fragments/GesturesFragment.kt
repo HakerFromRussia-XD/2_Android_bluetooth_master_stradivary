@@ -149,6 +149,7 @@ class GesturesFragment : Fragment() {
             }
         disposables.add(sensorsFragmentStreamDisposable)
     }
+
 //    private fun widgetListUpdater() {
 //        viewLifecycleOwner.lifecycleScope.launch(Main) {
 //            withContext(Default) {

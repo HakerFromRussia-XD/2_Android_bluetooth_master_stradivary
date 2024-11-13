@@ -1,17 +1,22 @@
 package com.bailout.stickk.ubi4.data
 
 
-import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.models.OneButtonItem
 import com.bailout.stickk.ubi4.models.PlotItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.models.SliderItem
+import com.bailout.stickk.ubi4.models.SwitchItem
+import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
@@ -172,7 +177,7 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
-            ParameterWidgetCode.PWCE_OPTIC_LERNING_WIDGET.number.toInt() -> { TrainingGestureItem("labelCode = $labelCode", widget)  }
+            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { TrainingGestureItem("labelCode = $labelCode", widget)  }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)
@@ -202,7 +207,7 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem(label, widget) }
-            ParameterWidgetCode.PWCE_OPTIC_LERNING_WIDGET.number.toInt() -> { TrainingGestureItem(label, widget)  }
+            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { TrainingGestureItem(label, widget)  }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)

@@ -103,7 +103,7 @@ object PreferenceKeysUBI4 {
         PWCE_PLOT_AND_1_THRESHOLD (0x0c),
         PWCE_PLOT_AND_2_THRESHOLD (0x0d),
         PWCE_GESTURES_WINDOW (0x0e),
-        PWCE_OPTIC_LERNING_WIDGET (0x0f),
+        PWCE_OPTIC_LEARNING_WIDGET (0x0f),
     }
 
     enum class ParameterWidgetLabel(val number: Int, val label: String) {

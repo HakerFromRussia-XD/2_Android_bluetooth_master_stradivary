@@ -4,7 +4,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import dagger.hilt.migration.DisableInstallInCheck;
+//import dagger.hilt.migration.DisableInstallInCheck;
 
 import com.bailout.stickk.scan.presenter.ScanPresenter;
 import com.bailout.bluetooth.Bluetooth;
@@ -15,7 +15,7 @@ import com.bailout.stickk.scan.view.ScanView;
 
 
 @Module
-@DisableInstallInCheck
+//@DisableInstallInCheck
 public class ScanModule {
     private ScanView view;
 

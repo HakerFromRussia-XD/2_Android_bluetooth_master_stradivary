@@ -99,10 +99,9 @@ class SensorsFragment : Fragment() {
         ),
         SwitcherDelegateAdapter(
             onSwitchClick = {
-
                 Log.d("SwitcherDelegateAdapter", "$it")
             }
-        )
+        ),
         SliderDelegateAdapter(
         )
     )

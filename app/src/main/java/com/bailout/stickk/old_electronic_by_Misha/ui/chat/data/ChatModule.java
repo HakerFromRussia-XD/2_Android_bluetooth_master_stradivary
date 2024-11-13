@@ -4,7 +4,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import dagger.hilt.migration.DisableInstallInCheck;
+//import dagger.hilt.migration.DisableInstallInCheck;
 
 import com.bailout.bluetooth.Bluetooth;
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.interactor.ChatInteractor;
@@ -14,7 +14,7 @@ import com.bailout.stickk.old_electronic_by_Misha.ui.chat.presenter.ChartPresent
 import com.bailout.stickk.old_electronic_by_Misha.ui.chat.view.ChartView;
 
 @Module
-@DisableInstallInCheck
+//@DisableInstallInCheck
 public class ChatModule {
     private ChartView view;
 

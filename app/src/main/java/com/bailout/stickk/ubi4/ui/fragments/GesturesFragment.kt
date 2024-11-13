@@ -42,11 +42,15 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.stream.Collectors
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
@@ -67,16 +71,9 @@ class GesturesFragment : Fragment() {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
 
-        //фейковые данные принимаемого потока
-//        Handler().postDelayed({
-//            val mBLEParser = main?.let { BLEParser(it) }
-//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-//        }, 1000)
-
 
         //настоящие виджеты
-//        widgetListUpdater()
-        widgetListUpdaterRx()
+        widgetListUpdater()
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -137,31 +134,18 @@ class GesturesFragment : Fragment() {
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
 
-    private fun widgetListUpdaterRx() {
-        adapterWidgets.swapData(mDataFactory.prepareData(0))
-        val sensorsFragmentStreamDisposable = rxUpdateMainEvent.allFragmentUiObservable
-            .compose(main?.bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { _ ->
-                Log.d("parseWidgets_rx", "приём команды Rx  listWidgets = ${mDataFactory.prepareData(0)}")
-                adapterWidgets.swapData(mDataFactory.prepareData(0))
-                binding.refreshLayout.setRefreshing(false)
+    private fun widgetListUpdater() {
+        viewLifecycleOwner.lifecycleScope.launch(Main) {
+            withContext(Default) {
+                updateFlow.collect {
+                    main?.runOnUiThread {
+                        adapterWidgets.swapData(mDataFactory.prepareData(0))
+                        binding.refreshLayout.setRefreshing(false)
+                    }
+                }
             }
-        disposables.add(sensorsFragmentStreamDisposable)
+        }
     }
-
-//    private fun widgetListUpdater() {
-//        viewLifecycleOwner.lifecycleScope.launch(Main) {
-//            withContext(Default) {
-//                updateFlow.collect { value ->
-//                    main?.runOnUiThread (Runnable {
-//                        adapterWidgets.swapData(mDataFactory.prepareData(0))
-//                        binding.refreshLayout.setRefreshing(false)
-//                    })
-//                }
-//            }
-//        }
-//    }
 
     private val adapterWidgets = CompositeDelegateAdapter(
         PlotDelegateAdapter(

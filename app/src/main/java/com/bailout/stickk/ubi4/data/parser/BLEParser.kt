@@ -47,6 +47,8 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStr
 import com.bailout.stickk.ubi4.models.MyItem
 import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlin.experimental.and
 
 class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
@@ -319,7 +321,10 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                     AdditionalParameterInfoType.WIDGET.number.toInt() -> {
                         parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode)
                         Log.d("parseWidgets", "отправка команды Rx")
-                        RxUpdateMainEventUbi4.getInstance().updateAllFragmentUi(baseParametrInfoStructArray[ID].dataCode)
+//                        RxUpdateMainEventUbi4.getInstance().updateAllFragmentUi(baseParametrInfoStructArray[ID].dataCode)
+                        GlobalScope.launch {
+                            mMain.sendWidgetsArray()
+                        }
                     }
                 }
             }
@@ -435,10 +440,10 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                                 AdditionalParameterInfoType.WIDGET.number.toInt() -> {
                                     parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID, dataCode = parametrSubDevice.dataCode)
                                     Log.d("parseWidgets", "отправка команды Rx")
-                                    RxUpdateMainEventUbi4.getInstance().updateAllFragmentUi(parametrSubDevice.dataCode)
-//                                    GlobalScope.launch {
-//                                        mMain.sendWidgetsArray()
-//                                    }
+//                                    RxUpdateMainEventUbi4.getInstance().updateAllFragmentUi(parametrSubDevice.dataCode)
+                                    GlobalScope.launch {
+                                        mMain.sendWidgetsArray()
+                                    }
                                 }
                             }
                         }

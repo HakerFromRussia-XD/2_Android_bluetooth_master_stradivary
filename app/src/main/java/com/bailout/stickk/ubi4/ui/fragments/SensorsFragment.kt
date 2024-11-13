@@ -14,6 +14,8 @@ import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -50,27 +52,10 @@ class SensorsFragment : Fragment() {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
 
-        //фейковые данные принимаемого потока
-//        val mBLEParser = main?.let { BLEParser(it) }
-//        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-
         //настоящие виджеты
-//        widgetListUpdater()
-//        widgetListUpdaterRx()
-//        if (binding.homeRv.isComputingLayout.not()) {
-//            if (Looper.myLooper() != Looper.getMainLooper()) {
-//                // If BG thread,then post task to recycler view
-//                Log.d("parseWidgets", "1 приём команды Rx  listWidgets = $listWidgets")
-//                binding.homeRv.post { adapterWidgets.swapData(mDataFactory.prepareData(display)) }
-//            } else {
-//                Log.d("parseWidgets", "2 приём команды Rx  listWidgets = $listWidgets")
-//                adapterWidgets.swapData(mDataFactory.prepareData(display))
-//            }
-//        } else {
-//            Log.d("parseWidgets", "3 приём команды Rx  isComputingLayout = ${binding.homeRv.isComputingLayout}   scrollState  = ${binding.homeRv.scrollState}$")
-//        }
+        widgetListUpdater()
         //фейковые виджеты
-        adapterWidgets.swapData(mDataFactory.fakeData())
+//        adapterWidgets.swapData(mDataFactory.fakeData())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -94,45 +79,14 @@ class SensorsFragment : Fragment() {
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
 
-    private fun widgetListUpdaterRx() {
-        adapterWidgets.swapData(mDataFactory.prepareData(1))
-        val sensorsFragmentStreamDisposable = rxUpdateMainEvent.allFragmentUiObservable
-            .compose(main?.bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { _ ->
-//                if ( count < 4 ) {
-////                    Log.d("parseWidgets", "приём команды Rx  listWidgets = $listWidgets")
-//                    Log.d("parseWidgets_rx", "приём команды Rx  listWidgets = ${mDataFactory.prepareData(1)}")
-//                    count += 1
-//                    adapterWidgets.swapData(mDataFactory.prepareData(1))
-//                    binding.refreshLayout.setRefreshing(false)
-//                }
-
-                if (binding.homeRv.isComputingLayout.not()) {
-                    if (Looper.myLooper() != Looper.getMainLooper()) {
-                        // If BG thread,then post task to recycler view
-                        Log.d("parseWidgets", "1 приём команды Rx  listWidgets = $listWidgets")
-                        binding.homeRv.post { adapterWidgets.swapData(mDataFactory.prepareData(display)) }
-                    } else {
-                        Log.d("parseWidgets", "2 приём команды Rx  listWidgets = $listWidgets")
-                        adapterWidgets.swapData(mDataFactory.prepareData(display))
-                    }
-                } else {
-                    Log.d("parseWidgets", "3 приём команды Rx  isComputingLayout = ${binding.homeRv.isComputingLayout}   scrollState  = ${binding.homeRv.scrollState}$")
-                }
-                binding.refreshLayout.setRefreshing(false)
-            }
-        disposables.add(sensorsFragmentStreamDisposable)
-    }
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
             withContext(Main) {
-                updateFlow.collect { value ->
-//                    main?.runOnUiThread (Runnable {
-                    adapterWidgets.swapData(mDataFactory.prepareData(1))
-//                        adapterWidgets.swapData(mDataFactory.fakeData())
-                    binding.refreshLayout.setRefreshing(false)
-//                    })
+                updateFlow.collect {
+                    main?.runOnUiThread {
+                        adapterWidgets.swapData(mDataFactory.prepareData(1))
+                        binding.refreshLayout.setRefreshing(false)
+                    }
                 }
             }
         }
@@ -145,9 +99,19 @@ class SensorsFragment : Fragment() {
         OneButtonDelegateAdapter (
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
             onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
-        ) ,
+        ),
+        TrainingFragmentDelegateAdapter(
+            onConfirmClick = {},
+            generateClick = {},
+            showFileClick = {}
+        ),
+        SwitcherDelegateAdapter(
+            onSwitchClick = {
+                Log.d("SwitcherDelegateAdapter", "$it")
+            }
+        ),
         SliderDelegateAdapter(
-//            onSetProgress = { addressDevice, parameterID, command -> }
+            onSetProgress = { addressDevice, parameterID, progress -> Log.d("onSetProgress", "progress = $progress")}
         )
 //        GesturesDelegateAdapter (
 //            onSelectorClick = {},

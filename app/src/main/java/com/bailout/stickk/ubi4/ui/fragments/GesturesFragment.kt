@@ -63,7 +63,6 @@ import kotlin.reflect.full.memberProperties
 
 @Suppress("DEPRECATION")
 class GesturesFragment : Fragment() {
-    private val viewModel: MyViewModel by viewModels()
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
@@ -102,29 +101,6 @@ class GesturesFragment : Fragment() {
             .subscribe { parameters ->
                 requestGestureSettings(parameters.deviceAddress, parameters.parameterID, parameters.gestureID)
             }
-//        RxUpdateMainEventUbi4.getInstance().uiRotationGroupObservable
-//            .compose(MainActivityUBI4.main.bindToLifecycle())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { parameterRef ->
-//                val parameter = ParameterProvider.getParameter(parameterRef.deviceAddress, parameterRef.parameterID)
-//                val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
-//                val testList = rotationGroup.toGestureList()
-//                Log.d("uiRotationGroupObservable", "RX testList = $testList  size = ${testList.size}")
-//                rotationGroupGestures.clear()
-//                testList.forEach{ item ->
-//                    if (item.first != 0 )
-//                        rotationGroupGestures.add(CollectionGesturesProvider.getGesture(item.first))
-//                }
-//                showIntroduction()
-//                setupListRecyclerView()
-//                synhronizeRotationGroup()
-//                calculatingShowAddButton()
-//            }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.items.collect { newItem ->
-                Log.d("uiRotationGroupObservable", "data = ${newItem}")
-            }
-        }
 
 
 
@@ -141,6 +117,7 @@ class GesturesFragment : Fragment() {
 
     private fun refreshWidgetsList() {
         graphThreadFlag = false
+        onDestroyParrent?.invoke()
         listWidgets.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }

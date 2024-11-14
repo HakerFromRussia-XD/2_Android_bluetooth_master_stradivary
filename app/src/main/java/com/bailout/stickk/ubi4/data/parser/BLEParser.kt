@@ -367,6 +367,18 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
         // пробегаемся по всем параметрам, формируя их список
         val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
         for (i in 0 until baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum) {
+            val start = 22 + i * BASE_PARAMETER_INFO_STRUCT_SIZE
+            val end = 22 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE
+
+            if (end <= receiveDataString.length) {
+                try {
+                    val parameterJson = receiveDataString.substring(start, end)
+                    listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"$parameterJson\""))
+                } catch (e: Exception) {}
+            } else {
+                Log.e("error", "Индексы $start-$end выходят за пределы строки длиной ${receiveDataString.length}")
+                break
+            }
             listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(22 + i * BASE_PARAMETER_INFO_STRUCT_SIZE, 22 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
         }
 
@@ -428,15 +440,19 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                         for (i in 0 until parametrSubDevice.additionalInfoSize) {
                             //каждый новый цикл вычитываем данные следующего сегмента (следующий addInfoSeg)
                             val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset+(i+1)*ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\"")
-                            val receiveDataStringForParse = receiveDataString.substring(
-                                offset + //отступ на header + отправленные данные (отправленный запрос целиком)
-                                        parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
-                                        dataOffset*2, // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
-                                offset +
-                                        parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG +
-                                        dataOffset*2 +
-                                        additionalInfoSizeStruct.infoSize*2) // оступ на кол-во байт в считываемом сегменте
-//                                        System.err.println("testSignal 0 $receiveDataStringForParse")
+
+                            val start = offset + //отступ на header + отправленные данные (отправленный запрос целиком)
+                                             parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
+                                             dataOffset*2 // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
+                            val end = offset +
+                                      parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG +
+                                      dataOffset*2 +
+                                      additionalInfoSizeStruct.infoSize*2
+
+                            var receiveDataStringForParse = ""
+                            if (end <= receiveDataString.length) {
+                                receiveDataStringForParse = receiveDataString.substring(start, end)
+                            }
                             dataOffset = additionalInfoSizeStruct.infoSize
                             Log.d("parseReadSubDeviceAdditionalParameters", "receiveDataStringForParse = $receiveDataStringForParse")
 

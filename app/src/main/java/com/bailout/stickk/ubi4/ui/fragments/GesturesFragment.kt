@@ -23,7 +23,11 @@ import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
@@ -51,6 +55,7 @@ import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
@@ -65,12 +70,13 @@ class GesturesFragment : Fragment() {
 
     private val disposables = CompositeDisposable()
     private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
+    private var onDestroyParrent: (() -> Unit)? = null
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
-
+        Log.d("LifeCycele", "onCreateView")
 
         //настоящие виджеты
         widgetListUpdater()
@@ -99,11 +105,9 @@ class GesturesFragment : Fragment() {
 //        RxUpdateMainEventUbi4.getInstance().uiRotationGroupObservable
 //            .compose(MainActivityUBI4.main.bindToLifecycle())
 //            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { dataCode ->
-//                val parameter = ParameterProvider.getParameter(dataCode)
-////                Log.d("uiRotationGroupObservable", "data = ${parameter.data}")
+//            .subscribe { parameterRef ->
+//                val parameter = ParameterProvider.getParameter(parameterRef.deviceAddress, parameterRef.parameterID)
 //                val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
-////                Log.d("uiRotationGroupObservable", "rotationGroup = $rotationGroup")
 //                val testList = rotationGroup.toGestureList()
 //                Log.d("uiRotationGroupObservable", "RX testList = $testList  size = ${testList.size}")
 //                rotationGroupGestures.clear()
@@ -111,10 +115,10 @@ class GesturesFragment : Fragment() {
 //                    if (item.first != 0 )
 //                        rotationGroupGestures.add(CollectionGesturesProvider.getGesture(item.first))
 //                }
-////                showIntroduction()
-////                setupListRecyclerView()
-////                synhronizeRotationGroup()
-////                calculatingShowAddButton()
+//                showIntroduction()
+//                setupListRecyclerView()
+//                synhronizeRotationGroup()
+//                calculatingShowAddButton()
 //            }
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.items.collect { newItem ->
@@ -128,6 +132,13 @@ class GesturesFragment : Fragment() {
         binding.homeRv.adapter = adapterWidgets
         return binding.root
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("LifeCycele", "onDestroy")
+        onDestroyParrent?.invoke()
+    }
+
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         listWidgets.clear()
@@ -139,6 +150,7 @@ class GesturesFragment : Fragment() {
             withContext(Default) {
                 updateFlow.collect {
                     main?.runOnUiThread {
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(0)}")
                         adapterWidgets.swapData(mDataFactory.prepareData(0))
                         binding.refreshLayout.setRefreshing(false)
                     }
@@ -174,7 +186,21 @@ class GesturesFragment : Fragment() {
             onSendBLERotationGroup = {deviceAddress, parameterID -> sendBLERotationGroup(deviceAddress, parameterID) },
             onShowGestureSettings = { deviceAddress, parameterID, gestureID -> showGestureSettings(deviceAddress, parameterID, gestureID) },
             onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)},
-            onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)}
+            onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)},
+            onDestroyParrent = {onDestroyParrent -> this.onDestroyParrent = onDestroyParrent}
+        ),
+        TrainingFragmentDelegateAdapter(
+            onConfirmClick = {},
+            generateClick = {},
+            showFileClick = {}
+        ),
+        SwitcherDelegateAdapter(
+            onSwitchClick = {
+                Log.d("SwitcherDelegateAdapter", "$it")
+            }
+        ),
+        SliderDelegateAdapter(
+            onSetProgress = { addressDevice, parameterID, progress -> Log.d("onSetProgress", "progress = $progress")}
         )
     )
 

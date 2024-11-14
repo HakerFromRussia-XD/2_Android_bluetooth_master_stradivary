@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PlotDelegateAdapter (
-    val plotIsReadyToData:(num: Int) -> Unit) :
+    val plotIsReadyToData:(numberOfCharts: Int) -> Unit) :
     ViewBindingDelegateAdapter<PlotItem, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private var count: Int = 0
     private var dataSens1 = 0
@@ -88,7 +88,7 @@ class PlotDelegateAdapter (
 
         main.bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
 //        System.err.println("plotIsReadyToData")
-        plotIsReadyToData(0)
+        plotIsReadyToData(numberOfCharts)
     }
 
     override fun isForViewType(item: Any): Boolean = item is PlotItem

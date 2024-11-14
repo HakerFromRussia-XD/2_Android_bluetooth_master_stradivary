@@ -18,6 +18,7 @@ import android.util.Pair
 data class SliderParameterWidgetEStruct(
     val baseParameterWidgetEStruct: BaseParameterWidgetEStruct,
     val progress: Int = 0,
+    val clickCommand: Int = 0,
 )
 
 object SliderParameterWidgetESerializer: KSerializer<SliderParameterWidgetEStruct> {

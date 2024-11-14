@@ -84,6 +84,7 @@ class SensorsFragment : Fragment() {
             withContext(Main) {
                 updateFlow.collect {
                     main?.runOnUiThread {
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(1)}")
                         adapterWidgets.swapData(mDataFactory.prepareData(1))
                         binding.refreshLayout.setRefreshing(false)
                     }
@@ -94,7 +95,7 @@ class SensorsFragment : Fragment() {
 
     private val adapterWidgets = CompositeDelegateAdapter(
         PlotDelegateAdapter(
-            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+            plotIsReadyToData = { numberOfCharts -> System.err.println("plotIsReadyToData $numberOfCharts") }
         ),
         OneButtonDelegateAdapter (
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },

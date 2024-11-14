@@ -214,8 +214,8 @@ object PreferenceKeysUBI4 {
         //Global settings
         PDCE_SELECT_GESTURE (1),          // uint8_t select_gesture;
         PDCE_SELECT_PROFILE (2),          // uint8_t select_profile;
-        PDCE_GLOBAL_FORCE (3),            // uint8_t global_force;
-        PDCE_GLOBAL_SENSITIVITY (4),        // uint8_t global_sensitivity;
+        PDCE_GLOBAL_FORCE (3),            // uint8_t global_force; //TODO sliders
+        PDCE_GLOBAL_SENSITIVITY (4),        // uint8_t global_sensitivity;//TODO sliders
         PDCE_GLOBAL_THRESHOLD (5),          // uint8_t global_threshold;
 
         PDCE_UNIVERSAL_CONTROL_INPUT (6),
@@ -245,7 +245,7 @@ object PreferenceKeysUBI4 {
         PDCE_GESTURES_CHANGE_SETTINGS (23),        //
         PDCE_CONTROL_MODE_SETTINGS (24),        //
         PDCE_DRIVE_SETTINGS (25),            //
-        PDCE_OPEN_CLOSE_THRESHOLD (26),          // open_close_threshold_param_struct
+        PDCE_OPEN_CLOSE_THRESHOLD (26),          // open_close_threshold_param_struct //TODO sliders
 
         PDCE_CALIB_STATUS (27),              //
         PDCE_CURRENT_LIMITS (28),            //

@@ -46,10 +46,16 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSS
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.MyItem
 import com.bailout.stickk.ubi4.models.MyViewModel
+import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 import kotlin.experimental.and
+import kotlin.random.Random
 
 class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
@@ -183,7 +189,8 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                 RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(dataCode) }
             ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
                 Log.d("uiRotationGroupObservable", "dataCode = $dataCode")
-                RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(dataCode) }
+                RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(ParameterRef(deviceAddress, parameterID))
+                CoroutineScope(Dispatchers.Default).launch { rotationGroupFlow.emit((0..100).random()) } }
             ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
@@ -320,8 +327,6 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                 when (additionalInfoSizeStruct.infoType) {
                     AdditionalParameterInfoType.WIDGET.number.toInt() -> {
                         parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode)
-                        Log.d("parseWidgets", "отправка команды Rx")
-//                        RxUpdateMainEventUbi4.getInstance().updateAllFragmentUi(baseParametrInfoStructArray[ID].dataCode)
                         GlobalScope.launch {
                             mMain.sendWidgetsArray()
                         }
@@ -439,8 +444,6 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                             when (additionalInfoSizeStruct.infoType) {
                                 AdditionalParameterInfoType.WIDGET.number.toInt() -> {
                                     parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID, dataCode = parametrSubDevice.dataCode)
-                                    Log.d("parseWidgets", "отправка команды Rx")
-//                                    RxUpdateMainEventUbi4.getInstance().updateAllFragmentUi(parametrSubDevice.dataCode)
                                     GlobalScope.launch {
                                         mMain.sendWidgetsArray()
                                     }

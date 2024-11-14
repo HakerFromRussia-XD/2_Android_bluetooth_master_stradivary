@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.rx;
 import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingerAngle;
 import com.bailout.stickk.ubi4.models.GestureInfo;
 import com.bailout.stickk.ubi4.models.GestureWithAddress;
+import com.bailout.stickk.ubi4.models.ParameterRef;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
@@ -15,9 +16,8 @@ public class RxUpdateMainEventUbi4 {
   private final PublishSubject<GestureInfo> readCharacteristicBLE;
 
   // ui
-  private final PublishSubject<Integer> allFragmentUi;
   private final PublishSubject<Integer> uiGestureSettings;
-  private final PublishSubject<Integer> uiRotationGroup;
+  private final PublishSubject<ParameterRef> uiRotationGroup;
   private final PublishSubject<Integer> uiOpticTraining;
 
 
@@ -27,7 +27,6 @@ public class RxUpdateMainEventUbi4 {
     readCharacteristicBLE = PublishSubject.create();
     uiGestureSettings = PublishSubject.create();
     uiRotationGroup = PublishSubject.create();
-    allFragmentUi = PublishSubject.create();
     uiOpticTraining = PublishSubject.create();
   }
   public static RxUpdateMainEventUbi4 getInstance() {
@@ -41,9 +40,8 @@ public class RxUpdateMainEventUbi4 {
   public void updateGestureWithEncodersState(GestureWithAddress parameters) { gestureStateWithEncoders.onNext(parameters); }
   public void updateReadCharacteristicBLE(GestureInfo parameters) { readCharacteristicBLE.onNext(parameters); }
   public void updateUiGestureSettings(Integer parameters) { uiGestureSettings.onNext(parameters); }
-  public void updateUiRotationGroup(Integer parameters) { uiRotationGroup.onNext(parameters); }
+  public void updateUiRotationGroup(ParameterRef parameters) { uiRotationGroup.onNext(parameters); }
   public void updateUiOpticTraining(Integer parameters) { uiOpticTraining.onNext(parameters); }
-  public void updateAllFragmentUi(Integer parameters) { allFragmentUi.onNext(parameters); }
 
 
 
@@ -52,7 +50,6 @@ public class RxUpdateMainEventUbi4 {
   public Observable<GestureWithAddress> getGestureStateWithEncodersObservable() { return gestureStateWithEncoders; }
   public Observable<GestureInfo> getReadCharacteristicBLE() { return readCharacteristicBLE; }
   public Observable<Integer> getUiGestureSettingsObservable() { return uiGestureSettings; }
-  public Observable<Integer> getUiRotationGroupObservable() { return uiRotationGroup; }
+  public Observable<ParameterRef> getUiRotationGroupObservable() { return uiRotationGroup; }
   public Observable<Integer> getUiOpticTrainingObservable() { return uiOpticTraining; }
-  public Observable<Integer> getAllFragmentUiObservable() { return allFragmentUi; }
 }

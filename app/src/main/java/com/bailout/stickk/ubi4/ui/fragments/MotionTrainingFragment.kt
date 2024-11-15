@@ -53,6 +53,7 @@ class MotionTrainingFragment(
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("LagSpr", "Motion onCreate")
 
         val mBLEParser = main?.let { BLEParser(it) }
         //фейковые данные принимаемого потока
@@ -85,11 +86,14 @@ class MotionTrainingFragment(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d("LagSpr", "Motion onCreateView")
+
         _bindig = Ubi4FragmentMotionTrainingBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Log.d("LagSpr", "Motion onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         binding.stopTrainingBtn.setOnClickListener {
             showConfirmCancelTrainingDialog {
@@ -156,7 +160,7 @@ class MotionTrainingFragment(
                     showConfirmCompletedTrainingDialog {
                         parentFragmentManager.beginTransaction().replace(
                             R.id.fragmentContainer, SprTrainingFragment()
-                        ).commit()
+                        ).commitNow()
                     }
                 } else {
                     startPreparationCountDown()
@@ -248,6 +252,7 @@ class MotionTrainingFragment(
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d("LagSpr", "Motion onDestroy")
         _bindig = null
         timer?.cancel()
         preparationTimer?.cancel()

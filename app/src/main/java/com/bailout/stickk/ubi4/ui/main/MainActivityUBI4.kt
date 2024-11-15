@@ -32,6 +32,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECT
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
+import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
@@ -100,6 +101,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
+    override fun showMotionTrainingScreen(onFinish:()->Unit) { launchFragmentWithoutStack(MotionTrainingFragment(onFinish)) }
+
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
     }

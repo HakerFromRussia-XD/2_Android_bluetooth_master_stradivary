@@ -44,6 +44,7 @@ import kotlinx.serialization.json.Json
 import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
@@ -588,7 +589,6 @@ class BLEParser(main: AppCompatActivity) {
                         gesturesParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
                         addToListWidgets(gesturesParameterWidgetEStruct, gesturesParameterWidgetEStruct, parameterID, dataCode)
                     }
-
                     ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> {
                         System.err.println("parseWidgets PWCE_OPTIC_LERNING_WIDGET $receiveDataStringForParse")
                         val opticParameterWidgetEStruct = Json.decodeFromString<OpticStartLearningWidgetEStruct>("\"${receiveDataStringForParse}\"")
@@ -646,8 +646,8 @@ class BLEParser(main: AppCompatActivity) {
                     }
                     ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { System.err.println("parseWidgets PWCE_OPTIC_LEARNING_WIDGET")
                         val opticParameterWidgetSStruct = Json.decodeFromString<OpticStartLearningWidgetSStruct>("\"${receiveDataStringForParse}\"")
-                        opticParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
-                        addToListWidgets(opticParameterWidgetEStruct,opticParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID, dataCode)
+                        opticParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        addToListWidgets(opticParameterWidgetSStruct,opticParameterWidgetSStruct.baseParameterWidgetSStruct,parameterID, dataCode)
                     }
                 }
             }

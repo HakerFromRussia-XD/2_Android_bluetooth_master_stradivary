@@ -7,10 +7,10 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
@@ -56,22 +56,12 @@ class MotionTrainingFragment(
 
         val mBLEParser = main?.let { BLEParser(it) }
         //фейковые данные принимаемого потока
-//        Handler().postDelayed({
-//
+//        android.os.Handler().postDelayed({
 //            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
 //        }, 1000)
 //        Handler().postDelayed({
 //            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-//        }, 2000)
-//        Handler().postDelayed({
-//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-//        }, 3000)
-//        Handler().postDelayed({
-//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-//        }, 4000)
-//        Handler().postDelayed({
-//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-//        }, 5000)
+
 
         val parameter = ParameterProvider.getParameter(6,15)
         Log.d("TestOptic","OpticTrainingStruct = ${parameter.parameterDataSize}")
@@ -83,7 +73,7 @@ class MotionTrainingFragment(
 //                parameter.data = "1293847561038475612938475610394857612039847561203948576120394857612093485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120"
                 val opticTrainingStruct = Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
                 val dataString = opticTrainingStruct.data.joinToString(separator = " ") { it.toString() }
-                Log.d("TestOptic","OpticTrainingStruct = $opticTrainingStruct")
+                Log.d("TestOptic1","OpticTrainingStruct = $opticTrainingStruct")
 
                 writeToFile(dataString)
             }
@@ -176,7 +166,7 @@ class MotionTrainingFragment(
     }
 
     @SuppressLint("MissingInflatedId")
-    fun showConfirmCompletedTrainingDialog(confirmClick: () -> Unit) {
+    fun showConfirmCompletedTrainingDialog(confirmClick: () -> Unit,) {
         stopTimers()
         preparationTimer?.cancel()
         val dialogBinding =
@@ -190,9 +180,9 @@ class MotionTrainingFragment(
         val confirmBtn = dialogBinding.findViewById<View>(R.id.ubi4CompletedTrainingBtn)
         confirmBtn.setOnClickListener {
             myDialog.dismiss()
+            confirmClick()
             onFinishTraining()
 
-            confirmClick()
         }
 
     }

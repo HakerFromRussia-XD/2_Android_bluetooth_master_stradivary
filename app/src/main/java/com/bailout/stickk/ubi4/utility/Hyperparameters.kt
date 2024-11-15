@@ -26,3 +26,4 @@ object Hyperparameters {
     val LP_ALPHAS = floatArrayOf(0.05f)
     const val N_LP_ALPHAS = 1
 }
+

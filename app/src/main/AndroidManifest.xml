@@ -113,13 +113,13 @@
 <!--        </service>-->
 
 <!--        включить для трансляции данных в игру-->
-<!--        <service-->
-<!--            android:name="com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService.DO_SOMETHING_1"/>-->
-<!--            </intent-filter>-->
-<!--        </service>-->
+        <service
+            android:name="com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService.DO_SOMETHING_1"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

@@ -7,7 +7,7 @@ import com.bailout.stickk.ubi4.models.SprGestureItem
 class GestureSprAndCustomItemsProvider {
     fun getSprAndCustomGestureItemList(context: Context): ArrayList<SprGestureItem> {
         val sprGestureItemList: ArrayList<SprGestureItem> = ArrayList()
-        sprGestureItemList.add(SprGestureItem(context.getString(R.string.thumb_bend), R.drawable.ok, false))
+        sprGestureItemList.add(SprGestureItem(context.getString(R.string.thumb_finger), R.drawable.ok, false))
         sprGestureItemList.add(SprGestureItem(context.getString(R.string.palm_closing), R.drawable.ok, false))
         sprGestureItemList.add(SprGestureItem(context.getString(R.string.palm_opening), R.drawable.ok, false))
         sprGestureItemList.add(SprGestureItem(context.getString(R.string.ok_pinch), R.drawable.ok, false))

@@ -6,10 +6,12 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Chronometer
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
@@ -26,17 +28,18 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
+import kotlin.math.roundToInt
 
 class MotionTrainingFragment(
     val onFinishTraining: () -> Unit,
 
 
-) : Fragment() {
+    ) : Fragment() {
 
     private var _bindig: Ubi4FragmentMotionTrainingBinding? = null
     private val binding get() = _bindig!!
 
-    private val countDownTime = 1000L
+    private val countDownTime = 3000L
     private val interval = 30L
     private val pauseBeforeStart = 1000L
     private lateinit var sprGestureItemList: ArrayList<SprGestureItem>
@@ -44,13 +47,17 @@ class MotionTrainingFragment(
     private var timer: CountDownTimer? = null
     private var preparationTimer: CountDownTimer? = null
     private var isCountingDown = false
-
+    private lateinit var learningTimer: Chronometer
+    private lateinit var learningStepTimer: Chronometer
     private var loggingFilename = "serial_data"
     private val disposables = CompositeDisposable()
     private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
+    private val gestures: MutableList<Map<String, String>> = mutableListOf()
+    private var prot = 0
+    private var startLineInLearningTable = 0
 
 
-    @SuppressLint("CheckResult")
+    @SuppressLint("CheckResult", "DefaultLocale")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("LagSpr", "Motion onCreate")
@@ -64,17 +71,21 @@ class MotionTrainingFragment(
 //            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
 
 
-        val parameter = ParameterProvider.getParameter(6,15)
-        Log.d("TestOptic","OpticTrainingStruct = ${parameter.parameterDataSize}")
+        val parameter = ParameterProvider.getParameter(6, 15)
+        Log.d("TestOptic", "OpticTrainingStruct = ${parameter.parameterDataSize}")
         val opticStreamDisposable = rxUpdateMainEvent.uiOpticTrainingObservable
             .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {  dataCode ->
+            .observeOn(Schedulers.io())
+            .subscribe { dataCode ->
 //                Log.d("TestOptic","OpticTrainingStruct = ${parameter.parameterDataSize}")
 //                parameter.data = "1293847561038475612938475610394857612039847561203948576120394857612093485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120"
-                val opticTrainingStruct = Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
-                val dataString = opticTrainingStruct.data.joinToString(separator = " ") { it.toString() }
-                Log.d("TestOptic1","OpticTrainingStruct = $opticTrainingStruct")
+                val opticTrainingStruct =
+                    Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
+                val dataString = opticTrainingStruct.data.joinToString(separator = " ") {
+                    String.format("%.1f", it)
+                }
+                Log.d("TestFileContain", "OpticTrainingStruct = $dataString")
+                Log.d("TestFileContain", "Number Frame = ${opticTrainingStruct.numberOfFrame}")
 
                 writeToFile(dataString)
             }
@@ -90,6 +101,7 @@ class MotionTrainingFragment(
 
         _bindig = Ubi4FragmentMotionTrainingBinding.inflate(inflater, container, false)
         return binding.root
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -107,6 +119,9 @@ class MotionTrainingFragment(
         sprGestureItemList = gestureItemsProvider.getSprGestureItemList(requireContext())
         binding.motionProgressBar.max = (countDownTime / interval).toInt()
         startPreparationCountDown()
+        learningTimer = Chronometer(requireContext())
+        learningStepTimer = Chronometer(requireContext())
+        learningPreprocessingParse()
     }
 
 
@@ -170,7 +185,7 @@ class MotionTrainingFragment(
     }
 
     @SuppressLint("MissingInflatedId")
-    fun showConfirmCompletedTrainingDialog(confirmClick: () -> Unit,) {
+    fun showConfirmCompletedTrainingDialog(confirmClick: () -> Unit) {
         stopTimers()
         preparationTimer?.cancel()
         val dialogBinding =
@@ -231,23 +246,99 @@ class MotionTrainingFragment(
     }
 
 
-    private fun writeToFile(data: String, isAppend: Boolean = false) {
+    private fun writeToFile(data: String, isAppend: Boolean = true) {
         try {
             val path = requireContext().getExternalFilesDir(null)
             val file = File(path, loggingFilename)
+            val curData = trainingDataProcessing()
+            if (!file.exists()) {
+                file.writeText(
+                    "ts td omg0 omg1 omg2 omg3 omg4 omg5 omg6 omg7 omg8 omg9 omg10 omg11 omg12 omg13 omg14 omg15 " +
+                            "emg0 emg1 emg2 emg3 emg4 emg5 emg6 emg7 bno0 bno1 bno2 prb0 prb1 prb2 prb3 prb4 prb5 " +
+                            "prb6 prb7 argmax denoize prot state id now\n"
+                )
+            }
             var line = ""
             if (data.isNotEmpty())
-                line = data.dropLast(2) + ' ' + tag + data[data.length - 2] + data.last()
-            if (isAppend)
-                file.appendText(line)
+                line = data.dropLast(2)
+            if (isAppend){
+                file.appendText(
+                    "$line $prot ${curData["state"]} ${curData["id"]} ${
+                        ((curData["generalTime"]?.toDouble()?.div(10)?.roundToInt()
+                            ?.div(100.0)) ?: curData["generalTime"]).toString()
+                    }\n"
+                )
+                Log.d("trainingDataProcessing", "$line $prot ${curData["state"]} ${curData["id"]} ${
+                    ((curData["generalTime"]?.toDouble()?.div(10)?.roundToInt()
+                        ?.div(100.0)) ?: curData["generalTime"]).toString()
+                }")
+            }
             else
                 file.writeText(line)
+            prot++
             val fileContent = file.readText()
             Log.i("FileInfo", "File contain: $fileContent")
 
         } catch (e: IOException) {
             Log.i("file_writing_error", "File writing failed: $e")
         }
+    }
+
+    private fun learningPreprocessingParse() {
+        var lines = requireContext().assets.open("data.emg8.protocol").bufferedReader().readLines()
+        lines = lines.drop(1)
+        for (line in lines) {
+            gestures.add(
+                mapOf(
+                    "n" to line.split(",")[0],
+                    "state" to line.split(",")[1],
+                    "id" to line.split(",")[2],
+                    "indicativeTime" to line.split(",")[4]
+                )
+            )
+        }
+        Log.d("learningPreprocessingParse", "Gestures: $gestures")
+    }
+
+    private fun trainingDataProcessing(): Map<String, String> {
+        var lineData = mapOf(
+            "n" to "None",
+            "state" to "None",
+            "id" to "None",
+            "generalTime" to "None",
+            "stepTime" to "None"
+        )
+
+        val generalTime = SystemClock.elapsedRealtime() - learningTimer.base
+        var stopFlag = false
+        var ind = 0
+        while (!stopFlag && ind < gestures.size) {
+            if (generalTime <= (gestures[ind]["indicativeTime"]?.toLong() ?: 0) * 1000)
+                stopFlag = true
+            else
+                ind++
+        }
+        if (stopFlag) {
+            if (startLineInLearningTable != ind) {
+                startLineInLearningTable = ind
+            }
+            learningStepTimer.stop()
+            learningStepTimer.base = SystemClock.elapsedRealtime()
+            learningStepTimer.start()
+            val stepTime = SystemClock.elapsedRealtime() - learningStepTimer.base
+
+            val curData = gestures[ind]
+            lineData = mapOf(
+                "n" to curData["n"].toString(),
+                "state" to curData["state"].toString(),
+                "id" to curData["id"].toString(),
+                "generalTime" to generalTime.toString(),
+                "stepTime" to stepTime.toString()
+            )
+
+        }
+
+        return lineData
     }
 
     override fun onDestroy() {

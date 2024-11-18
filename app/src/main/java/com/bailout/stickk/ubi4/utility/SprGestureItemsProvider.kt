@@ -10,44 +10,44 @@ class SprGestureItemsProvider {
         val sprGestureItemList: ArrayList<SprGestureItem> = ArrayList()
         sprGestureItemList.add(
             SprGestureItem(
-                context.getString(R.string.thumb_bend), R.drawable.grip_the_ball, false
+                context.getString(R.string.thumb_finger), R.drawable.grip_the_ball, false
             )
         )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.palm_closing), R.drawable.koza, false
-//            )
-//        )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.palm_opening), R.drawable.grip_the_ball, false
-//            )
-//        )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.ok_pinch), R.drawable.ok, false
-//            )
-//        )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.flexion), R.drawable.koza, false
-//            )
-//        )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.extension), R.drawable.grip_the_ball, false
-//            )
-//        )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.gesture_key), R.drawable.kulak, false
-//            )
-//        )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.pistol_pointer_gesture), R.drawable.ok, false
-//            )
-//        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.palm_closing), R.drawable.koza, false
+            )
+        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.palm_opening), R.drawable.grip_the_ball, false
+            )
+        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.ok_pinch), R.drawable.ok, false
+            )
+        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.flexion), R.drawable.koza, false
+            )
+        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.extension), R.drawable.grip_the_ball, false
+            )
+        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.gesture_key), R.drawable.kulak, false
+            )
+        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.pistol_pointer_gesture), R.drawable.ok, false
+            )
+        )
 //        sprGestureItemList.add(
 //            SprGestureItem(
 //                context.getString(R.string.adduction), R.drawable.grip_the_ball, false

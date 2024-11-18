@@ -530,7 +530,7 @@
     <string name="spr_gestures">SPR gestures</string>
     <string name="title_gestures_learned">Gestures learned\n</string>
     <string name="neutral_position">Neutral position</string>
-    <string name="thumb_bend">Thumb bend</string>
+    <string name="thumb_finger">Thumb Finger</string>
     <string name="clenching_fist">Clenching into a fist</string>
     <string name="palm_opening">Palm opening</string>
     <string name="palm_closing">Closing palm</string>
@@ -564,6 +564,7 @@
     <string name="add_gestures_to_the_group">Add gestures to the rotation group</string>
     <string name="follow_the_gestures_on_the_screen_and_keep_track_of_the_time">Follow the gestures on the screen and keep track of the time</string>
     <string name="let_s_start_training_spr">Let\'s start training SPR</string>
+    <string name="base_line">Baseline</string>
 
 
     <string-array name="numbers">

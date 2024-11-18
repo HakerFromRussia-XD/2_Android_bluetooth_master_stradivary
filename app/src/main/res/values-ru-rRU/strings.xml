@@ -532,7 +532,7 @@
     <string name="that_rocks">Коза</string>
     <string name="title_gestures_learned">Изученные жесты</string>
     <string name="neutral_position">Нейтральная позиция</string>
-    <string name="thumb_bend">Сгиб большого пальца</string>
+    <string name="thumb_finger">Сгиб большого пальца</string>
     <string name="clenching_fist">Сжатие в кулак</string>
     <string name="palm_opening">Раскрытие ладони</string>
     <string name="palm_closing">Закрытие ладони</string>
@@ -566,6 +566,8 @@
     <string name="add_gestures_to_the_group">Добавление жестов в группу ротации</string>
     <string name="follow_the_gestures_on_the_screen_and_keep_track_of_the_time">Следуйте жестам на экране и следите за временем</string>
     <string name="let_s_start_training_spr">Начнем обучение SPR</string>
+    <string name="base_line">Базовая линия</string>
+
 
     <string-array name="numbers">
         <item>0</item>

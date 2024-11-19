@@ -34,7 +34,7 @@
                 android:fontFamily="@font/sf_pro_display_light"
                 android:gravity="center"
                 android:maxLines="3"
-                android:text="Are you sure you want to start training?"
+                android:text="@string/are_you_sure_you_want_to_start_training"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="17sp"

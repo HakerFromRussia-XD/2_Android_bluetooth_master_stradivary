@@ -733,7 +733,7 @@
             android:fontFamily="@font/sf_pro_display_light"
             android:text="@string/control_gestures"
             android:textColor="@color/white"
-            android:textSize="17sp"
+            android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="@id/chooseLearningGesturesBtn1"
             app:layout_constraintEnd_toEndOf="@+id/chooseLearningGesturesBtn1"
             app:layout_constraintStart_toStartOf="@+id/chooseLearningGesturesBtn1"

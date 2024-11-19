@@ -39,9 +39,9 @@ class MotionTrainingFragment(
     private var _bindig: Ubi4FragmentMotionTrainingBinding? = null
     private val binding get() = _bindig!!
 
-    private val countDownTime = 3000L
+    private val countDownTime = 1000L
     private val interval = 30L
-    private val pauseBeforeStart = 1000L
+    private val pauseBeforeStart = 100L
     private lateinit var sprGestureItemList: ArrayList<SprGestureItem>
     var currentGestureIndex = 0
     private var timer: CountDownTimer? = null
@@ -77,17 +77,25 @@ class MotionTrainingFragment(
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe { dataCode ->
-//                Log.d("TestOptic","OpticTrainingStruct = ${parameter.parameterDataSize}")
-//                parameter.data = "1293847561038475612938475610394857612039847561203948576120394857612093485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120394857612039485761203948576120"
-                val opticTrainingStruct =
-                    Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
-                val dataString = opticTrainingStruct.data.joinToString(separator = " ") {
-                    String.format("%.1f", it)
-                }
-                Log.d("TestFileContain", "OpticTrainingStruct = $dataString")
-                Log.d("TestFileContain", "Number Frame = ${opticTrainingStruct.numberOfFrame}")
+                try {
+                    val dataStringRaw = parameter.data ?: ""
+                    if (dataStringRaw.isBlank() || dataStringRaw == "None") {
+                        Log.e("TestFileContain", "Data is empty or invalid")
+                        return@subscribe
+                    }
 
-                writeToFile(dataString)
+                    val opticTrainingStruct =
+                        Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
+                    val dataString = opticTrainingStruct.data.joinToString(separator = " ") {
+                        String.format("%.1f", it)
+                    }
+                    Log.d("TestFileContain", "OpticTrainingStruct = $dataString")
+                    Log.d("TestFileContain", "Number Frame = ${opticTrainingStruct.numberOfFrame}")
+
+                    writeToFile(dataString)
+                } catch (e: Exception) {
+                    Log.e("TestOptic", "Error decoding data: ${e.message}")
+                }
             }
         disposables.add(opticStreamDisposable)
     }
@@ -248,6 +256,8 @@ class MotionTrainingFragment(
 
     private fun writeToFile(data: String, isAppend: Boolean = true) {
         try {
+            learningTimer.base = SystemClock.elapsedRealtime()
+            learningTimer.start()
             val path = requireContext().getExternalFilesDir(null)
             val file = File(path, loggingFilename)
             val curData = trainingDataProcessing()

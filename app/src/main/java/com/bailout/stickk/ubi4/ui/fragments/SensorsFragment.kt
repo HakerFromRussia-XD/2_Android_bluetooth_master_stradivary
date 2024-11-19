@@ -30,7 +30,6 @@ import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -94,8 +93,9 @@ class SensorsFragment : Fragment() {
         ) ,
         TrainingFragmentDelegateAdapter(
             onConfirmClick = {},
-            generateClick = {},
-            showFileClick = {}
+            onGenerateClick = {},
+            onShowFileClick = {},
+            onDestroyParent = {onDestroyParent -> }
         ),
         SwitcherDelegateAdapter(
             onSwitchClick = {

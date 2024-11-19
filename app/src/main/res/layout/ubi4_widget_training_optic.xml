@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/ubi4_back"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
         android:id="@+id/trainingTitleTv"
@@ -126,7 +125,7 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:fontFamily="@font/sf_pro_text_bold"
-        android:text="Show Files"
+        android:text="@string/show_files"
         android:textColor="@color/ubi4_dark_back"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="@id/showFileBtn"

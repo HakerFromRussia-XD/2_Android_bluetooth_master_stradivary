@@ -1,35 +1,28 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.Dialog
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Chronometer
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSprTrainingBinding
+import com.bailout.stickk.ubi4.adapters.dialog.FileCheckpointAdapter
+import com.bailout.stickk.ubi4.adapters.dialog.OnFileActionListener
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
@@ -38,8 +31,11 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
+import com.bailout.stickk.ubi4.models.FileItem
+import com.bailout.stickk.ubi4.models.SprTrainingViewModel
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.stateOpticTrainingFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.bailout.stickk.ubi4.utility.Hyperparameters.AUTO_SHIFT_RANGE
 import com.bailout.stickk.ubi4.utility.Hyperparameters.BATCH_SIZE
@@ -64,13 +60,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.tensorflow.lite.Interpreter
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import java.nio.channels.FileChannel
@@ -87,21 +82,23 @@ class SprTrainingFragment : Fragment() {
 
     private lateinit var tflite: Interpreter
     private lateinit var modelInfo: String
-    private var thread: Thread = Thread()
-    private var thread2: Thread = Thread()
     private lateinit var preprocessedX: Array<FloatArray>
     private lateinit var targetArray: Array<FloatArray>
     private var path: File? = null
     private lateinit var modelFile: File
-    private lateinit var dataFilePath: Uri
-    private lateinit var checkpointFolderPath: Uri
     private lateinit var assetManager: AssetManager
     private lateinit var epochsTimer: Chronometer
-    private lateinit var batchesTimer : Chronometer
+    private lateinit var batchesTimer: Chronometer
+    private var onChangeState: ((state: Int) -> Unit)? = null
+    private var onDestroyParent: (() -> Unit)? = null
+    private lateinit var sprTrainingViewModel: SprTrainingViewModel
+    private var adapterWidgets: CompositeDelegateAdapter? = null
 
 
-
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sprTrainingViewModel = ViewModelProvider(this).get(SprTrainingViewModel::class.java)
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -113,6 +110,9 @@ class SprTrainingFragment : Fragment() {
             main = activity as MainActivityUBI4?
 
         }
+//        sprTrainingViewModel.currentState.observe(viewLifecycleOwner) { state ->
+//            onChangeState?.invoke(state)
+//        }
 
 
 
@@ -128,6 +128,39 @@ class SprTrainingFragment : Fragment() {
         binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
 
 
+        adapterWidgets = CompositeDelegateAdapter(
+            PlotDelegateAdapter(
+                plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+            ),
+            OneButtonDelegateAdapter(
+                onButtonPressed = { addressDevice, parameterID, command ->
+                    oneButtonPressed(
+                        addressDevice,
+                        parameterID,
+                        command
+                    )
+                },
+                onButtonReleased = { addressDevice, parameterID, command ->
+                    oneButtonReleased(
+                        addressDevice,
+                        parameterID,
+                        command
+                    )
+                }
+            ),
+            TrainingFragmentDelegateAdapter(
+                onConfirmClick = {
+                    showConfirmTrainingDialog {
+                        main?.showMotionTrainingScreen {
+                            runModel()
+                        }
+                    }
+                },
+                onGenerateClick = { runModel() },
+                onShowFileClick = { showFilesDialog() },
+                onDestroyParent = {onDestroyParent -> this.onDestroyParent = onDestroyParent }
+            ),
+        )
         binding.sprTrainingRv.layoutManager = LinearLayoutManager(context)
         binding.sprTrainingRv.adapter = adapterWidgets
         Log.d("SprTrainingFragment", "onViewCreated finished")
@@ -145,7 +178,7 @@ class SprTrainingFragment : Fragment() {
                 updateFlow.collect { value ->
                     main?.runOnUiThread {
                         Log.d("widgetListUpdater", "${mDataFactory.prepareData(2)}")
-                        adapterWidgets.swapData(mDataFactory.prepareData(2))
+                        adapterWidgets?.swapData(mDataFactory.prepareData(2))
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }
@@ -153,57 +186,8 @@ class SprTrainingFragment : Fragment() {
         }
     }
 
-    private val adapterWidgets = CompositeDelegateAdapter(
-        PlotDelegateAdapter(
-            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
-        ),
-        OneButtonDelegateAdapter(
-            onButtonPressed = { addressDevice, parameterID, command ->
-                oneButtonPressed(
-                    addressDevice,
-                    parameterID,
-                    command
-                )
-            },
-            onButtonReleased = { addressDevice, parameterID, command ->
-                oneButtonReleased(
-                    addressDevice,
-                    parameterID,
-                    command
-                )
-            }
-        ),
-        TrainingFragmentDelegateAdapter(
-            onConfirmClick = {
-                showConfirmTrainingDialog {
-                    main?.showMotionTrainingScreen {
-                        runModel()
-                    }
-//                    activity?.supportFragmentManager?.beginTransaction()
-//                        ?.replace(R.id.fragmentContainer, MotionTrainingFragment(onFinishTraining = {
-//                            // Pop back to the previous fragment
-//                            activity?.supportFragmentManager?.popBackStack()
-//                            // Ensure this runs after the back stack has been popped
-//                            activity?.supportFragmentManager?.executePendingTransactions()
-//                            // Get the existing fragment and call runModel()
-//                            val fragment = activity?.supportFragmentManager?.findFragmentById(R.id.fragmentContainer)
-//                            if (fragment is SprTrainingFragment) {
-//                                fragment.runModel()
-//                            } else {
-//                                Log.e("FragmentError", "SprTrainingFragment not found")
-//                            }
-//                        }))?.addToBackStack(null)?.commit()
-                }
-            },
-            generateClick = {
-                runModel()
-                //loadModelAndRestoreCheckpoint()
-            },
-            showFileClick = {
-                showFilesDialog()
-            }
-        ),
-    )
+
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -217,33 +201,20 @@ class SprTrainingFragment : Fragment() {
         tflite = loadModelFile("model.tflite")
         epochsTimer = Chronometer(requireContext())
         batchesTimer = Chronometer(requireContext())
+        CoroutineScope(Default).launch { stateOpticTrainingFlow.emit(0) }
+        Log.d("StateCallBack", "onViewCreated: 0")
 
-    }
-
-    private fun copyAssetToInternalStorage(fileName: String): String {
-        val file = File(requireContext().getExternalFilesDir(null), fileName)
-        if (!file.exists()) {
-            requireContext().assets.open(fileName).use { inputStream ->
-                FileOutputStream(file).use { outputStream ->
-                    inputStream.copyTo(outputStream)
-                }
-            }
-        }
-        return file.absolutePath
     }
 
 
     private fun runModel() {
+
+        CoroutineScope(Default).launch { stateOpticTrainingFlow.emit(1) }
+
         CoroutineScope(Dispatchers.IO).launch {
             val startTime = System.currentTimeMillis()
             val endTime = System.currentTimeMillis()
-
-//            if (!thread2.isAlive) {
-//                thread2 = Thread {
-//                    Log.d("LagSpr", "Start RunModel1 ${endTime - startTime} ms")
-//                    Log.d("SprTraining", "Path: $path")
             try {
-
                 //////////////////////////// [LOAD DATA] /////////////////////////////
                 //val assetManager = requireContext().assets
                 val importData = mutableListOf<List<String>>()
@@ -389,12 +360,11 @@ class SprTrainingFragment : Fragment() {
                 inputs_ckpt.put("checkpoint_path", ckpt)
                 val outputs_ckpt = HashMap<String, Any>()
                 tflite.runSignature(inputs_ckpt, outputs_ckpt, "restore")
-                        train(preprocessedX, targetArray)
-                        export(path)
-                        run(preprocessedX)
+                train(preprocessedX, targetArray)
+                export(path)
+                run(preprocessedX)
                 Log.d("LagSpr", "Start RunModel8 ${endTime - startTime} ms")
-            }
-            catch (e:Exception){
+            } catch (e: Exception) {
                 Log.e("LagSpr", "Error in runModel: ${e.message}", e)
             }
         }
@@ -419,20 +389,62 @@ class SprTrainingFragment : Fragment() {
         confirmBtn.setOnClickListener {
             myDialog.dismiss()
             confirmClick()
+
         }
 
 
     }
 
-    private fun showFilesDialog(){
-        val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_show_files, null)
+    private fun showFilesDialog() {
+        val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_show_files, null)
         val myDialog = Dialog(requireContext())
-        myDialog.setContentView(dialogBinding)
+        myDialog.setContentView(dialogFileBinding)
         myDialog.setCancelable(false)
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         myDialog.show()
 
-        val cancelBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogTrainingCancelBtn)
+        val filesRecyclerView = dialogFileBinding.findViewById<RecyclerView>(R.id.dialogFileRv)
+        val path = requireContext().getExternalFilesDir(null)
+        val files = path?.listFiles()?.filter { it.name.contains("checkpoint") } ?: emptyList()
+
+        if (files.isEmpty()) {
+            Toast.makeText(requireContext(), getString(R.string.no_saved_files), Toast.LENGTH_SHORT)
+                .show()
+            myDialog.dismiss()
+            return
+        }
+
+        val fileItems = files.map { FileItem(it.name, it) }.toMutableList()
+
+        filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        val adapter = FileCheckpointAdapter(fileItems, object : OnFileActionListener {
+            override fun onDelete(position: Int, fileItem: FileItem) {
+                if (fileItem.file.delete()) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Файл ${fileItem.name} удалён",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    fileItems.remove(fileItem)
+                    filesRecyclerView.adapter?.notifyDataSetChanged()
+                    if (fileItems.isEmpty()) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Нет сохранённых файлов",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        myDialog.dismiss()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Ошибка удаления файла", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+
+        })
+        filesRecyclerView.adapter = adapter
+
+        val cancelBtn = dialogFileBinding.findViewById<View>(R.id.dialogFileCancelBtn)
         cancelBtn.setOnClickListener {
             myDialog.dismiss()
         }
@@ -469,7 +481,6 @@ class SprTrainingFragment : Fragment() {
         val model = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
         return Interpreter(model)
     }
-
 
 
     private fun getModelInfo(interpreter: Interpreter): String {
@@ -528,32 +539,6 @@ class SprTrainingFragment : Fragment() {
         }
     }
 
-    private fun parseFile(filename: String): MutableList<MutableList<Double>> {
-        val data = mutableListOf<MutableList<Double>>()
-        requireContext().assets.open(filename).bufferedReader().useLines { lines ->
-            lines.forEach { str ->
-                data.add(str.split(" ").map { it.toDouble() }.toMutableList())
-            }
-        }
-        return data
-    }
-
-
-
-    private fun generateCheckpointFile() {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
-        val currentDateTime = dateFormat.format(Date())
-
-        val path = requireContext().getExternalFilesDir(null)
-            ?: throw IllegalStateException("External files directory not available")
-
-        val checkpointFileName = "checkpoint_$currentDateTime.ckpt"
-        val checkpointFile = File(path, checkpointFileName)
-
-        checkpointFile.writeBytes(requireContext().assets.open("model.ckpt").readBytes())
-        println("Checkpoint file generated at: ${checkpointFile.absolutePath}")
-
-    }
 
     @SuppressLint("LogNotTimber")
     private fun train(
@@ -622,7 +607,7 @@ class SprTrainingFragment : Fragment() {
             }
 
             for (batchIdx in 0 until num_batches) {
-               // val batchesTimer = Chronometer(requireContext())
+                // val batchesTimer = Chronometer(requireContext())
                 batchesTimer.base = SystemClock.elapsedRealtime()
                 batchesTimer.start()
 
@@ -682,18 +667,26 @@ class SprTrainingFragment : Fragment() {
         Log.d("LagSpr", "Start RunModel11")
         //////////////////////////// [EXPORT MODEL] ////////////////////////////
         // Export the trained weights as a checkpoint file.
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
-        val currentDateTime = dateFormat.format(Date())
+        try {
+            val dateFormat = SimpleDateFormat("MM-dd_HH-mm-ss", Locale.getDefault())
+            val currentDateTime = dateFormat.format(Date())
 
-        val outputFile = File(path, "checkpoint_$currentDateTime.ckpt")
-        val inputs = HashMap<String, Any>()
-        inputs.put("checkpoint_path", outputFile.absolutePath)
-        val outputs = HashMap<String, Any>()
-        tflite.runSignature(
-            inputs,
-            outputs,
-            "save"
-        ) // This file should be then transferred to the microcontroller
+            val outputFile = File(path, "checkpoint_$currentDateTime")
+            val inputs = HashMap<String, Any>()
+            inputs.put("checkpoint_path", outputFile.absolutePath)
+            val outputs = HashMap<String, Any>()
+            tflite.runSignature(
+                inputs,
+                outputs,
+                "save"
+            )
+        } finally {
+            CoroutineScope(Default).launch { stateOpticTrainingFlow.emit(2) }
+            Log.d("StateCallBack", "finaly: 2")
+
+        }
+
+        // This file should be then transferred to the microcontroller
         Log.d("LagSpr", "Start RunModel12")
         //////////////////////////// [\EXPORT MODEL] ////////////////////////////
     }
@@ -769,7 +762,7 @@ class SprTrainingFragment : Fragment() {
         //         }
         //     }
         // }
-    //    println("Results written to $logFileInputInfer, $logFileOutputInfer")
+        //    println("Results written to $logFileInputInfer, $logFileOutputInfer")
         Log.d("LagSpr", "Start RunModel14")
 
         //////////////////////////// [\RUN MODEL] ////////////////////////////
@@ -802,36 +795,12 @@ class SprTrainingFragment : Fragment() {
         return targetSubseq
     }
 
-//    private fun showFilesDialog() {
-//        val path = requireContext().getExternalFilesDir(null)
-//        val files = path?.listFiles() ?: emptyArray<File>()
-//
-//        val fileNames = files.filter { it.name.contains("checkpoint") }.map { it.name }
-//
-//        if (fileNames.isEmpty()) {
-//            Toast.makeText(requireContext(), "Нет сохранённых файлов", Toast.LENGTH_SHORT).show()
-//            return
-//        }
-//
-//        AlertDialog.Builder(requireContext())
-//            .setTitle("Saved files")
-//            .setItems(fileNames.toTypedArray()) { dialog, which ->
-//                val selectedFile = files[which]
-//                Toast.makeText(
-//                    requireContext(),
-//                    "Выбран файл: ${selectedFile.name}",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//            .setNegativeButton("Отмена") { dialog, _ -> dialog.dismiss() }
-//            .show()
-//
-//    }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d("LagSpr", " started onDestroy")
-
+        onDestroyParent?.invoke()
+        adapterWidgets = null
     }
 
 }

@@ -34,7 +34,7 @@
                 android:fontFamily="@font/sf_pro_text_bold"
                 android:gravity="center"
                 android:maxLines="2"
-                android:text="Select training file"
+                android:text="@string/select_training_file"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="18sp"
@@ -57,7 +57,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/dialogTitleTv"
-                tools:listitem="@layout/ubi4_item_dialog_gesture">
+                tools:listitem="@layout/ubi4_item_dialog_file">
 
             </androidx.recyclerview.widget.RecyclerView>
 
@@ -114,13 +114,13 @@
                 android:text="@string/cancel_gripper_settings"
                 android:textColor="@color/ubi4_yes_system_blue"
                 android:textSize="17sp"
-                app:layout_constraintBottom_toBottomOf="@+id/dialogAddGesturesToGroupCancelBtn"
-                app:layout_constraintEnd_toEndOf="@+id/dialogAddGesturesToGroupCancelBtn"
-                app:layout_constraintStart_toStartOf="@+id/dialogAddGesturesToGroupCancelBtn"
-                app:layout_constraintTop_toTopOf="@+id/dialogAddGesturesToGroupCancelBtn" />
+                app:layout_constraintBottom_toBottomOf="@+id/dialogFileCancelBtn"
+                app:layout_constraintEnd_toEndOf="@+id/dialogFileCancelBtn"
+                app:layout_constraintStart_toStartOf="@+id/dialogFileCancelBtn"
+                app:layout_constraintTop_toTopOf="@+id/dialogFileCancelBtn" />
 
             <View
-                android:id="@+id/dialogAddGesturesToGroupCancelBtn"
+                android:id="@+id/dialogFileCancelBtn"
                 android:layout_width="0dp"
                 android:layout_height="52dp"
                 android:background="?android:attr/selectableItemBackground"

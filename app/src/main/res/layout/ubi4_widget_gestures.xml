@@ -162,11 +162,12 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection1Btn" />
 
             <ImageView
+                android:id="@+id/gestureCollection1Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:elevation="3dp"
                 android:importantForAccessibility="no"
-                android:src="@drawable/koza"
+                android:src="@drawable/collection_rock"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCollection1Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCollection1Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection1Btn"
@@ -201,15 +202,18 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection2Btn" />
 
             <ImageView
+                android:id="@+id/gestureCollection2Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:elevation="3dp"
                 android:importantForAccessibility="no"
-                android:src="@drawable/ok"
+                android:src="@drawable/collection_key"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCollection2Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCollection2Btn"
+                app:layout_constraintHorizontal_bias="0.507"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection2Btn"
-                app:layout_constraintTop_toTopOf="@+id/gestureCollection2Btn" />
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection2Btn"
+                app:layout_constraintVertical_bias="0.507" />
 
             <View
                 android:id="@+id/gestureCollection3Btn"
@@ -240,11 +244,12 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection3Btn" />
 
             <ImageView
+                android:id="@+id/gestureCollection3Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:elevation="3dp"
                 android:importantForAccessibility="no"
-                android:src="@drawable/grip_the_ball"
+                android:src="@drawable/collection_fist_2"
                 app:layout_constraintBottom_toBottomOf="@+id/gestureCollection3Btn"
                 app:layout_constraintEnd_toEndOf="@+id/gestureCollection3Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection3Btn"
@@ -279,6 +284,7 @@
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection4Btn" />
 
             <ImageView
+                android:id="@+id/gestureCollection4Iv"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:elevation="3dp"
@@ -288,6 +294,407 @@
                 app:layout_constraintEnd_toEndOf="@+id/gestureCollection4Btn"
                 app:layout_constraintStart_toStartOf="@+id/gestureCollection4Btn"
                 app:layout_constraintTop_toTopOf="@+id/gestureCollection4Btn" />
+
+            <View
+                android:id="@+id/gestureCollection5Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gestureCollection3Btn" />
+
+            <TextView
+                android:id="@+id/gestureCollection5Tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/grip_the_ball"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection5Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection5Btn" />
+
+            <ImageView
+                android:id="@+id/gestureCollection5Iv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/grip_the_ball"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCollection5Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCollection5Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection5Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection5Btn" />
+
+            <View
+                android:id="@+id/gestureCollection6Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
+                app:layout_constraintTop_toBottomOf="@+id/gestureCollection4Btn" />
+
+            <TextView
+                android:id="@+id/gestureCollection6Tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/fist"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection6Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection6Btn" />
+
+            <ImageView
+                android:id="@+id/gestureCollection6Iv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/kulak"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCollection6Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCollection6Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection6Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection6Btn" />
+
+            <View
+                android:id="@+id/gestureCollection7Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gestureCollection5Btn" />
+
+            <TextView
+                android:id="@+id/gestureCollection7Tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/grip_the_ball"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection7Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection7Btn" />
+
+            <ImageView
+                android:id="@+id/gestureCollection7Iv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/grip_the_ball"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCollection7Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCollection7Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection7Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection7Btn" />
+
+            <View
+                android:id="@+id/gestureCollection8Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
+                app:layout_constraintTop_toBottomOf="@+id/gestureCollection6Btn" />
+
+            <TextView
+                android:id="@+id/gestureCollection8Tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/fist"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection8Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection8Btn" />
+
+            <ImageView
+                android:id="@+id/gestureCollection8Iv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/kulak"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCollection8Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCollection8Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection8Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection8Btn" />
+
+            <View
+                android:id="@+id/gestureCollection9Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gestureCollection7Btn" />
+
+            <TextView
+                android:id="@+id/gestureCollection9Tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/grip_the_ball"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection9Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection9Btn" />
+
+            <ImageView
+                android:id="@+id/gestureCollection9Iv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/grip_the_ball"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCollection9Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCollection9Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection9Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection9Btn" />
+
+            <View
+                android:id="@+id/gestureCollection10Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
+                app:layout_constraintTop_toBottomOf="@+id/gestureCollection8Btn" />
+
+            <TextView
+                android:id="@+id/gestureCollection10Tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/fist"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection10Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection10Btn" />
+
+            <ImageView
+                android:id="@+id/gestureCollection10Iv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/kulak"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCollection10Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCollection10Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection10Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection10Btn" />
+
+            <View
+                android:id="@+id/gestureCollection11Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gestureCollection9Btn" />
+
+            <TextView
+                android:id="@+id/gestureCollection11Tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/grip_the_ball"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection11Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection11Btn" />
+
+            <ImageView
+                android:id="@+id/gestureCollection11Iv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/grip_the_ball"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCollection11Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCollection11Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection11Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection11Btn" />
+
+            <View
+                android:id="@+id/gestureCollection12Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
+                app:layout_constraintTop_toBottomOf="@+id/gestureCollection10Btn" />
+
+            <TextView
+                android:id="@+id/gestureCollection12Tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/fist"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection12Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection12Btn" />
+
+            <ImageView
+                android:id="@+id/gestureCollection12Iv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/kulak"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCollection12Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCollection12Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection12Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection12Btn" />
+
+            <View
+                android:id="@+id/gestureCollection13Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/guidline_mid_33"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gestureCollection11Btn" />
+
+            <TextView
+                android:id="@+id/gestureCollection13Tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/grip_the_ball"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection13Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection13Btn" />
+
+            <ImageView
+                android:id="@+id/gestureCollection13Iv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/grip_the_ball"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCollection13Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCollection13Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection13Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection13Btn" />
+
+            <View
+                android:id="@+id/gestureCollection14Btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/ubi4_view_with_corners_gray"
+                android:elevation="3dp"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guidline_mid_33"
+                app:layout_constraintTop_toBottomOf="@+id/gestureCollection12Btn" />
+
+            <TextView
+                android:id="@+id/gestureCollection14Tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="10dp"
+                android:elevation="4dp"
+                android:fontFamily="@font/sf_pro_display_light"
+                android:text="@string/fist"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection14Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection14Btn" />
+
+            <ImageView
+                android:id="@+id/gestureCollection14Iv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:elevation="3dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/kulak"
+                app:layout_constraintBottom_toBottomOf="@+id/gestureCollection14Btn"
+                app:layout_constraintEnd_toEndOf="@+id/gestureCollection14Btn"
+                app:layout_constraintStart_toStartOf="@+id/gestureCollection14Btn"
+                app:layout_constraintTop_toTopOf="@+id/gestureCollection14Btn" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
         <androidx.constraintlayout.widget.ConstraintLayout

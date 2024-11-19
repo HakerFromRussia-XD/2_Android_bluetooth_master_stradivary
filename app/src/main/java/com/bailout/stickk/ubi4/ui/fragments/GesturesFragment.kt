@@ -108,7 +108,6 @@ class GesturesFragment : Fragment() {
         binding.homeRv.adapter = adapterWidgets
         return binding.root
     }
-
     override fun onDestroy() {
         super.onDestroy()
         Log.d("LifeCycele", "onDestroy")

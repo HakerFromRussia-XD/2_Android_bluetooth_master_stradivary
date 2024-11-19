@@ -115,7 +115,12 @@ object PreferenceKeysUBI4 {
         PWLE_RESET (0x04, "RESET"),
         PWLE_CONTROL_SETTINGS (0x05, "CONTROL SETTINGS"),
         PWLE_OPEN_CLOSE_THRESHOLD (0x06, "OPEN CLOSE THRESHOLD"),
-        PWLE_SELECT_GESTURE (0x07, "SELECT GESTURE")
+        PWLE_SELECT_GESTURE (0x07, "SELECT GESTURE"),
+        PWLE_SELECT_PROFILE (0x08, "SELECT PROFILE"),
+        PWLE_GLOBAL_FORCE (0x09, "GLOBAL FORCE"),
+        PWLE_PLOT (0x0a, "PLOT"),
+        PWLE_OMG_LEARNING (0x0b, "OMG LEARNING"),
+
     }
 
     enum class ParameterWidgetDisplayCode(val number: Byte) {

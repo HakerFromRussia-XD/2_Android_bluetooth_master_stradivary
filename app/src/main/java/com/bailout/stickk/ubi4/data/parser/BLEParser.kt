@@ -350,7 +350,7 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
         }
     }
     private fun parseReadSubDeviceInfo(receiveDataString: String) {
-//        Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
+        Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
         val subDevices = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
         baseSubDevicesInfoStructSet = subDevices.baseSubDeviceInfoStructArray
         numerSubDevice = subDevices.count
@@ -358,10 +358,17 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
 
         // тут нам нужно запустить цепную реакцию сабдевайсов (читаем параметры первого сабдевайса)
         Log.d("SubDeviceSubDevice", "subDevices=$baseSubDevicesInfoStructSet  numerSubDevice=$numerSubDevice")
-        mMain.bleCommand(BLECommands.requestSubDeviceParametrs(
-            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
-            0,
-            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum), MAIN_CHANNEL, WRITE)
+        if (baseSubDevicesInfoStructSet.size != 0) {
+            mMain.bleCommand(
+                BLECommands.requestSubDeviceParametrs(
+                    baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
+                    0,
+                    baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
+                ), MAIN_CHANNEL, WRITE
+            )
+        } else {
+            mMain.showToast("Сабдевайсов нет")
+        }
     }
     private fun parseReadSubDeviceParameters(receiveDataString: String) {
         // пробегаемся по всем параметрам, формируя их список

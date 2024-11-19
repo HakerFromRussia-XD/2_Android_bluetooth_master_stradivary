@@ -27,6 +27,7 @@ import android.util.Pair
 import androidx.lifecycle.lifecycleScope
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
@@ -134,6 +135,15 @@ class GesturesDelegateAdapter(
         gestureCollection4Btn.setOnClickListener { System.err.println("setOnClickListener gestureCollection4Btn") }
 
 
+        for (i in 1..14) {
+            val textView = this::class.java.getDeclaredField("gestureCollection${i}Tv")
+                .get(this) as? TextView
+            val imageView = this::class.java.getDeclaredField("gestureCollection${i}Iv")
+                .get(this) as? ImageView
+            textView?.text = getCollectionGestures().get(i).gestureName
+            imageView?.setImageResource(getCollectionGestures().get(i).gestureImage)
+        }
+
 
         gesture1Btn.setOnClickListener {
             System.err.println("setOnClickListener gesture1Btn")
@@ -208,6 +218,15 @@ class GesturesDelegateAdapter(
         setupListRecyclerView()
 
         gestureFlowCollect()
+//        setGestureTexts()
+    }
+    fun setGestureTexts() {
+        for (i in 1..6) {
+            val textView = binding::class.java
+                .getDeclaredField("gestureCollection${i}Tv")
+                .get(binding) as? TextView
+            textView?.text = i.toString()
+        }
     }
     private fun gestureFlowCollect() {
         scope.launch(Dispatchers.IO) {

@@ -568,6 +568,9 @@
     <string name="no_saved_files">No saved files</string>
     <string name="select_training_file">Select training file</string>
     <string name="show_files">Show Files</string>
+    <string name="model_training_in_progress_please_wait">Model training in progress, please wait...</string>
+    <string name="wait_until_the_model_file_is_created">Wait until the model file is created</string>
+    <string name="the_gesture_model_file_is_ready_load">The gesture model file is ready. Load it into your prosthesis to complete the setup.</string>
 
 
     <string-array name="numbers">

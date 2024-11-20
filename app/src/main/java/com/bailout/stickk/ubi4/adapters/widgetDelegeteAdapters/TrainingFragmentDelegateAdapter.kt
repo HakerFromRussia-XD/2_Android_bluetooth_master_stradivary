@@ -1,13 +1,18 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
+import android.provider.Settings.Global.getString
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
+import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetTrainingOpticBinding
 import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +25,7 @@ class TrainingFragmentDelegateAdapter(
     var onConfirmClick: () -> Unit,
     var onGenerateClick: () -> Unit,
     var onShowFileClick: () -> Unit,
-    var onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
+    var onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit
 ) :
     ViewBindingDelegateAdapter<TrainingGestureItem, Ubi4WidgetTrainingOpticBinding>(
         Ubi4WidgetTrainingOpticBinding::inflate
@@ -28,6 +33,8 @@ class TrainingFragmentDelegateAdapter(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private lateinit var _trainingSubTitleTv: TextView
     private lateinit var  _trainingAnnotationIv: ImageView
+    private lateinit var _trainingBtn: View
+    private lateinit var _lottieAnimationLoading: com.airbnb.lottie.LottieAnimationView
 
 
 
@@ -37,10 +44,9 @@ class TrainingFragmentDelegateAdapter(
         onDestroyParent{ onDestroy() }
         _trainingSubTitleTv = trainingSubTitleTv
         _trainingAnnotationIv = trainingAnnotationIv
-        trainingBtn.setOnClickListener {
-            onConfirmClick()
+        _trainingBtn = trainingBtn
+        _lottieAnimationLoading = lottieAnimationLoading
 
-        }
         generateBtn.setOnClickListener {
             onGenerateClick()
 
@@ -55,16 +61,48 @@ class TrainingFragmentDelegateAdapter(
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 MainActivityUBI4.stateOpticTrainingFlow.collect { state ->
-                    if (state == 0) { _trainingAnnotationIv.visibility = View.VISIBLE }
-                    if (state == 1) {
-                        _trainingSubTitleTv.text = "Модель выполняется, пожалуйста, подождите..."
-                        _trainingAnnotationIv.visibility = View.GONE
-                        Log.d("StateCallBack", "In if:$state")
-                    }
-                    if (state == 2) {
-                        _trainingSubTitleTv.text =
-                            "СПР файл выполняется, пожалуйста, подождите..."
-                        _trainingAnnotationIv.visibility = View.VISIBLE
+                    when (state) {
+                        0 -> {
+                            _trainingAnnotationIv.visibility = View.VISIBLE
+                            _lottieAnimationLoading.visibility = View.GONE
+                            _lottieAnimationLoading.cancelAnimation()
+                            _trainingBtn.isEnabled = true
+                            _trainingBtn.setOnClickListener {
+                                onConfirmClick()
+
+                            }
+                        }
+
+                        1 -> {
+                            _trainingSubTitleTv.text =
+                                main.getString(R.string.model_training_in_progress_please_wait)
+                            _trainingAnnotationIv.visibility = View.GONE
+                            _lottieAnimationLoading.visibility = View.VISIBLE
+                            _lottieAnimationLoading.playAnimation()
+
+                            _trainingBtn.isEnabled = true
+                            _trainingBtn.setOnClickListener {
+                                Toast.makeText(
+                                    main,
+                                    main.getString(R.string.wait_until_the_model_file_is_created),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+
+                        2 -> {
+                            _trainingSubTitleTv.text =
+                                main.getString(R.string.the_gesture_model_file_is_ready_load)
+                            _trainingAnnotationIv.visibility = View.VISIBLE
+                            _lottieAnimationLoading.visibility = View.GONE
+                            _lottieAnimationLoading.cancelAnimation()
+                            _trainingBtn.isEnabled = true
+                            _trainingBtn.setOnClickListener {
+                                onConfirmClick()
+
+                            }
+
+                        }
                     }
                 }
             }

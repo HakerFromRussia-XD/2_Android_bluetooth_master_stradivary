@@ -55,6 +55,7 @@ class MotionTrainingFragment(
     private val gestures: MutableList<Map<String, String>> = mutableListOf()
     private var prot = 0
     private var startLineInLearningTable = 0
+    private var dataCollection: Map<String, Any> = mapOf()
 
 
     @SuppressLint("CheckResult", "DefaultLocale")

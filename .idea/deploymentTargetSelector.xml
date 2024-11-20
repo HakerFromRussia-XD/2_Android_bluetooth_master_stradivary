@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-11-12T09:32:05.376648600Z">
+        <DropdownSelection timestamp="2024-11-19T12:31:33.343798300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\touro\.android\avd\Pixel_8a_API_35.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=R8YX900N0JK" />
             </handle>
           </Target>
         </DropdownSelection>

@@ -20,7 +20,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-
     <TextView
         android:id="@+id/trainingSubTitleTv"
         android:layout_width="311dp"
@@ -37,17 +36,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-
-    <ImageView
-        android:id="@+id/trainingAnnotationIv"
+    <FrameLayout
+        android:id="@+id/animationContainer"
         android:layout_width="195dp"
         android:layout_height="342dp"
         android:layout_marginTop="44dp"
-        android:src="@drawable/testimageannotation"
-        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/trainingSubTitleTv" />
+        app:layout_constraintTop_toBottomOf="@id/trainingSubTitleTv">
+
+        <ImageView
+            android:id="@+id/trainingAnnotationIv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/testimageannotation"
+            android:visibility="visible"/>
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieAnimationLoading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:lottie_rawRes="@raw/loading_training_animation"
+            app:lottie_loop="true"
+            app:lottie_autoPlay="false"
+            android:visibility="gone"/>
+    </FrameLayout>
 
     <View
         android:id="@+id/trainingBtn"
@@ -59,9 +72,8 @@
         android:background="@drawable/ubi4_viwe_with_corners_white"
         android:elevation="3dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/trainingAnnotationIv" />
+        app:layout_constraintTop_toBottomOf="@id/animationContainer"/>
 
     <TextView
         android:id="@+id/trainingBtnTv"
@@ -75,7 +87,7 @@
         app:layout_constraintBottom_toBottomOf="@id/trainingBtn"
         app:layout_constraintEnd_toEndOf="@id/trainingBtn"
         app:layout_constraintStart_toStartOf="@id/trainingBtn"
-        app:layout_constraintTop_toTopOf="@id/trainingBtn" />
+        app:layout_constraintTop_toTopOf="@id/trainingBtn"/>
 
     <View
         android:id="@+id/generateBtn"
@@ -87,9 +99,8 @@
         android:background="@drawable/ubi4_viwe_with_corners_white"
         android:elevation="3dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/trainingBtn" />
+        app:layout_constraintTop_toBottomOf="@id/trainingBtn"/>
 
     <TextView
         android:id="@+id/generateBtnTv"
@@ -103,7 +114,7 @@
         app:layout_constraintBottom_toBottomOf="@id/generateBtn"
         app:layout_constraintEnd_toEndOf="@id/generateBtn"
         app:layout_constraintStart_toStartOf="@id/generateBtn"
-        app:layout_constraintTop_toTopOf="@id/generateBtn" />
+        app:layout_constraintTop_toTopOf="@id/generateBtn"/>
 
     <View
         android:id="@+id/showFileBtn"
@@ -115,9 +126,8 @@
         android:background="@drawable/ubi4_viwe_with_corners_white"
         android:elevation="3dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/generateBtn" />
+        app:layout_constraintTop_toBottomOf="@id/generateBtn"/>
 
     <TextView
         android:id="@+id/showFileBtnTv"
@@ -131,7 +141,6 @@
         app:layout_constraintBottom_toBottomOf="@id/showFileBtn"
         app:layout_constraintEnd_toEndOf="@id/showFileBtn"
         app:layout_constraintStart_toStartOf="@id/showFileBtn"
-        app:layout_constraintTop_toTopOf="@id/showFileBtn" />
-
+        app:layout_constraintTop_toTopOf="@id/showFileBtn"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

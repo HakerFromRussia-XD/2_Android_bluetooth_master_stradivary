@@ -570,6 +570,9 @@
     <string name="no_saved_files">Нет сохранённых файлов</string>
     <string name="select_training_file">Выберите файл обучения</string>
     <string name="show_files">Показать файлы</string>
+    <string name="model_training_in_progress_please_wait">Обучение модели выполняется, пожалуйста, подождите...</string>
+    <string name="wait_until_the_model_file_is_created">Дождитесь завершения создания файла модели</string>
+    <string name="the_gesture_model_file_is_ready_load">Файл модели жестов готов. Загрузите его в протез для завершения настройки.</string>
 
 
     <string-array name="numbers">

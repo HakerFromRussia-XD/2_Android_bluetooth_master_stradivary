@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.Chronometer
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -79,7 +80,6 @@ class SprTrainingFragment : Fragment() {
     private lateinit var binding: Ubi4FragmentSprTrainingBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
-
     private lateinit var tflite: Interpreter
     private lateinit var modelInfo: String
     private lateinit var preprocessedX: Array<FloatArray>

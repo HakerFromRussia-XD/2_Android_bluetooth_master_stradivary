@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
 class SprTrainingViewModel : ViewModel() {
-    private val _currentState = MutableLiveData<Int>(0)
-    val currentState: LiveData<Int> get() = _currentState
+    private val _stateOpticTrainingFlow = MutableStateFlow(0)
+    val stateOpticTrainingFlow: StateFlow<Int> get() = _stateOpticTrainingFlow
 
-    fun setState(state: Int) {
-        _currentState.value = state
+    fun updateState(state: Int) {
+        _stateOpticTrainingFlow.value = state
     }
 }

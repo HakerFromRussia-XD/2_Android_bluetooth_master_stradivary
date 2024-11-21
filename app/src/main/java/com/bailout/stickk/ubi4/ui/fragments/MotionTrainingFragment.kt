@@ -22,6 +22,8 @@ import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -272,19 +274,20 @@ class MotionTrainingFragment(
             var line = ""
             if (data.isNotEmpty())
                 line = data.dropLast(2)
-            if (isAppend){
+            if (isAppend) {
                 file.appendText(
                     "$line $prot ${curData["state"]} ${curData["id"]} ${
                         ((curData["generalTime"]?.toDouble()?.div(10)?.roundToInt()
                             ?.div(100.0)) ?: curData["generalTime"]).toString()
                     }\n"
                 )
-                Log.d("trainingDataProcessing", "$line $prot ${curData["state"]} ${curData["id"]} ${
-                    ((curData["generalTime"]?.toDouble()?.div(10)?.roundToInt()
-                        ?.div(100.0)) ?: curData["generalTime"]).toString()
-                }")
-            }
-            else
+                Log.d(
+                    "trainingDataProcessing", "$line $prot ${curData["state"]} ${curData["id"]} ${
+                        ((curData["generalTime"]?.toDouble()?.div(10)?.roundToInt()
+                            ?.div(100.0)) ?: curData["generalTime"]).toString()
+                    }"
+                )
+            } else
                 file.writeText(line)
             prot++
             val fileContent = file.readText()
@@ -308,7 +311,10 @@ class MotionTrainingFragment(
                 )
             )
         }
-        Log.d("learningPreprocessingParse", "Gestures: $gestures")
+        dataCollection = Gson().fromJson(
+            requireContext().assets.open("config.json").reader(),
+            object : TypeToken<Map<String, Any>>() {}.type
+        )
     }
 
     private fun trainingDataProcessing(): Map<String, String> {
@@ -320,45 +326,65 @@ class MotionTrainingFragment(
             "stepTime" to "None"
         )
 
-        val generalTime = SystemClock.elapsedRealtime() - learningTimer.base
-        var stopFlag = false
-        var ind = 0
-        while (!stopFlag && ind < gestures.size) {
-            if (generalTime <= (gestures[ind]["indicativeTime"]?.toLong() ?: 0) * 1000)
-                stopFlag = true
-            else
-                ind++
+        val generalTime = (SystemClock.elapsedRealtime() - learningTimer.base) / 1000
+        val nCycles = dataCollection["N_CYCLES"].toString().toDouble().toInt()
+        val gestureSequence = (dataCollection["GESTURE_SEQUENCE"] to ArrayList<String>()).first
+        val gestureNumber = (gestureSequence as ArrayList<*>).size - 1
+        val preGestDuration = dataCollection["PRE_GEST_DURATION"].toString().toDouble()
+        val atGestDuration = dataCollection["AT_GEST_DURATION"].toString().toDouble()
+        val postGestDuration = dataCollection["POST_GEST_DURATION"].toString().toDouble()
+        val gestureDuration = preGestDuration + atGestDuration + postGestDuration
+        val gesturesId = dataCollection["GESTURES_ID"]
+        val baselineDuration = dataCollection["BASELINE_DURATION"].toString().toDouble()
+        if (generalTime < baselineDuration)
+            return mapOf(
+                "n" to "0",
+                "state" to "Baseline",
+                "id" to "-1",
+                "generalTime" to (generalTime * 1000).toInt().toString(),
+                "stepTime" to preGestDuration.toString(),
+            )
+        val currentTime = generalTime - baselineDuration
+        val currentLoop = (currentTime / (gestureNumber * gestureDuration)).toInt()
+        val timeInLoop = currentTime % (gestureNumber * gestureDuration)
+        val gestureInd = (timeInLoop / gestureDuration).toInt() + 1
+        val timeInGesture = timeInLoop % gestureDuration
+        val overallGestureNumber = currentLoop * gestureNumber + gestureInd
+        if (currentLoop > nCycles) {
+            return mapOf(
+                "n" to overallGestureNumber.toString(),
+                "state" to "Finish",
+                "id" to "-1",
+                "generalTime" to (generalTime * 1000).toInt().toString(),
+                "stepTime" to postGestDuration.toString(),
+            )
         }
-        if (stopFlag) {
-            if (startLineInLearningTable != ind) {
-                startLineInLearningTable = ind
-            }
-            learningStepTimer.stop()
-            learningStepTimer.base = SystemClock.elapsedRealtime()
-            learningStepTimer.start()
-            val stepTime = SystemClock.elapsedRealtime() - learningStepTimer.base
-
-            val curData = gestures[ind]
+        if (preGestDuration < timeInGesture && timeInGesture <= preGestDuration + atGestDuration)
             lineData = mapOf(
-                "n" to curData["n"].toString(),
-                "state" to curData["state"].toString(),
-                "id" to curData["id"].toString(),
+                "n" to overallGestureNumber.toString(),
+                "state" to gestureSequence[gestureInd].toString(),
+                "id" to (gesturesId as Map<*, *>)[gestureSequence[gestureInd].toString()].toString(),
+                "generalTime" to (generalTime * 1000).toInt().toString(),
+                "stepTime" to atGestDuration.toString(),
+            )
+        else
+            lineData = mapOf(
+                "n" to overallGestureNumber.toString(),
+                "state" to "Neutral",
+                "id" to "0",
                 "generalTime" to generalTime.toString(),
-                "stepTime" to stepTime.toString()
+                "stepTime" to preGestDuration.toString(),
             )
 
-        }
+    return lineData}
 
-        return lineData
-    }
+override fun onDestroy() {
+    super.onDestroy()
+    Log.d("LagSpr", "Motion onDestroy")
+    _bindig = null
+    timer?.cancel()
+    preparationTimer?.cancel()
+    disposables.clear()
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("LagSpr", "Motion onDestroy")
-        _bindig = null
-        timer?.cancel()
-        preparationTimer?.cancel()
-        disposables.clear()
-
-    }
+}
 }

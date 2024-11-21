@@ -57,57 +57,120 @@ class TrainingFragmentDelegateAdapter(
         stateFlowCollect()
     }
 
-    private fun stateFlowCollect(){
-        scope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                MainActivityUBI4.stateOpticTrainingFlow.collect { state ->
-                    when (state) {
-                        0 -> {
-                            _trainingAnnotationIv.visibility = View.VISIBLE
-                            _lottieAnimationLoading.visibility = View.GONE
-                            _lottieAnimationLoading.cancelAnimation()
-                            _trainingBtn.isEnabled = true
-                            _trainingBtn.setOnClickListener {
-                                onConfirmClick()
+//    private fun stateFlowCollect() {
+//        lifecycleOwner.lifecycleScope.launch {
+//            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.stateOpticTrainingFlow.collect { state ->
+//                    updateUIBasedOnState(state)
+//                }
+//            }
+//        }
+//    }
 
-                            }
-                        }
+    private fun stateFlowCollect() {
 
-                        1 -> {
-                            _trainingSubTitleTv.text =
-                                main.getString(R.string.model_training_in_progress_please_wait)
-                            _trainingAnnotationIv.visibility = View.GONE
-                            _lottieAnimationLoading.visibility = View.VISIBLE
-                            _lottieAnimationLoading.playAnimation()
-
-                            _trainingBtn.isEnabled = true
-                            _trainingBtn.setOnClickListener {
-                                Toast.makeText(
-                                    main,
-                                    main.getString(R.string.wait_until_the_model_file_is_created),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-
-                        2 -> {
-                            _trainingSubTitleTv.text =
-                                main.getString(R.string.the_gesture_model_file_is_ready_load)
-                            _trainingAnnotationIv.visibility = View.VISIBLE
-                            _lottieAnimationLoading.visibility = View.GONE
-                            _lottieAnimationLoading.cancelAnimation()
-                            _trainingBtn.isEnabled = true
-                            _trainingBtn.setOnClickListener {
-                                onConfirmClick()
-
-                            }
-
-                        }
-                    }
+        scope.launch {
+            MainActivityUBI4.stateOpticTrainingFlow.collect { state ->
+                withContext(Dispatchers.Main) {
+                    updateUIBasedOnState(state)
                 }
             }
         }
     }
+
+    private fun updateUIBasedOnState(state: Int) {
+        when (state) {
+            0 -> {
+                _trainingAnnotationIv.visibility = View.VISIBLE
+                _lottieAnimationLoading.visibility = View.GONE
+                _lottieAnimationLoading.cancelAnimation()
+                _trainingBtn.isEnabled = true
+                _trainingBtn.setOnClickListener {
+                    onConfirmClick()
+                }
+            }
+
+            1 -> {
+                _trainingSubTitleTv.text =
+                    main.getString(R.string.model_training_in_progress_please_wait)
+                _trainingAnnotationIv.visibility = View.GONE
+                _lottieAnimationLoading.visibility = View.VISIBLE
+                _lottieAnimationLoading.playAnimation()
+                _trainingBtn.isEnabled = true
+                _trainingBtn.setOnClickListener {
+                    Toast.makeText(
+                        main,
+                        main.getString(R.string.wait_until_the_model_file_is_created),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            2 -> {
+                _trainingSubTitleTv.text =
+                    main.getString(R.string.the_gesture_model_file_is_ready_load)
+                _trainingAnnotationIv.visibility = View.VISIBLE
+                _lottieAnimationLoading.visibility = View.GONE
+                _lottieAnimationLoading.cancelAnimation()
+                _trainingBtn.isEnabled = true
+                _trainingBtn.setOnClickListener {
+                    onConfirmClick()
+                }
+            }
+        }
+    }
+
+//    private fun stateFlowCollect(){
+//        scope.launch(Dispatchers.IO) {
+//            withContext(Dispatchers.Main) {
+//                MainActivityUBI4.stateOpticTrainingFlow.collect { state ->
+//                    when (state) {
+//                        0 -> {
+//                            _trainingAnnotationIv.visibility = View.VISIBLE
+//                            _lottieAnimationLoading.visibility = View.GONE
+//                            _lottieAnimationLoading.cancelAnimation()
+//                            _trainingBtn.isEnabled = true
+//                            _trainingBtn.setOnClickListener {
+//                                onConfirmClick()
+//
+//                            }
+//                        }
+//
+//                        1 -> {
+//                            _trainingSubTitleTv.text =
+//                                main.getString(R.string.model_training_in_progress_please_wait)
+//                            _trainingAnnotationIv.visibility = View.GONE
+//                            _lottieAnimationLoading.visibility = View.VISIBLE
+//                            _lottieAnimationLoading.playAnimation()
+//
+//                            _trainingBtn.isEnabled = true
+//                            _trainingBtn.setOnClickListener {
+//                                Toast.makeText(
+//                                    main,
+//                                    main.getString(R.string.wait_until_the_model_file_is_created),
+//                                    Toast.LENGTH_SHORT
+//                                ).show()
+//                            }
+//                        }
+//
+//                        2 -> {
+//                            _trainingSubTitleTv.text =
+//                                main.getString(R.string.the_gesture_model_file_is_ready_load)
+//                            _trainingAnnotationIv.visibility = View.VISIBLE
+//                            _lottieAnimationLoading.visibility = View.GONE
+//                            _lottieAnimationLoading.cancelAnimation()
+//                            _trainingBtn.isEnabled = true
+//                            _trainingBtn.setOnClickListener {
+//                                onConfirmClick()
+//
+//                            }
+//
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
     override fun isForViewType(item: Any): Boolean = item is TrainingGestureItem
 
     override fun TrainingGestureItem.getItemId(): Any = title

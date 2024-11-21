@@ -10,9 +10,11 @@ interface NavigatorUBI4 {
 
     fun showGesturesScreen()
     fun showSensorsScreen()
+    fun showAdvancedScreen()
 
     fun showToast(massage: String)
     fun saveString(key: String, text: String)
+    fun getString(key: String) :String
 
 
     fun getBackStackEntryCount():Int

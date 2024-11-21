@@ -191,7 +191,7 @@ class PlotDelegateAdapter (
     }
 
     private fun addEntry(sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int, emgChart: LineChart) {
-        val data: LineData =  emgChart.data //binding.chartMainchart.data!!
+        val data: LineData =  emgChart.data
         var set = data.getDataSetByIndex(0)
         var set1 = data.getDataSetByIndex(1)
         var set2 = data.getDataSetByIndex(2)

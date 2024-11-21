@@ -43,6 +43,7 @@ class SensorsFragment : Fragment() {
 
     private val disposables = CompositeDisposable()
     private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
+    private var onDestroyParent: (() -> Unit)? = null
 
     private var count = 0
     private val display = 1
@@ -67,12 +68,11 @@ class SensorsFragment : Fragment() {
         binding.homeRv.adapter = adapterWidgets
         return binding.root
     }
-
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
+        onDestroyParent?.invoke()
     }
-
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         listWidgets.clear()
@@ -84,8 +84,8 @@ class SensorsFragment : Fragment() {
             withContext(Main) {
                 updateFlow.collect {
                     main?.runOnUiThread {
-                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(1)}")
-                        adapterWidgets.swapData(mDataFactory.prepareData(1))
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
+                        adapterWidgets.swapData(mDataFactory.prepareData(display))
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }
@@ -112,7 +112,9 @@ class SensorsFragment : Fragment() {
             }
         ),
         SliderDelegateAdapter(
-            onSetProgress = { addressDevice, parameterID, progress -> Log.d("onSetProgress", "progress = $progress")}
+            onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
+            //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
+            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
         )
 //        GesturesDelegateAdapter (
 //            onSelectorClick = {},
@@ -152,5 +154,9 @@ class SensorsFragment : Fragment() {
 //        transmitter().bleCommand(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
 //        transmitter().bleCommand(BLECommands.requestSubDeviceParametrs(6, 0, 1), MAIN_CHANNEL, WRITE)
 //        transmitter().bleCommand(BLECommands.requestSubDeviceAdditionalParametrs(6, 0), MAIN_CHANNEL, WRITE)
+    }
+    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
+        Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
+        transmitter().bleCommand(BLECommands.sendSliderProgress(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
     }
 }

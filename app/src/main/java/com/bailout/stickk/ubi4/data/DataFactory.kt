@@ -43,11 +43,11 @@ internal class DataFactory {
         addElement(1, 1, objects, objectCommandE)
         addElement(1, 1, objects, objectCommandE)
 //        addElementS(1, "5", objects, objectCommandS)
-//        addElement(2, 2, objects, objectSwitchE)
-//        addElementS(2, "Описание свича", objects, objectSwitchS)
-        addElement(5, 10, objects, objectPlotE)
+        addElement(2, 2, objects, objectSwitchE)
+        addElementS(2, "Описание свича", objects, objectSwitchS)
+//        addElement(5, 10, objects, objectPlotE)
 //        addElementS(5, "3", objects, objectPlotS)
-//        addElement(4, 2, objects, objectSliderE)
+        addElement(4, 2, objects, objectSliderE)
 //        addElementS(4, "Описание слайдера", objects, objectSliderS)
 
         return objects
@@ -139,6 +139,46 @@ internal class DataFactory {
                         )
                     }
                     System.err.println("prepareData PlotParameterWidgetEStruct widgetPosition: ${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}")
+                }
+                is SwitchParameterWidgetSStruct -> {
+                    if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
+                        addElementS(
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetSStruct.label,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                }
+                is SwitchParameterWidgetEStruct -> {
+                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
+                        addElement(
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetEStruct.labelCode,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                }
+                is SliderParameterWidgetSStruct -> {
+                    if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
+                        addElementS(
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetSStruct.label,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                }
+                is SliderParameterWidgetEStruct -> {
+                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
+                        addElement(
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetEStruct.labelCode,
+                            _listWidgets,
+                            it
+                        )
+                    }
                 }
             }
         }

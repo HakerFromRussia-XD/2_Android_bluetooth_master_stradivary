@@ -18,7 +18,6 @@ import android.util.Pair
 data class SliderParameterWidgetEStruct(
     val baseParameterWidgetEStruct: BaseParameterWidgetEStruct,
     val progress: Int = 0,
-    val clickCommand: Int = 0,
 )
 
 object SliderParameterWidgetESerializer: KSerializer<SliderParameterWidgetEStruct> {
@@ -29,6 +28,7 @@ object SliderParameterWidgetESerializer: KSerializer<SliderParameterWidgetEStruc
         val string = decoder.decodeString()
         val baseParameterWidgetEStruct: BaseParameterWidgetEStruct
         var progress = 0
+
 
 
         if (string.length >= 20) {

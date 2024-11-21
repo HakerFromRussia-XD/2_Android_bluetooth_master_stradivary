@@ -22,7 +22,7 @@ data class BaseParameterWidgetStruct(
     val widgetId: Int = 0,
     val dataOffset: Int = 0,
     var dataSize: Int = 0,
-    var parametersIDAndDataCodes: MutableSet<Pair<Int, Int>>, // ID родительских параметров и их датакоды
+    var parametersIDAndDataCodes: MutableSet<Pair<Int, Int>> = mutableSetOf(Pair(0, 0)), // ID родительских параметров и их датакоды
 )
 
 object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {

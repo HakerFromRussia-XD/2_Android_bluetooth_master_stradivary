@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PlotDelegateAdapter (
-    val plotIsReadyToData:(num: Int) -> Unit) :
+    val plotIsReadyToData:(numberOfCharts: Int) -> Unit) :
     ViewBindingDelegateAdapter<PlotItem, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private var count: Int = 0
     private var dataSens1 = 0
@@ -41,7 +41,7 @@ class PlotDelegateAdapter (
     private var dataSens4 = 0
     private var dataSens5 = 0
     private var dataSens6 = 0
-    private var numberOfCharts = 2
+    private var numberOfCharts = 1
 
     private var firstInit = true
 
@@ -63,10 +63,19 @@ class PlotDelegateAdapter (
         }
 
 
-//        Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
+        Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
         // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
-        numberOfCharts = ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf
-        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize}   type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
+        if (PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf != 0) {
+            numberOfCharts = ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize / PreferenceKeysUBI4.ParameterTypeEnum.entries[ParameterProvider.getParameter(deviceAddress, parameterID).type].sizeOf
+        } else {
+            numberOfCharts = 0
+        }
+//        numberOfCharts = 0
+//        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts")
+//        Log.d("PlotDelegateAdapter", "getParameter = ${ParameterProvider.getParameter(deviceAddress, parameterID)}")
+//        Log.d("PlotDelegateAdapter", "type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
+//        Log.d("PlotDelegateAdapter", "parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize}")
+//        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize}   type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
 
         plotArrayFlowCollect()
 
@@ -79,7 +88,7 @@ class PlotDelegateAdapter (
 
         main.bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
 //        System.err.println("plotIsReadyToData")
-        plotIsReadyToData(0)
+        plotIsReadyToData(numberOfCharts)
     }
 
     override fun isForViewType(item: Any): Boolean = item is PlotItem

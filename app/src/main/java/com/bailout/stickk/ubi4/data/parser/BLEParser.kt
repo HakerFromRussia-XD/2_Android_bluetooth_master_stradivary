@@ -41,11 +41,21 @@ import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.serialization.json.Json
 import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.MyItem
 import com.bailout.stickk.ubi4.models.MyViewModel
+import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 import kotlin.experimental.and
+import kotlin.random.Random
 
 class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
@@ -76,7 +86,7 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                 Log.d("uiGestureSettingsObservable", "парсим параметры вход")
                 val parameterID = codeRequest.toInt()
                 ParameterProvider.getParameter(deviceAddress, parameterID).data = receiveDataString.substring(HEADER_BLE_OFFSET*2, receiveDataString.length)
-                updateAllUI(ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)//
+                updateAllUI(deviceAddress, parameterID, ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)//
             } else {
                 // парсим команды
                 when (codeRequest){
@@ -96,41 +106,94 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                     BaseCommands.GET_DEVICE_STATUS.number -> {System.err.println("TEST parser GET_DEVICE_STATUS")}
                     BaseCommands.DATA_TRANSFER_SETTINGS.number -> { System.err.println("TEST parser DATA_TRANSFER_SETTINGS") }
                     BaseCommands.COMPLEX_PARAMETER_TRANSFER.number -> {
-//                        System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER $receiveDataString")
                         System.err.println("TEST parser COMPLEX_PARAMETER_TRANSFER data.size = ${data.size}   dataLength = $dataLength")
+                        var dataLengthMax = dataLength
                         var dataLength = dataLength
+                        var counter = 1
 
                         while (dataLength > 0) {
-                            val deviceAddress = castUnsignedCharToInt(receiveDataString.substring(HEADER_BLE_OFFSET*2, (HEADER_BLE_OFFSET+1)*2).toInt(16).toByte())
-                            val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+1)*2, (HEADER_BLE_OFFSET+2)*2).toInt(16).toByte())
+                            Log.d("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength")
+                            val deviceAddress = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength))*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2).toInt(16).toByte())
+                            val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2).toInt(16).toByte())
                             val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
-                            parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+2)*2, (HEADER_BLE_OFFSET+2+parameter.parameterDataSize)*2)
-                            updateAllUI(parameter.dataCode)
+                            parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2)
+                            updateAllUI(deviceAddress, parameterID, parameter.dataCode)
                             dataLength -= (parameter.parameterDataSize + 2)
-                            Log.d("COMPLEX_PARAMETER_TRANSFER", "dataLength = $dataLength  parameter = $parameter")
+                            counter += 1
                         }
-
-
-//                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]))
-//                    plotArray = arrayListOf(castUnsignedCharToInt(data[9]),castUnsignedCharToInt(data[10]),castUnsignedCharToInt(data[11]),castUnsignedCharToInt(data[12]),castUnsignedCharToInt(data[13]),castUnsignedCharToInt(data[14]))
-                        plotArrayFlow.value = plotArray
                     }
                 }
             }
         }
     }
 
-    private fun updateAllUI(dataCode: Int) {
+    private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
+        Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
         when (dataCode) {
+            ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number -> {
+                Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
+                val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
+                val data = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                try {
+                    if (parameter.parameterDataSize == 1) {
+                        plotArray =
+                            arrayListOf(castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()))
+                    }
+                    if (parameter.parameterDataSize == 2) {
+                        plotArray = arrayListOf(
+                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte())
+                        )
+                    }
+                    if (parameter.parameterDataSize == 3) {
+                        plotArray = arrayListOf(
+                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte())
+                        )
+                    }
+                    if (parameter.parameterDataSize == 4) {
+                        plotArray = arrayListOf(
+                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(6, 8).toInt(16).toByte())
+                        )
+                    }
+                    if (parameter.parameterDataSize == 5) {
+                        plotArray = arrayListOf(
+                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(6, 8).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(8, 10).toInt(16).toByte())
+                        )
+                    }
+                    if (parameter.parameterDataSize == 6) {
+                        plotArray = arrayListOf(
+                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(6, 8).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(8, 10).toInt(16).toByte()),
+                            castUnsignedCharToInt(data.substring(10, 12).toInt(16).toByte())
+                        )
+                    }
+                } catch (e: Error) {
+                    mMain.showToast("Ошибка 113")
+                }
+                plotArrayFlow.value = plotArray
+            }
             ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(dataCode) }
             ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
                 Log.d("uiRotationGroupObservable", "dataCode = $dataCode")
-//                RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(dataCode)
-//                rotationGroupFlow.value = Random.nextInt()//dataCode
-                viewModel.updateItem(MyItem(dataCode, ""))
-            }
+                RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(ParameterRef(deviceAddress, parameterID))
+                CoroutineScope(Dispatchers.Default).launch { rotationGroupFlow.emit((0..100).random()) } }
+            ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
+                Log.d("TestOptic"," dataCode: $dataCode")
+                RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
         }
     }
 
@@ -264,8 +327,9 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                 when (additionalInfoSizeStruct.infoType) {
                     AdditionalParameterInfoType.WIDGET.number.toInt() -> {
                         parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode)
-                        Log.d("parseWidgets", "отправка команды Rx")
-                        RxUpdateMainEventUbi4.getInstance().updateAllFragmentUi(baseParametrInfoStructArray[ID].dataCode)
+                        GlobalScope.launch {
+                            mMain.sendWidgetsArray()
+                        }
                     }
                 }
             }
@@ -286,7 +350,7 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
         }
     }
     private fun parseReadSubDeviceInfo(receiveDataString: String) {
-//        Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
+        Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
         val subDevices = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
         baseSubDevicesInfoStructSet = subDevices.baseSubDeviceInfoStructArray
         numerSubDevice = subDevices.count
@@ -294,15 +358,34 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
 
         // тут нам нужно запустить цепную реакцию сабдевайсов (читаем параметры первого сабдевайса)
         Log.d("SubDeviceSubDevice", "subDevices=$baseSubDevicesInfoStructSet  numerSubDevice=$numerSubDevice")
-        mMain.bleCommand(BLECommands.requestSubDeviceParametrs(
-            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
-            0,
-            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum), MAIN_CHANNEL, WRITE)
+        if (baseSubDevicesInfoStructSet.size != 0) {
+            mMain.bleCommand(
+                BLECommands.requestSubDeviceParametrs(
+                    baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
+                    0,
+                    baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
+                ), MAIN_CHANNEL, WRITE
+            )
+        } else {
+            mMain.showToast("Сабдевайсов нет")
+        }
     }
     private fun parseReadSubDeviceParameters(receiveDataString: String) {
         // пробегаемся по всем параметрам, формируя их список
         val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
         for (i in 0 until baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum) {
+            val start = 22 + i * BASE_PARAMETER_INFO_STRUCT_SIZE
+            val end = 22 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE
+
+            if (end <= receiveDataString.length) {
+                try {
+                    val parameterJson = receiveDataString.substring(start, end)
+                    listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"$parameterJson\""))
+                } catch (e: Exception) {}
+            } else {
+                Log.e("error", "Индексы $start-$end выходят за пределы строки длиной ${receiveDataString.length}")
+                break
+            }
             listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(22 + i * BASE_PARAMETER_INFO_STRUCT_SIZE, 22 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
         }
 
@@ -364,15 +447,19 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                         for (i in 0 until parametrSubDevice.additionalInfoSize) {
                             //каждый новый цикл вычитываем данные следующего сегмента (следующий addInfoSeg)
                             val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset+(i+1)*ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\"")
-                            val receiveDataStringForParse = receiveDataString.substring(
-                                offset + //отступ на header + отправленные данные (отправленный запрос целиком)
-                                        parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
-                                        dataOffset*2, // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
-                                offset +
-                                        parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG +
-                                        dataOffset*2 +
-                                        additionalInfoSizeStruct.infoSize*2) // оступ на кол-во байт в считываемом сегменте
-//                                        System.err.println("testSignal 0 $receiveDataStringForParse")
+
+                            val start = offset + //отступ на header + отправленные данные (отправленный запрос целиком)
+                                             parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
+                                             dataOffset*2 // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
+                            val end = offset +
+                                      parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG +
+                                      dataOffset*2 +
+                                      additionalInfoSizeStruct.infoSize*2
+
+                            var receiveDataStringForParse = ""
+                            if (end <= receiveDataString.length) {
+                                receiveDataStringForParse = receiveDataString.substring(start, end)
+                            }
                             dataOffset = additionalInfoSizeStruct.infoSize
                             Log.d("parseReadSubDeviceAdditionalParameters", "receiveDataStringForParse = $receiveDataStringForParse")
 
@@ -380,11 +467,9 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                             when (additionalInfoSizeStruct.infoType) {
                                 AdditionalParameterInfoType.WIDGET.number.toInt() -> {
                                     parseWidgets(receiveDataStringForParse, parameterID = parametrSubDevice.ID, dataCode = parametrSubDevice.dataCode)
-                                    Log.d("parseWidgets", "отправка команды Rx")
-                                    RxUpdateMainEventUbi4.getInstance().updateAllFragmentUi(parametrSubDevice.dataCode)
-//                                    GlobalScope.launch {
-//                                        mMain.sendWidgetsArray()
-//                                    }
+                                    GlobalScope.launch {
+                                        mMain.sendWidgetsArray()
+                                    }
                                 }
                             }
                         }
@@ -484,17 +569,21 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                     ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                         val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
                         commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
-                        System.err.println("parseWidgets BUTTON CODE_LABEL $commandParameterWidgetEStruct")
-                        listWidgets.add(commandParameterWidgetEStruct)
+                        addToListWidgets(commandParameterWidgetEStruct, commandParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode)
                     }
                     ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { System.err.println("parseWidgets SWITCH") }
                     ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { System.err.println("parseWidgets COMBOBOX") }
-                    ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { System.err.println("parseWidgets SLIDER") }
+                    ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+                        System.err.println("parseWidgets SLIDER")
+                        val sliderParameterWidgetEStruct = Json.decodeFromString<SliderParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+                        sliderParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        addToListWidgets(sliderParameterWidgetEStruct, sliderParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode)
+                    }
                     ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                         System.err.println("parseWidgets PLOT CODE_LABEL")
                         val plotParameterWidgetEStruct = Json.decodeFromString<PlotParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
                         plotParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
-                        listWidgets.add(plotParameterWidgetEStruct)
+                        addToListWidgets(plotParameterWidgetEStruct, plotParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode)
                     }
                     ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { System.err.println("parseWidgets SPINBOX") }
                     ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets EMG_GESTURE_CHANGE_SETTINGS") }
@@ -506,7 +595,7 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                         //TODO пока тестовая заглушка кнопкой
                         val commandParameterWidgetEStruct = Json.decodeFromString<CommandParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
                         commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
-                        listWidgets.add(commandParameterWidgetEStruct)
+                        addToListWidgets(commandParameterWidgetEStruct, commandParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode)
                     }
                     ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_1_THRESHOLD") }
                     ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_2_THRESHOLD") }
@@ -514,23 +603,7 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                         System.err.println("parseWidgets PWCE_GESTURES_WINDOW")
                         val gesturesParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
                         gesturesParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
-
-                        // TODO раскатить несколько параметров в один виджет для всех виджетов
-                        // добавление нового виджета не происходит если у нас уже есть такой виджет
-                        // у другого параметра. Вместо этого добавляется ссылка на новый параметр с
-                        // этим виджетом в parametersIDAndDataCodes
-                        var canAdd = true
-                        listWidgets.forEach {
-                            if (it is BaseParameterWidgetEStruct) {
-                                if (areEqualExcludingSetIdE(gesturesParameterWidgetEStruct, it)) {
-                                    canAdd = false
-                                    it.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
-                                }
-                            }
-                        }
-                        if (canAdd) {
-                            listWidgets.add(gesturesParameterWidgetEStruct)
-                        }
+                        addToListWidgets(gesturesParameterWidgetEStruct, gesturesParameterWidgetEStruct, parameterID, dataCode)
                     }
                     ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { System.err.println("parseWidgets PWCE_OPTIC_LEARNING_WIDGET") }
                 }
@@ -540,14 +613,23 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                     ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { System.err.println("parseWidgets UNKNOW") }
                     ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                         System.err.println("parseWidgets BUTTON STRING_LABEL")
-                        listWidgets.add(Json.decodeFromString<CommandParameterWidgetSStruct>("\"${receiveDataStringForParse}\""))
+                        val commandParameterWidgetSStruct = Json.decodeFromString<CommandParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                        commandParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode)
                     }
                     ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { System.err.println("parseWidgets SWITCH") }
                     ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { System.err.println("parseWidgets COMBOBOX") }
-                    ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { System.err.println("parseWidgets SLIDER") }
+                    ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+                        System.err.println("parseWidgets SLIDER")
+                        val sliderParameterWidgetSStruct = Json.decodeFromString<SliderParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                        sliderParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        addToListWidgets(sliderParameterWidgetSStruct, sliderParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode)
+                    }
                     ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                         System.err.println("parseWidgets PLOT STRING_LABEL")
-                        listWidgets.add(Json.decodeFromString<PlotParameterWidgetSStruct>("\"${receiveDataStringForParse}\""))
+                        val plotParameterWidgetSStruct = Json.decodeFromString<CommandParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                        plotParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode)
                     }
                     ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { System.err.println("parseWidgets SPINBOX") }
                     ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets EMG_GESTURE_CHANGE_SETTINGS") }
@@ -557,7 +639,9 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                     ParameterWidgetCode.PWCE_OPEN_CLOSE_THRESHOLD.number.toInt() -> {
                         System.err.println("parseWidgets OPEN_CLOSE_THRESHOLD STRING_LABEL")
                         //TODO пока тестовая заглушка кнопкой
-                        listWidgets.add(Json.decodeFromString<CommandParameterWidgetSStruct>("\"${receiveDataStringForParse}\""))
+                        val commandParameterWidgetSStruct = Json.decodeFromString<CommandParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                        commandParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode)
                     }
                     ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_1_THRESHOLD") }
                     ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { System.err.println("parseWidgets PLOT_AND_2_THRESHOLD") }
@@ -565,23 +649,7 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                         System.err.println("parseWidgets PWCE_GESTURES_WINDOW")
                         val gesturesParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
                         gesturesParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
-
-                        // TODO раскатить несколько параметров в один виджет для всех виджетов
-                        // добавление нового виджета не происходит если у нас уже есть такой виджет
-                        // у другого параметра. Вместо этого добавляется ссылка на новый параметр с
-                        // этим виджетом в parametersIDAndDataCodes
-                        var canAdd = true
-                        listWidgets.forEach {
-                            if (it is BaseParameterWidgetSStruct) {
-                                if (areEqualExcludingSetIdS(gesturesParameterWidgetSStruct, it)) {
-                                    canAdd = false
-                                    it.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
-                                }
-                            }
-                        }
-                        if (canAdd) {
-                            listWidgets.add(gesturesParameterWidgetSStruct)
-                        }
+                        addToListWidgets(gesturesParameterWidgetSStruct, gesturesParameterWidgetSStruct, parameterID, dataCode)
                     }
                     ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { System.err.println("parseWidgets PWCE_OPTIC_LEARNING_WIDGET") }
                 }
@@ -612,6 +680,68 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
             }
         }
         return Triple(0, 0, 0)
+    }
+    private fun addToListWidgets(widget: Any, baseParameterWidgetStruct: Any, parameterID: Int, dataCode: Int) {
+        // добавление нового виджета не происходит если у нас уже есть такой виджет
+        // у другого параметра. Вместо этого добавляется ссылка на новый параметр с
+        // этим виджетом в parametersIDAndDataCodes
+        var canAdd = true
+        if (baseParameterWidgetStruct is BaseParameterWidgetEStruct) {
+            listWidgets.forEach {
+                when (it) {
+                    is BaseParameterWidgetEStruct -> {
+                        if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it)) {
+                            canAdd = false
+                            it.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        }
+                    }
+                    is CommandParameterWidgetEStruct -> {
+                        if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
+                            canAdd = false
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        }
+                    }
+                    is PlotParameterWidgetEStruct -> {
+                        if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
+                            canAdd = false
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        }
+                    }
+                    is SliderParameterWidgetEStruct -> {
+                        if (areEqualExcludingSetIdE(baseParameterWidgetStruct, it.baseParameterWidgetEStruct)) {
+                            canAdd = false
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        }
+                    }
+                }
+            }
+        } else if (baseParameterWidgetStruct is BaseParameterWidgetSStruct) {
+            listWidgets.forEach {
+                when (it) {
+                    is CommandParameterWidgetSStruct -> {
+                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
+                            canAdd = false
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        }
+                    }
+                    is PlotParameterWidgetSStruct -> {
+                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
+                            canAdd = false
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        }
+                    }
+                    is SliderParameterWidgetSStruct -> {
+                        if (areEqualExcludingSetIdS(baseParameterWidgetStruct, it.baseParameterWidgetSStruct)) {
+                            canAdd = false
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        }
+                    }
+                }
+            }
+        }
+        if (canAdd) {
+            listWidgets.add(widget)
+        }
     }
 
     internal fun getStatusConnected() : Boolean { return mConnected }

@@ -23,7 +23,11 @@ import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
@@ -42,11 +46,16 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
@@ -54,29 +63,22 @@ import kotlin.reflect.full.memberProperties
 
 @Suppress("DEPRECATION")
 class GesturesFragment : Fragment() {
-    private val viewModel: MyViewModel by viewModels()
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
     private val disposables = CompositeDisposable()
     private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
+    private var onDestroyParrent: (() -> Unit)? = null
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
-
-        //фейковые данные принимаемого потока
-//        Handler().postDelayed({
-//            val mBLEParser = main?.let { BLEParser(it) }
-//            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-//        }, 1000)
-
+        Log.d("LifeCycele", "onCreateView")
 
         //настоящие виджеты
-//        widgetListUpdater()
-        widgetListUpdaterRx()
+        widgetListUpdater()
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
@@ -99,31 +101,6 @@ class GesturesFragment : Fragment() {
             .subscribe { parameters ->
                 requestGestureSettings(parameters.deviceAddress, parameters.parameterID, parameters.gestureID)
             }
-//        RxUpdateMainEventUbi4.getInstance().uiRotationGroupObservable
-//            .compose(MainActivityUBI4.main.bindToLifecycle())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { dataCode ->
-//                val parameter = ParameterProvider.getParameter(dataCode)
-////                Log.d("uiRotationGroupObservable", "data = ${parameter.data}")
-//                val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
-////                Log.d("uiRotationGroupObservable", "rotationGroup = $rotationGroup")
-//                val testList = rotationGroup.toGestureList()
-//                Log.d("uiRotationGroupObservable", "RX testList = $testList  size = ${testList.size}")
-//                rotationGroupGestures.clear()
-//                testList.forEach{ item ->
-//                    if (item.first != 0 )
-//                        rotationGroupGestures.add(CollectionGesturesProvider.getGesture(item.first))
-//                }
-////                showIntroduction()
-////                setupListRecyclerView()
-////                synhronizeRotationGroup()
-////                calculatingShowAddButton()
-//            }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.items.collect { newItem ->
-                Log.d("uiRotationGroupObservable", "data = ${newItem}")
-            }
-        }
 
 
 
@@ -131,45 +108,53 @@ class GesturesFragment : Fragment() {
         binding.homeRv.adapter = adapterWidgets
         return binding.root
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("LifeCycele", "onDestroy")
+        onDestroyParrent?.invoke()
+    }
+
     private fun refreshWidgetsList() {
         graphThreadFlag = false
+        onDestroyParrent?.invoke()
         listWidgets.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
 
-    private fun widgetListUpdaterRx() {
-        adapterWidgets.swapData(mDataFactory.prepareData(0))
-        val sensorsFragmentStreamDisposable = rxUpdateMainEvent.allFragmentUiObservable
-            .compose(main?.bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { _ ->
-                Log.d("parseWidgets_rx", "приём команды Rx  listWidgets = ${mDataFactory.prepareData(0)}")
-                adapterWidgets.swapData(mDataFactory.prepareData(0))
-                binding.refreshLayout.setRefreshing(false)
+    private fun widgetListUpdater() {
+        viewLifecycleOwner.lifecycleScope.launch(Main) {
+            withContext(Default) {
+                updateFlow.collect {
+                    main?.runOnUiThread {
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(0)}")
+                        adapterWidgets.swapData(mDataFactory.prepareData(0))
+                        binding.refreshLayout.setRefreshing(false)
+                    }
+                }
             }
-        disposables.add(sensorsFragmentStreamDisposable)
+        }
     }
-//    private fun widgetListUpdater() {
-//        viewLifecycleOwner.lifecycleScope.launch(Main) {
-//            withContext(Default) {
-//                updateFlow.collect { value ->
-//                    main?.runOnUiThread (Runnable {
-//                        adapterWidgets.swapData(mDataFactory.prepareData(0))
-//                        binding.refreshLayout.setRefreshing(false)
-//                    })
-//                }
-//            }
-//        }
-//    }
 
     private val adapterWidgets = CompositeDelegateAdapter(
         PlotDelegateAdapter(
             plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
         ),
-        OneButtonDelegateAdapter (
-            onButtonPressed = { _, _, _ ->  },
-            onButtonReleased = { _, _, _ ->  }
-        ) ,
+        OneButtonDelegateAdapter(
+            onButtonPressed = { addressDevice, parameterID, command ->
+                oneButtonPressed(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            },
+            onButtonReleased = { addressDevice, parameterID, command ->
+                oneButtonReleased(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            }
+        ),
         GesturesDelegateAdapter (
             onSelectorClick = {},
             onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
@@ -177,10 +162,38 @@ class GesturesFragment : Fragment() {
             onSendBLERotationGroup = {deviceAddress, parameterID -> sendBLERotationGroup(deviceAddress, parameterID) },
             onShowGestureSettings = { deviceAddress, parameterID, gestureID -> showGestureSettings(deviceAddress, parameterID, gestureID) },
             onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)},
-            onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)}
+            onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)},
+            onDestroyParrent = {onDestroyParrent -> this.onDestroyParrent = onDestroyParrent}
+        ),
+        TrainingFragmentDelegateAdapter(
+            onConfirmClick = {},
+            generateClick = {},
+            showFileClick = {}
+        ),
+        SwitcherDelegateAdapter(
+            onSwitchClick = {
+                Log.d("SwitcherDelegateAdapter", "$it")
+            }
+        ),
+        SliderDelegateAdapter(
+            onSetProgress = { addressDevice, parameterID, progress -> Log.d("onSetProgress", "progress = $progress")}
         )
     )
 
+    private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
+        transmitter().bleCommand(
+            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
+            MAIN_CHANNEL,
+            WRITE
+        )
+    }
+    private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
+        transmitter().bleCommand(
+            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
+            MAIN_CHANNEL,
+            WRITE
+        )
+    }
     private fun requestRotationGroup(deviceAddress: Int, parameterID: Int) {
         Log.d("uiRotationGroupObservable", "считывание данных в фрагменте")
         transmitter().bleCommand(BLECommands.requestRotationGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE)

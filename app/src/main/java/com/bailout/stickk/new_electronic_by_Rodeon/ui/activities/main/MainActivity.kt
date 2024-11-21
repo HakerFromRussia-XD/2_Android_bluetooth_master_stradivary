@@ -38,6 +38,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService
 import com.bailout.stickk.new_electronic_by_Rodeon.services.MyService
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Decorator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Navigator

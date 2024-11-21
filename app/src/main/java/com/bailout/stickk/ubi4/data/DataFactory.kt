@@ -2,17 +2,23 @@ package com.bailout.stickk.ubi4.data
 
 
 import android.util.Log
-import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.models.OneButtonItem
 import com.bailout.stickk.ubi4.models.PlotItem
+import com.bailout.stickk.ubi4.models.SliderItem
+import com.bailout.stickk.ubi4.models.SwitchItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
@@ -23,8 +29,27 @@ internal class DataFactory {
 
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
-        val objectMy : Any = PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct(parametersIDAndDataCodes = mutableSetOf(Pair(0, 0)))))
-        addElementS(5, "2", objects, objectMy)
+        val objectPlotE: Any = PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectPlotS: Any = PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+        val objectCommandE: Any = CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectCommandS: Any = CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+        val objectSwitchE: Any = SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectSwitchS: Any = SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+        val objectSliderE: Any = SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectSliderS: Any = SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+
+        addElement(1, 1, objects, objectCommandE)
+        addElement(1, 1, objects, objectCommandE)
+        addElement(1, 1, objects, objectCommandE)
+        addElement(1, 1, objects, objectCommandE)
+//        addElementS(1, "5", objects, objectCommandS)
+//        addElement(2, 2, objects, objectSwitchE)
+//        addElementS(2, "Описание свича", objects, objectSwitchS)
+        addElement(5, 10, objects, objectPlotE)
+//        addElementS(5, "3", objects, objectPlotS)
+//        addElement(4, 2, objects, objectSliderE)
+//        addElementS(4, "Описание слайдера", objects, objectSliderS)
+
         return objects
     }
     fun fakeDataClear(): List<Any> {
@@ -34,6 +59,7 @@ internal class DataFactory {
 
     fun prepareData(display: Int): List<Any> {
         // сортировка всех виджетов по возрастанию
+        System.err.println("DataFactory sorted listWidgets===========")
         sortWidgets(listWidgets.sortedWith ( compareBy {
             System.err.println("DataFactory sorted listWidgets===========> $it")
             when (it) {
@@ -42,7 +68,11 @@ internal class DataFactory {
                 is CommandParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
                 is PlotParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
                 is PlotParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
-                else -> {""}
+                is SwitchParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
+                is SwitchParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
+                is SliderParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
+                is SliderParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
+                else -> {0}//здесь должно быть число, иначе при попадании в ветку else приложение пытается сравнить число со строкой и падает
             }
         }))
         System.err.println("DataFactory sorted listWidgets============== ${listWidgets.size}")
@@ -135,15 +165,17 @@ internal class DataFactory {
                     else -> { OneButtonItem("BUTTON", "description", widget) }
                 }
             }
-            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { OneButtonItem("SWITCH", "description", widget) }
+            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { SwitchItem("SWITCH", widget) }
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
-            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { OneButtonItem("SLIDER", "description", widget) }
+            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
+                SliderItem("SLIDER", widget)
+            }
             ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem("PLOT", widget)  }
             ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
 //                OneButtonItem("GESTURE_SETTINGS", "description", widget)
-                GesturesItem("GESTURE_SETTINGS", widget)
+//                GesturesItem("GESTURE_SETTINGS", widget)
             }
             ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { OneButtonItem("CALIB_STATUS", "description", widget)  }
             ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { OneButtonItem("CONTROL_MODE", "description", widget)  }
@@ -151,10 +183,10 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {
-//                GesturesItem("GESTURE_SETTINGS", widget)
+                GesturesItem("GESTURE_SETTINGS", widget)
             }
             ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { OneButtonItem("PWCE_OPTIC_LEARNING_WIDGET", "description", widget) }
-            else -> { OneButtonItem("Open", "description", widget) }
+            else -> { OneButtonItem("ветка_else", "ветка_else", widget) }
         }
         widgets.add(item)
     }
@@ -165,15 +197,18 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
                 OneButtonItem(label, "description", widget)
             }
-            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { OneButtonItem("SWITCH", "description", widget) }
+            ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { SwitchItem(label, widget) }
             ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { OneButtonItem("COMBOBOX", "description", widget) }
-            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { OneButtonItem("SLIDER", "description", widget) }
-            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem(label, widget)  }
+            ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> { SliderItem(label, widget) }
+            ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
+//                PlotItem(label, widget)
+                PlotItem("PLOT", widget)
+            }
             ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
 //                OneButtonItem("GESTURE_SETTINGS", "description", widget)
-                GesturesItem("GESTURE_SETTINGS", widget)
+//                GesturesItem("GESTURE_SETTINGS", widget)
             }
             ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { OneButtonItem("CALIB_STATUS", "description", widget)  }
             ParameterWidgetCode.PWCE_CONTROL_MODE.number.toInt() -> { OneButtonItem("CONTROL_MODE", "description", widget)  }
@@ -181,10 +216,10 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> {
-//                GesturesItem("GESTURE_SETTINGS", widget)
+                GesturesItem("GESTURE_SETTINGS", widget)
             }
             ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { OneButtonItem(label, "description", widget) }
-            else -> { OneButtonItem("Open", "description", widget) }
+            else -> { OneButtonItem("ветка_else", "ветка_else", widget) }
         }
         widgets.add(item)
     }

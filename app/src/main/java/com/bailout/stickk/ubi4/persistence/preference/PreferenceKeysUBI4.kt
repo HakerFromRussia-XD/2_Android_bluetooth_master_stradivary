@@ -115,7 +115,12 @@ object PreferenceKeysUBI4 {
         PWLE_RESET (0x04, "RESET"),
         PWLE_CONTROL_SETTINGS (0x05, "CONTROL SETTINGS"),
         PWLE_OPEN_CLOSE_THRESHOLD (0x06, "OPEN CLOSE THRESHOLD"),
-        PWLE_SELECT_GESTURE (0x07, "SELECT GESTURE")
+        PWLE_SELECT_GESTURE (0x07, "SELECT GESTURE"),
+        PWLE_SELECT_PROFILE (0x08, "SELECT PROFILE"),
+        PWLE_GLOBAL_FORCE (0x09, "GLOBAL FORCE"),
+        PWLE_PLOT (0x0a, "PLOT"),
+        PWLE_OMG_LEARNING (0x0b, "OMG LEARNING"),
+
     }
 
     enum class ParameterWidgetDisplayCode(val number: Byte) {
@@ -214,8 +219,8 @@ object PreferenceKeysUBI4 {
         //Global settings
         PDCE_SELECT_GESTURE (1),          // uint8_t select_gesture;
         PDCE_SELECT_PROFILE (2),          // uint8_t select_profile;
-        PDCE_GLOBAL_FORCE (3),            // uint8_t global_force;
-        PDCE_GLOBAL_SENSITIVITY (4),        // uint8_t global_sensitivity;
+        PDCE_GLOBAL_FORCE (3),            // uint8_t global_force; //TODO sliders
+        PDCE_GLOBAL_SENSITIVITY (4),        // uint8_t global_sensitivity;//TODO sliders
         PDCE_GLOBAL_THRESHOLD (5),          // uint8_t global_threshold;
 
         PDCE_UNIVERSAL_CONTROL_INPUT (6),
@@ -245,7 +250,7 @@ object PreferenceKeysUBI4 {
         PDCE_GESTURES_CHANGE_SETTINGS (23),        //
         PDCE_CONTROL_MODE_SETTINGS (24),        //
         PDCE_DRIVE_SETTINGS (25),            //
-        PDCE_OPEN_CLOSE_THRESHOLD (26),          // open_close_threshold_param_struct
+        PDCE_OPEN_CLOSE_THRESHOLD (26),          // open_close_threshold_param_struct //TODO sliders
 
         PDCE_CALIB_STATUS (27),              //
         PDCE_CURRENT_LIMITS (28),            //
@@ -256,6 +261,7 @@ object PreferenceKeysUBI4 {
         PDCE_EMG_ENV_E_VAL (34),
         PDCE_DMS_OUTPUT (35),
         PDCE_DATE_AND_TIME (36)
+
     }
 
     enum class GestureEnum (val number: Int) {

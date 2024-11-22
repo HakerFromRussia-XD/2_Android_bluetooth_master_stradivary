@@ -69,10 +69,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.fragmentContainer, SensorsFragment())
-            .commit()
+//        showGesturesScreen()
+        showSensorsScreen()
     }
     @SuppressLint("MissingPermission")
     override fun onResume() {

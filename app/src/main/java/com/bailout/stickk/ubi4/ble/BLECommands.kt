@@ -265,6 +265,25 @@ class BLECommands {
             val result = header + data
             return result
         }
+        fun sendActiveGesture(addressDevice: Int, parameterID: Int, activeGesture: Int): ByteArray {
+            val code:Byte = (128 + parameterID).toByte()
+            val header = byteArrayOf(
+                0x40,
+                code,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            val data = byteArrayOf(
+                activeGesture.toByte(),
+            )
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
+            return result
+        }
         fun sendGestureInfo(gestureWithAddress: GestureWithAddress): ByteArray {
             val code:Byte = (128 + gestureWithAddress.parameterID).toByte()
             val header = byteArrayOf(

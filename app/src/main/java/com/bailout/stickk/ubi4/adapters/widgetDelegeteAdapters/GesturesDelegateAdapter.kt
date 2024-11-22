@@ -45,12 +45,12 @@ import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
 
 class GesturesDelegateAdapter(
-//    private val viewModel: MyViewModel,
     val gestureNameList:  ArrayList<String>,
     val onSelectorClick: (selectedPage: Int) -> Unit,
     val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
     val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
     val onSendBLERotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
+    val onSendBLEActiveGesture: (deviceAddress: Int, parameterID: Int, activeGesture: Int) -> Unit,
     val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestRotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
@@ -75,6 +75,8 @@ class GesturesDelegateAdapter(
     private lateinit var mPlusIv: ImageView
     private var parameterIDSet = mutableSetOf<Pair<Int, Int>>()
     private var deviceAddress = 0
+    private var gestureCollectionBtns: ArrayList<View> = ArrayList()
+    private var gestureCastomBtns: ArrayList<View> = ArrayList()
 
     // Создаем единственный CoroutineScope с диспетчером, который будет использоваться для потока
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -128,22 +130,24 @@ class GesturesDelegateAdapter(
             }
         }
 
-        gestureCollection1Btn.setOnClickListener { System.err.println("setOnClickListener gestureCollection1Btn") }
-        gestureCollection2Btn.setOnClickListener { System.err.println("setOnClickListener gestureCollection2Btn") }
-        gestureCollection3Btn.setOnClickListener { System.err.println("setOnClickListener gestureCollection3Btn") }
-        gestureCollection4Btn.setOnClickListener { System.err.println("setOnClickListener gestureCollection4Btn") }
 
-
+        gestureCollectionBtns.clear()
+        gestureCastomBtns.clear()
         for (i in 1..14) {
+            val gestureCollectionBtn = this::class.java.getDeclaredField("gestureCollection${i}Btn")
+                .get(this) as? View
             val gestureCollectionTitle = this::class.java.getDeclaredField("gestureCollection${i}Tv")
                 .get(this) as? TextView
             val gestureCollectionImage = this::class.java.getDeclaredField("gestureCollection${i}Iv")
                 .get(this) as? ImageView
+            gestureCollectionBtn?.let { gestureCollectionBtns.add(it) }
             gestureCollectionTitle?.text = getCollectionGestures().get(i).gestureName
             gestureCollectionImage?.setImageResource(getCollectionGestures().get(i).gestureImage)
+            gestureCollectionBtn?.setOnClickListener {
+                setActiveGesture(gestureCollectionBtn)
+                onSendBLEActiveGesture(i)
+            }
         }
-
-
         for (i in 1..8) {
             val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
                 .get(this) as? TextView
@@ -151,10 +155,11 @@ class GesturesDelegateAdapter(
                 .get(this) as? View
             val gestureSettingsBtn = this::class.java.getDeclaredField("gesture${i}SettingsBtn")
                 .get(this) as? View
+            gestureCustomBtn?.let { gestureCastomBtns.add(it) }
             gestureCustomTv?.text = gestureNameList[i-1]
             gestureCustomBtn?.setOnClickListener {
-                Log.d("gestureCustomBtn", "gestureCustomBtn $i")
-                onRequestGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt()+i)
+                onSendBLEActiveGesture(63+i)
+                setActiveGesture(gestureCustomBtn)
             }
             gestureSettingsBtn?.setOnClickListener {
                 Log.d("gestureCustomBtn", "gestureSettingsBtn $i")
@@ -206,15 +211,11 @@ class GesturesDelegateAdapter(
         setupListRecyclerView()
 
         gestureFlowCollect()
-//        setGestureTexts()
     }
-    fun setGestureTexts() {
-        for (i in 1..6) {
-            val textView = binding::class.java
-                .getDeclaredField("gestureCollection${i}Tv")
-                .get(binding) as? TextView
-            textView?.text = i.toString()
-        }
+    private fun setActiveGesture(gestureBtn: View) {
+        gestureCollectionBtns.forEach { it.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray) }
+        gestureCastomBtns.forEach { it.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray) }
+        gestureBtn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_active)
     }
     private fun gestureFlowCollect() {
         scope.launch(Dispatchers.IO) {
@@ -261,6 +262,9 @@ class GesturesDelegateAdapter(
     }
     private fun sendBLERotationGroup() {
         onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number))
+    }
+    private fun onSendBLEActiveGesture(activeGesture: Int) {
+        onSendBLEActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number), activeGesture)
     }
     private fun getParameterIDByCode(dataCode: Int): Int {
         parameterIDSet.forEach {

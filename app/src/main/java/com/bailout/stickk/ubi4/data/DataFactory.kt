@@ -57,7 +57,7 @@ internal class DataFactory {
                 is PlotParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
                 is PlotParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
                 is OpticStartLearningWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
-                else -> {""}
+                else -> {0}//здесь должно быть число, иначе при попадании в ветку else приложение пытается сравнить число со строкой и падает
             }
         }))
         System.err.println("DataFactory sorted listWidgets==============")

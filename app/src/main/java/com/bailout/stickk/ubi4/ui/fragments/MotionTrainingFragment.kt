@@ -34,8 +34,6 @@ import kotlin.math.roundToInt
 
 class MotionTrainingFragment(
     val onFinishTraining: () -> Unit,
-
-
     ) : Fragment() {
 
     private var _bindig: Ubi4FragmentMotionTrainingBinding? = null
@@ -212,9 +210,7 @@ class MotionTrainingFragment(
             myDialog.dismiss()
             confirmClick()
             onFinishTraining()
-
         }
-
     }
 
     @SuppressLint("MissingInflatedId")
@@ -378,13 +374,12 @@ class MotionTrainingFragment(
 
     return lineData}
 
-override fun onDestroy() {
+    override fun onDestroy() {
     super.onDestroy()
     Log.d("LagSpr", "Motion onDestroy")
     _bindig = null
     timer?.cancel()
     preparationTimer?.cancel()
     disposables.clear()
-
 }
 }

@@ -32,6 +32,7 @@ import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -93,12 +94,14 @@ class SensorsFragment : Fragment() {
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
             onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
         ) ,
-        TrainingFragmentDelegateAdapter(
-            onConfirmClick = {},
-            onGenerateClick = {},
-            onShowFileClick = {},
-            onDestroyParent = {onDestroyParent -> },
-        ),
+//        TrainingFragmentDelegateAdapter(
+//            onConfirmClick = {},
+//            onGenerateClick = {},
+//            onShowFileClick = {},
+//            onDestroyParent = {onDestroyParent -> },
+//            stateFlow = MainActivityUBI4.stateOpticTrainingFlow
+//        ),
+
         SwitcherDelegateAdapter(
             onSwitchClick = {
                 Log.d("SwitcherDelegateAdapter", "$it")

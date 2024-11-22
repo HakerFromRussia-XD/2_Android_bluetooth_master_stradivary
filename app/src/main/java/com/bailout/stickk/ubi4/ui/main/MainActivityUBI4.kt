@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -28,6 +29,7 @@ import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -36,6 +38,7 @@ import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
+import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
 
@@ -45,6 +48,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
+    private lateinit var trainingModelHandler: TrainingModelHandler
     val chartFlow = MutableStateFlow(0)
 
 
@@ -62,19 +66,17 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         initAllVariables()
         BottomNavigationController(bottomNavigation = binding.bottomNavigation)
 
+        trainingModelHandler = TrainingModelHandler(this)
+        trainingModelHandler.initialize()
+
         // инициализация блютуз
         mBLEController = BLEController(this)
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
 
-//        showOpticGesturesScreen()
         showSensorsScreen()
         //showOpticTrainingGesturesScreen()
 
-//        supportFragmentManager
-//            .beginTransaction()
-//            .add(R.id.fragmentContainer, SprGestureFragment())
-//            .commit()
 
     }
     @SuppressLint("MissingPermission")
@@ -101,7 +103,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
-    override fun showMotionTrainingScreen(onFinish:()->Unit) { launchFragmentWithoutStack(MotionTrainingFragment(onFinish)) }
+    override fun showMotionTrainingScreen(onFinish:()->Unit) { launchFragmentWithoutStack(MotionTrainingFragment(onFinish))
+        Log.d("StateCallBack", "showMotionTrainingScreen called")
+    }
+
+    override fun manageTrainingLifecycle() {
+        Log.d("StateCallBack", "manageTrainingLifecycle called")
+        trainingModelHandler.runModel()
+//        trainingModelHandler.initializeState()
+    }
 
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
@@ -132,7 +142,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
         rotationGroupFlow = MutableStateFlow(0)
-        stateOpticTrainingFlow = MutableStateFlow(0)
+        stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
         plot = MutableStateFlow(0)
@@ -166,7 +176,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
         var rotationGroupFlow by Delegates.notNull<MutableStateFlow<Int>>()
-        var stateOpticTrainingFlow by Delegates.notNull<MutableStateFlow<Int>>()
+        var stateOpticTrainingFlow by Delegates.notNull<MutableStateFlow<PreferenceKeysUBI4.TrainingModelState>>()
 
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()

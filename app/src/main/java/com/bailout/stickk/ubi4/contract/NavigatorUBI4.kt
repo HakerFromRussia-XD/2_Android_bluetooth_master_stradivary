@@ -16,6 +16,8 @@ interface NavigatorUBI4 {
     fun showOpticTrainingGesturesScreen()
     fun showMotionTrainingScreen(onFinish:()->Unit)
 
+    fun manageTrainingLifecycle()
+
     fun showToast(massage: String)
     fun saveString(key: String, text: String)
 

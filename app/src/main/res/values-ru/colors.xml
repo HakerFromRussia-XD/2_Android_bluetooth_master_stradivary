@@ -52,4 +52,5 @@
     <color name="ubi4_back">#2A2A2A</color>
     <color name="ubi4_dark_back">#212121</color>
     <color name="ubi4_active">#C6F158</color>
+    <color name="ubi4_white">#FCFCFC</color>
 </resources>

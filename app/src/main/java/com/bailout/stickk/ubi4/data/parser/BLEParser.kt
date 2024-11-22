@@ -66,13 +66,11 @@ class BLEParser(main: AppCompatActivity) {
         if (data != null) {
             val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
             val dataTransmissionDirection = data[0]
-            val bridgeIndicator = castUnsignedCharToInt(data[0] and 0b10000000.toByte()) / 128
-            val requestType = castUnsignedCharToInt(data[0] and 0b01000000.toByte()) / 64
-            val waitingAnsver = castUnsignedCharToInt(data[0] and 0b00100000.toByte()) / 32
+            val bridgeIndicator = castUnsignedCharToInt(data[0] and 0b10000000.toByte())/128
+            val requestType = castUnsignedCharToInt(data[0] and 0b01000000.toByte())/64
+            val waitingAnsver = castUnsignedCharToInt(data[0] and 0b00100000.toByte())/32
             val codeRequest = if (data.size > 1) data[1] else 0
-            val dataLength = if (data.size > 3) {
-                castUnsignedCharToInt(data[3]) + castUnsignedCharToInt(data[4]) * 256
-            } else 0
+            val dataLength = if (data.size > 3) { castUnsignedCharToInt(data[3]) + castUnsignedCharToInt(data[4])*256} else 0
             val CRC = if (data.size > 5) castUnsignedCharToInt(data[5]) else 0
             val deviceAddress = if (data.size > 6) castUnsignedCharToInt(data[6]) else 0
             val packageCodeRequest = if (data.size > 7) data[7] else 0
@@ -84,7 +82,7 @@ class BLEParser(main: AppCompatActivity) {
                 Log.d("uiGestureSettingsObservable", "парсим параметры вход")
                 val parameterID = codeRequest.toInt()
                 ParameterProvider.getParameter(deviceAddress, parameterID).data = receiveDataString.substring(HEADER_BLE_OFFSET*2, receiveDataString.length)
-                updateAllUI(deviceAddress, parameterID, ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)
+                updateAllUI(deviceAddress, parameterID, ParameterProvider.getParameter(deviceAddress, parameterID).dataCode)//
             } else {
                 // парсим команды
                 when (codeRequest){
@@ -109,16 +107,12 @@ class BLEParser(main: AppCompatActivity) {
                         var dataLength = dataLength
                         var counter = 1
 
-
                         while (dataLength > 0) {
                             Log.d("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength")
                             val deviceAddress = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength))*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2).toInt(16).toByte())
                             val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2).toInt(16).toByte())
                             val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
-                            val endString = (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2
-                            if (receiveDataString.length >= endString) {
-                                parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2)
-                            }
+                            parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2)
                             updateAllUI(deviceAddress, parameterID, parameter.dataCode)
                             dataLength -= (parameter.parameterDataSize + 2)
                             counter += 1
@@ -191,13 +185,16 @@ class BLEParser(main: AppCompatActivity) {
                 RxUpdateMainEventUbi4.getInstance().updateUiGestureSettings(dataCode) }
             ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
                 Log.d("uiRotationGroupObservable", "dataCode = $dataCode")
-                RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(dataCode) }
+                RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(ParameterRef(deviceAddress, parameterID))
+                CoroutineScope(Dispatchers.Default).launch { rotationGroupFlow.emit((0..1000).random()) } }
             ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
+            ParameterDataCodeEnum.PDCE_CALIBRATION_CURRENT_PERCENT.number -> {
+                Log.d("TestOptic"," dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit((0..1000).random()) } }
         }
     }
-
 
     // All data parsers
     private fun parseDeviceInformation(packageCodeRequest: Byte, ID: Int, receiveDataString: String) {
@@ -352,23 +349,41 @@ class BLEParser(main: AppCompatActivity) {
         }
     }
     private fun parseReadSubDeviceInfo(receiveDataString: String) {
-//        Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
+        Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
         val subDevices = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
         baseSubDevicesInfoStructSet = subDevices.baseSubDeviceInfoStructArray
         numberSubDevice = subDevices.count
 
 
         // тут нам нужно запустить цепную реакцию сабдевайсов (читаем параметры первого сабдевайса)
-        Log.d("SubDeviceSubDevice", "subDevices=$baseSubDevicesInfoStructSet  numerSubDevice=$numberSubDevice")
-        mMain.bleCommand(BLECommands.requestSubDeviceParametrs(
-            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
-            0,
-            baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum), MAIN_CHANNEL, WRITE)
+        if (baseSubDevicesInfoStructSet.size != 0) {
+            mMain.bleCommand(
+                BLECommands.requestSubDeviceParametrs(
+                    baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).deviceAddress,
+                    0,
+                    baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
+                ), MAIN_CHANNEL, WRITE
+            )
+        } else {
+            mMain.showToast("Сабдевайсов нет")
+        }
     }
     private fun parseReadSubDeviceParameters(receiveDataString: String) {
         // пробегаемся по всем параметрам, формируя их список
         val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
         for (i in 0 until baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum) {
+            val start = 22 + i * BASE_PARAMETER_INFO_STRUCT_SIZE
+            val end = 22 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE
+
+            if (end <= receiveDataString.length) {
+                try {
+                    val parameterJson = receiveDataString.substring(start, end)
+                    listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"$parameterJson\""))
+                } catch (e: Exception) {}
+            } else {
+                Log.e("error", "Индексы $start-$end выходят за пределы строки длиной ${receiveDataString.length}")
+                break
+            }
             listA.add(Json.decodeFromString<BaseParameterInfoStruct>("\"${receiveDataString.substring(22 + i * BASE_PARAMETER_INFO_STRUCT_SIZE, 22 + (i + 1) * BASE_PARAMETER_INFO_STRUCT_SIZE)}\""))
         }
 
@@ -430,16 +445,21 @@ class BLEParser(main: AppCompatActivity) {
                         for (i in 0 until parametrSubDevice.additionalInfoSize) {
                             //каждый новый цикл вычитываем данные следующего сегмента (следующий addInfoSeg)
                             val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset+(i+1)*ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\"")
-                            val receiveDataStringForParse = receiveDataString.substring(
-                                offset + //отступ на header + отправленные данные (отправленный запрос целиком)
-                                        parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
-                                        dataOffset*2, // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
-                                offset +
-                                        parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG +
-                                        dataOffset*2 +
-                                        additionalInfoSizeStruct.infoSize*2) // оступ на кол-во байт в считываемом сегменте
-//                                        System.err.println("testSignal 0 $receiveDataStringForParse")
-                            dataOffset = additionalInfoSizeStruct.infoSize
+                            Log.d("parseReadSubDeviceAdditionalParameters", "additionalInfoSizeStruct = $additionalInfoSizeStruct")
+                            val start = offset + //отступ на header + отправленные данные (отправленный запрос целиком)
+                                             parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
+                                             dataOffset*2 // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
+                            val end = offset +
+                                      parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG +
+                                      dataOffset*2 +
+                                      additionalInfoSizeStruct.infoSize*2
+
+                            Log.d("parseReadSubDeviceAdditionalParameters", "start = $start    end = $end  receiveDataString.length = ${receiveDataString.length}")
+                            var receiveDataStringForParse = ""
+                            if (end <= receiveDataString.length) {
+                                receiveDataStringForParse = receiveDataString.substring(start, end)
+                            }
+                            dataOffset += additionalInfoSizeStruct.infoSize
                             Log.d("parseReadSubDeviceAdditionalParameters", "receiveDataStringForParse = $receiveDataStringForParse")
 
 
@@ -555,7 +575,7 @@ class BLEParser(main: AppCompatActivity) {
                         val switchParameterWidgetEStruct = Json.decodeFromString<SwitchParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
                         switchParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
                         addToListWidgets(switchParameterWidgetEStruct,switchParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID, dataCode)
-                        }
+                    }
                     ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { System.err.println("parseWidgets COMBOBOX") }
                     ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
                         System.err.println("parseWidgets SLIDER")

@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PlotDelegateAdapter (
-    val plotIsReadyToData:(num: Int) -> Unit) :
+    val plotIsReadyToData:(numberOfCharts: Int) -> Unit) :
     ViewBindingDelegateAdapter<PlotItem, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
     private var count: Int = 0
     private var dataSens1 = 0
@@ -88,7 +88,7 @@ class PlotDelegateAdapter (
 
         main.bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
 //        System.err.println("plotIsReadyToData")
-        plotIsReadyToData(0)
+        plotIsReadyToData(numberOfCharts)
     }
 
     override fun isForViewType(item: Any): Boolean = item is PlotItem
@@ -191,7 +191,7 @@ class PlotDelegateAdapter (
     }
 
     private fun addEntry(sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int, emgChart: LineChart) {
-        val data: LineData =  emgChart.data //binding.chartMainchart.data!!
+        val data: LineData =  emgChart.data
         var set = data.getDataSetByIndex(0)
         var set1 = data.getDataSetByIndex(1)
         var set2 = data.getDataSetByIndex(2)

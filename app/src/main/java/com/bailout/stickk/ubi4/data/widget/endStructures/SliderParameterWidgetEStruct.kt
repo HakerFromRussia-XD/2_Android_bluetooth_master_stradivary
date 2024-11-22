@@ -30,6 +30,7 @@ object SliderParameterWidgetESerializer: KSerializer<SliderParameterWidgetEStruc
         var progress = 0
 
 
+
         if (string.length >= 20) {
             baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${string.substring(0, 18)}\"")
             progress = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())

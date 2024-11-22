@@ -2,37 +2,35 @@ package com.bailout.stickk.ubi4.ui.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
-import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
-import com.bailout.stickk.ubi4.data.parser.BLEParser
-import com.bailout.stickk.ubi4.models.SprTrainingViewModel
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers.Default
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -43,19 +41,23 @@ class SensorsFragment : Fragment() {
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
+    private val disposables = CompositeDisposable()
+    private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
+    private var onDestroyParent: (() -> Unit)? = null
+
+    private var count = 0
+    private val display = 1
+
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
 
-        //фейковые данные принимаемого потока
-        val mBLEParser = main?.let { BLEParser(it) }
-        mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
-
         //настоящие виджеты
         widgetListUpdater()
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
+
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -66,19 +68,24 @@ class SensorsFragment : Fragment() {
         binding.homeRv.adapter = adapterWidgets
         return binding.root
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
+        onDestroyParent?.invoke()
+    }
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         listWidgets.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
-    @OptIn(DelicateCoroutinesApi::class)
-    fun widgetListUpdater() {
+
+    private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
-            withContext(Default) {
-                updateFlow.collect { value ->
+            withContext(Main) {
+                updateFlow.collect {
                     main?.runOnUiThread {
-                        Log.d("widgetListUpdater","${mDataFactory.prepareData(1)}")
-                        adapterWidgets.swapData(mDataFactory.prepareData(1))
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
+                        adapterWidgets.swapData(mDataFactory.prepareData(display))
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }
@@ -88,27 +95,31 @@ class SensorsFragment : Fragment() {
 
     private val adapterWidgets = CompositeDelegateAdapter(
         PlotDelegateAdapter(
-            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+            plotIsReadyToData = { numberOfCharts -> System.err.println("plotIsReadyToData $numberOfCharts") }
         ),
         OneButtonDelegateAdapter (
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
             onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
-        ) ,
-//        TrainingFragmentDelegateAdapter(
-//            onConfirmClick = {},
-//            onGenerateClick = {},
-//            onShowFileClick = {},
-//            onDestroyParent = {onDestroyParent -> },
-//            stateFlow = MainActivityUBI4.stateOpticTrainingFlow
-//        ),
-
+        ),
         SwitcherDelegateAdapter(
             onSwitchClick = {
                 Log.d("SwitcherDelegateAdapter", "$it")
             }
         ),
         SliderDelegateAdapter(
+            onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
+            //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
+            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
         )
+//        GesturesDelegateAdapter (
+//            onSelectorClick = {},
+//            onDeleteClick = { resultCb, gestureName -> },
+//            onAddGesturesToRotationGroup = { onSaveDialogClick -> },
+//            onSendBLERotationGroup = {deviceAddress, parameterID -> },
+//            onShowGestureSettings = { deviceAddress, parameterID, gestureID -> },
+//            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> },
+//            onRequestRotationGroup = {deviceAddress, parameterID -> }
+//        )
     )
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
@@ -138,5 +149,9 @@ class SensorsFragment : Fragment() {
 //        transmitter().bleCommand(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
 //        transmitter().bleCommand(BLECommands.requestSubDeviceParametrs(6, 0, 1), MAIN_CHANNEL, WRITE)
 //        transmitter().bleCommand(BLECommands.requestSubDeviceAdditionalParametrs(6, 0), MAIN_CHANNEL, WRITE)
+    }
+    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
+        Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
+        transmitter().bleCommand(BLECommands.sendSliderProgress(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
     }
 }

@@ -16,7 +16,7 @@ import kotlinx.serialization.json.Json
 @Serializable(with = SwitchParameterWidgetSSerializer::class)
 data class SwitchParameterWidgetSStruct(
     val baseParameterWidgetSStruct: BaseParameterWidgetSStruct,
-    val switchChecked: Boolean
+    val switchChecked: Boolean = false
 )
 
 object SwitchParameterWidgetSSerializer: KSerializer<SwitchParameterWidgetSStruct> {

@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.ui.bottom
 
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.google.android.material.bottomnavigation.BottomNavigationView

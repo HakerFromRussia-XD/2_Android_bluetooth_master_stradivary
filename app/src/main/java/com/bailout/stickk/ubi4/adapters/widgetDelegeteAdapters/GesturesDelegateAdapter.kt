@@ -24,19 +24,28 @@ import com.woxthebox.draglistview.DragItem
 import com.woxthebox.draglistview.DragListView
 import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
 import android.util.Pair
-import android.widget.Button
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
-import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
-import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
 
-
 class GesturesDelegateAdapter(
+//    private val viewModel: MyViewModel,
+    val gestureNameList:  ArrayList<String>,
     val onSelectorClick: (selectedPage: Int) -> Unit,
     val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
     val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
@@ -44,6 +53,7 @@ class GesturesDelegateAdapter(
     val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestRotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
+    val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) : RotationGroupItemAdapter.OnCopyClickRotationGroupListener,
     RotationGroupItemAdapter.OnDeleteClickRotationGroupListener,
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesBinding>(Ubi4WidgetGesturesBinding::inflate) {
@@ -65,9 +75,13 @@ class GesturesDelegateAdapter(
     private var parameterIDSet = mutableSetOf<Pair<Int, Int>>()
     private var deviceAddress = 0
 
+    // Создаем единственный CoroutineScope с диспетчером, который будет использоваться для потока
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetGesturesBinding.onBind(item: GesturesItem) {
         mRotationGroupDragLv = rotationGroupDragLv
+        onDestroyParent{ onDestroy() }
 
         when (item.widget) {
             is BaseParameterWidgetEStruct -> {
@@ -119,36 +133,34 @@ class GesturesDelegateAdapter(
         gestureCollection4Btn.setOnClickListener { System.err.println("setOnClickListener gestureCollection4Btn") }
 
 
-
-        gesture1Btn.setOnClickListener {
-            System.err.println("setOnClickListener gesture1Btn")
-            onRequestGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt())
-        }
-        gesture1SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt())
-        }
-        gesture2SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x41).toInt())
-        }
-        gesture3SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x42).toInt())
-        }
-        gesture4SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x43).toInt())
-        }
-        gesture5SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x44).toInt())
-        }
-        gesture6SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x45).toInt())
-        }
-        gesture7SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x46).toInt())
-        }
-        gesture8SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x47).toInt())
+        for (i in 1..14) {
+            val gestureCollectionTitle = this::class.java.getDeclaredField("gestureCollection${i}Tv")
+                .get(this) as? TextView
+            val gestureCollectionImage = this::class.java.getDeclaredField("gestureCollection${i}Iv")
+                .get(this) as? ImageView
+            gestureCollectionTitle?.text = getCollectionGestures().get(i).gestureName
+            gestureCollectionImage?.setImageResource(getCollectionGestures().get(i).gestureImage)
         }
 
+
+        for (i in 1..8) {
+            val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
+                .get(this) as? TextView
+            val gestureCustomBtn = this::class.java.getDeclaredField("gestureCustom${i}Btn")
+                .get(this) as? View
+            val gestureSettingsBtn = this::class.java.getDeclaredField("gesture${i}SettingsBtn")
+                .get(this) as? View
+            gestureCustomTv?.text = gestureNameList[i-1]
+            gestureCustomBtn?.setOnClickListener {
+                Log.d("gestureCustomBtn", "gestureCustomBtn $i")
+                onRequestGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt()+i)
+            }
+            gestureSettingsBtn?.setOnClickListener {
+                Log.d("gestureCustomBtn", "gestureSettingsBtn $i")
+                onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt()+i)
+                main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
+            }
+        }
 
 
         addGestureToRotationGroupBtn.setOnClickListener {
@@ -164,6 +176,7 @@ class GesturesDelegateAdapter(
                 showIntroduction()
                 setupListRecyclerView()
                 synhronizeRotationGroup()
+                sendBLERotationGroup()
                 calculatingShowAddButton()
             }
             onAddGesturesToRotationGroup(resultCb)
@@ -177,6 +190,7 @@ class GesturesDelegateAdapter(
             override fun onItemDragEnded(fromPosition: Int, toPosition: Int) {
                 if (fromPosition != toPosition) {
                     synhronizeRotationGroup()
+                    sendBLERotationGroup()
                 }
             }
         })
@@ -190,18 +204,43 @@ class GesturesDelegateAdapter(
         showIntroduction()
         setupListRecyclerView()
 
+        gestureFlowCollect()
+//        setGestureTexts()
+    }
+    fun setGestureTexts() {
+        for (i in 1..6) {
+            val textView = binding::class.java
+                .getDeclaredField("gestureCollection${i}Tv")
+                .get(binding) as? TextView
+            textView?.text = i.toString()
+        }
+    }
+    private fun gestureFlowCollect() {
+        scope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                MainActivityUBI4.rotationGroupFlow.collect { _ ->
+                    val parameter = ParameterProvider.getParameter(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number)
+                    val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
+                    val rotationGroupList = rotationGroup.toGestureList()
+                    Log.d("uiRotationGroupObservable", "InAdapter testList = $rotationGroupList  size = ${rotationGroupList.size}")
+                    rotationGroupGestures.clear()
+                    rotationGroupList.forEach{ item ->
+                        if (item.first != 0 )
+                            rotationGroupGestures.add(CollectionGesturesProvider.getGesture(item.first))
+                    }
 
-        RxUpdateMainEventUbi4.getInstance().uiRotationGroupObservable
-            .compose(main.bindToLifecycle())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { dataCode ->
-                val parameter = ParameterProvider.getParameter(dataCode)
-                Log.d("uiRotationGroupObservable", "data = ${parameter.data}")
-                val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
-                Log.d("uiRotationGroupObservable", "rotationGroup = $rotationGroup")
-//                loadGestureState(gestureSettings)
-//                rotationGroup.
+                    showIntroduction()
+                    setupListRecyclerView()
+                    synhronizeRotationGroup()
+                    calculatingShowAddButton()
+                }
             }
+        }
+    }
+    // Метод для завершения работы CoroutineScope, чтобы освободить ресурсы
+    fun onDestroy() {
+        Log.d("LifeCycele", "stopCollectingGestureFlow")
+        scope.cancel()
     }
 
     private fun calculatingShowAddButton() {
@@ -218,9 +257,8 @@ class GesturesDelegateAdapter(
         itemsGesturesRotationArray?.forEach {
             rotationGroupGestures.add(getGesture(it.second.split("™")[1].toInt()))
         }
-        rotationGroupGestures.forEach {
-            Log.d("onItemDragEnded","${it.gestureId}")
-        }
+    }
+    private fun sendBLERotationGroup() {
         onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number))
     }
     private fun getParameterIDByCode(dataCode: Int): Int {
@@ -344,12 +382,12 @@ class GesturesDelegateAdapter(
         }
     }
 
-
     @SuppressLint("NotifyDataSetChanged")
     override fun onCopyClick(position: Int, gestureId: String) {
         mRotationGroupDragLv?.setAdapter(listRotationGroupAdapter, true)
         listRotationGroupAdapter?.notifyDataSetChanged()
         synhronizeRotationGroup()
+        sendBLERotationGroup()
         calculatingShowAddButton()
     }
     @SuppressLint("NotifyDataSetChanged")
@@ -359,6 +397,7 @@ class GesturesDelegateAdapter(
             showIntroduction()
             setupListRecyclerView()
             synhronizeRotationGroup()
+            sendBLERotationGroup()
             calculatingShowAddButton()
         }
         onDeleteClick(resultCb, rotationGroupGestures.get(position).gestureName)

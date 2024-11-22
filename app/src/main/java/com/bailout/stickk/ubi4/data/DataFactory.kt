@@ -1,9 +1,10 @@
 package com.bailout.stickk.ubi4.data
 
 
+import android.util.Log
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
@@ -15,8 +16,7 @@ import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.models.OneButtonItem
 import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.models.SliderItem
-import com.bailout.stickk.ubi4.models.SwitchItem
-import com.bailout.stickk.ubi4.models.TrainingGestureItem
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
@@ -30,14 +30,21 @@ internal class DataFactory {
         val objectPlotS: Any = PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
         val objectCommandE: Any = CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
         val objectCommandS: Any = CommandParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+        val objectSwitchE: Any = SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectSwitchS: Any = SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
         val objectSliderE: Any = SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
         val objectSliderS: Any = SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
 
-//        addElement(1, 2, objects, objectCommandE)
+        addElement(1, 1, objects, objectCommandE)
+        addElement(1, 1, objects, objectCommandE)
+        addElement(1, 1, objects, objectCommandE)
+        addElement(1, 1, objects, objectCommandE)
 //        addElementS(1, "5", objects, objectCommandS)
-//        addElement(5, 3, objects, objectPlotE)
+        addElement(2, 2, objects, objectSwitchE)
+        addElementS(2, "Описание свича", objects, objectSwitchS)
+//        addElement(5, 10, objects, objectPlotE)
 //        addElementS(5, "3", objects, objectPlotS)
-//        addElement(4, 2, objects, objectSliderE)
+        addElement(4, 2, objects, objectSliderE)
 //        addElementS(4, "Описание слайдера", objects, objectSliderS)
 
         return objects
@@ -49,6 +56,7 @@ internal class DataFactory {
 
     fun prepareData(display: Int): List<Any> {
         // сортировка всех виджетов по возрастанию
+        System.err.println("DataFactory sorted listWidgets===========")
         sortWidgets(listWidgets.sortedWith ( compareBy {
             when (it) {
                 is BaseParameterWidgetEStruct -> {it.baseParameterWidgetStruct.widgetPosition}
@@ -57,10 +65,14 @@ internal class DataFactory {
                 is PlotParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
                 is PlotParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
                 is OpticStartLearningWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
+                is SwitchParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
+                is SwitchParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
+                is SliderParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}
+                is SliderParameterWidgetEStruct -> {it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}
                 else -> {0}//здесь должно быть число, иначе при попадании в ветку else приложение пытается сравнить число со строкой и падает
             }
         }))
-        System.err.println("DataFactory sorted listWidgets==============")
+        System.err.println("DataFactory sorted listWidgets============== ${listWidgets.size}")
         listWidgets.forEach {
             System.err.println("DataFactory sorted listWidgets: $it")
         }
@@ -89,6 +101,7 @@ internal class DataFactory {
                             it
                         )
                     }
+//                    Log.d("parseWidgets_rx", "2 listWidgets = ${listWidgets}  ${it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display} ${display}")
                 }
                 is CommandParameterWidgetEStruct -> {
                     if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
@@ -125,6 +138,46 @@ internal class DataFactory {
                     System.err.println("prepareData PlotParameterWidgetEStruct widgetPosition: ${it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition}")
                 }
                 is OpticStartLearningWidgetEStruct -> {
+                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
+                        addElement(
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetEStruct.labelCode,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                }
+                is SwitchParameterWidgetSStruct -> {
+                    if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
+                        addElementS(
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetSStruct.label,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                }
+                is SwitchParameterWidgetEStruct -> {
+                    if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
+                        addElement(
+                            it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetEStruct.labelCode,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                }
+                is SliderParameterWidgetSStruct -> {
+                    if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
+                        addElementS(
+                            it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetCode,
+                            it.baseParameterWidgetSStruct.label,
+                            _listWidgets,
+                            it
+                        )
+                    }
+                }
+                is SliderParameterWidgetEStruct -> {
                     if (it.baseParameterWidgetEStruct.baseParameterWidgetStruct.display == display) {
                         addElement(
                             it.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetCode,
@@ -183,6 +236,7 @@ internal class DataFactory {
         widgets.add(item)
     }
     private fun addElementS(widgetCode: Int, label: String, widgets: ArrayList<Any>, widget: Any) {
+        Log.d("parseWidgets_rx", "widgetCode = ${widgetCode}  label = ${label} widget = ${widget}")
         val item: Any = when (widgetCode) {
             ParameterWidgetCode.PWCE_UNKNOW.number.toInt() -> { OneButtonItem("PWCE_UNKNOW", "Description", widget) }
             ParameterWidgetCode.PWCE_BUTTON.number.toInt() -> {
@@ -198,7 +252,7 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
-                OneButtonItem("GESTURE_SETTINGS", "description", widget)
+//                OneButtonItem("GESTURE_SETTINGS", "description", widget)
 //                GesturesItem("GESTURE_SETTINGS", widget)
             }
             ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { OneButtonItem("CALIB_STATUS", "description", widget)  }

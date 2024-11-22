@@ -7,21 +7,11 @@
     android:orientation="horizontal"
     android:background="@color/ubi4_back">
 
-<!--    <View-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:elevation="3dp"-->
-<!--        android:background="@drawable/ubi4_view_with_corners_gray"-->
-<!--        app:layout_constraintBottom_toBottomOf="@+id/EMG_chart_cv"-->
-<!--        app:layout_constraintEnd_toEndOf="@+id/EMG_chart_cv"-->
-<!--        app:layout_constraintStart_toStartOf="@+id/EMG_chart_cv"-->
-<!--        app:layout_constraintTop_toTopOf="@+id/EMG_chart_cv" />-->
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="320dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:orientation="horizontal"
@@ -39,28 +29,4 @@
             android:layout_marginStart="-14dp"
             android:layout_marginEnd="-19dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-<!--    <androidx.cardview.widget.CardView-->
-<!--        android:id="@+id/EMG_chart_cv"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="320dp"-->
-<!--        android:layout_marginTop="8dp"-->
-<!--        android:layout_marginBottom="8dp"-->
-<!--        android:layout_marginStart="16dp"-->
-<!--        android:layout_marginEnd="16dp"-->
-<!--        android:elevation="4dp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        android:backgroundTint="@color/transparent">-->
-
-<!--        <com.github.mikephil.charting.charts.LineChart-->
-<!--            android:id="@+id/EMG_chart_lc_old"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_marginStart="-14dp"-->
-<!--            android:layout_marginEnd="-19dp"/>-->
-<!--    </androidx.cardview.widget.CardView>-->
-
 </androidx.constraintlayout.widget.ConstraintLayout>

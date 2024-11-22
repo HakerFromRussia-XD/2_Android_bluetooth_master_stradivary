@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.rx;
 import com.bailout.stickk.new_electronic_by_Rodeon.models.offlineModels.FingerAngle;
 import com.bailout.stickk.ubi4.models.GestureInfo;
 import com.bailout.stickk.ubi4.models.GestureWithAddress;
+import com.bailout.stickk.ubi4.models.ParameterRef;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
@@ -16,17 +17,17 @@ public class RxUpdateMainEventUbi4 {
 
   // ui
   private final PublishSubject<Integer> uiGestureSettings;
-  private final PublishSubject<Integer> uiRotationGroup;
+  private final PublishSubject<ParameterRef> uiRotationGroup;
   private final PublishSubject<Integer> uiOpticTraining;
 
 
   private RxUpdateMainEventUbi4() {
     fingerAngle = PublishSubject.create();
     gestureStateWithEncoders = PublishSubject.create();
+    readCharacteristicBLE = PublishSubject.create();
     uiGestureSettings = PublishSubject.create();
     uiRotationGroup = PublishSubject.create();
     uiOpticTraining = PublishSubject.create();
-    readCharacteristicBLE = PublishSubject.create();
   }
   public static RxUpdateMainEventUbi4 getInstance() {
     if (instance == null) {
@@ -37,16 +38,18 @@ public class RxUpdateMainEventUbi4 {
 
   public void updateFingerAngle(FingerAngle parameters) { fingerAngle.onNext(parameters); }
   public void updateGestureWithEncodersState(GestureWithAddress parameters) { gestureStateWithEncoders.onNext(parameters); }
-  public void updateUiGestureSettings(Integer parameters) { uiGestureSettings.onNext(parameters); }
-  public void updateUiRotationGroup(Integer parameters) { uiRotationGroup.onNext(parameters); }
-  public void updateUiOpticTraining(Integer parameters) { uiOpticTraining.onNext(parameters); }
   public void updateReadCharacteristicBLE(GestureInfo parameters) { readCharacteristicBLE.onNext(parameters); }
+  public void updateUiGestureSettings(Integer parameters) { uiGestureSettings.onNext(parameters); }
+  public void updateUiRotationGroup(ParameterRef parameters) { uiRotationGroup.onNext(parameters); }
+  public void updateUiOpticTraining(Integer parameters) { uiOpticTraining.onNext(parameters); }
+
+
 
 
   public Observable<FingerAngle> getFingerAngleObservable() { return fingerAngle; }
   public Observable<GestureWithAddress> getGestureStateWithEncodersObservable() { return gestureStateWithEncoders; }
-  public Observable<Integer> getUiGestureSettingsObservable() { return uiGestureSettings; }
-  public Observable<Integer> getUiRotationGroupObservable() { return uiRotationGroup; }
-  public Observable<Integer> getUiOpticTrainingObservable() { return uiOpticTraining; }
   public Observable<GestureInfo> getReadCharacteristicBLE() { return readCharacteristicBLE; }
+  public Observable<Integer> getUiGestureSettingsObservable() { return uiGestureSettings; }
+  public Observable<ParameterRef> getUiRotationGroupObservable() { return uiRotationGroup; }
+  public Observable<Integer> getUiOpticTrainingObservable() { return uiOpticTraining; }
 }

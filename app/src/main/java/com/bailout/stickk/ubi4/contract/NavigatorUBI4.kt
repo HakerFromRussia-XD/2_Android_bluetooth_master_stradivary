@@ -8,8 +8,6 @@ fun Fragment.navigator(): NavigatorUBI4 {
 
 interface NavigatorUBI4 {
 
-
-
     fun showGesturesScreen()
     fun showOpticGesturesScreen()
     fun showSensorsScreen()
@@ -20,6 +18,7 @@ interface NavigatorUBI4 {
 
     fun showToast(massage: String)
     fun saveString(key: String, text: String)
+    fun getString(key: String) :String
 
 
     fun getBackStackEntryCount():Int

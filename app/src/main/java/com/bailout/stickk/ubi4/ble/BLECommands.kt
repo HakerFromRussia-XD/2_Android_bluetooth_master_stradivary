@@ -162,6 +162,48 @@ class BLECommands {
             result[4] = (calculateDataSize(result)/256).toByte()
             return result
         }
+        fun requestRotationGroup(addressDevice: Int, parameterID: Int): ByteArray {
+            val header = byteArrayOf(
+                0xE0.toByte(),
+                parameterID.toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            return header
+        }
+        fun requestGestureInfo(addressDevice: Int, parameterID: Int, gestureId: Int): ByteArray {
+            val header = byteArrayOf(
+                0xE0.toByte(),
+                parameterID.toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            val data = byteArrayOf(
+                gestureId.toByte(),
+            )
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
+            return result
+        }
+        fun requestSlider(addressDevice: Int, parameterID: Int): ByteArray {
+            val header = byteArrayOf(
+                0xE0.toByte(),
+                parameterID.toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            return header
+        }
 
         fun sendTimestampInfo(addressDevice: Int, parameterID: Int, year: Int, month: Int, day: Int, weekDay: Int,  hour: Int, minutes: Int, seconds: Int): ByteArray {
             val code:Byte = (128 + parameterID).toByte()
@@ -223,36 +265,6 @@ class BLECommands {
             val result = header + data
             return result
         }
-        fun requestRotationGroup(addressDevice: Int, parameterID: Int): ByteArray {
-            val header = byteArrayOf(
-                0xE0.toByte(),
-                parameterID.toByte(),
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                addressDevice.toByte()
-            )
-            return header
-        }
-        fun requestGestureInfo(addressDevice: Int, parameterID: Int, gestureId: Int): ByteArray {
-            val header = byteArrayOf(
-                0xE0.toByte(),
-                parameterID.toByte(),
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                addressDevice.toByte()
-            )
-            val data = byteArrayOf(
-                gestureId.toByte(),
-            )
-            header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
-            val result = header + data
-            return result
-        }
         fun sendGestureInfo(gestureWithAddress: GestureWithAddress): ByteArray {
             val code:Byte = (128 + gestureWithAddress.parameterID).toByte()
             val header = byteArrayOf(
@@ -308,6 +320,22 @@ class BLECommands {
                 0x00,
                 addressDevice.toByte(),
                 command.toByte()
+            )
+            result[3] = calculateDataSize(result).toByte()
+            result[4] = (calculateDataSize(result)/256).toByte()
+            return result
+        }
+        fun sendSliderProgress(addressDevice: Int, parameterID: Int,  progress: Int): ByteArray {
+            val code:Byte = (128 + parameterID).toByte()
+            val result = byteArrayOf(
+                0x60,
+                code,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte(),
+                progress.toByte()
             )
             result[3] = calculateDataSize(result).toByte()
             result[4] = (calculateDataSize(result)/256).toByte()

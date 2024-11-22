@@ -34,8 +34,10 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.models.GestureWithAddress
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
@@ -139,9 +141,9 @@ class UBI4GripperScreenWithEncodersActivity
         window.navigationBarColor = resources.getColor(R.color.ubi4_dark_back)
         window.statusBarColor = this.resources.getColor(R.color.ubi4_back, theme)
         mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-        gestureNumber = mSettings!!.getInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 0)
-        driverVersionS = mSettings!!.getString(mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                         + PreferenceKeys.DRIVER_VERSION_STRING, "1234")
+        gestureNumber = mSettings!!.getInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, 0)
+
+
         angleFinger1 = 0
         angleFinger2 = 0
         angleFinger3 = 0
@@ -166,23 +168,13 @@ class UBI4GripperScreenWithEncodersActivity
 
         Handler().postDelayed({
             compileBLERead()
-//            val gestureSettings = Gesture(64, 100,100,100,100,100,100,0,0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2)
-////            Log.d("uiGestureSettingsObservable", "openPosition1 = $gestureSettings")
-//            loadGestureState(gestureSettings)
-//            for (i in 0..100) {
-//                Log.d("uiGestureSettingsObservable", "i = $i    ${rangConversion( i, 92, -1)}")
-//            }
         }, 1000)
-//        myLoadGesturesList()
-
-
-//        for (i in 0..100) {
-//            Log.d("uiGestureSettingsObservable", "i = $i    ${rangConversion(i, 90, -59)}")
-//        }
-//        for (i in 0..100) {
-//            Log.d("uiGestureSettingsObservable", "2 i = $i    ${rangConversion(i, 92, -1)}")
-//        }
-
+        Log.d("gestureNameList" , "onCreate")
+        loadGestureNameList()
+        binding.gestureNameTv.text = gestureNameList[gestureNumber-1]
+        gestureNameList.forEach {
+            Log.d("gestureNameList" , "gestureNameList = $it   gestureNumber = ${gestureNumber-1}")
+        }
 
 
         RxUpdateMainEventUbi4.getInstance().uiGestureSettingsObservable
@@ -206,7 +198,8 @@ class UBI4GripperScreenWithEncodersActivity
                         binding.gestureNameTv.text = binding.gestureNameEt.text
                         binding.gestureNameEt.visibility = View.GONE
 
-                        gestureNameList[(gestureNumber)] = binding.gestureNameTv.text.toString()
+                        gestureNameList[gestureNumber-1] = binding.gestureNameTv.text.toString()
+
 
                         val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
                         System.err.println("6 LAST_CONNECTION_MAC: $macKey")
@@ -287,7 +280,7 @@ class UBI4GripperScreenWithEncodersActivity
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     if (editMode) {
-                        gestureNameList[(gestureNumber - 1)] = binding.gestureNameEt.text.toString()
+                        gestureNameList[gestureNumber - 1] = binding.gestureNameEt.text.toString()
                         val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, "text")
                         System.err.println("1 LAST_CONNECTION_MAC: $macKey")
                         for (i in 0 until gestureNameList.size) {
@@ -694,19 +687,19 @@ class UBI4GripperScreenWithEncodersActivity
     }
 
     private fun compileBLEMassage () {
-//        val gestureStateModel = GestureWithAddress(deviceAddress, parameterID, Gesture(gestureID, // проверить тут -2
-//            validationRange(fingerOpenState4), validationRange(fingerOpenState3), validationRange(fingerOpenState2),
-//            validationRange(fingerOpenState1), validationRange(inverseRangConversion(fingerOpenState5, 85, -53)), validationRange(inverseRangConversion(fingerOpenState6, 85, 15)),
-//            validationRange(fingerCloseState4), validationRange(fingerCloseState3), validationRange(fingerCloseState2),
-//            validationRange(fingerCloseState1), validationRange(inverseRangConversion(fingerCloseState5, 85, -53)), validationRange(inverseRangConversion(fingerCloseState6, 85, 15)),
-//            fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
-//            fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[(gestureNumber)],0), gestureState)
-//        Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
-//        main.bleCommand(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL, WRITE)
+        val gestureStateModel = GestureWithAddress(deviceAddress, parameterID, Gesture(gestureID, // проверить тут -2
+            validationRange(fingerOpenState4), validationRange(fingerOpenState3), validationRange(fingerOpenState2),
+            validationRange(fingerOpenState1), validationRange(inverseRangConversion(fingerOpenState5, 85, -53)), validationRange(inverseRangConversion(fingerOpenState6, 85, 15)),
+            validationRange(fingerCloseState4), validationRange(fingerCloseState3), validationRange(fingerCloseState2),
+            validationRange(fingerCloseState1), validationRange(inverseRangConversion(fingerCloseState5, 85, -53)), validationRange(inverseRangConversion(fingerCloseState6, 85, 15)),
+            fingerOpenStateDelay1, fingerOpenStateDelay2, fingerOpenStateDelay3, fingerOpenStateDelay4, fingerOpenStateDelay5, fingerOpenStateDelay6,
+            fingerCloseStateDelay1, fingerCloseStateDelay2, fingerCloseStateDelay3, fingerCloseStateDelay4, fingerCloseStateDelay5, fingerCloseStateDelay6, gestureNameList[gestureNumber-1],0), gestureState)
+        Log.d("uiGestureSettingsObservable", "gestureStateModel = $gestureStateModel")
+        main.bleCommand(BLECommands.sendGestureInfo(gestureStateModel), MAIN_CHANNEL, WRITE)
     }
     private fun compileBLERead () {
         Log.d("uiGestureSettingsObservable", "compileBLERead")
-//       main.bleCommand(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE)
+        main.bleCommand(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE)
     }
     private fun inverseRangConversion(inputNumber: Int, range: Int, offset: Int) : Int {
 //        val _inputNumber = validationRange(inputNumber)
@@ -778,210 +771,14 @@ class UBI4GripperScreenWithEncodersActivity
             gestureState = States.GESTURE_STATE_OPEN.number
         }, 200)
     }
-    private fun loadOldState() {
+    private fun loadGestureNameList() {
         val text = "load not work"
-        mDeviceType = mSettings!!.getString((ConstantManager.EXTRAS_DEVICE_TYPE),text).toString()
-        if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
-            fingerOpenState1 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + gestureNumber, 0
+        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, text)
+        gestureNameList.clear()
+        for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
+            gestureNameList.add(
+                mSettings!!.getString((PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i), text).toString()
             )
-            fingerOpenState2 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + gestureNumber, 0
-            )
-            fingerOpenState3 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + gestureNumber, 0
-            )
-            fingerOpenState4 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + gestureNumber, 0
-            )
-            fingerOpenState5 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + gestureNumber, 0
-            )
-            fingerOpenState6 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + gestureNumber, 0
-            )
-            fingerCloseState1 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + gestureNumber, 0
-            )
-            fingerCloseState2 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + gestureNumber, 0
-            )
-            fingerCloseState3 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + gestureNumber, 0
-            )
-            fingerCloseState4 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + gestureNumber, 0
-            )
-            fingerCloseState5 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + gestureNumber, 0
-            )
-            fingerCloseState6 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + gestureNumber, 0
-            )
-        }
-        if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            fingerOpenState4 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1), 0 //проверить тут +0
-            )
-            fingerOpenState3 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber + 1), 0
-            )
-            fingerOpenState2 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber + 1), 0
-            )
-            fingerOpenState1 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber + 1), 0
-            )
-            fingerOpenState5 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (gestureNumber + 1), 0
-            )
-            fingerOpenState6 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (gestureNumber + 1), 0
-            )
-            fingerCloseState4 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber + 1), 0
-            )
-            fingerCloseState3 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber + 1), 0
-            )
-            fingerCloseState2 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber + 1), 0
-            )
-            fingerCloseState1 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber + 1), 0
-            )
-            fingerCloseState5 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (gestureNumber + 1), 0
-            )
-            fingerCloseState6 = mSettings!!.getInt(
-                mSettings!!.getString(
-                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
-                    text
-                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (gestureNumber + 1), 0
-            )
-        }
-
-
-        Handler().postDelayed({
-            animateFinger1 ()
-            animateFinger2 ()
-            animateFinger3 ()
-            animateFinger4 ()
-            animateFinger5 ()
-            animateFinger6 ()
-            gestureState = States.GESTURE_STATE_CLOSE.number
-            //отправка массива из шести байт для движения протеза в открытое состояние как у макета кисти
-            compileBLEMassage ()
-            compileBLEMassage ()
-        }, 200)
-
-        Handler().postDelayed({
-            //флаг становящийся истиным только когда данные запроса приходят
-//            saveBool(PreferenceKeys.RECEIVE_FINGERS_DELAY_BOOL, false)
-
-            //отправка одного байта(номера жеста) для получения задержек старта пальцев по нему
-            compileBLEMassage ()
-            compileBLEMassage ()
-        }, 600)
-    }
-    private fun loadFingersDelay() {
-        val text = "load not work"
-        mDeviceType = mSettings!!.getString((ConstantManager.EXTRAS_DEVICE_TYPE),text).toString()
-        if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            fingerOpenStateDelay1 = mSettings!!.getInt(
-                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 1, 0)
-            fingerOpenStateDelay2 =  mSettings!!.getInt(
-                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 2, 0)
-            fingerOpenStateDelay3 =  mSettings!!.getInt(
-                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 3, 0)
-            fingerOpenStateDelay4 = mSettings!!.getInt(
-                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 4, 0)
-            fingerOpenStateDelay5 =  mSettings!!.getInt(
-                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 5, 0)
-            fingerOpenStateDelay6 =  mSettings!!.getInt(
-                PreferenceKeys.GESTURE_OPEN_DELAY_FINGER + 6, 0)
-
-            fingerCloseStateDelay1 = mSettings!!.getInt(
-                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 1, 0)
-            fingerCloseStateDelay2 = mSettings!!.getInt(
-                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 2, 0)
-            fingerCloseStateDelay3 = mSettings!!.getInt(
-                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 3, 0)
-            fingerCloseStateDelay4 = mSettings!!.getInt(
-                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 4, 0)
-            fingerCloseStateDelay5 = mSettings!!.getInt(
-                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 5, 0)
-            fingerCloseStateDelay6 = mSettings!!.getInt(
-                PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER + 6, 0)
         }
     }
 }

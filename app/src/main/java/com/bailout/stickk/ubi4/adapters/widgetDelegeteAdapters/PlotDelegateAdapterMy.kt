@@ -101,7 +101,6 @@ class PlotDelegateAdapterMy (
                 if (y > allCHRl.height)
                     y = allCHRl.height.toFloat()
                 limitCH1.y = y - limitCH1.height/2 + allCHRl.marginTop+1
-
                 openThresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
                 return true
             }
@@ -113,7 +112,7 @@ class PlotDelegateAdapterMy (
                     y = 0f
                 if (y > allCHRl.height)
                     y = allCHRl.height.toFloat()
-                limitCH2.y = y - limitCH2.height/2 + allCHRl.marginTop
+                limitCH2.y = y - limitCH2.height/2 + allCHRl.marginTop+1
                 closeThresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
                 return true
             }

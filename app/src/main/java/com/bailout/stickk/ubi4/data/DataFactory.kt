@@ -40,7 +40,7 @@ internal class DataFactory {
         val objectGesturesE: Any = BaseParameterWidgetEStruct(BaseParameterWidgetStruct())
 
 //        addElement(1, 1, objects, objectCommandE)
-        addElement(14, 1, objects, objectGesturesE)
+        addElement(5, 1, objects, objectGesturesE)
 //        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)

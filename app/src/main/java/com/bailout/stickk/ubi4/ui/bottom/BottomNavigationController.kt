@@ -29,6 +29,7 @@ class BottomNavigationController(bottomNavigation: BottomNavigationView) {
                 }
 
                 R.id.page_3 -> {
+                    main.showAdvancedScreen()
                     System.err.println("bottomNavigation item3")
                     return@setOnItemSelectedListener true
                 }

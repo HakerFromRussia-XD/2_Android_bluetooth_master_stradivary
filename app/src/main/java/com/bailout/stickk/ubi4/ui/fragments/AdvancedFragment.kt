@@ -13,6 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -33,17 +36,16 @@ import kotlinx.coroutines.withContext
 
 
 @Suppress("DEPRECATION")
-class SensorsFragment : Fragment() {
+class AdvancedFragment : Fragment() {
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
     private val disposables = CompositeDisposable()
     private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
-    private var onDestroyParent: (() -> Unit)? = null
 
     private var count = 0
-    private val display = 1
+    private val display = 2
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -65,11 +67,12 @@ class SensorsFragment : Fragment() {
         binding.homeRv.adapter = adapterWidgets
         return binding.root
     }
+
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
-        onDestroyParent?.invoke()
     }
+
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         listWidgets.clear()
@@ -91,11 +94,8 @@ class SensorsFragment : Fragment() {
     }
 
     private val adapterWidgets = CompositeDelegateAdapter(
-//        PlotDelegateAdapter(
-//            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
-//        ),
-        PlotDelegateAdapterMy(
-            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+        PlotDelegateAdapter(
+            plotIsReadyToData = { numberOfCharts -> System.err.println("plotIsReadyToData $numberOfCharts") }
         ),
         OneButtonDelegateAdapter (
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
@@ -113,8 +113,7 @@ class SensorsFragment : Fragment() {
         ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
-            //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
-            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
+            onDestroyParent = {}
         )
 //        GesturesDelegateAdapter (
 //            onSelectorClick = {},

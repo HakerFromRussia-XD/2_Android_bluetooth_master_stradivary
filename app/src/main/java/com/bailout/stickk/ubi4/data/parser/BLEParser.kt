@@ -43,12 +43,15 @@ import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.MyItem
 import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -190,10 +193,13 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number -> {
                 Log.d("uiRotationGroupObservable", "dataCode = $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiRotationGroup(ParameterRef(deviceAddress, parameterID))
-                CoroutineScope(Dispatchers.Default).launch { rotationGroupFlow.emit((0..100).random()) } }
+                CoroutineScope(Dispatchers.Default).launch { rotationGroupFlow.emit((0..1000).random()) } }
             ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
+            ParameterDataCodeEnum.PDCE_CALIBRATION_CURRENT_PERCENT.number -> {
+                Log.d("TestOptic"," dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit((0..1000).random()) } }
         }
     }
 
@@ -443,11 +449,11 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
             subDevice.parametersList.forEach { parametrSubDevice ->
                 if (subDevice.deviceAddress == addressSubDevice) {
                     if (parametrSubDevice.ID == parameterID) {
-                        Log.d("parseReadSubDeviceAdditionalParameters", "deviceAddress=${subDevice.deviceAddress}   additionalInfoSize=${parametrSubDevice.additionalInfoSize}")
+                        Log.d("parseReadSubDeviceAdditionalParameters", "deviceAddress=${subDevice.deviceAddress}   additionalInfoSize=${parametrSubDevice.additionalInfoSize}  receiveDataString=$receiveDataString")
                         for (i in 0 until parametrSubDevice.additionalInfoSize) {
                             //каждый новый цикл вычитываем данные следующего сегмента (следующий addInfoSeg)
                             val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset+(i+1)*ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\"")
-
+                            Log.d("parseReadSubDeviceAdditionalParameters", "additionalInfoSizeStruct = $additionalInfoSizeStruct")
                             val start = offset + //отступ на header + отправленные данные (отправленный запрос целиком)
                                              parametrSubDevice.additionalInfoSize*ADDITIONAL_INFO_SEG + //отступ на n кол-во additionalInfoSeg в конкретном параметре
                                              dataOffset*2 // отступ на кол-во байт в предыдущих dataSeg (важно если у нас больше одного сегмента, для первого сегмента 0)
@@ -456,11 +462,12 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                                       dataOffset*2 +
                                       additionalInfoSizeStruct.infoSize*2
 
+                            Log.d("parseReadSubDeviceAdditionalParameters", "start = $start    end = $end  receiveDataString.length = ${receiveDataString.length}")
                             var receiveDataStringForParse = ""
                             if (end <= receiveDataString.length) {
                                 receiveDataStringForParse = receiveDataString.substring(start, end)
                             }
-                            dataOffset = additionalInfoSizeStruct.infoSize
+                            dataOffset += additionalInfoSizeStruct.infoSize
                             Log.d("parseReadSubDeviceAdditionalParameters", "receiveDataStringForParse = $receiveDataStringForParse")
 
 
@@ -571,7 +578,11 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                         commandParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
                         addToListWidgets(commandParameterWidgetEStruct, commandParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode)
                     }
-                    ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { System.err.println("parseWidgets SWITCH") }
+                    ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
+                        val switchParameterWidgetEStruct = Json.decodeFromString<SwitchParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+                        switchParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        addToListWidgets(switchParameterWidgetEStruct,switchParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID, dataCode)
+                    }
                     ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { System.err.println("parseWidgets COMBOBOX") }
                     ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
                         System.err.println("parseWidgets SLIDER")
@@ -617,7 +628,12 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                         commandParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
                         addToListWidgets(commandParameterWidgetSStruct, commandParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode)
                     }
-                    ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> { System.err.println("parseWidgets SWITCH") }
+                    ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
+                        System.err.println("parseWidgets SWITCH")
+                        val switchParameterWidgetSStruct = Json.decodeFromString<SwitchParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                        switchParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
+                        addToListWidgets(switchParameterWidgetSStruct,switchParameterWidgetSStruct.baseParameterWidgetSStruct,parameterID, dataCode)
+                    }
                     ParameterWidgetCode.PWCE_COMBOBOX.number.toInt() -> { System.err.println("parseWidgets COMBOBOX") }
                     ParameterWidgetCode.PWCE_SLIDER.number.toInt() -> {
                         System.err.println("parseWidgets SLIDER")

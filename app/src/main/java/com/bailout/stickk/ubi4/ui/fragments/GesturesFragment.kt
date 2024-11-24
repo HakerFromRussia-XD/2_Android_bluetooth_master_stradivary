@@ -2,7 +2,9 @@ package com.bailout.stickk.ubi4.ui.fragments
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -12,12 +14,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
@@ -27,16 +29,16 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAda
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
-import com.bailout.stickk.ubi4.models.MyViewModel
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
@@ -55,7 +57,6 @@ import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.util.stream.Collectors
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
@@ -69,12 +70,18 @@ class GesturesFragment : Fragment() {
 
     private val disposables = CompositeDisposable()
     private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
-    private var onDestroyParrent: (() -> Unit)? = null
+    private var onDestroyParent: (() -> Unit)? = null
+
+    private val display = 0
+    private var mSettings: SharedPreferences? = null
+    private var gestureNameList =  ArrayList<String>()
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
+        mSettings = context?.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         if (activity != null) { main = activity as MainActivityUBI4? }
+        loadGestureNameList()
         Log.d("LifeCycele", "onCreateView")
 
         //настоящие виджеты
@@ -111,12 +118,12 @@ class GesturesFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d("LifeCycele", "onDestroy")
-        onDestroyParrent?.invoke()
+        onDestroyParent?.invoke()
     }
 
     private fun refreshWidgetsList() {
         graphThreadFlag = false
-        onDestroyParrent?.invoke()
+        onDestroyParent?.invoke()
         listWidgets.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
@@ -126,8 +133,8 @@ class GesturesFragment : Fragment() {
             withContext(Default) {
                 updateFlow.collect {
                     main?.runOnUiThread {
-                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(0)}")
-                        adapterWidgets.swapData(mDataFactory.prepareData(0))
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
+                        adapterWidgets.swapData(mDataFactory.prepareData(display))
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }
@@ -156,14 +163,16 @@ class GesturesFragment : Fragment() {
             }
         ),
         GesturesDelegateAdapter (
+            gestureNameList = gestureNameList,
             onSelectorClick = {},
             onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
             onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) },
             onSendBLERotationGroup = {deviceAddress, parameterID -> sendBLERotationGroup(deviceAddress, parameterID) },
+            onSendBLEActiveGesture = {deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
             onShowGestureSettings = { deviceAddress, parameterID, gestureID -> showGestureSettings(deviceAddress, parameterID, gestureID) },
             onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)},
             onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)},
-            onDestroyParrent = {onDestroyParrent -> this.onDestroyParrent = onDestroyParrent}
+            onDestroyParent = { onDestroyParrent -> this.onDestroyParent = onDestroyParrent}
         ),
         TrainingFragmentDelegateAdapter(
             onConfirmClick = {},
@@ -176,7 +185,9 @@ class GesturesFragment : Fragment() {
             }
         ),
         SliderDelegateAdapter(
-            onSetProgress = { addressDevice, parameterID, progress -> Log.d("onSetProgress", "progress = $progress")}
+            onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
+            //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
+            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
         )
     )
 
@@ -225,6 +236,9 @@ class GesturesFragment : Fragment() {
         Log.d("sendBLERotationGroup", "deviceAddress = $deviceAddress  parameterID = $parameterID   rotationGroup = $rotationGroup")
 
         transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, rotationGroup), MAIN_CHANNEL, WRITE)
+    }
+    private fun onSendBLEActiveGesture (deviceAddress: Int, parameterID: Int, activeGesture: Int) {
+        transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
     }
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     private fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
@@ -313,6 +327,21 @@ class GesturesFragment : Fragment() {
         deleteBtn.setOnClickListener {
             myDialog.dismiss()
             resultCb.invoke(2)
+        }
+    }
+    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
+        Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
+        transmitter().bleCommand(BLECommands.sendSliderProgress(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
+    }
+    private fun loadGestureNameList() {
+        val macKey = navigator().getString(PreferenceKeys.LAST_CONNECTION_MAC)
+        gestureNameList.clear()
+        for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
+//            System.err.println("loadGestureNameList: " + PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
+            gestureNameList.add(
+                navigator().getString(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i).toString()
+            )
+            System.err.println("loadGestureNameList: ${gestureNameList[i]}")
         }
     }
 }

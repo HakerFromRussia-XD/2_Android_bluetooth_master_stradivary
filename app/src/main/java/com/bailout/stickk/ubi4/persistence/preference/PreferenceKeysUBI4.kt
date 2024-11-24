@@ -15,11 +15,15 @@ package com.bailout.stickk.ubi4.persistence.preference
 
 object PreferenceKeysUBI4 {
     const val END_PARAMETERS_ARRAY_KEY = 23654328
+    const val APP_PREFERENCES = "APP_PREFERENCES"
+    const val NUM_GESTURES = 14
+    const val NUM_ACTIVE_GESTURES = 8
     const val CONNECTED_DEVICE_ADDRESS = "CONNECTED_DEVICE_ADDRESS"
     const val CONNECTED_DEVICE = "CONNECTED_DEVICE"
     const val DEVICE_ID_IN_SYSTEM_UBI4 = "DEVICE_ID_IN_SYSTEM_UBI4"
     const val PARAMETER_ID_IN_SYSTEM_UBI4 = "PARAMETER_ID_IN_SYSTEM_UBI4"
     const val GESTURE_ID_IN_SYSTEM_UBI4 = "GESTURE_ID_IN_SYSTEM_UBI4"
+    const val SELECT_GESTURE_SETTINGS_NUM = "SELECT_GESTURE_SETTINGS_NUM"
 
     const val UBI4_MODE_ACTIVATED = "UBI4_MODE_ACTIVATED"
 
@@ -260,8 +264,9 @@ object PreferenceKeysUBI4 {
         PDCE_OPTIC_LEARNING_DATA (33),
         PDCE_EMG_ENV_E_VAL (34),
         PDCE_DMS_OUTPUT (35),
-        PDCE_DATE_AND_TIME (36)
-
+        PDCE_DATE_AND_TIME (36),
+        PDCE_INTERFECE_ERROR_COUNTER (37),
+        PDCE_CALIBRATION_CURRENT_PERCENT(38),
     }
 
     enum class GestureEnum (val number: Int) {

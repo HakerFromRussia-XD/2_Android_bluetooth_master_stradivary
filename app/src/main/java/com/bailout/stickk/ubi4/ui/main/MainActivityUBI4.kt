@@ -31,6 +31,7 @@ import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
+import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
@@ -68,10 +69,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.fragmentContainer, SensorsFragment())
-            .commit()
+//        showGesturesScreen()
+        showSensorsScreen()
     }
     @SuppressLint("MissingPermission")
     override fun onResume() {
@@ -94,6 +93,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
+    override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
     }
@@ -123,6 +123,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
         rotationGroupFlow = MutableStateFlow(0)
+        slidersFlow = MutableStateFlow(0)
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
         plot = MutableStateFlow(0)
@@ -138,9 +139,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         editor.putString(key, text)
         editor.apply()
     }
-    fun getString(key: String) :String {
+    override fun getString(key: String) :String {
 //        System.err.println("getString test key: $key  value: ${mSettings!!.getString(key, "NOT SET!").toString()}")
         return mSettings!!.getString(key, "NOT SET!").toString()
+    }
+    internal fun saveInt(key: String, variable: Int) {
+        val editor: SharedPreferences.Editor = mSettings!!.edit()
+        editor.putInt(key, variable)
+        editor.apply()
     }
 
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
@@ -156,6 +162,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
         var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
+        var slidersFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()
 

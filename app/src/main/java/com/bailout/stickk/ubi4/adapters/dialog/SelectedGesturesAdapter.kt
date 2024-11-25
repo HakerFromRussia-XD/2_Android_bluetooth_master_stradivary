@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.adapters.dialog
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +36,7 @@ class SelectedGesturesAdapter(
 
     override fun onBindViewHolder(holder: SprGesturesViewHolder, position: Int) {
         val bindingGesture = selectedGesturesList[position]
+        Log.d("GesturesDelegateAdapter", "onBindViewHolder called for position: $position")
         holder.gestureName.text = bindingGesture.nameOfUserGesture
         holder.gestureImage.setImageResource(bindingGesture.sprGestureItem.image)
         holder.dotsThreeBtnSpr.setOnClickListener {
@@ -49,6 +51,7 @@ class SelectedGesturesAdapter(
         selectedGesturesList.clear()
         selectedGesturesList.addAll(newGestures)
         notifyDataSetChanged()
+        Log.d("GesturesDelegateAdapter", "Data updated, item count: ${selectedGesturesList.size}")
 
     }
 

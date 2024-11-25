@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
@@ -25,12 +26,14 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapt
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.models.BindingGestureItem
 import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.SprGestureItem
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
@@ -54,6 +57,8 @@ class SprGestureFragment() : Fragment() {
 
     private val selectedGesturesSet = mutableSetOf<String>()
 
+    private var gestureNameList =  ArrayList<String>()
+    private var onDestroyParent: (() -> Unit)? = null
 
     @SuppressLint("CutPasteId")
     override fun onCreateView(
@@ -65,7 +70,7 @@ class SprGestureFragment() : Fragment() {
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
-
+        loadGestureNameList()
         //настоящие виджеты
         widgetListUpdater()
         //фейковые виджеты
@@ -129,6 +134,7 @@ class SprGestureFragment() : Fragment() {
             }
         ),
         GesturesOpticDelegateAdapter(
+            gestureNameList = gestureNameList,
             onSelectorClick = {},
             onAddGesturesToSprScreen = { onSaveClickDialog, listSprItem, bindingGestureList ->
                 showControlGesturesDialog(onSaveClickDialog, listSprItem, bindingGestureList)
@@ -138,6 +144,7 @@ class SprGestureFragment() : Fragment() {
             onSetCustomGesture = { onSaveDotsClick, position, name ->
                 showCustomGesturesDialog(onSaveDotsClick, position, name)
             },
+            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent},
         ),
     )
 
@@ -389,6 +396,17 @@ class SprGestureFragment() : Fragment() {
             MAIN_CHANNEL,
             WRITE
         )
+    }
+    private fun loadGestureNameList() {
+        val macKey = navigator().getString(PreferenceKeys.LAST_CONNECTION_MAC)
+        gestureNameList.clear()
+        for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
+//            System.err.println("loadGestureNameList: " + PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
+            gestureNameList.add(
+                navigator().getString(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i).toString()
+            )
+            System.err.println("loadGestureNameList: ${gestureNameList[i]}")
+        }
     }
 
 }

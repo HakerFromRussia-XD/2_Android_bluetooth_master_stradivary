@@ -50,7 +50,12 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetES
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlin.experimental.and
 
 class BLEParser(main: AppCompatActivity) {

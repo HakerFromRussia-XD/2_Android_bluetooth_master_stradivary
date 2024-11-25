@@ -142,7 +142,6 @@ class GesturesDelegateAdapter(
             gestureCollectionImage?.setImageResource(getCollectionGestures().get(i).gestureImage)
         }
 
-
         for (i in 1..8) {
             val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
                 .get(this) as? TextView
@@ -205,15 +204,6 @@ class GesturesDelegateAdapter(
         setupListRecyclerView()
 
         gestureFlowCollect()
-//        setGestureTexts()
-    }
-    fun setGestureTexts() {
-        for (i in 1..6) {
-            val textView = binding::class.java
-                .getDeclaredField("gestureCollection${i}Tv")
-                .get(binding) as? TextView
-            textView?.text = i.toString()
-        }
     }
     private fun gestureFlowCollect() {
         scope.launch(Dispatchers.IO) {
@@ -237,11 +227,7 @@ class GesturesDelegateAdapter(
             }
         }
     }
-    // Метод для завершения работы CoroutineScope, чтобы освободить ресурсы
-    fun onDestroy() {
-        Log.d("LifeCycele", "stopCollectingGestureFlow")
-        scope.cancel()
-    }
+
 
     private fun calculatingShowAddButton() {
         if (rotationGroupGestures.size >= 8) {
@@ -401,5 +387,11 @@ class GesturesDelegateAdapter(
             calculatingShowAddButton()
         }
         onDeleteClick(resultCb, rotationGroupGestures.get(position).gestureName)
+    }
+
+    // Метод для завершения работы CoroutineScope, чтобы освободить ресурсы
+    fun onDestroy() {
+        Log.d("LifeCycele", "stopCollectingGestureFlow")
+        scope.cancel()
     }
 }

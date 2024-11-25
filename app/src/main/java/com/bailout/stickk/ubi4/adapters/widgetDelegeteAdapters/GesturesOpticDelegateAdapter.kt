@@ -8,6 +8,7 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Pair
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
@@ -15,21 +16,37 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
 import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
+import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getCollectionGestures
+import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.BindingGestureItem
 import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.models.SprGestureItem
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 
 class GesturesOpticDelegateAdapter(
+    val gestureNameList:  ArrayList<String>,
     val onSelectorClick: (selectedPage: Int) -> Unit,
     val onAddGesturesToSprScreen: (onSaveClickDialog: (List<SprGestureItem>) -> Unit, List<SprGestureItem>, List<BindingGestureItem>) -> Unit,
     val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
-    val onSetCustomGesture: (onSaveDotsClick: ((name: String, position: Int) -> Unit), selectedPosition: Int, name: String) -> Unit
+    val onSetCustomGesture: (onSaveDotsClick: ((name: String, position: Int) -> Unit), selectedPosition: Int, name: String) -> Unit,
+    val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
     ViewBindingDelegateAdapter<GesturesItem, Ubi4WidgetGesturesOptic1Binding>(
         Ubi4WidgetGesturesOptic1Binding::inflate
@@ -41,6 +58,7 @@ class GesturesOpticDelegateAdapter(
     private var deviceAddress = 0
     private var hideFactoryCollectionGestures = true
 
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
 
     @SuppressLint("LogNotTimber")
@@ -48,7 +66,7 @@ class GesturesOpticDelegateAdapter(
         selectedGesturesList = ArrayList(),
         onCheckGestureSprListener = object : SelectedGesturesAdapter.OnCheckSprGestureListener {
             override fun onGestureSprClicked(position: Int, title: String) {
-                System.err.println("Gesture clicked: $title at position: $position")
+                Log.d("GesturesDelegateAdapter", "Gesture clicked: $title at position: $position")
             }
 
         },
@@ -65,9 +83,10 @@ class GesturesOpticDelegateAdapter(
     )
 
 
+
     @SuppressLint("ClickableViewAccessibility", "LogNotTimber")
     override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {
-
+        onDestroyParent{ onDestroy() }
         var listSpr: List<SprGestureItem> = ArrayList()
 
 
@@ -112,37 +131,6 @@ class GesturesOpticDelegateAdapter(
         }
 
 
-
-        gesture1Btn.setOnClickListener {
-            System.err.println("setOnClickListener gesture1Btn")
-            onRequestGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt())
-        }
-        gesture1SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt())
-        }
-        gesture2SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x41).toInt())
-        }
-        gesture3SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x42).toInt())
-        }
-        gesture4SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x43).toInt())
-        }
-        gesture5SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x44).toInt())
-        }
-        gesture6SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x45).toInt())
-        }
-        gesture7SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x46).toInt())
-        }
-        gesture8SettingsBtn.setOnClickListener {
-            onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x47).toInt())
-        }
-
-
         hideCollectionBtn.setOnClickListener {
             System.err.println("collectionFactoryGesturesCl.layoutParams.height = ${collectionFactoryGesturesCl.layoutParams.height}")
 
@@ -171,6 +159,47 @@ class GesturesOpticDelegateAdapter(
             }
         }
 
+        for (i in 1..14) {
+            val gestureCollectionTitle = this::class.java.getDeclaredField("gestureCollection${i}Tv")
+                .get(this) as? TextView
+            val gestureCollectionImage = this::class.java.getDeclaredField("gestureCollection${i}Iv")
+                .get(this) as? ImageView
+            gestureCollectionTitle?.text = getCollectionGestures().get(i).gestureName
+            gestureCollectionImage?.setImageResource(getCollectionGestures().get(i).gestureImage)
+        }
+//
+//
+        for (i in 1..8) {
+            try {
+                val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
+                    .get(this) as? TextView
+                val gestureCustomBtn = this::class.java.getDeclaredField("gestureCustom${i}Btn")
+                    .get(this) as? View
+                val gestureSettingsBtn = this::class.java.getDeclaredField("gesture${i}SettingsBtn")
+                    .get(this) as? View
+                gestureCustomTv?.text = gestureNameList[i - 1]
+                gestureCustomBtn?.setOnClickListener {
+                    Log.d("gestureCustomBtn", "gestureCustomBtn $i")
+                    onRequestGestureSettings(
+                        deviceAddress,
+                        getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number),
+                        (0x40).toInt() + i
+                    )
+                }
+                gestureSettingsBtn?.setOnClickListener {
+                    Log.d("gestureCustomBtn", "gestureSettingsBtn $i")
+                    onShowGestureSettings(
+                        deviceAddress,
+                        getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number),
+                        (0x40).toInt() + i
+                    )
+                    main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
+                }
+            }catch (e:Exception){
+                Log.e("ReflectionError", "Error processing gesture $i", e)
+            }
+        }
+
 
         chooseLearningGesturesBtn1.setOnClickListener {
             val selectedGestures: (List<SprGestureItem>) -> Unit = { listSprItems ->
@@ -188,6 +217,7 @@ class GesturesOpticDelegateAdapter(
                 Log.d("GesturesDelegateAdapter", "$listBindingGesture")
                 Log.d("GesturesDelegateAdapter", "$listSprItems")
                 adapter.updateGestures(listBindingGesture)
+                Log.d("GesturesDelegateAdapter", "Updating adapter with gestures:$listBindingGesture")
 
                 if (adapter.itemCount > 0) {
                     annotationTv.visibility = View.GONE
@@ -206,8 +236,23 @@ class GesturesOpticDelegateAdapter(
         gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
         selectedSprGesturesRv.layoutManager = gridLayoutManager
         selectedSprGesturesRv.adapter = adapter
+        Log.d("GesturesDelegateAdapter", "Item count: ${adapter.itemCount}")
+        Log.d("GesturesDelegateAdapter", "RecyclerView visibility: ${selectedSprGesturesRv.visibility}")
+
+            bindingGroupFlowCollect()
+
+    }
 
 
+    private fun bindingGroupFlowCollect() {
+        scope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                MainActivityUBI4.bindingGroupFlow.collect {
+                    //TODO реализовать обновление UI, сделай новый список: на вход будет список Pair<Int,Int>,а
+                    //а на выходе получить список listBindingGesture
+                }
+            }
+        }
     }
 
 
@@ -306,4 +351,10 @@ class GesturesOpticDelegateAdapter(
     override fun isForViewType(item: Any): Boolean = item is GesturesItem
 
     override fun GesturesItem.getItemId(): Any = title
+
+    // Метод для завершения работы CoroutineScope, чтобы освободить ресурсы
+    fun onDestroy() {
+        Log.d("LifeCycele", "stopCollectingGestureFlow")
+        scope.cancel()
+    }
 }

@@ -143,6 +143,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
         rotationGroupFlow = MutableStateFlow(0)
+        bindingGroupFlow = MutableStateFlow(0)
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
@@ -159,7 +160,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         editor.putString(key, text)
         editor.apply()
     }
-    fun getString(key: String) :String {
+    override fun getString(key: String) :String {
 //        System.err.println("getString test key: $key  value: ${mSettings!!.getString(key, "NOT SET!").toString()}")
         return mSettings!!.getString(key, "NOT SET!").toString()
     }
@@ -182,6 +183,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
         var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()
+        var bindingGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var stateOpticTrainingFlow by Delegates.notNull<MutableStateFlow<PreferenceKeysUBI4.TrainingModelState>>()
         var slidersFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
 

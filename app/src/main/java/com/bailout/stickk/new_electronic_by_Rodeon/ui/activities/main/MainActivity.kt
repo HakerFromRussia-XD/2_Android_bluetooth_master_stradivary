@@ -113,8 +113,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var firstRead = true
   private var speedFinger = 0
   // Очередь для задачь работы с BLE
-  private val queue =
-    BlockingQueue()
+  private val queue = BlockingQueue()
   private var readDataFlag = true
   private var globalSemaphore = false // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
   private var endFlag = false

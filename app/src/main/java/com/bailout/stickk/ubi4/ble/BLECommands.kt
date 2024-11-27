@@ -306,7 +306,7 @@ class BLECommands {
                 0x00,
                 0x00,
                 0x00,
-                gestureWithAddress.deviceAddress.toByte()
+                gestureWithAddress.addressDevice.toByte()
             )
             val data = byteArrayOf(
                 gestureWithAddress.gesture.gestureId.toByte(),

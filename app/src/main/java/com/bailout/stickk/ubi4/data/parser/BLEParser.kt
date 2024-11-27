@@ -199,7 +199,7 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                 RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
             ParameterDataCodeEnum.PDCE_CALIBRATION_CURRENT_PERCENT.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit((0..1000).random()) } }
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) } }
         }
     }
 
@@ -310,8 +310,8 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
         System.err.println("TEST parser 2 принятая посылка READ_DEVICE_ADDITIONAL_PARAMETRS $receiveDataString additionalInfoSize=${baseParametrInfoStructArray[ID].additionalInfoSize}")
         val offset = HEADER_BLE_OFFSET * 2 + READ_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
         var dataOffset = 0
-        // TODO почему я не инициализировал ID здесь, а передал извне?
-        // потому что в ответе есть ID обрабатываемого параметра
+        // инициализация ID происходит здесь потому
+        // что в ответе есть ID обрабатываемого параметра
         var ID = ID
 
         if (baseParametrInfoStructArray[ID].additionalInfoSize != 0) {

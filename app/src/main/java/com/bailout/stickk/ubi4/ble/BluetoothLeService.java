@@ -86,6 +86,7 @@ public class BluetoothLeService extends Service {
 
         if (data != null && data.length > 0) {
             if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL)){
+                if (state.equals(SampleGattAttributes.WRITE)) {}//TODO удаление сообщения из очереди команд
                 if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(MAIN_CHANNEL, data); }
             }
             if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }

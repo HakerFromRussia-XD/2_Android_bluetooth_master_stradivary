@@ -2,35 +2,18 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.view.MotionEvent
-import android.view.View
 import android.widget.ProgressBar
 import android.widget.SeekBar
-import com.bailout.stickk.databinding.Ubi4Widget1ButtonBinding
 import com.bailout.stickk.databinding.Ubi4WidgetSliderBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_H
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_X
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SHUTDOWN_CURRENT_NEW
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SHUTDOWN_CURRENT_NEW_VM
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
-import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
-import com.bailout.stickk.ubi4.data.local.RotationGroup
-import com.bailout.stickk.ubi4.models.OneButtonItem
-import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.SliderItem
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -39,7 +22,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 
 class SliderDelegateAdapter(
     val onSetProgress: (addressDevice: Int, parameterID: Int, progress: Int) -> Unit,
@@ -48,27 +30,32 @@ class SliderDelegateAdapter(
     ViewBindingDelegateAdapter<SliderItem, Ubi4WidgetSliderBinding>(Ubi4WidgetSliderBinding::inflate) {
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private var addressDevice = 0
-    private var parameterID = 0
-    private var progress = 0
-    private lateinit var _widgetSliderSb: ProgressBar
+//    private var addressDevice = 0
+//    private var parameterID = 0
+//    private var progress = 0
+//    private lateinit var _widgetSliderSb: ArrayList<ProgressBar>
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {
         onDestroyParent{ onDestroy() }
+        var addressDevice = 0
+        var parameterID = 0
+        var progress = 0
         widgetSliderTitleTv.text = item.title
-        _widgetSliderSb = widgetSliderSb
+//        _widgetSliderSb.add(widgetSliderSb)
 
         when (item.widget) {
             is SliderParameterWidgetEStruct -> {
                 addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
                 parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
                 progress = item.widget.progress
+                Log.d("addressDevice" , "E struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}")
             }
             is SliderParameterWidgetSStruct -> {
                 addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
                 parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
                 progress = item.widget.progress
+                Log.d("addressDevice" , "S struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId}")
             }
         }
         sliderCollect()
@@ -94,11 +81,11 @@ class SliderDelegateAdapter(
     private fun sliderCollect() {
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
-                MainActivityUBI4.slidersFlow.collect { _ ->
-                    val parameter = ParameterProvider.getParameter(addressDevice, parameterID)
-                    Log.d ("parameter sliderCollect", "addressDevice = $addressDevice  parameterID = $parameterID  parameter.data = ${parameter.data}}")
+                MainActivityUBI4.slidersFlow.collect { parameterRef ->
+                    val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+                    Log.d ("parameter sliderCollect", "addressDevice = ${parameterRef.addressDevice}  parameterID = ${parameterRef.parameterID}  parameter.data = ${parameter.data}}")
 //                    widgetSliderSb.progress = progress
-                    if (parameter.data=="") "" else _widgetSliderSb.progress = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
+//                    if (parameter.data=="") "" else _widgetSliderSb.progress = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
                 }
             }
         }

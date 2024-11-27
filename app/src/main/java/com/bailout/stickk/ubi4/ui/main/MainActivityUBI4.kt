@@ -19,6 +19,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
+import com.bailout.stickk.new_electronic_by_Rodeon.utils.BlockingQueue
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
@@ -28,6 +29,7 @@ import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.MyViewModel
+import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -46,7 +48,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
-    val chartFlow = MutableStateFlow(0)
+    // Очередь для задачь работы с BLE
+    private val queue = BlockingQueue()
 
 
     @SuppressLint("CommitTransaction")
@@ -68,6 +71,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController = BLEController(viewModel,this)
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
+        startQueue()
 
 //        showGesturesScreen()
         showSensorsScreen()
@@ -123,7 +127,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
         rotationGroupFlow = MutableStateFlow(0)
-        slidersFlow = MutableStateFlow(0)
+        slidersFlow = MutableStateFlow(ParameterRef())
         switcherFlow = MutableStateFlow(0)
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
@@ -150,6 +154,26 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         editor.apply()
     }
 
+    private fun startQueue() {
+        val worker = Thread {
+            while (true) {
+                val task: Runnable = queue.get()
+                task.run()
+            }
+        }
+        worker.start()
+    }
+    fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
+    private fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
+    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
+        try { Thread.sleep(200) // меньше нельзя ставить для работоспособности xiaomi 6 | samsung работает на значении 200
+        } catch (ignored: Exception) {}
+        bleCommand(byteArray, Command, typeCommand)
+        try {
+            Thread.sleep(100)
+        } catch (ignored: Exception) {}
+    }
+
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
@@ -163,7 +187,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
         var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
-        var slidersFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
+        var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()

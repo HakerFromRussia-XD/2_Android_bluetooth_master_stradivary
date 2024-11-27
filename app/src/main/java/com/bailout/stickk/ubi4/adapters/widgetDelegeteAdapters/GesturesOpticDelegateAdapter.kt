@@ -75,7 +75,6 @@ class GesturesOpticDelegateAdapter(
                 val bindingGesture = listBindingGesture[position].copy(nameOfUserGesture = name)
                 listBindingGesture[position] = bindingGesture
                 updateGestureName(bindingGesture.position, bindingGesture.nameOfUserGesture)
-                Log.d("GestureAdapter", "$bindingGesture")
             }, selectedPosition, listBindingGesture[selectedPosition].nameOfUserGesture)
         }
 
@@ -84,7 +83,7 @@ class GesturesOpticDelegateAdapter(
 
 
 
-    @SuppressLint("ClickableViewAccessibility", "LogNotTimber")
+    @SuppressLint("ClickableViewAccessibility", "LogNotTimber", "SuspiciousIndentation")
     override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {
         onDestroyParent{ onDestroy() }
         var listSpr: List<SprGestureItem> = ArrayList()
@@ -167,10 +166,9 @@ class GesturesOpticDelegateAdapter(
             gestureCollectionTitle?.text = getCollectionGestures().get(i).gestureName
             gestureCollectionImage?.setImageResource(getCollectionGestures().get(i).gestureImage)
         }
-//
-//
+
         for (i in 1..8) {
-            try {
+
                 val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
                     .get(this) as? TextView
                 val gestureCustomBtn = this::class.java.getDeclaredField("gestureCustom${i}Btn")
@@ -195,9 +193,6 @@ class GesturesOpticDelegateAdapter(
                     )
                     main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
                 }
-            }catch (e:Exception){
-                Log.e("ReflectionError", "Error processing gesture $i", e)
-            }
         }
 
 
@@ -214,11 +209,7 @@ class GesturesOpticDelegateAdapter(
                         sprGestureItem = sprGestureItem
                     )
                 }.toMutableList()
-                Log.d("GesturesDelegateAdapter", "$listBindingGesture")
-                Log.d("GesturesDelegateAdapter", "$listSprItems")
                 adapter.updateGestures(listBindingGesture)
-                Log.d("GesturesDelegateAdapter", "Updating adapter with gestures:$listBindingGesture")
-
                 if (adapter.itemCount > 0) {
                     annotationTv.visibility = View.GONE
                     annotationIv.visibility = View.GONE
@@ -236,8 +227,6 @@ class GesturesOpticDelegateAdapter(
         gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
         selectedSprGesturesRv.layoutManager = gridLayoutManager
         selectedSprGesturesRv.adapter = adapter
-        Log.d("GesturesDelegateAdapter", "Item count: ${adapter.itemCount}")
-        Log.d("GesturesDelegateAdapter", "RecyclerView visibility: ${selectedSprGesturesRv.visibility}")
 
             bindingGroupFlowCollect()
 

@@ -132,6 +132,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, connectedDeviceName)
+
         //settings
     }
     internal fun sendWidgetsArray() {
@@ -144,6 +146,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         plotArrayFlow = MutableStateFlow(arrayListOf())
         rotationGroupFlow = MutableStateFlow(0)
         bindingGroupFlow = MutableStateFlow(0)
+        slidersFlow = MutableStateFlow(0)
+        switcherFlow = MutableStateFlow(0)
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
@@ -186,6 +190,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var bindingGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var stateOpticTrainingFlow by Delegates.notNull<MutableStateFlow<PreferenceKeysUBI4.TrainingModelState>>()
         var slidersFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
+        var switcherFlow by Delegates.notNull<MutableSharedFlow<Int>>()
+
+//        val switcherFlow: MutableSharedFlow<Int> by lazy {
+//            MutableSharedFlow(replay = 1)
+//        }
 
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()

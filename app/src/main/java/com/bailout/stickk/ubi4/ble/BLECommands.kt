@@ -205,6 +205,19 @@ class BLECommands {
             return header
         }
 
+        fun requestSwitcher(addressDevice: Int, parameterID: Int): ByteArray {
+            val header = byteArrayOf(
+                0xE0.toByte(),
+                parameterID.toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            return header
+        }
+
         fun sendTimestampInfo(addressDevice: Int, parameterID: Int, year: Int, month: Int, day: Int, weekDay: Int,  hour: Int, minutes: Int, seconds: Int): ByteArray {
             val code:Byte = (128 + parameterID).toByte()
             val header = byteArrayOf(
@@ -325,7 +338,7 @@ class BLECommands {
             result[4] = (calculateDataSize(result)/256).toByte()
             return result
         }
-        fun sendSliderProgress(addressDevice: Int, parameterID: Int,  progress: Int): ByteArray {
+        fun sendSliderCommand(addressDevice: Int, parameterID: Int, progress: Int): ByteArray {
             val code:Byte = (128 + parameterID).toByte()
             val result = byteArrayOf(
                 0x60,
@@ -339,6 +352,24 @@ class BLECommands {
             )
             result[3] = calculateDataSize(result).toByte()
             result[4] = (calculateDataSize(result)/256).toByte()
+            return result
+        }
+
+        fun sendSwitcherCommand(addressDevice: Int, parameterID: Int, switchState: Boolean): ByteArray {
+            val code: Byte = (128 + parameterID).toByte()
+            val state: Byte = if (switchState) 1 else 0
+            val result = byteArrayOf(
+                0x60,
+                code,
+                0x00,
+                0x00, //размер данных в сообщениях???
+                0x00,
+                0x00,
+                addressDevice.toByte(),
+                state
+            )
+            result[3] = calculateDataSize(result).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
 

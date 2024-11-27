@@ -20,8 +20,12 @@ import com.bailout.stickk.ubi4.adapters.dialog.FileCheckpointAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnFileActionListener
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLECommands.Companion.sendSliderCommand
+import com.bailout.stickk.ubi4.ble.BLECommands.Companion.sendSwitcherCommand
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
@@ -104,10 +108,20 @@ class SprTrainingFragment : Fragment() {
                         Log.e("StateCallBack", "Fragment is not attached to activity")
                     }
                 },
-                onGenerateClick = {},
                 onShowFileClick = { showFilesDialog() },
                 onDestroyParent = {onDestroyParent -> this.onDestroyParent = onDestroyParent },
             ),
+            SwitcherDelegateAdapter(
+                onSwitchClick = {
+                        addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState)
+                },
+                onDestroyParent = {onDestroyParent -> this.onDestroyParent = onDestroyParent}
+            ),
+            SliderDelegateAdapter(
+                onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
+                //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
+                onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
+            )
         )
         binding.sprTrainingRv.layoutManager = LinearLayoutManager(context)
         binding.sprTrainingRv.adapter = adapterWidgets
@@ -232,6 +246,17 @@ class SprTrainingFragment : Fragment() {
             MAIN_CHANNEL,
             WRITE
         )
+    }
+
+    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
+        Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
+        transmitter().bleCommand(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
+    }
+
+    private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
+        Log.d("sendSwitcherCommand", "addressDevice=$addressDevice  parameterID: $parameterID  command = $switchState")
+        transmitter().bleCommand(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE)
+
     }
 
 

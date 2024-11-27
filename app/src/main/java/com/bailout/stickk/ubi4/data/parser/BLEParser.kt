@@ -54,6 +54,7 @@ import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlin.experimental.and
@@ -198,6 +199,10 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_CALIBRATION_CURRENT_PERCENT.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit((0..1000).random()) } }
+            ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
+                Log.d("TestOptic", "dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit((0..1).random()) }
+            }
         }
     }
 

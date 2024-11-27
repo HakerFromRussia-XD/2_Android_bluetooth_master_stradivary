@@ -216,7 +216,7 @@ class GesturesDelegateAdapter(
                     rotationGroupGestures.clear()
                     rotationGroupList.forEach{ item ->
                         if (item.first != 0 )
-                            rotationGroupGestures.add(CollectionGesturesProvider.getGesture(item.first))
+                            rotationGroupGestures.add(getGesture(item.first))
                     }
 
                     showIntroduction()

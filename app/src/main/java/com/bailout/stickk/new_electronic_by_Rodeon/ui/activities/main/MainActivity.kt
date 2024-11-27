@@ -58,6 +58,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import io.reactivex.android.schedulers.AndroidSchedulers
 import lib.kingja.switchbutton.SwitchMultiButton
 import online.devliving.passcodeview.PasscodeView
@@ -904,6 +905,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     saveText(EXTRAS_DEVICE_TYPE, mDeviceType)
     System.err.println("mDeviceAddress: $mDeviceAddress")
     saveText(PreferenceKeys.LAST_CONNECTION_MAC, mDeviceAddress)
+    saveText(PreferenceKeysUBI4.LAST_CONNECTION_MAC, mDeviceAddress)
+
 
 
 

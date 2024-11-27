@@ -50,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/testimageannotation"
-            android:visibility="visible"/>
+            android:visibility="visible" />
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/lottieAnimationLoading"
@@ -89,32 +89,6 @@
         app:layout_constraintStart_toStartOf="@id/trainingBtn"
         app:layout_constraintTop_toTopOf="@id/trainingBtn"/>
 
-    <View
-        android:id="@+id/generateBtn"
-        android:layout_width="0dp"
-        android:layout_height="52dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/ubi4_viwe_with_corners_white"
-        android:elevation="3dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/trainingBtn"/>
-
-    <TextView
-        android:id="@+id/generateBtnTv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:elevation="4dp"
-        android:fontFamily="@font/sf_pro_text_bold"
-        android:text="Generate checkpoint"
-        android:textColor="@color/ubi4_dark_back"
-        android:textSize="17sp"
-        app:layout_constraintBottom_toBottomOf="@id/generateBtn"
-        app:layout_constraintEnd_toEndOf="@id/generateBtn"
-        app:layout_constraintStart_toStartOf="@id/generateBtn"
-        app:layout_constraintTop_toTopOf="@id/generateBtn"/>
 
     <View
         android:id="@+id/showFileBtn"
@@ -127,7 +101,7 @@
         android:elevation="3dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/generateBtn"/>
+        app:layout_constraintTop_toBottomOf="@id/trainingBtnTv"/>
 
     <TextView
         android:id="@+id/showFileBtnTv"

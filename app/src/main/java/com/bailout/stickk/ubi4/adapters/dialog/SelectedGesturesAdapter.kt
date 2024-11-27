@@ -36,7 +36,6 @@ class SelectedGesturesAdapter(
 
     override fun onBindViewHolder(holder: SprGesturesViewHolder, position: Int) {
         val bindingGesture = selectedGesturesList[position]
-        Log.d("GesturesDelegateAdapter", "onBindViewHolder called for position: $position")
         holder.gestureName.text = bindingGesture.nameOfUserGesture
         holder.gestureImage.setImageResource(bindingGesture.sprGestureItem.image)
         holder.dotsThreeBtnSpr.setOnClickListener {
@@ -51,8 +50,6 @@ class SelectedGesturesAdapter(
         selectedGesturesList.clear()
         selectedGesturesList.addAll(newGestures)
         notifyDataSetChanged()
-        Log.d("GesturesDelegateAdapter", "Data updated, item count: ${selectedGesturesList.size}")
-
     }
 
     interface OnCheckSprGestureListener {

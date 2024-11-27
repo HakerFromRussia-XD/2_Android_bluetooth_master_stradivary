@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
 //TODO прописать ENUM вместо state
 class TrainingFragmentDelegateAdapter(
     var onConfirmClick: () -> Unit,
-    var onGenerateClick: () -> Unit,
     var onShowFileClick: () -> Unit,
     var onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
@@ -45,10 +44,6 @@ class TrainingFragmentDelegateAdapter(
         _lottieAnimationLoading = lottieAnimationLoading
 
 
-        generateBtn.setOnClickListener {
-            onGenerateClick()
-
-        }
         showFileBtn.setOnClickListener {
             onShowFileClick()
         }
@@ -117,7 +112,6 @@ class TrainingFragmentDelegateAdapter(
 
     private fun onDestroy() {
         onConfirmClick = {}
-        onGenerateClick = {}
         onShowFileClick = {}
         onDestroyParent = {}
         scope.cancel()

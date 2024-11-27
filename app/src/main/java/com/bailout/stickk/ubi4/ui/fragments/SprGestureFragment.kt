@@ -398,15 +398,17 @@ class SprGestureFragment() : Fragment() {
         )
     }
     private fun loadGestureNameList() {
-        val macKey = navigator().getString(PreferenceKeys.LAST_CONNECTION_MAC)
+        val macKey = navigator().getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC)
         gestureNameList.clear()
         for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
-//            System.err.println("loadGestureNameList: " + PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
+            System.err.println("loadGestureNameList: " + PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
             gestureNameList.add(
                 navigator().getString(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i).toString()
             )
-            System.err.println("loadGestureNameList: ${gestureNameList[i]}")
+//            System.err.println("loadGestureNameList: ${gestureNameList[i]}")
         }
     }
+
+
 
 }

@@ -179,11 +179,11 @@ class GesturesFragment : Fragment() {
             generateClick = {},
             showFileClick = {}
         ),
-        SwitcherDelegateAdapter(
-            onSwitchClick = {
-                Log.d("SwitcherDelegateAdapter", "$it")
-            }
-        ),
+//        SwitcherDelegateAdapter(
+//            onSwitchClick = {
+//                Log.d("SwitcherDelegateAdapter", "$it")
+//            }
+//        ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
             //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
@@ -331,7 +331,7 @@ class GesturesFragment : Fragment() {
     }
     private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
         Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
-        transmitter().bleCommand(BLECommands.sendSliderProgress(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommand(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
     }
     private fun loadGestureNameList() {
         val macKey = navigator().getString(PreferenceKeys.LAST_CONNECTION_MAC)

@@ -108,8 +108,9 @@ class AdvancedFragment : Fragment() {
         ),
         SwitcherDelegateAdapter(
             onSwitchClick = {
-                Log.d("SwitcherDelegateAdapter", "$it")
-            }
+                    addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState)
+            },
+            onDestroyParent = {}
         ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
@@ -156,6 +157,12 @@ class AdvancedFragment : Fragment() {
     }
     private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
         Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
-        transmitter().bleCommand(BLECommands.sendSliderProgress(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommand(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
+    }
+
+    private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
+        Log.d("sendSwitcherCommand", "addressDevice=$addressDevice  parameterID: $parameterID  command = $switchState")
+        transmitter().bleCommand(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE)
+
     }
 }

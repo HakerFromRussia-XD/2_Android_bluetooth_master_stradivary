@@ -124,6 +124,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         plotArrayFlow = MutableStateFlow(arrayListOf())
         rotationGroupFlow = MutableStateFlow(0)
         slidersFlow = MutableStateFlow(0)
+        switcherFlow = MutableStateFlow(0)
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
         plot = MutableStateFlow(0)
@@ -163,6 +164,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
         var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
         var slidersFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
+        var switcherFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()
 

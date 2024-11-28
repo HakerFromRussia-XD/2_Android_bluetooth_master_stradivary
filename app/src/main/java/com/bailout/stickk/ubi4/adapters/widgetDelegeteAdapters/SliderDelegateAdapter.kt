@@ -33,7 +33,7 @@ class SliderDelegateAdapter(
 //    private var addressDevice = 0
 //    private var parameterID = 0
 //    private var progress = 0
-//    private lateinit var _widgetSliderSb: ArrayList<ProgressBar>
+    private lateinit var _widgetSlidersSb: ArrayList<ProgressBar>
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {
@@ -42,7 +42,7 @@ class SliderDelegateAdapter(
         var parameterID = 0
         var progress = 0
         widgetSliderTitleTv.text = item.title
-//        _widgetSliderSb.add(widgetSliderSb)
+        _widgetSlidersSb.add(widgetSliderSb)
 
         when (item.widget) {
             is SliderParameterWidgetEStruct -> {
@@ -77,6 +77,7 @@ class SliderDelegateAdapter(
             BLECommands.requestSlider(addressDevice, parameterID), MAIN_CHANNEL,
             SampleGattAttributes.WRITE
         )
+
     }
     private fun sliderCollect() {
         scope.launch(Dispatchers.IO) {

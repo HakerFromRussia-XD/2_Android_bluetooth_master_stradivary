@@ -204,7 +204,6 @@ class BLECommands {
             )
             return header
         }
-
         fun requestSwitcher(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -373,7 +372,6 @@ class BLECommands {
             result[4] = (calculateDataSize(result)/256).toByte()
             return result
         }
-
         fun sendSwitcherCommand(addressDevice: Int, parameterID: Int, switchState: Boolean): ByteArray {
             val code: Byte = (128 + parameterID).toByte()
             val state: Byte = if (switchState) 1 else 0

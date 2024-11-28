@@ -127,7 +127,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
         rotationGroupFlow = MutableStateFlow(0)
-        slidersFlow = MutableStateFlow(ParameterRef())
+        slidersFlow = MutableStateFlow(ParameterRef(0, 0))
         switcherFlow = MutableStateFlow(0)
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
@@ -136,6 +136,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         rotationGroupGestures = arrayListOf()
         countBinding = 0
         graphThreadFlag = true
+        canSendFlag = true
     }
 
     // сохранение и загрузка данных
@@ -166,14 +167,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
     private fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
     private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
-        try { Thread.sleep(200) // меньше нельзя ставить для работоспособности xiaomi 6 | samsung работает на значении 200
-        } catch (ignored: Exception) {}
-        bleCommand(byteArray, Command, typeCommand)
-        try {
-            Thread.sleep(100)
-        } catch (ignored: Exception) {}
-    }
+        //TODO дописать
+        while (canSendFlag) {
+            bleCommand(byteArray, Command, typeCommand)
+        }
 
+//        try {
+//            Thread.sleep(100)
+//        } catch (ignored: Exception) {}
+    }
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
@@ -205,6 +207,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         var countBinding by Delegates.notNull<Int>()
         var graphThreadFlag by Delegates.notNull<Boolean>()
+        var canSendFlag by Delegates.notNull<Boolean>()
         var inScanFragmentFlag by Delegates.notNull<Boolean>()
     }
 }

@@ -33,7 +33,7 @@ class SliderDelegateAdapter(
 //    private var addressDevice = 0
 //    private var parameterID = 0
 //    private var progress = 0
-    private lateinit var _widgetSlidersSb: ArrayList<ProgressBar>
+    private var _widgetSlidersSb: ArrayList<ProgressBar> = ArrayList()
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {

@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -19,9 +21,10 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
-import com.bailout.stickk.new_electronic_by_Rodeon.utils.BlockingQueue
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.ubi4.ble.BLEController
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
@@ -36,6 +39,7 @@ import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
+import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +53,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
     // Очередь для задачь работы с BLE
-    private val queue = BlockingQueue()
+    private val queue = BlockingQueueUbi4()
 
 
     @SuppressLint("CommitTransaction")
@@ -73,8 +77,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.scanLeDevice(true)
         startQueue()
 
-//        showGesturesScreen()
         showSensorsScreen()
+        binding.addCommandBtn.setOnClickListener {
+            val commandName = "Команда ${System.currentTimeMillis()}"
+            runWriteDataTest(byteArrayOf(0x00,0x01,0x02), MAIN_CHANNEL, WRITE)
+        }
+//        binding.runCommandBtn.setOnClickListener {
+//            if (queue.size() != 0) triggerSendFlag()
+//        }
+
     }
     @SuppressLint("MissingPermission")
     override fun onResume() {
@@ -136,7 +147,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         rotationGroupGestures = arrayListOf()
         countBinding = 0
         graphThreadFlag = true
-        canSendFlag = true
+        canSendFlag = false
     }
 
     // сохранение и загрузка данных
@@ -164,18 +175,29 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
-    private fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
-    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
-        //TODO дописать
-        while (canSendFlag) {
-            bleCommand(byteArray, Command, typeCommand)
-        }
+//    fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
+//    private fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
+//    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
+//        //TODO дописать
+//        while () {
+//            bleCommand(byteArray, Command, typeCommand)
+//        }
 
-//        try {
-//            Thread.sleep(100)
-//        } catch (ignored: Exception) {}
+    fun runWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getWriteDataTest(byteArray, Command, typeCommand)) }
+    private fun getWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeDataTest(byteArray, Command, typeCommand) } }
+    private fun writeDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) {
+        synchronized(this) {
+            Log.d("TestSendByteArray","Command is sending...")
+            canSendFlag = false
+            bleCommand(byteArray, Command, typeCommand)
+            while (!canSendFlag) {
+                Thread.sleep(1)
+            }
+            Log.d("TestSendByteArray","CallBack is BLEService was complete")
+        }
     }
+
+
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
@@ -207,7 +229,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         var countBinding by Delegates.notNull<Int>()
         var graphThreadFlag by Delegates.notNull<Boolean>()
+
         var canSendFlag by Delegates.notNull<Boolean>()
+
         var inScanFragmentFlag by Delegates.notNull<Boolean>()
     }
 }

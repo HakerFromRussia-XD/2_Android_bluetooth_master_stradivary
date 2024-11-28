@@ -28,7 +28,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.util.Log;
 
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
 
@@ -78,7 +81,35 @@ public class BluetoothLeService extends Service {
 
     //ubi4
     public final static String MAIN_CHANNEL = "com.example.bluetooth.le.MAIN_CHANNEL";
+    public final static String CONFIRMATION_SEND = "com.example.bluetooth.le.CONFIRMATION_SEND";
+    /////////////////////////////
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    public ReceiverCallback receiverCallback;
 
+    public void sendDataToReceiver(String state) {
+        handler.post(() -> {
+//            Log.d("TestSendByteArray","handler.post(()");
+            if (receiverCallback != null) {
+                receiverCallback.onDataReceived(state);
+//                Log.d("TestSendByteArray","receiverCallback != null");
+            }
+        });
+    }
+
+    public void setReceiverCallback(ReceiverCallback callback) {
+        this.receiverCallback = callback;
+    }
+
+    public interface ReceiverCallback {
+        void onDataReceived(String state);
+    }
+
+
+
+
+
+
+    ///////////////////////////////
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
         final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
 
@@ -86,7 +117,10 @@ public class BluetoothLeService extends Service {
 
         if (data != null && data.length > 0) {
             if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL)){
-                if (state.equals(SampleGattAttributes.WRITE)) {}//TODO удаление сообщения из очереди команд
+                if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CONFIRMATION_SEND,"");
+                    Log.d("TestSendByteArray","BleCommand was send");
+
+                }//TODO удаление сообщения из очереди команд
                 if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(MAIN_CHANNEL, data); }
             }
             if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }
@@ -272,6 +306,7 @@ public class BluetoothLeService extends Service {
             super.onCharacteristicWrite(gatt, characteristic, status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(characteristic, SampleGattAttributes.WRITE);
+                sendDataToReceiver(SampleGattAttributes.WRITE);
             } else if (status == BluetoothGatt.GATT_FAILURE) {
                 System.err.println("запись не удалась");
             }

@@ -105,8 +105,8 @@ class SensorsFragment : Fragment() {
         ),
         TrainingFragmentDelegateAdapter(
             onConfirmClick = {},
-            generateClick = {},
-            showFileClick = {}
+            onShowFileClick = {},
+            onDestroyParent = {}
         ),
         SwitcherDelegateAdapter(
             onSwitchClick = { addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState) },

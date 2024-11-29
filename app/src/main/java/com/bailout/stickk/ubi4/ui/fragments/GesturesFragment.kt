@@ -176,13 +176,12 @@ class GesturesFragment : Fragment() {
         ),
         TrainingFragmentDelegateAdapter(
             onConfirmClick = {},
-            generateClick = {},
-            showFileClick = {}
+            onShowFileClick = {},
+            onDestroyParent = {}
         ),
         SwitcherDelegateAdapter(
-            onSwitchClick = {
-                Log.d("SwitcherDelegateAdapter", "$it")
-            }
+            onSwitchClick = {_,_,_ -> },
+            onDestroyParent = {}
         ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},

@@ -103,8 +103,8 @@ class AdvancedFragment : Fragment() {
         ),
         TrainingFragmentDelegateAdapter(
             onConfirmClick = {},
-            generateClick = {},
-            showFileClick = {}
+            onShowFileClick = {},
+            onDestroyParent = {}
         ),
         SwitcherDelegateAdapter(
             onSwitchClick = {

@@ -55,6 +55,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
+    private lateinit var trainingModelHandler: TrainingModelHandler
     // Очередь для задачь работы с BLE
     private val queue = BlockingQueueUbi4()
 
@@ -159,10 +160,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         listWidgets = mutableSetOf()
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
-        rotationGroupFlow = MutableStateFlow(0)
+        rotationGroupFlow = MutableSharedFlow()
+        slidersFlow = MutableSharedFlow()
+        switcherFlow = MutableSharedFlow()
         bindingGroupFlow = MutableStateFlow(0)
-        slidersFlow = MutableStateFlow(0)
-        switcherFlow = MutableStateFlow(0)
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()

@@ -38,25 +38,23 @@ import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFS
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.MyItem
+import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 import kotlin.experimental.and
 
 class BLEParser(main: AppCompatActivity) {
@@ -199,6 +197,7 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_CALIBRATION_CURRENT_PERCENT.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit((0..1000).random()) } }
+            //TODO поставить актуальный dataCode
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
                 Log.d("TestOptic", "dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit((0..1).random()) }
@@ -366,6 +365,7 @@ class BLEParser(main: AppCompatActivity) {
 
 
         // тут нам нужно запустить цепную реакцию сабдевайсов (читаем параметры первого сабдевайса)
+        Log.d("SubDeviceSubDevice", "subDevices=$baseSubDevicesInfoStructSet  numerSubDevice=$numerSubDevice")
         if (baseSubDevicesInfoStructSet.size != 0) {
             mMain.bleCommand(
                 BLECommands.requestSubDeviceParametrs(

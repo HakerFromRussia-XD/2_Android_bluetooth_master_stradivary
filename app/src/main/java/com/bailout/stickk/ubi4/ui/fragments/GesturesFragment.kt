@@ -26,6 +26,8 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateA
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
@@ -166,16 +168,22 @@ class GesturesFragment : Fragment() {
             onDeleteClick = { resultCb, gestureName -> showDeleteGestureFromRotationGroupDialog(resultCb, gestureName) },
             onAddGesturesToRotationGroup = { onSaveDialogClick -> showAddGestureToRotationGroupDialog(onSaveDialogClick) },
             onSendBLERotationGroup = {deviceAddress, parameterID -> sendBLERotationGroup(deviceAddress, parameterID) },
+            onSendBLEActiveGesture = {deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
             onShowGestureSettings = { deviceAddress, parameterID, gestureID -> showGestureSettings(deviceAddress, parameterID, gestureID) },
             onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)},
             onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)},
             onDestroyParent = { onDestroyParrent -> this.onDestroyParent = onDestroyParrent}
         ),
-//        SwitcherDelegateAdapter(
-//            onSwitchClick = {
-//                Log.d("SwitcherDelegateAdapter", "$it")
-//            }
-//        ),
+        TrainingFragmentDelegateAdapter(
+            onConfirmClick = {},
+            generateClick = {},
+            showFileClick = {}
+        ),
+        SwitcherDelegateAdapter(
+            onSwitchClick = {
+                Log.d("SwitcherDelegateAdapter", "$it")
+            }
+        ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
             //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
@@ -228,6 +236,9 @@ class GesturesFragment : Fragment() {
         Log.d("sendBLERotationGroup", "deviceAddress = $deviceAddress  parameterID = $parameterID   rotationGroup = $rotationGroup")
 
         transmitter().bleCommand(BLECommands.sendRotationGroupInfo (deviceAddress, parameterID, rotationGroup), MAIN_CHANNEL, WRITE)
+    }
+    private fun onSendBLEActiveGesture (deviceAddress: Int, parameterID: Int, activeGesture: Int) {
+        transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
     }
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     private fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
@@ -330,7 +341,7 @@ class GesturesFragment : Fragment() {
             gestureNameList.add(
                 navigator().getString(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i).toString()
             )
-//            System.err.println("loadGestureNameList: ${gestureNameList[i]}")
+            System.err.println("loadGestureNameList: ${gestureNameList[i]}")
         }
     }
 }

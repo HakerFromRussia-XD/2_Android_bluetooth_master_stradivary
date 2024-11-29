@@ -100,7 +100,7 @@ class BLECommands {
         }
         fun requestTransferFlow(startTransfer: Int): ByteArray {
             val result = byteArrayOf(
-                0x00,
+                0x20,
                 DATA_TRANSFER_SETTINGS.number,
                 0x00,
                 0x00,//0x01
@@ -278,6 +278,25 @@ class BLECommands {
             val result = header + data
             return result
         }
+        fun sendActiveGesture(addressDevice: Int, parameterID: Int, activeGesture: Int): ByteArray {
+            val code:Byte = (128 + parameterID).toByte()
+            val header = byteArrayOf(
+                0x40,
+                code,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            val data = byteArrayOf(
+                activeGesture.toByte(),
+            )
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
+            return result
+        }
         fun sendGestureInfo(gestureWithAddress: GestureWithAddress): ByteArray {
             val code:Byte = (128 + gestureWithAddress.parameterID).toByte()
             val header = byteArrayOf(
@@ -362,7 +381,7 @@ class BLECommands {
                 0x60,
                 code,
                 0x00,
-                0x00, //размер данных в сообщениях???
+                0x00,
                 0x00,
                 0x00,
                 addressDevice.toByte(),
@@ -375,19 +394,31 @@ class BLECommands {
 
         fun testDataTransfer(): ByteArray {
             val header = byteArrayOf(
-                0x00,
+                0xE0.toByte(),
                 PreferenceKeysUBI4.BaseCommands.COMPLEX_PARAMETER_TRANSFER.number,
                 0x00,
-                0x00,//0x01
+                0x00,
                 0x00,
                 0x00,
                 0x00
             )
             val data = byteArrayOf(
-                0x06,
                 0x01,
                 0x01,
-                0x02
+                0x02,
+                0x02,
+                0x04,
+                0x04,
+                0x03,
+                0x03,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
             )
             header[3] = data.size.toByte()
             header[4] = (data.size/256).toByte()

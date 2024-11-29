@@ -36,17 +36,16 @@ import kotlinx.coroutines.withContext
 
 
 @Suppress("DEPRECATION")
-class SensorsFragment : Fragment() {
+class AdvancedFragment : Fragment() {
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
 
     private val disposables = CompositeDisposable()
     private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
-    private var onDestroyParent: (() -> Unit)? = null
 
     private var count = 0
-    private val display = 1
+    private val display = 2
 
     @SuppressLint("CheckResult", "LogNotTimber")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -68,11 +67,12 @@ class SensorsFragment : Fragment() {
         binding.homeRv.adapter = adapterWidgets
         return binding.root
     }
+
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
-        onDestroyParent?.invoke()
     }
+
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         listWidgets.clear()
@@ -107,13 +107,14 @@ class SensorsFragment : Fragment() {
             showFileClick = {}
         ),
         SwitcherDelegateAdapter(
-            onSwitchClick = { addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState) },
-            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
+            onSwitchClick = {
+                    addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState)
+            },
+            onDestroyParent = {}
         ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
-            //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
-            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
+            onDestroyParent = {}
         )
 //        GesturesDelegateAdapter (
 //            onSelectorClick = {},
@@ -164,6 +165,4 @@ class SensorsFragment : Fragment() {
         transmitter().bleCommand(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE)
 
     }
-
-
 }

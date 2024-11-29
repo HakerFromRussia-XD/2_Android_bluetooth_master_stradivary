@@ -5,7 +5,6 @@ import android.util.Log
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
@@ -20,7 +19,6 @@ import com.bailout.stickk.ubi4.models.OneButtonItem
 import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.models.SliderItem
 import com.bailout.stickk.ubi4.models.SwitchItem
-import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
@@ -63,6 +61,7 @@ internal class DataFactory {
         // сортировка всех виджетов по возрастанию
         System.err.println("DataFactory sorted listWidgets===========")
         sortWidgets(listWidgets.sortedWith ( compareBy {
+            System.err.println("DataFactory sorted listWidgets===========> $it")
             when (it) {
                 is BaseParameterWidgetEStruct -> {it.baseParameterWidgetStruct.widgetPosition}
                 is CommandParameterWidgetSStruct -> {it.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition}

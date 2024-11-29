@@ -29,17 +29,21 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class BLEController (private val viewModel: MyViewModel,
-                     main: AppCompatActivity) {
+class BLEController(
+    private val viewModel: MyViewModel,
+    main: AppCompatActivity,
+) {
     private val mContext: Context = main.applicationContext
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
     private var mBLEParser: BLEParser? = null
@@ -61,8 +65,9 @@ class BLEController (private val viewModel: MyViewModel,
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
             mBluetoothLeService?.setReceiverCallback {state ->
+                if(state == WRITE)
                 Log.d("TestSendByteArray","BleCommand was send FAST!!")
-
+                canSendFlag = true
             }
             if (!mBluetoothLeService?.initialize()!!) {
                 mMain.finish()
@@ -101,14 +106,6 @@ class BLEController (private val viewModel: MyViewModel,
         mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
         mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
         mBLEParser = BLEParser(viewModel, mMain)
-
-
-        /////////////////////////
-//        mBluetoothLeService?.setReceiverCallback {state ->
-//            Log.d("TestSendByteArray","BleCommand was send FAST!!")
-//
-//        }
-        ////////////////////
     }
 
     private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -143,9 +140,6 @@ class BLEController (private val viewModel: MyViewModel,
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-                    if(intent.getStringExtra(BluetoothLeService.CONFIRMATION_SEND) != null){canSendFlag = true
-                        Log.d("TestSendByteArray","BleCommand was send")
-                    }
                     if(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         val fakeData = byteArrayOf(0x00,0x01,0x00,0x02,0x01,0x00,0x00,0x01,0x02)
                         val fakeData2 = byteArrayOf(0x00, 0x01, 0x00, 0x4c, 0x00, 0x74, 0x00, 0x01, 0x02, 0x43, 0x50, 0x55, 0x20, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

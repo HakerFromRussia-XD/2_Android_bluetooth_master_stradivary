@@ -197,6 +197,14 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
+            ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number -> {
+                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
+            }
+            ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
+                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
+            }
             ParameterDataCodeEnum.PDCE_INTERFECE_ERROR_COUNTER.number -> {
                 Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }

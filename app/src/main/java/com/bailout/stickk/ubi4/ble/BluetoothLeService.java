@@ -34,6 +34,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4;
 
 import java.util.List;
 import java.util.UUID;
@@ -82,20 +83,17 @@ public class BluetoothLeService extends Service {
     //ubi4
     public final static String MAIN_CHANNEL = "com.example.bluetooth.le.MAIN_CHANNEL";
     public final static String CONFIRMATION_SEND = "com.example.bluetooth.le.CONFIRMATION_SEND";
-    /////////////////////////////
+    ///////////////////////////// самая быстрая передача данных
     private final Handler handler = new Handler(Looper.getMainLooper());
     public ReceiverCallback receiverCallback;
 
     public void sendDataToReceiver(String state) {
         handler.post(() -> {
-//            Log.d("TestSendByteArray","handler.post(()");
             if (receiverCallback != null) {
                 receiverCallback.onDataReceived(state);
-//                Log.d("TestSendByteArray","receiverCallback != null");
             }
         });
     }
-
     public void setReceiverCallback(ReceiverCallback callback) {
         this.receiverCallback = callback;
     }
@@ -119,7 +117,6 @@ public class BluetoothLeService extends Service {
             if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL)){
                 if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CONFIRMATION_SEND,"");
                     Log.d("TestSendByteArray","BleCommand was send");
-
                 }//TODO удаление сообщения из очереди команд
                 if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(MAIN_CHANNEL, data); }
             }
@@ -305,7 +302,6 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(characteristic, SampleGattAttributes.WRITE);
                 sendDataToReceiver(SampleGattAttributes.WRITE);
             } else if (status == BluetoothGatt.GATT_FAILURE) {
                 System.err.println("запись не удалась");

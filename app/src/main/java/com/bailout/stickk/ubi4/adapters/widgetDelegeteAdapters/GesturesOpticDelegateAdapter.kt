@@ -60,8 +60,6 @@ class GesturesOpticDelegateAdapter(
                 Log.d("GestureAdapter", "$bindingGesture")
             }, selectedPosition, listBindingGesture[selectedPosition].nameOfUserGesture)
         }
-
-
     )
 
 
@@ -209,7 +207,6 @@ class GesturesOpticDelegateAdapter(
 
 
     }
-
 
     @SuppressLint("LogNotTimber")
     private fun updateGestureName(position: Int, newName: String) {

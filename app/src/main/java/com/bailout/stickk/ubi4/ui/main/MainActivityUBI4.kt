@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -17,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -35,6 +35,7 @@ import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
@@ -79,12 +80,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         showSensorsScreen()
         binding.addCommandBtn.setOnClickListener {
-            val commandName = "Команда ${System.currentTimeMillis()}"
             runWriteDataTest(byteArrayOf(0x00,0x01,0x02), MAIN_CHANNEL, WRITE)
         }
-//        binding.runCommandBtn.setOnClickListener {
-//            if (queue.size() != 0) triggerSendFlag()
-//        }
+        binding.runCommandBtn.setOnClickListener {
+        }
 
     }
     @SuppressLint("MissingPermission")
@@ -137,12 +136,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         listWidgets = mutableSetOf()
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
-        rotationGroupFlow = MutableStateFlow(0)
-        slidersFlow = MutableStateFlow(ParameterRef(0, 0))
-        switcherFlow = MutableStateFlow(0)
+        rotationGroupFlow = MutableSharedFlow()
+        slidersFlow = MutableSharedFlow()
+        switcherFlow = MutableSharedFlow()
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
-        plot = MutableStateFlow(0)
         plotArray = arrayListOf()
         rotationGroupGestures = arrayListOf()
         countBinding = 0
@@ -175,19 +173,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-//    fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
-//    private fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
-//    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
-//        //TODO дописать
-//        while () {
-//            bleCommand(byteArray, Command, typeCommand)
-//        }
-
-    fun runWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getWriteDataTest(byteArray, Command, typeCommand)) }
+    private fun runWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getWriteDataTest(byteArray, Command, typeCommand)) }
     private fun getWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeDataTest(byteArray, Command, typeCommand) } }
     private fun writeDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
-            Log.d("TestSendByteArray","Command is sending...")
             canSendFlag = false
             bleCommand(byteArray, Command, typeCommand)
             while (!canSendFlag) {
@@ -214,7 +203,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
-        var plot by Delegates.notNull<MutableStateFlow<Int>>()
 
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()

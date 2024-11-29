@@ -43,6 +43,8 @@ import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.MyItem
 import com.bailout.stickk.ubi4.models.MyViewModel
@@ -56,6 +58,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import okhttp3.Dispatcher
 import kotlin.experimental.and
+import kotlin.random.Random
 
 class BLEParser(main: AppCompatActivity) {
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
@@ -194,9 +197,22 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
+            ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number -> {
+                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
+            }
+            ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
+                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
+            }
+            ParameterDataCodeEnum.PDCE_INTERFECE_ERROR_COUNTER.number -> {
+                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
+            }
             ParameterDataCodeEnum.PDCE_CALIBRATION_CURRENT_PERCENT.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit((0..1000).random()) } }
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
+            }
             //TODO поставить актуальный dataCode
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
                 Log.d("TestOptic", "dataCode: $dataCode")
@@ -312,8 +328,8 @@ class BLEParser(main: AppCompatActivity) {
         System.err.println("TEST parser 2 принятая посылка READ_DEVICE_ADDITIONAL_PARAMETRS $receiveDataString additionalInfoSize=${baseParametrInfoStructArray[ID].additionalInfoSize}")
         val offset = HEADER_BLE_OFFSET * 2 + READ_DEVICE_ADDITIONAL_PARAMETR_DATA * 2
         var dataOffset = 0
-        // TODO почему я не инициализировал ID здесь, а передал извне?
-        // потому что в ответе есть ID обрабатываемого параметра
+        // инициализация ID происходит здесь потому
+        // что в ответе есть ID обрабатываемого параметра
         var ID = ID
 
         if (baseParametrInfoStructArray[ID].additionalInfoSize != 0) {
@@ -361,7 +377,7 @@ class BLEParser(main: AppCompatActivity) {
         Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
         val subDevices = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
         baseSubDevicesInfoStructSet = subDevices.baseSubDeviceInfoStructArray
-        numberSubDevice = subDevices.count
+        numerSubDevice = subDevices.count
 
 
         // тут нам нужно запустить цепную реакцию сабдевайсов (читаем параметры первого сабдевайса)
@@ -451,7 +467,7 @@ class BLEParser(main: AppCompatActivity) {
             subDevice.parametersList.forEach { parametrSubDevice ->
                 if (subDevice.deviceAddress == addressSubDevice) {
                     if (parametrSubDevice.ID == parameterID) {
-                        Log.d("parseReadSubDeviceAdditionalParameters", "deviceAddress=${subDevice.deviceAddress}   additionalInfoSize=${parametrSubDevice.additionalInfoSize}")
+                        Log.d("parseReadSubDeviceAdditionalParameters", "deviceAddress=${subDevice.deviceAddress}   additionalInfoSize=${parametrSubDevice.additionalInfoSize}  receiveDataString=$receiveDataString")
                         for (i in 0 until parametrSubDevice.additionalInfoSize) {
                             //каждый новый цикл вычитываем данные следующего сегмента (следующий addInfoSeg)
                             val additionalInfoSizeStruct = Json.decodeFromString<AdditionalInfoSizeStruct>("\"${receiveDataString.substring(offset+i*ADDITIONAL_INFO_SIZE_STRUCT_SIZE, offset+(i+1)*ADDITIONAL_INFO_SIZE_STRUCT_SIZE)}\"")
@@ -581,7 +597,6 @@ class BLEParser(main: AppCompatActivity) {
                         addToListWidgets(commandParameterWidgetEStruct, commandParameterWidgetEStruct.baseParameterWidgetEStruct, parameterID, dataCode)
                     }
                     ParameterWidgetCode.PWCE_SWITCH.number.toInt() -> {
-                        System.err.println("parseWidgets SWITCH")
                         val switchParameterWidgetEStruct = Json.decodeFromString<SwitchParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
                         switchParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
                         addToListWidgets(switchParameterWidgetEStruct,switchParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID, dataCode)

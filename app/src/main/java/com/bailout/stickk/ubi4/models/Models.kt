@@ -24,13 +24,13 @@ data class BindingGestureItem(
 
 // 3D конфигуратор и передача информации о жесте
 data class ParameterRef (
-    val deviceAddress: Int, val parameterID: Int
+    val addressDevice: Int, val parameterID: Int
 )
 data class GestureInfo (
     val deviceAddress: Int, val parameterID: Int, val gestureID: Int
 )
 data class GestureWithAddress (
-    val deviceAddress: Int, val parameterID: Int,
+    val addressDevice: Int, val parameterID: Int,
     val gesture: Gesture, val gestureState: Int
 )
 

@@ -29,8 +29,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 7
-        versionName "2.4.797"
-
+        versionName "2.4.802"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         signingConfig signingConfigs.release

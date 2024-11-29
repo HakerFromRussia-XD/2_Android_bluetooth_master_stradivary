@@ -45,7 +45,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
-    val chartFlow = MutableStateFlow(0)
+    // Очередь для задачь работы с BLE
+    private val queue = BlockingQueueUbi4()
 
 
     @SuppressLint("CommitTransaction")
@@ -69,10 +70,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController = BLEController(this)
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
+        startQueue()
 
         showSensorsScreen()
-        //showOpticTrainingGesturesScreen()
-
+        binding.addCommandBtn.setOnClickListener {
+            val byteArray = ByteArray(249){0x55.toByte()}
+            for (i in 1..100){
+                byteArray[0] = i.toByte()
+                runWriteDataTest(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE)
+            }
+            Log.d("SendDataTest", "${EncodeByteToHex.bytesToHexString(BLECommands.checkpointDataTransfer(byteArray))}")
+        }
+        binding.runCommandBtn.setOnClickListener {
+        }
 
     }
     @SuppressLint("MissingPermission")
@@ -139,18 +149,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         listWidgets = mutableSetOf()
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(arrayListOf())
-        rotationGroupFlow = MutableStateFlow(0)
+        rotationGroupFlow = MutableSharedFlow()
         bindingGroupFlow = MutableStateFlow(0)
-        slidersFlow = MutableStateFlow(0)
-        switcherFlow = MutableStateFlow(0)
+        slidersFlow = MutableSharedFlow()
+        switcherFlow = MutableSharedFlow()
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
-        plot = MutableStateFlow(0)
         plotArray = arrayListOf()
         rotationGroupGestures = arrayListOf()
         countBinding = 0
         graphThreadFlag = true
+        canSendFlag = false
     }
 
     // сохранение и загрузка данных
@@ -169,6 +179,30 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         editor.apply()
     }
 
+    private fun startQueue() {
+        val worker = Thread {
+            while (true) {
+                val task: Runnable = queue.get()
+                task.run()
+            }
+        }
+        worker.start()
+    }
+    private fun runWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getWriteDataTest(byteArray, Command, typeCommand)) }
+    private fun getWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeDataTest(byteArray, Command, typeCommand) } }
+    private fun writeDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) {
+        synchronized(this) {
+            canSendFlag = false
+            bleCommand(byteArray, Command, typeCommand)
+            Log.d("TestSendByteArray","send!!!!")
+            while (!canSendFlag) {
+                Thread.sleep(1)
+            }
+            Log.d("TestSendByteArray","CallBack is BLEService was complete")
+        }
+    }
+
+
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
@@ -181,10 +215,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
-        var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()
+        var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
         var bindingGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var stateOpticTrainingFlow by Delegates.notNull<MutableStateFlow<PreferenceKeysUBI4.TrainingModelState>>()
-        var slidersFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
+        var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
         var plot by Delegates.notNull<MutableStateFlow<Int>>()
@@ -204,6 +238,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         var countBinding by Delegates.notNull<Int>()
         var graphThreadFlag by Delegates.notNull<Boolean>()
+
+        var canSendFlag by Delegates.notNull<Boolean>()
+
         var inScanFragmentFlag by Delegates.notNull<Boolean>()
     }
 }

@@ -26,6 +26,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
+import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
@@ -56,6 +57,10 @@ class BLEController (main: AppCompatActivity) {
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
+            mBluetoothLeService?.setReceiverCallback {state ->
+                if(state == WRITE)
+                canSendFlag = true
+            }
             if (!mBluetoothLeService?.initialize()!!) {
                 mMain.finish()
             }
@@ -137,7 +142,6 @@ class BLEController (main: AppCompatActivity) {
                         val fakeData3 = byteArrayOf(0x00, 0x01, 0x00, 0x12, 0x00, 0x16, 0x00, 0x02, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
                             0xff.toByte(), 0x0b, 0x0c,
                             0xff.toByte(), 0x01, 0x02, 0x03)
-                        //TODO переренести парсинг принятых данных в отдельный класс
                         parseReceivedData(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL))
                     }
                 }

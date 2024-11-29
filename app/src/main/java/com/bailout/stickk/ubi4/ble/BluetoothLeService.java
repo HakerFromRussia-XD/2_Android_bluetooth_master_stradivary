@@ -28,9 +28,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.util.Log;
 
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4;
 
 import java.util.List;
 import java.util.UUID;
@@ -78,7 +82,32 @@ public class BluetoothLeService extends Service {
 
     //ubi4
     public final static String MAIN_CHANNEL = "com.example.bluetooth.le.MAIN_CHANNEL";
+    public final static String CONFIRMATION_SEND = "com.example.bluetooth.le.CONFIRMATION_SEND";
+    ///////////////////////////// самая быстрая передача данных
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    public ReceiverCallback receiverCallback;
 
+    public void sendDataToReceiver(String state) {
+        handler.post(() -> {
+            if (receiverCallback != null) {
+                receiverCallback.onDataReceived(state);
+            }
+        });
+    }
+    public void setReceiverCallback(ReceiverCallback callback) {
+        this.receiverCallback = callback;
+    }
+
+    public interface ReceiverCallback {
+        void onDataReceived(String state);
+    }
+
+
+
+
+
+
+    ///////////////////////////////
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
         final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);
 
@@ -86,6 +115,9 @@ public class BluetoothLeService extends Service {
 
         if (data != null && data.length > 0) {
             if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL)){
+                if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CONFIRMATION_SEND,"");
+                   // Log.d("TestSendByteArray","BleCommand was send");
+                }//TODO удаление сообщения из очереди команд
                 if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(MAIN_CHANNEL, data); }
             }
             if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CHARACTERISTIC_UUID, String.valueOf(characteristic.getUuid())); }
@@ -227,16 +259,18 @@ public class BluetoothLeService extends Service {
             }
         }
         private void requestMTU() {
-            int mtu = 256 + 3; // Maximum allowed 517 - 3 bytes do BLE
+            int mtu = 256; // Maximum allowed 517 - 3 bytes do BLE  //256 + 3
 
             mBluetoothGatt.requestMtu(mtu);
 
 //            System.err.println("BLE debug -> mtu=$mtu");
         }
+
+
         @Override
         public void onMtuChanged(BluetoothGatt gatt,int mtu, int status) {
             super.onMtuChanged(gatt, mtu, status);
-
+//            Log.d("TestSendByteArray", "status ="+status + "MTU: "+mtu);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.err.println("BLE debug onMtuChanged GATT_SUCCESS");
                 mBluetoothGatt.discoverServices();
@@ -269,12 +303,18 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
+//            Log.d("TestSendByteArray","status =" +status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(characteristic, SampleGattAttributes.WRITE);
+                sendDataToReceiver(SampleGattAttributes.WRITE);
+//                Log.d("TestSendByteArray","запись удалась!!");
             } else if (status == BluetoothGatt.GATT_FAILURE) {
                 System.err.println("запись не удалась");
+//                Log.d("TestSendByteArray","запись не удалась");
+
             }
         }
+
+
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
@@ -424,6 +464,7 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.writeCharacteristic(characteristic);
     }
+
 
     /**
      * Enables or disables notification on a give characteristic.

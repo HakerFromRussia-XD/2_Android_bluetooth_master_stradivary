@@ -204,7 +204,6 @@ class BLECommands {
             )
             return header
         }
-
         fun requestSwitcher(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -306,7 +305,7 @@ class BLECommands {
                 0x00,
                 0x00,
                 0x00,
-                gestureWithAddress.deviceAddress.toByte()
+                gestureWithAddress.addressDevice.toByte()
             )
             val data = byteArrayOf(
                 gestureWithAddress.gesture.gestureId.toByte(),
@@ -373,7 +372,6 @@ class BLECommands {
             result[4] = (calculateDataSize(result)/256).toByte()
             return result
         }
-
         fun sendSwitcherCommand(addressDevice: Int, parameterID: Int, switchState: Boolean): ByteArray {
             val code: Byte = (128 + parameterID).toByte()
             val state: Byte = if (switchState) 1 else 0
@@ -425,6 +423,25 @@ class BLECommands {
             val result = header + data
             return result
         }
+
+        fun checkpointDataTransfer(data: ByteArray): ByteArray {
+
+            val header = byteArrayOf(
+                0x40.toByte(),
+                (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00
+            )
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
+            return result
+        }
+
+
         private fun calculateDataSize(massage: ByteArray): Int {
             return massage.size - HEADER_BLE_OFFSET
         }

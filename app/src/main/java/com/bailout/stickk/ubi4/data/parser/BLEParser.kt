@@ -1,8 +1,10 @@
 package com.bailout.stickk.ubi4.data.parser
 
 import android.util.Log
+import android.util.Pair
 import androidx.appcompat.app.AppCompatActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
@@ -10,19 +12,28 @@ import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoDataStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
+import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseSubDevicesInfoStructSet
@@ -30,6 +41,9 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.fullInicialize
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArrayFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SEG
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
@@ -38,27 +52,12 @@ import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFS
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
-import kotlinx.serialization.json.Json
-import android.util.Pair
-import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.MyItem
-import com.bailout.stickk.ubi4.models.MyViewModel
-import com.bailout.stickk.ubi4.models.ParameterRef
-import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
+import kotlinx.serialization.json.Json
 import kotlin.experimental.and
-import kotlin.random.Random
 
 class BLEParser(main: AppCompatActivity) {
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
@@ -377,11 +376,11 @@ class BLEParser(main: AppCompatActivity) {
         Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
         val subDevices = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
         baseSubDevicesInfoStructSet = subDevices.baseSubDeviceInfoStructArray
-        numerSubDevice = subDevices.count
+        numberSubDevice = subDevices.count
 
 
         // тут нам нужно запустить цепную реакцию сабдевайсов (читаем параметры первого сабдевайса)
-        Log.d("SubDeviceSubDevice", "subDevices=$baseSubDevicesInfoStructSet  numerSubDevice=$numerSubDevice")
+        Log.d("SubDeviceSubDevice", "subDevices=$baseSubDevicesInfoStructSet  numberSubDevice=$numberSubDevice")
         if (baseSubDevicesInfoStructSet.size != 0) {
             mMain.bleCommand(
                 BLECommands.requestSubDeviceParametrs(

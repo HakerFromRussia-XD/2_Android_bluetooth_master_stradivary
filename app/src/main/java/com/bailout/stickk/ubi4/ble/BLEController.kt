@@ -26,9 +26,9 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
-import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex

@@ -116,7 +116,7 @@ public class BluetoothLeService extends Service {
         if (data != null && data.length > 0) {
             if (String.valueOf(characteristic.getUuid()).equals(com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL)){
                 if (state.equals(SampleGattAttributes.WRITE)) { intent.putExtra(CONFIRMATION_SEND,"");
-                    Log.d("TestSendByteArray","BleCommand was send");
+                   // Log.d("TestSendByteArray","BleCommand was send");
                 }//TODO удаление сообщения из очереди команд
                 if (state.equals(SampleGattAttributes.NOTIFY)) { intent.putExtra(MAIN_CHANNEL, data); }
             }
@@ -259,16 +259,18 @@ public class BluetoothLeService extends Service {
             }
         }
         private void requestMTU() {
-            int mtu = 256 + 3; // Maximum allowed 517 - 3 bytes do BLE
+            int mtu = 256; // Maximum allowed 517 - 3 bytes do BLE  //256 + 3
 
             mBluetoothGatt.requestMtu(mtu);
 
 //            System.err.println("BLE debug -> mtu=$mtu");
         }
+
+
         @Override
         public void onMtuChanged(BluetoothGatt gatt,int mtu, int status) {
             super.onMtuChanged(gatt, mtu, status);
-
+//            Log.d("TestSendByteArray", "status ="+status + "MTU: "+mtu);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.err.println("BLE debug onMtuChanged GATT_SUCCESS");
                 mBluetoothGatt.discoverServices();
@@ -301,12 +303,18 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
+//            Log.d("TestSendByteArray","status =" +status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 sendDataToReceiver(SampleGattAttributes.WRITE);
+//                Log.d("TestSendByteArray","запись удалась!!");
             } else if (status == BluetoothGatt.GATT_FAILURE) {
                 System.err.println("запись не удалась");
+//                Log.d("TestSendByteArray","запись не удалась");
+
             }
         }
+
+
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
@@ -456,6 +464,7 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.writeCharacteristic(characteristic);
     }
+
 
     /**
      * Enables or disables notification on a give characteristic.

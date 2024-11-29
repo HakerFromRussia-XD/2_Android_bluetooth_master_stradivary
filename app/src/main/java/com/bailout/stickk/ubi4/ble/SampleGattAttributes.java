@@ -14,6 +14,7 @@ public class SampleGattAttributes {
     public static Boolean SHOW_EVERYONE_RECEIVE_BYTE = false;
     public static String READ = "READ";
     public static String WRITE = "WRITE";
+    public static String WRITE_NO_RESPONSE = "WRITE_NO_RESPONSE";
     public static String NOTIFY = "NOTIFY";
 
     public static String lookup(String uuid, String defaultName) {

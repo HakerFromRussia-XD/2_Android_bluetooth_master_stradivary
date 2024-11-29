@@ -25,6 +25,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE_NO_RESPONSE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
 import com.bailout.stickk.ubi4.models.MyViewModel
@@ -66,7 +67,6 @@ class BLEController(
             mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
             mBluetoothLeService?.setReceiverCallback {state ->
                 if(state == WRITE)
-                Log.d("TestSendByteArray","BleCommand was send FAST!!")
                 canSendFlag = true
             }
             if (!mBluetoothLeService?.initialize()!!) {
@@ -75,8 +75,8 @@ class BLEController(
             if (!scanWithoutConnectFlag) {
                 //TODO раскомментировать когда не нужно быстрое подключение
                 System.err.println("connectedDeviceAddress $connectedDeviceAddress")
-                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
-//                mBluetoothLeService?.connect("DC:DA:0C:18:0E:8E")       // Моя плата
+//                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
+                mBluetoothLeService?.connect("DC:DA:0C:18:1C:6A")       // Моя плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
 //                mBluetoothLeService?.connect("34:85:18:98:0F:D2")       // Mike плата
 //                mBluetoothLeService?.connect(connectedDeviceAddress)
@@ -298,6 +298,13 @@ class BLEController(
                     mCharacteristic = mGattCharacteristics[i][j]
                     if (typeCommand == WRITE){
                         if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+                            System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
+                            mCharacteristic?.value = byteArray
+                            mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+                        }
+                    }
+                    if (typeCommand == WRITE_NO_RESPONSE){
+                        if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0) {
                             System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
                             mCharacteristic?.value = byteArray
                             mBluetoothLeService?.writeCharacteristic(mCharacteristic)

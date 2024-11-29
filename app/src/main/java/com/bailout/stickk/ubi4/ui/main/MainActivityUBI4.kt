@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -16,15 +17,16 @@ import androidx.lifecycle.ViewModelProvider
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
+import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE_NO_RESPONSE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
@@ -35,13 +37,13 @@ import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
-import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
@@ -80,7 +82,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         showSensorsScreen()
         binding.addCommandBtn.setOnClickListener {
-            runWriteDataTest(byteArrayOf(0x00,0x01,0x02), MAIN_CHANNEL, WRITE)
+            val byteArray = ByteArray(249){0x55.toByte()}
+            for (i in 1..100){
+                byteArray[0] = i.toByte()
+                runWriteDataTest(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE)
+            }
+            Log.d("SendDataTest", "${EncodeByteToHex.bytesToHexString(BLECommands.checkpointDataTransfer(byteArray))}")
         }
         binding.runCommandBtn.setOnClickListener {
         }
@@ -179,6 +186,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         synchronized(this) {
             canSendFlag = false
             bleCommand(byteArray, Command, typeCommand)
+            Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
                 Thread.sleep(1)
             }

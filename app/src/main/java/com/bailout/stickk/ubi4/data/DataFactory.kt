@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.data
 
 
+import android.annotation.SuppressLint
 import android.util.Log
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
@@ -23,10 +24,15 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabel.*
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
-
+//Smarakov
+import com.bailout.stickk.ubi4.models.CalibrationButtonsItem
+import com.bailout.stickk.ubi4.models.CalibrationButton
+import com.bailout.stickk.ubi4.models.CalibrationStatus
+import com.bailout.stickk.ubi4.models.ConnectionStatus
 
 internal class DataFactory {
 
+    @SuppressLint("SuspiciousIndentation")
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
         val objectPlotE: Any = PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
@@ -38,18 +44,18 @@ internal class DataFactory {
         val objectSliderE: Any = SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
         val objectSliderS: Any = SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
 
-        addElement(1, 1, objects, objectCommandE)
-        addElement(1, 1, objects, objectCommandE)
-        addElement(1, 1, objects, objectCommandE)
-        addElement(1, 1, objects, objectCommandE)
+//        addElement(1, 1, objects, objectCommandE)
+//        addElement(1, 1, objects, objectCommandE)
+//        addElement(1, 1, objects, objectCommandE)
+//        addElement(1, 1, objects, objectCommandE)
 //        addElementS(1, "5", objects, objectCommandS)
 //        addElement(2, 2, objects, objectSwitchE)
 //        addElementS(2, "Описание свича", objects, objectSwitchS)
-        addElement(5, 10, objects, objectPlotE)
+//        addElement(5, 10, objects, objectPlotE)
 //        addElementS(5, "3", objects, objectPlotS)
 //        addElement(4, 2, objects, objectSliderE)
 //        addElementS(4, "Описание слайдера", objects, objectSliderS)
-
+          addElement(17, 1, objects, objects)
         return objects
     }
     fun fakeDataClear(): List<Any> {
@@ -186,6 +192,69 @@ internal class DataFactory {
                 GesturesItem("GESTURE_SETTINGS", widget)
             }
             ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { OneButtonItem("PWCE_OPTIC_LEARNING_WIDGET", "description", widget) }
+
+            //Smarakov
+            ParameterWidgetCode.PWCE_CALIBRATION_BUTTONS.number.toInt() -> {
+                // Создаем список кнопок калибровки
+                val calibrationButtons = listOf(
+                    CalibrationButton(
+                        id = 1,
+                        buttonTitle = "Кнопка 1",
+                        calibrationStatus = CalibrationStatus.NOT_CALIBRATED,
+                        connectionStatus = ConnectionStatus.NOT_CONNECTED,
+                        encoderSteps = 0,
+                        currentValue = 0
+                    ),
+                    CalibrationButton(
+                        id = 2,
+                        buttonTitle = "Кнопка 2",
+                        calibrationStatus = CalibrationStatus.NOT_CALIBRATED,
+                        connectionStatus = ConnectionStatus.NOT_CONNECTED,
+                        encoderSteps = 0,
+                        currentValue = 0
+                    ),
+                    CalibrationButton(
+                        id = 3,
+                        buttonTitle = "Кнопка 3",
+                        calibrationStatus = CalibrationStatus.NOT_CALIBRATED,
+                        connectionStatus = ConnectionStatus.NOT_CONNECTED,
+                        encoderSteps = 0,
+                        currentValue = 0
+                    ),
+                    CalibrationButton(
+                        id = 4,
+                        buttonTitle = "Кнопка 4",
+                        calibrationStatus = CalibrationStatus.CALIBRATED,
+                        connectionStatus = ConnectionStatus.CONNECTED,
+                        encoderSteps = 100,
+                        currentValue = 50
+                    ),
+                    CalibrationButton(
+                        id = 5,
+                        buttonTitle = "Кнопка 5",
+                        calibrationStatus = CalibrationStatus.NOT_CALIBRATED,
+                        connectionStatus = ConnectionStatus.NOT_CONNECTED,
+                        encoderSteps = 0,
+                        currentValue = 0
+                    ),
+                    CalibrationButton(
+                        id = 6,
+                        buttonTitle = "Кнопка 6",
+                        calibrationStatus = CalibrationStatus.ERROR,
+                        connectionStatus = ConnectionStatus.ERROR,
+                        encoderSteps = 0,
+                        currentValue = 0
+                    ),
+
+                )
+
+                CalibrationButtonsItem(
+                    title = "PWCE_CALIBRATION_BUTTONS",
+                    widget = widget,
+                    buttons = calibrationButtons
+                )
+            }
+
             else -> { OneButtonItem("ветка_else", "ветка_else", widget) }
         }
         widgets.add(item)

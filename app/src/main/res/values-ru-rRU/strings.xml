@@ -550,4 +550,40 @@
         <item>6</item>
         <item>255</item>
     </string-array>
+
+    <!-- ================ -->
+    <!-- Calibration Buttons  -->
+    <!-- ================ -->
+
+    <!-- Arrow Icon Description -->
+    <string name="arrow_icon_description">Arrow icon</string>
+
+    <!-- Titles -->
+    <string name="calibration_button_title_1">Палец 1</string>
+    <string name="calibration_button_title_2">Палец 2</string>
+    <string name="calibration_button_title_3">Палец 3</string>
+    <string name="calibration_button_title_4">Палец 4</string>
+    <string name="calibration_button_title_5">Палец 5</string>
+    <string name="calibration_button_title_6">Палец 6</string>
+
+    <!-- Statuses -->
+    <string name="calibration_status_calibrated">Откалиброван</string>
+    <string name="calibration_status_not_calibrated">Не откалиброван</string>
+    <string name="calibration_status_error">Ошибка</string>
+
+    <!-- Connection Title -->
+    <string name="connection_status_title">Энкодер</string>
+
+    <!-- Connection Statuses -->
+    <string name="connection_status_connected">OK</string>
+    <string name="connection_status_not_connected">NONE</string>
+    <string name="connection_status_error">Ошибка</string>
+
+    <!-- Total Steps Text -->
+    <string name="total_steps_title">Шаги</string>
+    <string name="total_steps_default_num">0</string>
+
+    <!-- Progress Steps Text -->
+    <string name="progress_steps_title">Текущий</string>
+    <string name="progress_steps_default_num">0</string>
 </resources>

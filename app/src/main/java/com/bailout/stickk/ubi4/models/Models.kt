@@ -31,4 +31,31 @@ data class GestureWithAddress (
     val deviceAddress: Int, val parameterID: Int,
     val gesture: Gesture, val gestureState: Int
 )
+//Smarakov
+// Кнопки калибровки пальцев
+data class CalibrationButtonsItem(
+    val title: String,
+    val widget: Any,
+    val buttons: List<CalibrationButton>
+)
+// Модель для отдельной кнопки калибровки
+data class CalibrationButton(
+    val id: Int,
+    val buttonTitle: String,
+    val calibrationStatus: CalibrationStatus,
+    val connectionStatus: ConnectionStatus,
+    val encoderSteps: Int,
+    val currentValue: Int
+)
 
+enum class CalibrationStatus {
+    CALIBRATED,
+    NOT_CALIBRATED,
+    ERROR
+}
+
+enum class ConnectionStatus {
+    CONNECTED,
+    NOT_CONNECTED,
+    ERROR
+}

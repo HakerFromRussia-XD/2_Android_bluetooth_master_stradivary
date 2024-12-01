@@ -549,4 +549,41 @@
         <item>6</item>
         <item>255</item>
     </string-array>
+
+    <!-- ================ -->
+    <!-- Calibration Buttons  -->
+    <!-- ================ -->
+
+    <!-- Arrow Icon Description -->
+    <string name="arrow_icon_description">Arrow icon</string>
+
+    <!-- Titles -->
+    <string name="calibration_button_title_1">Finger 1</string>
+    <string name="calibration_button_title_2">Finger 2</string>
+    <string name="calibration_button_title_3">Finger 3</string>
+    <string name="calibration_button_title_4">Finger 4</string>
+    <string name="calibration_button_title_5">Finger 5</string>
+    <string name="calibration_button_title_6">Finger 6</string>
+
+    <!-- Calibration Statuses -->
+    <string name="calibration_status_calibrated">Calibrated</string>
+    <string name="calibration_status_not_calibrated">Not calibrated</string>
+    <string name="calibration_status_error">Error</string>
+
+    <!-- Connection Title -->
+    <string name="connection_status_title">Encoder</string>
+
+    <!-- Connection Statuses -->
+    <string name="connection_status_connected">OK</string>
+    <string name="connection_status_not_connected">NONE</string>
+    <string name="connection_status_error">Error</string>
+
+    <!-- Total Steps Text -->
+    <string name="total_steps_title">Steps</string>
+    <string name="total_steps_default_num">0</string>
+
+    <!-- Progress Steps Text -->
+    <string name="progress_steps_title">Actual</string>
+    <string name="progress_steps_default_num">0</string>
+
 </resources>

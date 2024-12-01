@@ -70,7 +70,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragmentContainer, SensorsFragment())
+            .add(R.id.fragmentContainer, GesturesFragment())
             .commit()
     }
     @SuppressLint("MissingPermission")

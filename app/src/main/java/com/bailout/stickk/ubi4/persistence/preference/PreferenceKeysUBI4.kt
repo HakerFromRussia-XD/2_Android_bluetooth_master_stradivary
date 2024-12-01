@@ -105,6 +105,8 @@ object PreferenceKeysUBI4 {
 
         PWCE_GESTURES_WINDOW (0x0e),
         PWCE_OPTIC_LEARNING_WIDGET (0x0f),
+        //Smarakov
+        PWCE_CALIBRATION_BUTTONS (0x11),
     }
 
     enum class ParameterWidgetLabel(val number: Int, val label: String) {

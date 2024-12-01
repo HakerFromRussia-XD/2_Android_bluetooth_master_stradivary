@@ -26,6 +26,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapt
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.CalibrationButtonsDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
@@ -75,12 +76,12 @@ class GesturesFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         if (activity != null) { main = activity as MainActivityUBI4? }
-        Log.d("LifeCycele", "onCreateView")
+        Log.d("LifeCycle", "onCreateView")
 
         //настоящие виджеты
-        widgetListUpdater()
+//        widgetListUpdater()
         //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.fakeData())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -178,6 +179,8 @@ class GesturesFragment : Fragment() {
         ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> Log.d("onSetProgress", "progress = $progress")}
+        ),
+        CalibrationButtonsDelegateAdapter(
         )
     )
 

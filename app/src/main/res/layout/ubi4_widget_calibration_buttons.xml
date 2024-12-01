@@ -1,0 +1,1247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/ubi4_back">
+
+    <!-- Первая кнопка -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/calibration1Btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/ubi4_view_with_corners_gray"
+        android:elevation="3dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Заголовок кнопки -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/headerLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/buttonTitle1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/calibration_button_title_1"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/calibrationStatus1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/calibration_status_not_calibrated"
+                android:textColor="@color/ubi4_deactivate_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/arrowIcon1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <ImageView
+                android:id="@+id/arrowIcon1"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/arrow_icon_description"
+                android:src="@drawable/baseline_keyboard_arrow_down_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Выпадающий контент -->
+        <LinearLayout
+            android:id="@+id/expandableContent1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/headerLayout1">
+
+            <!-- Контейнер для трёх индикаторов -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="3"
+                tools:ignore="UselessParent">
+
+                <!-- Первый индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Статус соединения с энкодером  -->
+                    <FrameLayout
+                        android:layout_width="70dp"
+                        android:layout_height="60dp"
+                        >
+
+                        <TextView
+                            android:id="@+id/connectionStatusValue1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/connection_status_connected"
+                            />
+
+                    </FrameLayout>
+
+                    <!--  Текст соединения с энкодером  -->
+                    <TextView
+                        android:id="@+id/connectionStatusText1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/connection_status_title"/>
+                </LinearLayout>
+
+                <!-- Второй индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Количество шагов  -->
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+
+                        <TextView
+                            android:id="@+id/totalStepsValue1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/total_steps_default_num"
+                            />
+                    </FrameLayout>
+
+                    <!--  Количество шагов Текст  -->
+                    <TextView
+                        android:id="@+id/totalStepsText1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/total_steps_title"/>
+                </LinearLayout>
+
+                <!-- Третий индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+
+                        <!--  Прогресс бар шагов  -->
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/progressIndicator1"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_gravity="center"
+                            app:indicatorSize="50dp"
+                            app:trackThickness="3dp"
+                            app:trackColor="#33FFFFFF"
+                            app:indicatorColor="@color/ubi4_active"
+                            app:trackCornerRadius="4dp"
+                            android:progress="30"
+                            android:max="100"
+                            android:indeterminate="false"
+                            android:rotation="180"/>
+
+                        <!--  Количество шагов в прогресс баре  -->
+                        <TextView
+                            android:id="@+id/progressBadge1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"
+                            android:text="@string/progress_steps_default_num"/>
+                    </FrameLayout>
+
+                    <!--  Текст прогресс бара  -->
+                    <TextView
+                        android:id="@+id/progressText1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/progress_steps_title"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Вторая кнопка -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/calibration2Btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/ubi4_view_with_corners_gray"
+        android:elevation="3dp"
+        app:layout_constraintTop_toBottomOf="@id/calibration1Btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Заголовок кнопки -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/headerLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/buttonTitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/calibration_button_title_2"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/calibrationStatus2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/calibration_status_not_calibrated"
+                android:textColor="@color/ubi4_deactivate_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/arrowIcon2"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <ImageView
+                android:id="@+id/arrowIcon2"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/arrow_icon_description"
+                android:src="@drawable/baseline_keyboard_arrow_down_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Выпадающий контент -->
+        <LinearLayout
+            android:id="@+id/expandableContent2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/headerLayout2">
+
+            <!-- Контейнер для трёх индикаторов -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="3"
+                tools:ignore="UselessParent">
+
+                <!-- Первый индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Статус соединения с энкодером  -->
+                    <FrameLayout
+                        android:layout_width="70dp"
+                        android:layout_height="60dp"
+                        >
+
+                        <TextView
+                            android:id="@+id/connectionStatusValue2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/connection_status_connected"
+                            />
+
+                    </FrameLayout>
+
+                    <!--  Текст соединения с энкодером  -->
+                    <TextView
+                        android:id="@+id/connectionStatusText2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/connection_status_title"/>
+                </LinearLayout>
+
+                <!-- Второй индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Количество шагов  -->
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+                        <TextView
+                            android:id="@+id/totalStepsValue2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/total_steps_default_num"
+                            />
+                    </FrameLayout>
+
+                    <!--  Количество шагов Текст  -->
+                    <TextView
+                        android:id="@+id/totalStepsText2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/total_steps_title"/>
+                </LinearLayout>
+
+                <!-- Третий индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+
+                        <!--  Прогресс бар шагов  -->
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/progressIndicator2"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_gravity="center"
+                            app:indicatorSize="50dp"
+                            app:trackThickness="3dp"
+                            app:trackColor="#33FFFFFF"
+                            app:indicatorColor="@color/ubi4_active"
+                            app:trackCornerRadius="4dp"
+                            android:progress="30"
+                            android:max="100"
+                            android:indeterminate="false"
+                            android:rotation="180"/>
+
+                        <!--  Количество шагов в прогресс баре  -->
+                        <TextView
+                            android:id="@+id/progressBadge2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"
+                            android:text="@string/progress_steps_default_num"/>
+                    </FrameLayout>
+
+                    <!--  Текст прогресс бара  -->
+                    <TextView
+                        android:id="@+id/progressText2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/progress_steps_title"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Третья кнопка -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/calibration3Btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/ubi4_view_with_corners_gray"
+        android:elevation="3dp"
+        app:layout_constraintTop_toBottomOf="@id/calibration2Btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Заголовок кнопки -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/headerLayout3"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/buttonTitle3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/calibration_button_title_3"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/calibrationStatus3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/calibration_status_not_calibrated"
+                android:textColor="@color/ubi4_deactivate_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/arrowIcon3"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <ImageView
+                android:id="@+id/arrowIcon3"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/arrow_icon_description"
+                android:src="@drawable/baseline_keyboard_arrow_down_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Выпадающий контент -->
+        <LinearLayout
+            android:id="@+id/expandableContent3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/headerLayout3">
+
+            <!-- Контейнер для трёх индикаторов -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="3"
+                tools:ignore="UselessParent">
+
+                <!-- Первый индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <FrameLayout
+                        android:layout_width="70dp"
+                        android:layout_height="60dp"
+                        >
+
+                        <!--  Статус соединения с энкодером  -->
+                        <TextView
+                            android:id="@+id/connectionStatusValue3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/connection_status_connected"
+                            />
+
+                    </FrameLayout>
+
+                    <!--  Текст соединения с энкодером  -->
+                    <TextView
+                        android:id="@+id/connectionStatusText3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/connection_status_title"/>
+                </LinearLayout>
+
+                <!-- Второй индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Количество шагов  -->
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+                        <TextView
+                            android:id="@+id/totalStepsValue3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/total_steps_default_num"
+
+                            />
+                    </FrameLayout>
+
+                    <!--  Количество шагов Текст  -->
+                    <TextView
+                        android:id="@+id/totalStepsText3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/total_steps_title"/>
+                </LinearLayout>
+
+                <!-- Третий индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+
+                        <!--  Прогресс бар шагов  -->
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/progressIndicator3"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_gravity="center"
+                            app:indicatorSize="50dp"
+                            app:trackThickness="3dp"
+                            app:trackColor="#33FFFFFF"
+                            app:indicatorColor="@color/ubi4_active"
+                            app:trackCornerRadius="4dp"
+                            android:progress="30"
+                            android:max="100"
+                            android:indeterminate="false"
+                            android:rotation="180"/>
+
+                        <!--  Количество шагов в прогресс баре  -->
+                        <TextView
+                            android:id="@+id/progressBadge3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"
+                            android:text="@string/progress_steps_default_num"/>
+                    </FrameLayout>
+
+                    <!--  Текст прогресс бара  -->
+                    <TextView
+                        android:id="@+id/progressText3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/progress_steps_title"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Четвертая кнопка -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/calibration4Btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/ubi4_view_with_corners_gray"
+        android:elevation="3dp"
+        app:layout_constraintTop_toBottomOf="@id/calibration3Btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <!-- Заголовок кнопки -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/headerLayout4"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/buttonTitle4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/calibration_button_title_4"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/calibrationStatus4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/calibration_status_not_calibrated"
+                android:textColor="@color/ubi4_deactivate_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/arrowIcon4"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <ImageView
+                android:id="@+id/arrowIcon4"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/arrow_icon_description"
+                android:src="@drawable/baseline_keyboard_arrow_down_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Выпадающий контент -->
+        <LinearLayout
+            android:id="@+id/expandableContent4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="0dp"
+            android:visibility="gone"
+            android:paddingBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/headerLayout4">
+
+            <!-- Контейнер для трёх индикаторов -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="3"
+                tools:ignore="UselessParent">
+
+                <!-- Первый индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Статус соединения с энкодером  -->
+                    <FrameLayout
+                        android:layout_width="70dp"
+                        android:layout_height="60dp"
+                        >
+                        <TextView
+                            android:id="@+id/connectionStatusValue4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/connection_status_connected"
+                            android:elevation="8dp"
+                            />
+
+                    </FrameLayout>
+
+                    <!--  Текст соединения с энкодером  -->
+                    <TextView
+                        android:id="@+id/connectionStatusText4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/connection_status_title"/>
+                </LinearLayout>
+
+                <!-- Второй индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Количество шагов  -->
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+                        <TextView
+                            android:id="@+id/totalStepsValue4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/total_steps_default_num"
+                            />
+                    </FrameLayout>
+
+                    <!--  Количество шагов Текст  -->
+                    <TextView
+                        android:id="@+id/totalStepsText4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/total_steps_title"/>
+                </LinearLayout>
+
+                <!-- Третий индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+
+                        <!--  Прогресс бар шагов  -->
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/progressIndicator4"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_gravity="center"
+                            app:indicatorSize="50dp"
+                            app:trackThickness="3dp"
+                            app:trackColor="#33FFFFFF"
+                            app:indicatorColor="@color/ubi4_active"
+                            app:trackCornerRadius="4dp"
+                            android:progress="30"
+                            android:max="100"
+                            android:indeterminate="false"
+                            android:rotation="180"/>
+
+                        <!--  Количество шагов в прогресс баре  -->
+                        <TextView
+                            android:id="@+id/progressBadge4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"
+                            android:text="@string/progress_steps_default_num"
+                            tools:ignore="TooManyViews" />
+                    </FrameLayout>
+
+                    <!--  Текст прогресс бара  -->
+                    <TextView
+                        android:id="@+id/progressText4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/progress_steps_title"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Пятая кнопка -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/calibration5Btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/ubi4_view_with_corners_gray"
+        android:elevation="3dp"
+        app:layout_constraintTop_toBottomOf="@id/calibration4Btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Заголовок кнопки -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/headerLayout5"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/buttonTitle5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/calibration_button_title_5"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/calibrationStatus5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/calibration_status_not_calibrated"
+                android:textColor="@color/ubi4_deactivate_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/arrowIcon5"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <ImageView
+                android:id="@+id/arrowIcon5"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/arrow_icon_description"
+                android:src="@drawable/baseline_keyboard_arrow_down_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Выпадающий контент -->
+        <LinearLayout
+            android:id="@+id/expandableContent5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/headerLayout5">
+
+            <!-- Контейнер для трёх индикаторов -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="3"
+                tools:ignore="UselessParent">
+
+                <!-- Первый индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Статус соединения с энкодером  -->
+                    <FrameLayout
+                        android:layout_width="70dp"
+                        android:layout_height="60dp"
+                        >
+                        <TextView
+                            android:id="@+id/connectionStatusValue5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/connection_status_connected"
+                            />
+
+                    </FrameLayout>
+
+                    <!--  Текст соединения с энкодером  -->
+                    <TextView
+                        android:id="@+id/connectionStatusText5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/connection_status_title"/>
+                </LinearLayout>
+
+                <!-- Второй индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Количество шагов  -->
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+                        <TextView
+                            android:id="@+id/totalStepsValue5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/total_steps_default_num"
+                            />
+                    </FrameLayout>
+
+                    <!--  Количество шагов Текст  -->
+                    <TextView
+                        android:id="@+id/totalStepsText5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/total_steps_title"/>
+                </LinearLayout>
+
+                <!-- Третий индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+
+                        <!--  Прогресс бар шагов  -->
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/progressIndicator5"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_gravity="center"
+                            app:indicatorSize="50dp"
+                            app:trackThickness="3dp"
+                            app:trackColor="#33FFFFFF"
+                            app:indicatorColor="@color/ubi4_active"
+                            app:trackCornerRadius="4dp"
+                            android:progress="30"
+                            android:max="100"
+                            android:indeterminate="false"
+                            android:rotation="180"/>
+
+                        <!--  Количество шагов в прогресс баре  -->
+                        <TextView
+                            android:id="@+id/progressBadge5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"
+                            android:text="@string/progress_steps_default_num"/>
+                    </FrameLayout>
+
+                    <!--  Текст прогресс бара  -->
+                    <TextView
+                        android:id="@+id/progressText5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/progress_steps_title"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Шестая кнопка -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/calibration6Btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/ubi4_view_with_corners_gray"
+        android:elevation="3dp"
+        app:layout_constraintTop_toBottomOf="@id/calibration5Btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Заголовок кнопки -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/headerLayout6"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/buttonTitle6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/calibration_button_title_6"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/calibrationStatus6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/calibration_status_not_calibrated"
+                android:textColor="@color/ubi4_deactivate_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/arrowIcon6"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <ImageView
+                android:id="@+id/arrowIcon6"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/arrow_icon_description"
+                android:src="@drawable/baseline_keyboard_arrow_down_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Выпадающий контент -->
+        <LinearLayout
+            android:id="@+id/expandableContent6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/headerLayout6">
+
+            <!-- Контейнер для трёх индикаторов -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="3"
+                tools:ignore="UselessParent">
+
+                <!-- Первый индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Статус соединения с энкодером  -->
+                    <FrameLayout
+                        android:layout_width="70dp"
+                        android:layout_height="60dp"
+                        >
+                        <TextView
+                            android:id="@+id/connectionStatusValue6"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/connection_status_connected"
+                            />
+
+                    </FrameLayout>
+
+                    <!--  Текст соединения с энкодером  -->
+                    <TextView
+                        android:id="@+id/connectionStatusText6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/connection_status_title"/>
+                </LinearLayout>
+
+                <!-- Второй индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!--  Количество шагов  -->
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+                        <TextView
+                            android:id="@+id/totalStepsValue6"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="26sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/ubi4_active"
+                            android:text="@string/total_steps_default_num"
+                            />
+                    </FrameLayout>
+
+                    <!--  Количество шагов Текст  -->
+                    <TextView
+                        android:id="@+id/totalStepsText6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/total_steps_title"/>
+                </LinearLayout>
+
+                <!-- Третий индикатор -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp">
+
+                        <!--  Прогресс бар шагов  -->
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/progressIndicator6"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_gravity="center"
+                            app:indicatorSize="50dp"
+                            app:trackThickness="3dp"
+                            app:trackColor="#33FFFFFF"
+                            app:indicatorColor="@color/ubi4_active"
+                            app:trackCornerRadius="4dp"
+                            android:progress="30"
+                            android:max="100"
+                            android:indeterminate="false"
+                            android:rotation="180"/>
+
+                        <!--  Количество шагов в прогресс баре  -->
+                        <TextView
+                            android:id="@+id/progressBadge6"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"
+                            android:text="@string/progress_steps_default_num"/>
+                    </FrameLayout>
+
+                    <!--  Текст прогресс бара  -->
+                    <TextView
+                        android:id="@+id/progressText6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:text="@string/progress_steps_title"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

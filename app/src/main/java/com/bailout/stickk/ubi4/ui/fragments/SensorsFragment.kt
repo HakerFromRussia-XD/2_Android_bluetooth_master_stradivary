@@ -20,6 +20,7 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
@@ -56,9 +57,9 @@ class SensorsFragment : Fragment() {
         if (activity != null) { main = activity as MainActivityUBI4? }
 
         //настоящие виджеты
-        widgetListUpdater()
+//        widgetListUpdater()
         //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.fakeData())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -116,6 +117,22 @@ class SensorsFragment : Fragment() {
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
             //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
             onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
+        ),
+        TrainingFragmentDelegateAdapter(
+            onConfirmClick = {
+                if (isAdded) {
+                    Log.d("StateCallBack", "onConfirmClick: Button clicked")
+//                    showConfirmTrainingDialog {
+//                        navigator().showMotionTrainingScreen {
+//                            main?.manageTrainingLifecycle()
+//                        }
+//                    }
+                } else {
+                    Log.e("StateCallBack", "Fragment is not attached to activity")
+                }
+            },
+            onShowFileClick = {  },
+            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
         )
 //        GesturesDelegateAdapter (
 //            onSelectorClick = {},

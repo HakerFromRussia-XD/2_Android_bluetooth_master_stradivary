@@ -49,7 +49,7 @@ class SprTrainingFragment : Fragment() {
     private var mDataFactory: DataFactory = DataFactory()
     private var onChangeState: ((state: Int) -> Unit)? = null
     private var onDestroyParent: (() -> Unit)? = null
-    private var adapterWidgets: CompositeDelegateAdapter? = null
+   // private var adapterWidgets: CompositeDelegateAdapter? = null
 
 
     override fun onCreateView(
@@ -64,10 +64,15 @@ class SprTrainingFragment : Fragment() {
 
         }
 
+
+
+
         //настоящие виджеты
-        widgetListUpdater()
+//        widgetListUpdater()
         //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData2())
+//        adapterWidgets = initAdapter()
+        adapterWidgets.swapData(mDataFactory.fakeData2())
+
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
@@ -75,54 +80,7 @@ class SprTrainingFragment : Fragment() {
         binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
 
 
-        adapterWidgets = CompositeDelegateAdapter(
-            PlotDelegateAdapter(
-                plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
-            ),
-            OneButtonDelegateAdapter(
-                onButtonPressed = { addressDevice, parameterID, command ->
-                    oneButtonPressed(
-                        addressDevice,
-                        parameterID,
-                        command
-                    )
-                },
-                onButtonReleased = { addressDevice, parameterID, command ->
-                    oneButtonReleased(
-                        addressDevice,
-                        parameterID,
-                        command
-                    )
-                }
-            ),
-            TrainingFragmentDelegateAdapter(
-                onConfirmClick = {
-                    if (isAdded) {
-                        Log.d("StateCallBack", "onConfirmClick: Button clicked")
-                        showConfirmTrainingDialog {
-                            navigator().showMotionTrainingScreen {
-                                main?.manageTrainingLifecycle()
-                            }
-                        }
-                    } else {
-                        Log.e("StateCallBack", "Fragment is not attached to activity")
-                    }
-                },
-                onShowFileClick = { showFilesDialog() },
-                onDestroyParent = {onDestroyParent -> this.onDestroyParent = onDestroyParent },
-            ),
-            SwitcherDelegateAdapter(
-                onSwitchClick = {
-                        addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState)
-                },
-                onDestroyParent = {onDestroyParent -> this.onDestroyParent = onDestroyParent}
-            ),
-            SliderDelegateAdapter(
-                onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
-                //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
-                onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
-            )
-        )
+
         binding.sprTrainingRv.layoutManager = LinearLayoutManager(context)
         binding.sprTrainingRv.adapter = adapterWidgets
         Log.d("SprTrainingFragment", "onViewCreated finished")
@@ -148,6 +106,63 @@ class SprTrainingFragment : Fragment() {
         }
     }
 
+
+   // private fun initAdapter(): CompositeDelegateAdapter? {
+
+    private var adapterWidgets: CompositeDelegateAdapter = CompositeDelegateAdapter(
+        PlotDelegateAdapter(
+            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+        ),
+        OneButtonDelegateAdapter(
+            onButtonPressed = { addressDevice, parameterID, command ->
+                oneButtonPressed(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            },
+            onButtonReleased = { addressDevice, parameterID, command ->
+                oneButtonReleased(
+                    addressDevice,
+                    parameterID,
+                    command
+                )
+            }
+        ),
+        TrainingFragmentDelegateAdapter(
+            onConfirmClick = {
+                if (isAdded) {
+                    Log.d("StateCallBack", "onConfirmClick: Button clicked")
+                    showConfirmTrainingDialog {
+                        navigator().showMotionTrainingScreen {
+                            main?.manageTrainingLifecycle()
+                        }
+                    }
+                } else {
+                    Log.e("StateCallBack", "Fragment is not attached to activity")
+                }
+            },
+            onShowFileClick = { showFilesDialog() },
+            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
+        ),
+        SwitcherDelegateAdapter(
+            onSwitchClick = { addressDevice, parameterID, switchState ->
+                sendSwitcherState(addressDevice, parameterID, switchState)
+            },
+            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent }
+        ),
+        SliderDelegateAdapter(
+            onSetProgress = { addressDevice, parameterID, progress ->
+                sendSliderProgress(
+                    addressDevice,
+                    parameterID,
+                    progress
+                )
+            },
+            //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
+            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent }
+        )
+    )
 
     @SuppressLint("MissingInflatedId")
     fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
@@ -217,6 +232,12 @@ class SprTrainingFragment : Fragment() {
                 }
             }
 
+//            override fun onSelect(fileItem: FileItem) {
+//                val byteArray = fileItem.file.readBytes()
+//                main?.runWriteDataTest(byteArray, MAIN_CHANNEL, WRITE)
+//                Toast.makeText(requireContext(), "Файл отправлен: ${fileItem.name}", Toast.LENGTH_SHORT).show()
+//            }
+
         })
         filesRecyclerView.adapter = adapter
 
@@ -239,8 +260,6 @@ class SprTrainingFragment : Fragment() {
     private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         System.err.println("oneButtonReleased    parameterID: $parameterID   command: $command")
 
-
-
         transmitter().bleCommand(
             BLECommands.sendOneButtonCommand(addressDevice, parameterID, command),
             MAIN_CHANNEL,
@@ -259,12 +278,30 @@ class SprTrainingFragment : Fragment() {
 
     }
 
+    private fun sendFileInChunks(byteArray: ByteArray){
+        val maxChunkSize = 259
+        var totalBytesSent = 0
+
+        byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk->
+            val chunkArray = chunk.toByteArray()
+            main?.runWriteDataTest(byteArray, MAIN_CHANNEL, WRITE)
+            totalBytesSent += chunkArray.size
+            Log.d("BLE Data", "Часть $index отправлена: ${chunkArray.size} байт. Всего отправлено: $totalBytesSent байт.")
+
+        }
+
+
+    }
+
+
+
+
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d("LagSpr", " started onDestroy")
         onDestroyParent?.invoke()
-        adapterWidgets = null
+        //adapterWidgets = null
     }
 
 }

@@ -32,9 +32,13 @@ class FileCheckpointAdapter(
         holder.deleteButton.setOnClickListener {
             listener.onDelete(position,fileItem)
         }
+//         holder.itemView.setOnClickListener {
+//             listener.onSelect(fileItem)
+//         }
     }
 }
 
 interface OnFileActionListener {
     fun onDelete(position: Int, fileItem: FileItem)
+//    fun onSelect(fileItem: FileItem)
 }

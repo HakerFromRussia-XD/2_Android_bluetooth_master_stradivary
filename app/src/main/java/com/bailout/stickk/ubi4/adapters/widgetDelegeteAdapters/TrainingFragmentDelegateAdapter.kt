@@ -37,17 +37,16 @@ class TrainingFragmentDelegateAdapter(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetTrainingOpticBinding.onBind(item: TrainingGestureItem) {
+        Log.d("TestWidgetView", "Start onBind, item: ${item}")
         onDestroyParent { onDestroy() }
         _trainingSubTitleTv = trainingSubTitleTv
         _trainingAnnotationIv = trainingAnnotationIv
         _trainingBtn = trainingBtn
         _lottieAnimationLoading = lottieAnimationLoading
 
-
         showFileBtn.setOnClickListener {
             onShowFileClick()
         }
-
         startStateFlowCollector()
     }
 

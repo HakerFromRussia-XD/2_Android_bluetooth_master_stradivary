@@ -39,6 +39,8 @@ internal class DataFactory {
         val objectSwitchS: Any = SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
         val objectSliderE: Any = SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
         val objectSliderS: Any = SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
+        val objectTrainingE: Any = OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+
 
         addElement(1, 1, objects, objectCommandE)
         addElement(1, 1, objects, objectCommandE)
@@ -51,11 +53,27 @@ internal class DataFactory {
 //        addElementS(5, "3", objects, objectPlotS)
         addElement(4, 2, objects, objectSliderE)
 //        addElementS(4, "Описание слайдера", objects, objectSliderS)
+        addElement(15, 1, objects, objectTrainingE)
+
 
         return objects
     }
     fun fakeDataClear(): List<Any> {
         val objects = ArrayList<Any>()
+        return objects
+    }
+
+    fun fakeData2(): List<Any> {
+        val objects = ArrayList<Any>()
+        val objectTrainingE: Any = OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectTrainingE2: Any = "null"
+        Log.d("TestWidgetView", "objectTrainingE: $objectTrainingE")
+
+        val objectSwitchE: Any = SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        addElement(2, 2, objects, objectTrainingE2)
+        addElement(15, 1, objects, objectTrainingE2)
+        addElement(2, 2, objects, objectSwitchE)
+        Log.d("TestWidgetView", "PWCE_OPTIC_LEARNING_WIDGET -- Ok")
         return objects
     }
 
@@ -152,6 +170,7 @@ internal class DataFactory {
                             it
                         )
                     }
+
                 }
                 is SwitchParameterWidgetSStruct -> {
                     if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
@@ -236,7 +255,9 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_PLOT_AND_1_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_1_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
-            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { TrainingGestureItem("labelCode = $labelCode", widget)  }
+            ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { TrainingGestureItem("labelCode = $labelCode", widget)
+            Log.d("TestWidgetView", "PWCE_OPTIC_LEARNING_WIDGET ADDELEMENT -- Ok")
+            }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)

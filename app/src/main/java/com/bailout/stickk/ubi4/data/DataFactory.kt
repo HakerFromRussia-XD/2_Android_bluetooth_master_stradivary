@@ -41,6 +41,7 @@ internal class DataFactory {
         val objectSliderS: Any = SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
         val objectTrainingE: Any = OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
 
+
         addElement(1, 1, objects, objectCommandE)
         addElement(1, 1, objects, objectCommandE)
         addElement(1, 1, objects, objectCommandE)
@@ -53,6 +54,7 @@ internal class DataFactory {
         addElement(4, 2, objects, objectSliderE)
 //        addElementS(4, "Описание слайдера", objects, objectSliderS)
         addElement(15, 1, objects, objectTrainingE)
+
 
         return objects
     }

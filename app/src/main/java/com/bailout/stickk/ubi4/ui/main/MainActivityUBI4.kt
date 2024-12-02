@@ -199,11 +199,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    private fun runWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getWriteDataTest(byteArray, Command, typeCommand)) }
+    fun runWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getWriteDataTest(byteArray, Command, typeCommand)) }
     private fun getWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeDataTest(byteArray, Command, typeCommand) } }
     private fun writeDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
+            val dataSize = byteArray?.size ?: 0
+            Log.d("TestSendByteArray", "Отправлено $dataSize байт.")
             bleCommand(byteArray, Command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {

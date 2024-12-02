@@ -28,6 +28,7 @@ import com.bailout.stickk.ubi4.utility.Hyperparameters.WIN_SHIFT
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.tensorflow.lite.Interpreter
 import java.io.File
@@ -50,6 +51,7 @@ class TrainingModelHandler(private val context: Context) {
     private lateinit var assetManager: AssetManager
     private lateinit var epochsTimer: Chronometer
     private lateinit var batchesTimer: Chronometer
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     fun initialize() {
         path = context.getExternalFilesDir(null)
@@ -60,7 +62,7 @@ class TrainingModelHandler(private val context: Context) {
         tflite = loadModelFile("model.tflite")
         epochsTimer = Chronometer(context)
         batchesTimer = Chronometer(context)
-        CoroutineScope(Default).launch { stateOpticTrainingFlow.emit(PreferenceKeysUBI4.TrainingModelState.BASE) }
+        scope.launch { stateOpticTrainingFlow.emit(PreferenceKeysUBI4.TrainingModelState.BASE) }
         Log.d("StateCallBack", "Initialized with state: 0")
     }
 
@@ -69,21 +71,21 @@ class TrainingModelHandler(private val context: Context) {
 //        saveStateToPreference(state)
         when (state) {
             PreferenceKeysUBI4.TrainingModelState.EXPORT -> {
-                CoroutineScope(Default).launch {
+                scope.launch {
                     stateOpticTrainingFlow.emit(PreferenceKeysUBI4.TrainingModelState.EXPORT)
                 }
                 Log.d("StateCallBack", "handleState: export")
             }
 
             PreferenceKeysUBI4.TrainingModelState.RUN -> {
-                CoroutineScope(Default).launch {
+               scope.launch {
                     stateOpticTrainingFlow.emit(PreferenceKeysUBI4.TrainingModelState.RUN)
                 }
                 Log.d("StateCallBack", "handleState: runModel")
             }
 
             PreferenceKeysUBI4.TrainingModelState.BASE -> {
-                CoroutineScope(Default).launch {
+                scope.launch {
                     stateOpticTrainingFlow.emit(PreferenceKeysUBI4.TrainingModelState.BASE)
                 }
                 Log.d("StateCallBack", "handleState: BASE")
@@ -91,12 +93,12 @@ class TrainingModelHandler(private val context: Context) {
         }
     }
 
-    private fun saveStateToPreference(state: PreferenceKeysUBI4.TrainingModelState) {
-        val sharedPreferences = context.getSharedPreferences("training_state", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putString("current_state",state.name)
-        editor.apply()
-    }
+//    private fun saveStateToPreference(state: PreferenceKeysUBI4.TrainingModelState) {
+//        val sharedPreferences = context.getSharedPreferences("training_state", Context.MODE_PRIVATE)
+//        val editor = sharedPreferences.edit()
+//        editor.putString("current_state", state.name)
+//        editor.apply()
+//    }
 
 //    private fun loadStateToSharedPreference(): PreferenceKeysUBI4.TrainingModelState {
 //        val sharedPreferences = context.getSharedPreferences("training_state", Context.MODE_PRIVATE)
@@ -110,8 +112,6 @@ class TrainingModelHandler(private val context: Context) {
 //    }
 
 
-
-
     private fun loadModelFile(modelPath: String): Interpreter {
         val assetFileDescriptor = context.assets.openFd(modelPath)
         val fileInputStream = FileInputStream(assetFileDescriptor.fileDescriptor)
@@ -123,16 +123,20 @@ class TrainingModelHandler(private val context: Context) {
     }
 
     fun runModel() {
-        Log.d("StateCallBack", "runModel")
-        CoroutineScope(Dispatchers.IO).launch {
+        Log.d("StateCallBack", " Run runModel")
+        scope.launch {
 //            if (stateOpticTrainingFlow.value != PreferenceKeysUBI4.TrainingModelState.RUN) {
 //                stateOpticTrainingFlow.emit(PreferenceKeysUBI4.TrainingModelState.RUN)
 //                Log.d("StateFlow", "State changed to RUN")
 //            }
+            Log.d("StateCallBack", " Run runModel1")
+
             handleState(PreferenceKeysUBI4.TrainingModelState.RUN)
             val startTime = System.currentTimeMillis()
             val endTime = System.currentTimeMillis()
             try {
+                Log.d("StateCallBack", " Run runModel2")
+
                 //////////////////////////// [LOAD DATA] /////////////////////////////
                 //val assetManager = requireContext().assets
                 val importData = mutableListOf<List<String>>()
@@ -283,7 +287,7 @@ class TrainingModelHandler(private val context: Context) {
                 run(preprocessedX)
                 Log.d("LagSpr", "Start RunModel8 ${endTime - startTime} ms")
             } catch (e: Exception) {
-                Log.e("LagSpr", "Error in runModel: ${e.message}", e)
+                Log.d("StateCallBack", " Runmodel  ERROR ${e.message}")
             }
         }
     }
@@ -404,7 +408,7 @@ class TrainingModelHandler(private val context: Context) {
 
 
     fun export(path: File?) {
-        CoroutineScope(Default).launch {
+        scope.launch {
             Log.d("LagSpr", "Start RunModel11")
             //////////////////////////// [EXPORT MODEL] ////////////////////////////
             // Export the trained weights as a checkpoint file.

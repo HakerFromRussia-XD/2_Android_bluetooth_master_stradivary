@@ -1,16 +1,24 @@
 package com.bailout.stickk.ubi4.ui.fragments
 
 import android.annotation.SuppressLint
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
+import com.bailout.stickk.ubi4.adapters.dialog.FileCheckpointAdapter
+import com.bailout.stickk.ubi4.adapters.dialog.OnFileActionListener
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
@@ -23,6 +31,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.models.FileItem
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion
@@ -104,11 +113,6 @@ class SensorsFragment : Fragment() {
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
             onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
         ),
-        TrainingFragmentDelegateAdapter(
-            onConfirmClick = {},
-            onShowFileClick = {},
-            onDestroyParent = {}
-        ),
         SwitcherDelegateAdapter(
             onSwitchClick = { addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState) },
             onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
@@ -122,16 +126,16 @@ class SensorsFragment : Fragment() {
             onConfirmClick = {
                 if (isAdded) {
                     Log.d("StateCallBack", "onConfirmClick: Button clicked")
-//                    showConfirmTrainingDialog {
-//                        navigator().showMotionTrainingScreen {
-//                            main?.manageTrainingLifecycle()
-//                        }
-//                    }
+
                 } else {
                     Log.e("StateCallBack", "Fragment is not attached to activity")
                 }
             },
-            onShowFileClick = {  },
+
+            onShowFileClick = {
+                Log.d("TestWidgetView", "onShowFileClick FRAGMENT OK")
+
+            },
             onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
         )
 //        GesturesDelegateAdapter (
@@ -185,6 +189,10 @@ class SensorsFragment : Fragment() {
         transmitter().bleCommand(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE)
 
     }
+
+
+
+
 
 
 }

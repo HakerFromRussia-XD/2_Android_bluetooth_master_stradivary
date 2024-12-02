@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.utility
 
 class EncodeByteToHex {
     companion object {
+        @JvmStatic
         fun bytesToHexString(bytes: ByteArray): String {
             val sb = StringBuffer()
             for (i in bytes.indices) {
@@ -28,5 +29,7 @@ class EncodeByteToHex {
                 .toByteArray()
                 .toString(Charsets.UTF_8)  // Or whichever encoding your input uses
         }
+
+
     }
 }

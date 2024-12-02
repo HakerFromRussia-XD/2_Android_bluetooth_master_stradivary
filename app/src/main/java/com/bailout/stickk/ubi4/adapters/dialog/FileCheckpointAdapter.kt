@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.adapters.dialog
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ class FileCheckpointAdapter(
     inner class FileViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val fileName: TextView = view.findViewById(R.id.ubi4DialogTitleFileTv)
         val deleteButton: View = view.findViewById(R.id.deleteFileIv)
+        val ubi4DialogFileItemBtn: View = view.findViewById(R.id.ubi4DialogFileItemBtn)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
@@ -32,13 +34,14 @@ class FileCheckpointAdapter(
         holder.deleteButton.setOnClickListener {
             listener.onDelete(position,fileItem)
         }
-//         holder.itemView.setOnClickListener {
-//             listener.onSelect(fileItem)
-//         }
+         holder.ubi4DialogFileItemBtn.setOnClickListener {
+             Log.d("FileClick", "Клик по элементу: ${fileItem.name}")
+             listener.onSelect(position,fileItem)
+         }
     }
 }
 
 interface OnFileActionListener {
     fun onDelete(position: Int, fileItem: FileItem)
-//    fun onSelect(fileItem: FileItem)
+    fun onSelect(position: Int,fileItem: FileItem)
 }

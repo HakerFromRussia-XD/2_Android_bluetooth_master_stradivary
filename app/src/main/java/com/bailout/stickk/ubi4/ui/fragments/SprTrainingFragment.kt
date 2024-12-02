@@ -41,6 +41,7 @@ import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.reflect.jvm.internal.impl.incremental.components.Position
 
 
 class SprTrainingFragment : Fragment() {
@@ -50,6 +51,7 @@ class SprTrainingFragment : Fragment() {
     private var onChangeState: ((state: Int) -> Unit)? = null
     private var onDestroyParent: (() -> Unit)? = null
    // private var adapterWidgets: CompositeDelegateAdapter? = null
+   private var selectedFile: FileItem? = null
 
 
     override fun onCreateView(
@@ -71,7 +73,7 @@ class SprTrainingFragment : Fragment() {
 //        widgetListUpdater()
         //фейковые виджеты
 //        adapterWidgets = initAdapter()
-        adapterWidgets.swapData(mDataFactory.fakeData2())
+        adapterWidgets.swapData(mDataFactory.fakeData())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -232,6 +234,14 @@ class SprTrainingFragment : Fragment() {
                 }
             }
 
+            override fun onSelect(position: Int,fileItem: FileItem) {
+                val byteArray = fileItem.file.readBytes()
+                sendFileInChunks(byteArray)
+                Toast.makeText(requireContext(), "Файл отправлен: ${fileItem.name}", Toast.LENGTH_SHORT).show()
+                //myDialog.dismiss()
+                Log.d("SendCheckpointFile", "onSelect Ok")
+            }
+
 //            override fun onSelect(fileItem: FileItem) {
 //                val byteArray = fileItem.file.readBytes()
 //                main?.runWriteDataTest(byteArray, MAIN_CHANNEL, WRITE)
@@ -278,18 +288,20 @@ class SprTrainingFragment : Fragment() {
 
     }
 
+
     private fun sendFileInChunks(byteArray: ByteArray){
-        val maxChunkSize = 259
+        val maxChunkSize = 249
         var totalBytesSent = 0
 
         byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk->
-            val chunkArray = chunk.toByteArray()
-            main?.runWriteDataTest(byteArray, MAIN_CHANNEL, WRITE)
+            val chunkArray = chunk.toByteArray().toMutableList()
+            chunkArray[0] = index.toByte()
+            val modifiedChunkArray = chunkArray.toByteArray()
+            main?.runWriteDataTest(modifiedChunkArray, MAIN_CHANNEL, WRITE)
             totalBytesSent += chunkArray.size
-            Log.d("BLE Data", "Часть $index отправлена: ${chunkArray.size} байт. Всего отправлено: $totalBytesSent байт.")
+            Log.d("BLE Data", "Часть $index поделенна : ${chunkArray.size} байт. Всего нарезанно: $totalBytesSent байт.")
 
         }
-
 
     }
 

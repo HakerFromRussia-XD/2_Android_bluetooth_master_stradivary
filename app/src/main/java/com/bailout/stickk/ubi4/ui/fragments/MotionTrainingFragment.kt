@@ -254,6 +254,8 @@ class MotionTrainingFragment(
 
 
     private fun writeToFile(data: String, isAppend: Boolean = true) {
+        Log.i("FileInfo", "WriteFile Start")
+
         try {
             learningTimer.base = SystemClock.elapsedRealtime()
             learningTimer.start()

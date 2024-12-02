@@ -45,6 +45,7 @@ class TrainingFragmentDelegateAdapter(
         _lottieAnimationLoading = lottieAnimationLoading
 
         showFileBtn.setOnClickListener {
+            Log.d("TestWidgetView", "setOnClickListener OK")
             onShowFileClick()
         }
         startStateFlowCollector()

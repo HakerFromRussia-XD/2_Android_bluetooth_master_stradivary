@@ -32,6 +32,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex;
 
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes;
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4;
@@ -270,7 +271,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onMtuChanged(BluetoothGatt gatt,int mtu, int status) {
             super.onMtuChanged(gatt, mtu, status);
-//            Log.d("TestSendByteArray", "status ="+status + "MTU: "+mtu);
+            Log.d("TestSendByteArray", "status ="+status + "MTU: "+mtu);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.err.println("BLE debug onMtuChanged GATT_SUCCESS");
                 mBluetoothGatt.discoverServices();
@@ -303,7 +304,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-//            Log.d("TestSendByteArray","status =" +status);
+            Log.d("TestSendByteArray","status =" +status + " " + EncodeByteToHex.bytesToHexString(characteristic.getValue()));
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 sendDataToReceiver(SampleGattAttributes.WRITE);
 //                Log.d("TestSendByteArray","запись удалась!!");

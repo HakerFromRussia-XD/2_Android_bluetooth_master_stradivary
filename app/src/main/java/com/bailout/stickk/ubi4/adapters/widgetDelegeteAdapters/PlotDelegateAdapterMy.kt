@@ -4,11 +4,9 @@ import android.graphics.Color
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.CompoundButton
 import androidx.core.view.marginTop
-import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
+import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotMyBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -32,6 +30,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -50,8 +49,17 @@ class PlotDelegateAdapterMy (
     private var dataSens6 = 0
     private var numberOfCharts = 2
 
+    private var raw_data_set1: List<Entry> = ArrayList()
+    private var g_data_sets: MutableList<LineDataSet> = ArrayList()
+    private var g_data_set: LineDataSet = LineDataSet(null,null)
+    private var invisible_top_data_set: LineDataSet = LineDataSet(null, null)
+    private var invisible_bottom_data_set: LineDataSet = LineDataSet(null, null)
+
+    private var color: Int = 0
+
     private var firstInit = true
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun Ubi4WidgetPlotMyBinding.onBind(plotItem: PlotItem) {
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
@@ -92,31 +100,81 @@ class PlotDelegateAdapterMy (
 //        System.err.println("plotIsReadyToData")
         plotIsReadyToData(0)
 
+        color = main.applicationContext.getColor(R.color.open_threshold)
+
+
+//        g_data_set.axisDependency = YAxis.AxisDependency.LEFT
+        g_data_set.lineWidth = 2f
+        g_data_set.color = Color.WHITE
+        g_data_set.mode = LineDataSet.Mode.LINEAR
+        g_data_set.setCircleColor(Color.TRANSPARENT)
+        g_data_set.circleHoleColor = Color.TRANSPARENT
+        g_data_set.fillColor = ColorTemplate.getHoloBlue()
+        g_data_set.highLightColor = Color.rgb(244, 117, 177)
+        g_data_set.valueTextColor = Color.TRANSPARENT
+
+
+        invisible_top_data_set.color = Color.TRANSPARENT
+        invisible_top_data_set.valueTextColor = Color.TRANSPARENT
+        invisible_top_data_set.fillColor = Color.TRANSPARENT
+        invisible_top_data_set.circleHoleColor =  Color.TRANSPARENT
+        invisible_top_data_set.setCircleColor(Color.TRANSPARENT)
+//        invisible_top_data_set.axisDependency = EMGChartLc.axisLeft.axisDependency
+
+
+        invisible_bottom_data_set.color = Color.TRANSPARENT
+        invisible_bottom_data_set.valueTextColor = Color.TRANSPARENT
+        invisible_bottom_data_set.fillColor = Color.TRANSPARENT
+        invisible_bottom_data_set.circleHoleColor =  Color.TRANSPARENT
+        invisible_bottom_data_set.setCircleColor(Color.TRANSPARENT)
+
 
         openCHV.setOnTouchListener(object : View.OnTouchListener{
             override fun onTouch(p0: View, p1: MotionEvent): Boolean {
+//                p0.performClick()
+                p0.parent.requestDisallowInterceptTouchEvent(true)
+
                 var y = p1.y
                 if (y < 0)
                     y = 0f
                 if (y > allCHRl.height)
                     y = allCHRl.height.toFloat()
-                limitCH1.y = y - limitCH1.height/2 + allCHRl.marginTop+1
+                limitCH1.y = y - limitCH1.height/2 + allCHRl.marginTop
                 openThresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
                 return true
             }
         })
+//        openCHV.
         closeCHV.setOnTouchListener(object : View.OnTouchListener{
             override fun onTouch(p0: View, p1: MotionEvent): Boolean {
+                p0.parent.requestDisallowInterceptTouchEvent(true)
                 var y = p1.y
                 if (y < 0)
                     y = 0f
                 if (y > allCHRl.height)
                     y = allCHRl.height.toFloat()
-                limitCH2.y = y - limitCH2.height/2 + allCHRl.marginTop+1
+                limitCH2.y = y - limitCH2.height/2 + allCHRl.marginTop
                 closeThresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
                 return true
             }
         })
+        selectChannel.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener{
+            override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+                var set  = EMGChartLc.data.getDataSetByIndex(0)
+                var rez = EMGChartLc.data.removeDataSet(g_data_set)
+                if (isChecked)
+                    g_data_set.color = color
+                else
+                    g_data_set.color = Color.WHITE
+                EMGChartLc.data.addDataSet(g_data_set)
+                EMGChartLc.axisLeft.mAxisMaximum = 255f
+                Log.i("my tag", "${EMGChartLc.isAutoScaleMinMaxEnabled}")
+            }
+
+        })
+
+
+
     }
 
     override fun isForViewType(item: Any): Boolean = item is PlotItem
@@ -125,11 +183,11 @@ class PlotDelegateAdapterMy (
     //////////////////////////////////////////////////////////////////////////////
     /**                          работа с графиками                            **/
     //////////////////////////////////////////////////////////////////////////////
-    private fun createSet(): LineDataSet {
-        val set = LineDataSet(null, null)
+    private fun createSet(yVals: List<Entry>? = null, color: Int = Color.WHITE): LineDataSet {
+        val set = LineDataSet(yVals, null)
         set.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
         set.lineWidth = 0.1f
-        set.color = Color.WHITE
+        set.color = Color.TRANSPARENT
         set.mode = LineDataSet.Mode.LINEAR
         set.setCircleColor(Color.TRANSPARENT)
         set.circleHoleColor = Color.TRANSPARENT
@@ -138,17 +196,18 @@ class PlotDelegateAdapterMy (
         set.valueTextColor = Color.TRANSPARENT
         return set
     }
-    private fun createSet1(): LineDataSet {
-        val set1 = LineDataSet(null, null)
-        set1.axisDependency = YAxis.AxisDependency.LEFT
+    private fun createSet1(yVals: List<Entry>? = null, color: Int = Color.WHITE): LineDataSet {
+        val set1 = LineDataSet(yVals, null)
+//        set1.axisDependency = YAxis.AxisDependency.LEFT
         set1.lineWidth = 2f
-        set1.color = Color.WHITE
+        set1.color = color
         set1.mode = LineDataSet.Mode.LINEAR
         set1.setCircleColor(Color.TRANSPARENT)
         set1.circleHoleColor = Color.TRANSPARENT
         set1.fillColor = ColorTemplate.getHoloBlue()
         set1.highLightColor = Color.rgb(244, 117, 177)
         set1.valueTextColor = Color.TRANSPARENT
+        g_data_set = set1.copy() as LineDataSet
         return set1
     }
     private fun createSet2(): LineDataSet {
@@ -218,59 +277,80 @@ class PlotDelegateAdapterMy (
         return set6
     }
 
-    private fun addEntry(sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int, emgChart: LineChart) {
+    private fun addEntry(sens1: Int, emgChart: LineChart) {
         val data: LineData =  emgChart.data //binding.chartMainchart.data!!
-        var set = data.getDataSetByIndex(0)
-        var set1 = data.getDataSetByIndex(1)
-        var set2 = data.getDataSetByIndex(2)
-        var set3 = data.getDataSetByIndex(3)
-        var set4 = data.getDataSetByIndex(4)
-        var set5 = data.getDataSetByIndex(5)
-        var set6 = data.getDataSetByIndex(6)
+//        var set = data.getDataSetByIndex(0)
+        var set0 = invisible_top_data_set
+        var set1 = g_data_set
+//        var set2 = data.getDataSetByIndex(2)
+//        var set3 = data.getDataSetByIndex(3)
+//        var set4 = data.getDataSetByIndex(4)
+//        var set5 = data.getDataSetByIndex(5)
+//        var set6 = data.getDataSetByIndex(6)
 
         if (set1 == null) {
-            set = createSet()
+//            set = createSet(color = Color.RED)
             set1 = createSet1()
-            set2 = createSet2()
-            set3 = createSet3()
-            set4 = createSet4()
-            set5 = createSet5()
-            set6 = createSet6()
+//            set2 = createSet2()
+//            set3 = createSet3()
+//            set4 = createSet4()
+//            set5 = createSet5()
+//            set6 = createSet6()
 
-            data.addDataSet(set)
+//            data.addDataSet(set)
+            data.addDataSet(invisible_top_data_set)
+            data.addDataSet(invisible_bottom_data_set)
             data.addDataSet(set1)
-            data.addDataSet(set2)
-            data.addDataSet(set3)
-            data.addDataSet(set4)
-            data.addDataSet(set5)
-            data.addDataSet(set6)
+//            data.addDataSet(set2)
+//            data.addDataSet(set3)
+//            data.addDataSet(set4)
+//            data.addDataSet(set5)
+//            data.addDataSet(set6)
         }
 
 
 
         if (set1.entryCount > 200) {
             main.runOnUiThread {
-                set.removeFirst()
+//                set.removeFirst()
+                set0.removeFirst()
                 set1.removeFirst()
-                if (numberOfCharts >= 2) { set2.removeFirst() }
-                if (numberOfCharts >= 3) { set3.removeFirst() }
-                if (numberOfCharts >= 4) { set4.removeFirst() }
-                if (numberOfCharts >= 5) { set5.removeFirst() }
-                if (numberOfCharts >= 6) { set6.removeFirst() }
+                invisible_bottom_data_set.removeFirst()
+                raw_data_set1 = raw_data_set1.subList(1,raw_data_set1.size)
+//                if (numberOfCharts >= 2) { set2.removeFirst() }
+//                if (numberOfCharts >= 3) { set3.removeFirst() }
+//                if (numberOfCharts >= 4) { set4.removeFirst() }
+//                if (numberOfCharts >= 5) { set5.removeFirst() }
+//                if (numberOfCharts >= 6) { set6.removeFirst() }
             }
         }
 
         main.runOnUiThread {
-            data.addEntry(Entry(count.toFloat(), 250.toFloat()), 0)
-            data.addEntry(Entry(count.toFloat(), sens1.toFloat()), 1)
-            if (numberOfCharts >= 2) {data.addEntry(Entry(count.toFloat(), sens2.toFloat()), 2)}
-            if (numberOfCharts >= 3) {data.addEntry(Entry(count.toFloat(), sens3.toFloat()), 3)}
-            if (numberOfCharts >= 4) {data.addEntry(Entry(count.toFloat(), sens4.toFloat()), 4)}
-            if (numberOfCharts >= 5) {data.addEntry(Entry(count.toFloat(), sens5.toFloat()), 5)}
-            if (numberOfCharts >= 5) {data.addEntry(Entry(count.toFloat(), sens6.toFloat()), 6)}
+            raw_data_set1 = raw_data_set1.plus(Entry(count.toFloat(), sens1.toFloat()))
+//            data.addEntry(Entry(count.toFloat(), 250.toFloat()), 0)
+            g_data_set.addEntry(raw_data_set1.last())
+            invisible_top_data_set.addEntry(Entry(count.toFloat(), 255f))
+            invisible_bottom_data_set.addEntry(Entry(count.toFloat(), 0f))
+            data.removeDataSet(invisible_top_data_set)
+            data.addDataSet(invisible_top_data_set)
+            data.removeDataSet(invisible_bottom_data_set)
+            data.addDataSet(invisible_bottom_data_set)
 
-            data.notifyDataChanged()
+            data.removeDataSet(g_data_set)
+            data.addDataSet(g_data_set)
+//            data.addEntry(raw_data_set1.last(), 1)
+//            if (numberOfCharts >= 2) {data.addEntry(Entry(count.toFloat(), sens2.toFloat()), 2)}
+//            if (numberOfCharts >= 3) {data.addEntry(Entry(count.toFloat(), sens3.toFloat()), 3)}
+//            if (numberOfCharts >= 4) {data.addEntry(Entry(count.toFloat(), sens4.toFloat()), 4)}
+//            if (numberOfCharts >= 5) {data.addEntry(Entry(count.toFloat(), sens5.toFloat()), 5)}
+//            if (numberOfCharts >= 5) {data.addEntry(Entry(count.toFloat(), sens6.toFloat()), 6)}
+//            print(emgChart.yChartMax.toString())
+//            data.notifyDataChanged()
+//            print(emgChart.isAutoScaleMinMaxEnabled)
+            emgChart.axisLeft.mAxisMaximum = 255f
             emgChart.notifyDataSetChanged()
+
+
             if (firstInit) {
                 emgChart.setVisibleXRangeMaximum(200f)
                 firstInit = false
@@ -287,15 +367,17 @@ class PlotDelegateAdapterMy (
         emgChart.setScaleEnabled(false)
         emgChart.setDrawGridBackground(false)
         emgChart.setPinchZoom(false)
+        emgChart.isAutoScaleMinMaxEnabled = false
+//        emgChart.isScaleYEnabled = false
         emgChart.setBackgroundColor(Color.TRANSPARENT)
         emgChart.getHighlightByTouchPoint(1f, 1f)
         val data = LineData()
-        val data2 = LineData()
+//        val data2 = LineData()
         emgChart.data = data
-        emgChart.data = data2
+//        emgChart.data = data2
         emgChart.legend.isEnabled = false
         emgChart.description.textColor = Color.TRANSPARENT
-        emgChart.animateY(2000)
+//        emgChart.animateY(2000)
 
         val x: XAxis = emgChart.xAxis
         x.textColor = Color.TRANSPARENT
@@ -303,17 +385,21 @@ class PlotDelegateAdapterMy (
         x.axisMaximum = 4000000f
         x.setAvoidFirstLastClipping(true)
         x.position = XAxis.XAxisPosition.BOTTOM
-
+//
         val y: YAxis = emgChart.axisLeft
         y.textColor = Color.WHITE
         y.mAxisMaximum = 255f
-        y.mAxisMinimum = 255f
+        y.mAxisMinimum = 0f
         y.textSize = 0f
         y.textColor = Color.TRANSPARENT
         y.setDrawGridLines(true)
         y.setDrawAxisLine(false)
         y.setStartAtZero(true)
         y.gridColor = Color.WHITE
+        y.yOffset = 0f
+        y.spaceTop = 0f
+        y.spaceBottom = 0f
+
         emgChart.axisRight.gridColor = Color.TRANSPARENT
         emgChart.axisRight.axisLineColor = Color.TRANSPARENT
         emgChart.axisRight.textColor = Color.TRANSPARENT
@@ -338,20 +424,21 @@ class PlotDelegateAdapterMy (
 
 
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
-//        dataSens1 += 1
+        dataSens1 += 1
 //        dataSens2 += 1
 //        dataSens3 += 1
 //        dataSens4 += 2
 //        dataSens5 += 2
 //        dataSens6 += 2
         if (dataSens1 > 255) { dataSens1 = 0 }
-        if (dataSens2 > 255) { dataSens2 = 0 }
-        if (dataSens3 > 255) { dataSens3 = 0 }
-        if (dataSens4 > 255) { dataSens4 = 0 }
-        if (dataSens5 > 255) { dataSens5 = 0 }
-        if (dataSens6 > 255) { dataSens6 = 0 }
+//        if (dataSens2 > 255) { dataSens2 = 0 }
+//        if (dataSens3 > 255) { dataSens3 = 0 }
+//        if (dataSens4 > 255) { dataSens4 = 0 }
+//        if (dataSens5 > 255) { dataSens5 = 0 }
+//        if (dataSens6 > 255) { dataSens6 = 0 }
 
-        addEntry(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6, emgChart)
+//        addEntry(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6, emgChart)
+        addEntry(dataSens1, emgChart)
         delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         if (graphThreadFlag) {
             startGraphEnteringDataCoroutine(emgChart)

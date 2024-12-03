@@ -205,7 +205,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<PlotParameterRef>>()
         var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
-        var switcherFlow by Delegates.notNull<MutableSharedFlow<Int>>()
+        var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
 
 

@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -17,15 +18,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSprTrainingBinding
 import com.bailout.stickk.ubi4.adapters.dialog.FileCheckpointAdapter
-import com.bailout.stickk.ubi4.adapters.dialog.OnFileActionListener
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.BLECommands.Companion.sendSliderCommand
-import com.bailout.stickk.ubi4.ble.BLECommands.Companion.sendSwitcherCommand
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
@@ -37,10 +35,17 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFla
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.jvm.internal.impl.incremental.components.Position
 
 
@@ -50,8 +55,9 @@ class SprTrainingFragment : Fragment() {
     private var mDataFactory: DataFactory = DataFactory()
     private var onChangeState: ((state: Int) -> Unit)? = null
     private var onDestroyParent: (() -> Unit)? = null
-   // private var adapterWidgets: CompositeDelegateAdapter? = null
-   private var selectedFile: FileItem? = null
+    private var currentDialog: Dialog? = null
+    private val progressFlow = MutableStateFlow(0)
+    //private val loadedFiles = mutableSetOf<String>()
 
 
     override fun onCreateView(
@@ -65,8 +71,6 @@ class SprTrainingFragment : Fragment() {
             main = activity as MainActivityUBI4?
 
         }
-
-
 
 
         //настоящие виджеты
@@ -89,6 +93,7 @@ class SprTrainingFragment : Fragment() {
         return binding.root
     }
 
+
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
@@ -109,7 +114,7 @@ class SprTrainingFragment : Fragment() {
     }
 
 
-   // private fun initAdapter(): CompositeDelegateAdapter? {
+    // private fun initAdapter(): CompositeDelegateAdapter? {
 
     private var adapterWidgets: CompositeDelegateAdapter = CompositeDelegateAdapter(
         PlotDelegateAdapter(
@@ -166,6 +171,11 @@ class SprTrainingFragment : Fragment() {
         )
     )
 
+    private fun closeCurrentDialog() {
+        currentDialog?.dismiss()
+        currentDialog = null
+    }
+
     @SuppressLint("MissingInflatedId")
     fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_training, null)
@@ -173,19 +183,56 @@ class SprTrainingFragment : Fragment() {
         myDialog.setContentView(dialogBinding)
         myDialog.setCancelable(false)
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        currentDialog = myDialog
         myDialog.show()
 
         val cancelBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogTrainingCancelBtn)
         cancelBtn.setOnClickListener {
-            myDialog.dismiss()
+            closeCurrentDialog()
         }
 
         val confirmBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogConfirmTrainingBtn)
         confirmBtn.setOnClickListener {
             myDialog.dismiss()
+            closeCurrentDialog()
             confirmClick()
         }
 
+    }
+
+    private fun showConfirmLoadingDialog(onConfirm: () -> Unit) {
+        val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_loading, null)
+        val myDialog = Dialog(requireContext())
+        myDialog.setContentView(dialogFileBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        currentDialog = myDialog
+        myDialog.show()
+
+        val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogConfirmLoadingBtn)
+        confirmBtn.setOnClickListener {
+            closeCurrentDialog()
+            onConfirm()
+
+            val cancelBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogLoadingCancelBtn)
+            cancelBtn.setOnClickListener {
+                closeCurrentDialog()
+            }
+
+        }
+
+    }
+
+    private fun showProgressBarDialog(): Dialog {
+        Log.d("Dialog", "Showing progress bar dialog")
+        val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_progressbar, null)
+        val myDialog = Dialog(requireContext())
+        myDialog.setContentView(dialogBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        currentDialog = myDialog
+        myDialog.show()
+        return myDialog
     }
 
     private fun showFilesDialog() {
@@ -199,6 +246,7 @@ class SprTrainingFragment : Fragment() {
         val filesRecyclerView = dialogFileBinding.findViewById<RecyclerView>(R.id.dialogFileRv)
         val path = requireContext().getExternalFilesDir(null)
         val files = path?.listFiles()?.filter { it.name.contains("checkpoint") } ?: emptyList()
+        //val progressBar = dialogFileBinding.findViewById<ProgressBar>(R.id.loadingProgressBar)
 
         if (files.isEmpty()) {
             Toast.makeText(requireContext(), getString(R.string.no_saved_files), Toast.LENGTH_SHORT)
@@ -210,7 +258,8 @@ class SprTrainingFragment : Fragment() {
         val fileItems = files.map { FileItem(it.name, it) }.toMutableList()
 
         filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val adapter = FileCheckpointAdapter(fileItems, object : OnFileActionListener {
+        val adapter = FileCheckpointAdapter(fileItems, object :
+            FileCheckpointAdapter.OnFileActionListener {
             override fun onDelete(position: Int, fileItem: FileItem) {
                 if (fileItem.file.delete()) {
                     Toast.makeText(
@@ -234,19 +283,41 @@ class SprTrainingFragment : Fragment() {
                 }
             }
 
-            override fun onSelect(position: Int,fileItem: FileItem) {
-                val byteArray = fileItem.file.readBytes()
-                sendFileInChunks(byteArray)
-                Toast.makeText(requireContext(), "Файл отправлен: ${fileItem.name}", Toast.LENGTH_SHORT).show()
-                //myDialog.dismiss()
-                Log.d("SendCheckpointFile", "onSelect Ok")
+            override fun onSelect(position: Int, fileItem: FileItem, onComplete: () -> Unit) {
+//                if (loadedFiles.contains(fileItem.name)) {
+//                    Toast.makeText(requireContext(), "Этот файл уже загружен", Toast.LENGTH_SHORT).show()
+//                    return
+//                }
+                showConfirmLoadingDialog {
+                    val progressBarDialog = showProgressBarDialog()
+
+                    val progressBar =
+                        progressBarDialog.findViewById<ProgressBar>(R.id.loadingProgressBar)
+
+                    lifecycleScope.launch {
+                        progressFlow.collect { progress ->
+                            withContext(Main) { // Убедитесь, что обновление происходит в UI-потоке
+                                progressBar.progress = progress
+                                Log.d("ProgressValue", "$progress")
+                                if (progress == 100) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Файл отправлен: ${fileItem.name}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    //loadedFiles.add(fileItem.name)
+                                    closeCurrentDialog()
+                                    progressFlow.value = 0
+
+                                }
+                            }
+                        }
+                    }
+
+                    sendFileInChunks(fileItem.file.readBytes())
+                }
             }
 
-//            override fun onSelect(fileItem: FileItem) {
-//                val byteArray = fileItem.file.readBytes()
-//                main?.runWriteDataTest(byteArray, MAIN_CHANNEL, WRITE)
-//                Toast.makeText(requireContext(), "Файл отправлен: ${fileItem.name}", Toast.LENGTH_SHORT).show()
-//            }
 
         })
         filesRecyclerView.adapter = adapter
@@ -255,6 +326,7 @@ class SprTrainingFragment : Fragment() {
         cancelBtn.setOnClickListener {
             myDialog.dismiss()
         }
+
 
     }
 
@@ -278,35 +350,57 @@ class SprTrainingFragment : Fragment() {
     }
 
     private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
-        Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
-        transmitter().bleCommand(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
+        Log.d(
+            "sendSliderProgress",
+            "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress"
+        )
+        transmitter().bleCommand(
+            BLECommands.sendSliderCommand(
+                addressDevice,
+                parameterID,
+                progress
+            ), MAIN_CHANNEL, WRITE
+        )
     }
 
     private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
-        Log.d("sendSwitcherCommand", "addressDevice=$addressDevice  parameterID: $parameterID  command = $switchState")
-        transmitter().bleCommand(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE)
+        Log.d(
+            "sendSwitcherCommand",
+            "addressDevice=$addressDevice  parameterID: $parameterID  command = $switchState"
+        )
+        transmitter().bleCommand(
+            BLECommands.sendSwitcherCommand(
+                addressDevice,
+                parameterID,
+                switchState
+            ), MAIN_CHANNEL, WRITE
+        )
 
     }
 
 
-    private fun sendFileInChunks(byteArray: ByteArray){
+    private fun sendFileInChunks(byteArray: ByteArray) {
         val maxChunkSize = 249
-        var totalBytesSent = 0
+        val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
+        Log.d("TotalChunks", "totalChunks $totalChunks")
+        //progressFlow.value = 0
+        val chunksSent = AtomicInteger(0)
 
-        byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk->
-            val chunkArray = chunk.toByteArray().toMutableList()
-            chunkArray[0] = index.toByte()
-            val modifiedChunkArray = chunkArray.toByteArray()
-            main?.runWriteDataTest(modifiedChunkArray, MAIN_CHANNEL, WRITE)
-            totalBytesSent += chunkArray.size
-            Log.d("BLE Data", "Часть $index поделенна : ${chunkArray.size} байт. Всего нарезанно: $totalBytesSent байт.")
+        lifecycleScope.launch(Dispatchers.IO) {
+            byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk ->
+                val chunkArray = chunk.toByteArray().toMutableList()
+                chunkArray[0] = index.toByte()
+                val modifiedChunkArray = chunkArray.toByteArray()
 
+                // Отправка данных (выполняется в фоновом потоке)
+                main?.runWriteDataTest(modifiedChunkArray, MAIN_CHANNEL, WRITE) {
+                    val sent = chunksSent.incrementAndGet()
+                    val progress = ((sent.toDouble() / totalChunks) * 100).toInt()
+                    progressFlow.value = progress
+                }
+            }
         }
-
     }
-
-
-
 
 
     override fun onDestroy() {

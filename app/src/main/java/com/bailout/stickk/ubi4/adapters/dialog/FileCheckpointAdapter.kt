@@ -4,6 +4,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
@@ -13,6 +14,8 @@ class FileCheckpointAdapter(
     private val files: List<FileItem>,
     private val listener: OnFileActionListener
 ) : RecyclerView.Adapter<FileCheckpointAdapter.FileViewHolder>() {
+
+    private val isLoading = MutableList(files.size) { false }
 
     inner class FileViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val fileName: TextView = view.findViewById(R.id.ubi4DialogTitleFileTv)
@@ -26,22 +29,24 @@ class FileCheckpointAdapter(
         return FileViewHolder(itemView)
     }
 
-    override fun getItemCount(): Int  = files.size
+    override fun getItemCount(): Int = files.size
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
         val fileItem = files[position]
         holder.fileName.text = fileItem.name
-        holder.deleteButton.setOnClickListener {
-            listener.onDelete(position,fileItem)
-        }
-         holder.ubi4DialogFileItemBtn.setOnClickListener {
-             Log.d("FileClick", "Клик по элементу: ${fileItem.name}")
-             listener.onSelect(position,fileItem)
-         }
-    }
-}
 
-interface OnFileActionListener {
-    fun onDelete(position: Int, fileItem: FileItem)
-    fun onSelect(position: Int,fileItem: FileItem)
+        holder.deleteButton.setOnClickListener {
+            listener.onDelete(position, fileItem)
+        }
+        holder.ubi4DialogFileItemBtn.setOnClickListener {
+            listener.onSelect(position, fileItem) {}
+
+
+        }
+    }
+
+    interface OnFileActionListener {
+        fun onDelete(position: Int, fileItem: FileItem)
+        fun onSelect(position: Int, fileItem: FileItem, onComplete: () -> Unit)
+    }
 }

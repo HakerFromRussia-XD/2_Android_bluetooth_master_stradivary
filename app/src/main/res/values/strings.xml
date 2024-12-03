@@ -571,6 +571,8 @@
     <string name="model_training_in_progress_please_wait">Model training in progress, please wait...</string>
     <string name="wait_until_the_model_file_is_created">Wait until the model file is created</string>
     <string name="the_gesture_model_file_is_ready_load">The gesture model file is ready. Load it into your prosthesis to complete the setup.</string>
+    <string name="file_is_being_downloaded">File is being downloaded</string>
+    <string name="are_you_sure_you_want_to_start_downloading_the_file">Are you sure you want to start downloading the file?</string>
 
 
     <string-array name="numbers">

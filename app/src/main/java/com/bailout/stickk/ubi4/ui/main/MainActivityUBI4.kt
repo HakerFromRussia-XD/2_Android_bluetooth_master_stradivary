@@ -57,7 +57,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private lateinit var mBLEController: BLEController
     private lateinit var trainingModelHandler: TrainingModelHandler
     // Очередь для задачь работы с BLE
-    private val queue = BlockingQueueUbi4()
+    val queue = BlockingQueueUbi4()
 
 
     @SuppressLint("CommitTransaction")
@@ -88,7 +88,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             val byteArray = ByteArray(249){0x55.toByte()}
             for (i in 1..100){
                 byteArray[0] = i.toByte()
-                runWriteDataTest(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE)
+                runWriteDataTest(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE){}
             }
             Log.d("SendDataTest", "${EncodeByteToHex.bytesToHexString(BLECommands.checkpointDataTransfer(byteArray))}")
         }
@@ -199,14 +199,26 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    fun runWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getWriteDataTest(byteArray, Command, typeCommand))
+    fun runWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String, onChunkSent: () -> Unit) {
+        queue.put(getWriteDataTest(byteArray, Command, typeCommand, onChunkSent))
     }
-    private fun getWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeDataTest(byteArray, Command, typeCommand) } }
+
+    private fun getWriteDataTest(
+        byteArray: ByteArray?,
+        Command: String,
+        typeCommand: String,
+        onChunkSent: () -> Unit
+    ): Runnable {
+        return Runnable {
+            writeDataTest(byteArray, Command, typeCommand)
+            // Invoke the callback after data is sent
+            onChunkSent()
+        }
+    }
+
     private fun writeDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
-            val dataSize = byteArray?.size ?: 0
-//            Log.d("TestSendByteArray", "Отправлено $dataSize байт.")
             bleCommand(byteArray, Command, typeCommand)
             Log.d("BLE Data","send!!!!")
             while (!canSendFlag) {

@@ -573,6 +573,8 @@
     <string name="model_training_in_progress_please_wait">Обучение модели выполняется, пожалуйста, подождите...</string>
     <string name="wait_until_the_model_file_is_created">Дождитесь завершения создания файла модели</string>
     <string name="the_gesture_model_file_is_ready_load">Файл модели жестов готов. Загрузите его в протез для завершения настройки.</string>
+    <string name="file_is_being_downloaded">Идет загрузка файла</string>
+    <string name="are_you_sure_you_want_to_start_downloading_the_file">Вы уверены что хотите начать загрузку файла?</string>
 
 
     <string-array name="numbers">

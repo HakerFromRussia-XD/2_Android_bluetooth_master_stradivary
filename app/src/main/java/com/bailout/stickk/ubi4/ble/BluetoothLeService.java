@@ -102,11 +102,6 @@ public class BluetoothLeService extends Service {
         void onDataReceived(String state);
     }
 
-
-
-
-
-
     ///////////////////////////////
     private void broadcastUpdate(final BluetoothGattCharacteristic characteristic, final String state) {
         final Intent intent = new Intent(BluetoothLeService.ACTION_DATA_AVAILABLE);

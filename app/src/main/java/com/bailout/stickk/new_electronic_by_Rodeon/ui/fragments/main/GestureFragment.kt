@@ -5,7 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color.*
+import android.graphics.Color.WHITE
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,13 +13,34 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
-import com.bailout.stickk.R.drawable.*
+import com.bailout.stickk.R.drawable.custom_button_le
+import com.bailout.stickk.R.drawable.custom_button_le_selected
+import com.bailout.stickk.R.drawable.hand_palm_1
+import com.bailout.stickk.R.drawable.hand_palm_10
+import com.bailout.stickk.R.drawable.hand_palm_11
+import com.bailout.stickk.R.drawable.hand_palm_12
+import com.bailout.stickk.R.drawable.hand_palm_13
+import com.bailout.stickk.R.drawable.hand_palm_14
+import com.bailout.stickk.R.drawable.hand_palm_2
+import com.bailout.stickk.R.drawable.hand_palm_3
+import com.bailout.stickk.R.drawable.hand_palm_4
+import com.bailout.stickk.R.drawable.hand_palm_5
+import com.bailout.stickk.R.drawable.hand_palm_6
+import com.bailout.stickk.R.drawable.hand_palm_7
+import com.bailout.stickk.R.drawable.hand_palm_8
+import com.bailout.stickk.R.drawable.hand_palm_9
 import com.bailout.stickk.databinding.LayoutGesturesBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.ROTATION_GESTURE_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_ENABLED_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_ENABLED_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
-import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
 import com.github.mikephil.charting.data.Entry
@@ -28,6 +49,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.skydoves.powerspinner.IconSpinnerAdapter
 import com.skydoves.powerspinner.IconSpinnerItem
 import io.reactivex.android.schedulers.AndroidSchedulers
+
 //import org.jetbrains.anko.backgroundDrawable
 //import org.jetbrains.anko.textColor
 
@@ -776,7 +798,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     override fun onClick(v: View?) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H) ||
             main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-            val intent = Intent(context, UBI4GripperScreenWithEncodersActivity::class.java)
+            val intent = Intent(context, GripperScreenWithEncodersActivity::class.java)
             startActivity(intent)
         } else {
             val intent = Intent(context, GripperScreenWithoutEncodersActivity::class.java)

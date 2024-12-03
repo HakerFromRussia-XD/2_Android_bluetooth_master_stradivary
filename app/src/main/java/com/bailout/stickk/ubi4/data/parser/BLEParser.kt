@@ -46,9 +46,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSS
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
-import com.bailout.stickk.ubi4.models.MyItem
-import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.models.ParameterRef
+import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
@@ -56,15 +55,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
 import kotlin.experimental.and
-import kotlin.random.Random
 
-class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
+class BLEParser(main: AppCompatActivity) {
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
     private var mConnected = false
     private var count = 0
-    private var numerSubDevice = 0
+    private var numberSubDevice = 0
     private var subDeviceCounter = 0
     private var subDeviceAdditionalCounter = 1
 
@@ -185,7 +182,7 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
                 } catch (e: Error) {
                     mMain.showToast("Ошибка 113")
                 }
-                plotArrayFlow.value = plotArray
+                plotArrayFlow.value = PlotParameterRef(deviceAddress, parameterID, plotArray)
             }
             ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
@@ -372,11 +369,11 @@ class BLEParser(private val viewModel: MyViewModel, main: AppCompatActivity) {
         Log.d("SubDeviceSubDevice", "receiveDataString=$receiveDataString")
         val subDevices = Json.decodeFromString<BaseSubDeviceArrayInfoStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
         baseSubDevicesInfoStructSet = subDevices.baseSubDeviceInfoStructArray
-        numerSubDevice = subDevices.count
+        numberSubDevice = subDevices.count
 
 
         // тут нам нужно запустить цепную реакцию сабдевайсов (читаем параметры первого сабдевайса)
-        Log.d("SubDeviceSubDevice", "subDevices=$baseSubDevicesInfoStructSet  numerSubDevice=$numerSubDevice")
+        Log.d("SubDeviceSubDevice", "subDevices=$baseSubDevicesInfoStructSet  numerSubDevice=$numberSubDevice")
         if (baseSubDevicesInfoStructSet.size != 0) {
             mMain.bleCommand(
                 BLECommands.requestSubDeviceParametrs(

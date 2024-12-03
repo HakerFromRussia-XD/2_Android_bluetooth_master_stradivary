@@ -144,7 +144,6 @@ class AdvancedFragment : Fragment() {
 //        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
 //        transmitter().bleCommand(BLECommands.sendTimestampInfo(7,1, year, month, dayOfMonth, Date(stamp.time).day, Date(stamp.time).hours, Date(stamp.time).minutes, Date(stamp.time).seconds), MAIN_CHANNEL, WRITE)
 
-
 //        transmitter().bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
 
 //        BLECommands.requestSubDeviceParametrs(6, 0, 2).forEach { i ->
@@ -163,6 +162,5 @@ class AdvancedFragment : Fragment() {
     private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
         Log.d("sendSwitcherCommand", "addressDevice=$addressDevice  parameterID: $parameterID  command = $switchState")
         transmitter().bleCommand(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE)
-
     }
 }

@@ -2,6 +2,15 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.graphics.Color
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
+import android.widget.CompoundButton
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.core.view.marginTop
+import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -41,16 +50,28 @@ class PlotDelegateAdapter (
     private var dataSens4 = 0
     private var dataSens5 = 0
     private var dataSens6 = 0
-    private var numberOfCharts = 1
+    private var numberOfCharts = 2
+
+    private var raw_data_set1: List<Entry> = ArrayList()
+    private var g_data_sets: MutableList<LineDataSet> = ArrayList()
+    private var g_data_set: LineDataSet = LineDataSet(null,null)
+    private var invisible_top_data_set: LineDataSet = LineDataSet(null, null)
+    private var invisible_bottom_data_set: LineDataSet = LineDataSet(null, null)
+
+    private var color: Int = 0
+
+    private var widgetPlotsInfo: ArrayList<WidgetPlotInfo> = ArrayList()
 
     private var firstInit = true
 
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItem) {
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
-
-        var parameterID = 0
         var deviceAddress = 0
+        var parameterID = 0
+        var openThreshold = 0
+        var closeThreshold = 0
+
         when (plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
                 parameterID = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
@@ -61,7 +82,7 @@ class PlotDelegateAdapter (
                 deviceAddress = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
             }
         }
-
+        widgetPlotsInfo.add(WidgetPlotInfo(deviceAddress, parameterID, openThreshold, closeThreshold, limitCH1, limitCH2, openThresholdTv, closeThresholdTv))
 
         Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
         // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
@@ -70,12 +91,6 @@ class PlotDelegateAdapter (
         } else {
             numberOfCharts = 0
         }
-//        numberOfCharts = 0
-//        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts")
-//        Log.d("PlotDelegateAdapter", "getParameter = ${ParameterProvider.getParameter(deviceAddress, parameterID)}")
-//        Log.d("PlotDelegateAdapter", "type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
-//        Log.d("PlotDelegateAdapter", "parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize}")
-//        Log.d("PlotDelegateAdapter", "numberOfCharts = $numberOfCharts parametrSize = ${ParameterProvider.getParameter(deviceAddress, parameterID).parameterDataSize}   type = ${ParameterProvider.getParameter(deviceAddress, parameterID).type}")
 
         plotArrayFlowCollect()
 
@@ -87,8 +102,45 @@ class PlotDelegateAdapter (
         }
 
         main.bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
-//        System.err.println("plotIsReadyToData")
         plotIsReadyToData(numberOfCharts)
+
+        openCHV.setOnTouchListener(object : View.OnTouchListener{
+            override fun onTouch(p0: View, event: MotionEvent): Boolean {
+                p0.parent.requestDisallowInterceptTouchEvent(true)
+                openThreshold = setLimitePosition(limitCH1, openThresholdTv, allCHRl, event)
+                when (event.action) {
+                    MotionEvent.ACTION_UP -> {
+//                        Log.d("setOnTouchListener", "openThreshold send $openThreshold")
+                    }
+                }
+                return true
+            }
+        })
+        closeCHV.setOnTouchListener(object : View.OnTouchListener{
+            override fun onTouch(p0: View, event: MotionEvent): Boolean {
+                p0.parent.requestDisallowInterceptTouchEvent(true)
+                closeThreshold = setLimitePosition(limitCH2, closeThresholdTv, allCHRl, event)
+                when (event.action) {
+                    MotionEvent.ACTION_UP -> {
+//                        Log.d ("setOnTouchListener", "closeThreshold send $closeThreshold")
+                    }
+                }
+                return true
+            }
+        })
+    }
+
+
+    private fun setLimitePosition(limit_CH: RelativeLayout, thresholdTv: TextView, allCHRl: LinearLayout, event: MotionEvent): Int {
+        var y = event.y
+        if (y < 0)
+            y = 0f
+        if (y > allCHRl.height)
+            y = allCHRl.height.toFloat()
+        limit_CH.y = y - limit_CH.height/2 + allCHRl.marginTop
+        thresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
+        Log.d ("setOnTouchListener", "setLimitePosition y = $y")
+        return ((allCHRl.height - y)/allCHRl.height * 255).toInt()
     }
 
     override fun isForViewType(item: Any): Boolean = item is PlotItem
@@ -114,7 +166,7 @@ class PlotDelegateAdapter (
         val set1 = LineDataSet(null, null)
         set1.axisDependency = YAxis.AxisDependency.LEFT
         set1.lineWidth = 2f
-        set1.color = Color.WHITE
+        set1.color = main.applicationContext.getColor(R.color.ubi4_white)
         set1.mode = LineDataSet.Mode.LINEAR
         set1.setCircleColor(Color.TRANSPARENT)
         set1.circleHoleColor = Color.TRANSPARENT
@@ -127,7 +179,7 @@ class PlotDelegateAdapter (
         val set2 = LineDataSet(null, null)
         set2.axisDependency = YAxis.AxisDependency.LEFT
         set2.lineWidth = 2f
-        set2.color = Color.GRAY
+        set2.color = main.applicationContext.getColor(R.color.ubi4_deactivate_text)
         set2.mode = LineDataSet.Mode.LINEAR
         set2.setCircleColor(Color.TRANSPARENT)
         set2.circleHoleColor = Color.TRANSPARENT
@@ -293,21 +345,29 @@ class PlotDelegateAdapter (
     private fun plotArrayFlowCollect() {
         GlobalScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
-                MainActivityUBI4.plotArrayFlow.collect { value ->
-                    if (value.size != 0) {
-                        System.err.println("FLOW TEST plotArrayFlow ${value.size}")
-                        if (value.size >= 1) { dataSens1 = value[0] }
-                        if (value.size >= 2) { dataSens2 = value[1] }
-                        if (value.size >= 3) { dataSens3 = value[2] }
-                        if (value.size >= 4) { dataSens4 = value[3] }
-                        if (value.size >= 5) { dataSens5 = value[4] }
-                        if (value.size >= 6) { dataSens6 = value[5] }
+                MainActivityUBI4.plotArrayFlow.collect { plotParameterRef ->
+
+                    if (plotParameterRef.dataPlots.size != 0) {
+                        System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size}")
+                        if (plotParameterRef.dataPlots.size >= 1) { dataSens1 = plotParameterRef.dataPlots[0] } // нулевой всегда датчик открытия
+                        if (plotParameterRef.dataPlots.size >= 2) { dataSens2 = plotParameterRef.dataPlots[1] } // первый всегда датчик закрытия
+                        if (plotParameterRef.dataPlots.size >= 3) { dataSens3 = plotParameterRef.dataPlots[2] }
+                        if (plotParameterRef.dataPlots.size >= 4) { dataSens4 = plotParameterRef.dataPlots[3] }
+                        if (plotParameterRef.dataPlots.size >= 5) { dataSens5 = plotParameterRef.dataPlots[4] }
+                        if (plotParameterRef.dataPlots.size >= 6) { dataSens6 = plotParameterRef.dataPlots[5] }
                     }
                 }
             }
         }
     }
-
+    private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
+        widgetPlotsInfo.forEachIndexed { index, widgetSliderInfo ->
+            if (widgetSliderInfo.addressDevice == addressDevice && widgetSliderInfo.parameterID == parameterID) {
+                return index
+            }
+        }
+        return -1
+    }
 
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
 //        dataSens1 += 1
@@ -330,3 +390,14 @@ class PlotDelegateAdapter (
         }
     }
 }
+
+data class WidgetPlotInfo (
+    var addressDevice: Int = 0,
+    var parameterID: Int = 0,
+    var openThreshold: Int = 0,
+    var closeThreshold: Int = 0,
+    var limitCH1: RelativeLayout,
+    var limitCH2: RelativeLayout,
+    var openThresholdTv: TextView,
+    var closeThresholdTv: TextView,
+)

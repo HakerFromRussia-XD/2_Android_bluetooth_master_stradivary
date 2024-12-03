@@ -19,11 +19,14 @@ data class BindingGestureItem(
     val sprGestureItem: SprGestureItem
 )
 
-
-// 3D конфигуратор и передача информации о жесте
+// приём и передача данных в потоках ble
 data class ParameterRef (
     val addressDevice: Int, val parameterID: Int
 )
+data class PlotParameterRef (
+    val addressDevice: Int, val parameterID: Int, val dataPlots: ArrayList<Int>
+)
+// 3D конфигуратор и передача информации о жесте
 data class GestureInfo (
     val deviceAddress: Int, val parameterID: Int, val gestureID: Int
 )

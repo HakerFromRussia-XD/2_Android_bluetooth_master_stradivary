@@ -26,7 +26,6 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE_NO_RESPONSE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
@@ -35,6 +34,7 @@ import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.models.ParameterRef
+import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -51,7 +51,6 @@ import kotlin.properties.Delegates
 
 @RequirePresenter(MainPresenter::class)
 class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4, TransmitterUBI4 {
-    private lateinit var viewModel: MyViewModel
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
@@ -64,7 +63,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         super.onCreate(savedInstanceState)
         binding = Ubi4ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
         mSettings = this.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
-        viewModel = ViewModelProvider(this)[MyViewModel::class.java]
         val view = binding.root
         main = this
         val window = this.window
@@ -75,7 +73,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         BottomNavigationController(bottomNavigation = binding.bottomNavigation)
 
         // инициализация блютуз
-        mBLEController = BLEController(viewModel,this)
+        mBLEController = BLEController(this)
         mBLEController.initBLEStructure()
         mBLEController.scanLeDevice(true)
         startQueue()
@@ -142,7 +140,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun setStaticVariables() {
         listWidgets = mutableSetOf()
         updateFlow = MutableStateFlow(0)
-        plotArrayFlow = MutableStateFlow(arrayListOf())
+        plotArrayFlow = MutableStateFlow(PlotParameterRef(0,0, arrayListOf()))
         rotationGroupFlow = MutableSharedFlow()
         slidersFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
@@ -193,8 +191,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             Log.d("TestSendByteArray","CallBack is BLEService was complete")
         }
     }
-
-
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
@@ -206,7 +202,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var updateFlow by Delegates.notNull<MutableStateFlow<Int>>()
         var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
-        var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
+        var plotArrayFlow by Delegates.notNull<MutableStateFlow<PlotParameterRef>>()
         var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<Int>>()

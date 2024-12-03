@@ -1614,7 +1614,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     if (mBluetoothLeService != null) {
       for (i in mGattCharacteristics.indices) {
         for (j in mGattCharacteristics[i].indices) {
-          System.err.println("mGattCharacteristics ${mGattCharacteristics[i][j].uuid}")
+          System.err.println("mGattCharacteristics i = $i  j = $j   ${mGattCharacteristics[i][j].uuid}")
           if (mGattCharacteristics[i][j].uuid.toString() == Command) {
             mCharacteristic = mGattCharacteristics[i][j]
             if (typeCommand == WRITE){
@@ -1622,14 +1622,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
                 mCharacteristic?.value = byteArray
                 mBluetoothLeService?.writeCharacteristic(mCharacteristic)
                 System.err.println("bleCommand Write Characteristic")
-              }
-            }
-
-            if (typeCommand == WRITE_WR){
-              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0) {
-                mCharacteristic?.value = byteArray
-                mBluetoothLeService?.writeCharacteristic(mCharacteristic)
-                System.err.println("bleCommand Write WR Characteristic")
               }
             }
 

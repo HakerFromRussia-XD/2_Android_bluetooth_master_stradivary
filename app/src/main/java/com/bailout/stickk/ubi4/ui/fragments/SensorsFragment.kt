@@ -56,9 +56,9 @@ class SensorsFragment : Fragment() {
         if (activity != null) { main = activity as MainActivityUBI4? }
 
         //настоящие виджеты
-        widgetListUpdater()
+//        widgetListUpdater()
         //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.fakeData())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")

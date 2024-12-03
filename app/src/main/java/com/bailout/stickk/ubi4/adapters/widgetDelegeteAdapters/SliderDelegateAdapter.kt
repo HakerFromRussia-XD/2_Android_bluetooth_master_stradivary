@@ -85,7 +85,7 @@ class SliderDelegateAdapter(
                     // а в Array widgetSlidersInfo хранится список всех сочетаний адресов девайсов
                     // и айдишников параметров вместе с их вьюхами для изменения
                     Log.d ("parameter sliderCollect", "перед попыткой добавить данные в слайдер  addressDevice = ${parameterRef.addressDevice}  parameterID = ${parameterRef.parameterID}  parameter.data = ${parameter.data}}")
-                    val indexWidgetSlider = getWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
+                    val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
                     if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
                         if (parameter.data=="") Log.d ("parameter sliderCollect", "не успешная попытка обновления")
                         if (parameter.data!="") Log.d ("parameter sliderCollect", "успешная попытка обновления")
@@ -103,11 +103,8 @@ class SliderDelegateAdapter(
             }
         }
     }
-    fun onDestroy() {
-        scope.cancel()
-    }
 
-    private fun getWidgetSlider(addressDevice: Int, parameterID: Int): Int {
+    private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
         widgetSlidersInfo.forEachIndexed { index, widgetSliderInfo ->
             if (widgetSliderInfo.addressDevice == addressDevice && widgetSliderInfo.parameterID == parameterID) {
                 return index
@@ -117,6 +114,9 @@ class SliderDelegateAdapter(
     }
     override fun isForViewType(item: Any): Boolean = item is SliderItem
     override fun SliderItem.getItemId(): Any = title
+    fun onDestroy() {
+        scope.cancel()
+    }
 }
 
 data class WidgetSliderInfo (

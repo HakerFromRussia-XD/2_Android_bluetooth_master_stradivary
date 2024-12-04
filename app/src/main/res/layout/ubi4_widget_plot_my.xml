@@ -27,18 +27,33 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             >
-            <RelativeLayout
+
+            <LinearLayout
+                android:id="@+id/top_panel"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
+                android:orientation="horizontal">
 
-                >
+                <!--                <Button-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="match_parent"-->
+                <!--                    android:background="@drawable/ubi4_view_with_corners_gray"-->
+                <!--                    android:layout_weight="1"-->
+                <!--                    />-->
+                <!--                <Button-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="match_parent"-->
+                <!--                    android:background="@drawable/ubi4_view_with_corners_gray"-->
+                <!--                    android:layout_weight="1"-->
+                <!--                    />-->
+                <!--                <Button-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="match_parent"-->
+                <!--                    android:background="@drawable/ubi4_view_with_corners_gray"-->
+                <!--                    android:layout_weight="1"-->
+                <!--                    />-->
 
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/select_channel"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="" />
-            </RelativeLayout>
+            </LinearLayout>
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">

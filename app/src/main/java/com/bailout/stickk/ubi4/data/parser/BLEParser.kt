@@ -119,6 +119,7 @@ class BLEParser(main: AppCompatActivity) {
                             val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2).toInt(16).toByte())
                             val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
                             parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2)
+                            Log.d("uiGestureSettingsObservableCP", "addres = ${deviceAddress} parameterID = ${parameter.ID} parameterID = $parameterID  data = ${parameter.data}")
                             updateAllUI(deviceAddress, parameterID, parameter.dataCode)
                             dataLength -= (parameter.parameterDataSize + 2)
                             counter += 1

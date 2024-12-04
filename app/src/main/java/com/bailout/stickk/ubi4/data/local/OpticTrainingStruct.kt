@@ -31,7 +31,7 @@ object OpticTrainingSerializer : KSerializer<OpticTrainingStruct> {
 
 
         Log.d("TestOptic","OpticTrainingStruct length = ${string.length}")
-        if (string.length >= 808) {
+        if (string.length >= 800) {
              numberOfFrame = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte()).toLong() +
                              castUnsignedCharToInt(string.substring(2, 4).toInt(16).toByte()).toLong()*256 +
                              castUnsignedCharToInt(string.substring(4, 6).toInt(16).toByte()).toLong()*256*256 +
@@ -39,7 +39,7 @@ object OpticTrainingSerializer : KSerializer<OpticTrainingStruct> {
 
 
             val byteList  = mutableListOf<Byte>()
-            for (i in 0 until 400) {
+            for (i in 0 until 396) {
                 val oneByteValue = string.substring(i * 2 + 8, i * 2 + 10).toInt(16).toByte()
                 byteList.add(oneByteValue)
             }

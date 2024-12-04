@@ -72,7 +72,7 @@ class MotionTrainingFragment(
 //            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
 
 
-        val parameter = ParameterProvider.getParameter(6, 15)
+        val parameter = ParameterProvider.getParameter(10, 5)
         Log.d("TestOptic", "OpticTrainingStruct = ${parameter.parameterDataSize}")
         val opticStreamDisposable = rxUpdateMainEvent.uiOpticTrainingObservable
             .subscribeOn(Schedulers.io())

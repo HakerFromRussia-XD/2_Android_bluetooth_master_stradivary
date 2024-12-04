@@ -52,9 +52,9 @@ class SensorsFragment : Fragment() {
         if (activity != null) { main = activity as MainActivityUBI4? }
 
         //настоящие виджеты
-//        widgetListUpdater()
+        widgetListUpdater()
         //фейковые виджеты
-        adapterWidgets.swapData(mDataFactory.fakeData())
+//        adapterWidgets.swapData(mDataFactory.fakeData())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -79,13 +79,11 @@ class SensorsFragment : Fragment() {
 
     private fun widgetListUpdater() {
         viewLifecycleOwner.lifecycleScope.launch(Main) {
-            withContext(Main) {
-                updateFlow.collect {
-                    main?.runOnUiThread {
-                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
-                        adapterWidgets.swapData(mDataFactory.prepareData(display))
-                        binding.refreshLayout.setRefreshing(false)
-                    }
+            updateFlow.collect {
+                main?.runOnUiThread {
+                    Log.d("widgetListUpdater", "${mDataFactory.prepareData(display)}")
+                    adapterWidgets.swapData(mDataFactory.prepareData(display))
+                    binding.refreshLayout.setRefreshing(false)
                 }
             }
         }

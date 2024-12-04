@@ -575,6 +575,8 @@
     <string name="the_gesture_model_file_is_ready_load">Файл модели жестов готов. Загрузите его в протез для завершения настройки.</string>
     <string name="file_is_being_downloaded">Идет загрузка файла</string>
     <string name="are_you_sure_you_want_to_start_downloading_the_file">Вы уверены что хотите начать загрузку файла?</string>
+    <string name="bluetooth_connection_is_disabled">Bluetooth соеденение отключенно</string>
+    <string name="there_is_no_bluetooth_connection_check_the_connection">Bluetooth соединение отсутствует. Проверьте подключение.</string>
 
 
     <string-array name="numbers">

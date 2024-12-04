@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAda
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.BLEController
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
@@ -51,11 +52,13 @@ import kotlin.reflect.jvm.internal.impl.incremental.components.Position
 
 class SprTrainingFragment : Fragment() {
     private lateinit var binding: Ubi4FragmentSprTrainingBinding
+    private lateinit var bleController: BLEController
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
     private var onChangeState: ((state: Int) -> Unit)? = null
     private var onDestroyParent: (() -> Unit)? = null
     private var currentDialog: Dialog? = null
+
     private val progressFlow = MutableStateFlow(0)
     //private val loadedFiles = mutableSetOf<String>()
 
@@ -87,9 +90,19 @@ class SprTrainingFragment : Fragment() {
 
 
 
+
+
         binding.sprTrainingRv.layoutManager = LinearLayoutManager(context)
         binding.sprTrainingRv.adapter = adapterWidgets
         Log.d("SprTrainingFragment", "onViewCreated finished")
+
+//        val activity = requireActivity()
+//        if (activity is MainActivityUBI4) {
+//            bleController = activity.mBLEController
+//        } else {
+//            throw IllegalStateException("Activity is not MainActivityUBI4")
+//        }
+        bleController = (requireActivity() as MainActivityUBI4).getBLEController()
         return binding.root
     }
 
@@ -172,9 +185,10 @@ class SprTrainingFragment : Fragment() {
     )
 
     private fun closeCurrentDialog() {
-        currentDialog?.dismiss()
-        currentDialog = null
+            currentDialog?.dismiss()
+            currentDialog = null
     }
+
 
     @SuppressLint("MissingInflatedId")
     fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
@@ -188,8 +202,7 @@ class SprTrainingFragment : Fragment() {
 
         val cancelBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogTrainingCancelBtn)
         cancelBtn.setOnClickListener {
-            closeCurrentDialog()
-        }
+            closeCurrentDialog() }
 
         val confirmBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogConfirmTrainingBtn)
         confirmBtn.setOnClickListener {
@@ -201,6 +214,7 @@ class SprTrainingFragment : Fragment() {
     }
 
     private fun showConfirmLoadingDialog(onConfirm: () -> Unit) {
+        closeCurrentDialog()
         val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_loading, null)
         val myDialog = Dialog(requireContext())
         myDialog.setContentView(dialogFileBinding)
@@ -213,18 +227,18 @@ class SprTrainingFragment : Fragment() {
         confirmBtn.setOnClickListener {
             closeCurrentDialog()
             onConfirm()
+            Log.d("DialogManagement", "After onConfirm, current dialog: $currentDialog")
 
-            val cancelBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogLoadingCancelBtn)
-            cancelBtn.setOnClickListener {
-                closeCurrentDialog()
-            }
-
+        }
+        val cancelBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogLoadingCancelBtn)
+        cancelBtn.setOnClickListener {
+            myDialog.dismiss()
         }
 
     }
 
     private fun showProgressBarDialog(): Dialog {
-        Log.d("Dialog", "Showing progress bar dialog")
+        closeCurrentDialog()
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_progressbar, null)
         val myDialog = Dialog(requireContext())
         myDialog.setContentView(dialogBinding)
@@ -232,6 +246,8 @@ class SprTrainingFragment : Fragment() {
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         currentDialog = myDialog
         myDialog.show()
+        bleController.setProgressDialog(myDialog)
+        Log.d("DialogManagement", "Progress bar dialog shown: $currentDialog")
         return myDialog
     }
 
@@ -241,12 +257,12 @@ class SprTrainingFragment : Fragment() {
         myDialog.setContentView(dialogFileBinding)
         myDialog.setCancelable(false)
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        currentDialog = myDialog
         myDialog.show()
 
         val filesRecyclerView = dialogFileBinding.findViewById<RecyclerView>(R.id.dialogFileRv)
         val path = requireContext().getExternalFilesDir(null)
         val files = path?.listFiles()?.filter { it.name.contains("checkpoint") } ?: emptyList()
-        //val progressBar = dialogFileBinding.findViewById<ProgressBar>(R.id.loadingProgressBar)
 
         if (files.isEmpty()) {
             Toast.makeText(requireContext(), getString(R.string.no_saved_files), Toast.LENGTH_SHORT)
@@ -284,19 +300,20 @@ class SprTrainingFragment : Fragment() {
             }
 
             override fun onSelect(position: Int, fileItem: FileItem, onComplete: () -> Unit) {
-//                if (loadedFiles.contains(fileItem.name)) {
-//                    Toast.makeText(requireContext(), "Этот файл уже загружен", Toast.LENGTH_SHORT).show()
-//                    return
-//                }
+                if (!bleController.getStatusConnected()) {
+                    Toast.makeText(requireContext(),
+                        getString(R.string.there_is_no_bluetooth_connection_check_the_connection), Toast.LENGTH_SHORT).show()
+                    return
+                }
                 showConfirmLoadingDialog {
+                    Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
                     val progressBarDialog = showProgressBarDialog()
-
                     val progressBar =
                         progressBarDialog.findViewById<ProgressBar>(R.id.loadingProgressBar)
 
                     lifecycleScope.launch {
                         progressFlow.collect { progress ->
-                            withContext(Main) { // Убедитесь, что обновление происходит в UI-потоке
+                            withContext(Main) {
                                 progressBar.progress = progress
                                 Log.d("ProgressValue", "$progress")
                                 if (progress == 100) {
@@ -305,7 +322,6 @@ class SprTrainingFragment : Fragment() {
                                         "Файл отправлен: ${fileItem.name}",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                    //loadedFiles.add(fileItem.name)
                                     closeCurrentDialog()
                                     progressFlow.value = 0
 
@@ -329,6 +345,8 @@ class SprTrainingFragment : Fragment() {
 
 
     }
+
+
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         System.err.println("oneButtonPressed    parameterID: $parameterID   command: $command")
@@ -382,8 +400,6 @@ class SprTrainingFragment : Fragment() {
     private fun sendFileInChunks(byteArray: ByteArray) {
         val maxChunkSize = 249
         val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
-        Log.d("TotalChunks", "totalChunks $totalChunks")
-        //progressFlow.value = 0
         val chunksSent = AtomicInteger(0)
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -405,7 +421,6 @@ class SprTrainingFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("LagSpr", " started onDestroy")
         onDestroyParent?.invoke()
         //adapterWidgets = null
     }

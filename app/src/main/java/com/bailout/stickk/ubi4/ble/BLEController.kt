@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.ble
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
@@ -13,12 +14,17 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
+import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
@@ -47,6 +53,7 @@ class BLEController (main: AppCompatActivity) {
     private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
     private var mCharacteristic: BluetoothGattCharacteristic? = null
     private var mNotifyCharacteristic: BluetoothGattCharacteristic? = null
+    private var progressDialog: Dialog? = null
 
     private var reconnectThreadFlag = false
     private var scanWithoutConnectFlag = false
@@ -112,11 +119,20 @@ class BLEController (main: AppCompatActivity) {
                     reconnectThreadFlag = false
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+                    Log.d("BLEController", "ACTION_GATT_DISCONNECTED received")
                     mConnected = false
                     endFlag = true
                     graphThreadFlag = false
                     mMain.invalidateOptionsMenu()
 //                    percentSynchronize = 0
+
+                    progressDialog?.dismiss()
+                    progressDialog = null
+
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(mContext,
+                            context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
+                    }
 
                     if(!reconnectThreadFlag && !mScanning){
                         reconnectThreadFlag = true
@@ -318,6 +334,8 @@ class BLEController (main: AppCompatActivity) {
     }
 
 
+
+    internal fun setProgressDialog(dialog: Dialog?) { progressDialog = dialog }
     internal fun getBluetoothLeService() : BluetoothLeService? { return mBluetoothLeService }
     internal fun getBluetoothAdapter() : BluetoothAdapter? { return mBluetoothAdapter }
     internal fun getStatusConnected() : Boolean { return mConnected }

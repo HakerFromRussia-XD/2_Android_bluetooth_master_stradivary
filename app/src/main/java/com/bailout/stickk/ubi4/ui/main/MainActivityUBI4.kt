@@ -84,16 +84,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         startQueue()
 
         showSensorsScreen()
-        binding.addCommandBtn.setOnClickListener {
-            val byteArray = ByteArray(249){0x55.toByte()}
-            for (i in 1..100){
-                byteArray[0] = i.toByte()
-                runWriteDataTest(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE){}
-            }
-            Log.d("SendDataTest", "${EncodeByteToHex.bytesToHexString(BLECommands.checkpointDataTransfer(byteArray))}")
-        }
-        binding.runCommandBtn.setOnClickListener {
-        }
+//        binding.addCommandBtn.setOnClickListener {
+//            val byteArray = ByteArray(249){0x55.toByte()}
+//            for (i in 1..100){
+//                byteArray[0] = i.toByte()
+//                runWriteDataTest(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE){}
+//            }
+//            Log.d("SendDataTest", "${EncodeByteToHex.bytesToHexString(BLECommands.checkpointDataTransfer(byteArray))}")
+//        }
+//        binding.runCommandBtn.setOnClickListener {
+//        }
 
     }
     @SuppressLint("MissingPermission")
@@ -214,6 +214,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             // Invoke the callback after data is sent
             onChunkSent()
         }
+    }
+
+    //не нарушая инкапсуляцию
+    fun getBLEController(): BLEController {
+        return mBLEController
     }
 
     private fun writeDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) {

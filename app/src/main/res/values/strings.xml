@@ -573,6 +573,8 @@
     <string name="the_gesture_model_file_is_ready_load">The gesture model file is ready. Load it into your prosthesis to complete the setup.</string>
     <string name="file_is_being_downloaded">File is being downloaded</string>
     <string name="are_you_sure_you_want_to_start_downloading_the_file">Are you sure you want to start downloading the file?</string>
+    <string name="bluetooth_connection_is_disabled">Bluetooth connection is disabled</string>
+    <string name="there_is_no_bluetooth_connection_check_the_connection">There is no Bluetooth connection. Check the connection.</string>
 
 
     <string-array name="numbers">

@@ -84,24 +84,16 @@
                         android:id="@+id/open_threshold_help_v"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        android:layout_alignEnd="@+id/subtitle_open_threshold_tv"
                         android:layout_alignBottom="@+id/touch_aria_open"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentTop="true"
-                        android:layout_alignParentBottom="@+id/subtitle_open_threshold_tv"
                         android:layout_marginStart="0dp"
                         android:layout_marginTop="0dp"
                         android:layout_marginEnd="-10dp"
                         android:layout_marginBottom="0dp"
                         android:background="@color/transparent" />
 
-                    <View
-                        android:id="@+id/touch_aria_open"
-                        android:layout_width="30dp"
-                        android:layout_height="15dp"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginTop="0dp"
-                        android:background="@drawable/touch_aria_open" />
+
 
 
                     <ImageView
@@ -109,10 +101,17 @@
                         android:layout_width="match_parent"
                         android:layout_height="3dp"
                         android:layout_alignParentTop="true"
-                        android:layout_marginStart="10dp"
+                        android:layout_marginStart="25dp"
                         android:layout_marginTop="6dp"
-                        android:background="@color/open_threshold"
+                        android:background="@color/ubi4_gray_border"
                         tools:ignore="ContentDescription" />
+                    <View
+                        android:id="@+id/touch_aria_open"
+                        android:layout_width="30dp"
+                        android:layout_height="15dp"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginTop="0dp"
+                        android:background="@drawable/ubi4_chart_limit_base" />
 
                     <TextView
                         android:id="@+id/open_threshold_tv"
@@ -131,87 +130,87 @@
                         android:textSize="9sp"
                         tools:ignore="HardcodedText,RtlSymmetry,SmallSp" />
 
-                    <TextView
-                        android:id="@+id/subtitle_open_threshold_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/open_threshold_iv"
-                        android:layout_marginStart="0dp"
-                        android:layout_marginTop="0dp"
-                        android:layout_toEndOf="@+id/touch_aria_open"
-                        android:fontFamily="@font/font_open_sans_bold"
-                        android:paddingStart="0dp"
-                        android:text="@string/open_threshold"
-                        android:textAlignment="viewStart"
-                        android:textColor="@color/cream_white"
-                        android:textSize="6sp"
-                        tools:ignore="RtlSymmetry,SmallSp" />
+<!--                    <TextView-->
+<!--                        android:id="@+id/subtitle_open_threshold_tv"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_below="@+id/open_threshold_iv"-->
+<!--                        android:layout_marginStart="0dp"-->
+<!--                        android:layout_marginTop="0dp"-->
+<!--                        android:layout_toEndOf="@+id/touch_aria_open"-->
+<!--                        android:fontFamily="@font/font_open_sans_bold"-->
+<!--                        android:paddingStart="0dp"-->
+<!--                        android:text="@string/open_threshold"-->
+<!--                        android:textAlignment="viewStart"-->
+<!--                        android:textColor="@color/cream_white"-->
+<!--                        android:textSize="6sp"-->
+<!--                        tools:ignore="RtlSymmetry,SmallSp" />-->
                 </RelativeLayout>
-                <RelativeLayout
-                    android:id="@+id/limit_CH2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="94dp"
-                    android:layout_marginEnd="0dp"
-                    android:orientation="vertical"
-                    tools:ignore="UseCompoundDrawables">
+<!--                <RelativeLayout-->
+<!--                    android:id="@+id/limit_CH2"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_alignParentStart="true"-->
+<!--                    android:layout_alignParentEnd="true"-->
+<!--                    android:layout_alignParentBottom="true"-->
+<!--                    android:layout_marginStart="94dp"-->
+<!--                    android:layout_marginEnd="0dp"-->
+<!--                    android:orientation="vertical"-->
+<!--                    tools:ignore="UseCompoundDrawables">-->
 
-                    <View
-                        android:id="@+id/touch_aria_close"
-                        android:layout_width="30dp"
-                        android:layout_height="15dp"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginTop="0dp"
-                        android:layout_marginEnd="0dp"
-                        android:background="@drawable/touch_aria_close" />
+<!--                    <View-->
+<!--                        android:id="@+id/touch_aria_close"-->
+<!--                        android:layout_width="30dp"-->
+<!--                        android:layout_height="15dp"-->
+<!--                        android:layout_alignParentTop="true"-->
+<!--                        android:layout_alignParentEnd="true"-->
+<!--                        android:layout_marginTop="0dp"-->
+<!--                        android:layout_marginEnd="0dp"-->
+<!--                        android:background="@drawable/touch_aria_close" />-->
 
-                    <ImageView
-                        android:id="@+id/close_threshold_iv"
-                        android:layout_width="match_parent"
-                        android:layout_height="3dp"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginTop="6dp"
-                        android:layout_marginEnd="10dp"
-                        android:background="@color/close_threshold"
-                        tools:ignore="ContentDescription" />
+<!--                    <ImageView-->
+<!--                        android:id="@+id/close_threshold_iv"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="3dp"-->
+<!--                        android:layout_alignParentTop="true"-->
+<!--                        android:layout_marginTop="6dp"-->
+<!--                        android:layout_marginEnd="10dp"-->
+<!--                        android:background="@color/close_threshold"-->
+<!--                        tools:ignore="ContentDescription" />-->
 
-                    <TextView
-                        android:id="@+id/close_threshold_tv"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_alignStart="@+id/touch_aria_close"
-                        android:layout_alignEnd="@+id/touch_aria_close"
-                        android:layout_alignBottom="@+id/touch_aria_close"
-                        android:layout_alignTop="@+id/touch_aria_close"
-                        android:layout_marginStart="0dp"
-                        android:layout_marginTop="0dp"
-                        android:layout_marginEnd="0dp"
-                        android:layout_marginBottom="0dp"
-                        android:fontFamily="@font/font_open_sans_bold"
-                        android:text="30"
-                        android:textAlignment="center"
-                        android:textColor="@color/open_threshold"
-                        android:textSize="9sp"
-                        tools:ignore="HardcodedText,RtlSymmetry,SmallSp" />
+<!--                    <TextView-->
+<!--                        android:id="@+id/close_threshold_tv"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:layout_alignStart="@+id/touch_aria_close"-->
+<!--                        android:layout_alignEnd="@+id/touch_aria_close"-->
+<!--                        android:layout_alignBottom="@+id/touch_aria_close"-->
+<!--                        android:layout_alignTop="@+id/touch_aria_close"-->
+<!--                        android:layout_marginStart="0dp"-->
+<!--                        android:layout_marginTop="0dp"-->
+<!--                        android:layout_marginEnd="0dp"-->
+<!--                        android:layout_marginBottom="0dp"-->
+<!--                        android:fontFamily="@font/font_open_sans_bold"-->
+<!--                        android:text="30"-->
+<!--                        android:textAlignment="center"-->
+<!--                        android:textColor="@color/open_threshold"-->
+<!--                        android:textSize="9sp"-->
+<!--                        tools:ignore="HardcodedText,RtlSymmetry,SmallSp" />-->
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/close_threshold_iv"
-                        android:layout_marginEnd="0dp"
-                        android:layout_toStartOf="@+id/touch_aria_close"
-                        android:fontFamily="@font/font_open_sans_bold"
-                        android:paddingStart="0dp"
-                        android:text="@string/close_threshold"
-                        android:textAlignment="viewEnd"
-                        android:textColor="@color/cream_white"
-                        android:textSize="6sp"
-                        tools:ignore="RtlSymmetry,SmallSp" />
-                </RelativeLayout>
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_below="@+id/close_threshold_iv"-->
+<!--                        android:layout_marginEnd="0dp"-->
+<!--                        android:layout_toStartOf="@+id/touch_aria_close"-->
+<!--                        android:fontFamily="@font/font_open_sans_bold"-->
+<!--                        android:paddingStart="0dp"-->
+<!--                        android:text="@string/close_threshold"-->
+<!--                        android:textAlignment="viewEnd"-->
+<!--                        android:textColor="@color/cream_white"-->
+<!--                        android:textSize="6sp"-->
+<!--                        tools:ignore="RtlSymmetry,SmallSp" />-->
+<!--                </RelativeLayout>-->
 
                 <LinearLayout
                     android:id="@+id/all_CH_rl"
@@ -232,7 +231,7 @@
                         android:layout_width="0dp"
 
                         android:layout_height="match_parent"
-                        android:layout_weight="1">
+                        android:layout_weight="2">
 
                         <View
                             android:id="@+id/open_CH_v"
@@ -253,28 +252,28 @@
 
                     </RelativeLayout>
 
-                    <RelativeLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
+<!--                    <RelativeLayout-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:layout_weight="1">-->
 
 
-                        <View
-                            android:id="@+id/close_CH_v"
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentBottom="true"
-                            android:layout_marginStart="0dp"
-                            android:layout_marginTop="0dp"
-                            android:layout_marginEnd="0dp"
-                            android:layout_marginBottom="0dp"
-                            android:background="@color/transparent" />
+<!--                        <View-->
+<!--                            android:id="@+id/close_CH_v"-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="0dp"-->
+<!--                            android:layout_alignParentStart="true"-->
+<!--                            android:layout_alignParentTop="true"-->
+<!--                            android:layout_alignParentEnd="true"-->
+<!--                            android:layout_alignParentBottom="true"-->
+<!--                            android:layout_marginStart="0dp"-->
+<!--                            android:layout_marginTop="0dp"-->
+<!--                            android:layout_marginEnd="0dp"-->
+<!--                            android:layout_marginBottom="0dp"-->
+<!--                            android:background="@color/transparent" />-->
 
 
-                    </RelativeLayout>
+<!--                    </RelativeLayout>-->
                 </LinearLayout>
             </RelativeLayout>
 

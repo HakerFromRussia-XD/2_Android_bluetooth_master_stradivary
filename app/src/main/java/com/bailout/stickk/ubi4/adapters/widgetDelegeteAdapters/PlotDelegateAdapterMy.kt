@@ -66,6 +66,9 @@ class PlotDelegateAdapterMy (
 
     private var g_select_chart_buttons: MutableList<Button> = ArrayList()
     private var g_selected_chart: Int = -1
+    private var g_chart_limits: MutableList<Int> = ArrayList()
+    private var g_chart_limits_pos: MutableList<Float> = ArrayList()
+
 
 
     private var color: Int = 0
@@ -119,6 +122,9 @@ class PlotDelegateAdapterMy (
             g_data_sets.add(data_set)
 
             dataSenses.add(i,0)
+
+            g_chart_limits.add(i, 255)
+            g_chart_limits_pos.add(i, 0f)
         }
         GlobalScope.launch(CoroutineName("startGraphEnteringDataCoroutine $countBinding")) {
             startGraphEnteringDataCoroutine(EMGChartLc)
@@ -168,6 +174,9 @@ class PlotDelegateAdapterMy (
                     openThresholdIv.background = AppCompatResources.getDrawable(main,R.color.ubi4_active)
 
                     g_selected_chart = i
+                    limitCH1.y = g_chart_limits_pos[g_selected_chart]
+                    openThresholdTv.text = g_chart_limits[g_selected_chart].toString()
+
                 }else{
                     g_select_chart_buttons[i].background = AppCompatResources.getDrawable(main, R.drawable.ubi4_view_with_corners_gray)
                     g_selected_chart = -1
@@ -229,7 +238,12 @@ class PlotDelegateAdapterMy (
                 if (y > allCHRl.height)
                     y = allCHRl.height.toFloat()
                 limitCH1.y = y - limitCH1.height/2 + allCHRl.marginTop
-                openThresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
+                val rez = ((allCHRl.height - y)/allCHRl.height * 255).toInt()
+                openThresholdTv.text = rez.toString()
+                if(g_selected_chart != -1) {
+                    g_chart_limits[g_selected_chart] = rez
+                    g_chart_limits_pos[g_selected_chart] = limitCH1.y
+                }
                 return true
             }
         })

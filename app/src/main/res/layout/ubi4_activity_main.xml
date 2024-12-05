@@ -63,4 +63,5 @@
         app:menu="@menu/ubi4_bottom_navigation_menu" />
 <!--    app:labelVisibilityMode="auto"-->
 
+
 </androidx.constraintlayout.widget.ConstraintLayout>

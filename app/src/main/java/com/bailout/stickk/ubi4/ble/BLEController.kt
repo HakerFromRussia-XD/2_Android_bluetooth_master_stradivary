@@ -54,6 +54,8 @@ class BLEController (main: AppCompatActivity) {
     private var mCharacteristic: BluetoothGattCharacteristic? = null
     private var mNotifyCharacteristic: BluetoothGattCharacteristic? = null
     private var progressDialog: Dialog? = null
+    private var isUploading = false
+    private var onDisconnectedListener: (() -> Unit)? = null
 
     private var reconnectThreadFlag = false
     private var scanWithoutConnectFlag = false
@@ -118,10 +120,13 @@ class BLEController (main: AppCompatActivity) {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
                     reconnectThreadFlag = false
+
+
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
                     Log.d("BLEController", "ACTION_GATT_DISCONNECTED received")
                     mConnected = false
+                    isUploading = false
                     endFlag = true
                     graphThreadFlag = false
                     mMain.invalidateOptionsMenu()
@@ -134,6 +139,7 @@ class BLEController (main: AppCompatActivity) {
                         Toast.makeText(mContext,
                             context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
                     }
+
 
                     if(!reconnectThreadFlag && !mScanning){
                         reconnectThreadFlag = true
@@ -333,9 +339,15 @@ class BLEController (main: AppCompatActivity) {
             }
         }
     }
+    fun setOnDisconnectedListener(listener: () -> Unit) {
+        // Сохраняйте listener и вызывайте его в `ACTION_GATT_DISCONNECTED`
+        onDisconnectedListener = listener
+    }
 
 
 
+    internal fun setUploadingState(state: Boolean) { isUploading = state }
+    internal fun isCurrentlyUploading(): Boolean { return isUploading }
     internal fun setProgressDialog(dialog: Dialog?) { progressDialog = dialog }
     internal fun getBluetoothLeService() : BluetoothLeService? { return mBluetoothLeService }
     internal fun getBluetoothAdapter() : BluetoothAdapter? { return mBluetoothAdapter }

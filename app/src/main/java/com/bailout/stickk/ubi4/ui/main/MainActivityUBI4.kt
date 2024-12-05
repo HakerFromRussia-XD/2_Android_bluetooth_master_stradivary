@@ -216,11 +216,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-    //не нарушая инкапсуляцию
-    fun getBLEController(): BLEController {
-        return mBLEController
-    }
-
     private fun writeDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
@@ -233,7 +228,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
 
-
+    //не нарушая инкапсуляцию
+    fun getBLEController(): BLEController {
+        return mBLEController
+    }
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )

@@ -427,7 +427,23 @@ class BLECommands {
         fun checkpointDataTransfer(data: ByteArray): ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
-                (128 + 4).toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00
+            )
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
+            return result
+        }
+
+        fun checkpointDataTransfer2(data: ByteArray): ByteArray {
+            val header = byteArrayOf(
+                0x40.toByte(),
+                (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
                 0x00,
                 0x00,
                 0x00,

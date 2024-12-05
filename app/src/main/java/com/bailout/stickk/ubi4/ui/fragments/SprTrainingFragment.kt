@@ -2,6 +2,10 @@ package com.bailout.stickk.ubi4.ui.fragments
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -25,6 +29,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateA
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
+import com.bailout.stickk.ubi4.ble.BluetoothLeService
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
@@ -55,12 +60,13 @@ class SprTrainingFragment : Fragment() {
     private lateinit var bleController: BLEController
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
-    private var onChangeState: ((state: Int) -> Unit)? = null
     private var onDestroyParent: (() -> Unit)? = null
     private var currentDialog: Dialog? = null
 
     private val progressFlow = MutableStateFlow(0)
     //private val loadedFiles = mutableSetOf<String>()
+
+
 
 
     override fun onCreateView(
@@ -185,8 +191,8 @@ class SprTrainingFragment : Fragment() {
     )
 
     private fun closeCurrentDialog() {
-            currentDialog?.dismiss()
-            currentDialog = null
+        currentDialog?.dismiss()
+        currentDialog = null
     }
 
 
@@ -202,7 +208,8 @@ class SprTrainingFragment : Fragment() {
 
         val cancelBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogTrainingCancelBtn)
         cancelBtn.setOnClickListener {
-            closeCurrentDialog() }
+            closeCurrentDialog()
+        }
 
         val confirmBtn = dialogBinding.findViewById<View>(R.id.ubi4DialogConfirmTrainingBtn)
         confirmBtn.setOnClickListener {
@@ -247,92 +254,98 @@ class SprTrainingFragment : Fragment() {
         currentDialog = myDialog
         myDialog.show()
         bleController.setProgressDialog(myDialog)
-        Log.d("DialogManagement", "Progress bar dialog shown: $currentDialog")
         return myDialog
     }
 
     private fun showFilesDialog() {
-        val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_show_files, null)
-        val myDialog = Dialog(requireContext())
-        myDialog.setContentView(dialogFileBinding)
-        myDialog.setCancelable(false)
-        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        currentDialog = myDialog
-        myDialog.show()
+                val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_show_files, null)
+                val myDialog = Dialog(requireContext())
+                myDialog.setContentView(dialogFileBinding)
+                myDialog.setCancelable(false)
+                myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                currentDialog = myDialog
+                myDialog.show()
 
-        val filesRecyclerView = dialogFileBinding.findViewById<RecyclerView>(R.id.dialogFileRv)
-        val path = requireContext().getExternalFilesDir(null)
-        val files = path?.listFiles()?.filter { it.name.contains("checkpoint") } ?: emptyList()
+                val filesRecyclerView = dialogFileBinding.findViewById<RecyclerView>(R.id.dialogFileRv)
+                val path = requireContext().getExternalFilesDir(null)
+                val files = path?.listFiles()?.filter { it.name.contains("checkpoint") } ?: emptyList()
 
-        if (files.isEmpty()) {
-            Toast.makeText(requireContext(), getString(R.string.no_saved_files), Toast.LENGTH_SHORT)
-                .show()
-            myDialog.dismiss()
-            return
-        }
-
-        val fileItems = files.map { FileItem(it.name, it) }.toMutableList()
-
-        filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val adapter = FileCheckpointAdapter(fileItems, object :
-            FileCheckpointAdapter.OnFileActionListener {
-            override fun onDelete(position: Int, fileItem: FileItem) {
-                if (fileItem.file.delete()) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Файл ${fileItem.name} удалён",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    fileItems.remove(fileItem)
-                    filesRecyclerView.adapter?.notifyDataSetChanged()
-                    if (fileItems.isEmpty()) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Нет сохранённых файлов",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        myDialog.dismiss()
-                    }
-                } else {
-                    Toast.makeText(requireContext(), "Ошибка удаления файла", Toast.LENGTH_SHORT)
+                if (files.isEmpty()) {
+                    Toast.makeText(requireContext(), getString(R.string.no_saved_files), Toast.LENGTH_SHORT)
                         .show()
-                }
-            }
-
-            override fun onSelect(position: Int, fileItem: FileItem, onComplete: () -> Unit) {
-                if (!bleController.getStatusConnected()) {
-                    Toast.makeText(requireContext(),
-                        getString(R.string.there_is_no_bluetooth_connection_check_the_connection), Toast.LENGTH_SHORT).show()
+                    myDialog.dismiss()
                     return
                 }
-                showConfirmLoadingDialog {
-                    Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
-                    val progressBarDialog = showProgressBarDialog()
-                    val progressBar =
-                        progressBarDialog.findViewById<ProgressBar>(R.id.loadingProgressBar)
 
-                    lifecycleScope.launch {
-                        progressFlow.collect { progress ->
-                            withContext(Main) {
-                                progressBar.progress = progress
-                                Log.d("ProgressValue", "$progress")
-                                if (progress == 100) {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Файл отправлен: ${fileItem.name}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    closeCurrentDialog()
-                                    progressFlow.value = 0
+                val fileItems = files.map { FileItem(it.name, it) }.toMutableList()
 
-                                }
+                filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+                val adapter = FileCheckpointAdapter(fileItems, object :
+                    FileCheckpointAdapter.OnFileActionListener {
+                    override fun onDelete(position: Int, fileItem: FileItem) {
+                        if (fileItem.file.delete()) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Файл ${fileItem.name} удалён",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            fileItems.remove(fileItem)
+                            filesRecyclerView.adapter?.notifyDataSetChanged()
+                            if (fileItems.isEmpty()) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Нет сохранённых файлов",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                myDialog.dismiss()
                             }
+                        } else {
+                            Toast.makeText(requireContext(), "Ошибка удаления файла", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     }
 
-                    sendFileInChunks(fileItem.file.readBytes())
-                }
-            }
+                    override fun onSelect(position: Int, fileItem: FileItem, onComplete: () -> Unit) {
+                        if (!bleController.getStatusConnected()) {
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.there_is_no_bluetooth_connection_check_the_connection),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return
+                        }
+                        showConfirmLoadingDialog {
+                            if (bleController.isCurrentlyUploading()) {
+                                Toast.makeText(requireContext(), "Загрузка уже выполняется", Toast.LENGTH_SHORT).show()
+                                return@showConfirmLoadingDialog
+                            }
+                            Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
+                            val progressBarDialog = showProgressBarDialog()
+                            val progressBar =
+                                progressBarDialog.findViewById<ProgressBar>(R.id.loadingProgressBar)
+
+                            lifecycleScope.launch {
+                                progressFlow.collect { progress ->
+                                    withContext(Main) {
+                                        progressBar.progress = progress
+                                        Log.d("ProgressValue", "$progress")
+                                        if (progress == 100) {
+                                            Toast.makeText(
+                                                requireContext(),
+                                                "Файл отправлен: ${fileItem.name}",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            closeCurrentDialog()
+                                            progressFlow.value = 0
+
+                                        }
+                                    }
+                                }
+                            }
+
+                            sendFileInChunks(fileItem.file.readBytes())
+                        }
+                    }
 
 
         })
@@ -345,7 +358,6 @@ class SprTrainingFragment : Fragment() {
 
 
     }
-
 
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
@@ -398,23 +410,33 @@ class SprTrainingFragment : Fragment() {
 
 
     private fun sendFileInChunks(byteArray: ByteArray) {
-        val maxChunkSize = 249
+        val maxChunkSize = 248
         val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
         val chunksSent = AtomicInteger(0)
-
+        bleController.setUploadingState(true)
         lifecycleScope.launch(Dispatchers.IO) {
             byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk ->
-                val chunkArray = chunk.toByteArray().toMutableList()
-                chunkArray[0] = index.toByte()
-                val modifiedChunkArray = chunkArray.toByteArray()
-
-                // Отправка данных (выполняется в фоновом потоке)
-                main?.runWriteDataTest(modifiedChunkArray, MAIN_CHANNEL, WRITE) {
+                if (!bleController.isCurrentlyUploading()) {
+                    Log.d("SprTrainingFragment", "Upload canceled due to BLE disconnection.")
+                    progressFlow.value = 0
+                    return@launch
+                }
+                val modifiedChunkArray = ByteArray(chunk.size + 1)
+                modifiedChunkArray[0] = index.toByte()
+                System.arraycopy(chunk.toByteArray(), 0, modifiedChunkArray, 1, chunk.size)
+                Log.d("ChunkProcessing", "Indexed chunk array (index + data): ${modifiedChunkArray.joinToString(", ") { it.toString() }}")
+                // Отправка данных
+                main?.runWriteDataTest(
+                    BLECommands.checkpointDataTransfer(modifiedChunkArray),
+                    MAIN_CHANNEL,
+                    WRITE
+                ) {
                     val sent = chunksSent.incrementAndGet()
                     val progress = ((sent.toDouble() / totalChunks) * 100).toInt()
                     progressFlow.value = progress
                 }
             }
+            bleController.setUploadingState(false)
         }
     }
 

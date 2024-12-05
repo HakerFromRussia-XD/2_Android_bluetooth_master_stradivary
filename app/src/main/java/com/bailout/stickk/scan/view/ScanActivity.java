@@ -273,7 +273,6 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 finish();
             }
         }
-
         checkLocationPermission();
         init3D();
 

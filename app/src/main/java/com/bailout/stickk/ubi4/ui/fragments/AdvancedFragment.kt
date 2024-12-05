@@ -43,6 +43,7 @@ class AdvancedFragment : Fragment() {
 
     private val disposables = CompositeDisposable()
     private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
+    private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
     private var count = 0
     private val display = 2
@@ -71,11 +72,14 @@ class AdvancedFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
+        onDestroyParentCallbacks.forEach { it.invoke() }
     }
 
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         listWidgets.clear()
+        onDestroyParentCallbacks.forEach { it.invoke() }
+        onDestroyParentCallbacks.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
 
@@ -95,11 +99,13 @@ class AdvancedFragment : Fragment() {
 
     private val adapterWidgets = CompositeDelegateAdapter(
         PlotDelegateAdapter(
-            plotIsReadyToData = { numberOfCharts -> System.err.println("plotIsReadyToData $numberOfCharts") }
+            plotIsReadyToData = { numberOfCharts -> System.err.println("plotIsReadyToData $numberOfCharts") },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
         OneButtonDelegateAdapter (
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
-            onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
+            onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
         TrainingFragmentDelegateAdapter(
             onConfirmClick = {},
@@ -110,11 +116,11 @@ class AdvancedFragment : Fragment() {
             onSwitchClick = {
                     addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState)
             },
-            onDestroyParent = {}
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
-            onDestroyParent = {}
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         )
 //        GesturesDelegateAdapter (
 //            onSelectorClick = {},
@@ -144,7 +150,6 @@ class AdvancedFragment : Fragment() {
 //        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
 //        transmitter().bleCommand(BLECommands.sendTimestampInfo(7,1, year, month, dayOfMonth, Date(stamp.time).day, Date(stamp.time).hours, Date(stamp.time).minutes, Date(stamp.time).seconds), MAIN_CHANNEL, WRITE)
 
-
 //        transmitter().bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
 
 //        BLECommands.requestSubDeviceParametrs(6, 0, 2).forEach { i ->
@@ -163,6 +168,5 @@ class AdvancedFragment : Fragment() {
     private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
         Log.d("sendSwitcherCommand", "addressDevice=$addressDevice  parameterID: $parameterID  command = $switchState")
         transmitter().bleCommand(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE)
-
     }
 }

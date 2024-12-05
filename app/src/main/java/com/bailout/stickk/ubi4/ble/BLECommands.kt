@@ -216,6 +216,18 @@ class BLECommands {
             )
             return header
         }
+        fun requestThresholds(addressDevice: Int, parameterID: Int): ByteArray {
+            val header = byteArrayOf(
+                0xE0.toByte(),
+                parameterID.toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            return header
+        }
 
         fun sendTimestampInfo(addressDevice: Int, parameterID: Int, year: Int, month: Int, day: Int, weekDay: Int,  hour: Int, minutes: Int, seconds: Int): ByteArray {
             val code:Byte = (128 + parameterID).toByte()
@@ -356,7 +368,7 @@ class BLECommands {
             result[4] = (calculateDataSize(result)/256).toByte()
             return result
         }
-        fun sendSliderCommand(addressDevice: Int, parameterID: Int, progress: Int): ByteArray {
+        fun sendSliderCommand(addressDevice: Int, parameterID: Int,  progress: Int): ByteArray {
             val code:Byte = (128 + parameterID).toByte()
             val result = byteArrayOf(
                 0x60,

@@ -20,7 +20,6 @@ interface NavigatorUBI4 {
     fun saveString(key: String, text: String)
     fun getString(key: String) :String
 
-
     fun getBackStackEntryCount():Int
     fun goingBack()
     fun goToMenu()

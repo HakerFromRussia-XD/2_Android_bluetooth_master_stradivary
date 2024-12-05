@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.ui.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,17 +17,20 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAda
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -40,8 +44,8 @@ class SensorsFragment : Fragment() {
     private var mDataFactory: DataFactory = DataFactory()
 
     private val disposables = CompositeDisposable()
-    private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
-    private var onDestroyParent: (() -> Unit)? = null
+    private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
+
 
     private var count = 0
     private val display = 1
@@ -56,7 +60,6 @@ class SensorsFragment : Fragment() {
         //фейковые виджеты
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
-
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
@@ -69,11 +72,16 @@ class SensorsFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
-        onDestroyParent?.invoke()
+        Log.d("onDestroyParentCallbacks", "========================")
+        onDestroyParentCallbacks.forEach {
+            Log.d("onDestroyParentCallbacks", " считаем сколько раз")
+            it.invoke() }
     }
     private fun refreshWidgetsList() {
         graphThreadFlag = false
         listWidgets.clear()
+        onDestroyParentCallbacks.forEach { it.invoke() }
+        onDestroyParentCallbacks.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
 
@@ -91,20 +99,27 @@ class SensorsFragment : Fragment() {
 
     private val adapterWidgets = CompositeDelegateAdapter(
         PlotDelegateAdapter(
-            plotIsReadyToData = { numberOfCharts -> System.err.println("plotIsReadyToData $numberOfCharts") }
+            plotIsReadyToData = { numberOfCharts -> System.err.println("plotIsReadyToData $numberOfCharts") },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
         OneButtonDelegateAdapter (
             onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
-            onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) }
+            onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
+        ),
+        TrainingFragmentDelegateAdapter(
+            onConfirmClick = {},
+            generateClick = {},
+            showFileClick = {}
         ),
         SwitcherDelegateAdapter(
             onSwitchClick = { addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState) },
-            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
             //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
-            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
         TrainingFragmentDelegateAdapter(
             onConfirmClick = {
@@ -120,7 +135,7 @@ class SensorsFragment : Fragment() {
                 Log.d("TestWidgetView", "onShowFileClick FRAGMENT OK")
 
             },
-            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         )
 //        GesturesDelegateAdapter (
 //            onSelectorClick = {},
@@ -167,16 +182,9 @@ class SensorsFragment : Fragment() {
         Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
         transmitter().bleCommand(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
     }
-
     private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
         Log.d("sendSwitcherCommand", "addressDevice=$addressDevice  parameterID: $parameterID  command = $switchState")
         transmitter().bleCommand(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE)
 
     }
-
-
-
-
-
-
 }

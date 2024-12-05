@@ -9,7 +9,7 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('C:\\key\\keystore.jks')
+            storeFile file('/Users/motoricallc/Keystore.jks')
             storePassword '89157719183'
             keyAlias 'key0'
             keyPassword '89157719183'

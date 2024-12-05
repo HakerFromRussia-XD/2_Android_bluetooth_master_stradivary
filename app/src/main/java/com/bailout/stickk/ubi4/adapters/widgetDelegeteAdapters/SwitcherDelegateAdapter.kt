@@ -2,7 +2,10 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.ProgressBar
 import android.widget.Switch
+import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
 import com.bailout.stickk.databinding.Ubi4WidgetSwitcherBinding
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BluetoothLeService.MAIN_CHANNEL
@@ -32,16 +35,12 @@ class SwitcherDelegateAdapter(
     ) {
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private var addressDevice = 0
-    private var parameterID = 0
-    private var switchChecked = false
-
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    private lateinit var _widgetSwitchSc: Switch
-
+    private var widgetSwitchInfo: ArrayList<WidgetSwitchInfo> = ArrayList()
 
     override fun Ubi4WidgetSwitcherBinding.onBind(item: SwitchItem) {
-        _widgetSwitchSc = widgetSwitchSc
+        var addressDevice = 0
+        var parameterID = 0
+        var switchChecked = false
         onDestroyParent { onDestroy() }
 
         when (item.widget) {
@@ -55,7 +54,6 @@ class SwitcherDelegateAdapter(
                 addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
                 parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
                 switchChecked = item.widget.switchChecked
-
             }
         }
 
@@ -63,10 +61,11 @@ class SwitcherDelegateAdapter(
         widgetSwitchSc.isChecked = switchChecked
         widgetDescriptionTv.text = item.title
 
-
         widgetSwitchSc.setOnCheckedChangeListener { _, isChecked ->
             onSwitchClick(addressDevice, parameterID, isChecked)
         }
+
+        widgetSwitchInfo.add(WidgetSwitchInfo(addressDevice, parameterID, switchChecked, widgetSwitchSc))
 
         main.bleCommand(
             BLECommands.requestSwitcher(addressDevice, parameterID),
@@ -80,14 +79,17 @@ class SwitcherDelegateAdapter(
     private fun switchCollect() {
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
-                MainActivityUBI4.switcherFlow.collect { _ ->
-                    val parameter = ParameterProvider.getParameter(addressDevice, parameterID)
+                MainActivityUBI4.switcherFlow.collect { parameterRef ->
+                    val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
                     Log.d(
                         "SwitcherCollect",
-                        "addressDevice = $addressDevice, parameterID = $parameterID, parameter.data = ${parameter.data}"
+                        "addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID}, parameter.data = ${parameter.data}"
                     )
                     if (parameter.data.isNotEmpty()) {
-                        _widgetSwitchSc.isChecked = castUnsignedCharToInt(
+                        widgetSwitchInfo[getIndexWidgetSwitch(
+                            parameterRef.addressDevice,
+                            parameterRef.parameterID
+                        )].isChecked = castUnsignedCharToInt(
                             parameter.data.substring(0, 2).toInt(16).toByte()
                         ) != 0
                     }
@@ -96,10 +98,27 @@ class SwitcherDelegateAdapter(
         }
     }
 
+    private fun getIndexWidgetSwitch(addressDevice: Int, parameterID: Int): Int {
+        widgetSwitchInfo.forEachIndexed { index, widgetSliderInfo ->
+            if (widgetSliderInfo.addressDevice == addressDevice && widgetSliderInfo.parameterID == parameterID) {
+                return index
+            }
+        }
+        return -1
+    }
+
+    override fun isForViewType(item: Any): Boolean = item is SwitchItem
+    override fun SwitchItem.getItemId(): Any = title
     fun onDestroy() {
         scope.cancel()
+        Log.d("onDestroy" , "onDestroy swich")
     }
-    override fun isForViewType(item: Any): Boolean = item is SwitchItem
-
-    override fun SwitchItem.getItemId(): Any = title
 }
+
+@SuppressLint("UseSwitchCompatOrMaterialCode")
+data class WidgetSwitchInfo (
+    var addressDevice: Int = 0,
+    var parameterID: Int = 0,
+    var isChecked: Boolean = false,
+    var widgetSwitch: Switch
+)

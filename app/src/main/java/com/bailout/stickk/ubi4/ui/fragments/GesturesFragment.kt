@@ -70,7 +70,7 @@ class GesturesFragment : Fragment() {
 
     private val disposables = CompositeDisposable()
     private val rxUpdateMainEvent = RxUpdateMainEventUbi4.getInstance()
-    private var onDestroyParent: (() -> Unit)? = null
+    private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
     private val display = 0
     private var mSettings: SharedPreferences? = null
@@ -118,13 +118,14 @@ class GesturesFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d("LifeCycele", "onDestroy")
-        onDestroyParent?.invoke()
+        onDestroyParentCallbacks.forEach { it.invoke() }
     }
 
     private fun refreshWidgetsList() {
         graphThreadFlag = false
-        onDestroyParent?.invoke()
         listWidgets.clear()
+        onDestroyParentCallbacks.forEach { it.invoke() }
+        onDestroyParentCallbacks.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
 
@@ -144,7 +145,8 @@ class GesturesFragment : Fragment() {
 
     private val adapterWidgets = CompositeDelegateAdapter(
         PlotDelegateAdapter(
-            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
         OneButtonDelegateAdapter(
             onButtonPressed = { addressDevice, parameterID, command ->
@@ -160,7 +162,8 @@ class GesturesFragment : Fragment() {
                     parameterID,
                     command
                 )
-            }
+            },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
         GesturesDelegateAdapter (
             gestureNameList = gestureNameList,
@@ -172,7 +175,7 @@ class GesturesFragment : Fragment() {
             onShowGestureSettings = { deviceAddress, parameterID, gestureID -> showGestureSettings(deviceAddress, parameterID, gestureID) },
             onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)},
             onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)},
-            onDestroyParent = { onDestroyParrent -> this.onDestroyParent = onDestroyParrent}
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
         TrainingFragmentDelegateAdapter(
             onConfirmClick = {},
@@ -185,8 +188,7 @@ class GesturesFragment : Fragment() {
         ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
-            //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
-            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent}
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         )
     )
 

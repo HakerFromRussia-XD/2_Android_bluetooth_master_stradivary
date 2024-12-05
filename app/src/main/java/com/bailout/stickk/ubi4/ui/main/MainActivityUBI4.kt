@@ -34,6 +34,7 @@ import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
@@ -159,12 +160,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private fun setStaticVariables() {
         listWidgets = mutableSetOf()
         updateFlow = MutableStateFlow(0)
-        plotArrayFlow = MutableStateFlow(arrayListOf())
+        plotArrayFlow = MutableStateFlow(PlotParameterRef(0,0, arrayListOf()))
         rotationGroupFlow = MutableSharedFlow()
         slidersFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
         bindingGroupFlow = MutableStateFlow(0)
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
+        thresholdFlow = MutableSharedFlow()
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
         plotArray = arrayListOf()
@@ -199,24 +201,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    fun runWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String, onChunkSent: () -> Unit) {
-        queue.put(getWriteDataTest(byteArray, Command, typeCommand, onChunkSent))
-    }
 
-    private fun getWriteDataTest(
-        byteArray: ByteArray?,
-        Command: String,
-        typeCommand: String,
-        onChunkSent: () -> Unit
-    ): Runnable {
-        return Runnable {
-            writeDataTest(byteArray, Command, typeCommand)
-            // Invoke the callback after data is sent
-            onChunkSent()
-        }
-    }
-
-    private fun writeDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) {
+    private fun bleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand)) }
+    private fun getBleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
+    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
             bleCommand(byteArray, Command, typeCommand)
@@ -243,14 +231,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var updateFlow by Delegates.notNull<MutableStateFlow<Int>>()
         var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
-        var plotArrayFlow by Delegates.notNull<MutableStateFlow<ArrayList<Int>>>()
+        var plotArrayFlow by Delegates.notNull<MutableStateFlow<PlotParameterRef>>()
+        var plotArray by Delegates.notNull<ArrayList<Int>>()
         var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var bindingGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var stateOpticTrainingFlow by Delegates.notNull<MutableStateFlow<PreferenceKeysUBI4.TrainingModelState>>()
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
-        var switcherFlow by Delegates.notNull<MutableSharedFlow<Int>>()
-        var plotArray by Delegates.notNull<ArrayList<Int>>()
-        var plot by Delegates.notNull<MutableStateFlow<Int>>()
+        var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+        var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()

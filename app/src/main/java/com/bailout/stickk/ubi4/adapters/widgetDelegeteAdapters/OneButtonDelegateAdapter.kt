@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.bailout.stickk.databinding.Ubi4Widget1ButtonBinding
@@ -9,14 +10,17 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetE
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import java.io.File
+import kotlinx.coroutines.cancel
 
 class OneButtonDelegateAdapter(
     val onButtonPressed: (addressDevice: Int, parameterID: Int, command: Int) -> Unit,
-    val onButtonReleased: (addressDevice: Int, parameterID: Int, command: Int) -> Unit) :
+    val onButtonReleased: (addressDevice: Int, parameterID: Int, command: Int) -> Unit,
+    val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit) :
     ViewBindingDelegateAdapter<OneButtonItem, Ubi4Widget1ButtonBinding>(Ubi4Widget1ButtonBinding::inflate) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4Widget1ButtonBinding.onBind(item: OneButtonItem) {
+        onDestroyParent{ onDestroy() }
         widget1ButtonTv.text = item.title
         var addressDevice = 0
         var parameterID = 0
@@ -58,6 +62,8 @@ class OneButtonDelegateAdapter(
     }
 
     override fun isForViewType(item: Any): Boolean = item is OneButtonItem
-
     override fun OneButtonItem.getItemId(): Any = title
+    fun onDestroy() {
+        Log.d("onDestroy" , "onDestroy button")
+    }
 }

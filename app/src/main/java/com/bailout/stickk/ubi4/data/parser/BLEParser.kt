@@ -1,10 +1,8 @@
 package com.bailout.stickk.ubi4.data.parser
 
 import android.util.Log
-import android.util.Pair
 import androidx.appcompat.app.AppCompatActivity
 import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
@@ -12,28 +10,19 @@ import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.additionalParameter.AdditionalInfoSizeStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoDataStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceArrayInfoStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
-import com.bailout.stickk.ubi4.models.ParameterRef
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.AdditionalParameterInfoType
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetLabelType
-import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterWidgetCode
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DataManagerCommand
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseSubDevicesInfoStructSet
@@ -41,9 +30,6 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.fullInicialize
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.plotArrayFlow
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SEG
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.ADDITIONAL_INFO_SIZE_STRUCT_SIZE
@@ -52,11 +38,24 @@ import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFS
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import kotlinx.serialization.json.Json
+import android.util.Pair
+import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ParameterRef
+import com.bailout.stickk.ubi4.models.PlotParameterRef
+import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.thresholdFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 import kotlin.experimental.and
 
 class BLEParser(main: AppCompatActivity) {
@@ -119,7 +118,6 @@ class BLEParser(main: AppCompatActivity) {
                             val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2).toInt(16).toByte())
                             val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
                             parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2)
-                            Log.d("uiGestureSettingsObservableCP", "addres = ${deviceAddress} parameterID = ${parameter.ID} parameterID = $parameterID  data = ${parameter.data}")
                             updateAllUI(deviceAddress, parameterID, parameter.dataCode)
                             dataLength -= (parameter.parameterDataSize + 2)
                             counter += 1
@@ -185,7 +183,11 @@ class BLEParser(main: AppCompatActivity) {
                 } catch (e: Error) {
                     mMain.showToast("Ошибка 113")
                 }
-                plotArrayFlow.value = plotArray
+                CoroutineScope(Dispatchers.Default).launch { plotArrayFlow.emit(PlotParameterRef(deviceAddress, parameterID, plotArray))}
+            }
+            ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number -> {
+                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID)) }
             }
             ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
@@ -197,10 +199,6 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
-            ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number -> {
-                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
-            }
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
                 Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }

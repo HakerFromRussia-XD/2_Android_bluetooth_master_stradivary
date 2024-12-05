@@ -25,6 +25,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.countBinding
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -34,15 +35,24 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PlotDelegateAdapter (
-    val plotIsReadyToData:(numberOfCharts: Int) -> Unit) :
+    val plotIsReadyToData:(numberOfCharts: Int) -> Unit,
+    val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
+) :
     ViewBindingDelegateAdapter<PlotItem, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var count: Int = 0
     private var dataSens1 = 0
     private var dataSens2 = 0
@@ -65,6 +75,7 @@ class PlotDelegateAdapter (
     private var firstInit = true
 
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItem) {
+        onDestroyParent{ onDestroy() }
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
         var deviceAddress = 0
@@ -74,6 +85,7 @@ class PlotDelegateAdapter (
 
         when (plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
+                Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = ${plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes}")
                 parameterID = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
                 deviceAddress = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
             }
@@ -82,7 +94,7 @@ class PlotDelegateAdapter (
                 deviceAddress = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
             }
         }
-        widgetPlotsInfo.add(WidgetPlotInfo(deviceAddress, parameterID, openThreshold, closeThreshold, limitCH1, limitCH2, openThresholdTv, closeThresholdTv))
+        widgetPlotsInfo.add(WidgetPlotInfo(deviceAddress, parameterID, openThreshold, closeThreshold, limitCH1, limitCH2, openThresholdTv, closeThresholdTv, allCHRl))
 
         Log.d("PlotDelegateAdapter", "deviceAddress = $deviceAddress")
         // а лучше чтоб функция выдавала параметр по адресу девайса и айди параметра
@@ -129,22 +141,43 @@ class PlotDelegateAdapter (
             }
         })
     }
-
-
-    private fun setLimitePosition(limit_CH: RelativeLayout, thresholdTv: TextView, allCHRl: LinearLayout, event: MotionEvent): Int {
-        var y = event.y
-        if (y < 0)
-            y = 0f
-        if (y > allCHRl.height)
-            y = allCHRl.height.toFloat()
-        limit_CH.y = y - limit_CH.height/2 + allCHRl.marginTop
-        thresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
-        Log.d ("setOnTouchListener", "setLimitePosition y = $y")
-        return ((allCHRl.height - y)/allCHRl.height * 255).toInt()
-    }
-
     override fun isForViewType(item: Any): Boolean = item is PlotItem
     override fun PlotItem.getItemId(): Any = title
+    private fun plotArrayFlowCollect() {
+        scope.launch(Dispatchers.IO) {
+            merge(
+                MainActivityUBI4.plotArrayFlow.map { plotParameterRef ->
+                    val indexWidgetPlot = getIndexWidgetPlot(plotParameterRef.addressDevice, plotParameterRef.parameterID)
+
+                    if (plotParameterRef.dataPlots.isNotEmpty()) {
+                        System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size} indexWidgetPlot: $indexWidgetPlot")
+                        if (plotParameterRef.dataPlots.size >= 1) { dataSens1 = plotParameterRef.dataPlots[0] } // нулевой всегда датчик открытия
+                        if (plotParameterRef.dataPlots.size >= 2) { dataSens2 = plotParameterRef.dataPlots[1] } // первый всегда датчик закрытия
+                        if (plotParameterRef.dataPlots.size >= 3) { dataSens3 = plotParameterRef.dataPlots[2] }
+                        if (plotParameterRef.dataPlots.size >= 4) { dataSens4 = plotParameterRef.dataPlots[3] }
+                        if (plotParameterRef.dataPlots.size >= 5) { dataSens5 = plotParameterRef.dataPlots[4] }
+                        if (plotParameterRef.dataPlots.size >= 6) { dataSens6 = plotParameterRef.dataPlots[5] }
+                    }
+                },
+                MainActivityUBI4.thresholdFlow.map { parameterRef ->
+                    val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+                    //TODO тонкое место, переписать (по факту мы должны парсить все данные в структуры и делать это защищённо (как в BaseParameterInfoStruct) даже если там всего два инта)
+                    // что не так? Мы упадём при несоответствии длины данных в параметре при эммите
+                    //запись пороговых значений при изменении данных в параметре
+                    Log.d("thresholdFlow", "thresholdFlow = $parameterRef   data = ${parameter.data}")
+//                    val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
+//                    if (parameter.data=="") "" else widgetPlotsInfo[indexWidgetPlot].openThreshold = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
+//                    if (parameter.data=="") "" else widgetPlotsInfo[indexWidgetPlot].closeThreshold = castUnsignedCharToInt(parameter.data.substring(2, 4).toInt(16).toByte())
+//
+//                    //изменение UI в соответствии с новыми порогами
+//                    widgetPlotsInfo[indexWidgetPlot].openThresholdTv.text = widgetPlotsInfo[indexWidgetPlot].openThreshold.toString()
+//                    widgetPlotsInfo[indexWidgetPlot].closeThresholdTv.text = widgetPlotsInfo[indexWidgetPlot].closeThreshold.toString()
+//                    setLimitePosition2(widgetPlotsInfo[indexWidgetPlot].limitCH1, widgetPlotsInfo[indexWidgetPlot].allCHRl, widgetPlotsInfo[indexWidgetPlot].openThreshold)
+//                    setLimitePosition2(widgetPlotsInfo[indexWidgetPlot].limitCH2, widgetPlotsInfo[indexWidgetPlot].allCHRl, widgetPlotsInfo[indexWidgetPlot].closeThreshold)
+                }
+            ).collect()
+        }
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     /**                          работа с графиками                            **/
@@ -342,24 +375,6 @@ class PlotDelegateAdapter (
         emgChart.axisRight.axisLineColor = Color.TRANSPARENT
         emgChart.axisRight.textColor = Color.TRANSPARENT
     }
-    private fun plotArrayFlowCollect() {
-        GlobalScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.IO) {
-                MainActivityUBI4.plotArrayFlow.collect { plotParameterRef ->
-
-                    if (plotParameterRef.dataPlots.size != 0) {
-                        System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size}")
-                        if (plotParameterRef.dataPlots.size >= 1) { dataSens1 = plotParameterRef.dataPlots[0] } // нулевой всегда датчик открытия
-                        if (plotParameterRef.dataPlots.size >= 2) { dataSens2 = plotParameterRef.dataPlots[1] } // первый всегда датчик закрытия
-                        if (plotParameterRef.dataPlots.size >= 3) { dataSens3 = plotParameterRef.dataPlots[2] }
-                        if (plotParameterRef.dataPlots.size >= 4) { dataSens4 = plotParameterRef.dataPlots[3] }
-                        if (plotParameterRef.dataPlots.size >= 5) { dataSens5 = plotParameterRef.dataPlots[4] }
-                        if (plotParameterRef.dataPlots.size >= 6) { dataSens6 = plotParameterRef.dataPlots[5] }
-                    }
-                }
-            }
-        }
-    }
     private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
         widgetPlotsInfo.forEachIndexed { index, widgetSliderInfo ->
             if (widgetSliderInfo.addressDevice == addressDevice && widgetSliderInfo.parameterID == parameterID) {
@@ -368,7 +383,20 @@ class PlotDelegateAdapter (
         }
         return -1
     }
-
+    private fun setLimitePosition(limit_CH: RelativeLayout, thresholdTv: TextView, allCHRl: LinearLayout, event: MotionEvent): Int {
+        var y = event.y
+        if (y < 0)
+            y = 0f
+        if (y > allCHRl.height)
+            y = allCHRl.height.toFloat()
+        limit_CH.y = y - limit_CH.height/2 + allCHRl.marginTop
+        thresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
+        return ((allCHRl.height - y)/allCHRl.height * 255).toInt()
+    }
+    private fun setLimitePosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int) {
+        var y = allCHRl.height - allCHRl.height*threshold/255
+        limit_CH.y = (y - limit_CH.height/2 + allCHRl.marginTop).toFloat()
+    }
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
 //        dataSens1 += 1
 //        dataSens2 += 1
@@ -389,6 +417,10 @@ class PlotDelegateAdapter (
             startGraphEnteringDataCoroutine(emgChart)
         }
     }
+    fun onDestroy() {
+        scope.cancel()
+        Log.d("onDestroy" , "onDestroy plot")
+    }
 }
 
 data class WidgetPlotInfo (
@@ -400,4 +432,5 @@ data class WidgetPlotInfo (
     var limitCH2: RelativeLayout,
     var openThresholdTv: TextView,
     var closeThresholdTv: TextView,
+    var allCHRl: LinearLayout,
 )

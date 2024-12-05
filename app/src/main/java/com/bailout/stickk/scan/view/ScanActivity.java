@@ -273,13 +273,12 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
                 finish();
             }
         }
-
         checkLocationPermission();
         init3D();
 
 
         //TODO закомментить быстрый вход после завершения экспериментов
-//        testNavigate();
+        testNavigate();
     }
     public void onWindowFocusChanged(boolean hasFocus){
         super.onWindowFocusChanged(hasFocus);

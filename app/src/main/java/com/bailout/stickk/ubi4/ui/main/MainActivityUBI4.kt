@@ -6,14 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.ViewModelProvider
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4ActivityMainBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
@@ -32,7 +30,6 @@ import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
-import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
@@ -83,11 +80,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             val byteArray = ByteArray(249){0x55.toByte()}
             for (i in 1..100){
                 byteArray[0] = i.toByte()
-                runWriteDataTest(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE)
+                bleCommandWithQueue(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE)
             }
             Log.d("SendDataTest", "${EncodeByteToHex.bytesToHexString(BLECommands.checkpointDataTransfer(byteArray))}")
         }
         binding.runCommandBtn.setOnClickListener {
+//            CoroutineScope(Dispatchers.Default).launch { thresholdFlow.emit(ParameterRef(6, 12)) }
+            bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
         }
 
     }
@@ -144,6 +143,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         rotationGroupFlow = MutableSharedFlow()
         slidersFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
+        thresholdFlow = MutableSharedFlow()
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
         plotArray = arrayListOf()
@@ -178,9 +178,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    private fun runWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getWriteDataTest(byteArray, Command, typeCommand)) }
-    private fun getWriteDataTest(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeDataTest(byteArray, Command, typeCommand) } }
-    private fun writeDataTest(byteArray: ByteArray?, Command: String, typeCommand: String) {
+    private fun bleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand)) }
+    private fun getBleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
+    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
             bleCommand(byteArray, Command, typeCommand)
@@ -203,10 +203,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<PlotParameterRef>>()
+        var plotArray by Delegates.notNull<ArrayList<Int>>()
         var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
-        var plotArray by Delegates.notNull<ArrayList<Int>>()
+        var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()

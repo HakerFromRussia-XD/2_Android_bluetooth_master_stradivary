@@ -116,6 +116,7 @@ class SliderDelegateAdapter(
     override fun SliderItem.getItemId(): Any = title
     fun onDestroy() {
         scope.cancel()
+        Log.d("onDestroy" , "onDestroy slider")
     }
 }
 

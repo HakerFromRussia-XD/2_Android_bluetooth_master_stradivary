@@ -51,6 +51,7 @@ import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.thresholdFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -182,7 +183,11 @@ class BLEParser(main: AppCompatActivity) {
                 } catch (e: Error) {
                     mMain.showToast("Ошибка 113")
                 }
-                plotArrayFlow.value = PlotParameterRef(deviceAddress, parameterID, plotArray)
+                CoroutineScope(Dispatchers.Default).launch { plotArrayFlow.emit(PlotParameterRef(deviceAddress, parameterID, plotArray))}
+            }
+            ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number -> {
+                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { thresholdFlow.emit(ParameterRef(deviceAddress, parameterID)) }
             }
             ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
@@ -194,10 +199,6 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
-            ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number -> {
-                Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
-            }
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
                 Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }

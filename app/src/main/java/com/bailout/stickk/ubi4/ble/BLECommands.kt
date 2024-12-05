@@ -216,6 +216,18 @@ class BLECommands {
             )
             return header
         }
+        fun requestThresholds(addressDevice: Int, parameterID: Int): ByteArray {
+            val header = byteArrayOf(
+                0xE0.toByte(),
+                parameterID.toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            return header
+        }
 
         fun sendTimestampInfo(addressDevice: Int, parameterID: Int, year: Int, month: Int, day: Int, weekDay: Int,  hour: Int, minutes: Int, seconds: Int): ByteArray {
             val code:Byte = (128 + parameterID).toByte()

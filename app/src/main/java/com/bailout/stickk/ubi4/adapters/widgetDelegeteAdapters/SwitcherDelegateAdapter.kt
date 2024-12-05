@@ -37,7 +37,6 @@ class SwitcherDelegateAdapter(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var widgetSwitchInfo: ArrayList<WidgetSwitchInfo> = ArrayList()
 
-
     override fun Ubi4WidgetSwitcherBinding.onBind(item: SwitchItem) {
         var addressDevice = 0
         var parameterID = 0
@@ -108,12 +107,12 @@ class SwitcherDelegateAdapter(
         return -1
     }
 
+    override fun isForViewType(item: Any): Boolean = item is SwitchItem
+    override fun SwitchItem.getItemId(): Any = title
     fun onDestroy() {
         scope.cancel()
+        Log.d("onDestroy" , "onDestroy swich")
     }
-    override fun isForViewType(item: Any): Boolean = item is SwitchItem
-
-    override fun SwitchItem.getItemId(): Any = title
 }
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")

@@ -43,7 +43,6 @@
     },
     "GESTURES_ID": {"Neutral": "0", "ThumbFingers": "1", "Close": "2", "Open": "3", "Pinch": "4", "Indication": "5", "Wrist_Flex": "6", "Wrist_Extend": "7"},
     "GESTURE_SEQUENCE": [
-        "Neutral",
         "ThumbFingers",
         "Close",
         "Open",
@@ -52,6 +51,7 @@
         "Wrist_Flex",
         "Wrist_Extend"
     ],
+
     "HEADER": "ts td omg0 omg1 omg2 omg3 omg4 omg5 omg6 omg7 omg8 omg9 omg10 omg11 omg12 omg13 omg14 omg15 emg0 emg1 emg2 emg3 emg4 emg5 emg6 emg7 bno0 bno1 bno2 prb0 prb1 prb2 prb3 prb4 prb5 prb6 prb7 argmax denoize prot state id now",
     "FNAME": "2024-11-08_15-07-35.emg8",
     "FPROTNAME": "2024-11-08_15-07-35.emg8.protocol",

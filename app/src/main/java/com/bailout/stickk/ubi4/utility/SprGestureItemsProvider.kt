@@ -48,26 +48,26 @@ class SprGestureItemsProvider {
                 context.getString(R.string.pistol_pointer_gesture), R.drawable.ok, false
             )
         )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.adduction), R.drawable.grip_the_ball, false
-//            )
-//        )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.abduction), R.drawable.koza, false
-//            )
-//        )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.pronation), R.drawable.kulak, false
-//            )
-//        )
-//        sprGestureItemList.add(
-//            SprGestureItem(
-//                context.getString(R.string.supination), R.drawable.grip_the_ball, false
-//            )
-//        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.adduction), R.drawable.grip_the_ball, false
+            )
+        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.abduction), R.drawable.koza, false
+            )
+        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.pronation), R.drawable.kulak, false
+            )
+        )
+        sprGestureItemList.add(
+            SprGestureItem(
+                context.getString(R.string.supination), R.drawable.grip_the_ball, false
+            )
+        )
         return sprGestureItemList
     }
 }

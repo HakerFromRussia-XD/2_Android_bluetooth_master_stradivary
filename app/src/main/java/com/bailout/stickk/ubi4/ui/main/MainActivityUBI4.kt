@@ -202,8 +202,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         worker.start()
     }
 
-    private fun bleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand)) }
-    private fun getBleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
+    fun bleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String, onChunkSent: () -> Unit) {
+        queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand, onChunkSent))
+    }
+    private fun getBleCommandWithQueue(
+        byteArray: ByteArray?,
+        Command: String,
+        typeCommand: String,
+        onChunkSent: () -> Unit
+    ): Runnable {
+        return Runnable {
+            writeData(byteArray, Command, typeCommand)
+            // Invoke the callback after data is sent
+            onChunkSent()
+        }
+    }
     private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false

@@ -107,11 +107,7 @@ class SensorsFragment : Fragment() {
             onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) },
             onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
-        TrainingFragmentDelegateAdapter(
-            onConfirmClick = {},
-            generateClick = {},
-            showFileClick = {}
-        ),
+
         SwitcherDelegateAdapter(
             onSwitchClick = { addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState) },
             onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}

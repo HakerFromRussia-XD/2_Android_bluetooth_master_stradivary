@@ -38,6 +38,7 @@ import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.models.FileItem
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
@@ -65,7 +66,7 @@ class SprTrainingFragment : Fragment() {
 
     private val progressFlow = MutableStateFlow(0)
     //private val loadedFiles = mutableSetOf<String>()
-
+    private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
 
 
@@ -115,6 +116,9 @@ class SprTrainingFragment : Fragment() {
 
     private fun refreshWidgetsList() {
         graphThreadFlag = false
+        listWidgets.clear()
+        onDestroyParentCallbacks.forEach { it.invoke() }
+        onDestroyParentCallbacks.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
     }
 
@@ -137,7 +141,9 @@ class SprTrainingFragment : Fragment() {
 
     private var adapterWidgets: CompositeDelegateAdapter = CompositeDelegateAdapter(
         PlotDelegateAdapter(
-            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
+
         ),
         OneButtonDelegateAdapter(
             onButtonPressed = { addressDevice, parameterID, command ->
@@ -153,8 +159,11 @@ class SprTrainingFragment : Fragment() {
                     parameterID,
                     command
                 )
-            }
+            },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
+
         ),
+
         TrainingFragmentDelegateAdapter(
             onConfirmClick = {
                 if (isAdded) {
@@ -426,7 +435,7 @@ class SprTrainingFragment : Fragment() {
                 System.arraycopy(chunk.toByteArray(), 0, modifiedChunkArray, 1, chunk.size)
                 Log.d("ChunkProcessing", "Indexed chunk array (index + data): ${modifiedChunkArray.joinToString(", ") { it.toString() }}")
                 // Отправка данных
-                main?.runWriteDataTest(
+                main?.bleCommandWithQueue(
                     BLECommands.checkpointDataTransfer(modifiedChunkArray),
                     MAIN_CHANNEL,
                     WRITE
@@ -443,8 +452,7 @@ class SprTrainingFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        onDestroyParent?.invoke()
-        //adapterWidgets = null
+        onDestroyParentCallbacks.forEach { it.invoke() }
     }
 
 }

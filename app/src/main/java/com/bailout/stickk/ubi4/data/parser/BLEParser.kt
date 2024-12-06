@@ -41,6 +41,8 @@ import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.serialization.json.Json
 import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
@@ -51,6 +53,7 @@ import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.thresholdFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -214,7 +217,7 @@ class BLEParser(main: AppCompatActivity) {
             //TODO поставить актуальный dataCode
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
                 Log.d("TestOptic", "dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit((0..1).random()) }
+                CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID)) }
             }
         }
     }

@@ -40,6 +40,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMET
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
@@ -59,6 +60,8 @@ class SprGestureFragment() : Fragment() {
 
     private var gestureNameList =  ArrayList<String>()
     private var onDestroyParent: (() -> Unit)? = null
+    private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
+
 
     @SuppressLint("CutPasteId")
     override fun onCreateView(
@@ -90,6 +93,9 @@ class SprGestureFragment() : Fragment() {
 
     private fun refreshWidgetsList() {
         graphThreadFlag = false
+        listWidgets.clear()
+        onDestroyParentCallbacks.forEach { it.invoke() }
+        onDestroyParentCallbacks.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
         //TODO только для демонстрации
         Handler().postDelayed({
@@ -115,8 +121,11 @@ class SprGestureFragment() : Fragment() {
 
     private val adapterWidgets = CompositeDelegateAdapter(
         PlotDelegateAdapter(
-            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") }
+            plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
+
         ),
+
         OneButtonDelegateAdapter(
             onButtonPressed = { addressDevice, parameterID, command ->
                 oneButtonPressed(
@@ -131,7 +140,9 @@ class SprGestureFragment() : Fragment() {
                     parameterID,
                     command
                 )
-            }
+            },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
+
         ),
         GesturesOpticDelegateAdapter(
             gestureNameList = gestureNameList,
@@ -410,5 +421,11 @@ class SprGestureFragment() : Fragment() {
     }
 
 
+    override fun onDestroy() {
+        super.onDestroy()
+        onDestroyParentCallbacks.forEach { it.invoke() }
+
+
+    }
 
 }

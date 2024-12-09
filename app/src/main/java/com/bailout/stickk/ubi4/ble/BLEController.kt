@@ -71,9 +71,9 @@ class BLEController (main: AppCompatActivity) {
 //                mBluetoothLeService?.connect("DC:DA:0C:18:0E:8E")       // Моя плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
 //                mBluetoothLeService?.connect("34:85:18:98:0F:D2")       // Mike плата
-                mBluetoothLeService?.connect("DC:DA:0C:18:1C:6A") // плата с оптикой Денис!!
+//                mBluetoothLeService?.connect("DC:DA:0C:18:1C:6A") // плата с оптикой Денис!!
 
-//                mBluetoothLeService?.connect(connectedDeviceAddress)
+                mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
 

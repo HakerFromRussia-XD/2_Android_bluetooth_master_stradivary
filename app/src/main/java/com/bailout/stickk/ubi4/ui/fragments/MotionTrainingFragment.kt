@@ -25,6 +25,7 @@ import com.bailout.stickk.ubi4.models.GesturesId
 import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.reactivex.disposables.CompositeDisposable
@@ -43,7 +44,7 @@ class MotionTrainingFragment(
     private val countDownTime = 0L
     private val interval = 30L
     private val pauseBeforeStart = 100L
-    private lateinit var sprGestureItemList: ArrayList<SprGestureItem>
+    private var sprGestureItemList: ArrayList<SprGestureItem> = ArrayList()
     var currentGestureIndex = 0
     private var timer: CountDownTimer? = null
     private var preparationTimer: CountDownTimer? = null
@@ -213,7 +214,7 @@ class MotionTrainingFragment(
         }
 
 
-//        val gestureItemsProvider = SprGestureItemsProvider()
+//        gestureItemsProvider = SprGestureItemsProvider()
 //        sprGestureItemList = gestureItemsProvider.getSprGestureItemList(requireContext())
 //        startPreparationCountDown()
 
@@ -441,9 +442,12 @@ class MotionTrainingFragment(
         val json =
             requireContext().assets.open("config.json").bufferedReader().use { it.readText() }
         val gson = Gson()
-        val config: ConfigOMGDataCollection = gson.fromJson(json, ConfigOMGDataCollection::class.java)
+        val config: ConfigOMGDataCollection =
+            gson.fromJson(json, ConfigOMGDataCollection::class.java)
 
         var lineData = mutableListOf<GesturePhase>()
+        var previousGesture: GesturePhase? = null
+
 
         nCycles = config.nCycles ?: 0
 //        Log.d("trainingDataProcessing", "nCycles $nCycles")
@@ -463,84 +467,84 @@ class MotionTrainingFragment(
 //        Log.d("trainingDataProcessing", "gesturesId ${gesturesId}")
         baselineDuration = config.baselineDuration?.toDouble() ?: 0.0
 //        Log.d("trainingDataProcessing", "baselineDuration $baselineDuration")
-        lineData.add(GesturePhase(
-            prePhase = 0.0,
-            timeGesture = baselineDuration,
-            postPhase = 0.0,
-            animation = 0,
-            headerText = "Подготовьтесь к выполнению первого жеста",
-            description = "Подготовьтесь к выполнению первого жеста",
-            gestureName = "BaseLine",
-            gestureId = -1
-        ))
+        lineData.add(
+            GesturePhase(
+                prePhase = 0.0,
+                timeGesture = baselineDuration,
+                postPhase = 0.0,
+                animation = 0,
+                headerText = "Подготовьтесь к выполнению первого жеста",
+                description = "Подготовьтесь к выполнению первого жеста",
+                gestureName = "BaseLine",
+                gestureId = -1
+            )
+        )
 
-        gestureSequence.forEach {
+        //добавление этапов для каждого жеста
+        gestureSequence.forEachIndexed { index, gestureName ->
 //            Log.d("trainingDataProcessing", "getGestureValueByName ${gesturesId?.getGestureValueByName(it)}")
             //TODO дописать генерацию ресурса анимации по имени текущего обрабатываемого жеста
             var animation = 0
-            if (it == "ThumbFingers") {animation = R.raw.loading_training_animation} // тут вместо рандомной ссылки дописать соответствующую
-            lineData.add(GesturePhase(
+            when (gestureName) {
+                "ThumbFingers" -> animation =
+                    R.raw.loading_training_animation // тут вместо рандомной ссылки дописать соответствующую
+            }
+
+            val gestureId = gesturesId?.getGestureValueByName(gestureName) ?: run {
+                Log.e("MotionTrainingFragment", "Unknown gesture name: $gestureName")
+                0
+            }
+
+            if (index < gestureSequence.size) {
+                // Получение ID для Neutral фазы
+                val neutralId = gesturesId?.getGestureValueByName("Neutral") ?: run {
+                    Log.e("MotionTrainingFragment", "Neutral gesture ID not found")
+                    0
+                }
+                val neutralPhase = GesturePhase(
+                    prePhase = 0.0,
+                    timeGesture = postGestDuration + preGestDuration,
+                    postPhase = 0.0,
+                    animation = 0,
+                    headerText = "Подготовьтесь к выполнению жеста",
+                    description = "Отдохните перед следующим жестом",
+                    gestureName = "Neutral",
+                    gestureId = neutralId
+                )
+                lineData.add(neutralPhase)
+
+
+            }
+
+            val currentGesture = GesturePhase(
                 prePhase = preGestDuration,
                 timeGesture = atGestDuration,
                 postPhase = postGestDuration,
                 animation = animation,
-                headerText = "Подготовьтесь к выполнению первого жеста",
-                description = "Подготовьтесь к выполнению первого жеста",
-                gestureName = it,
-                gestureId = gesturesId?.getGestureValueByName(it) ?: 0
-            ))
+                headerText = "Подготовьтесь к выполнению жеста",
+                description = "Выполните жест: $gestureName",
+                gestureName = gestureName,
+                gestureId = gestureId
+            )
+            lineData.add(currentGesture)
+
+
+
         }
+        lineData.add(
+            GesturePhase(
+                prePhase = 0.0,
+                timeGesture = baselineDuration,
+                postPhase = 0.0,
+                animation = 0,
+                headerText = "Отдохните перед следующим жестом",
+                description = "Отдохните перед следующим жестом",
+                gestureName = "Finish",
+                gestureId = -1
+            )
+        )
 
-        lineData.add(GesturePhase(
-            prePhase = 0.0,
-            timeGesture = baselineDuration,
-            postPhase = 0.0,
-            animation = 0,
-            headerText = "Подготовьтесь к выполнению первого жеста",
-            description = "Подготовьтесь к выполнению первого жеста",
-            gestureName = "Finish",
-            gestureId = -1
-        ))
 
-//        if (generalTime < baselineDuration)
-//            return mapOf(
-//                "n" to "0",
-//                "state" to "Baseline",
-//                "id" to "-1",
-//                "generalTime" to (generalTime * 1000).toInt().toString(),
-//                "stepTime" to preGestDuration.toString(),
-//            )
-//        val currentTime = generalTime - baselineDuration
-//        val currentLoop = (currentTime / (gestureNumber * gestureDuration)).toInt()
-//        val timeInLoop = currentTime % (gestureNumber * gestureDuration)
-//        val gestureInd = (timeInLoop / gestureDuration).toInt() + 1
-//        val timeInGesture = timeInLoop % gestureDuration
-//        val overallGestureNumber = currentLoop * gestureNumber + gestureInd
-//        if (currentLoop > nCycles) {
-//            return mapOf(
-//                "n" to overallGestureNumber.toString(),
-//                "state" to "Finish",
-//                "id" to "-1",
-//                "generalTime" to (generalTime * 1000).toInt().toString(),
-//                "stepTime" to postGestDuration.toString(),
-//            )
-//        }
-//        if (preGestDuration < timeInGesture && timeInGesture <= preGestDuration + atGestDuration)
-//            lineData = mapOf(
-//                "n" to overallGestureNumber.toString(),
-//                "state" to gestureSequence[gestureInd].toString(),
-//                "id" to (gesturesId as Map<*, *>)[gestureSequence[gestureInd].toString()].toString(),
-//                "generalTime" to (generalTime * 1000).toInt().toString(),
-//                "stepTime" to atGestDuration.toString(),
-//            )
-//        else
-//            lineData = mapOf(
-//                "n" to overallGestureNumber.toString(),
-//                "state" to "Neutral",
-//                "id" to "0",
-//                "generalTime" to generalTime.toString(),
-//                "stepTime" to preGestDuration.toString(),
-//            )
 
         return lineData
     }
@@ -588,6 +592,48 @@ class MotionTrainingFragment(
         }.start()
     }
 }
+
+
+//        if (generalTime < baselineDuration)
+//            return mapOf(
+//                "n" to "0",
+//                "state" to "Baseline",
+//                "id" to "-1",
+//                "generalTime" to (generalTime * 1000).toInt().toString(),
+//                "stepTime" to preGestDuration.toString(),
+//            )
+//        val currentTime = generalTime - baselineDuration
+//        val currentLoop = (currentTime / (gestureNumber * gestureDuration)).toInt()
+//        val timeInLoop = currentTime % (gestureNumber * gestureDuration)
+//        val gestureInd = (timeInLoop / gestureDuration).toInt() + 1
+//        val timeInGesture = timeInLoop % gestureDuration
+//        val overallGestureNumber = currentLoop * gestureNumber + gestureInd
+//        if (currentLoop > nCycles) {
+//            return mapOf(
+//                "n" to overallGestureNumber.toString(),
+//                "state" to "Finish",
+//                "id" to "-1",
+//                "generalTime" to (generalTime * 1000).toInt().toString(),
+//                "stepTime" to postGestDuration.toString(),
+//            )
+//        }
+//        if (preGestDuration < timeInGesture && timeInGesture <= preGestDuration + atGestDuration)
+//            lineData = mapOf(
+//                "n" to overallGestureNumber.toString(),
+//                "state" to gestureSequence[gestureInd].toString(),
+//                "id" to (gesturesId as Map<*, *>)[gestureSequence[gestureInd].toString()].toString(),
+//                "generalTime" to (generalTime * 1000).toInt().toString(),
+//                "stepTime" to atGestDuration.toString(),
+//            )
+//        else
+//            lineData = mapOf(
+//                "n" to overallGestureNumber.toString(),
+//                "state" to "Neutral",
+//                "id" to "0",
+//                "generalTime" to generalTime.toString(),
+//                "stepTime" to preGestDuration.toString(),
+//            )
+
 
 //    private fun startTrainingSequence() {
 //        if (gestureIndex >= gestureConfig.gestureSequence.size) {

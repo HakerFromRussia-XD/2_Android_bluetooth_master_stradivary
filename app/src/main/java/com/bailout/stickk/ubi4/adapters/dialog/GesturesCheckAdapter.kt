@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
+import com.bailout.stickk.ubi4.models.SprDialogCollectionGestureItem
 
 class GesturesCheckAdapter(
     private val gesturesList: ArrayList<DialogCollectionGestureItem>,

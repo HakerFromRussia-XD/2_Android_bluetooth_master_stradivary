@@ -19,7 +19,10 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
+import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
+import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
+import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
@@ -32,6 +35,7 @@ import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.models.BindingGestureItem
 import com.bailout.stickk.ubi4.models.DialogCollectionGestureItem
+import com.bailout.stickk.ubi4.models.SprDialogCollectionGestureItem
 import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DEVICE_ID_IN_SYSTEM_UBI4
@@ -42,6 +46,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
+import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -58,7 +63,7 @@ class SprGestureFragment() : Fragment() {
 
     private val selectedGesturesSet = mutableSetOf<String>()
 
-    private var gestureNameList =  ArrayList<String>()
+    private var gestureNameList = ArrayList<String>()
     private var onDestroyParent: (() -> Unit)? = null
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
@@ -110,7 +115,7 @@ class SprGestureFragment() : Fragment() {
             withContext(Default) {
                 updateFlow.collect { value ->
                     main?.runOnUiThread {
-                        Log.d("widgetListUpdater","${mDataFactory.prepareData(0)}")
+                        Log.d("widgetListUpdater", "${mDataFactory.prepareData(0)}")
                         adapterWidgets.swapData(mDataFactory.prepareData(0))
                         binding.refreshLayout.setRefreshing(false)
                     }
@@ -122,7 +127,7 @@ class SprGestureFragment() : Fragment() {
     private val adapterWidgets = CompositeDelegateAdapter(
         PlotDelegateAdapter(
             plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
 
         ),
 
@@ -141,7 +146,7 @@ class SprGestureFragment() : Fragment() {
                     command
                 )
             },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
 
         ),
         GesturesOpticDelegateAdapter(
@@ -150,20 +155,39 @@ class SprGestureFragment() : Fragment() {
             onAddGesturesToSprScreen = { onSaveClickDialog, listSprItem, bindingGestureList ->
                 showControlGesturesDialog(onSaveClickDialog, listSprItem, bindingGestureList)
             },
-            onShowGestureSettings = { deviceAddress, parameterID, gestureID -> showGestureSettings(deviceAddress, parameterID, gestureID) },
-            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> requestGestureSettings(deviceAddress, parameterID, gestureID)},
+            onShowGestureSettings = { deviceAddress, parameterID, gestureID ->
+                showGestureSettings(
+                    deviceAddress,
+                    parameterID,
+                    gestureID
+                )
+            },
+            onRequestGestureSettings = { deviceAddress, parameterID, gestureID ->
+                requestGestureSettings(
+                    deviceAddress,
+                    parameterID,
+                    gestureID
+                )
+            },
             onSetCustomGesture = { onSaveDotsClick, position, name ->
                 showCustomGesturesDialog(onSaveDotsClick, position, name)
             },
-            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent},
+            onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
         ),
     )
 
     private fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
         Log.d("requestGestureSettings", "считывание данных в фрагменте")
-        transmitter().bleCommand(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommand(
+            BLECommands.requestGestureInfo(
+                deviceAddress,
+                parameterID,
+                gestureID
+            ), MAIN_CHANNEL, WRITE
+        )
     }
-    private fun showGestureSettings (deviceAddress: Int, parameterID: Int, gestureID: Int) {
+
+    private fun showGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
         val intent = Intent(context, UBI4GripperScreenWithEncodersActivity::class.java)
         intent.putExtra(DEVICE_ID_IN_SYSTEM_UBI4, deviceAddress)
         intent.putExtra(PARAMETER_ID_IN_SYSTEM_UBI4, parameterID)
@@ -194,7 +218,9 @@ class SprGestureFragment() : Fragment() {
 //        val sprGestureItemList =
 //            gestureItemsProvider.getSprAndCustomGestureItemList(requireContext())
         val sprGestureItemList: ArrayList<DialogCollectionGestureItem> =
-            ArrayList(CollectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
+            ArrayList(
+                CollectionGesturesProvider.getCollectionGestures()
+                    .map { DialogCollectionGestureItem(it) })
 
         sprGestureItemList.forEach { dialogGesture ->
             if (dialogGesture.gesture.gestureName == name) {
@@ -211,7 +237,10 @@ class SprGestureFragment() : Fragment() {
         gesturesRv.layoutManager = linearLayoutManager
         val adapter = GesturesCheckAdapter(sprGestureItemList, object :
             OnCheckGestureListener {
-            override fun onGestureClicked(clickedPosition: Int, dialogGesture: DialogCollectionGestureItem) {
+            override fun onGestureClicked(
+                clickedPosition: Int,
+                dialogGesture: DialogCollectionGestureItem
+            ) {
 
                 if (selectedGesturePosition != -1 && selectedGesturePosition == clickedPosition) {
                     sprGestureItemList[selectedGesturePosition] =
@@ -250,7 +279,8 @@ class SprGestureFragment() : Fragment() {
                 gesturesRv.adapter?.notifyItemChanged(clickedPosition)
 
             }
-        })
+        }
+        )
         gesturesRv.adapter = adapter
 
         val cancelBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToCancelBtn)
@@ -265,7 +295,6 @@ class SprGestureFragment() : Fragment() {
             } else {
                 null
             }
-
             if (selectedGesture != null) {
                 selectedGesturesSet.add(selectedGesture)
                 Log.d("showCustomGesturesDialog1", " add: $selectedGesturesSet")
@@ -306,14 +335,15 @@ class SprGestureFragment() : Fragment() {
         myDialog.show()
 
 
-
-        val sprGestureItemList: ArrayList<DialogCollectionGestureItem> =
-            ArrayList(CollectionGesturesProvider.getCollectionGestures().map { DialogCollectionGestureItem(it) })
+        val sprGestureItemList: ArrayList<SprDialogCollectionGestureItem> =
+            ArrayList(
+                SprGestureItemsProvider(requireContext()).getSprGestureItemList()
+                    .map { SprDialogCollectionGestureItem(it) })
 
 
 
         for (dialogGesture in sprGestureItemList) {
-            selectedGestures.find { it.title == dialogGesture.gesture.gestureName }?.let {
+            selectedGestures.find { it.title == dialogGesture.gesture.title }?.let {
                 dialogGesture.check = true
             }
         }
@@ -321,50 +351,55 @@ class SprGestureFragment() : Fragment() {
 
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         gesturesRv.layoutManager = linearLayoutManager
-        val adapter = GesturesCheckAdapter(sprGestureItemList, object :
-            OnCheckGestureListener {
-            override fun onGestureClicked(position: Int, dialogGesture: DialogCollectionGestureItem) {
-                System.err.println("onGestureClicked $position")
-                Log.d("onGestureClicked", "$sprGestureItemList")
+        val adapter =
+            SprGesturesCheckAdapter(sprGestureItemList, object : OnCheckSprGestureListener2 {
+                override fun onSprGestureClicked2(
+                    position: Int,
+                    dialogGesture: SprDialogCollectionGestureItem
+                ) {
+                    System.err.println("onGestureClicked $position")
+                    Log.d("onGestureClicked", "$sprGestureItemList")
 
-                val checkedItems = sprGestureItemList.mapIndexedNotNull { index, item ->
-                    if (item.check) index else null
-                }
-                var unselectedPosition =
-                    bindingGestureList.indexOfFirst { it.sprGestureItem.title == dialogGesture.gesture.gestureName }
-                sprGestureItemList[position] =
-                    sprGestureItemList[position].copy(check = !sprGestureItemList[position].check)
-
-
-
-                if (!sprGestureItemList[position].check) {
-                    unselectedPosition = checkedItems.indexOf(position)
-                    Log.d(
-                        "GestureUnselected",
-                        "Position of unselected gesture: $unselectedPosition"
-                    )
-                }
-
-                // Удаление безопасным способом
-                if (unselectedPosition >= 0 && unselectedPosition < bindingGestureList.size) {
-                    val iterator = selectedGesturesSet.iterator()
-                    while (iterator.hasNext()) {
-                        val gesture = iterator.next()
-                        if (gesture == bindingGestureList[unselectedPosition].nameOfUserGesture) {
-                            iterator.remove()
-                        }
+                    val checkedItems = sprGestureItemList.mapIndexedNotNull { index, item ->
+                        if (item.check) index else null
                     }
-                } else {
-                    Log.e(
-                        "onGestureClicked1",
-                        "Index $unselectedPosition is out of bounds for bindingGestureList with size ${bindingGestureList.size}"
-                    )
+                    var unselectedPosition =
+                        bindingGestureList.indexOfFirst { it.sprGestureItem.title == dialogGesture.gesture.title }
+                    sprGestureItemList[position] =
+                        sprGestureItemList[position].copy(check = !sprGestureItemList[position].check)
+
+
+
+                    if (!sprGestureItemList[position].check) {
+                        unselectedPosition = checkedItems.indexOf(position)
+                        Log.d(
+                            "GestureUnselected",
+                            "Position of unselected gesture: $unselectedPosition"
+                        )
+                    }
+
+                    // Удаление безопасным способом
+                    if (unselectedPosition >= 0 && unselectedPosition < bindingGestureList.size) {
+                        val iterator = selectedGesturesSet.iterator()
+                        while (iterator.hasNext()) {
+                            val gesture = iterator.next()
+                            if (gesture == bindingGestureList[unselectedPosition].nameOfUserGesture) {
+                                iterator.remove()
+                            }
+                        }
+                    } else {
+                        Log.e(
+                            "onGestureClicked1",
+                            "Index $unselectedPosition is out of bounds for bindingGestureList with size ${bindingGestureList.size}"
+                        )
+                    }
+
+                    Log.d("onGestureClicked", "$sprGestureItemList")
+                    gesturesRv.adapter?.notifyItemChanged(position)
                 }
 
-                Log.d("onGestureClicked", "$sprGestureItemList")
-                gesturesRv.adapter?.notifyItemChanged(position)
             }
-        })
+            )
         gesturesRv.adapter = adapter
 
 
@@ -375,16 +410,42 @@ class SprGestureFragment() : Fragment() {
 
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToSaveBtn)
         saveBtn.setOnClickListener {
-            val selectedGestures = sprGestureItemList.filter { it.check }.map { gestureItem ->
-                SprGestureItem(gestureItem.gesture.gestureName, gestureItem.gesture.gestureImage, true)
-            }
+            val provider = SprGestureItemsProvider(requireContext())
+            val selectedGestures =
+                sprGestureItemList.filter { it.check }.mapNotNull { dialogGesture ->
+                    val gestureName = dialogGesture.gesture.title
+                    val keyNameGesture = provider.getKeyNameGestureByGestureName(gestureName)
+                    if (keyNameGesture != null) {
+                        val animationId = provider.getAnimationIdByKeyNameGesture(keyNameGesture)
+                        if (animationId != R.drawable.sleeping)
+                            SprGestureItem(
+                                title = gestureName,
+                                animationId = animationId,
+                                check = true,
+                                keyNameGesture = keyNameGesture
+                            )
+                        else {
+                            Log.e(
+                                "SprGestureFragment",
+                                "Animation not found for gesture: $gestureName"
+                            )
+                            null
+                        }
+                    } else {
+                        Log.e(
+                            "SprGestureFragment",
+                            "KeyNameGesture not found for gesture: $gestureName"
+                        )
+                        null
+                    }
+                    // SprGestureItem(dialogGesture.gesture.gestureName, dialogGesture.gesture.gestureImage, true, "")
+                }
 
 
 
             myDialog.dismiss()
             onSaveClick.invoke(selectedGestures)
-            Log.d("showControlGesturesDialog", "$selectedGestures")
-            Log.d("showControlGesturesDialog", "$selectedGesturesSet")
+
 
         }
     }
@@ -392,7 +453,7 @@ class SprGestureFragment() : Fragment() {
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         System.err.println("oneButtonPressed    parameterID: $parameterID   command: $command")
         transmitter().bleCommand(
-            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
+            BLECommands.sendOneButtonCommand(addressDevice, parameterID, command),
             MAIN_CHANNEL,
             WRITE
         )
@@ -401,20 +462,21 @@ class SprGestureFragment() : Fragment() {
     private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
 
 
-
         transmitter().bleCommand(
-            BLECommands.sendOneButtonCommand(addressDevice,parameterID, command),
+            BLECommands.sendOneButtonCommand(addressDevice, parameterID, command),
             MAIN_CHANNEL,
             WRITE
         )
     }
+
     private fun loadGestureNameList() {
         val macKey = navigator().getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC)
         gestureNameList.clear()
         for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
             System.err.println("loadGestureNameList: " + PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
             gestureNameList.add(
-                navigator().getString(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i).toString()
+                navigator().getString(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
+                    .toString()
             )
 //            System.err.println("loadGestureNameList: ${gestureNameList[i]}")
         }

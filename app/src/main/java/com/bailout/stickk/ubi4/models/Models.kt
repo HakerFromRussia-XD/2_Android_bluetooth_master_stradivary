@@ -92,6 +92,11 @@ data class GesturesId(
     @SerializedName("Indication") var Indication: String? = null,
     @SerializedName("Wrist_Flex") var WristFlex: String? = null,
     @SerializedName("Wrist_Extend") var WristExtend: String? = null,
+    @SerializedName("Supination") var Supination: String? = null,
+    @SerializedName("Pronation") var Pronation: String? = null,
+    @SerializedName("Abduction") var Abduction: String? = null,
+    @SerializedName("Adduction") var Adduction: String? = null,
+    @SerializedName("Key") var Key: String? = null,
 ) {
     // Метод для получения имени жеста по значению
     fun getGestureNameByValue(value: Int): String? {
@@ -103,7 +108,12 @@ data class GesturesId(
             Pinch?.toIntOrNull() to "Pinch",
             Indication?.toIntOrNull() to "Indication",
             WristFlex?.toIntOrNull() to "Wrist_Flex",
-            WristExtend?.toIntOrNull() to "Wrist_Extend"
+            WristExtend?.toIntOrNull() to "Wrist_Extend",
+            Supination?.toIntOrNull() to "Supination",
+            Pronation?.toIntOrNull() to "Pronation",
+            Abduction?.toIntOrNull() to "Abduction",
+            Adduction?.toIntOrNull() to "Adduction",
+            Key?.toIntOrNull() to "Key",
         )[value]
     }
 
@@ -118,6 +128,11 @@ data class GesturesId(
             "Indication" -> Indication?.toIntOrNull()
             "Wrist_Flex" -> WristFlex?.toIntOrNull()
             "Wrist_Extend" -> WristExtend?.toIntOrNull()
+            "Supination" -> Supination?.toIntOrNull()
+            "Pronation" -> Pronation?.toIntOrNull()
+            "Abduction" -> Abduction?.toIntOrNull()
+            "Adduction" -> Adduction?.toIntOrNull()
+            "Key" -> Key?.toIntOrNull()
             else -> null
         }
     }

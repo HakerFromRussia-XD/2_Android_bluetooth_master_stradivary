@@ -18,9 +18,10 @@ import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.parser.BLEParser
-import com.bailout.stickk.ubi4.models.Config
+import com.bailout.stickk.ubi4.models.ConfigOMGDataCollection
 import com.bailout.stickk.ubi4.models.GestureConfig
 import com.bailout.stickk.ubi4.models.GesturePhase
+import com.bailout.stickk.ubi4.models.GesturesId
 import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -66,7 +67,7 @@ class MotionTrainingFragment(
     private var atGestDuration: Double = 0.0
     private var postGestDuration: Double = 0.0
     private var gestureDuration: Int = 0
-    private var gesturesId: Any? = null
+    private var gesturesId: GesturesId? = null
     private var gestureIndex = -1
     private var baselineDuration: Double = 0.0
 
@@ -147,9 +148,10 @@ class MotionTrainingFragment(
         super.onCreate(savedInstanceState)
         Log.d("LagSpr", "Motion onCreate")
         //loadGestureConfig()
-        trainingDataProcessing()
+        val result = trainingDataProcessing()
+        result.forEach { Log.d("trainingDataProcessing", "trainingDataProcessing ${it}") }
 
-        val mBLEParser = main?.let { BLEParser(it) }
+        val mBLEParser = main.let { BLEParser(it) }
         //фейковые данные принимаемого потока
 //        android.os.Handler().postDelayed({
 //            mBLEParser?.parseReceivedData(BLECommands.testDataTransfer())
@@ -219,72 +221,72 @@ class MotionTrainingFragment(
     }
 
 
-    private fun loadGestureConfig() {
-        dataCollection = Gson().fromJson(
-            requireContext().assets.open("config.json").reader(),
-            object : TypeToken<Map<String, Any>>() {}.type
-        )
-        Log.d("GestureUpdate", "dataCollection = $dataCollection ")
-
-
-
-        learningTimer = Chronometer(requireContext())
-        learningStepTimer = Chronometer(requireContext())
-        generalTime = (SystemClock.elapsedRealtime() - learningTimer.base) / 1000
-        nCycles = dataCollection["N_CYCLES"].toString().toDouble().toInt()
-        val gestureSequence =
-            (dataCollection["GESTURE_SEQUENCE"] to ArrayList<String>()).first as List<String>
-        gestureNumber = (gestureSequence as ArrayList<*>).size - 1
-        preGestDuration = dataCollection["PRE_GEST_DURATION"].toString().toDouble()
-        atGestDuration = dataCollection["AT_GEST_DURATION"].toString().toDouble()
-        postGestDuration = dataCollection["POST_GEST_DURATION"].toString().toDouble()
-        gestureDuration = (preGestDuration + atGestDuration + postGestDuration).toInt()
-        gesturesId = dataCollection["GESTURES_ID"]
-        baselineDuration = dataCollection["BASELINE_DURATION"].toString().toDouble()
-
-        // Извлекаем последовательность жестов из JSON (массив строк)
-//        val gestureSequenceJson = jsonObject.getJSONArray("GESTURE_SEQUENCE")
-//        val gestureSequence =
-//            mutableListOf<String>() // Список для хранения последовательности жестов
-//        for (i in 0 until gestureSequenceJson.length()) {
-//            // Добавляем каждый жест из массива JSON в список
-//            gestureSequence.add(gestureSequenceJson.getString(i))
-//        }
-
-        // Извлекаем идентификаторы жестов из JSON (объект с парами "жест - ID")
-//        val gesturesIdJson = jsonObject.getJSONObject("GESTURES_ID")
-//        val gesturesId = mutableMapOf<String, Int>()//Словарь для хранения идентификаторов жестов
-//        val keys = gesturesIdJson.keys()
-//        while (keys.hasNext()) {
-//            val key = keys.next()
-//            gesturesId[key] = gesturesIdJson.getInt(key)
-//        }
-
-        gestureConfig = GestureConfig(
-            baselineDuration = baselineDuration,
-            preGestDuration = preGestDuration,
-            atGestDuration = atGestDuration,
-            postGestDuration = postGestDuration,
-            gestureSequence = gestureSequence,
-//            gesturesId = gesturesId
-        )
-        Log.d("GestureUpdate", "Gesture Config: $gestureConfig")
-
-//        val phases = buildGesturePhases(
-//            baselineDuration = baselineDuration,
-//            preDuration = preGestDuration,
-//            atDuration = atGestDuration,
-//            postDuration = postGestDuration,
-//            gestureSequence = gestureSequence,
-////            gestureIdMap = gesturesId,
+//    private fun loadGestureConfig() {
+//        dataCollection = Gson().fromJson(
+//            requireContext().assets.open("config.json").reader(),
+//            object : TypeToken<Map<String, Any>>() {}.type
 //        )
-        val phases = trainingDataProcessing()
-        phases.forEach {
-            //   Log.d("GestureUpdate", "Phases: ${it.value}")
-        }
-
-
-    }
+//        Log.d("GestureUpdate", "dataCollection = $dataCollection ")
+//
+//
+//
+//        learningTimer = Chronometer(requireContext())
+//        learningStepTimer = Chronometer(requireContext())
+//        generalTime = (SystemClock.elapsedRealtime() - learningTimer.base) / 1000
+//        nCycles = dataCollection["N_CYCLES"].toString().toDouble().toInt()
+//        val gestureSequence =
+//            (dataCollection["GESTURE_SEQUENCE"] to ArrayList<String>()).first as List<String>
+//        gestureNumber = (gestureSequence as ArrayList<*>).size - 1
+//        preGestDuration = dataCollection["PRE_GEST_DURATION"].toString().toDouble()
+//        atGestDuration = dataCollection["AT_GEST_DURATION"].toString().toDouble()
+//        postGestDuration = dataCollection["POST_GEST_DURATION"].toString().toDouble()
+//        gestureDuration = (preGestDuration + atGestDuration + postGestDuration).toInt()
+//        gesturesId = dataCollection["GESTURES_ID"]
+//        baselineDuration = dataCollection["BASELINE_DURATION"].toString().toDouble()
+//
+//        // Извлекаем последовательность жестов из JSON (массив строк)
+////        val gestureSequenceJson = jsonObject.getJSONArray("GESTURE_SEQUENCE")
+////        val gestureSequence =
+////            mutableListOf<String>() // Список для хранения последовательности жестов
+////        for (i in 0 until gestureSequenceJson.length()) {
+////            // Добавляем каждый жест из массива JSON в список
+////            gestureSequence.add(gestureSequenceJson.getString(i))
+////        }
+//
+//        // Извлекаем идентификаторы жестов из JSON (объект с парами "жест - ID")
+////        val gesturesIdJson = jsonObject.getJSONObject("GESTURES_ID")
+////        val gesturesId = mutableMapOf<String, Int>()//Словарь для хранения идентификаторов жестов
+////        val keys = gesturesIdJson.keys()
+////        while (keys.hasNext()) {
+////            val key = keys.next()
+////            gesturesId[key] = gesturesIdJson.getInt(key)
+////        }
+//
+//        gestureConfig = GestureConfig(
+//            baselineDuration = baselineDuration,
+//            preGestDuration = preGestDuration,
+//            atGestDuration = atGestDuration,
+//            postGestDuration = postGestDuration,
+//            gestureSequence = gestureSequence,
+////            gesturesId = gesturesId
+//        )
+//        Log.d("GestureUpdate", "Gesture Config: $gestureConfig")
+//
+////        val phases = buildGesturePhases(
+////            baselineDuration = baselineDuration,
+////            preDuration = preGestDuration,
+////            atDuration = atGestDuration,
+////            postDuration = postGestDuration,
+////            gestureSequence = gestureSequence,
+//////            gestureIdMap = gesturesId,
+////        )
+//        val phases = trainingDataProcessing()
+//        phases.forEach {
+//            //   Log.d("GestureUpdate", "Phases: ${it.value}")
+//        }
+//
+//
+//    }
 
 
     // Метод для обновления UI с текущим жестом
@@ -439,29 +441,28 @@ class MotionTrainingFragment(
         val json =
             requireContext().assets.open("config.json").bufferedReader().use { it.readText() }
         val gson = Gson()
-        val config: Config = gson.fromJson(json, Config::class.java)
+        val config: ConfigOMGDataCollection = gson.fromJson(json, ConfigOMGDataCollection::class.java)
 
         var lineData = mutableListOf<GesturePhase>()
 
-//        generalTime = (SystemClock.elapsedRealtime() - learningTimer.base) / 1000
         nCycles = config.nCycles ?: 0
-        Log.d("trainingDataProcessing", "nCycles $nCycles")
+//        Log.d("trainingDataProcessing", "nCycles $nCycles")
         gestureSequence = config.gestureSequence
-        Log.d("trainingDataProcessing", "gestureSequence $gestureSequence")
+//        Log.d("trainingDataProcessing", "gestureSequence $gestureSequence")
         gestureNumber = (gestureSequence as ArrayList<*>).size - 1
-        Log.d("trainingDataProcessing", "gestureNumber $gestureNumber")
+//        Log.d("trainingDataProcessing", "gestureNumber $gestureNumber")
         preGestDuration = config.preGestDuration?.toDouble() ?: 0.0
-        Log.d("trainingDataProcessing", "preGestDuration $preGestDuration")
+//        Log.d("trainingDataProcessing", "preGestDuration $preGestDuration")
         atGestDuration = config.atGestDuration?.toDouble() ?: 0.0
-        Log.d("trainingDataProcessing", "atGestDuration $atGestDuration")
+//        Log.d("trainingDataProcessing", "atGestDuration $atGestDuration")
         postGestDuration = config.postGestDuration?.toDouble() ?: 0.0
-        Log.d("trainingDataProcessing", "postGestDuration $postGestDuration")
+//        Log.d("trainingDataProcessing", "postGestDuration $postGestDuration")
         gestureDuration = (preGestDuration + atGestDuration + postGestDuration).toInt()
-        Log.d("trainingDataProcessing", "gestureDuration $gestureDuration")
+//        Log.d("trainingDataProcessing", "gestureDuration $gestureDuration")
         gesturesId = config.gesturesId
-        Log.d("trainingDataProcessing", "gesturesId $gesturesId")
+//        Log.d("trainingDataProcessing", "gesturesId ${gesturesId}")
         baselineDuration = config.baselineDuration?.toDouble() ?: 0.0
-        Log.d("trainingDataProcessing", "baselineDuration $baselineDuration")
+//        Log.d("trainingDataProcessing", "baselineDuration $baselineDuration")
         lineData.add(GesturePhase(
             prePhase = 0.0,
             timeGesture = baselineDuration,
@@ -474,18 +475,32 @@ class MotionTrainingFragment(
         ))
 
         gestureSequence.forEach {
-//            if (it == )
+//            Log.d("trainingDataProcessing", "getGestureValueByName ${gesturesId?.getGestureValueByName(it)}")
+            //TODO дописать генерацию ресурса анимации по имени текущего обрабатываемого жеста
+            var animation = 0
+            if (it == "ThumbFingers") {animation = R.raw.loading_training_animation} // тут вместо рандомной ссылки дописать соответствующую
             lineData.add(GesturePhase(
                 prePhase = preGestDuration,
                 timeGesture = atGestDuration,
                 postPhase = postGestDuration,
-                animation = 0,
+                animation = animation,
                 headerText = "Подготовьтесь к выполнению первого жеста",
                 description = "Подготовьтесь к выполнению первого жеста",
                 gestureName = it,
-                gestureId = -1
+                gestureId = gesturesId?.getGestureValueByName(it) ?: 0
             ))
         }
+
+        lineData.add(GesturePhase(
+            prePhase = 0.0,
+            timeGesture = baselineDuration,
+            postPhase = 0.0,
+            animation = 0,
+            headerText = "Подготовьтесь к выполнению первого жеста",
+            description = "Подготовьтесь к выполнению первого жеста",
+            gestureName = "Finish",
+            gestureId = -1
+        ))
 
 //        if (generalTime < baselineDuration)
 //            return mapOf(

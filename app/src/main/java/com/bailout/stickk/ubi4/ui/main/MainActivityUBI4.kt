@@ -84,7 +84,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.scanLeDevice(true)
         startQueue()
 
-        showSensorsScreen()
+//        showSensorsScreen()
+        showOpticTrainingGesturesScreen()
+
 //        binding.addCommandBtn.setOnClickListener {
 //            val byteArray = ByteArray(249){0x55.toByte()}
 //            for (i in 1..100){

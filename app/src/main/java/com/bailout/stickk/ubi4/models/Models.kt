@@ -2,8 +2,6 @@ package com.bailout.stickk.ubi4.models
 
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.google.gson.annotations.SerializedName
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import java.io.File
 
 //widgets items
@@ -63,7 +61,7 @@ data class GesturePhase(
     var gestureId: Int = 0
 )
 
-data class Config(
+data class ConfigOMGDataCollection(
     @SerializedName("FPATH") var fPath: String? = null,
     @SerializedName("DF_PROTOCOL_HEADER") var dFProtocolHeader: ArrayList<String> = arrayListOf(),
     @SerializedName("BASELINE_DURATION") var baselineDuration: Int? = null,
@@ -85,10 +83,6 @@ data class Config(
     @SerializedName("N_COLS") var nCols: Int? = null
 )
 
-//data class GesturesId(
-//    @SerializedName("GESTURES_ID")
-//    val gesturesId: Map<String, String>  = emptyMap()
-//)
 data class GesturesId(
     @SerializedName("Neutral") var Neutral: String? = null,
     @SerializedName("ThumbFingers") var ThumbFingers: String? = null,
@@ -97,8 +91,37 @@ data class GesturesId(
     @SerializedName("Pinch") var Pinch: String? = null,
     @SerializedName("Indication") var Indication: String? = null,
     @SerializedName("Wrist_Flex") var WristFlex: String? = null,
-    @SerializedName("Wrist_Extend") var WristExtend: String? = null
-)
+    @SerializedName("Wrist_Extend") var WristExtend: String? = null,
+) {
+    // Метод для получения имени жеста по значению
+    fun getGestureNameByValue(value: Int): String? {
+        return mapOf(
+            Neutral?.toIntOrNull() to "Neutral",
+            ThumbFingers?.toIntOrNull() to "ThumbFingers",
+            Close?.toIntOrNull() to "Close",
+            Open?.toIntOrNull() to "Open",
+            Pinch?.toIntOrNull() to "Pinch",
+            Indication?.toIntOrNull() to "Indication",
+            WristFlex?.toIntOrNull() to "Wrist_Flex",
+            WristExtend?.toIntOrNull() to "Wrist_Extend"
+        )[value]
+    }
+
+    // Метод для получения значения жеста по имени
+    fun getGestureValueByName(name: String): Int? {
+        return when (name) {
+            "Neutral" -> Neutral?.toIntOrNull()
+            "ThumbFingers" -> ThumbFingers?.toIntOrNull()
+            "Close" -> Close?.toIntOrNull()
+            "Open" -> Open?.toIntOrNull()
+            "Pinch" -> Pinch?.toIntOrNull()
+            "Indication" -> Indication?.toIntOrNull()
+            "Wrist_Flex" -> WristFlex?.toIntOrNull()
+            "Wrist_Extend" -> WristExtend?.toIntOrNull()
+            else -> null
+        }
+    }
+}
 
 // Базовая фаза (Baseline)
 //data class PhaseBaseline(

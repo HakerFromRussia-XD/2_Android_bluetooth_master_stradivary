@@ -174,6 +174,16 @@ class PlotDelegateAdapter (
 //                    widgetPlotsInfo[indexWidgetPlot].closeThresholdTv.text = widgetPlotsInfo[indexWidgetPlot].closeThreshold.toString()
 //                    setLimitePosition2(widgetPlotsInfo[indexWidgetPlot].limitCH1, widgetPlotsInfo[indexWidgetPlot].allCHRl, widgetPlotsInfo[indexWidgetPlot].openThreshold)
 //                    setLimitePosition2(widgetPlotsInfo[indexWidgetPlot].limitCH2, widgetPlotsInfo[indexWidgetPlot].allCHRl, widgetPlotsInfo[indexWidgetPlot].closeThreshold)
+
+//                    val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
+                    if (parameter.data=="") "" else widgetPlotsInfo[0].openThreshold = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
+                    if (parameter.data=="") "" else widgetPlotsInfo[0].closeThreshold = castUnsignedCharToInt(parameter.data.substring(2, 4).toInt(16).toByte())
+//
+//                    //изменение UI в соответствии с новыми порогами
+                    widgetPlotsInfo[0].openThresholdTv.text = widgetPlotsInfo[0].openThreshold.toString()
+                    widgetPlotsInfo[0].closeThresholdTv.text = widgetPlotsInfo[0].closeThreshold.toString()
+                    setLimitePosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, widgetPlotsInfo[0].openThreshold)
+                    setLimitePosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, widgetPlotsInfo[0].closeThreshold)
                 }
             ).collect()
         }

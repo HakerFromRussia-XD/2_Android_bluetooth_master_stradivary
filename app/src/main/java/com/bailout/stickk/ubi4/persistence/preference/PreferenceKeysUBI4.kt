@@ -124,7 +124,6 @@ object PreferenceKeysUBI4 {
         PWLE_GLOBAL_FORCE (0x09, "GLOBAL FORCE"),
         PWLE_PLOT (0x0a, "PLOT"),
         PWLE_OMG_LEARNING (0x0b, "OMG LEARNING"),
-
     }
 
     enum class ParameterWidgetDisplayCode(val number: Byte) {

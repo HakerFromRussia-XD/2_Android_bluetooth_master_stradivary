@@ -22,7 +22,8 @@ data class BaseParameterWidgetStruct(
     val widgetId: Int = 0,
     val dataOffset: Int = 0,
     var dataSize: Int = 0,
-    var parametersIDAndDataCodes: MutableSet<Pair<Int, Int>> = mutableSetOf(Pair(0, 0)), // ID родительских параметров и их датакоды
+    var channelOffset: Int = 0,
+    var parametersIDAndDataCodes: MutableSet<Triple<Int, Int, Int>> = mutableSetOf(Triple(0, 0, 0)), // ID родительских параметров и их датакоды
 )
 
 object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
@@ -40,7 +41,7 @@ object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
         var widgetId = 0
         var dataOffset = 0
         var dataSize = 0
-        val parentIDParameter = mutableSetOf<Pair<Int, Int>>()
+        val parentIDParameter = mutableSetOf<Triple<Int, Int, Int>>()
 
         if (string.length >= 16) {
             widgetType = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte()) shr 0 and 0b01111111

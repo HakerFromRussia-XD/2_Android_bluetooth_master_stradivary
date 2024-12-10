@@ -73,7 +73,9 @@ class GesturesDelegateAdapter(
 
     private lateinit var mAddGestureToRotationGroupBtn: View
     private lateinit var mPlusIv: ImageView
-    private var parameterIDSet = mutableSetOf<Pair<Int, Int>>()
+    //TODO тут правильное взаимодействие с parameterIDSet, но при этом может возникнуть проблима
+    // если в виджет упадут два с одинаковыми датакодами
+    private var parameterIDSet = mutableSetOf<Triple<Int, Int, Int>>()
     private var deviceAddress = 0
     private var gestureCollectionBtns: ArrayList<View> = ArrayList()
     private var gestureCastomBtns: ArrayList<View> = ArrayList()

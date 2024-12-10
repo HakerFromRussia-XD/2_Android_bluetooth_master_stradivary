@@ -16,7 +16,7 @@ import android.util.Pair
 
 @Serializable(with = CommandParameterWidgetESerializer::class)
 data class CommandParameterWidgetEStruct(
-    val baseParameterWidgetEStruct: BaseParameterWidgetEStruct,
+    val baseParameterWidgetEStruct: BaseParameterWidgetEStruct = BaseParameterWidgetEStruct(),
     val clickCommand: Int = 0,
     val pressedCommand: Int = 0,
     val releasedCommand: Int = 0,
@@ -28,7 +28,7 @@ object CommandParameterWidgetESerializer: KSerializer<CommandParameterWidgetEStr
 
     override fun deserialize(decoder: Decoder): CommandParameterWidgetEStruct {
         val string = decoder.decodeString()
-        val baseParameterWidgetEStruct: BaseParameterWidgetEStruct
+        var baseParameterWidgetEStruct = BaseParameterWidgetEStruct()
         var clickCommand = 0
         var pressedCommand = 0
         var releasedCommand = 0
@@ -39,8 +39,6 @@ object CommandParameterWidgetESerializer: KSerializer<CommandParameterWidgetEStr
             clickCommand = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
             pressedCommand = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
             releasedCommand = castUnsignedCharToInt(string.substring(22, 24).toInt(16).toByte())
-        } else {
-            baseParameterWidgetEStruct = BaseParameterWidgetEStruct (BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(Pair(0,0))),0)
         }
 
         return CommandParameterWidgetEStruct (

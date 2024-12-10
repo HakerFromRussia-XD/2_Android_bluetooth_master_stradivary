@@ -38,29 +38,32 @@ class SliderDelegateAdapter(
         onDestroyParent{ onDestroy() }
         var addressDevice = 0
         var parameterID = 0
-        var progress = 0
+        var minProgress = 0
+        var maxProgress = 0
         widgetSliderTitleTv.text = item.title
 
         when (item.widget) {
             is SliderParameterWidgetEStruct -> {
                 addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
                 parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
-                progress = item.widget.progress
+                minProgress = item.widget.minProgress
+                maxProgress = item.widget.maxProgress
                 Log.d("addressDevice" , "E struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}")
             }
             is SliderParameterWidgetSStruct -> {
                 addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
                 parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
-                progress = item.widget.progress
+                minProgress = item.widget.minProgress
+                maxProgress = item.widget.maxProgress
                 Log.d("addressDevice" , "S struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId}")
             }
         }
-        widgetSlidersInfo.add(WidgetSliderInfo(addressDevice, parameterID, progress, widgetSliderSb, widgetSliderNumTv))
+        widgetSlidersInfo.add(WidgetSliderInfo(addressDevice, parameterID, minProgress, maxProgress, 0, widgetSliderSb, widgetSliderNumTv))
         sliderCollect()
 
 
-        widgetSliderNumTv.text = progress.toString()
-        widgetSliderSb.progress = progress
+//        widgetSliderNumTv.text = progress.toString()
+//        widgetSliderSb.progress = progress
         widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 widgetSliderNumTv.text = seekBar.progress.toString()
@@ -123,6 +126,8 @@ class SliderDelegateAdapter(
 data class WidgetSliderInfo (
     var addressDevice: Int = 0,
     var parameterID: Int = 0,
+    var minProgress: Int = 0,
+    var maxProgress: Int = 0,
     var progress: Int = 0,
     var widgetSlidersSb: ProgressBar,
     var widgetSliderNumTv: TextView,

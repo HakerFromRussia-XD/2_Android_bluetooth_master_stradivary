@@ -37,7 +37,7 @@ class GesturesOpticDelegateAdapter(
 
     private val ANIMATION_DURATION = 200
     private var listBindingGesture: MutableList<BindingGestureItem> = mutableListOf()
-    private var parameterIDSet = mutableSetOf<Pair<Int, Int>>()
+    private var parameterIDSet = mutableSetOf<Triple<Int, Int, Int>>()
     private var deviceAddress = 0
     private var hideFactoryCollectionGestures = true
 

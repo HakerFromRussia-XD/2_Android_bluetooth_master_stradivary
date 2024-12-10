@@ -1838,7 +1838,7 @@
                             app:spinner_divider_show="true"
                             app:spinner_divider_size="1dp"
                             app:spinner_item_height="42dp"
-                            app:spinner_popup_height="88dp"/>
+                            app:spinner_popup_height="132dp"/>
                     </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>

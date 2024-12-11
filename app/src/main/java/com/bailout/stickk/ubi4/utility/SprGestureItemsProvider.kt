@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.utility
 
 import android.content.Context
+import android.util.Log
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.models.SprGestureItem
 
@@ -23,11 +24,17 @@ class SprGestureItemsProvider(private val context: Context) {
 
     fun getAnimationIdByKeyNameGesture(keyNameGesture: String) : Int {
         val sprGestureItem = getSprGestureItemList().find { it.keyNameGesture == keyNameGesture }
+        if (sprGestureItem == null) {
+            Log.e("GestureDebug", "Animation not found for key: $keyNameGesture")
+        } else {
+            Log.d("GestureDebug", "Found animation for key: $keyNameGesture, AnimationId: ${sprGestureItem.animationId}")
+        }
         return sprGestureItem?.animationId ?: R.drawable.sleeping
     }
 
 
     fun getKeyNameGestureByGestureName(gestureName: String): String? {
+        Log.d("GestureDebug", "GestureName passed: $gestureName")
         return gestureNameToKeyNameMap[gestureName]
     }
 
@@ -45,6 +52,7 @@ class SprGestureItemsProvider(private val context: Context) {
         sprGestureItemList.add(SprGestureItem(context.getString(R.string.abduction), R.raw.abduction, false, "Abduction"))
         sprGestureItemList.add(SprGestureItem(context.getString(R.string.pronation), R.raw.pronation, false, "Pronation"))
         sprGestureItemList.add(SprGestureItem(context.getString(R.string.supination), R.raw.supination, false, "Supination"))
+         Log.d("GestureDebug", "SprGestureItemList: $sprGestureItemList")
         return sprGestureItemList
     }
 }

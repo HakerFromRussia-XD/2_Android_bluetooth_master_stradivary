@@ -50,7 +50,6 @@ class SelectedGesturesAdapter(
             holder.gestureName.text = bindingGesture.nameOfUserGesture
         }
 
-
     }
 
     @SuppressLint("NotifyDataSetChanged")

@@ -666,7 +666,7 @@ class BLEParser(main: AppCompatActivity) {
                     }
                     ParameterWidgetCode.PWCE_PLOT.number.toInt() -> {
                         System.err.println("parseWidgets PLOT STRING_LABEL")
-                        val plotParameterWidgetSStruct = Json.decodeFromString<CommandParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                        val plotParameterWidgetSStruct = Json.decodeFromString<PlotParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
                         plotParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
                         addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode)
                     }

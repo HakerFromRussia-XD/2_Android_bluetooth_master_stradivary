@@ -160,7 +160,7 @@ class AdvancedFragment : Fragment() {
 //        transmitter().bleCommand(BLECommands.requestSubDeviceParametrs(6, 0, 1), MAIN_CHANNEL, WRITE)
 //        transmitter().bleCommand(BLECommands.requestSubDeviceAdditionalParametrs(6, 0), MAIN_CHANNEL, WRITE)
     }
-    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
+    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
         Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
         transmitter().bleCommand(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
     }

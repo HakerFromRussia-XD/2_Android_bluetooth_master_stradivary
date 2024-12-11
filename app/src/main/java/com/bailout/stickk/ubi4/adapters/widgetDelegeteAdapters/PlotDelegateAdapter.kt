@@ -177,7 +177,7 @@ class PlotDelegateAdapter (
 
 //                    val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
                     if (parameter.data=="") "" else widgetPlotsInfo[0].openThreshold = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
-                    if (parameter.data=="") "" else widgetPlotsInfo[0].closeThreshold = castUnsignedCharToInt(parameter.data.substring(2, 4).toInt(16).toByte())
+                    if (parameter.data=="") "" else widgetPlotsInfo[0].closeThreshold = castUnsignedCharToInt(parameter.data.substring(4, 6).toInt(16).toByte())
 //
 //                    //изменение UI в соответствии с новыми порогами
                     widgetPlotsInfo[0].openThresholdTv.text = widgetPlotsInfo[0].openThreshold.toString()

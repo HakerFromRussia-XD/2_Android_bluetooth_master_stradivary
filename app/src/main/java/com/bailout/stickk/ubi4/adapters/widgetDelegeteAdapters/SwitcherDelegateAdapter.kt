@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
+import android.os.Handler
 import android.util.Log
 import android.widget.ProgressBar
 import android.widget.Switch
@@ -67,11 +68,17 @@ class SwitcherDelegateAdapter(
 
         widgetSwitchInfo.add(WidgetSwitchInfo(addressDevice, parameterID, switchChecked, widgetSwitchSc))
 
-        main.bleCommand(
-            BLECommands.requestSwitcher(addressDevice, parameterID),
-            MAIN_CHANNEL,
-            SampleGattAttributes.WRITE
-        )
+//        main.bleCommand(
+//            BLECommands.requestSwitcher(addressDevice, parameterID),
+//            MAIN_CHANNEL,
+//            SampleGattAttributes.WRITE
+//        )
+        Handler().postDelayed({
+            main.bleCommandWithQueue(
+                BLECommands.requestSwitcher(addressDevice, parameterID),
+                MAIN_CHANNEL,
+                SampleGattAttributes.WRITE)
+        }, 500)
 
         switchCollect()
     }

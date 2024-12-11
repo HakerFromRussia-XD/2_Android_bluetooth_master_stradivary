@@ -86,7 +86,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         binding.runCommandBtn.setOnClickListener {
 //            CoroutineScope(Dispatchers.Default).launch { thresholdFlow.emit(ParameterRef(6, 12)) }
-            bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
+//            bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
+//            bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
+            bleCommandWithQueue(BLECommands.requestThresholds(8, 2) , MAIN_CHANNEL, WRITE)
         }
 
     }
@@ -178,7 +180,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    private fun bleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand)) }
+    fun bleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String) { queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand)) }
     private fun getBleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
     private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
@@ -192,7 +194,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
     }
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
-        System.err.println("BLE debug bleCommand")
+        System.err.println("BLE debug bleCommand byteArray = ${byteArray?.let {
+            EncodeByteToHex.bytesToHexString(it)
+        }}")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
     }
 

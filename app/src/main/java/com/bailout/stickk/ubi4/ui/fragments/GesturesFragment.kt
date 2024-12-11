@@ -331,7 +331,7 @@ class GesturesFragment : Fragment() {
             resultCb.invoke(2)
         }
     }
-    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
+    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
         Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
         transmitter().bleCommand(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
     }

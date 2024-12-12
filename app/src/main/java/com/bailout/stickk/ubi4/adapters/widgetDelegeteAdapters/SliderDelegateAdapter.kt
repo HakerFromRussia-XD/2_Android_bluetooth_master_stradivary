@@ -14,6 +14,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.models.SliderItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -70,13 +71,15 @@ class SliderDelegateAdapter(
         }
         widgetSlidersInfo.add(WidgetSliderInfo(addressDevice, parameterID, dataOffset, minProgress, maxProgress, arrayListOf(0, 0), arrayListOf(widgetSliderSb, widgetSlider2Sb), arrayListOf(widgetSliderNumTv,widgetSliderNum2Tv)))
         sliderCollect()
-
-        val progress: ArrayList<Int> = ArrayList(List(addressDevice.size) { 0 })
+        setUI(ParameterRef(addressDevice[0], parameterID[0]))
+        val indexWidgetSlider = getIndexWidgetSlider(addressDevice[0], parameterID[0])
+//        val progress: ArrayList<Int> = ArrayList(List(addressDevice.size) { 0 })
         if (addressDevice.size > 1) {
             secondSliderCl.visibility = View.VISIBLE
         } else {
             secondSliderCl.visibility = View.GONE
         }
+
 
         widgetSliderSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -84,8 +87,8 @@ class SliderDelegateAdapter(
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                progress[0] = seekBar.progress
-                onSetProgress(addressDevice[0], parameterID[0],  progress)
+                widgetSlidersInfo[indexWidgetSlider].progress[0] = seekBar.progress
+                onSetProgress(addressDevice[0], parameterID[0],  widgetSlidersInfo[indexWidgetSlider].progress)
             }
         })
         widgetSlider2Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -94,8 +97,8 @@ class SliderDelegateAdapter(
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                progress[1] = seekBar.progress
-                onSetProgress(addressDevice[1], parameterID[1],  progress)
+                widgetSlidersInfo[indexWidgetSlider].progress[1] = seekBar.progress
+                onSetProgress(addressDevice[1], parameterID[1],  widgetSlidersInfo[indexWidgetSlider].progress)
             }
         })
 
@@ -109,34 +112,38 @@ class SliderDelegateAdapter(
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 slidersFlow.collect { parameterRef ->
-                    val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-                    // в parameterRef прилетают addressDevice и parameterID для того слайдера, который нужно обновить
-                    // а в Array widgetSlidersInfo хранится список всех сочетаний адресов девайсов
-                    // и айдишников параметров вместе с их вьюхами для изменения
-                    Log.d ("parameter sliderCollect", "перед попыткой добавить данные в слайдер  addressDevice = ${parameterRef.addressDevice}  parameterID = ${parameterRef.parameterID}  parameter.data = ${parameter.data}}")
-                    val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
-                    if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
-                        if (parameter.data=="") Log.d ("parameter sliderCollect", "не успешная попытка обновления")
-                        if (parameter.data!="") Log.d ("parameter sliderCollect", "успешная попытка обновления")
-
-                        val sizeOf = PreferenceKeysUBI4.ParameterTypeEnum.entries[parameter.type].sizeOf
-                        widgetSlidersInfo[indexWidgetSlider].dataOffset.forEachIndexed { index, it ->
-                            if (parameter.data=="") "" else widgetSlidersInfo[indexWidgetSlider].progress[index] = castUnsignedCharToInt(parameter.data.substring((sizeOf*it)*2, sizeOf*(it+1)*2).toInt(16).toByte())
-                            widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress = widgetSlidersInfo[indexWidgetSlider].progress[index]
-                            widgetSlidersInfo[indexWidgetSlider].widgetSliderNumTv[index].text = widgetSlidersInfo[indexWidgetSlider].progress[index].toString()
-                        }
-                    } else {
-                        Log.d ("parameter sliderCollect", "НЕТ слайдера, которому передназначаются данные")
-                        Log.d ("parameter sliderCollect", "данные для addressDevice = ${parameterRef.addressDevice}  parameterID = ${parameterRef.parameterID}")
-                        widgetSlidersInfo.forEach {
-                            Log.d ("parameter sliderCollect", "есть только такие addressDevice = ${it.addressDevice}  parameterID = ${it.parameterID}")
-                        }
-                    }
+                    setUI(parameterRef)
                 }
             }
         }
     }
 
+
+    private fun setUI(parameterRef: ParameterRef) {
+        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+        // в parameterRef прилетают addressDevice и parameterID для того слайдера, который нужно обновить
+        // а в Array widgetSlidersInfo хранится список всех сочетаний адресов девайсов
+        // и айдишников параметров вместе с их вьюхами для изменения
+        Log.d ("parameter sliderCollect", "перед попыткой добавить данные в слайдер  addressDevice = ${parameterRef.addressDevice}  parameterID = ${parameterRef.parameterID}  parameter.data = ${parameter.data}}")
+        val indexWidgetSlider = getIndexWidgetSlider(parameterRef.addressDevice, parameterRef.parameterID)
+        if (indexWidgetSlider != -1 && indexWidgetSlider < widgetSlidersInfo.size) {
+            if (parameter.data=="") Log.d ("parameter sliderCollect", "не успешная попытка обновления")
+            if (parameter.data!="") Log.d ("parameter sliderCollect", "успешная попытка обновления")
+
+            val sizeOf = PreferenceKeysUBI4.ParameterTypeEnum.entries[parameter.type].sizeOf
+            widgetSlidersInfo[indexWidgetSlider].dataOffset.forEachIndexed { index, it ->
+                if (parameter.data=="") "" else widgetSlidersInfo[indexWidgetSlider].progress[index] = castUnsignedCharToInt(parameter.data.substring((sizeOf*it)*2, sizeOf*(it+1)*2).toInt(16).toByte())
+                widgetSlidersInfo[indexWidgetSlider].widgetSlidersSb[index].progress = widgetSlidersInfo[indexWidgetSlider].progress[index]
+                widgetSlidersInfo[indexWidgetSlider].widgetSliderNumTv[index].text = widgetSlidersInfo[indexWidgetSlider].progress[index].toString()
+            }
+        } else {
+            Log.d ("parameter sliderCollect", "НЕТ слайдера, которому передназначаются данные")
+            Log.d ("parameter sliderCollect", "данные для addressDevice = ${parameterRef.addressDevice}  parameterID = ${parameterRef.parameterID}")
+            widgetSlidersInfo.forEach {
+                Log.d ("parameter sliderCollect", "есть только такие addressDevice = ${it.addressDevice}  parameterID = ${it.parameterID}")
+            }
+        }
+    }
     private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
         //TODO не корректно работает фугкция поиска виджета по адресам и айдишникам
         widgetSlidersInfo.forEachIndexed { index, widgetSliderInfo ->

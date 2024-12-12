@@ -16,7 +16,7 @@ import com.bailout.stickk.ubi4.models.Quadruple
 data class BaseParameterWidgetStruct(
     val widgetType: Int = 0,      // 7 bit   младшие биты
     val widgetLabelType: Int = 0, // 1 bit, если 1, то парсим хвост как структуку с enum иначе как структуру с именем в виде char[32]
-    val widgetCode: Int = 0,
+    var widgetCode: Int = 0,
     val display: Int = 0, // номер экрана, на котором виджет располагается
     val widgetPosition: Int = 0, // позиция этого виджета
     var deviceId: Int = 0,

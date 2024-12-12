@@ -88,7 +88,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            CoroutineScope(Dispatchers.Default).launch { thresholdFlow.emit(ParameterRef(6, 12)) }
 //            bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
 //            bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
-            bleCommandWithQueue(BLECommands.requestThresholds(8, 2) , MAIN_CHANNEL, WRITE)
+            System.err.println("BLE debug bleCommand byteArray = runCommandBtn")
+            bleCommandWithQueue(BLECommands.requestThresholds(9, 13) , MAIN_CHANNEL, WRITE)
         }
 
     }

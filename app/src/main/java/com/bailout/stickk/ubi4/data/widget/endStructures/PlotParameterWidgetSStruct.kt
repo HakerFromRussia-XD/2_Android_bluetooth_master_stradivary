@@ -17,7 +17,14 @@ data class PlotParameterWidgetSStruct(
     val baseParameterWidgetSStruct: BaseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(),"NOT VALID"),
     val color: Int = 0,
     val maxSize: Int = 0,
-    val minSize: Int = 0
+    val minSize: Int = 0,
+
+    val openThreshold: Int = 0,
+    val closeThreshold: Int = 0,
+    val openThresholdUpper : Int = 0,
+    val openThresholdLower : Int = 0,
+    val closeThresholdUpper : Int = 0,
+    val closeThresholdLower : Int = 0,
 )
 
 object PlotParameterWidgetSSerializer: KSerializer<PlotParameterWidgetSStruct> {

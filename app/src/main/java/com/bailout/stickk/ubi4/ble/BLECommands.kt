@@ -402,6 +402,23 @@ class BLECommands {
             result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
+        fun sendThresholdsCommand(addressDevice: Int, parameterID: Int,  thresholds: ArrayList<Int>): ByteArray {
+            val code: Byte = (128 + parameterID).toByte()
+            val header = byteArrayOf(
+                0x60,
+                code,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            val data = thresholds.map { it.toByte() }.toByteArray()
+            header[3] = data.size.toByte()
+            header[4] = (data.size / 256).toByte()
+            val result = header + data
+            return result
+        }
 
         fun testDataTransfer(): ByteArray {
             val header = byteArrayOf(

@@ -1,12 +1,11 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
+import android.annotation.SuppressLint
 import android.graphics.Color
+import android.os.Handler
 import android.util.Log
 import android.view.MotionEvent
-import android.view.View
-import android.widget.CompoundButton
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.view.marginTop
@@ -17,10 +16,12 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.PlotItem
+import com.bailout.stickk.ubi4.models.Quadruple
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.countBinding
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
@@ -45,7 +46,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class PlotDelegateAdapter (
     val plotIsReadyToData:(numberOfCharts: Int) -> Unit,
@@ -74,6 +74,7 @@ class PlotDelegateAdapter (
 
     private var firstInit = true
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItem) {
         onDestroyParent{ onDestroy() }
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
@@ -82,15 +83,16 @@ class PlotDelegateAdapter (
         var parameterID = 0
         var openThreshold = 0
         var closeThreshold = 0
+        var parametersIDAndDataCodes: MutableSet<Quadruple<Int, Int, Int, Int>> = mutableSetOf()
+
 
         when (plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
-                Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = ${plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes}")
-                parameterID = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                parametersIDAndDataCodes = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes
                 deviceAddress = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
             }
             is PlotParameterWidgetSStruct -> {
-                parameterID = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                parametersIDAndDataCodes = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes
                 deviceAddress = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
             }
         }
@@ -113,33 +115,37 @@ class PlotDelegateAdapter (
             startGraphEnteringDataCoroutine(EMGChartLc)
         }
 
-        main.bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
+//        Handler().postDelayed({
+            main.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
+            main.bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
+//        }, 50)
         plotIsReadyToData(numberOfCharts)
 
-        openCHV.setOnTouchListener(object : View.OnTouchListener{
-            override fun onTouch(p0: View, event: MotionEvent): Boolean {
-                p0.parent.requestDisallowInterceptTouchEvent(true)
-                openThreshold = setLimitePosition(limitCH1, openThresholdTv, allCHRl, event)
-                when (event.action) {
-                    MotionEvent.ACTION_UP -> {
-//                        Log.d("setOnTouchListener", "openThreshold send $openThreshold")
-                    }
+        val filteredSet = parametersIDAndDataCodes.filter { it.second == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }.toSet()
+
+//        val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
+        openCHV.setOnTouchListener { p0, event ->
+            p0.parent.requestDisallowInterceptTouchEvent(true)
+            openThreshold = setLimitePosition(limitCH1, openThresholdTv, allCHRl, event)
+            when (event.action) {
+                MotionEvent.ACTION_UP -> {
+                    Log.d("setOnTouchListener", "openThreshold send $openThreshold")
+                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(0).third, filteredSet.elementAt(0).first, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE)
                 }
-                return true
             }
-        })
-        closeCHV.setOnTouchListener(object : View.OnTouchListener{
-            override fun onTouch(p0: View, event: MotionEvent): Boolean {
-                p0.parent.requestDisallowInterceptTouchEvent(true)
-                closeThreshold = setLimitePosition(limitCH2, closeThresholdTv, allCHRl, event)
-                when (event.action) {
-                    MotionEvent.ACTION_UP -> {
-//                        Log.d ("setOnTouchListener", "closeThreshold send $closeThreshold")
-                    }
+            true
+        }
+        closeCHV.setOnTouchListener { p0, event ->
+            p0.parent.requestDisallowInterceptTouchEvent(true)
+            closeThreshold = setLimitePosition(limitCH2, closeThresholdTv, allCHRl, event)
+            when (event.action) {
+                MotionEvent.ACTION_UP -> {
+                    Log.d("setOnTouchListener", "closeThreshold send $closeThreshold  deviceAddress = $deviceAddress  parameterID = $parameterID")
+                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(1).third, filteredSet.elementAt(1).first, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE)
                 }
-                return true
             }
-        })
+            true
+        }
     }
     override fun isForViewType(item: Any): Boolean = item is PlotItem
     override fun PlotItem.getItemId(): Any = title
@@ -386,8 +392,8 @@ class PlotDelegateAdapter (
         emgChart.axisRight.textColor = Color.TRANSPARENT
     }
     private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
-        widgetPlotsInfo.forEachIndexed { index, widgetSliderInfo ->
-            if (widgetSliderInfo.addressDevice == addressDevice && widgetSliderInfo.parameterID == parameterID) {
+        widgetPlotsInfo.forEachIndexed { index, widgetPlotInfo ->
+            if (widgetPlotInfo.addressDevice == addressDevice && widgetPlotInfo.parameterID == parameterID) {
                 return index
             }
         }

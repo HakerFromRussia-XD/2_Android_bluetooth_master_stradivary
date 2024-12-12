@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data.widget.endStructures
 
+import android.util.Log
 import android.util.Pair
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
@@ -26,29 +27,30 @@ object ThresholdParameterWidgetESerializer: KSerializer<ThresholdParameterWidget
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("FullInicializeConnection", PrimitiveKind.STRING)
 
+
     override fun deserialize(decoder: Decoder): ThresholdParameterWidgetEStruct {
         val string = decoder.decodeString()
         var baseParameterWidgetEStruct = BaseParameterWidgetEStruct()
-        var openThresholdUpper = 0
-        var openThresholdLower = 0
-        var closeThresholdUpper = 0
-        var closeThresholdLower = 0
+//        var openThresholdUpper = 0
+//        var openThresholdLower = 0
+//        var closeThresholdUpper = 0
+//        var closeThresholdLower = 0
 
-
-        if (string.length >= 26) {
+        Log.d("OPEN_CLOSE_THRESHOLD CODE_LABEL parametersIDAndDataCodes", "string.length = ${string.length}")
+        if (string.length >= 18) {
             baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${string.substring(0, 18)}\"")
-            openThresholdUpper = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
-            openThresholdLower = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
-            closeThresholdUpper = castUnsignedCharToInt(string.substring(22, 24).toInt(16).toByte())
-            closeThresholdLower = castUnsignedCharToInt(string.substring(24, 26).toInt(16).toByte())
+//            openThresholdUpper = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
+//            openThresholdLower = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
+//            closeThresholdUpper = castUnsignedCharToInt(string.substring(22, 24).toInt(16).toByte())
+//            closeThresholdLower = castUnsignedCharToInt(string.substring(24, 26).toInt(16).toByte())
         }
 
         return ThresholdParameterWidgetEStruct (
             baseParameterWidgetEStruct = baseParameterWidgetEStruct,
-            openThresholdUpper = openThresholdUpper,
-            openThresholdLower = openThresholdLower,
-            closeThresholdUpper = closeThresholdUpper,
-            closeThresholdLower = closeThresholdLower,
+//            openThresholdUpper = openThresholdUpper,
+//            openThresholdLower = openThresholdLower,
+//            closeThresholdUpper = closeThresholdUpper,
+//            closeThresholdLower = closeThresholdLower,
         )
     }
 

@@ -52,13 +52,16 @@ import kotlin.properties.Delegates
 
 
 @RequirePresenter(MainPresenter::class)
-class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4, TransmitterUBI4 {
+class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4,
+    TransmitterUBI4 {
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
     private lateinit var trainingModelHandler: TrainingModelHandler
+
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
+     private lateinit var bottomNavigationController: BottomNavigationController
 
 
     @SuppressLint("CommitTransaction")
@@ -73,7 +76,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_dark_back)
         setContentView(view)
         initAllVariables()
-        BottomNavigationController(bottomNavigation = binding.bottomNavigation)
+        bottomNavigationController =
+            BottomNavigationController(bottomNavigation = binding.bottomNavigation)
 
         trainingModelHandler = TrainingModelHandler(this)
         trainingModelHandler.initialize()
@@ -99,6 +103,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //        }
 
     }
+
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
@@ -108,7 +113,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         if (mBLEController.getBluetoothLeService() != null) {
             connectedDeviceName = getString(CONNECTED_DEVICE)
-            connectedDeviceAddress =  getString(CONNECTED_DEVICE_ADDRESS)
+            connectedDeviceAddress = getString(CONNECTED_DEVICE_ADDRESS)
             System.err.println("onResume ${getString(CONNECTED_DEVICE_ADDRESS)}")
         }
         if (!mBLEController.getStatusConnected()) {
@@ -118,12 +123,24 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
 
+    override fun showOpticGesturesScreen() {
+        launchFragmentWithoutStack(SprGestureFragment())
+    }
 
-    override fun showOpticGesturesScreen() { launchFragmentWithoutStack(SprGestureFragment()) }
-    override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
-    override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
-    override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
-    override fun showMotionTrainingScreen(onFinish:()->Unit) { launchFragmentWithoutStack(MotionTrainingFragment(onFinish))
+    override fun showOpticTrainingGesturesScreen() {
+        launchFragmentWithoutStack(SprTrainingFragment())
+    }
+
+    override fun showGesturesScreen() {
+        launchFragmentWithoutStack(GesturesFragment())
+    }
+
+    override fun showSensorsScreen() {
+        launchFragmentWithoutStack(SensorsFragment())
+    }
+
+    override fun showMotionTrainingScreen(onFinish: () -> Unit) {
+        launchFragmentWithoutStack(MotionTrainingFragment(onFinish))
         Log.d("StateCallBack", "showMotionTrainingScreen called")
     }
 
@@ -134,13 +151,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
 
     override fun showToast(massage: String) {
-        Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, massage, Toast.LENGTH_SHORT).show()
     }
-    override fun getBackStackEntryCount(): Int { return supportFragmentManager.backStackEntryCount }
-    override fun goingBack() { onBackPressed() }
+
+    override fun getBackStackEntryCount(): Int {
+        return supportFragmentManager.backStackEntryCount
+    }
+
+    override fun goingBack() {
+        onBackPressed()
+    }
+
     override fun goToMenu() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
+
     private fun launchFragmentWithoutStack(fragment: Fragment) {
         val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.fragmentContainer, fragment)
@@ -149,20 +174,23 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun initAllVariables() {
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
-        connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
+        connectedDeviceAddress =
+            intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
         saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, connectedDeviceName)
 
         //settings
     }
+
     internal fun sendWidgetsArray() {
         //событие эммитится только в случае если size отличается от предыдущего
         updateFlow.value += 1
     }
+
     private fun setStaticVariables() {
         listWidgets = mutableSetOf()
         updateFlow = MutableStateFlow(0)
-        plotArrayFlow = MutableStateFlow(PlotParameterRef(0,0, arrayListOf()))
+        plotArrayFlow = MutableStateFlow(PlotParameterRef(0, 0, arrayListOf()))
         rotationGroupFlow = MutableSharedFlow()
         slidersFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
@@ -184,10 +212,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         editor.putString(key, text)
         editor.apply()
     }
-    override fun getString(key: String) :String {
+
+    override fun getString(key: String): String {
 //        System.err.println("getString test key: $key  value: ${mSettings!!.getString(key, "NOT SET!").toString()}")
         return mSettings!!.getString(key, "NOT SET!").toString()
     }
+
     internal fun saveInt(key: String, variable: Int) {
         val editor: SharedPreferences.Editor = mSettings!!.edit()
         editor.putInt(key, variable)
@@ -204,9 +234,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         worker.start()
     }
 
-    fun bleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String, onChunkSent: () -> Unit) {
+    fun bleCommandWithQueue(
+        byteArray: ByteArray?,
+        Command: String,
+        typeCommand: String,
+        onChunkSent: () -> Unit
+    ) {
         queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand, onChunkSent))
     }
+
     private fun getBleCommandWithQueue(
         byteArray: ByteArray?,
         Command: String,
@@ -219,15 +255,16 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             onChunkSent()
         }
     }
+
     private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
             bleCommand(byteArray, Command, typeCommand)
-            Log.d("BLE Data","send!!!!")
+            Log.d("BLE Data", "send!!!!")
             while (!canSendFlag) {
                 Thread.sleep(1)
             }
-            Log.d("BLE Data","Файлы отправлены!")
+            Log.d("BLE Data", "Файлы отправлены!")
         }
     }
 
@@ -235,9 +272,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     fun getBLEController(): BLEController {
         return mBLEController
     }
+
+    fun getBottomNavigationController() : BottomNavigationController{
+        return bottomNavigationController
+    }
+
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug bleCommand")
-        mBLEController.bleCommand( byteArray, uuid, typeCommand )
+        mBLEController.bleCommand(byteArray, uuid, typeCommand)
     }
 
     companion object {

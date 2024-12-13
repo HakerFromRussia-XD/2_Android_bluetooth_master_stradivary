@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.models.GestureConfig
 import com.bailout.stickk.ubi4.models.GesturePhase
 import com.bailout.stickk.ubi4.models.GesturesId
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.google.gson.Gson
@@ -98,9 +99,6 @@ class MotionTrainingFragment(
     private var gesturesId: GesturesId? = null
     private var baselineDuration: Double = 0.0
     private var generalTime: Long = 0L
-
-
-
 
     private var lineData: MutableList<GesturePhase> = mutableListOf()
     private var currentPhaseIndex: Int = 0
@@ -213,12 +211,16 @@ class MotionTrainingFragment(
                     .commit()
             }
         }
+        (activity as? MainActivityUBI4)?.getBottomNavigationController()?.setNavigationEnabled(false)
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         Log.d("LagSpr", "Motion onDestroyView")
         _binding = null
+        (activity as? MainActivityUBI4)?.getBottomNavigationController()?.setNavigationEnabled(true)
+
     }
 
     override fun onDestroy() {
@@ -231,7 +233,6 @@ class MotionTrainingFragment(
         learningStepTimer.stop()
         disposables.clear()
     }
-
 
     @SuppressLint("MissingInflatedId")
     private fun showConfirmCancelTrainingDialog(confirmClick: () -> Unit) {
@@ -258,7 +259,6 @@ class MotionTrainingFragment(
         }
     }
 
-
     @SuppressLint("MissingInflatedId")
     private fun showConfirmCompletedTrainingDialog(confirmClick: () -> Unit) {
         pauseTimers()
@@ -278,7 +278,6 @@ class MotionTrainingFragment(
             onFinishTraining()
         }
     }
-
 
     private fun pauseTimers() {
         // Отмена таймеров
@@ -373,7 +372,6 @@ class MotionTrainingFragment(
         currentTimerType = TimerType.NONE
     }
 
-
     private fun startPhase(phaseIndex: Int) {
         currentPhaseIndex = phaseIndex
         if (phaseIndex >= lineData.size) {
@@ -411,7 +409,6 @@ class MotionTrainingFragment(
             }
         }
     }
-
 
     private fun startCountdown(phase: GesturePhase, phaseIndex: Int) {
         stopTimers()
@@ -451,7 +448,6 @@ class MotionTrainingFragment(
             }
         }.start()
     }
-
 
     private fun startPreparationCountDown(phase: GesturePhase, phaseIndex: Int) {
         stopTimers()
@@ -596,7 +592,6 @@ class MotionTrainingFragment(
                 writer.write(logLine)
                 writer.newLine()
                 writer.flush()
-               // val fileContent = file.readText()
                 Log.i("FileInfoWriteFile", "File contains: $prot lines")
 
                 Log.d("trainingDataProcessing1", "LOGLINE:${logLine.trim()}")
@@ -610,6 +605,16 @@ class MotionTrainingFragment(
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        pauseTimers()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        resumeTimers()
+    }
+
     private fun deleteSerialDataFile() {
         val path = requireContext().getExternalFilesDir(null)
         val file = File(path, "serial_data")
@@ -620,7 +625,6 @@ class MotionTrainingFragment(
             Log.d("FileDeletion", "File serial_data does not exist.")
         }
     }
-
 
     private fun trainingDataProcessing(): MutableList<GesturePhase> {
         // Чтение и парсинг конфигурационного файла

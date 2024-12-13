@@ -153,6 +153,34 @@ class TrainingModelHandler(private val context: Context) {
                             }
                         }
                     }
+
+
+                ///////////////////////////////Прописан путь к файлу serial_data////////////////////////////////
+
+//                val importData = mutableListOf<List<String>>()
+//                val path = context.getExternalFilesDir(null)
+//                val serialFile = File(path, "serial_data")
+//                if (!serialFile.exists()) {
+//                    Log.e("RunModel", "File serial_data does not exist at: ${serialFile.absolutePath}")
+//                    return@launch
+//                }
+//
+//                serialFile.bufferedReader()
+//                    .useLines { lines ->
+//                        // drop header
+//                        lines.drop(1).forEach { line ->
+//                            val lineData = line.split(" ")
+//                            // drop baseline rows
+//                            if (lineData[INDEX_TARGET_ID].toInt() != -1) {
+//                                importData.add(lineData)
+//                            }
+//                        }
+//                    }
+
+                ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
                 Log.d("LagSpr", "Start RunModel2 ${endTime - startTime} ms")
 
                 // Create mapping from INDEX_TARGET_STATE to renumeration by order of appearance

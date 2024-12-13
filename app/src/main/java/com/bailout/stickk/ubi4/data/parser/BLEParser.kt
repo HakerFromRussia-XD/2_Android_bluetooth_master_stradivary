@@ -201,6 +201,7 @@ class BLEParser(main: AppCompatActivity) {
                 CoroutineScope(Dispatchers.Default).launch { rotationGroupFlow.emit((0..1000).random()) } }
             ParameterDataCodeEnum.PDCE_OPTIC_LEARNING_DATA.number -> {
                 Log.d("TestOptic"," dataCode: $dataCode")
+                Log.d("FileInfoWriteFile","recive ok")
                 RxUpdateMainEventUbi4.getInstance().updateUiOpticTraining(dataCode) }
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
                 Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")

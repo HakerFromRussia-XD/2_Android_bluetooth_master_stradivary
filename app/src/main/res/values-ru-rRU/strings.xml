@@ -126,6 +126,17 @@
     <string name="gesture_12_btn">жест №12</string>
     <string name="gesture_13_btn">жест №13</string>
     <string name="gesture_14_btn">жест №14</string>
+    <string name="gesture_15_btn">жест №15</string>
+    <string name="gesture_16_btn">жест №16</string>
+    <string name="gesture_17_btn">жест №17</string>
+    <string name="gesture_18_btn">жест №18</string>
+    <string name="gesture_19_btn">жест №19</string>
+    <string name="gesture_20_btn">жест №20</string>
+    <string name="gesture_21_btn">жест №21</string>
+    <string name="gesture_22_btn">жест №22</string>
+    <string name="gesture_23_btn">жест №23</string>
+    <string name="gesture_24_btn">жест №24</string>
+    <string name="gesture_25_btn">жест №25</string>
     <string name="test">тест</string>
     <string name="setting_up_gestures">настройки жестов</string>
     <string name="sensor_settings">настройки датчиков</string>

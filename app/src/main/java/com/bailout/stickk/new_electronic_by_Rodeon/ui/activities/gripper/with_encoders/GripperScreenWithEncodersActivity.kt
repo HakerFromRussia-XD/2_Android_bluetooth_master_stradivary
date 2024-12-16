@@ -905,8 +905,9 @@ class GripperScreenWithEncodersActivity
         }
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture  fingerOpenStateDelay1=$fingerOpenStateDelay1  fingerCloseStateDelay1=$fingerCloseStateDelay1")
-            val sendGestureNumber = if (checkDriverVersionGreaterThan237()) { gestureNumber
+            var sendGestureNumber = if (checkDriverVersionGreaterThan237()) { gestureNumber
             } else { gestureNumber - 1 }
+//            sendGestureNumber = if (checkDriverVersionGreaterThan240()) { gestureNumber }
             val gestureStateModel = GestureStateWithEncoders(sendGestureNumber, // проверить тут -2
                 fingerOpenState4, fingerOpenState3, fingerOpenState2,
                 fingerOpenState1, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
@@ -922,6 +923,14 @@ class GripperScreenWithEncodersActivity
         return if (driverVersionS != null) {
             val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
             driverNum.toInt() >= 237
+        } else {
+            false
+        }
+    }
+    private fun checkDriverVersionGreaterThan240():Boolean {
+        return if (driverVersionS != null) {
+            val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
+            driverNum.toInt() >= 240
         } else {
             false
         }

@@ -919,7 +919,6 @@ class AdvancedSettingsFragment : Fragment() {
       showAlertChangeSideDialog()
     }
 
-
     binding.timeDelayOfFingersSwapSw.setOnClickListener {
       if (binding.timeDelayOfFingersSwapSw.isChecked) {
         System.err.println("time_delay_of_fingers_swap_sw 1")
@@ -949,27 +948,19 @@ class AdvancedSettingsFragment : Fragment() {
         numActiveGestures = 14
         binding.activeGesturesSwapTv.text = numActiveGestures.toString()
         saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
-
         RxUpdateMainEvent.getInstance().updateUIGestures(100)
       } else {
         binding.activeGesturesSwapTv.text = numActiveGestures.toString()
         saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
-
-
         //ограничиваем диапазон старт/стопа ргуппы ротации
-//        System.err.println("test gestures in loop  ASF startGestureInLoopNum=$startGestureInLoopNum  activeGestures - 1 =${(numActiveGestures - 1)}")
         if (startGestureInLoopNum >= numActiveGestures) {
           startGestureInLoopNum = (numActiveGestures - 1)
           saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
         }
-
-//        System.err.println("test gestures in loop  ASF endGestureInLoopNum=$endGestureInLoopNum  activeGestures - 1 =${(numActiveGestures - 1)}")
         if (endGestureInLoopNum >= numActiveGestures) {
           endGestureInLoopNum = (numActiveGestures - 1)
           saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
         }
-
-
         //если активный жест больше 8 то он устанавливается на 8
         val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
         if (activeGesture >= numActiveGestures) {
@@ -985,6 +976,91 @@ class AdvancedSettingsFragment : Fragment() {
       sendActiveGestures(numActiveGestures)
       sendGestureRotation()
     }
+    binding.gesturePsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
+      var numActiveGestures: Int
+      when (newIndex) {
+        0 -> {
+          numActiveGestures = 7
+          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
+          //ограничиваем диапазон старт/стопа ргуппы ротации
+          if (startGestureInLoopNum >= numActiveGestures) {
+            startGestureInLoopNum = (numActiveGestures - 1)
+            saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+          }
+          if (endGestureInLoopNum >= numActiveGestures) {
+            endGestureInLoopNum = (numActiveGestures - 1)
+            saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
+          }
+          //если активный жест больше 7 то он устанавливается на 7
+          val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
+          if (activeGesture >= numActiveGestures) {
+            saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
+            RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
+            //отправлять используемый жест
+            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, 50)
+          } else {
+            RxUpdateMainEvent.getInstance().updateUIGestures(100)
+          }
+        }
+        1 -> {
+          numActiveGestures = 13
+          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
+          //ограничиваем диапазон старт/стопа ргуппы ротации
+          if (startGestureInLoopNum >= numActiveGestures) {
+            startGestureInLoopNum = (numActiveGestures - 1)
+            saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+          }
+          if (endGestureInLoopNum >= numActiveGestures) {
+            endGestureInLoopNum = (numActiveGestures - 1)
+            saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
+          }
+          //если активный жест больше 13 то он устанавливается на 13
+          val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
+          if (activeGesture >= numActiveGestures) {
+            saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
+            RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
+            //отправлять используемый жест
+            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, 50)
+          } else {
+            RxUpdateMainEvent.getInstance().updateUIGestures(100)
+          }
+        }
+        2 -> {
+          numActiveGestures = 23
+          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
+          //ограничиваем диапазон старт/стопа ргуппы ротации
+          if (startGestureInLoopNum >= numActiveGestures) {
+            startGestureInLoopNum = (numActiveGestures - 1)
+            saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+          }
+          if (endGestureInLoopNum >= numActiveGestures) {
+            endGestureInLoopNum = (numActiveGestures - 1)
+            saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
+          }
+          //если активный жест больше 23 то он устанавливается на 23
+          val activeGesture = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, 1)
+          if (activeGesture >= numActiveGestures) {
+            saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
+            RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
+            //отправлять используемый жест
+            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, 50)
+          } else {
+            RxUpdateMainEvent.getInstance().updateUIGestures(100)
+          }
+        }
+        3 -> {
+          numActiveGestures = 25
+          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, numActiveGestures)
+          RxUpdateMainEvent.getInstance().updateUIGestures(100)
+        }
+        else -> {numActiveGestures = 7}
+      }
+
+      RxUpdateMainEvent.getInstance().updateUIChart(true)
+      sendActiveGestures(numActiveGestures)
+      sendGestureRotation()
+    }
+
 
     binding.activeAppPinCodeSwapSw.setOnClickListener {
       if (binding.activeAppPinCodeSwapSw.isChecked) {
@@ -1014,7 +1090,6 @@ class AdvancedSettingsFragment : Fragment() {
         }
       }
     }
-
 
     binding.debugScreenBtn.setOnClickListener {
       val intent = Intent(context, GripperTestScreenWithEncodersActivity::class.java)//context

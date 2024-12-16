@@ -1611,40 +1611,43 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
   }
   private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
-    if (mBluetoothLeService != null) {
-      for (i in mGattCharacteristics.indices) {
-        for (j in mGattCharacteristics[i].indices) {
-          System.err.println("mGattCharacteristics i = $i  j = $j   ${mGattCharacteristics[i][j].uuid}")
-          if (mGattCharacteristics[i][j].uuid.toString() == Command) {
-            mCharacteristic = mGattCharacteristics[i][j]
-            if (typeCommand == WRITE){
-              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-                mCharacteristic?.value = byteArray
-                mBluetoothLeService?.writeCharacteristic(mCharacteristic)
-                System.err.println("bleCommand Write Characteristic")
+    try {
+      if (mBluetoothLeService != null) {
+        for (i in mGattCharacteristics.indices) {
+          for (j in mGattCharacteristics[i].indices) {
+            System.err.println("mGattCharacteristics i = $i  j = $j   ${mGattCharacteristics[i][j].uuid}")
+            if (mGattCharacteristics[i][j].uuid.toString() == Command) {
+              mCharacteristic = mGattCharacteristics[i][j]
+              if (typeCommand == WRITE){
+                if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+                  mCharacteristic?.value = byteArray
+                  mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+                  System.err.println("bleCommand Write Characteristic")
+                }
               }
-            }
 
-            if (typeCommand == READ){
-              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
-                mBluetoothLeService?.readCharacteristic(mCharacteristic)
-                System.err.println("------->   bleCommand Read Characteristic:  $Command")
+              if (typeCommand == READ){
+                if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
+                  mBluetoothLeService?.readCharacteristic(mCharacteristic)
+                  System.err.println("------->   bleCommand Read Characteristic:  $Command")
+                }
               }
-            }
 
-            if (typeCommand == NOTIFY){
-              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
-                mNotifyCharacteristic = mCharacteristic
-                mBluetoothLeService!!.setCharacteristicNotification(
-                        mCharacteristic, true)
-                System.err.println("bleCommand Notify Characteristic")
+              if (typeCommand == NOTIFY){
+                if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
+                  mNotifyCharacteristic = mCharacteristic
+                  mBluetoothLeService!!.setCharacteristicNotification(
+                    mCharacteristic, true)
+                  System.err.println("bleCommand Notify Characteristic")
+                }
               }
             }
           }
         }
       }
+    } catch (e: Exception){
+      showToast("ошибка при отправке команды $typeCommand")
     }
-
   }
   private fun reconnectThread() {
     System.err.println("DeviceControlActivity-------> $mDeviceAddress reconnectThread started")

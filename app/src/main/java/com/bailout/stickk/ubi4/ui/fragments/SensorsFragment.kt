@@ -135,10 +135,9 @@ class SensorsFragment : Fragment() {
     )
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
-        transmitter().bleCommand(BLECommands.requestSlider(8, 1), MAIN_CHANNEL, WRITE)
-//        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+//        transmitter().bleCommand(BLECommands.requestSlider(8, 1), MAIN_CHANNEL, WRITE)
         Log.d("ButtonClick", "oneButtonPressed  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
-//        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
     }
     private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         Log.d("ButtonClick", "oneButtonReleased  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")

@@ -20,7 +20,7 @@ object PreferenceKeys {
   val NEWBE = Pair("NEWBE", true)
   const val DEVICE_NAME = "DEVICE_NAME"
   const val DEVICE_ADDR = "DEVICE_ADDR"
-  const val NUM_GESTURES = 14 //максимальное количество жестов для формирования массивов данных
+  const val NUM_GESTURES = 25 //максимальное количество жестов для формирования массивов данных
   const val NUM_ACTIVE_GESTURES = 8 //максимальное количество жестов для отрисовки в UI (ограничение для России 8)
   const val APP_PREFERENCES = "APP_PREFERENCES"
   const val DEVICE_ADDRESS_CONNECTED = "DEVICE_ADDRESS_CONNECTED"

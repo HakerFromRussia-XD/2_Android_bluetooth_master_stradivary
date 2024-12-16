@@ -58,6 +58,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
     private lateinit var trainingModelHandler: TrainingModelHandler
+    private var activeFragment: Fragment? = null
+
 
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
@@ -89,7 +91,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         startQueue()
 
 //        showSensorsScreen()
-        showOpticTrainingGesturesScreen()
+        if (savedInstanceState == null) {
+            showOpticTrainingGesturesScreen()
+        }
 
 //        binding.addCommandBtn.setOnClickListener {
 //            val byteArray = ByteArray(249){0x55.toByte()}
@@ -166,10 +170,20 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
+//    private fun launchFragmentWithoutStack(fragment: Fragment) {
+//        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+//        transaction.replace(R.id.fragmentContainer, fragment)
+//        if (!supportFragmentManager.isDestroyed) transaction.commit()
+//    }
+
     private fun launchFragmentWithoutStack(fragment: Fragment) {
-        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragmentContainer, fragment)
-        if (!supportFragmentManager.isDestroyed) transaction.commit()
+        // Проверяем, отличается ли класс нового фрагмента от текущего активного
+        if (activeFragment?.javaClass != fragment.javaClass) {
+            activeFragment = fragment
+            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragmentContainer, fragment)
+            if (!supportFragmentManager.isDestroyed) transaction.commit()
+        }
     }
 
     private fun initAllVariables() {

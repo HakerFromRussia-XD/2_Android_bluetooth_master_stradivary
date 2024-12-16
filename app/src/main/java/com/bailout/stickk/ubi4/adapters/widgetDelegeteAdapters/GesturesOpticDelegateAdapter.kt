@@ -163,7 +163,6 @@ class GesturesOpticDelegateAdapter(
         }
 
         for (i in 1..8) {
-
                 val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
                     .get(this) as? TextView
                 val gestureCustomBtn = this::class.java.getDeclaredField("gestureCustom${i}Btn")
@@ -233,7 +232,7 @@ class GesturesOpticDelegateAdapter(
             withContext(Dispatchers.Main) {
                 MainActivityUBI4.bindingGroupFlow.collect {
                     //TODO реализовать обновление UI, сделай новый список: на вход будет список Pair<Int,Int>,а
-                    //а на выходе получить список listBindingGesture
+                    //  на выходе получить список listBindingGesture
                 }
             }
         }

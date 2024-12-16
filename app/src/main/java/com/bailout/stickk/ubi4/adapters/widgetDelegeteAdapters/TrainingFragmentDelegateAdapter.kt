@@ -19,7 +19,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-//TODO прописать ENUM вместо state
 class TrainingFragmentDelegateAdapter(
     var onConfirmClick: () -> Unit,
     var onShowFileClick: () -> Unit,

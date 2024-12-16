@@ -1,14 +1,13 @@
 package com.bailout.stickk.ubi4.ui.bottom
 
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
-import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class BottomNavigationController(bottomNavigation: BottomNavigationView) {
+class BottomNavigationController(private val bottomNavigation: BottomNavigationView) {
 
     private var isNavigationEnabled  = true
+
     init {
         setupOnClickPages(bottomNavigation)
     }
@@ -17,6 +16,7 @@ class BottomNavigationController(bottomNavigation: BottomNavigationView) {
         bottomNavigation.selectedItemId = R.id.page_2
 
         bottomNavigation.setOnItemSelectedListener { item ->
+
             if (!isNavigationEnabled) return@setOnItemSelectedListener false
 
             when (item.itemId) {

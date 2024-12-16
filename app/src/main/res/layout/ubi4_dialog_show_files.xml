@@ -61,41 +61,6 @@
 
             </androidx.recyclerview.widget.RecyclerView>
 
-            <TextView
-                android:id="@+id/tv_andex_alert_dialog_save_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/sf_pro_text_bold"
-                android:text="@string/save_gripper_settings"
-                android:textColor="@color/ubi4_yes_system_blue"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@+id/dialogAddGesturesToGroupSaveBtn"
-                app:layout_constraintEnd_toEndOf="@+id/dialogAddGesturesToGroupSaveBtn"
-                app:layout_constraintStart_toStartOf="@+id/dialogAddGesturesToGroupSaveBtn"
-                app:layout_constraintTop_toTopOf="@+id/dialogAddGesturesToGroupSaveBtn" />
-
-            <View
-                android:id="@+id/view3"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:background="@color/ubi4_gray_border"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dialogFileRv" />
-
-            <View
-                android:id="@+id/dialogAddGesturesToGroupSaveBtn"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/view3"
-                tools:ignore="SpeakableTextPresentCheck" />
 
             <View
                 android:id="@+id/view11"
@@ -104,7 +69,7 @@
                 android:background="@color/ubi4_gray_border"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dialogAddGesturesToGroupSaveBtn" />
+                app:layout_constraintTop_toBottomOf="@+id/dialogFileRv" />
 
             <TextView
                 android:id="@+id/tv_andex_alert_dialog_cancel_text"

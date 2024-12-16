@@ -63,11 +63,13 @@ class SprTrainingFragment : Fragment() {
     private var mDataFactory: DataFactory = DataFactory()
     private var onDestroyParent: (() -> Unit)? = null
     private var currentDialog: Dialog? = null
+    private var loadingCurrentDialog: Dialog? = null
+
 
     private val progressFlow = MutableStateFlow(0)
+
     //private val loadedFiles = mutableSetOf<String>()
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
-
 
 
     override fun onCreateView(
@@ -142,7 +144,7 @@ class SprTrainingFragment : Fragment() {
     private var adapterWidgets: CompositeDelegateAdapter = CompositeDelegateAdapter(
         PlotDelegateAdapter(
             plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
 
         ),
         OneButtonDelegateAdapter(
@@ -160,7 +162,7 @@ class SprTrainingFragment : Fragment() {
                     command
                 )
             },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
 
         ),
 
@@ -202,11 +204,16 @@ class SprTrainingFragment : Fragment() {
     private fun closeCurrentDialog() {
         currentDialog?.dismiss()
         currentDialog = null
+        loadingCurrentDialog?.dismiss()
+        loadingCurrentDialog = null
     }
 
 
     @SuppressLint("MissingInflatedId")
     fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
+        if (currentDialog != null && currentDialog?.isShowing == true) {
+            return
+        }
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_training, null)
         val myDialog = Dialog(requireContext())
         myDialog.setContentView(dialogBinding)
@@ -230,13 +237,16 @@ class SprTrainingFragment : Fragment() {
     }
 
     private fun showConfirmLoadingDialog(onConfirm: () -> Unit) {
+        if (loadingCurrentDialog != null && loadingCurrentDialog?.isShowing == true) {
+            return
+        }
         closeCurrentDialog()
         val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_confirm_loading, null)
         val myDialog = Dialog(requireContext())
         myDialog.setContentView(dialogFileBinding)
         myDialog.setCancelable(false)
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        currentDialog = myDialog
+        loadingCurrentDialog = myDialog
         myDialog.show()
 
         val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4DialogConfirmLoadingBtn)
@@ -267,94 +277,101 @@ class SprTrainingFragment : Fragment() {
     }
 
     private fun showFilesDialog() {
-                val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_show_files, null)
-                val myDialog = Dialog(requireContext())
-                myDialog.setContentView(dialogFileBinding)
-                myDialog.setCancelable(false)
-                myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                currentDialog = myDialog
-                myDialog.show()
+        if (currentDialog != null && currentDialog?.isShowing == true) {
+            return
+        }
+        val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_show_files, null)
+        val myDialog = Dialog(requireContext())
+        myDialog.setContentView(dialogFileBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        currentDialog = myDialog
+        myDialog.show()
 
-                val filesRecyclerView = dialogFileBinding.findViewById<RecyclerView>(R.id.dialogFileRv)
-                val path = requireContext().getExternalFilesDir(null)
-                val files = path?.listFiles()?.filter { it.name.contains("checkpoint") } ?: emptyList()
+        val filesRecyclerView = dialogFileBinding.findViewById<RecyclerView>(R.id.dialogFileRv)
+        val path = requireContext().getExternalFilesDir(null)
+        val files = path?.listFiles()?.filter { it.name.contains("checkpoint") } ?: emptyList()
 
-                if (files.isEmpty()) {
-                    Toast.makeText(requireContext(), getString(R.string.no_saved_files), Toast.LENGTH_SHORT)
+        if (files.isEmpty()) {
+            Toast.makeText(requireContext(), getString(R.string.no_saved_files), Toast.LENGTH_SHORT)
+                .show()
+            myDialog.dismiss()
+            return
+        }
+
+        val fileItems = files.map { FileItem(it.name, it) }.toMutableList()
+
+        filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        val adapter = FileCheckpointAdapter(fileItems, object :
+            FileCheckpointAdapter.OnFileActionListener {
+            override fun onDelete(position: Int, fileItem: FileItem) {
+                if (fileItem.file.delete()) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Файл ${fileItem.name} удалён",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    fileItems.remove(fileItem)
+                    filesRecyclerView.adapter?.notifyDataSetChanged()
+                    if (fileItems.isEmpty()) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Нет сохранённых файлов",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        myDialog.dismiss()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Ошибка удаления файла", Toast.LENGTH_SHORT)
                         .show()
-                    myDialog.dismiss()
+                }
+            }
+
+            override fun onSelect(position: Int, fileItem: FileItem, onComplete: () -> Unit) {
+                if (!bleController.getStatusConnected()) {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.there_is_no_bluetooth_connection_check_the_connection),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return
                 }
-
-                val fileItems = files.map { FileItem(it.name, it) }.toMutableList()
-
-                filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-                val adapter = FileCheckpointAdapter(fileItems, object :
-                    FileCheckpointAdapter.OnFileActionListener {
-                    override fun onDelete(position: Int, fileItem: FileItem) {
-                        if (fileItem.file.delete()) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Файл ${fileItem.name} удалён",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            fileItems.remove(fileItem)
-                            filesRecyclerView.adapter?.notifyDataSetChanged()
-                            if (fileItems.isEmpty()) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Нет сохранённых файлов",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                myDialog.dismiss()
-                            }
-                        } else {
-                            Toast.makeText(requireContext(), "Ошибка удаления файла", Toast.LENGTH_SHORT)
-                                .show()
-                        }
+                showConfirmLoadingDialog {
+                    if (bleController.isCurrentlyUploading()) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Загрузка уже выполняется",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@showConfirmLoadingDialog
                     }
+                    Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
+                    val progressBarDialog = showProgressBarDialog()
+                    val progressBar =
+                        progressBarDialog.findViewById<ProgressBar>(R.id.loadingProgressBar)
 
-                    override fun onSelect(position: Int, fileItem: FileItem, onComplete: () -> Unit) {
-                        if (!bleController.getStatusConnected()) {
-                            Toast.makeText(
-                                requireContext(),
-                                getString(R.string.there_is_no_bluetooth_connection_check_the_connection),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return
-                        }
-                        showConfirmLoadingDialog {
-                            if (bleController.isCurrentlyUploading()) {
-                                Toast.makeText(requireContext(), "Загрузка уже выполняется", Toast.LENGTH_SHORT).show()
-                                return@showConfirmLoadingDialog
-                            }
-                            Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
-                            val progressBarDialog = showProgressBarDialog()
-                            val progressBar =
-                                progressBarDialog.findViewById<ProgressBar>(R.id.loadingProgressBar)
+                    lifecycleScope.launch {
+                        progressFlow.collect { progress ->
+                            withContext(Main) {
+                                progressBar.progress = progress
+                                Log.d("ProgressValue", "$progress")
+                                if (progress == 100) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Файл отправлен: ${fileItem.name}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    closeCurrentDialog()
+                                    progressFlow.value = 0
 
-                            lifecycleScope.launch {
-                                progressFlow.collect { progress ->
-                                    withContext(Main) {
-                                        progressBar.progress = progress
-                                        Log.d("ProgressValue", "$progress")
-                                        if (progress == 100) {
-                                            Toast.makeText(
-                                                requireContext(),
-                                                "Файл отправлен: ${fileItem.name}",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                            closeCurrentDialog()
-                                            progressFlow.value = 0
-
-                                        }
-                                    }
                                 }
                             }
-
-                            sendFileInChunks(fileItem.file.readBytes())
                         }
                     }
+
+                    sendFileInChunks(fileItem.file.readBytes())
+                }
+            }
 
 
         })
@@ -433,7 +450,10 @@ class SprTrainingFragment : Fragment() {
                 val modifiedChunkArray = ByteArray(chunk.size + 1)
                 modifiedChunkArray[0] = index.toByte()
                 System.arraycopy(chunk.toByteArray(), 0, modifiedChunkArray, 1, chunk.size)
-                Log.d("ChunkProcessing", "Indexed chunk array (index + data): ${modifiedChunkArray.joinToString(", ") { it.toString() }}")
+                Log.d(
+                    "ChunkProcessing",
+                    "Indexed chunk array (index + data): ${modifiedChunkArray.joinToString(", ") { it.toString() }}"
+                )
                 // Отправка данных
                 main?.bleCommandWithQueue(
                     BLECommands.checkpointDataTransfer(modifiedChunkArray),

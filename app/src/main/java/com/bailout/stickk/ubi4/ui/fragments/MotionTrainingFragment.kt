@@ -36,6 +36,7 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+import java.util.Locale
 import kotlin.math.roundToInt
 
 class MotionTrainingFragment(
@@ -99,6 +100,9 @@ class MotionTrainingFragment(
     private var gesturesId: GesturesId? = null
     private var baselineDuration: Double = 0.0
     private var generalTime: Long = 0L
+    private var currentDialog: Dialog? = null
+    private var counterTimer: Double = 0.0
+
 
     private var lineData: MutableList<GesturePhase> = mutableListOf()
     private var currentPhaseIndex: Int = 0
@@ -236,6 +240,9 @@ class MotionTrainingFragment(
 
     @SuppressLint("MissingInflatedId")
     private fun showConfirmCancelTrainingDialog(confirmClick: () -> Unit) {
+        if (currentDialog != null && currentDialog?.isShowing == true) {
+            return
+        }
         pauseTimers() // Приостановить таймеры и запись
 
         val dialogBinding =
@@ -576,20 +583,28 @@ class MotionTrainingFragment(
                     return
                 }
 
+
                 val currentPhase = lineData.getOrNull(currentPhaseIndex) ?: run {
                     return
                 }
-                val gestureId = currentPhase.gestureId
-                val line = data.dropLast(2)
 
+                val gestureId = currentPhase.gestureId
+                var line = data.dropLast(2)
+
+                // Заменяем все вхождения "0,00" на "0.00"
+                line = line.replace("-0,0", "0.0")
+                    .replace("0,0", "0.0")
+
+                counterTimer += currentPhase.timeGesture
                 val logLine = "$line $prot ${currentPhase.gestureName} $gestureId ${
-                    ((currentPhase.timeGesture / 10).roundToInt() / 100.0)
+                    ((counterTimer/ 10).roundToInt() / 100.0)
                 }"
+                val finalLogLine = logLine.replace(',', '.')
 
                 Log.d("WriteFileDebugCheck", "LOGLINE: $logLine")
 
                 // Запись через BufferedWriter
-                writer.write(logLine)
+                writer.write(finalLogLine)
                 writer.newLine()
                 writer.flush()
                 Log.i("FileInfoWriteFile", "File contains: $prot lines")
@@ -604,6 +619,8 @@ class MotionTrainingFragment(
             }
         }
     }
+
+
 
     override fun onPause() {
         super.onPause()
@@ -637,7 +654,15 @@ class MotionTrainingFragment(
         val lineData = mutableListOf<GesturePhase>()
         nCycles = config.nCycles ?: 0
         gestureSequence = config.gestureSequence
+
+        if (gestureSequence.isNotEmpty()) {
+            (gestureSequence as MutableList<String>).removeAt(0)
+            Log.d("GestureDebug", "Первый элемент удален. Новая gestureSequence: $gestureSequence")
+        } else {
+            Log.w("GestureDebug", "gestureSequence пустой, ничего не удалено.")
+        }
         Log.d("GestureDebug", "gestureSequence $gestureSequence")
+
         gestureNumber = (gestureSequence as ArrayList<*>).size - 1
         preGestDuration = config.preGestDuration?.toDouble() ?: 0.0
         atGestDuration = config.atGestDuration?.toDouble() ?: 0.0

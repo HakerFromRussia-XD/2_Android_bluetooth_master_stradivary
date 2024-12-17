@@ -15,6 +15,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.nfc.NfcAdapter
 import android.os.*
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
@@ -2750,56 +2751,112 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   private fun saveBigGestureState() {
-    for (i in 0 until 13) {
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2), // проверить тут + 1
-        gestureTableBig[i][0][0]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 2),
-        gestureTableBig[i][0][1]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 2),
-        gestureTableBig[i][0][2]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 2),
-        gestureTableBig[i][0][3]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 2),
-        gestureTableBig[i][0][4]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 2),
-        gestureTableBig[i][0][5]
-      )
+    if (checkDriverVersionGreaterThan240()) {
+      Log.d("saveBigGestureState", "checkDriverVersionGreaterThan240")
+      for (i in 0 until 13) {
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 5), // проверить тут + 1
+          gestureTableBig[i][0][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 5),
+          gestureTableBig[i][0][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 5),
+          gestureTableBig[i][0][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 5),
+          gestureTableBig[i][0][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 5),
+          gestureTableBig[i][0][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 5),
+          gestureTableBig[i][0][5]
+        )
 
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 2),
-        gestureTableBig[i][1][0]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 2),
-        gestureTableBig[i][1][1]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 2),
-        gestureTableBig[i][1][2]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 2),
-        gestureTableBig[i][1][3]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 2),
-        gestureTableBig[i][1][4]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 2),
-        gestureTableBig[i][1][5]
-      )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 5),
+          gestureTableBig[i][1][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 5),
+          gestureTableBig[i][1][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 5),
+          gestureTableBig[i][1][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 5),
+          gestureTableBig[i][1][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 5),
+          gestureTableBig[i][1][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 5),
+          gestureTableBig[i][1][5]
+        )
+      }
+    } else {
+      Log.d("saveBigGestureState", "NOT checkDriverVersionGreaterThan240")
+      for (i in 0 until 13) {
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2), // проверить тут + 1
+          gestureTableBig[i][0][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 2),
+          gestureTableBig[i][0][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 2),
+          gestureTableBig[i][0][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 2),
+          gestureTableBig[i][0][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 2),
+          gestureTableBig[i][0][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 2),
+          gestureTableBig[i][0][5]
+        )
+
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 2),
+          gestureTableBig[i][1][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 2),
+          gestureTableBig[i][1][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 2),
+          gestureTableBig[i][1][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 2),
+          gestureTableBig[i][1][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 2),
+          gestureTableBig[i][1][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 2),
+          gestureTableBig[i][1][5]
+        )
+      }
     }
   }
   private fun saveGestureState() {
@@ -3007,6 +3064,14 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       mScanning = false
       mBluetoothAdapter!!.stopLeScan(mLeScanCallback)
       System.err.println("DeviceControlActivity-------> $mDeviceAddress  stopLeScan")
+    }
+  }
+  private fun checkDriverVersionGreaterThan240():Boolean {
+    return if (driverVersionS != null) {
+      val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
+      driverNum.toInt() >= 240
+    } else {
+      false
     }
   }
 

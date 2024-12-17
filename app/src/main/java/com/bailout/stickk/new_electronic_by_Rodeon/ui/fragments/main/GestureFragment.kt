@@ -488,6 +488,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gesture12Btn.isEnabled = enabled
         binding.gesture13Btn.isEnabled = enabled
         binding.gesture14Btn.isEnabled = enabled
+        binding.gesture15Btn.isEnabled = enabled
+        binding.gesture16Btn.isEnabled = enabled
+        binding.gesture17Btn.isEnabled = enabled
+        binding.gesture18Btn.isEnabled = enabled
+        binding.gesture19Btn.isEnabled = enabled
+        binding.gesture20Btn.isEnabled = enabled
+        binding.gesture21Btn.isEnabled = enabled
+        binding.gesture22Btn.isEnabled = enabled
+        binding.gesture23Btn.isEnabled = enabled
+        binding.gesture24Btn.isEnabled = enabled
+        binding.gesture25Btn.isEnabled = enabled
         binding.gestureSettings2Btn.isEnabled = enabled
         binding.gestureSettings3Btn.isEnabled = enabled
         binding.gestureSettings4Btn.isEnabled = enabled
@@ -501,6 +512,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings12Btn.isEnabled = enabled
         binding.gestureSettings13Btn.isEnabled = enabled
         binding.gestureSettings14Btn.isEnabled = enabled
+        binding.gestureSettings15Btn.isEnabled = enabled
+        binding.gestureSettings16Btn.isEnabled = enabled
+        binding.gestureSettings17Btn.isEnabled = enabled
+        binding.gestureSettings18Btn.isEnabled = enabled
+        binding.gestureSettings19Btn.isEnabled = enabled
+        binding.gestureSettings20Btn.isEnabled = enabled
+        binding.gestureSettings21Btn.isEnabled = enabled
+        binding.gestureSettings22Btn.isEnabled = enabled
+        binding.gestureSettings23Btn.isEnabled = enabled
+        binding.gestureSettings24Btn.isEnabled = enabled
+        binding.gestureSettings25Btn.isEnabled = enabled
         binding.gesturesResetBtn.isEnabled = enabled
     }
     private fun hideUIRotationGroup (enabled: Boolean) {
@@ -589,6 +611,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gesture12Btn.background = resources.getDrawable(custom_button_le)
         binding.gesture13Btn.background = resources.getDrawable(custom_button_le)
         binding.gesture14Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture15Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture16Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture17Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture18Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture19Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture20Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture21Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture22Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture23Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture24Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture25Btn.background = resources.getDrawable(custom_button_le)
         binding.gesture1Btn.setTextColor(WHITE)
         binding.gesture2Btn.setTextColor(WHITE)
         binding.gesture3Btn.setTextColor(WHITE)
@@ -603,6 +636,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gesture12Btn.setTextColor(WHITE)
         binding.gesture13Btn.setTextColor(WHITE)
         binding.gesture14Btn.setTextColor(WHITE)
+        binding.gesture15Btn.setTextColor(WHITE)
+        binding.gesture16Btn.setTextColor(WHITE)
+        binding.gesture17Btn.setTextColor(WHITE)
+        binding.gesture18Btn.setTextColor(WHITE)
+        binding.gesture19Btn.setTextColor(WHITE)
+        binding.gesture20Btn.setTextColor(WHITE)
+        binding.gesture21Btn.setTextColor(WHITE)
+        binding.gesture22Btn.setTextColor(WHITE)
+        binding.gesture23Btn.setTextColor(WHITE)
+        binding.gesture24Btn.setTextColor(WHITE)
+        binding.gesture25Btn.setTextColor(WHITE)
         binding.gestureSettings1Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureSettings2Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureSettings3Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
@@ -617,6 +661,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings12Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureSettings13Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureSettings14Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings15Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings16Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings17Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings18Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings19Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings20Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings21Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings22Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings23Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings24Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings25Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop1Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop2Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop3Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
@@ -631,6 +686,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureLoop12Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop13Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop14Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop15Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop16Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop17Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop18Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop19Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop20Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop21Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop22Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop23Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop24Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop25Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
     }
     private fun setNameGesturesAndRotationGroup(activeGestures: Int) {
         for (i in 1..NUM_GESTURES) {
@@ -903,51 +969,51 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             if (checkDriverVersionGreaterThan240()) {
                 when (v?.id) {
                     R.id.gesture_settings_5_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 1)
-                    }
-
-                    R.id.gesture_settings_6_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
-                    }
-
-                    R.id.gesture_settings_7_btn -> {
-                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 3)
-                    }
-
-                    R.id.gesture_settings_8_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
                     }
 
-                    R.id.gesture_settings_9_btn -> {
+                    R.id.gesture_settings_6_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
                     }
 
-                    R.id.gesture_settings_10_btn -> {
+                    R.id.gesture_settings_7_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
                     }
 
-                    R.id.gesture_settings_11_btn -> {
+                    R.id.gesture_settings_8_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
                     }
 
-                    R.id.gesture_settings_12_btn -> {
+                    R.id.gesture_settings_9_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
                     }
 
-                    R.id.gesture_settings_13_btn -> {
+                    R.id.gesture_settings_10_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 9)
                     }
 
-                    R.id.gesture_settings_14_btn -> {
+                    R.id.gesture_settings_11_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 10)
                     }
 
-                    R.id.gesture_settings_15_btn -> {
+                    R.id.gesture_settings_12_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 11)
                     }
 
-                    R.id.gesture_settings_16_btn -> {
+                    R.id.gesture_settings_13_btn -> {
                         main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 12)
+                    }
+
+                    R.id.gesture_settings_14_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 13)
+                    }
+
+                    R.id.gesture_settings_15_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 14)
+                    }
+
+                    R.id.gesture_settings_16_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 15)
                     }
 
                     R.id.gesture_settings_17_btn -> {

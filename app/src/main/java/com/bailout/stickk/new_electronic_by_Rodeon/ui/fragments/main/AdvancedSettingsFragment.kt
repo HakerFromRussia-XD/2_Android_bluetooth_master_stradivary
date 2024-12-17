@@ -278,12 +278,33 @@ class AdvancedSettingsFragment : Fragment() {
       binding.smartConnectionSwapSw.isChecked = false
       binding.smartConnectionSwapTv.text = resources.getString(R.string.off_sw)
     }
-    if (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8) == 14) {
-      binding.activeGesturesSwapSw.isChecked = true
-      binding.activeGesturesSwapTv.text = "14"
-    } else {
-      binding.activeGesturesSwapSw.isChecked = false
-      binding.activeGesturesSwapTv.text = "8"
+    when (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)) {
+      7 -> { binding.gesturePsv.selectItemByIndex(0) }
+      8 -> {
+        if (checkDriverVersionGreaterThan240()) {
+          binding.activeGesturesSwapTv.text = "7"
+          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 7)
+          binding.gesturePsv.selectItemByIndex(0)
+        } else {
+          binding.gesturePsv.visibility = View.GONE
+          binding.activeGesturesSwapSw.isChecked = false
+          binding.activeGesturesSwapTv.text = "8"
+        }
+      }
+      13 -> { binding.gesturePsv.selectItemByIndex(1) }
+      14 -> {
+        if (checkDriverVersionGreaterThan240()) {
+          binding.activeGesturesSwapTv.text = "13"
+          saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 13)
+          binding.gesturePsv.selectItemByIndex(1)
+        } else {
+          binding.gesturePsv.visibility = View.GONE
+          binding.activeGesturesSwapSw.isChecked = true
+          binding.activeGesturesSwapTv.text = "14"
+        }
+      }
+      23 -> { binding.gesturePsv.selectItemByIndex(2) }
+      25 -> { binding.gesturePsv.selectItemByIndex(3) }
     }
 
     if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
@@ -977,7 +998,7 @@ class AdvancedSettingsFragment : Fragment() {
       sendGestureRotation()
     }
     binding.gesturePsv.setOnSpinnerItemSelectedListener<String> { _, _, newIndex, _ ->
-      var numActiveGestures: Int
+      val numActiveGestures: Int
       when (newIndex) {
         0 -> {
           numActiveGestures = 7
@@ -1055,7 +1076,6 @@ class AdvancedSettingsFragment : Fragment() {
         }
         else -> {numActiveGestures = 7}
       }
-
       RxUpdateMainEvent.getInstance().updateUIChart(true)
       sendActiveGestures(numActiveGestures)
       sendGestureRotation()
@@ -1318,12 +1338,33 @@ class AdvancedSettingsFragment : Fragment() {
 
       startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
       endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
-      if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8) == 14) {
-        binding.activeGesturesSwapTv.text = "14"
-        binding.activeGesturesSwapSw.isChecked = true
-      } else {
-        binding.activeGesturesSwapTv.text = "8"
-        binding.activeGesturesSwapSw.isChecked = false
+      when (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)) {
+        7 -> { binding.gesturePsv.selectItemByIndex(0) }
+        8 -> {
+          if (checkDriverVersionGreaterThan240()) {
+            binding.activeGesturesSwapTv.text = "7"
+            saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 7)
+            binding.gesturePsv.selectItemByIndex(0)
+          } else {
+            binding.gesturePsv.visibility = View.GONE
+            binding.activeGesturesSwapSw.isChecked = false
+            binding.activeGesturesSwapTv.text = "8"
+          }
+        }
+        13 -> { binding.gesturePsv.selectItemByIndex(1) }
+        14 -> {
+          if (checkDriverVersionGreaterThan240()) {
+            binding.activeGesturesSwapTv.text = "13"
+            saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 13)
+            binding.gesturePsv.selectItemByIndex(1)
+          } else {
+            binding.gesturePsv.visibility = View.GONE
+            binding.activeGesturesSwapSw.isChecked = true
+            binding.activeGesturesSwapTv.text = "14"
+          }
+        }
+        23 -> { binding.gesturePsv.selectItemByIndex(2) }
+        25 -> { binding.gesturePsv.selectItemByIndex(3) }
       }
     }
     if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
@@ -1572,7 +1613,6 @@ class AdvancedSettingsFragment : Fragment() {
   }
   private fun checkDriverVersionGreaterThan237():Boolean {
     System.err.println("driverVersionS " + main?.driverVersionS)
-
     if (main?.driverVersionS != null) {
       val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
       if (driverNum.toInt() >= 237) {
@@ -1580,6 +1620,14 @@ class AdvancedSettingsFragment : Fragment() {
       }
     }
     return false
+  }
+  private fun checkDriverVersionGreaterThan240():Boolean {
+    return if (main?.driverVersionS != null) {
+      val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+      driverNum.toInt() >= 240
+    } else {
+      false
+    }
   }
 
   private fun checkINDYCanControlEMGModes():Boolean {

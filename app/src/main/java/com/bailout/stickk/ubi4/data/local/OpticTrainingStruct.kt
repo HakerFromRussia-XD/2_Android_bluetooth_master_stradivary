@@ -29,26 +29,39 @@ object OpticTrainingSerializer : KSerializer<OpticTrainingStruct> {
         var numberOfFrame = 0L
         var data = arrayListOf<Float>()
 
-
         Log.d("TestOptic","OpticTrainingStruct length = ${string.length}")
-        if (string.length >= 800) {
+
+
+        if (string.length >= 8) {
              numberOfFrame = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte()).toLong() +
                              castUnsignedCharToInt(string.substring(2, 4).toInt(16).toByte()).toLong()*256 +
                              castUnsignedCharToInt(string.substring(4, 6).toInt(16).toByte()).toLong()*256*256 +
                              castUnsignedCharToInt(string.substring(6, 8).toInt(16).toByte()).toLong()*256*256*256
 
 
-            val byteList  = mutableListOf<Byte>()
-            for (i in 0 until 396) {
-                val oneByteValue = string.substring(i * 2 + 8, i * 2 + 10).toInt(16).toByte()
-                byteList.add(oneByteValue)
+            val totalBytes = string.length / 2
+            val dataBytesCount = totalBytes - 4 //вычитаем первые 4 байта под numberOfFrame
+
+            //просто берем целочисленное деление
+            val floatCount = dataBytesCount / 4
+
+            if (floatCount > 0) {
+                val usedBytesCount = floatCount * 4  // реальное количество используемых байт
+                val byteList = mutableListOf<Byte>()
+
+                for (i in 0 until usedBytesCount) {
+                    val startIndex = 8 + i * 2
+                    val endIndex = startIndex + 2
+                    val oneByteValue = string.substring(startIndex, endIndex).toInt(16).toByte()
+                    byteList.add(oneByteValue)
+                }
+
+                val byteArrayData = byteList.toByteArray()
+                data = CastBytesToFloat.castBytesToFloatArray(byteArrayData)
+
+                Log.d("OpticTrainingSerializer", "data :$data")
+                Log.d("OpticTrainingSerializer", "numberOfFrame :$numberOfFrame")
             }
-            val byteArrayData = byteList.toByteArray()
-
-            data = CastBytesToFloat.castBytesToFloatArray(byteArrayData)
-            Log.d("OpticTrainingSerializer", "data :$data")
-            Log.d("OpticTrainingSerializer", "numberOfFrame :$numberOfFrame")
-
         }
 
         return OpticTrainingStruct(
@@ -56,9 +69,17 @@ object OpticTrainingSerializer : KSerializer<OpticTrainingStruct> {
             data = data
         )
     }
+
     override fun serialize(encoder: Encoder, value: OpticTrainingStruct) {
 
 
     }
 
 }
+
+
+ //        string.length/2 div 4 = 18 = x +1 - целое кол-во 4х байтных кусков в пришедшей посылке
+ //       (x +1) * 4 * 2 = string.length new - data.lenght new
+ //       нужно что бы string.lenght регулировал размер data(выходной массив)
+
+//(x - кол во полезных Float)

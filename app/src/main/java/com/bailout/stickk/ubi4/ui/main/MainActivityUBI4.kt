@@ -9,6 +9,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -32,6 +33,7 @@ import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
+import com.bailout.stickk.ubi4.models.GesturePhase
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.models.PlotParameterRef
@@ -48,6 +50,12 @@ import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.serialization.json.Json
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 
@@ -63,7 +71,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     // Очередь для задачь работы с BLE
     val queue = BlockingQueueUbi4()
-     private lateinit var bottomNavigationController: BottomNavigationController
+    private lateinit var bottomNavigationController: BottomNavigationController
 
 
     @SuppressLint("CommitTransaction")
@@ -103,10 +111,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            }
 //            Log.d("SendDataTest", "${EncodeByteToHex.bytesToHexString(BLECommands.checkpointDataTransfer(byteArray))}")
 //        }
-//        binding.runCommandBtn.setOnClickListener {
-//        }
+
+        binding.runCommandBtn.setOnClickListener {
+
+        }
 
     }
+
+
 
     @SuppressLint("MissingPermission")
     override fun onResume() {
@@ -287,7 +299,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         return mBLEController
     }
 
-    fun getBottomNavigationController() : BottomNavigationController{
+    fun getBottomNavigationController(): BottomNavigationController {
         return bottomNavigationController
     }
 

@@ -134,33 +134,59 @@ class MotionTrainingFragment(
         val opticStreamDisposable = rxUpdateMainEvent.uiOpticTrainingObservable
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
-            .subscribe { dataCode ->
-                if (isRecordingPaused) return@subscribe // Пропустить запись, если приостановлено
-
-                Log.d("FileInfoWriteFile", "Received dataCode: $dataCode")
+            .subscribe { parameterRef ->
                 try {
+                    val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+                    Log.d("TestOptic", "OpticTrainingStruct = ${parameter.data.length}")
                     val dataStringRaw = parameter.data
                     if (dataStringRaw.isBlank() || dataStringRaw == "None") {
                         Log.e("TestFileContain", "Data is empty or invalid")
                         return@subscribe
                     }
 
-
                     val opticTrainingStruct =
                         Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
                     val dataString = opticTrainingStruct.data.joinToString(separator = " ") {
                         String.format("%.1f", it)
                     }
-//                    Log.d("WriteFileDebugCheck", "OpticTrainingStruct = $dataString")
-//                    Log.d(
-//                        "WriteFileDebugCheck",
-//                        "Number Frame = ${opticTrainingStruct.numberOfFrame}"
-//                    )
+                    Log.d("TestFileContain", "OpticTrainingStruct = $dataString")
+                    Log.d("TestFileContain", "Number Frame = ${opticTrainingStruct.numberOfFrame}")
+
                     writeToFile(dataString)
                 } catch (e: Exception) {
                     Log.e("TestOptic", "Error decoding data: ${e.message}")
                 }
             }
+
+
+
+//            .subscribe { dataCode ->
+//                if (isRecordingPaused) return@subscribe // Пропустить запись, если приостановлено
+//
+//                Log.d("FileInfoWriteFile", "Received dataCode: $dataCode")
+//                try {
+//                    val dataStringRaw = parameter.data
+//                    if (dataStringRaw.isBlank() || dataStringRaw == "None") {
+//                        Log.e("TestFileContain", "Data is empty or invalid")
+//                        return@subscribe
+//                    }
+//
+//
+//                    val opticTrainingStruct =
+//                        Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
+//                    val dataString = opticTrainingStruct.data.joinToString(separator = " ") {
+//                        String.format("%.1f", it)
+//                    }
+////                    Log.d("WriteFileDebugCheck", "OpticTrainingStruct = $dataString")
+////                    Log.d(
+////                        "WriteFileDebugCheck",
+////                        "Number Frame = ${opticTrainingStruct.numberOfFrame}"
+////                    )
+//                    writeToFile(dataString)
+//                } catch (e: Exception) {
+//                    Log.e("TestOptic", "Error decoding data: ${e.message}")
+//                }
+
         disposables.add(opticStreamDisposable)
     }
 
@@ -590,7 +616,9 @@ class MotionTrainingFragment(
 
                 val gestureId = currentPhase.gestureId
                 var line = data.dropLast(2)
-
+                data.forEach {
+                    Log.d("TestOptic", "data: $it")
+                }
                 // Заменяем все вхождения "0,00" на "0.00"
                 line = line.replace("-0,0", "0.0")
                     .replace("0,0", "0.0")
@@ -618,6 +646,7 @@ class MotionTrainingFragment(
                 Log.i("WriteFileDebugCheck", "File writing failed: $e")
             }
         }
+
     }
 
 
@@ -655,13 +684,7 @@ class MotionTrainingFragment(
         nCycles = config.nCycles ?: 0
         gestureSequence = config.gestureSequence
 
-        if (gestureSequence.isNotEmpty()) {
-            (gestureSequence as MutableList<String>).removeAt(0)
-            Log.d("GestureDebug", "Первый элемент удален. Новая gestureSequence: $gestureSequence")
-        } else {
-            Log.w("GestureDebug", "gestureSequence пустой, ничего не удалено.")
-        }
-        Log.d("GestureDebug", "gestureSequence $gestureSequence")
+        if (gestureSequence.isNotEmpty()) (gestureSequence as MutableList<String>).removeAt(0)
 
         gestureNumber = (gestureSequence as ArrayList<*>).size - 1
         preGestDuration = config.preGestDuration?.toDouble() ?: 0.0

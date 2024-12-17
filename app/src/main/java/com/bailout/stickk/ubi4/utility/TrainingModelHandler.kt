@@ -195,39 +195,39 @@ class TrainingModelHandler(private val context: Context) {
                 Log.d("StateCallBack", " Run runModel2")
 
                 //////////////////////////// [LOAD DATA] /////////////////////////////
-                val importData = mutableListOf<List<String>>()
-                Log.d("SprTraining", "assetManager: $assetManager")
-                assetManager.open("2024-10-28_12-43-48.emg8").bufferedReader()
-                    .useLines { lines ->
-                        // drop header
-                        lines.drop(1).forEach { line ->
-                            val lineData = line.split(" ")
-                            // drop baseline rows
-                            if (lineData[INDEX_TARGET_ID].toInt() != -1) {
-                                importData.add(lineData)
-                            }
-                        }
-                    }
-                //val assetManager = requireContext().assets
 //                val importData = mutableListOf<List<String>>()
-//                val path = context.getExternalFilesDir(null)
-//                val serialFile = File(path, "serial_data")
-//                if (!serialFile.exists()) {
-//                    Log.e("StateCallBack", "File serial_data does not exist at: ${serialFile.absolutePath}")
-//                    return@launch
-//                }
-//
-//                serialFile.bufferedReader()
+                Log.d("SprTraining", "assetManager: $assetManager")
+//                assetManager.open("2024-10-28_12-43-48.emg8").bufferedReader()
 //                    .useLines { lines ->
 //                        // drop header
 //                        lines.drop(1).forEach { line ->
 //                            val lineData = line.split(" ")
 //                            // drop baseline rows
-//                            if (lineData[INDEX_TARGET_ID].toDouble().toInt() != -1) {
+//                            if (lineData[INDEX_TARGET_ID].toInt() != -1) {
 //                                importData.add(lineData)
 //                            }
 //                        }
 //                    }
+                //val assetManager = requireContext().assets
+                val importData = mutableListOf<List<String>>()
+                val path = context.getExternalFilesDir(null)
+                val serialFile = File(path, "serial_data")
+                if (!serialFile.exists()) {
+                    Log.e("StateCallBack", "File serial_data does not exist at: ${serialFile.absolutePath}")
+                    return@launch
+                }
+
+                serialFile.bufferedReader()
+                    .useLines { lines ->
+                        // drop header
+                        lines.drop(1).forEach { line ->
+                            val lineData = line.split(" ")
+                            // drop baseline rows
+                            if (lineData[INDEX_TARGET_ID].toDouble().toInt() != -1) {
+                                importData.add(lineData)
+                            }
+                        }
+                    }
                 Log.d("StateCallBack", "Start RunModel2 ${endTime - startTime} ms")
 
                 // Create mapping from INDEX_TARGET_STATE to renumeration by order of appearance

@@ -25,7 +25,7 @@ data class BindingGestureItem(
 
 // приём и передача данных в потоках ble
 data class ParameterRef(
-    val addressDevice: Int, val parameterID: Int
+    val addressDevice: Int, val parameterID: Int, val dataCode: Int
 )
 
 data class PlotParameterRef(

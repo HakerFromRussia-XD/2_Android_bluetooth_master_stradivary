@@ -24,6 +24,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.channels.FileChannel
 import java.text.SimpleDateFormat
@@ -260,11 +261,14 @@ class TrainingModelHandler(private val context: Context) {
                 // target shift heuristic
                 val sfreq = 25.0 // TODO: HARDCODED
                 val transition_win_samples = (sfreq * 0.5).toInt()
-                val omgStd = initFeatures.mapIndexed { index, row ->
+
+//                initFeatures
+//                val omgStd = FloatArray(initFeatures.size){0f}
+               val omgStd = initFeatures.mapIndexed { index, row ->
                     if (index == 0) {
                         0f // For the first row, we can't calculate the difference, so we use 0
                     } else {
-                        row.zip(initFeatures[index - 1]) { a, b -> Math.abs(a - b) }.sum()
+                        row.zip(initFeatures[index - 1]) { a, b -> Math.abs(a - b) }.sum()//a, b -> Math.abs(a - b)
                     }
                 }.toFloatArray()
                 val targetSubseq = regionProps1D(renumeratedImportData)
@@ -276,6 +280,9 @@ class TrainingModelHandler(private val context: Context) {
                     var maxArea = 0f
                     var argmaxShift = 0
                     for (shift in 0 until (hyperparameters.AUTO_SHIFT_RANGE * length).toInt()) {
+                        if (length > omgStd.size - onset - shift) {
+                            length = omgStd.size - onset - shift
+                        }
                         val area = omgStd.slice(onset + shift until onset + length + shift).let { slice ->
                             // analog of `np.trapz`
                             slice.zipWithNext { a, b -> (a + b) / 2 }.sum() * 1 // Assuming time step is 1
@@ -349,6 +356,19 @@ class TrainingModelHandler(private val context: Context) {
                     }
                 }
                 Log.d("StateCallBack", "Start RunModel7 ${endTime - startTime} ms")
+
+                val currentDateTime = getCurrentDateTime()
+
+                val binaryFileX_SCALE = File(path, "params_$currentDateTime.bin")
+                binaryFileX_SCALE.outputStream().use { output ->
+                    val byteBuffer = ByteBuffer.allocate(X_SCALE.size * 4) // 4 bytes for each float
+                    byteBuffer.order(ByteOrder.LITTLE_ENDIAN) // Ensure little-endian order
+                    for (scale in X_SCALE) {
+                        byteBuffer.putFloat(scale)
+                    }
+                    output.write(byteBuffer.array())
+                }
+
                 ///////////////////////// [\PREPROCESS DATA] /////////////////////////
 
 
@@ -365,7 +385,7 @@ class TrainingModelHandler(private val context: Context) {
                 val outputs_ckpt = HashMap<String, Any>()
                 tflite.runSignature(inputs_ckpt, outputs_ckpt, "restore")
                 train(preprocessedX, targetArray)
-                export(path)
+                export(path, currentDateTime)
                 run(preprocessedX)
                 Log.d("StateCallBack", "Start RunModel8 ${endTime - startTime} ms")
             } catch (e: Exception) {
@@ -489,17 +509,32 @@ class TrainingModelHandler(private val context: Context) {
         Log.d("StateCallBack", "Start RunModel10")
     }
 
+    private fun getNextCheckpointNumber(): Int {
+        val sharedPreferences = context.getSharedPreferences("training_model_prefs", Context.MODE_PRIVATE)
+        val currentNumber = sharedPreferences.getInt("checkpoint_number", 1)
+        sharedPreferences.edit().putInt("checkpoint_number", currentNumber + 1).apply()
+        return currentNumber
+    }
 
-    private fun export(path: File?) {
+    private fun getCurrentDateTime(): String {
+        val dateFormat = SimpleDateFormat("MM-dd_HH-mm-ss", Locale.getDefault())
+        return dateFormat.format(Date())
+    }
+
+
+
+    private fun export(path: File?, currentDateTime: String) {
         scope.launch {
             Log.d("StateCallBack", "Start RunModel11")
             //////////////////////////// [EXPORT MODEL] ////////////////////////////
             // Export the trained weights as a checkpoint file.
-            try {
-                val dateFormat = SimpleDateFormat("MM-dd_HH-mm-ss", Locale.getDefault())
-                val currentDateTime = dateFormat.format(Date())
 
-                val outputFile = File(path, "checkpoint_$currentDateTime")
+            val checkpointNumber = getNextCheckpointNumber()
+
+            val outputFile = File(path, "checkpoint_№${checkpointNumber}_$currentDateTime")
+
+            try {
+
                 val inputs = HashMap<String, Any>()
                 inputs.put("checkpoint_path", outputFile.absolutePath)
                 val outputs = HashMap<String, Any>()

@@ -290,7 +290,13 @@ class SprTrainingFragment : Fragment() {
 
         val filesRecyclerView = dialogFileBinding.findViewById<RecyclerView>(R.id.dialogFileRv)
         val path = requireContext().getExternalFilesDir(null)
-        val files = path?.listFiles()?.filter { it.name.contains("checkpoint") } ?: emptyList()
+
+        val regex = Regex("^checkpoint_№(\\d+)_\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}$")
+
+        val files = path?.listFiles()?.filter {
+            it.name.startsWith("checkpoint_№") &&
+                    regex.matches(it.name)
+        } ?: emptyList()
 
         if (files.isEmpty()) {
             Toast.makeText(requireContext(), getString(R.string.no_saved_files), Toast.LENGTH_SHORT)
@@ -299,7 +305,21 @@ class SprTrainingFragment : Fragment() {
             return
         }
 
-        val fileItems = files.map { FileItem(it.name, it) }.toMutableList()
+
+//        val fileItems = files.map { FileItem(it.name, it) }.toMutableList()
+
+        val fileItems = files.mapNotNull { file ->
+            val matchResult = regex.find(file.name)
+            matchResult?.let {
+                val number = it.groupValues[1].toIntOrNull()
+                if (number != null) {
+                    FileItem("checkpoint №$number", file, number)
+                } else {
+                    null
+                }
+            }
+        }.sortedBy { it.number }
+            .toMutableList()
 
         filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         val adapter = FileCheckpointAdapter(fileItems, object :

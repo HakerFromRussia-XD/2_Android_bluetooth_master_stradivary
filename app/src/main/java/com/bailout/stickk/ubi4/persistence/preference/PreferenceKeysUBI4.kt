@@ -269,6 +269,14 @@ object PreferenceKeysUBI4 {
         PDCE_DATE_AND_TIME (36),
         PDCE_INTERFECE_ERROR_COUNTER (37),
         PDCE_CALIBRATION_CURRENT_PERCENT(38),
+        PDCE_ENERGY_SAVE_MODE(39),
+
+        PDCE_LEFT_RIGHT_HAND_MODE(40),
+        PDCE_SWITCH_SENSORS(41),
+
+        PDCE_OPTIC_CHECKPOINT_DATA_RECEIVER(42),
+
+        PDCE_OPTIC_BINDING_DATA (43),
     }
 
     enum class GestureEnum (val number: Int) {

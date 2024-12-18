@@ -272,6 +272,7 @@ object PreferenceKeysUBI4 {
         PDCE_SWITCH_SENSORS(41),
 
         PDCE_OPTIC_CHECKPOINT_DATA_RECEIVER(42),
+        PDCE_OPTIC_BINDING_DATA (43),
     }
 
     enum class GestureEnum (val number: Int) {

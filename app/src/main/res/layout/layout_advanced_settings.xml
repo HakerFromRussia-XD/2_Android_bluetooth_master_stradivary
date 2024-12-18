@@ -1647,43 +1647,45 @@
                             android:textStyle="bold" />
                     </RelativeLayout>
 
-                <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2">
+                    <RelativeLayout
+                        android:id="@+id/gesturePsvRl"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:visibility="visible"
+                        android:layout_weight="2">
 
-                <com.skydoves.powerspinner.PowerSpinnerView
-                    android:id="@+id/gesture_psv"
-                    style="@style/Text"
-                    android:layout_width="match_parent"
-                    android:layout_height="42dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="3dp"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginEnd="0dp"
-                    android:layout_marginBottom="0dp"
-                    android:background="@drawable/custom_button_le"
-                    android:gravity="center"
-                    android:lines="1"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    app:spinner_arrow_show="true"
-                    app:spinner_item_array="@array/gesture_ranges"
-                    app:spinner_popup_animation="dropdown"
-                    app:spinner_popup_background="@drawable/custom_divider_spinner_back"
-                    app:spinner_popup_top_padding="1dp"
-                    app:spinner_popup_bottom_padding="2dp"
-                    app:spinner_popup_start_padding="22dp"
-                    app:spinner_popup_end_padding="22dp"
-                    app:spinner_popup_width="220dp"
-                    app:spinner_divider_show="true"
-                    app:spinner_divider_size="1dp"
-                    app:spinner_item_height="42dp"
-                    app:spinner_popup_height="176dp"/>
-            </RelativeLayout>
+                        <com.skydoves.powerspinner.PowerSpinnerView
+                            android:id="@+id/gesturePsv"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="3dp"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginEnd="0dp"
+                            android:layout_marginBottom="0dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center"
+                            android:lines="1"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            app:spinner_arrow_show="true"
+                            app:spinner_item_array="@array/gesture_ranges"
+                            app:spinner_popup_animation="dropdown"
+                            app:spinner_popup_background="@drawable/custom_divider_spinner_back"
+                            app:spinner_popup_top_padding="1dp"
+                            app:spinner_popup_bottom_padding="2dp"
+                            app:spinner_popup_start_padding="22dp"
+                            app:spinner_popup_end_padding="22dp"
+                            app:spinner_popup_width="220dp"
+                            app:spinner_divider_show="true"
+                            app:spinner_divider_size="1dp"
+                            app:spinner_item_height="42dp"
+                            app:spinner_popup_height="176dp"/>
+                    </RelativeLayout>
                     <RelativeLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
@@ -1705,7 +1707,7 @@
                     <RelativeLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1">
+                        android:layout_weight="1.5">
 
                         <Switch
                             android:id="@+id/active_gestures_swap_sw"

@@ -35,8 +35,8 @@
                           <map>
                             <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_long_arrow" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/../../Main/Dark/ic_long_arrow.svg" />
+                            <entry key="outputName" value="hand_palm_24" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/../../SVG/Монтажная область 1.svg" />
                           </map>
                         </option>
                       </PersistentState>

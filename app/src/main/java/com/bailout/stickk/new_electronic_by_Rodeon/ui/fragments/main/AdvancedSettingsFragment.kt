@@ -19,6 +19,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.gesture.GestureOverlayView
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -279,32 +280,41 @@ class AdvancedSettingsFragment : Fragment() {
       binding.smartConnectionSwapTv.text = resources.getString(R.string.off_sw)
     }
     when (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)) {
-      7 -> { binding.gesturePsv.selectItemByIndex(0) }
+      7 -> {
+        binding.gesturePsvRl.visibility = View.VISIBLE
+        binding.gesturePsv.selectItemByIndex(0) }
       8 -> {
         if (checkDriverVersionGreaterThan240()) {
+          binding.gesturePsvRl.visibility = View.VISIBLE
           binding.activeGesturesSwapTv.text = "7"
           saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 7)
           binding.gesturePsv.selectItemByIndex(0)
         } else {
-          binding.gesturePsv.visibility = View.GONE
+          binding.gesturePsvRl.visibility = View.GONE
           binding.activeGesturesSwapSw.isChecked = false
           binding.activeGesturesSwapTv.text = "8"
         }
       }
-      13 -> { binding.gesturePsv.selectItemByIndex(1) }
+      13 -> {
+        binding.gesturePsvRl.visibility = View.VISIBLE
+        binding.gesturePsv.selectItemByIndex(1) }
       14 -> {
         if (checkDriverVersionGreaterThan240()) {
+          binding.gesturePsvRl.visibility = View.VISIBLE
           binding.activeGesturesSwapTv.text = "13"
           saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 13)
           binding.gesturePsv.selectItemByIndex(1)
         } else {
-          binding.gesturePsv.visibility = View.GONE
+          binding.gesturePsvRl.visibility = View.GONE
           binding.activeGesturesSwapSw.isChecked = true
           binding.activeGesturesSwapTv.text = "14"
-        }
-      }
-      23 -> { binding.gesturePsv.selectItemByIndex(2) }
-      25 -> { binding.gesturePsv.selectItemByIndex(3) }
+        } }
+      23 -> {
+        binding.gesturePsvRl.visibility = View.VISIBLE
+        binding.gesturePsv.selectItemByIndex(2) }
+      25 -> {
+        binding.gesturePsvRl.visibility = View.VISIBLE
+        binding.gesturePsv.selectItemByIndex(3) }
     }
 
     if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
@@ -1245,6 +1255,7 @@ class AdvancedSettingsFragment : Fragment() {
     binding.calibrationStatusAdvBtn.isEnabled = enabled
     binding.debugScreenBtn.isEnabled = enabled
     binding.testConnectionBtn.isEnabled = enabled
+    binding.gesturePsv.isEnabled = enabled
     if (checkDriverVersionGreaterThan237() || checkINDYCanControlEMGModes()) {
       binding.EMGModeRl.visibility = View.VISIBLE
       when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_EMG_SENSORS,9)) {
@@ -1339,32 +1350,42 @@ class AdvancedSettingsFragment : Fragment() {
       startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
       endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
       when (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)) {
-        7 -> { binding.gesturePsv.selectItemByIndex(0) }
+        7 -> {
+          binding.gesturePsvRl.visibility = View.VISIBLE
+          binding.gesturePsv.selectItemByIndex(0) }
         8 -> {
           if (checkDriverVersionGreaterThan240()) {
+            binding.gesturePsvRl.visibility = View.VISIBLE
             binding.activeGesturesSwapTv.text = "7"
             saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 7)
             binding.gesturePsv.selectItemByIndex(0)
           } else {
-            binding.gesturePsv.visibility = View.GONE
+            binding.gesturePsvRl.visibility = View.GONE
             binding.activeGesturesSwapSw.isChecked = false
             binding.activeGesturesSwapTv.text = "8"
           }
         }
-        13 -> { binding.gesturePsv.selectItemByIndex(1) }
+        13 -> {
+          binding.gesturePsvRl.visibility = View.VISIBLE
+          binding.gesturePsv.selectItemByIndex(1) }
         14 -> {
           if (checkDriverVersionGreaterThan240()) {
+            binding.gesturePsvRl.visibility = View.VISIBLE
             binding.activeGesturesSwapTv.text = "13"
             saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 13)
             binding.gesturePsv.selectItemByIndex(1)
           } else {
-            binding.gesturePsv.visibility = View.GONE
+            binding.gesturePsvRl.visibility = View.GONE
             binding.activeGesturesSwapSw.isChecked = true
             binding.activeGesturesSwapTv.text = "14"
           }
         }
-        23 -> { binding.gesturePsv.selectItemByIndex(2) }
-        25 -> { binding.gesturePsv.selectItemByIndex(3) }
+        23 -> {
+          binding.gesturePsvRl.visibility = View.VISIBLE
+          binding.gesturePsv.selectItemByIndex(2) }
+        25 -> {
+          binding.gesturePsvRl.visibility = View.VISIBLE
+          binding.gesturePsv.selectItemByIndex(3) }
       }
     }
     if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {

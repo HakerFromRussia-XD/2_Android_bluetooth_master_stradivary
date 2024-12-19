@@ -46,12 +46,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.jvm.internal.impl.incremental.components.Position
 
@@ -318,8 +320,7 @@ class SprTrainingFragment : Fragment() {
                     null
                 }
             }
-        }.sortedBy { it.number }
-            .toMutableList()
+        }.toMutableList()
 
         filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         val adapter = FileCheckpointAdapter(fileItems, object :
@@ -356,6 +357,28 @@ class SprTrainingFragment : Fragment() {
                     ).show()
                     return
                 }
+
+                val dateTimeRegex = Regex("_(\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2})$")
+                val match = dateTimeRegex.find(fileItem.file.name)
+                val dateTimeStr = match?.groupValues?.get(1) ?: run {
+                    Toast.makeText(
+                        requireContext(),
+                        "Не удалось извлечь дату/время из имени файла",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return
+                }
+                val paramFileName = "params_$dateTimeStr.bin"
+                val paramFile = File(requireContext().getExternalFilesDir(null), paramFileName)
+                if (!paramFile.exists()) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Соответствующий params файл не найден",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return
+                }
+
                 showConfirmLoadingDialog {
                     if (bleController.isCurrentlyUploading()) {
                         Toast.makeText(
@@ -370,20 +393,54 @@ class SprTrainingFragment : Fragment() {
                     val progressBar =
                         progressBarDialog.findViewById<ProgressBar>(R.id.loadingProgressBar)
 
-                    lifecycleScope.launch {
+                    var sendingCheckpoint = true
+                    var sendingParams = false
+                    var isCompleted = false
+
+                    val job = lifecycleScope.launch {
                         progressFlow.collect { progress ->
                             withContext(Main) {
-                                progressBar.progress = progress
-                                Log.d("ProgressValue", "$progress")
-                                if (progress == 100) {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Файл отправлен: ${fileItem.name}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    closeCurrentDialog()
-                                    progressFlow.value = 0
+                                when {
+                                    sendingCheckpoint -> {
+                                        progressBar.progress = progress
+                                        Log.d(
+                                            "CheckpointSend",
+                                            "Прогресс отправки чекпоинта: $progress%"
+                                        )
 
+                                        if (progress == 100) {
+                                            closeCurrentDialog()
+                                            progressFlow.value = 0
+                                            sendingCheckpoint = false
+                                            sendingParams = true
+                                            progressFlow.value = 0
+                                            Log.d(
+                                                "ParamsSend",
+                                                "Начинаем отправку файла params: $paramFileName"
+                                            )
+                                            sendFileInChunks(paramFile.readBytes())
+
+
+                                        }
+                                    }
+
+                                    sendingParams -> {
+                                        Log.d("ParamsSend", "Прогресс отправки params: $progress%")
+                                        if (progress == 100 && !isCompleted) {
+                                            Log.d("ParamsSend", "Файл params отправлен успешно!")
+                                            Toast.makeText(
+                                                requireContext(),
+                                                "Файлы отправлены: ${fileItem.name} и $paramFileName",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            isCompleted = true
+                                            sendingParams = false
+                                            this@launch.cancel()
+
+
+                                        }
+
+                                    }
                                 }
                             }
                         }
@@ -392,7 +449,6 @@ class SprTrainingFragment : Fragment() {
                     sendFileInChunks(fileItem.file.readBytes())
                 }
             }
-
 
         })
         filesRecyclerView.adapter = adapter
@@ -456,7 +512,7 @@ class SprTrainingFragment : Fragment() {
 
 
     private fun sendFileInChunks(byteArray: ByteArray) {
-        val maxChunkSize = 248
+        val maxChunkSize = 248 //100
         val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
         val chunksSent = AtomicInteger(0)
         bleController.setUploadingState(true)
@@ -476,7 +532,7 @@ class SprTrainingFragment : Fragment() {
                 )
                 // Отправка данных
                 main?.bleCommandWithQueue(
-                    BLECommands.checkpointDataTransfer(modifiedChunkArray),
+                    BLECommands.checkpointDataTransfer2(modifiedChunkArray, 0x0A),
                     MAIN_CHANNEL,
                     WRITE
                 ) {

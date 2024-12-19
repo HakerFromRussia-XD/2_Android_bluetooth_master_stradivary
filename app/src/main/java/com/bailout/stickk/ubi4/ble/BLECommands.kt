@@ -15,6 +15,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceI
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_INFO
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFSET
+import java.nio.charset.Charset
 
 class BLECommands {
     companion object {
@@ -33,10 +34,11 @@ class BLECommands {
                 READ_SUB_DEVICE_INFO.number,
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
+
         fun requestSubDevicesOld(): ByteArray {
             val header = byteArrayOf(
                 0x00,
@@ -52,12 +54,16 @@ class BLECommands {
                 DTE_SYSTEM_DEVICES.number
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
 
-        fun requestSubDeviceParametrs(subDeviceAddress: Int, startIndex: Int, readNum: Int): ByteArray {
+        fun requestSubDeviceParametrs(
+            subDeviceAddress: Int,
+            startIndex: Int,
+            readNum: Int
+        ): ByteArray {
             val header = byteArrayOf(
                 0x20,
                 DEVICE_INFORMATION.number,
@@ -74,11 +80,15 @@ class BLECommands {
                 readNum.toByte(),
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
-        fun requestSubDeviceAdditionalParametrs(subDeviceAddress: Int, idParameter: Int): ByteArray {
+
+        fun requestSubDeviceAdditionalParametrs(
+            subDeviceAddress: Int,
+            idParameter: Int
+        ): ByteArray {
             val header = byteArrayOf(
                 0x20,
                 DEVICE_INFORMATION.number,
@@ -94,10 +104,11 @@ class BLECommands {
                 idParameter.toByte(),
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
+
         fun requestTransferFlow(startTransfer: Int): ByteArray {
             val result = byteArrayOf(
                 0x20,
@@ -107,11 +118,13 @@ class BLECommands {
                 0x00,
                 0x00,
                 0x00,
-                startTransfer.toByte()) // 1 - start     2 - stop
+                startTransfer.toByte()
+            ) // 1 - start     2 - stop
             result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
+
         fun requestInicializeInformation(): ByteArray {
             val header = byteArrayOf(
                 0x20,
@@ -124,12 +137,14 @@ class BLECommands {
             )
             val data = byteArrayOf(
                 INICIALIZE_INFORMATION.number,
-                0x02)
+                0x02
+            )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
+
         fun requestBaseParametrInfo(startParametrNum: Byte, countReadParameters: Byte): ByteArray {
             val result = byteArrayOf(
                 0x20,
@@ -141,11 +156,13 @@ class BLECommands {
                 0x00,
                 READ_DEVICE_PARAMETRS.number,
                 startParametrNum,
-                countReadParameters)
+                countReadParameters
+            )
             result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
+
         fun requestAdditionalParametrInfo(idParameter: Byte): ByteArray {
             val result = byteArrayOf(
                 0x20,
@@ -159,9 +176,10 @@ class BLECommands {
                 idParameter
             )
             result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
+
         fun requestRotationGroup(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -174,6 +192,7 @@ class BLECommands {
             )
             return header
         }
+
         fun requestGestureInfo(addressDevice: Int, parameterID: Int, gestureId: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -188,10 +207,11 @@ class BLECommands {
                 gestureId.toByte(),
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
+
         fun requestSlider(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -204,6 +224,7 @@ class BLECommands {
             )
             return header
         }
+
         fun requestSwitcher(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -216,6 +237,7 @@ class BLECommands {
             )
             return header
         }
+
         fun requestThresholds(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -229,8 +251,18 @@ class BLECommands {
             return header
         }
 
-        fun sendTimestampInfo(addressDevice: Int, parameterID: Int, year: Int, month: Int, day: Int, weekDay: Int,  hour: Int, minutes: Int, seconds: Int): ByteArray {
-            val code:Byte = (128 + parameterID).toByte()
+        fun sendTimestampInfo(
+            addressDevice: Int,
+            parameterID: Int,
+            year: Int,
+            month: Int,
+            day: Int,
+            weekDay: Int,
+            hour: Int,
+            minutes: Int,
+            seconds: Int
+        ): ByteArray {
+            val code: Byte = (128 + parameterID).toByte()
             val header = byteArrayOf(
                 0x40,
                 code,
@@ -242,7 +274,7 @@ class BLECommands {
             )
             val data = byteArrayOf(
                 year.toByte(),
-                (year/256).toByte(),
+                (year / 256).toByte(),
                 month.toByte(),
                 day.toByte(),
                 weekDay.toByte(),
@@ -251,12 +283,17 @@ class BLECommands {
                 seconds.toByte(),
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
-        fun sendRotationGroupInfo(addressDevice: Int, parameterID: Int, rotationGroup: RotationGroup): ByteArray {
-            val code:Byte = (128 + parameterID).toByte()
+
+        fun sendRotationGroupInfo(
+            addressDevice: Int,
+            parameterID: Int,
+            rotationGroup: RotationGroup
+        ): ByteArray {
+            val code: Byte = (128 + parameterID).toByte()
             val header = byteArrayOf(
                 0x40,
                 code,
@@ -285,12 +322,13 @@ class BLECommands {
                 rotationGroup.gesture8ImageId.toByte(),
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
+
         fun sendActiveGesture(addressDevice: Int, parameterID: Int, activeGesture: Int): ByteArray {
-            val code:Byte = (128 + parameterID).toByte()
+            val code: Byte = (128 + parameterID).toByte()
             val header = byteArrayOf(
                 0x40,
                 code,
@@ -304,12 +342,13 @@ class BLECommands {
                 activeGesture.toByte(),
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
+
         fun sendGestureInfo(gestureWithAddress: GestureWithAddress): ByteArray {
-            val code:Byte = (128 + gestureWithAddress.parameterID).toByte()
+            val code: Byte = (128 + gestureWithAddress.parameterID).toByte()
             val header = byteArrayOf(
                 0x60,
                 code,
@@ -348,12 +387,13 @@ class BLECommands {
                 gestureWithAddress.gestureState.toByte(),
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
+
         fun sendOneButtonCommand(addressDevice: Int, parameterID: Int, command: Int): ByteArray {
-            val code:Byte = (128 + parameterID).toByte()
+            val code: Byte = (128 + parameterID).toByte()
             val result = byteArrayOf(
                 0x60,
                 code,
@@ -365,11 +405,12 @@ class BLECommands {
                 command.toByte()
             )
             result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
-        fun sendSliderCommand(addressDevice: Int, parameterID: Int,  progress: Int): ByteArray {
-            val code:Byte = (128 + parameterID).toByte()
+
+        fun sendSliderCommand(addressDevice: Int, parameterID: Int, progress: Int): ByteArray {
+            val code: Byte = (128 + parameterID).toByte()
             val result = byteArrayOf(
                 0x60,
                 code,
@@ -381,10 +422,15 @@ class BLECommands {
                 progress.toByte()
             )
             result[3] = calculateDataSize(result).toByte()
-            result[4] = (calculateDataSize(result)/256).toByte()
+            result[4] = (calculateDataSize(result) / 256).toByte()
             return result
         }
-        fun sendSwitcherCommand(addressDevice: Int, parameterID: Int, switchState: Boolean): ByteArray {
+
+        fun sendSwitcherCommand(
+            addressDevice: Int,
+            parameterID: Int,
+            switchState: Boolean
+        ): ByteArray {
             val code: Byte = (128 + parameterID).toByte()
             val state: Byte = if (switchState) 1 else 0
             val result = byteArrayOf(
@@ -431,7 +477,7 @@ class BLECommands {
                 0x00,
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
@@ -447,12 +493,12 @@ class BLECommands {
                 0x00
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
 
-        fun checkpointDataTransfer2(data: ByteArray): ByteArray {
+        fun checkpointDataTransfer2(data: ByteArray, addressDevice: Int): ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
                 (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
@@ -460,13 +506,93 @@ class BLECommands {
                 0x00,
                 0x00,
                 0x00,
-                0x00
+                addressDevice.toByte()
             )
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
+
+        fun openCheckpointFileInSDCard(name: String, addressDevice: Int, indexPackage: Int): ByteArray {
+            val header = byteArrayOf(
+                0x40.toByte(),
+                (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            val data = byteArrayOf(
+                0x01,
+                name.length.toByte(),
+                0x00,
+                0x01,
+            ) + name.toByteArray(charset = Charsets.UTF_8)
+            data[2] = (indexPackage).toByte()
+            data[3] = (indexPackage / 256).toByte()
+            header[3] = data.size.toByte()
+            header[4] = (data.size / 256).toByte()
+            val result = header + data
+            return result
+        }
+
+
+        fun writeDataInCheckpointFileInSDCard(
+            modifiedChinkArray: ByteArray,
+            addressDevice: Int,
+            indexPackage: Int
+        ) : ByteArray {
+            val header = byteArrayOf(
+                0x40.toByte(),
+                (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            val data = byteArrayOf(
+                0x02,
+                0x64,
+                0x00,
+                0x02,
+            ) + modifiedChinkArray
+            data[2] = (indexPackage).toByte()
+            data[3] = (indexPackage / 256).toByte()
+            header[3] = data.size.toByte()
+            header[4] = (data.size / 256).toByte()
+            val result = header + data
+            return result
+        }
+
+
+        fun closeCheckpointFileInSDCard(addressDevice: Int, indexPackage: Int): ByteArray {
+            val header = byteArrayOf(
+                0x40.toByte(),
+                (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            val data = byteArrayOf(
+                0x03,
+                0x00,
+                0x02,
+                0x01,
+            )
+            data[2] = (indexPackage).toByte()
+            data[3] = (indexPackage / 256).toByte()
+            header[3] = data.size.toByte()
+            header[4] = (data.size / 256).toByte()
+            val result = header + data
+            return result
+        }
+
+
 
 
         private fun calculateDataSize(massage: ByteArray): Int {

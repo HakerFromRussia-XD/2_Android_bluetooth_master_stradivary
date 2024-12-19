@@ -11,7 +11,7 @@ data class PlotItem(val title: String, val widget: Any)
 data class SliderItem(val title: String, val widget: Any)
 data class SwitchItem(val title: String, val widget: Any)
 data class TrainingGestureItem(val title: String, val widget: Any)
-data class FileItem(val name: String, val file: File, val number: Int)
+data class FileItem(val name: String, val file: File, val number: Int, val timestamp: String = "")
 
 // dialogs
 data class DialogCollectionGestureItem(val gesture: Gesture, var check: Boolean = false)
@@ -22,6 +22,7 @@ data class BindingGestureItem(
     var nameOfUserGesture: String,
     val sprGestureItem: SprGestureItem
 )
+
 
 // приём и передача данных в потоках ble
 data class ParameterRef(

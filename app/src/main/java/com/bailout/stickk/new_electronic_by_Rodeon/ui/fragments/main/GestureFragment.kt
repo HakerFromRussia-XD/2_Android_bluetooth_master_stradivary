@@ -163,7 +163,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.dividerV.animate().translationY(0F).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
-//                binding.gesturesButtonsSv.layoutParams.height = distance - heightActiveRotationGroupPx
+                binding.gesturesButtonsSv.layoutParams.height = distance - heightActiveRotationGroupPx
             } else {
                 sensorGestureSwitching = 0x00
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
@@ -172,7 +172,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.dividerV.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
                 offAllRotationImage()
-//                binding.gesturesButtonsSv.layoutParams.height = distance
+                binding.gesturesButtonsSv.layoutParams.height = distance
             }
             if (useNewSystemSendCommand()) {
                 main?.runSendCommand(
@@ -1142,35 +1142,24 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     false
                 )
             ) {
-                Handler().postDelayed({
-                    // Получаем координаты
-                    binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
-                    binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
-
-                    // Вычисляем расстояние между верхними границами
-                    distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
-                    Log.d("Distance", "distance = $distance  loadAllVariables isChecked")
-                    binding.gesturesButtonsSv.layoutParams.height = distance// + heightActiveRotationGroupPx
-                }, 1000)
                 binding.onOffSensorGestureSwitchingSw.isChecked = true
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.on_sw)
                 binding.toggleGestureClasterRl.animate().alpha(1.0f).duration = 300
                 binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
                 binding.dividerV.animate().translationY(0F).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
-            } else {
-                Handler().postDelayed({
-                    heightActiveRotationGroupPx = (heightActiveRotationGroupDp * density + 0.5f).toInt()
+
+//                Handler().postDelayed({
                     // Получаем координаты
                     binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
                     binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
-                    // Вычисляем расстояние между верхними границами
+//
+//                    // Вычисляем расстояние между верхними границами
                     distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
-                    Log.d("Distance", "distance = $distance  loadAllVariables notChecked")
-
+                    Log.d("Distance", "distance = $distance  loadAllVariables isChecked")
                     binding.gesturesButtonsSv.layoutParams.height = distance// + heightActiveRotationGroupPx
-                }, 1000)
-
+//                }, 1000)
+            } else {
                 binding.onOffSensorGestureSwitchingSw.isChecked = false
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
                 binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
@@ -1182,6 +1171,18 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     .translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration =
                     300
                 offAllRotationImage()
+
+//                Handler().postDelayed({
+                    heightActiveRotationGroupPx = (heightActiveRotationGroupDp * density + 0.5f).toInt()
+                    // Получаем координаты
+                    binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
+                    binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
+                    // Вычисляем расстояние между верхними границами
+                    distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
+                    Log.d("Distance", "distance = $distance  loadAllVariables notChecked")
+
+                    binding.gesturesButtonsSv.layoutParams.height = distance// + heightActiveRotationGroupPx
+//                }, 1000)
             }
         }
 

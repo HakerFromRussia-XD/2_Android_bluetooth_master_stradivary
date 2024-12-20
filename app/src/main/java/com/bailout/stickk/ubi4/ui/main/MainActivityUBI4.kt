@@ -89,7 +89,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 //        showSensorsScreen()
         if (savedInstanceState == null) {
-            showOpticTrainingGesturesScreen()
+            showOpticGesturesScreen()
         }
 
 //        binding.addCommandBtn.setOnClickListener {

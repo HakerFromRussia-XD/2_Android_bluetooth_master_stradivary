@@ -514,10 +514,10 @@ class BLECommands {
             return result
         }
 
-        fun openCheckpointFileInSDCard(name: String, addressDevice: Int, indexPackage: Int): ByteArray {
+        fun openCheckpointFileInSDCard(name: String, addressDevice: Int, parameterID: Int, indexPackage: Int): ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
-                (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
+                (128 + parameterID).toByte(),
                 0x00,
                 0x00,
                 0x00,
@@ -540,13 +540,14 @@ class BLECommands {
 
 
         fun writeDataInCheckpointFileInSDCard(
-            modifiedChinkArray: ByteArray,
+            modifiedChunkArray: ByteArray,
             addressDevice: Int,
+            parameterID: Int,
             indexPackage: Int
         ) : ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
-                (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
+                (128 + parameterID).toByte(),
                 0x00,
                 0x00,
                 0x00,
@@ -555,10 +556,10 @@ class BLECommands {
             )
             val data = byteArrayOf(
                 0x02,
-                0x64,
+                modifiedChunkArray.size.toByte(),
                 0x00,
                 0x02,
-            ) + modifiedChinkArray
+            ) + modifiedChunkArray
             data[2] = (indexPackage).toByte()
             data[3] = (indexPackage / 256).toByte()
             header[3] = data.size.toByte()
@@ -568,10 +569,10 @@ class BLECommands {
         }
 
 
-        fun closeCheckpointFileInSDCard(addressDevice: Int, indexPackage: Int): ByteArray {
+        fun closeCheckpointFileInSDCard(addressDevice: Int, parameterID: Int, indexPackage: Int): ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
-                (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
+                (128 + parameterID).toByte(),
                 0x00,
                 0x00,
                 0x00,
@@ -581,8 +582,8 @@ class BLECommands {
             val data = byteArrayOf(
                 0x03,
                 0x00,
-                0x02,
-                0x01,
+                0x00,
+                0x03,
             )
             data[2] = (indexPackage).toByte()
             data[3] = (indexPackage / 256).toByte()

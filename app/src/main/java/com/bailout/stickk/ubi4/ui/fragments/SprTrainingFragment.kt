@@ -40,6 +40,8 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
+import com.bailout.stickk.ubi4.utility.ConstantManager
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.CoroutineScope
@@ -147,7 +149,6 @@ class SprTrainingFragment : Fragment() {
         PlotDelegateAdapter(
             plotIsReadyToData = { num -> System.err.println("plotIsReadyToData $num") },
             onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
-
         ),
         OneButtonDelegateAdapter(
             onButtonPressed = { addressDevice, parameterID, command ->
@@ -165,7 +166,6 @@ class SprTrainingFragment : Fragment() {
                 )
             },
             onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
-
         ),
 
         TrainingFragmentDelegateAdapter(
@@ -181,7 +181,7 @@ class SprTrainingFragment : Fragment() {
                     Log.e("StateCallBack", "Fragment is not attached to activity")
                 }
             },
-            onShowFileClick = { showFilesDialog() },
+            onShowFileClick = { addressDevice -> showFilesDialog(addressDevice,6) },
             onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
         ),
         SwitcherDelegateAdapter(
@@ -278,7 +278,7 @@ class SprTrainingFragment : Fragment() {
         return myDialog
     }
 
-    private fun showFilesDialog() {
+    private fun showFilesDialog(addressDevice: Int, parameterID: Int) {
         if (currentDialog != null && currentDialog?.isShowing == true) {
             return
         }
@@ -418,7 +418,7 @@ class SprTrainingFragment : Fragment() {
                                                 "ParamsSend",
                                                 "Начинаем отправку файла params: $paramFileName"
                                             )
-                                            sendFileInChunks(paramFile.readBytes())
+                                            sendFileInChunks(paramFile.readBytes(), ConstantManager.PARAMS_BIN_NAME, addressDevice, parameterID)
 
 
                                         }
@@ -446,7 +446,7 @@ class SprTrainingFragment : Fragment() {
                         }
                     }
 
-                    sendFileInChunks(fileItem.file.readBytes())
+                    sendFileInChunks(fileItem.file.readBytes(), ConstantManager.CHECKPOINT_NAME, addressDevice, parameterID )
                 }
             }
 
@@ -511,28 +511,35 @@ class SprTrainingFragment : Fragment() {
     }
 
 
-    private fun sendFileInChunks(byteArray: ByteArray) {
-        val maxChunkSize = 248 //100
+    private fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int,) {
+        val maxChunkSize = 100 // max 249
         val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
         val chunksSent = AtomicInteger(0)
         bleController.setUploadingState(true)
         lifecycleScope.launch(Dispatchers.IO) {
+            var indexPackage = 0
+            main?.bleCommandWithQueue(BLECommands.openCheckpointFileInSDCard(name,addressDevice, parameterID, 1), MAIN_CHANNEL, WRITE){}
+            Log.d(
+                "ChunkProcessing",
+                "openCheckpointFileInSDCard = ${ EncodeByteToHex.bytesToHexString(BLECommands.openCheckpointFileInSDCard(name,addressDevice,1, 1))} " +
+                        "writeDataInCheckpointFileInSDCard = ${ EncodeByteToHex.bytesToHexString(BLECommands.writeDataInCheckpointFileInSDCard(byteArrayOf(),addressDevice,2, 1))}" +
+                        "closeCheckpointFileInSDCard = ${ EncodeByteToHex.bytesToHexString(BLECommands.closeCheckpointFileInSDCard(addressDevice, 1,indexPackage + 3 ))}"
+            )
+
             byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk ->
                 if (!bleController.isCurrentlyUploading()) {
                     Log.d("SprTrainingFragment", "Upload canceled due to BLE disconnection.")
                     progressFlow.value = 0
                     return@launch
                 }
-                val modifiedChunkArray = ByteArray(chunk.size + 1)
-                modifiedChunkArray[0] = index.toByte()
-                System.arraycopy(chunk.toByteArray(), 0, modifiedChunkArray, 1, chunk.size)
-                Log.d(
-                    "ChunkProcessing",
-                    "Indexed chunk array (index + data): ${modifiedChunkArray.joinToString(", ") { it.toString() }}"
-                )
+//                val modifiedChunkArray = ByteArray(chunk.size)
+//
+//                System.arraycopy(chunk.toByteArray(), 0, modifiedChunkArray, 1, chunk.size)
+
+                indexPackage = index
                 // Отправка данных
                 main?.bleCommandWithQueue(
-                    BLECommands.checkpointDataTransfer2(modifiedChunkArray, 0x0A),
+                    BLECommands.writeDataInCheckpointFileInSDCard(chunk.toByteArray(),addressDevice, parameterID, index +2),
                     MAIN_CHANNEL,
                     WRITE
                 ) {
@@ -541,6 +548,8 @@ class SprTrainingFragment : Fragment() {
                     progressFlow.value = progress
                 }
             }
+            main?.bleCommandWithQueue(BLECommands.closeCheckpointFileInSDCard(addressDevice, parameterID, indexPackage + 3 ),
+                MAIN_CHANNEL, WRITE) {}
             bleController.setUploadingState(false)
         }
     }

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
@@ -132,16 +133,22 @@ class SensorsFragment : Fragment() {
 
             },
             onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
-        )
-//        GesturesDelegateAdapter (
-//            onSelectorClick = {},
-//            onDeleteClick = { resultCb, gestureName -> },
-//            onAddGesturesToRotationGroup = { onSaveDialogClick -> },
-//            onSendBLERotationGroup = {deviceAddress, parameterID -> },
-//            onShowGestureSettings = { deviceAddress, parameterID, gestureID -> },
-//            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> },
-//            onRequestRotationGroup = {deviceAddress, parameterID -> }
-//        )
+        ),
+        GesturesOpticDelegateAdapter(
+            gestureNameList = arrayListOf("453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk"),
+            onSelectorClick = {},
+            onAddGesturesToSprScreen = {onSaveClickDialog, listSprItem, bindingGestureList ->
+            },
+            onShowGestureSettings = { deviceAddress, parameterID, gestureID ->},
+            onRequestGestureSettings = { deviceAddress, parameterID, gestureID ->
+
+            },
+            onSetCustomGesture = { onSaveDotsClick, position, name ->
+
+            },
+            onSendBLEActiveGesture = {deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture)},
+            onDestroyParent = { onDestroyParent -> },
+    ),
     )
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
@@ -173,6 +180,10 @@ class SensorsFragment : Fragment() {
 //        transmitter().bleCommand(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
 //        transmitter().bleCommand(BLECommands.requestSubDeviceParametrs(6, 0, 1), MAIN_CHANNEL, WRITE)
 //        transmitter().bleCommand(BLECommands.requestSubDeviceAdditionalParametrs(6, 0), MAIN_CHANNEL, WRITE)
+    }
+
+    private fun onSendBLEActiveGesture (deviceAddress: Int, parameterID: Int, activeGesture: Int) {
+        transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
     }
     private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
         Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")

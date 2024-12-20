@@ -8,6 +8,9 @@ import android.widget.TextView
 import android.widget.Toast
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetTrainingOpticBinding
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
@@ -21,7 +24,7 @@ import kotlinx.coroutines.launch
 
 class TrainingFragmentDelegateAdapter(
     var onConfirmClick: () -> Unit,
-    var onShowFileClick: () -> Unit,
+    var onShowFileClick: (addressDevice: Int, ) -> Unit,
     var onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
     ViewBindingDelegateAdapter<TrainingGestureItem, Ubi4WidgetTrainingOpticBinding>(
@@ -42,10 +45,25 @@ class TrainingFragmentDelegateAdapter(
         _trainingAnnotationIv = trainingAnnotationIv
         _trainingBtn = trainingBtn
         _lottieAnimationLoading = lottieAnimationLoading
+        var addressDevice = 0
+        var parameterId = 0
+
+        when (item.widget) {
+            is OpticStartLearningWidgetEStruct -> {
+                addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
+                parameterId = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+            }
+
+            is OpticStartLearningWidgetSStruct -> {
+                addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
+                parameterId = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+            }
+        }
+
 
         showFileBtn.setOnClickListener {
             Log.d("TestWidgetView", "setOnClickListener OK")
-            onShowFileClick()
+            onShowFileClick(addressDevice)
         }
         startStateFlowCollector()
     }

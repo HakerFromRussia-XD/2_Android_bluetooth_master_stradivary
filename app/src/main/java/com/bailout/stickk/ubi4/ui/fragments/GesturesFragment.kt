@@ -241,6 +241,8 @@ class GesturesFragment : Fragment() {
     private fun onSendBLEActiveGesture (deviceAddress: Int, parameterID: Int, activeGesture: Int) {
         transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
     }
+
+
     @SuppressLint("InflateParams", "StringFormatInvalid", "SetTextI18n")
     private fun showAddGestureToRotationGroupDialog(onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>)->Unit)) {
         System.err.println("showAddGestureToRotationGroupDialog")

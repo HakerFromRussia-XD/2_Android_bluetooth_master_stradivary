@@ -80,9 +80,9 @@ class SprGestureFragment() : Fragment() {
         }
         loadGestureNameList()
         //настоящие виджеты
-        widgetListUpdater()
+//        widgetListUpdater()
         //фейковые виджеты
-//        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.fakeData())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -172,6 +172,7 @@ class SprGestureFragment() : Fragment() {
             onSetCustomGesture = { onSaveDotsClick, position, name ->
                 showCustomGesturesDialog(onSaveDotsClick, position, name)
             },
+            onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
             onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
         ),
     )
@@ -467,6 +468,9 @@ class SprGestureFragment() : Fragment() {
             MAIN_CHANNEL,
             WRITE
         )
+    }
+    private fun onSendBLEActiveGesture (deviceAddress: Int, parameterID: Int, activeGesture: Int) {
+        transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
     }
 
     private fun loadGestureNameList() {

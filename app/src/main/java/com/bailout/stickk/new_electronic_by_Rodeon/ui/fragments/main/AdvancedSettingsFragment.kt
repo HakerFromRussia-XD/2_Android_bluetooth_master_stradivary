@@ -90,6 +90,7 @@ class AdvancedSettingsFragment : Fragment() {
 
   private var startGestureInLoopNum = 0
   private var endGestureInLoopNum = 0
+  private val countRestart = 3
 
   private lateinit var binding: LayoutAdvancedSettingsBinding
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -282,12 +283,14 @@ class AdvancedSettingsFragment : Fragment() {
     when (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)) {
       7 -> {
         binding.gesturePsvRl.visibility = View.VISIBLE
+        sendFlag = false
         binding.gesturePsv.selectItemByIndex(0) }
       8 -> {
         if (checkDriverVersionGreaterThan240()) {
           binding.gesturePsvRl.visibility = View.VISIBLE
           binding.activeGesturesSwapTv.text = "7"
           saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 7)
+          sendFlag = false
           binding.gesturePsv.selectItemByIndex(0)
         } else {
           binding.gesturePsvRl.visibility = View.GONE
@@ -297,12 +300,14 @@ class AdvancedSettingsFragment : Fragment() {
       }
       13 -> {
         binding.gesturePsvRl.visibility = View.VISIBLE
+        sendFlag = false
         binding.gesturePsv.selectItemByIndex(1) }
       14 -> {
         if (checkDriverVersionGreaterThan240()) {
           binding.gesturePsvRl.visibility = View.VISIBLE
           binding.activeGesturesSwapTv.text = "13"
           saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 13)
+          sendFlag = false
           binding.gesturePsv.selectItemByIndex(1)
         } else {
           binding.gesturePsvRl.visibility = View.GONE
@@ -311,9 +316,11 @@ class AdvancedSettingsFragment : Fragment() {
         } }
       23 -> {
         binding.gesturePsvRl.visibility = View.VISIBLE
+        sendFlag = false
         binding.gesturePsv.selectItemByIndex(2) }
       25 -> {
         binding.gesturePsvRl.visibility = View.VISIBLE
+        sendFlag = false
         binding.gesturePsv.selectItemByIndex(3) }
     }
 
@@ -368,7 +375,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent4Sb.progress.toByte(),
               binding.shutdownCurrent5Sb.progress.toByte(),
               binding.shutdownCurrent6Sb.progress.toByte()),
-              SHUTDOWN_CURRENT_NEW_VM, 50)
+              SHUTDOWN_CURRENT_NEW_VM, countRestart)
           }
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(byteArrayOf(
@@ -402,7 +409,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent4Sb.progress.toByte(),
               binding.shutdownCurrent5Sb.progress.toByte(),
               binding.shutdownCurrent6Sb.progress.toByte()),
-              SHUTDOWN_CURRENT_NEW_VM, 50)
+              SHUTDOWN_CURRENT_NEW_VM, countRestart)
           }
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(
@@ -439,7 +446,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent4Sb.progress.toByte(),
               binding.shutdownCurrent5Sb.progress.toByte(),
               binding.shutdownCurrent6Sb.progress.toByte()),
-              SHUTDOWN_CURRENT_NEW_VM, 50)
+              SHUTDOWN_CURRENT_NEW_VM, countRestart)
           }
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(
@@ -475,7 +482,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent4Sb.progress.toByte(),
               binding.shutdownCurrent5Sb.progress.toByte(),
               binding.shutdownCurrent6Sb.progress.toByte()),
-              SHUTDOWN_CURRENT_NEW_VM, 50)
+              SHUTDOWN_CURRENT_NEW_VM, countRestart)
           }
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(
@@ -511,7 +518,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent4Sb.progress.toByte(),
               binding.shutdownCurrent5Sb.progress.toByte(),
               binding.shutdownCurrent6Sb.progress.toByte()),
-              SHUTDOWN_CURRENT_NEW_VM, 50)
+              SHUTDOWN_CURRENT_NEW_VM, countRestart)
           }
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(
@@ -547,7 +554,7 @@ class AdvancedSettingsFragment : Fragment() {
               binding.shutdownCurrent4Sb.progress.toByte(),
               binding.shutdownCurrent5Sb.progress.toByte(),
               binding.shutdownCurrent6Sb.progress.toByte()),
-              SHUTDOWN_CURRENT_NEW_VM, 50)
+              SHUTDOWN_CURRENT_NEW_VM, countRestart)
           }
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             main?.bleCommandConnector(
@@ -587,7 +594,7 @@ class AdvancedSettingsFragment : Fragment() {
           binding.singleChannelControlTv.text = resources.getString(R.string.on_sw)
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
-            main?.runSendCommand(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW_VM, 50)
+            main?.runSendCommand(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW_VM, countRestart)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               main?.runWriteData(byteArrayOf(0x01), SET_ONE_CHANNEL_NEW, WRITE)
@@ -601,7 +608,7 @@ class AdvancedSettingsFragment : Fragment() {
           binding.singleChannelControlTv.text = resources.getString(R.string.off_sw)
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
-            main?.runSendCommand(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW_VM, 50)
+            main?.runSendCommand(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW_VM, countRestart)
           } else {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
               main?.runWriteData(byteArrayOf(0x00), SET_ONE_CHANNEL_NEW, WRITE)
@@ -735,7 +742,7 @@ class AdvancedSettingsFragment : Fragment() {
           binding.downtimeRl.visibility = View.GONE
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
-            main?.runSendCommand(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, 50)
+            main?.runSendCommand(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, countRestart)
           } else {
             main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (binding.peakTimeSb.progress?.plus(5))?.toByte()!!, (binding.downtimeSb.progress?.plus(5))?.toByte()!!),
               ROTATION_GESTURE_NEW, WRITE, 17)
@@ -747,7 +754,7 @@ class AdvancedSettingsFragment : Fragment() {
           binding.downtimeRl.visibility = View.VISIBLE
           if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H) || main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
             main?.stage = "advanced activity"
-            main?.runSendCommand(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, 50)
+            main?.runSendCommand(byteArrayOf(sensorGestureSwitching, mode, binding.peakTimeSb.progress.toByte(), binding.downtimeSb.progress.toByte()), ROTATION_GESTURE_NEW, countRestart)
           } else {
             main?.bleCommandConnector(byteArrayOf(sensorGestureSwitching, mode, (binding.peakTimeSb.progress?.plus(5))?.toByte()!!, (binding.downtimeSb.progress?.plus(5))?.toByte()!!),
               ROTATION_GESTURE_NEW, WRITE, 17)
@@ -998,7 +1005,7 @@ class AdvancedSettingsFragment : Fragment() {
           saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
           RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
           //отправлять используемый жест
-          main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, 50)
+          main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, countRestart)
         } else {
           RxUpdateMainEvent.getInstance().updateUIGestures(100)
         }
@@ -1028,7 +1035,7 @@ class AdvancedSettingsFragment : Fragment() {
             saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
             RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
             //отправлять используемый жест
-            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, 50)
+            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, countRestart)
           } else {
             RxUpdateMainEvent.getInstance().updateUIGestures(100)
           }
@@ -1051,7 +1058,7 @@ class AdvancedSettingsFragment : Fragment() {
             saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
             RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
             //отправлять используемый жест
-            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, 50)
+            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, countRestart)
           } else {
             RxUpdateMainEvent.getInstance().updateUIGestures(100)
           }
@@ -1074,7 +1081,7 @@ class AdvancedSettingsFragment : Fragment() {
             saveInt(main?.mDeviceAddress + PreferenceKeys.SELECT_GESTURE_NUM, numActiveGestures)
             RxUpdateMainEvent.getInstance().updateUIGestures(numActiveGestures)
             //отправлять используемый жест
-            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, 50)
+            main?.runSendCommand(byteArrayOf((numActiveGestures - 1).toByte()), SET_GESTURE_NEW_VM, countRestart)
           } else {
             RxUpdateMainEvent.getInstance().updateUIGestures(100)
           }
@@ -1087,8 +1094,12 @@ class AdvancedSettingsFragment : Fragment() {
         else -> {numActiveGestures = 7}
       }
       RxUpdateMainEvent.getInstance().updateUIChart(true)
-      sendActiveGestures(numActiveGestures)
-      sendGestureRotation()
+      if (sendFlag) {
+        sendActiveGestures(numActiveGestures)
+        sendGestureRotation()
+      } else {
+        sendFlag = true
+      }
     }
 
 
@@ -1131,16 +1142,16 @@ class AdvancedSettingsFragment : Fragment() {
       //start communication test
       main?.openTestConnectionProgressDialog()
       main?.testingConnection = true
-      main?.runSendCommand(byteArrayOf(0x01), ROTATION_GESTURE_NEW_VM, 6)
-      main?.runSendCommand(byteArrayOf(0x02), ROTATION_GESTURE_NEW_VM, 6)
-      main?.runSendCommand(byteArrayOf(0x03), ROTATION_GESTURE_NEW_VM, 6)
-      main?.runSendCommand(byteArrayOf(0x04), ROTATION_GESTURE_NEW_VM, 6)
-      main?.runSendCommand(byteArrayOf(0x05), ROTATION_GESTURE_NEW_VM, 6)
-      main?.runSendCommand(byteArrayOf(0x11), ROTATION_GESTURE_NEW_VM, 6)
-      main?.runSendCommand(byteArrayOf(0x12), ROTATION_GESTURE_NEW_VM, 6)
-      main?.runSendCommand(byteArrayOf(0x13), ROTATION_GESTURE_NEW_VM, 6)
-      main?.runSendCommand(byteArrayOf(0x14), ROTATION_GESTURE_NEW_VM, 6)
-      main?.runSendCommand(byteArrayOf(0x15), ROTATION_GESTURE_NEW_VM, 6)
+      main?.runSendCommand(byteArrayOf(0x01), ROTATION_GESTURE_NEW_VM, countRestart)
+      main?.runSendCommand(byteArrayOf(0x02), ROTATION_GESTURE_NEW_VM, countRestart)
+      main?.runSendCommand(byteArrayOf(0x03), ROTATION_GESTURE_NEW_VM, countRestart)
+      main?.runSendCommand(byteArrayOf(0x04), ROTATION_GESTURE_NEW_VM, countRestart)
+      main?.runSendCommand(byteArrayOf(0x05), ROTATION_GESTURE_NEW_VM, countRestart)
+      main?.runSendCommand(byteArrayOf(0x11), ROTATION_GESTURE_NEW_VM, countRestart)
+      main?.runSendCommand(byteArrayOf(0x12), ROTATION_GESTURE_NEW_VM, countRestart)
+      main?.runSendCommand(byteArrayOf(0x13), ROTATION_GESTURE_NEW_VM, countRestart)
+      main?.runSendCommand(byteArrayOf(0x14), ROTATION_GESTURE_NEW_VM, countRestart)
+      main?.runSendCommand(byteArrayOf(0x15), ROTATION_GESTURE_NEW_VM, countRestart)
       //end
     }
 
@@ -1352,12 +1363,14 @@ class AdvancedSettingsFragment : Fragment() {
       when (mSettings?.getInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 8)) {
         7 -> {
           binding.gesturePsvRl.visibility = View.VISIBLE
+          sendFlag = false
           binding.gesturePsv.selectItemByIndex(0) }
         8 -> {
           if (checkDriverVersionGreaterThan240()) {
             binding.gesturePsvRl.visibility = View.VISIBLE
             binding.activeGesturesSwapTv.text = "7"
             saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 7)
+            sendFlag = false
             binding.gesturePsv.selectItemByIndex(0)
           } else {
             binding.gesturePsvRl.visibility = View.GONE
@@ -1367,12 +1380,14 @@ class AdvancedSettingsFragment : Fragment() {
         }
         13 -> {
           binding.gesturePsvRl.visibility = View.VISIBLE
+          sendFlag = false
           binding.gesturePsv.selectItemByIndex(1) }
         14 -> {
           if (checkDriverVersionGreaterThan240()) {
             binding.gesturePsvRl.visibility = View.VISIBLE
             binding.activeGesturesSwapTv.text = "13"
             saveInt(main?.mDeviceAddress + PreferenceKeys.NUM_ACTIVE_GESTURES, 13)
+            sendFlag = false
             binding.gesturePsv.selectItemByIndex(1)
           } else {
             binding.gesturePsvRl.visibility = View.GONE
@@ -1382,9 +1397,11 @@ class AdvancedSettingsFragment : Fragment() {
         }
         23 -> {
           binding.gesturePsvRl.visibility = View.VISIBLE
+          sendFlag = false
           binding.gesturePsv.selectItemByIndex(2) }
         25 -> {
           binding.gesturePsvRl.visibility = View.VISIBLE
+          sendFlag = false
           binding.gesturePsv.selectItemByIndex(3) }
       }
     }
@@ -1502,10 +1519,10 @@ class AdvancedSettingsFragment : Fragment() {
 
       if (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
         main?.stage = "advanced activity"
-        main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
+        main?.runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, countRestart)
       } else {
         main?.stage = "advanced activity"
-        main?.runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
+        main?.runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, countRestart)
       }
 
       myDialog.dismiss()
@@ -1567,7 +1584,7 @@ class AdvancedSettingsFragment : Fragment() {
         (correlatorNoiseThreshold1).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
         64, (correlatorNoiseThreshold2).toByte(), 6, 1, 0x10, 36, 18,
         44, 52, 64, 72, 0x40, 5, 64, value.toByte()
-      ), SENS_OPTIONS_NEW_VM, 50)
+      ), SENS_OPTIONS_NEW_VM, countRestart)
     } else {
       System.err.println("sendEMGMode INDY: $value")
       main?.bleCommandConnector(byteArrayOf(value.toByte()), SET_EMG_MODE, WRITE, 11)
@@ -1591,17 +1608,19 @@ class AdvancedSettingsFragment : Fragment() {
         (binding.holdToLockTimeSb.progress).toByte(),
         startGestureInLoopNum.toByte(),
         endGestureInLoopNum.toByte()
-      ), ROTATION_GESTURE_NEW_VM, 50)
+      ), ROTATION_GESTURE_NEW_VM, countRestart)
     } else {
       System.err.println("sendGestureRotation 237=${checkDriverVersionGreaterThan237()} else")
-      main?.runSendCommand(byteArrayOf(
-        sensorGestureSwitching,
-        0.toByte(),
-        binding.peakTimeVmSb.progress.toByte(),
-        0.toByte(),
-        lockProstheses,
-        (binding.holdToLockTimeSb.progress).toByte()
-      ), ROTATION_GESTURE_NEW_VM, 50)
+      if (main?.driverVersionS != null) {
+        main?.runSendCommand(byteArrayOf(
+          sensorGestureSwitching,
+          0.toByte(),
+          binding.peakTimeVmSb.progress.toByte(),
+          0.toByte(),
+          lockProstheses,
+          (binding.holdToLockTimeSb.progress).toByte()
+        ), ROTATION_GESTURE_NEW_VM, countRestart)
+      }
     }
     RxUpdateMainEvent.getInstance().updateUIGestures(100)
   }
@@ -1613,13 +1632,18 @@ class AdvancedSettingsFragment : Fragment() {
     val prosthesisMode = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SET_MODE_PROSTHESIS, 0)
     val numberOfCyclesStand = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MAX_STAND_CYCLES, 0)
 
-    main?.runSendCommand(byteArrayOf(
-      setReverse.toByte(),
-      numActiveGestures.toByte(),
-      prosthesisMode.toByte(),
-      numberOfCyclesStand.toByte(),
-      (numberOfCyclesStand/256).toByte()),
-      SET_REVERSE_NEW_VM, 50)
+    if (main?.driverVersionS != null) {
+      main?.runSendCommand(
+        byteArrayOf(
+          setReverse.toByte(),
+          numActiveGestures.toByte(),
+          prosthesisMode.toByte(),
+          numberOfCyclesStand.toByte(),
+          (numberOfCyclesStand / 256).toByte()
+        ),
+        SET_REVERSE_NEW_VM, countRestart
+      )
+    }
   }
 
   internal fun saveInt(key: String, variable: Int) {

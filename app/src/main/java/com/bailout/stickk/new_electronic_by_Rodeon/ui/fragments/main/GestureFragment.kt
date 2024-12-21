@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -63,6 +64,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 
 @Suppress("DEPRECATION")
 class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickListener{
+    private var sendFlag: Boolean = false
 
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
@@ -104,7 +106,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     private var lockProstheses = 0
     private var holdToLockTimeSb = 0
     private var firstStart = true
-    private val countRestart = 50//TODO поставить по больше после отладки (50)
+    private val countRestart = 3
 
     private lateinit var binding: LayoutGesturesBinding
 
@@ -464,7 +466,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "gesture activity 1"
             if (useNewSystemSendCommand()) {
-                main?.runSendCommand(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW_VM, 50)
+                main?.runSendCommand(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW_VM, countRestart)
             }
         }
     }
@@ -591,7 +593,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     private fun compileBLEMassage (useGesture: Int) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "gesture activity 2"
-            main?.runSendCommand(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW_VM, 50)
+            main?.runSendCommand(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW_VM, countRestart)
         } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW, WRITE)
@@ -708,91 +710,82 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             val gestureBtn = binding::class.java.getDeclaredField("gesture${i}Btn").get(binding) as Button
             gestureBtn.text = gestureNameList[i-1]
         }
-        binding.gestureLoop1Psv.let {
-            it.apply {
-                setSpinnerAdapter(IconSpinnerAdapter(this))
-                val list: MutableList<IconSpinnerItem> = ArrayList()
-                for (i in 0 until activeGestures) {
-                    list.add(IconSpinnerItem(text = gestureNameList[i], iconRes = handPalms[i], gravity = 100))
-                }
-                setItems(list)
-                showDivider = true
-                dividerSize = 2
-                lifecycleOwner = this@GestureFragment
-            }
-            it.setOnSpinnerItemSelectedListener<IconSpinnerItem> { oldIndex, _, newIndex, _ ->
-                startGestureInLoopNum = newIndex
-//                System.err.println("test gestures in loop    GF gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
-                selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
-
-                if (oldIndex != newIndex) {
-                    binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
-                }
-
-                if (useNewSystemSendCommand()) {
-                    main?.runSendCommand(
-                        byteArrayOf(
-                            sensorGestureSwitching.toByte(),
-                            0.toByte(),
-                            binding.peakTimeVmSb.progress.toByte(),
-                            0.toByte(),
-                            lockProstheses.toByte(),
-                            holdToLockTimeSb.toByte(),
-                            startGestureInLoopNum.toByte(),
-                            endGestureInLoopNum.toByte()
-                        ), ROTATION_GESTURE_NEW_VM, countRestart
-                    )
-                }
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
-                RxUpdateMainEvent.getInstance().updateUIChart(true)
-            }
+        //it.apply {
+        //                setSpinnerAdapter(IconSpinnerAdapter(this))
+        //                val list: MutableList<IconSpinnerItem> = ArrayList()
+        //                for (i in 0 until activeGestures) {
+        //                    list.add(IconSpinnerItem(text = gestureNameList[i], iconRes = handPalms[i], gravity = 100))
+        //                }
+        //                setItems(list)
+        //                showDivider = true
+        //                dividerSize = 2
+        //                lifecycleOwner = this@GestureFragment
+        //            }
+        val list: MutableList<String> = ArrayList()
+        for (i in 0 until activeGestures) {
+            list.add(gestureNameList[i])
         }
-        binding.gestureLoop2Psv.let {
-            it.apply {
-                setSpinnerAdapter(IconSpinnerAdapter(this))
-                val list: MutableList<IconSpinnerItem> = ArrayList()
-                for (i in 0 until activeGestures) {
-                    list.add(
-                        IconSpinnerItem(
-                            text = gestureNameList[i],
-                            iconRes = handPalms[i],
-                            gravity = 100
-                        )
-                    )
-                }
-                setItems(list)
-                showDivider = true
-                dividerSize = 2
-                lifecycleOwner = this@GestureFragment
-            }
-            it.setOnSpinnerItemSelectedListener<IconSpinnerItem> {
-                    oldIndex, _, newIndex, _ ->
-                endGestureInLoopNum = newIndex
-//                System.err.println("test gestures in loop  GF gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
-                selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, false)
-                if (oldIndex != newIndex) {
-                    binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
-                }
-
-                if (useNewSystemSendCommand()) {
-                    main?.runSendCommand(byteArrayOf(
-                            sensorGestureSwitching.toByte(),
-                            0.toByte(),
-                            binding.peakTimeVmSb.progress.toByte(),
-                            0.toByte(),
-                            lockProstheses.toByte(),
-                            holdToLockTimeSb.toByte(),
-                            startGestureInLoopNum.toByte(),
-                            endGestureInLoopNum.toByte()
-                        ), ROTATION_GESTURE_NEW_VM, countRestart)
-                }
-                main?.saveInt(
-                    main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP,
-                    endGestureInLoopNum
+        binding.gestureLoop1Psv.setItems(list)
+        binding.gestureLoop2Psv.setItems(list)
+        binding.gestureLoop1Psv.setOnSpinnerItemSelectedListener<String> { oldIndex, _, newIndex, _ ->
+            startGestureInLoopNum = newIndex
+            selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
+            System.err.println("test gestures in loop  GF gestureLoop1Psv selectRotationGroup startGestureInLoop=${startGestureInLoopNum+1}  endGestureInLoop=${endGestureInLoopNum+1} sendFlag = $sendFlag")
+            System.err.println("DeviceControlActivity-------> gestureLoop1Psv sendFlag = $sendFlag")
+            if (useNewSystemSendCommand() && sendFlag) {
+                main?.runSendCommand(
+                    byteArrayOf(
+                        sensorGestureSwitching.toByte(),
+                        0.toByte(),
+                        binding.peakTimeVmSb.progress.toByte(),
+                        0.toByte(),
+                        lockProstheses.toByte(),
+                        holdToLockTimeSb.toByte(),
+                        startGestureInLoopNum.toByte(),
+                        endGestureInLoopNum.toByte()
+                    ), ROTATION_GESTURE_NEW_VM, countRestart
                 )
-//                System.err.println("gonka gesture 3 onViewCreated true")
-                RxUpdateMainEvent.getInstance().updateUIChart(true)
+            } else {
+                sendFlag = true
             }
+
+            if (oldIndex != newIndex) {
+                sendFlag = false
+                binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
+            }
+
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+            RxUpdateMainEvent.getInstance().updateUIChart(true)
+        }
+        binding.gestureLoop2Psv.setOnSpinnerItemSelectedListener<String> { oldIndex, _, newIndex, _ ->
+            endGestureInLoopNum = newIndex
+            System.err.println("test gestures in loop  GF gestureLoop2Psv selectRotationGroup startGestureInLoop=${startGestureInLoopNum+1}  endGestureInLoop=${endGestureInLoopNum+1} sendFlag = $sendFlag")
+            selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, false)
+
+            System.err.println("DeviceControlActivity-------> gestureLoop2Psv sendFlag = $sendFlag")
+            if (useNewSystemSendCommand() && sendFlag) {
+                main?.runSendCommand(byteArrayOf(
+                        sensorGestureSwitching.toByte(),
+                        0.toByte(),
+                        binding.peakTimeVmSb.progress.toByte(),
+                        0.toByte(),
+                        lockProstheses.toByte(),
+                        holdToLockTimeSb.toByte(),
+                        startGestureInLoopNum.toByte(),
+                        endGestureInLoopNum.toByte()
+                    ), ROTATION_GESTURE_NEW_VM, countRestart
+                )
+            } else {
+                sendFlag = true
+            }
+
+            if (oldIndex != newIndex) {
+                sendFlag = false
+                binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
+            }
+
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
+            RxUpdateMainEvent.getInstance().updateUIChart(true)
         }
     }
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
@@ -1120,7 +1113,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "gesture activity 3"
             if (useNewSystemSendCommand()) {
-                main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 50)
+                main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, countRestart)
             }
         }
     }
@@ -1193,10 +1186,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
         endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
         try {
+            sendFlag = false
             binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
+            sendFlag = false
             binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)
         } catch (e : Exception) {
+            sendFlag = false
             binding.gestureLoop1Psv.selectItemByIndex(activeGestures - 1 )
+            sendFlag = false
             binding.gestureLoop2Psv.selectItemByIndex(activeGestures - 1 )
         }
 

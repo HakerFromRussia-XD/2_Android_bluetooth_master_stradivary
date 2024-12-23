@@ -51,6 +51,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStr
 import com.bailout.stickk.ubi4.models.ParameterRef
 import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.switcherFlow
@@ -219,6 +220,17 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
                 Log.d("TestOptic", "dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+            }
+            ParameterDataCodeEnum.PDCE_GENERIC_0.number -> {
+                Log.d("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
+                val newStatusExist = castUnsignedCharToInt(ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(0, 2).toInt(16).toByte())
+                val errorStatus = castUnsignedCharToInt(ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(8, 10).toInt(16).toByte())
+                var countErrors = 0
+                if (errorStatus != 0 && errorStatus != 255) {
+                    countErrors ++
+                }
+                if (newStatusExist == 1 && errorStatus == 0)  CoroutineScope(Dispatchers.Default).launch { canSendNextChunkFlagFlow.emit(true) }
+                Log.d("StatusWriteFlash", "data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data} countErrors = $countErrors")
             }
         }
     }

@@ -204,6 +204,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun setStaticVariables() {
         listWidgets = mutableSetOf()
+        canSendNextChunkFlagFlow = MutableSharedFlow()
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(PlotParameterRef(0, 0, arrayListOf()))
         rotationGroupFlow = MutableSharedFlow()
@@ -300,6 +301,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
 
+        var canSendNextChunkFlagFlow by Delegates.notNull<MutableSharedFlow<Boolean>>()
         var updateFlow by Delegates.notNull<MutableStateFlow<Int>>()
         var listWidgets by Delegates.notNull<MutableSet<Any>>()
 

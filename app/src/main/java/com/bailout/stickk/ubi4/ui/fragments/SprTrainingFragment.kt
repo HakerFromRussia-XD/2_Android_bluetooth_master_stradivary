@@ -37,6 +37,7 @@ import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.models.FileItem
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendNextChunkFlagFlow
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
@@ -72,6 +73,7 @@ class SprTrainingFragment : Fragment() {
 
 
     private val progressFlow = MutableStateFlow(0)
+    private var canSendNextChunkFlag = true
 
     //private val loadedFiles = mutableSetOf<String>()
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
@@ -96,26 +98,15 @@ class SprTrainingFragment : Fragment() {
 //        adapterWidgets = initAdapter()
 //        adapterWidgets.swapData(mDataFactory.fakeData())
 
-
+        canSendNextChunkFlagUpdater()
         binding.refreshLayout.setLottieAnimation("loader_3.json")
         binding.refreshLayout.setRepeatMode(SSPullToRefreshLayout.RepeatMode.REPEAT)
         binding.refreshLayout.setRepeatCount(SSPullToRefreshLayout.RepeatCount.INFINITE)
         binding.refreshLayout.setOnRefreshListener { refreshWidgetsList() }
 
 
-
-
-
         binding.sprTrainingRv.layoutManager = LinearLayoutManager(context)
         binding.sprTrainingRv.adapter = adapterWidgets
-        Log.d("SprTrainingFragment", "onViewCreated finished")
-
-//        val activity = requireActivity()
-//        if (activity is MainActivityUBI4) {
-//            bleController = activity.mBLEController
-//        } else {
-//            throw IllegalStateException("Activity is not MainActivityUBI4")
-//        }
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
         return binding.root
     }
@@ -139,6 +130,14 @@ class SprTrainingFragment : Fragment() {
                         binding.refreshLayout.setRefreshing(false)
                     }
                 }
+            }
+        }
+    }
+
+    private fun canSendNextChunkFlagUpdater() {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            canSendNextChunkFlagFlow.collect { value ->
+                canSendNextChunkFlag = value
             }
         }
     }
@@ -519,13 +518,11 @@ class SprTrainingFragment : Fragment() {
         bleController.setUploadingState(true)
         lifecycleScope.launch(Dispatchers.IO) {
             var indexPackage = 0
+            while (!canSendNextChunkFlag) {
+                delay(10)
+            }
+            canSendNextChunkFlag = false
             main?.bleCommandWithQueue(BLECommands.openCheckpointFileInSDCard(name,addressDevice, parameterID, 1), MAIN_CHANNEL, WRITE){}
-            Log.d(
-                "ChunkProcessing",
-                "openCheckpointFileInSDCard = ${ EncodeByteToHex.bytesToHexString(BLECommands.openCheckpointFileInSDCard(name,addressDevice,1, 1))} " +
-                        "writeDataInCheckpointFileInSDCard = ${ EncodeByteToHex.bytesToHexString(BLECommands.writeDataInCheckpointFileInSDCard(byteArrayOf(),addressDevice,2, 1))}" +
-                        "closeCheckpointFileInSDCard = ${ EncodeByteToHex.bytesToHexString(BLECommands.closeCheckpointFileInSDCard(addressDevice, 1,indexPackage + 3 ))}"
-            )
 
             byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk ->
                 if (!bleController.isCurrentlyUploading()) {
@@ -533,11 +530,12 @@ class SprTrainingFragment : Fragment() {
                     progressFlow.value = 0
                     return@launch
                 }
-//                val modifiedChunkArray = ByteArray(chunk.size)
-//
-//                System.arraycopy(chunk.toByteArray(), 0, modifiedChunkArray, 1, chunk.size)
-
                 indexPackage = index
+
+                while (!canSendNextChunkFlag) {
+                    delay(10)
+                }
+                canSendNextChunkFlag = false
                 // Отправка данных
                 main?.bleCommandWithQueue(
                     BLECommands.writeDataInCheckpointFileInSDCard(chunk.toByteArray(),addressDevice, parameterID, index +2),
@@ -549,8 +547,13 @@ class SprTrainingFragment : Fragment() {
                     progressFlow.value = progress
                     Log.d("ChunkProcessing", "Progress: $progress% ($sent/$totalChunks chunks sent)")
                 }
-                sleep(50)
+//                sleep(50)
             }
+
+            while (!canSendNextChunkFlag) {
+                delay(10)
+            }
+            canSendNextChunkFlag = false
             main?.bleCommandWithQueue(BLECommands.closeCheckpointFileInSDCard(addressDevice, parameterID, indexPackage + 3 ),
                 MAIN_CHANNEL, WRITE) {}
             bleController.setUploadingState(false)

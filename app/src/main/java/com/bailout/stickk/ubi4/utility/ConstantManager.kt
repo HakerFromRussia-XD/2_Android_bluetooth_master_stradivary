@@ -14,6 +14,6 @@ interface ConstantManager {
         const val BASE_PARAMETER_INFO_STRUCT_SIZE = 16*2
         const val ADDITIONAL_INFO_SIZE_STRUCT_SIZE = 8*2
         const val CHECKPOINT_NAME = "checkpoint.ckpt"
-        const val PARAMS_BIN_NAME = "params.bim"
+        const val PARAMS_BIN_NAME = "params.bin"
     }
 }

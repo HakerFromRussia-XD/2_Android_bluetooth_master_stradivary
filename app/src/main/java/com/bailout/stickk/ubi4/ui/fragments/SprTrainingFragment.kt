@@ -56,6 +56,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.lang.Thread.sleep
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.jvm.internal.impl.incremental.components.Position
 
@@ -546,11 +547,14 @@ class SprTrainingFragment : Fragment() {
                     val sent = chunksSent.incrementAndGet()
                     val progress = ((sent.toDouble() / totalChunks) * 100).toInt()
                     progressFlow.value = progress
+                    Log.d("ChunkProcessing", "Progress: $progress% ($sent/$totalChunks chunks sent)")
                 }
+                sleep(50)
             }
             main?.bleCommandWithQueue(BLECommands.closeCheckpointFileInSDCard(addressDevice, parameterID, indexPackage + 3 ),
                 MAIN_CHANNEL, WRITE) {}
             bleController.setUploadingState(false)
+            Log.d("ChunkProcessing", "Total chunks to send: $totalChunks")
         }
     }
 

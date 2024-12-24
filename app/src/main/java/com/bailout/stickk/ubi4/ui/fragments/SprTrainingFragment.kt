@@ -2,10 +2,6 @@ package com.bailout.stickk.ubi4.ui.fragments
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -29,7 +25,6 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateA
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
-import com.bailout.stickk.ubi4.ble.BluetoothLeService
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.navigator
@@ -42,7 +37,6 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFla
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.bailout.stickk.ubi4.utility.ConstantManager
-import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.CoroutineScope
@@ -50,16 +44,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.lang.Thread.sleep
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.reflect.jvm.internal.impl.incremental.components.Position
 
 
 class SprTrainingFragment : Fragment() {
@@ -72,7 +63,7 @@ class SprTrainingFragment : Fragment() {
     private var loadingCurrentDialog: Dialog? = null
 
 
-    private val progressFlow = MutableStateFlow(0)
+    private val progressFlow = MutableSharedFlow<Int>(1, 0, BufferOverflow.DROP_OLDEST)
     private var canSendNextChunkFlag = true
 
     //private val loadedFiles = mutableSetOf<String>()
@@ -307,9 +298,6 @@ class SprTrainingFragment : Fragment() {
             return
         }
 
-
-//        val fileItems = files.map { FileItem(it.name, it) }.toMutableList()
-
         val fileItems = files.mapNotNull { file ->
             val matchResult = regex.find(file.name)
             matchResult?.let {
@@ -397,33 +385,30 @@ class SprTrainingFragment : Fragment() {
                     var sendingParams = false
                     var isCompleted = false
 
-                    val job = lifecycleScope.launch {
+                    sendFileInChunks(fileItem.file.readBytes(), ConstantManager.CHECKPOINT_NAME, addressDevice, parameterID )
+                    lifecycleScope.launch {
                         progressFlow.collect { progress ->
                             withContext(Main) {
                                 when {
                                     sendingCheckpoint -> {
                                         progressBar.progress = progress
                                         Log.d(
-                                            "CheckpointSend",
+                                            "ParamsSend",
                                             "Прогресс отправки чекпоинта: $progress%"
                                         )
 
                                         if (progress == 100) {
                                             closeCurrentDialog()
-                                            progressFlow.value = 0
+                                            progressFlow.emit(0)
                                             sendingCheckpoint = false
                                             sendingParams = true
-                                            progressFlow.value = 0
                                             Log.d(
                                                 "ParamsSend",
                                                 "Начинаем отправку файла params: $paramFileName"
                                             )
                                             sendFileInChunks(paramFile.readBytes(), ConstantManager.PARAMS_BIN_NAME, addressDevice, parameterID)
-
-
                                         }
                                     }
-
                                     sendingParams -> {
                                         Log.d("ParamsSend", "Прогресс отправки params: $progress%")
                                         if (progress == 100 && !isCompleted) {
@@ -435,18 +420,15 @@ class SprTrainingFragment : Fragment() {
                                             ).show()
                                             isCompleted = true
                                             sendingParams = false
+                                            sendingCheckpoint = true
+                                            progressFlow.emit(0)
                                             this@launch.cancel()
-
-
                                         }
-
                                     }
                                 }
                             }
                         }
                     }
-
-                    sendFileInChunks(fileItem.file.readBytes(), ConstantManager.CHECKPOINT_NAME, addressDevice, parameterID )
                 }
             }
 
@@ -457,8 +439,6 @@ class SprTrainingFragment : Fragment() {
         cancelBtn.setOnClickListener {
             myDialog.dismiss()
         }
-
-
     }
 
 
@@ -514,51 +494,121 @@ class SprTrainingFragment : Fragment() {
     private fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int,) {
         val maxChunkSize = 100 // max 249
         val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
-        val chunksSent = AtomicInteger(0)
+        val chunksSend = AtomicInteger(0)
         bleController.setUploadingState(true)
         lifecycleScope.launch(Dispatchers.IO) {
             var indexPackage = 0
-            while (!canSendNextChunkFlag) {
-                delay(10)
+//            while (!canSendNextChunkFlag) {
+//                delay(10)
+//            }
+//            canSendNextChunkFlag = false
+            // Создание файла (или открытие с очещением)
+            if (!waitForFlagWithRetry (
+                maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
+                retryCount = 3,         // Максимум 30 попытки
+                chunksSend = chunksSend.incrementAndGet(),
+                totalChunks
+            ) {
+                main?.bleCommandWithQueue(
+                    BLECommands.openCheckpointFileInSDCard(
+                        name,
+                        addressDevice,
+                        parameterID,
+                        1
+                    ), MAIN_CHANNEL, WRITE
+                ) {}
+            }) {
+                //ошибка передачи предыдущего чанка
+                closeCurrentDialog()
+                Log.d("ChunkProcessing", "Ошибка передачи чанка №$chunksSend ")
+                return@launch // Завершаем корутину, если записать файл не удалось
             }
-            canSendNextChunkFlag = false
-            main?.bleCommandWithQueue(BLECommands.openCheckpointFileInSDCard(name,addressDevice, parameterID, 1), MAIN_CHANNEL, WRITE){}
 
             byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk ->
+                indexPackage = index
                 if (!bleController.isCurrentlyUploading()) {
                     Log.d("SprTrainingFragment", "Upload canceled due to BLE disconnection.")
-                    progressFlow.value = 0
+                    progressFlow.emit(0)
                     return@launch
                 }
-                indexPackage = index
 
-                while (!canSendNextChunkFlag) {
-                    delay(10)
-                }
-                canSendNextChunkFlag = false
-                // Отправка данных
-                main?.bleCommandWithQueue(
-                    BLECommands.writeDataInCheckpointFileInSDCard(chunk.toByteArray(),addressDevice, parameterID, index +2),
+//                while (!canSendNextChunkFlag) {
+//                    delay(10)
+//                }
+//                canSendNextChunkFlag = false
+                // Отправка данных самого файла
+                if (!waitForFlagWithRetry (
+                    maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
+                    retryCount = 3,         // Максимум 30 попытки
+                    chunksSend = chunksSend.incrementAndGet(),
+                    totalChunks
+                ) { main?.bleCommandWithQueue(BLECommands.writeDataInCheckpointFileInSDCard(
+                    chunk.toByteArray(), addressDevice, parameterID, index +2),
                     MAIN_CHANNEL,
-                    WRITE
-                ) {
-                    val sent = chunksSent.incrementAndGet()
-                    val progress = ((sent.toDouble() / totalChunks) * 100).toInt()
-                    progressFlow.value = progress
-                    Log.d("ChunkProcessing", "Progress: $progress% ($sent/$totalChunks chunks sent)")
+                    WRITE) {}
+                }) {
+                    //ошибка передачи предыдущего чанка
+                    closeCurrentDialog()
+                    Log.d("ChunkProcessing", "Ошибка передачи чанка №$chunksSend ")
+                    return@launch // Завершаем корутину, если записать файл не удалось
                 }
-//                sleep(50)
             }
 
-            while (!canSendNextChunkFlag) {
-                delay(10)
+//            while (!canSendNextChunkFlag) {
+//                delay(10)
+//            }
+//            canSendNextChunkFlag = false
+            // Закрытие файла
+            waitForFlagWithRetry (
+                maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
+                retryCount = 3,         // Максимум 30 попытки
+                chunksSend = chunksSend.incrementAndGet(),
+                totalChunks
+            ) {
+                main?.bleCommandWithQueue(
+                    BLECommands.closeCheckpointFileInSDCard(
+                        addressDevice,
+                        parameterID,
+                        indexPackage + 3
+                    ),
+                    MAIN_CHANNEL, WRITE
+                ) {}
             }
-            canSendNextChunkFlag = false
-            main?.bleCommandWithQueue(BLECommands.closeCheckpointFileInSDCard(addressDevice, parameterID, indexPackage + 3 ),
-                MAIN_CHANNEL, WRITE) {}
+            progressFlow.emit(100)
             bleController.setUploadingState(false)
             Log.d("ChunkProcessing", "Total chunks to send: $totalChunks")
         }
+    }
+
+    private suspend fun waitForFlagWithRetry(
+        maxWaitTimeMs: Long,
+        retryCount: Int,
+        chunksSend: Int,
+        totalChunks: Int,
+        sendAction: () -> Unit
+    ): Boolean {
+        repeat(retryCount) { attempt ->
+            val startTime = System.currentTimeMillis()
+
+            // Выполняем отправку текущего чанка
+            sendAction()
+            val progress = ((chunksSend.toDouble() / totalChunks) * 100).toInt()
+            CoroutineScope(Default).launch { progressFlow.emit(progress) }
+            Log.d("ChunkProcessing", "Progress: $progress% ($chunksSend/$totalChunks chunks sent)")
+
+            while (System.currentTimeMillis() - startTime < maxWaitTimeMs) {
+                Log.d("ChunkProcessing", "ЖДЁМ!!!!")
+                if (canSendNextChunkFlag) {
+                    canSendNextChunkFlag = false
+                    Log.d("ChunkProcessing", "ДОЖДАЛИСЬ!!!!")
+                    return true // Успешно дождались
+                }
+                delay(10) // Немного ждем перед повторной проверкой
+            }
+
+            Log.d("ChunkProcessing", "Retrying action, attempt ${attempt + 1} / $retryCount")
+        }
+        return false // Не удалось дождаться флага после всех попыток
     }
 
 

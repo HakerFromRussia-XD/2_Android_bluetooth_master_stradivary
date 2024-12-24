@@ -81,10 +81,10 @@ class BLEController (main: AppCompatActivity) {
 //                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
 //                mBluetoothLeService?.connect("34:85:18:98:0F:D2")       // Mike плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:1C:6A") // плата с оптикой Денис
-//                mBluetoothLeService?.connect("F0:9E:9E:22:97:52")
+                mBluetoothLeService?.connect("F0:9E:9E:22:97:52")
 //                mBluetoothLeService?.connect("F0:9E:9E:22:96:3E") // плата с оптикой с экраном
 //                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E")  // протез Макса
-                mBluetoothLeService?.connect("34:85:18:98:10:7E")
+//                mBluetoothLeService?.connect("34:85:18:98:10:7E")
 //                mBluetoothLeService?.connect("F0:9E:9E:22:97:36")
 
 //                mBluetoothLeService?.connect(connectedDeviceAddress)
@@ -122,10 +122,9 @@ class BLEController (main: AppCompatActivity) {
             val action = intent.action
             when {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
+                    Log.d("BLEController", "ACTION_GATT_CONNECTED received")
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
                     reconnectThreadFlag = false
-
-
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
                     Log.d("BLEController", "ACTION_GATT_DISCONNECTED received")
@@ -151,6 +150,7 @@ class BLEController (main: AppCompatActivity) {
                     }
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
+                    Log.d("BLEController", "ACTION_GATT_SERVICES_DISCOVERED received")
                     mConnected = true
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
@@ -161,6 +161,7 @@ class BLEController (main: AppCompatActivity) {
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
+                    Log.d("BLEController", "ACTION_DATA_AVAILABLE received")
                     if(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         val fakeData = byteArrayOf(0x00,0x01,0x00,0x02,0x01,0x00,0x00,0x01,0x02)
                         val fakeData2 = byteArrayOf(0x00, 0x01, 0x00, 0x4c, 0x00, 0x74, 0x00, 0x01, 0x02, 0x43, 0x50, 0x55, 0x20, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

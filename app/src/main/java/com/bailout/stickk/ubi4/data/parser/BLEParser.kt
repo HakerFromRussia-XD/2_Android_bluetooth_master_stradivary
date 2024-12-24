@@ -69,6 +69,7 @@ class BLEParser(main: AppCompatActivity) {
     private var numberSubDevice = 0
     private var subDeviceCounter = 0
     private var subDeviceAdditionalCounter = 1
+    private var countErrors = 0
 
 
     internal fun parseReceivedData (data: ByteArray?) {
@@ -225,7 +226,6 @@ class BLEParser(main: AppCompatActivity) {
                 Log.d("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
                 val newStatusExist = castUnsignedCharToInt(ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(0, 2).toInt(16).toByte())
                 val errorStatus = castUnsignedCharToInt(ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(8, 10).toInt(16).toByte())
-                var countErrors = 0
                 if (errorStatus != 0 && errorStatus != 255) {
                     countErrors ++
                 }

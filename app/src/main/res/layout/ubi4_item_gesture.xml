@@ -6,8 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
     android:background="@color/transparent"
-    android:elevation="3dp"
-    app:layout_constraintDimensionRatio="H,1:1">
+    android:elevation="3dp">
 
     <View
         android:id="@+id/gestureSprCollection1Btn"
@@ -19,32 +18,32 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/gestureNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/gesture_1_btn"
-        android:fontFamily="@font/sf_pro_display_light"
-        android:textColor="@color/white"
         android:elevation="3dp"
+        android:fontFamily="@font/sf_pro_display_light"
+        android:text="@string/gesture_1_btn"
+        android:textColor="@color/white"
+        android:layout_marginBottom="8dp"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lottieAnimationGesture" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieAnimationGesture"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/indication"
         app:lottie_autoPlay="true"
         android:visibility="visible"
         android:elevation="3dp"
-        android:scaleType="centerCrop"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

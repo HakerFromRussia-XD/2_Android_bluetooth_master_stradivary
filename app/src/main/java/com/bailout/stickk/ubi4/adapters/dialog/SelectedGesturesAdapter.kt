@@ -47,7 +47,6 @@ class SelectedGesturesAdapter(
         holder.gestureAnimation.playAnimation()
         holder.dotsThreeBtnSpr.setOnClickListener {
             onDotsClickListener(position)
-            holder.gestureName.text = bindingGesture.nameOfUserGesture
         }
 
     }

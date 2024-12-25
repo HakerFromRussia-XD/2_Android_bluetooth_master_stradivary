@@ -27,6 +27,7 @@ import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
@@ -220,6 +221,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         countBinding = 0
         graphThreadFlag = true
         canSendFlag = false
+        bindingGroupGestures = arrayListOf()
     }
 
     // сохранение и загрузка данных
@@ -322,6 +324,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var baseSubDevicesInfoStructSet by Delegates.notNull<MutableSet<BaseSubDeviceInfoStruct>>()
 
         var rotationGroupGestures by Delegates.notNull<ArrayList<Gesture>>()
+
+        var bindingGroupGestures by Delegates.notNull<ArrayList<BindingGestureGroup>>()
+
 
 
         var connectedDeviceName by Delegates.notNull<String>()

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
 import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
@@ -24,15 +25,14 @@ import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.bindingGroupGestures
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class GesturesOpticDelegateAdapter(
     val gestureNameList: ArrayList<String>,
@@ -40,7 +40,11 @@ class GesturesOpticDelegateAdapter(
     val onAddGesturesToSprScreen: (onSaveClickDialog: (List<SprGestureItem>) -> Unit, List<SprGestureItem>, List<BindingGestureItem>) -> Unit,
     val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
-    val onSetCustomGesture: (onSaveDotsClick: ((name: String, position: Int) -> Unit), selectedPosition: Int, name: String) -> Unit,
+    val onSetCustomGesture: (
+        onSaveDotsClick: (gestureId: Int, sprPosition: Int) -> Unit,
+        selectedPosition: Int,
+        name: String
+    ) -> Unit,
     val onSendBLEActiveGesture: (deviceAddress: Int, parameterID: Int, activeGesture: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
@@ -55,7 +59,9 @@ class GesturesOpticDelegateAdapter(
     private var hideFactoryCollectionGestures = true
     private var gestureCollectionBtns: ArrayList<View> = ArrayList()
     private var gestureCustomBtns: ArrayList<View> = ArrayList()
+    private lateinit var sprGestureItemsProvider: SprGestureItemsProvider
 
+    private var currentBindingGroup: BindingGestureGroup = BindingGestureGroup()
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -70,10 +76,12 @@ class GesturesOpticDelegateAdapter(
 
         },
         onDotsClickListener = { selectedPosition ->
-            onSetCustomGesture({ name, position ->
-                val bindingGesture = listBindingGesture[position].copy(nameOfUserGesture = name)
-                listBindingGesture[position] = bindingGesture
-                updateGestureName(bindingGesture.position, bindingGesture.nameOfUserGesture)
+            Log.d("GesturesOpticDelegateAdapter", "onDotsClickListener called with selectedPosition=$selectedPosition")
+            onSetCustomGesture({ gestureId, sprPosition ->
+                updateCollectionGesture(sprPosition, gestureId)
+                val gestureName = getGestureNameById(gestureId)
+                updateGestureName(sprPosition, gestureName)
+                Log.d("GesturesOpticDelegateAdapter", "Added collection gesture with gestureId=$gestureId to sprPosition=$sprPosition, gestureName=$gestureName")
             }, selectedPosition, listBindingGesture[selectedPosition].nameOfUserGesture)
         }
 
@@ -84,7 +92,7 @@ class GesturesOpticDelegateAdapter(
     @SuppressLint("ClickableViewAccessibility", "LogNotTimber", "SuspiciousIndentation")
     override fun Ubi4WidgetGesturesOptic1Binding.onBind(item: GesturesItem) {
         onDestroyParent { onDestroy() }
-        var listSpr: List<SprGestureItem> = ArrayList()
+            var listSpr: List<SprGestureItem> = ArrayList()
 
 
         var parameterID = 0
@@ -225,6 +233,9 @@ class GesturesOpticDelegateAdapter(
         chooseLearningGesturesBtn1.setOnClickListener {
             val selectedGestures: (List<SprGestureItem>) -> Unit = { listSprItems ->
                 listSpr = listSprItems
+                resetSprBindingGroup(currentBindingGroup)
+
+                Log.d("GesturesOpticDelegateAdapter", "Add SPr gestures -> $currentBindingGroup")
 
                 listBindingGesture = listSprItems.mapIndexed { position, sprGestureItem ->
                     //проверяем уже выбранные жесты
@@ -235,6 +246,16 @@ class GesturesOpticDelegateAdapter(
                         sprGestureItem = sprGestureItem
                     )
                 }.toMutableList()
+                fillSprGesturesInBindingGroup(currentBindingGroup,listBindingGesture)
+
+                listBindingGesture.forEach { bindingGestureItem ->
+                    Log.d(
+                        "GesturesOpticDelegateAdapter",
+                        "Position: ${bindingGestureItem.position}, Gesture: ${bindingGestureItem.nameOfUserGesture}"
+                    )
+                }
+                bindingGroupGestures.add(currentBindingGroup)
+
                 adapter.updateGestures(listBindingGesture)
                 if (adapter.itemCount > 0) {
                     annotationTv.visibility = View.GONE
@@ -254,7 +275,92 @@ class GesturesOpticDelegateAdapter(
         selectedSprGesturesRv.layoutManager = gridLayoutManager
         selectedSprGesturesRv.adapter = adapter
 
-        bindingGroupFlowCollect()
+        sprGestureItemsProvider = SprGestureItemsProvider(root.context)
+
+
+    }
+    private fun fillSprGesturesInBindingGroup(
+        bindingGroup: BindingGestureGroup,
+        selectedSprGestures: List<BindingGestureItem>
+    ) {
+        Log.d("fillSprGesturesInBG", "Start. selectedSprGestures = $selectedSprGestures")
+
+        selectedSprGestures.forEachIndexed  { index,sprGesture  ->
+            val gestureId = sprGesture.sprGestureItem.gestureId
+            when (index) {
+                0 -> bindingGroup.gestureSpr1Id = gestureId
+                1 -> bindingGroup.gestureSpr2Id = gestureId
+                2 -> bindingGroup.gestureSpr3Id = gestureId
+                3 -> bindingGroup.gestureSpr4Id = gestureId
+                4 -> bindingGroup.gestureSpr5Id = gestureId
+                5 -> bindingGroup.gestureSpr6Id = gestureId
+                6 -> bindingGroup.gestureSpr7Id = gestureId
+                7 -> bindingGroup.gestureSpr8Id = gestureId
+                8 -> bindingGroup.gestureSpr9Id = gestureId
+                9 -> bindingGroup.gestureSpr10Id = gestureId
+                10 -> bindingGroup.gestureSpr11Id = gestureId
+                11 -> bindingGroup.gestureSpr12Id = gestureId
+            }
+        }
+        Log.d("fillSprGesturesInBG", "Finish. bindingGroup = $bindingGroup")
+    }
+
+    private fun fillCollectionGesturesInBindingGroup(
+        bindingGroup: BindingGestureGroup,
+        sprPosition: Int,
+        collectionGestureId: Int
+    ) {
+        when ( sprPosition) {
+            0 -> bindingGroup.gesture1Id = collectionGestureId
+            1 -> bindingGroup.gesture2Id = collectionGestureId
+            2 -> bindingGroup.gesture3Id = collectionGestureId
+            3 -> bindingGroup.gesture4Id = collectionGestureId
+            4 -> bindingGroup.gesture5Id = collectionGestureId
+            5 -> bindingGroup.gesture6Id = collectionGestureId
+            6 -> bindingGroup.gesture7Id = collectionGestureId
+            7 -> bindingGroup.gesture8Id = collectionGestureId
+            8 -> bindingGroup.gesture9Id = collectionGestureId
+            9 -> bindingGroup.gesture10Id = collectionGestureId
+            10 -> bindingGroup.gesture11Id = collectionGestureId
+            11 -> bindingGroup.gesture12Id = collectionGestureId
+
+        }
+        Log.d("fillSprGesturesInBG", "Finish. fillCollectionGesturesInBindingGroup = $bindingGroup")
+
+    }
+
+    private fun resetSprBindingGroup(bindingGroup: BindingGestureGroup) {
+        bindingGroup.gestureSpr1Id = 0
+        bindingGroup.gestureSpr2Id = 0
+        bindingGroup.gestureSpr3Id = 0
+        bindingGroup.gestureSpr4Id = 0
+        bindingGroup.gestureSpr5Id = 0
+        bindingGroup.gestureSpr6Id = 0
+        bindingGroup.gestureSpr7Id = 0
+        bindingGroup.gestureSpr8Id = 0
+        bindingGroup.gestureSpr9Id = 0
+        bindingGroup.gestureSpr10Id = 0
+        bindingGroup.gestureSpr11Id = 0
+        bindingGroup.gestureSpr12Id = 0
+
+    }
+
+    private fun resetCollectionBindingGroup(bindingGroup: BindingGestureGroup, position: Int) {
+
+        when (position) {
+            0 -> bindingGroup.gesture1Id = 0
+            1 -> bindingGroup.gesture2Id = 0
+            2 -> bindingGroup.gesture3Id
+            3 -> bindingGroup.gesture4Id
+            4 -> bindingGroup.gesture5Id
+            5 -> bindingGroup.gesture6Id
+            6 -> bindingGroup.gesture7Id
+            7 -> bindingGroup.gesture8Id
+            8 -> bindingGroup.gesture9Id
+            9 -> bindingGroup.gesture10Id
+            10 -> bindingGroup.gesture11Id
+            11 -> bindingGroup.gesture12Id
+        }
 
     }
 
@@ -268,38 +374,33 @@ class GesturesOpticDelegateAdapter(
         activeBtn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_active)
     }
 
-    private fun setActiveCustomGesture(activeBtn: View) {
-        gestureCustomBtns.forEach { btn ->
-            btn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray) // Неактивное состояние
-        }
-        activeBtn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_active) // Активное состояние
-    }
 
-    private fun setActiveGesture(gestureBtn: View) {
-        gestureCollectionBtns.forEach { it.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray) }
-        gestureBtn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_active)
-    }
+//    private fun bindingGroupFlowCollect(deviceAddress: Int, parameterID: Int, dataCode: Int) {
+//        scope.launch(Dispatchers.IO) {
+//            MainActivityUBI4.bindingGroupFlow.collect { pairList ->
+//                withContext(Dispatchers.Main) {
+//                    when (dataCode) {
+//                        ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number -> {
+//                            val parameter =
+//                                ParameterProvider.getParameter(deviceAddress, parameterID)
+//                            val gestureList = CollectionGesturesProvider.getCollectionGestures()
+//                            val bindingGroup =
+//                                Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
+//
+//                        }
+//                        //заполняю объект BindigGestureGroup -> прередаю во внутренний объект для отрисовки
+//
+//                        //TODO реализовать обновление UI, сделай новый список: на вход будет список Pair<Int,Int>,а
+//                        //  на выходе получить список listBindingGesture
+//
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-    private fun bindingGroupFlowCollect() {
-        scope.launch(Dispatchers.IO) {
-            MainActivityUBI4.bindingGroupFlow.collect { pairList ->
-                withContext(Dispatchers.Main) {
-                    //TODO реализовать обновление UI, сделай новый список: на вход будет список Pair<Int,Int>,а
-                    //  на выходе получить список listBindingGesture
-
-                }
-            }
-        }
-    }
 
 
-    @SuppressLint("LogNotTimber")
-    private fun updateGestureName(position: Int, newName: String) {
-        val newList = listBindingGesture.toMutableList()
-        newList[position] = newList[position].copy(nameOfUserGesture = newName)
-        listBindingGesture = newList
-        adapter.updateGestures(listBindingGesture)
-    }
 
     private fun getParameterIDByCode(dataCode: Int): Int {
         parameterIDSet.forEach {
@@ -310,6 +411,11 @@ class GesturesOpticDelegateAdapter(
         return 0
     }
 
+    private fun updateCollectionGesture(sprPosition: Int, collectionGestureId: Int) {
+        fillCollectionGesturesInBindingGroup(currentBindingGroup, sprPosition, collectionGestureId)
+        adapter.notifyDataSetChanged()
+//        Log.d("GesturesOpticDelegateAdapter", "Updated collection gesture at position $bindingPosition with gestureId $collectionGestureId")
+    }
 
     private fun moveFilterSelection(
         position: Int,
@@ -393,6 +499,24 @@ class GesturesOpticDelegateAdapter(
             activeGesture
         )
     }
+
+    private fun updateGestureName(position: Int, newName: String) {
+        if (position in listBindingGesture.indices) {
+            val updatedItem = listBindingGesture[position].copy(nameOfUserGesture = newName)
+            listBindingGesture[position] = updatedItem
+            adapter.updateGestures(listBindingGesture)
+            Log.d("GesturesOpticDelegateAdapter", "Updated gesture name at position $position to $newName")
+        } else {
+            Log.e("GesturesOpticDelegateAdapter", "Invalid position: $position")
+        }
+    }
+
+    private fun getGestureNameById(gestureId: Int): String {
+        return CollectionGesturesProvider.getCollectionGestures()
+            .find { it.gestureId == gestureId }
+            ?.gestureName ?: ""
+    }
+
 
     override fun isForViewType(item: Any): Boolean = item is GesturesItem
 

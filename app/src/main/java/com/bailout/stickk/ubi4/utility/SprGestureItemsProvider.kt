@@ -3,6 +3,9 @@ package com.bailout.stickk.ubi4.utility
 import android.content.Context
 import android.util.Log
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getCollectionGestures
+import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.models.SprGestureItem
 
 class SprGestureItemsProvider(private val context: Context) {
@@ -56,105 +59,27 @@ class SprGestureItemsProvider(private val context: Context) {
 
     }
 
+
     fun getSprGestureItemList(): ArrayList<SprGestureItem> {
-        val sprGestureItemList: ArrayList<SprGestureItem> = ArrayList()
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.thumb_finger),
-                R.raw.thumb_fingers,
-                false,
-                "ThumbFingers"
-            )
+        val sprGestureItemList = listOf(
+            SprGestureItem(gestureId = 1, title = context.getString(R.string.thumb_finger), animationId = R.raw.thumb_fingers, check = false, keyNameGesture = "ThumbFingers"),
+            SprGestureItem(gestureId = 2, title = context.getString(R.string.flexion), animationId = R.raw.wrist_flex, check = false, keyNameGesture = "Wrist_Flex"),
+            SprGestureItem(gestureId = 3, title = context.getString(R.string.extension), animationId = R.raw.wrist_extend, check = false, keyNameGesture = "Wrist_Extend"),
+            SprGestureItem(gestureId = 4, title = context.getString(R.string.palm_closing), animationId = R.raw.close, check = false, keyNameGesture = "Close"),
+            SprGestureItem(gestureId = 5, title = context.getString(R.string.palm_opening), animationId = R.raw.open, check = false, keyNameGesture = "Open"),
+            SprGestureItem(gestureId = 6, title = context.getString(R.string.ok_pinch), animationId = R.raw.pinch, check = false, keyNameGesture = "Pinch"),
+            SprGestureItem(gestureId = 7, title = context.getString(R.string.pistol_pointer_gesture), animationId = R.raw.indication, check = false, keyNameGesture = "Indication"),
+            //TODO уточнить оставшиемся ID жестов
+            SprGestureItem(gestureId = 8, title = context.getString(R.string.gesture_key), animationId = R.raw.key, check = false, keyNameGesture = "Key"),
+            SprGestureItem(gestureId = 9, title = context.getString(R.string.adduction), animationId = R.raw.adduction, check = false, keyNameGesture = "Adduction"),
+            SprGestureItem(gestureId = 10, title = context.getString(R.string.abduction), animationId = R.raw.abduction, check = false, keyNameGesture = "Abduction"),
+            SprGestureItem(gestureId = 11, title = context.getString(R.string.pronation), animationId = R.raw.pronation, check = false, keyNameGesture = "Pronation"),
+            SprGestureItem(gestureId = 12, title = context.getString(R.string.supination), animationId = R.raw.supination, check = false, keyNameGesture = "Supination")
         )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.palm_closing),
-                R.raw.close,
-                false,
-                "Close"
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.palm_opening),
-                R.raw.open,
-                false,
-                "Open"
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.ok_pinch),
-                R.raw.pinch,
-                false,
-                "Pinch"
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.flexion),
-                R.raw.wrist_flex,
-                false,
-                "Wrist_Flex"
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.extension),
-                R.raw.wrist_extend,
-                false,
-                "Wrist_Extend"
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.gesture_key),
-                R.raw.key,
-                false,
-                "Key"
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.pistol_pointer_gesture),
-                R.raw.indication,
-                false,
-                "Indication"
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.adduction),
-                R.raw.adduction,
-                false,
-                "Adduction"
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.abduction),
-                R.raw.abduction,
-                false,
-                "Abduction"
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.pronation),
-                R.raw.pronation,
-                false,
-                "Pronation"
-            )
-        )
-        sprGestureItemList.add(
-            SprGestureItem(
-                context.getString(R.string.supination),
-                R.raw.supination,
-                false,
-                "Supination"
-            )
-        )
+
         Log.d("GestureDebug", "SprGestureItemList: $sprGestureItemList")
-        return sprGestureItemList
+        return ArrayList(sprGestureItemList)
     }
+
+
 }

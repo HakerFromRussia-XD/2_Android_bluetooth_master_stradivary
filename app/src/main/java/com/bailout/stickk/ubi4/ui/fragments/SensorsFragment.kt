@@ -143,7 +143,7 @@ class SensorsFragment : Fragment() {
             onRequestGestureSettings = { deviceAddress, parameterID, gestureID ->
 
             },
-            onSetCustomGesture = { onSaveDotsClick, position, name ->
+            onSetCustomGesture = { onSaveDotsClick,bindingItem ->
 
             },
             onSendBLEActiveGesture = {deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture)},

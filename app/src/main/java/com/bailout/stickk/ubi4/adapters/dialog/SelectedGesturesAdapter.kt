@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.adapters.dialog
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,11 +12,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.models.BindingGestureItem
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 
 class SelectedGesturesAdapter(
-    private var selectedGesturesList: MutableList<BindingGestureItem>,
+    private var selectedGesturesList: MutableList<Pair<Int, Int>>,
     private val onCheckGestureSprListener: OnCheckSprGestureListener,
     private val onDotsClickListener: (Int) -> Unit
 ) : RecyclerView.Adapter<SelectedGesturesAdapter.SprGesturesViewHolder>() {
@@ -42,8 +44,9 @@ class SelectedGesturesAdapter(
     override fun onBindViewHolder(holder: SprGesturesViewHolder, position: Int) {
         val bindingGesture = selectedGesturesList[position]
 
-        holder.gestureName.text = bindingGesture.nameOfUserGesture
-        holder.gestureAnimation.setAnimation(SprGestureItemsProvider(myContext).getAnimationIdByKeyNameGesture(bindingGesture.sprGestureItem.keyNameGesture))
+        //CollectionGesturesProvider.getGesture(listBindingGesture[selectedPosition].second).gestureName)
+        holder.gestureName.text = CollectionGesturesProvider.getGesture(bindingGesture.second).gestureName
+        holder.gestureAnimation.setAnimation(SprGestureItemsProvider(myContext).getSprGesture(bindingGesture.first).animationId)
         holder.gestureAnimation.playAnimation()
         holder.dotsThreeBtnSpr.setOnClickListener {
             onDotsClickListener(position)
@@ -52,7 +55,7 @@ class SelectedGesturesAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateGestures(newGestures: List<BindingGestureItem>) {
+    fun updateGestures(newGestures: List<Pair<Int, Int>>) {
         selectedGesturesList.clear()
         selectedGesturesList.addAll(newGestures)
         notifyDataSetChanged()
@@ -62,12 +65,4 @@ class SelectedGesturesAdapter(
         fun onGestureSprClicked(position: Int, title: String)
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    fun removeGestureByName(gestureTitle: String) {
-        val index = selectedGesturesList.indexOfFirst { it.nameOfUserGesture == gestureTitle }
-        if (index != -1) {
-            selectedGesturesList.removeAt(index)
-            notifyItemRemoved(index)
-        }
-    }
 }

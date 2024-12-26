@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -156,7 +157,7 @@ class SprGestureFragment() : Fragment() {
             gestureNameList = gestureNameList,
             onSelectorClick = {},
             onAddGesturesToSprScreen = { onSaveClickDialog, listSprItem, bindingGestureList ->
-                showControlGesturesDialog(onSaveClickDialog, listSprItem, bindingGestureList)
+                showControlGesturesDialog(onSaveClickDialog, bindingGestureList)
             },
             onShowGestureSettings = { deviceAddress, parameterID, gestureID ->
                 showGestureSettings(
@@ -171,8 +172,8 @@ class SprGestureFragment() : Fragment() {
                     parameterID,
                     gestureID
                 )
-            }, onSetCustomGesture = { onSaveDotsClick, selectedPosition, name ->
-                showCustomGesturesDialog(onSaveDotsClick, selectedPosition, name)
+            }, onSetCustomGesture = { onSaveDotsClick,  bindingItem ->
+                showCustomGesturesDialog(onSaveDotsClick, bindingItem)
             },
             onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
             onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
@@ -201,8 +202,7 @@ class SprGestureFragment() : Fragment() {
     @SuppressLint("MissingInflatedId", "LogNotTimber")
     private fun showCustomGesturesDialog(
         onSaveClick: (gestureId: Int, bindingPosition: Int) -> Unit,
-        bindingPosition: Int,
-        name: String
+        bindingItem: Pair<Int, Int>
     ) {
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_spr_screen, null)
         val myDialog = Dialog(requireContext())
@@ -217,22 +217,22 @@ class SprGestureFragment() : Fragment() {
         val titleText = dialogBinding.findViewById<TextView>(R.id.dialogTitleBindingTv)
         titleText.setText(R.string.assign_gesture)
 
-        val sprGestureItemList: ArrayList<DialogCollectionGestureItem> = ArrayList(
+        val collectionGestureDialogList: ArrayList<DialogCollectionGestureItem> = ArrayList(
             CollectionGesturesProvider.getCollectionGestures().map { gesture ->
                 DialogCollectionGestureItem(
                     gesture = gesture,
-                    check = (gesture.gestureName == name)
+                    check = (gesture.gestureId == bindingItem.second)
                 )
             }
         )
 
-        var selectedGesturePosition = sprGestureItemList.indexOfFirst { it.check }
-
+        var selectedGesturePosition = collectionGestureDialogList.indexOfFirst { it.check }
+        Log.d("DialogGestureTest", "selectedGesturePosition $selectedGesturePosition")
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         gesturesRv.layoutManager = linearLayoutManager
 
         val adapter = GesturesCheckAdapter(
-            sprGestureItemList,
+            collectionGestureDialogList,
             object : OnCheckGestureListener {
                 override fun onGestureClicked(
                     clickedPosition: Int,
@@ -240,26 +240,31 @@ class SprGestureFragment() : Fragment() {
                 ) {
                     if (selectedGesturePosition == clickedPosition) {
                         // снимаем выделение
-                        sprGestureItemList[clickedPosition] = sprGestureItemList[clickedPosition].copy(
+
+                        collectionGestureDialogList[clickedPosition] = collectionGestureDialogList[clickedPosition].copy(
                             check = false
                         )
                         selectedGesturePosition = -1
                         gesturesRv.adapter?.notifyItemChanged(clickedPosition)
+                        Log.d("DialogGestureTest", "selectedGesturePosition $selectedGesturePosition")
+
                         return
                     }
-
                     if (selectedGesturePosition != -1) {
-                        sprGestureItemList[selectedGesturePosition] =
-                            sprGestureItemList[selectedGesturePosition].copy(check = false)
-                        gesturesRv.adapter?.notifyItemChanged(selectedGesturePosition)
+                        collectionGestureDialogList.forEach { it.check = false }
+//                        collectionGestureDialogList[clickedPosition] =
+//                            collectionGestureDialogList[clickedPosition].copy(check = false)
+//                        gesturesRv.adapter?.notifyItemChanged(clickedPosition)
                     }
 
                     // Устанавливаем текущий жест как выбранный
-                    selectedGesturePosition = clickedPosition
-                    sprGestureItemList[clickedPosition] =
-                        sprGestureItemList[clickedPosition].copy(check = true)
+                    selectedGesturePosition = dialogGesture.gesture.gestureId
+                    collectionGestureDialogList[clickedPosition] =
+                        collectionGestureDialogList[clickedPosition].copy(check = true)
                     gesturesRv.adapter?.notifyItemChanged(clickedPosition)
+                    Log.d("DialogGestureTest", "selectedGesturePosition $selectedGesturePosition")
                 }
+
             }
         )
         gesturesRv.adapter = adapter
@@ -271,25 +276,25 @@ class SprGestureFragment() : Fragment() {
 
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToSaveBtn)
         saveBtn.setOnClickListener {
-            val selectedGesture = if (selectedGesturePosition != -1) {
-                sprGestureItemList[selectedGesturePosition].gesture
-            } else null
-
-
-            if (selectedGesture != null) {
-                onSaveClick.invoke(selectedGesture.gestureId, bindingPosition)
-                val selectedGestureId = selectedGesture.gestureId
-                Log.d(
-                    "GesturesDialogDebug",
-                    "BindingControlGestures Id: $selectedGestureId, SprGesturesPosition: ${bindingPosition +1}"
-                )
-            } else {
-                onSaveClick.invoke(0, bindingPosition)
-                Log.d(
-                    "GesturesDialogDebug",
-                    "BindingControlGestures Id: None, SprGesturesPosition: ${bindingPosition +1}"
-                )
-            }
+//            val selectedGesture = if (selectedGesturePosition != -1) {
+//                collectionGestureDialogList[selectedGesturePosition].gesture
+//            } else null
+//
+//
+//            if (selectedGesture != null) {
+//                onSaveClick.invoke(selectedGesture.gestureId, bindingPosition)
+//                val selectedGestureId = selectedGesture.gestureId
+//                Log.d(
+//                    "GesturesDialogDebug",
+//                    "BindingControlGestures Id: $selectedGestureId, SprGesturesPosition: ${bindingPosition +1}"
+//                )
+//            } else {
+//                onSaveClick.invoke(0, bindingPosition)
+//                Log.d(
+//                    "GesturesDialogDebug",
+//                    "BindingControlGestures Id: None, SprGesturesPosition: ${bindingPosition +1}"
+//                )
+//            }
 
             myDialog.dismiss()
         }
@@ -302,9 +307,8 @@ class SprGestureFragment() : Fragment() {
 
     @SuppressLint("MissingInflatedId", "LogNotTimber", "CutPasteId")
     private fun showControlGesturesDialog(
-        onSaveClick: (List<SprGestureItem>) -> Unit,
-        selectedGestures: List<SprGestureItem>,
-        bindingGestureList: List<BindingGestureItem>
+        onSaveClick: (MutableList<Pair<Int, Int>>) -> Unit,
+        bindingGestureList:  List<Pair<Int, Int>>,
     ) {
         System.err.println("showAddGestureToSprScreen")
         val dialogBinding =
@@ -312,6 +316,7 @@ class SprGestureFragment() : Fragment() {
         val myDialog = Dialog(requireContext())
         val gesturesRv = dialogBinding.findViewById<RecyclerView>(R.id.dialogAddGesturesRv)
 
+        var checkedItems = bindingGestureList.map { it.first }
 
         val linearLayoutManager = LinearLayoutManager(context)
         myDialog.setContentView(dialogBinding)
@@ -320,70 +325,42 @@ class SprGestureFragment() : Fragment() {
         myDialog.show()
 
 
-        val sprGestureItemList: ArrayList<SprDialogCollectionGestureItem> =
+
+
+
+        val sprGestureDialogList: ArrayList<SprDialogCollectionGestureItem> =
             ArrayList(
                 SprGestureItemsProvider(requireContext()).getSprGestureItemList()
                     .map { SprDialogCollectionGestureItem(it) })
 
 
-
-        for (dialogGesture in sprGestureItemList) {
-            selectedGestures.find { it.title == dialogGesture.gesture.title }?.let {
-                dialogGesture.check = true
+        for (sprDialogCollectionGestureItem in sprGestureDialogList) {
+            bindingGestureList.find { it.first == sprDialogCollectionGestureItem.gesture.sprGestureId }?.let {
+                sprDialogCollectionGestureItem.check = true
             }
         }
-        Log.d("showControlGesturesDialog", "$sprGestureItemList")
+        Log.d("showControlGesturesDialog", "$sprGestureDialogList")
 
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         gesturesRv.layoutManager = linearLayoutManager
         val adapter =
-            SprGesturesCheckAdapter(sprGestureItemList, object : OnCheckSprGestureListener2 {
+            SprGesturesCheckAdapter(sprGestureDialogList, object : OnCheckSprGestureListener2 {
                 override fun onSprGestureClicked2(
                     position: Int,
-                    dialogGesture: SprDialogCollectionGestureItem
+                    sprDialogCollectionGestureItem: SprDialogCollectionGestureItem
                 ) {
-                    System.err.println("onGestureClicked $position")
-                    Log.d("onGestureClicked", "$sprGestureItemList")
-
-                    val checkedItems = sprGestureItemList.mapIndexedNotNull { index, item ->
-                        if (item.check) index else null
-                    }
-                    var unselectedPosition =
-                        bindingGestureList.indexOfFirst { it.sprGestureItem.title == dialogGesture.gesture.title }
-                    sprGestureItemList[position] =
-                        sprGestureItemList[position].copy(check = !sprGestureItemList[position].check)
-
-
-
-                    if (!sprGestureItemList[position].check) {
-                        unselectedPosition = checkedItems.indexOf(position)
-                        Log.d(
-                            "GestureUnselected",
-                            "Position of unselected gesture: $unselectedPosition"
-                        )
-                    }
-
-                    // Удаление безопасным способом
-                    if (unselectedPosition >= 0 && unselectedPosition < bindingGestureList.size) {
-                        val iterator = selectedGesturesSet.iterator()
-                        while (iterator.hasNext()) {
-                            val gesture = iterator.next()
-                            if (gesture == bindingGestureList[unselectedPosition].nameOfUserGesture) {
-                                iterator.remove()
-                            }
-                        }
-                    } else {
-                        Log.e(
-                            "onGestureClicked1",
-                            "Index $unselectedPosition is out of bounds for bindingGestureList with size ${bindingGestureList.size}"
-                        )
-                    }
+                    // происходит изменение состояние check на противоположное
+                    sprGestureDialogList[position] =
+                        sprGestureDialogList[position].copy(check = !sprGestureDialogList[position].check)
+                    //происходит создание листа в котором позиции выбраных элементов отображаются числами, а остальные null
+                    checkedItems = sprGestureDialogList.mapIndexedNotNull { index, item ->
+                        if (item.check) item.gesture.sprGestureId else null
+                    }.toMutableList()
+                    Log.d("DialogGestureTest", "checkedItems: $checkedItems")
 
                     gesturesRv.adapter?.notifyItemChanged(position)
                 }
-
-            }
-            )
+            })
         gesturesRv.adapter = adapter
 
 
@@ -394,46 +371,22 @@ class SprGestureFragment() : Fragment() {
 
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToSaveBtn)
         saveBtn.setOnClickListener {
-            val provider = SprGestureItemsProvider(requireContext())
-            val selectedGestures =
-                sprGestureItemList.filter { it.check }.mapNotNull { dialogGesture ->
-                    val gestureID = dialogGesture.gesture.gestureId
-                    val gestureName = dialogGesture.gesture.title
-                    val keyNameGesture = provider.getKeyNameGestureByGestureName(gestureName)
-                    if (keyNameGesture != null) {
-                        val animationId = provider.getAnimationIdByKeyNameGesture(keyNameGesture)
-                        if (animationId != R.drawable.sleeping)
-                            SprGestureItem(
-                                gestureId = gestureID,
-                                title = gestureName,
-                                animationId = animationId,
-                                check = true,
-                                keyNameGesture = keyNameGesture
-                            )
-                        else {
-                            Log.e(
-                                "SprGestureFragment",
-                                "Animation not found for gesture: $gestureName"
-                            )
-                            null
-                        }
-                    } else {
-                        Log.e(
-                            "SprGestureFragment",
-                            "KeyNameGesture not found for gesture: $gestureName"
-                        )
-                        null
-                    }
-                    // SprGestureItem(dialogGesture.gesture.gestureName, dialogGesture.gesture.gestureImage, true, "")
-                }
-
-            val selectedGestureIds = selectedGestures.map { it.gestureId }
-            Log.d("GesturesDialogDebug", "Selected Control Gesture IDs: $selectedGestureIds")
 
             myDialog.dismiss()
-            onSaveClick.invoke(selectedGestures)
+
+            val listBindingGesture: MutableList<Pair<Int, Int>> = checkedItems.map { item ->
+                // Ищем пару с first == item
+                val existingPair = bindingGestureList.find { it.first == item }
+                // Если нашли, используем существующее second, иначе 0
+                if (existingPair != null) {
+                    Pair(item, existingPair.second)
+                } else {
+                    Pair(item, 0)
+                }
+            }.toMutableList()
 
 
+            onSaveClick.invoke(listBindingGesture)
         }
     }
 

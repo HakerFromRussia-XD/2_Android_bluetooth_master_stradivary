@@ -16,7 +16,8 @@ data class FileItem(val name: String, val file: File, val number: Int, val times
 // dialogs
 data class DialogCollectionGestureItem(val gesture: Gesture, var check: Boolean = false)
 data class SprDialogCollectionGestureItem(val gesture: SprGestureItem, var check: Boolean = false)
-data class SprGestureItem(val gestureId:Int, val title: String, val animationId: Int, var check: Boolean, val keyNameGesture: String)
+data class SprGestureItem(val sprGestureId:Int = 0, val title: String = "not set", val animationId: Int = 0, var check: Boolean = false, val keyNameGesture: String = "key")
+
 data class BindingGestureItem(
     val position: Int,
     var nameOfUserGesture: String,

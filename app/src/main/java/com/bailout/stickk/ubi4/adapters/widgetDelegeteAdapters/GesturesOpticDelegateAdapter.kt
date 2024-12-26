@@ -38,13 +38,12 @@ import kotlinx.coroutines.cancel
 class GesturesOpticDelegateAdapter(
     val gestureNameList: ArrayList<String>,
     val onSelectorClick: (selectedPage: Int) -> Unit,
-    val onAddGesturesToSprScreen: (onSaveClickDialog: (List<SprGestureItem>) -> Unit, List<SprGestureItem>, List<BindingGestureItem>) -> Unit,
+    val onAddGesturesToSprScreen: (onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, List<SprGestureItem>, List<Pair<Int,Int>>) -> Unit,
     val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onSetCustomGesture: (
         onSaveDotsClick: (gestureId: Int, sprPosition: Int) -> Unit,
-        selectedPosition: Int,
-        name: String
+        bindingItem: Pair<Int, Int>
     ) -> Unit,
     val onSendBLEActiveGesture: (deviceAddress: Int, parameterID: Int, activeGesture: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
@@ -54,7 +53,7 @@ class GesturesOpticDelegateAdapter(
     ) {
 
     private val ANIMATION_DURATION = 200
-    private var listBindingGesture: MutableList<BindingGestureItem> = mutableListOf()
+    private var listBindingGesture: MutableList<Pair<Int,Int>> = mutableListOf()
     private var parameterIDSet = mutableSetOf<Quadruple<Int, Int, Int, Int>>()
     private var deviceAddress = 0
     private var hideFactoryCollectionGestures = true
@@ -83,10 +82,8 @@ class GesturesOpticDelegateAdapter(
                 val gestureName = getGestureNameById(gestureId)
                 updateGestureName(sprPosition, gestureName)
                 Log.d("GesturesOpticDelegateAdapter", "Added collection gesture with gestureId=$gestureId to sprPosition=$sprPosition, gestureName=$gestureName")
-            }, selectedPosition, listBindingGesture[selectedPosition].nameOfUserGesture)
+            }, listBindingGesture[selectedPosition])
         }
-
-
     )
 
 
@@ -232,30 +229,9 @@ class GesturesOpticDelegateAdapter(
 
 
         chooseLearningGesturesBtn1.setOnClickListener {
-            val selectedGestures: (List<SprGestureItem>) -> Unit = { listSprItems ->
-                listSpr = listSprItems
-                resetSprBindingGroup(currentBindingGroup)
-
-                Log.d("GesturesOpticDelegateAdapter", "Add SPr gestures -> $currentBindingGroup")
-
-                listBindingGesture = listSprItems.mapIndexed { position, sprGestureItem ->
-                    //проверяем уже выбранные жесты
-                    val existingBindingGesture = listBindingGesture.find { it.position == position }
-                    BindingGestureItem(
-                        position = position,
-                        nameOfUserGesture = existingBindingGesture?.nameOfUserGesture ?: "",
-                        sprGestureItem = sprGestureItem
-                    )
-                }.toMutableList()
-                fillSprGesturesInBindingGroup(currentBindingGroup,listBindingGesture)
-
-                listBindingGesture.forEach { bindingGestureItem ->
-                    Log.d(
-                        "GesturesOpticDelegateAdapter",
-                        "Position: ${bindingGestureItem.position}, Gesture: ${bindingGestureItem.nameOfUserGesture}"
-                    )
-                }
-                bindingGroupGestures.add(currentBindingGroup)
+            val selectedGestures: (MutableList<Pair<Int, Int>>) -> Unit = { listBindingGestures ->
+                listBindingGesture = listBindingGestures
+                Log.d("DialogGestureTest", "listBindingGesture $listBindingGesture")
 
                 adapter.updateGestures(listBindingGesture)
                 if (adapter.itemCount > 0) {
@@ -267,7 +243,7 @@ class GesturesOpticDelegateAdapter(
                 }
 
             }
-            onAddGesturesToSprScreen(selectedGestures, listSpr, listBindingGesture)
+            onAddGesturesToSprScreen(selectedGestures, listSpr, listOf(Pair(3,4), Pair(5, 7)))
         }
 
 
@@ -287,7 +263,7 @@ class GesturesOpticDelegateAdapter(
         Log.d("fillSprGesturesInBG", "Start. selectedSprGestures = $selectedSprGestures")
 
         selectedSprGestures.forEachIndexed  { index,sprGesture  ->
-            val gestureId = sprGesture.sprGestureItem.gestureId
+            val gestureId = sprGesture.sprGestureItem.sprGestureId
             when (index) {
                 0 -> bindingGroup.gestureSpr1Id = gestureId
                 1 -> bindingGroup.gestureSpr2Id = gestureId
@@ -502,14 +478,14 @@ class GesturesOpticDelegateAdapter(
     }
 
     private fun updateGestureName(position: Int, newName: String) {
-        if (position in listBindingGesture.indices) {
-            val updatedItem = listBindingGesture[position].copy(nameOfUserGesture = newName)
-            listBindingGesture[position] = updatedItem
-            adapter.updateGestures(listBindingGesture)
-            Log.d("GesturesOpticDelegateAdapter", "Updated gesture name at position $position to $newName")
-        } else {
-            Log.e("GesturesOpticDelegateAdapter", "Invalid position: $position")
-        }
+//        if (position in listBindingGesture.indices) {
+//            val updatedItem = listBindingGesture[position].copy(nameOfUserGesture = newName)
+//            listBindingGesture[position] = updatedItem
+//            adapter.updateGestures(listBindingGesture)
+//            Log.d("GesturesOpticDelegateAdapter", "Updated gesture name at position $position to $newName")
+//        } else {
+//            Log.e("GesturesOpticDelegateAdapter", "Invalid position: $position")
+//        }
     }
 
     private fun getGestureNameById(gestureId: Int): String {

@@ -15,7 +15,7 @@ import kotlinx.serialization.json.Json
 
 @Serializable(with = SwitchParameterWidgetESerializer::class)
 data class SwitchParameterWidgetEStruct(
-    val baseParameterWidgetEStruct: BaseParameterWidgetEStruct,
+    val baseParameterWidgetEStruct: BaseParameterWidgetEStruct = BaseParameterWidgetEStruct(),
     val switchChecked: Boolean = false,
     val clickCommand: Int = 0,
 )
@@ -26,26 +26,18 @@ object SwitchParameterWidgetESerializer: KSerializer<SwitchParameterWidgetEStruc
 
     override fun deserialize(decoder: Decoder): SwitchParameterWidgetEStruct {
         val string = decoder.decodeString()
-        val baseParameterWidgetEStruct: BaseParameterWidgetEStruct
+        var baseParameterWidgetEStruct = BaseParameterWidgetEStruct()
         var switchChecked = false
-
 
 
         if (string.length >= 20) {
             baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${string.substring(0, 18)}\"")
             switchChecked = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())!=0
-
-        } else {
-            baseParameterWidgetEStruct = BaseParameterWidgetEStruct (
-                BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(
-                    Pair(0,0)
-                )),0)
         }
 
         return SwitchParameterWidgetEStruct (
             baseParameterWidgetEStruct = baseParameterWidgetEStruct,
             switchChecked = switchChecked
-
         )
     }
 

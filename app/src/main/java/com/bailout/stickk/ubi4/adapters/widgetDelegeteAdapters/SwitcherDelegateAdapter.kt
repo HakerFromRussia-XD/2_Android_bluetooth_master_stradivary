@@ -1,6 +1,7 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
+import android.os.Handler
 import android.util.Log
 import android.widget.ProgressBar
 import android.widget.Switch
@@ -67,11 +68,12 @@ class SwitcherDelegateAdapter(
 
         widgetSwitchInfo.add(WidgetSwitchInfo(addressDevice, parameterID, switchChecked, widgetSwitchSc))
 
-        main.bleCommand(
-            BLECommands.requestSwitcher(addressDevice, parameterID),
-            MAIN_CHANNEL,
-            SampleGattAttributes.WRITE
-        )
+        Handler().postDelayed({
+//            main.bleCommandWithQueue(
+//                BLECommands.requestSwitcher(addressDevice, parameterID),
+//                MAIN_CHANNEL,
+//                SampleGattAttributes.WRITE)
+        }, 500)
 
         switchCollect()
     }
@@ -85,13 +87,20 @@ class SwitcherDelegateAdapter(
                         "SwitcherCollect",
                         "addressDevice = ${parameterRef.addressDevice}, parameterID = ${parameterRef.parameterID}, parameter.data = ${parameter.data}"
                     )
+                    Log.d(
+                        "SwitcherCollect",
+                        "значение свича ${castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0}"
+                    )
+                    Log.d(
+                        "SwitcherCollect",
+                        "Index меняемого свича ${getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)}"
+                    )
                     if (parameter.data.isNotEmpty()) {
                         widgetSwitchInfo[getIndexWidgetSwitch(
                             parameterRef.addressDevice,
                             parameterRef.parameterID
-                        )].isChecked = castUnsignedCharToInt(
-                            parameter.data.substring(0, 2).toInt(16).toByte()
-                        ) != 0
+                        )].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
+                        widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
                     }
                 }
             }

@@ -88,6 +88,11 @@
             tools:ignore="LockedOrientationActivity" />
         <activity
             android:theme="@style/AppTheme.NoActionBar"
+            android:name="com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:theme="@style/AppTheme.NoActionBar"
             android:name="com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />

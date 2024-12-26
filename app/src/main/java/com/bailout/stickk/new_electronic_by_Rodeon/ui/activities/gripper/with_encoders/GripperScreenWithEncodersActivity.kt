@@ -310,11 +310,19 @@ class GripperScreenWithEncodersActivity
         if (gestureState == 1) {
             fingerOpenState1 = angleFinger
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber + 1),
-                    angleFinger
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber - 2),
+//                        angleFinger
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber + 1),
+                        angleFinger
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -326,11 +334,19 @@ class GripperScreenWithEncodersActivity
         } else {
             fingerCloseState1 = angleFinger
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber + 1),
-                    angleFinger
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber - 2),
+//                        angleFinger
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber + 1),
+                        angleFinger
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -347,11 +363,19 @@ class GripperScreenWithEncodersActivity
         if (gestureState == 1) {
             fingerOpenState2 = angleFinger
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber + 1),
-                    angleFinger
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber - 2),
+//                        angleFinger
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber + 1),
+                        angleFinger
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -363,11 +387,19 @@ class GripperScreenWithEncodersActivity
         } else {
             fingerCloseState2 = angleFinger
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber + 1),
-                    angleFinger
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber - 2),
+//                        angleFinger
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber + 1),
+                        angleFinger
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -380,15 +412,23 @@ class GripperScreenWithEncodersActivity
         score2 = angleFinger
     }
     private fun changeStateFinger3(angleFinger: Int) {
-        System.err.println("Изменили палец 3 $angleFinger")
+        System.err.println("Изменили палец 3 $angleFinger  ${checkDriverVersionGreaterThan240()}")
         if (gestureState == 1) {
             fingerOpenState3 = angleFinger
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber + 1),
-                    angleFinger
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber - 2),
+//                        angleFinger
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber + 1),
+                        angleFinger
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -400,11 +440,19 @@ class GripperScreenWithEncodersActivity
         } else {
             fingerCloseState3 = angleFinger
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber + 1),
-                    angleFinger
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber - 2),
+//                        angleFinger
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber + 1),
+                        angleFinger
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -421,11 +469,19 @@ class GripperScreenWithEncodersActivity
         if (gestureState == 1) {
             fingerOpenState4 = angleFinger
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1), // проверить тут + 0
-                    angleFinger
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber - 2),
+//                        angleFinger
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1), // проверить тут + 0
+                        angleFinger
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -437,11 +493,19 @@ class GripperScreenWithEncodersActivity
         } else {
             fingerCloseState4 = angleFinger
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber + 1),
-                    angleFinger
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber - 2),
+//                        angleFinger
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber + 1),
+                        angleFinger
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -460,11 +524,19 @@ class GripperScreenWithEncodersActivity
             System.err.println("Изменили палец 5 gestureState = 1")
             fingerOpenState5 = (angleFinger.toFloat()/100*91).toInt()-49
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (gestureNumber + 1),
-                    (angleFinger.toFloat() / 100 * 91).toInt() - 49
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (gestureNumber - 2),
+//                        (angleFinger.toFloat() / 100 * 91).toInt() - 49
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (gestureNumber + 1),
+                        (angleFinger.toFloat() / 100 * 91).toInt() - 49
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -477,11 +549,19 @@ class GripperScreenWithEncodersActivity
             System.err.println("Изменили палец 5 gestureState = 0")
             fingerCloseState5 = (angleFinger.toFloat() / 100 * 91).toInt() - 49
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (gestureNumber + 1),
-                    (angleFinger.toFloat() / 100 * 91).toInt() - 49
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (gestureNumber - 2),
+//                        (angleFinger.toFloat() / 100 * 91).toInt() - 49
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (gestureNumber + 1),
+                        (angleFinger.toFloat() / 100 * 91).toInt() - 49
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -499,11 +579,19 @@ class GripperScreenWithEncodersActivity
         if (gestureState == 1) {
             fingerOpenState6 = (angleFinger.toFloat() / 100 * 90).toInt()
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (gestureNumber + 1),
-                    (angleFinger.toFloat() / 100 * 90).toInt()
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (gestureNumber - 2),
+//                        (angleFinger.toFloat() / 100 * 90).toInt()
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (gestureNumber + 1),
+                        (angleFinger.toFloat() / 100 * 90).toInt()
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -515,11 +603,19 @@ class GripperScreenWithEncodersActivity
         } else {
             fingerCloseState6 = (angleFinger.toFloat() / 100 * 90).toInt()
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
-                saveInt(
-                    mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
-                        .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (gestureNumber + 1),
-                    (angleFinger.toFloat() / 100 * 90).toInt()
-                )
+//                if (checkDriverVersionGreaterThan240()) {
+//                    saveInt(
+//                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+//                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (gestureNumber - 2),
+//                        (angleFinger.toFloat() / 100 * 90).toInt()
+//                    )
+//                } else {
+                    saveInt(
+                        mSettings!!.getString(PreferenceKeys.DEVICE_ADDRESS_CONNECTED, "")
+                            .toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (gestureNumber + 1),
+                        (angleFinger.toFloat() / 100 * 90).toInt()
+                    )
+//                }
             }
             if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 saveInt(
@@ -905,8 +1001,7 @@ class GripperScreenWithEncodersActivity
         }
         if (mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             System.err.println("GripperSettingsRender--------> compileBLEMassage $mDeviceType withChangeGesture =$withChangeGesture  fingerOpenStateDelay1=$fingerOpenStateDelay1  fingerCloseStateDelay1=$fingerCloseStateDelay1")
-            val sendGestureNumber = if (checkDriverVersionGreaterThan237()) { gestureNumber
-            } else { gestureNumber - 1 }
+            var sendGestureNumber = if (checkDriverVersionGreaterThan237()) { gestureNumber } else { gestureNumber - 1 }
             val gestureStateModel = GestureStateWithEncoders(sendGestureNumber, // проверить тут -2
                 fingerOpenState4, fingerOpenState3, fingerOpenState2,
                 fingerOpenState1, (100 - (((fingerOpenState5) + 58).toFloat() / 86 * 100).toInt()), abs(((fingerOpenState6).toFloat() / 85 * 100).toInt()),
@@ -922,6 +1017,14 @@ class GripperScreenWithEncodersActivity
         return if (driverVersionS != null) {
             val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
             driverNum.toInt() >= 237
+        } else {
+            false
+        }
+    }
+    private fun checkDriverVersionGreaterThan240():Boolean {
+        return if (driverVersionS != null) {
+            val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
+            driverNum.toInt() >= 240
         } else {
             false
         }
@@ -1096,7 +1199,80 @@ class GripperScreenWithEncodersActivity
                 ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (gestureNumber + 1), 0
             )
         }
-
+        if (checkDriverVersionGreaterThan240() && mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
+            fingerOpenState4 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (gestureNumber + 1), 0 //проверить тут +0
+            )
+            fingerOpenState3 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (gestureNumber + 1), 0
+            )
+            fingerOpenState2 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (gestureNumber + 1), 0
+            )
+            fingerOpenState1 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (gestureNumber + 1), 0
+            )
+            fingerOpenState5 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (gestureNumber + 1), 0
+            )
+            fingerOpenState6 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState4 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState3 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState2 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState1 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState5 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (gestureNumber + 1), 0
+            )
+            fingerCloseState6 = mSettings!!.getInt(
+                mSettings!!.getString(
+                    PreferenceKeys.DEVICE_ADDRESS_CONNECTED,
+                    text
+                ).toString() + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (gestureNumber + 1), 0
+            )
+        }
 
         Handler().postDelayed({
             animateFinger1 ()

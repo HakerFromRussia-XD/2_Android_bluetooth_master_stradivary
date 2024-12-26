@@ -125,6 +125,17 @@
     <string name="gesture_12_btn">gesture №12</string>
     <string name="gesture_13_btn">gesture №13</string>
     <string name="gesture_14_btn">gesture №14</string>
+    <string name="gesture_15_btn">gesture №15</string>
+    <string name="gesture_16_btn">gesture №16</string>
+    <string name="gesture_17_btn">gesture №17</string>
+    <string name="gesture_18_btn">gesture №18</string>
+    <string name="gesture_19_btn">gesture №19</string>
+    <string name="gesture_20_btn">gesture №20</string>
+    <string name="gesture_21_btn">gesture №21</string>
+    <string name="gesture_22_btn">gesture №22</string>
+    <string name="gesture_23_btn">gesture №23</string>
+    <string name="gesture_24_btn">gesture №24</string>
+    <string name="gesture_25_btn">gesture №25</string>
     <string name="test">test</string>
     <string name="setting_up_gestures">setting up gestures</string>
     <string name="sensor_settings">sensor settings</string>

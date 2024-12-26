@@ -22,6 +22,7 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.BindingGestureItem
 import com.bailout.stickk.ubi4.models.GesturesItem
+import com.bailout.stickk.ubi4.models.Quadruple
 import com.bailout.stickk.ubi4.models.SprGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
@@ -54,7 +55,7 @@ class GesturesOpticDelegateAdapter(
 
     private val ANIMATION_DURATION = 200
     private var listBindingGesture: MutableList<BindingGestureItem> = mutableListOf()
-    private var parameterIDSet = mutableSetOf<Pair<Int, Int>>()
+    private var parameterIDSet = mutableSetOf<Quadruple<Int, Int, Int, Int>>()
     private var deviceAddress = 0
     private var hideFactoryCollectionGestures = true
     private var gestureCollectionBtns: ArrayList<View> = ArrayList()

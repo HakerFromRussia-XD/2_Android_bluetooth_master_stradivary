@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.data.widget.endStructures
 
-import android.util.Pair
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
@@ -15,7 +14,7 @@ import kotlinx.serialization.json.Json
 
 @Serializable(with = SwitchParameterWidgetSSerializer::class)
 data class SwitchParameterWidgetSStruct(
-    val baseParameterWidgetSStruct: BaseParameterWidgetSStruct,
+    val baseParameterWidgetSStruct: BaseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(),"NOT VALID"),
     val switchChecked: Boolean = false
 )
 
@@ -25,7 +24,7 @@ object SwitchParameterWidgetSSerializer: KSerializer<SwitchParameterWidgetSStruc
 
     override fun deserialize(decoder: Decoder): SwitchParameterWidgetSStruct {
         val string = decoder.decodeString()
-        val baseParameterWidgetSStruct: BaseParameterWidgetSStruct
+        var baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(),"NOT VALID")
         var switchChecked = false
 
 
@@ -33,18 +32,11 @@ object SwitchParameterWidgetSSerializer: KSerializer<SwitchParameterWidgetSStruc
         if (string.length >= 82) {
             baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 80)}\"")
             switchChecked = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte()) !=0
-
-        } else {
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct (
-                BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(
-                    Pair(0,0)
-                )),"")
         }
 
         return SwitchParameterWidgetSStruct (
             baseParameterWidgetSStruct = baseParameterWidgetSStruct,
             switchChecked = switchChecked
-
         )
     }
 

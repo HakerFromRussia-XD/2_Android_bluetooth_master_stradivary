@@ -21,6 +21,7 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
@@ -115,7 +116,6 @@ class SensorsFragment : Fragment() {
         ),
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
-            //TODO решение сильно под вопросом, потому что колбек будет перезаписываться и скорее всего вызовется только у одного виджета
             onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         ),
         TrainingFragmentDelegateAdapter(
@@ -152,10 +152,9 @@ class SensorsFragment : Fragment() {
     )
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
-        transmitter().bleCommand(BLECommands.requestSlider(8, 1), MAIN_CHANNEL, WRITE)
-//        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+//        transmitter().bleCommand(BLECommands.requestSlider(8, 1), MAIN_CHANNEL, WRITE)
         Log.d("ButtonClick", "oneButtonPressed  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
-//        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
     }
     private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         Log.d("ButtonClick", "oneButtonReleased  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")

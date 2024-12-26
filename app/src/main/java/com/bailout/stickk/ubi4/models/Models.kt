@@ -23,22 +23,18 @@ data class BindingGestureItem(
     val sprGestureItem: SprGestureItem
 )
 
-
 // приём и передача данных в потоках ble
 data class ParameterRef(
     val addressDevice: Int, val parameterID: Int, val dataCode: Int
 )
-
-data class PlotParameterRef(
+data class PlotParameterRef (
     val addressDevice: Int, val parameterID: Int, val dataPlots: ArrayList<Int>
 )
-
 // 3D конфигуратор и передача информации о жесте
-data class GestureInfo(
+data class GestureInfo (
     val deviceAddress: Int, val parameterID: Int, val gestureID: Int
 )
-
-data class GestureWithAddress(
+data class GestureWithAddress (
     val addressDevice: Int, val parameterID: Int,
     val gesture: Gesture, val gestureState: Int
 )
@@ -189,3 +185,9 @@ data class GesturesId(
 //) : GesturePhase()
 
 
+data class Quadruple<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)

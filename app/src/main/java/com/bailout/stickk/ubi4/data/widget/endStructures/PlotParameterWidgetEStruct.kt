@@ -13,10 +13,17 @@ import kotlinx.serialization.json.Json
 
 @Serializable(with = PlotParameterWidgetESerializer::class)
 data class PlotParameterWidgetEStruct(
-    val baseParameterWidgetEStruct: BaseParameterWidgetEStruct,
+    val baseParameterWidgetEStruct: BaseParameterWidgetEStruct  = BaseParameterWidgetEStruct(),
     val color: Int = 0,
     val maxSize: Int = 0,
-    val minSize: Int = 0
+    val minSize: Int = 0,
+
+    val openThreshold: Int = 0,
+    val closeThreshold: Int = 0,
+    val openThresholdUpper : Int = 0,
+    val openThresholdLower : Int = 0,
+    val closeThresholdUpper : Int = 0,
+    val closeThresholdLower : Int = 0,
 )
 
 object PlotParameterWidgetESerializer: KSerializer<PlotParameterWidgetEStruct> {
@@ -26,13 +33,14 @@ object PlotParameterWidgetESerializer: KSerializer<PlotParameterWidgetEStruct> {
     override fun deserialize(decoder: Decoder): PlotParameterWidgetEStruct {
         val string = decoder.decodeString()
         System.err.println("PlotParameterWidgetESerializer string:${string.length}")
-        val baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${string.substring(0, 18)}\"")
+        var baseParameterWidgetEStruct = BaseParameterWidgetEStruct()
         var color = 0
         var maxSize = 0
         var minSize = 0
 
 
         if (string.length >= 24) {
+            baseParameterWidgetEStruct = Json.decodeFromString<BaseParameterWidgetEStruct>("\"${string.substring(0, 18)}\"")
             color = castUnsignedCharToInt(string.substring(18, 20).toInt(16).toByte())
             maxSize = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
             minSize = castUnsignedCharToInt(string.substring(22, 24).toInt(16).toByte())

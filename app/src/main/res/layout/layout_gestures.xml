@@ -459,7 +459,7 @@
                             tools:ignore="RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
 
-                        <Button
+                        <ImageView
                             android:id="@+id/gesture_settings_1_btn"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
@@ -517,6 +517,7 @@
                             android:layout_alignEnd="@+id/gesture_2_btn"
                             android:layout_centerVertical="true"
                             android:layout_marginEnd="17dp"
+                            android:visibility="gone"
                             android:background="@drawable/ic_baseline_settings_24"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
@@ -583,6 +584,7 @@
                             android:layout_alignEnd="@+id/gesture_3_btn"
                             android:layout_centerVertical="true"
                             android:layout_marginEnd="17dp"
+                            android:visibility="gone"
                             android:background="@drawable/ic_baseline_settings_24"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
@@ -635,6 +637,7 @@
                             android:layout_alignEnd="@+id/gesture_4_btn"
                             android:layout_centerVertical="true"
                             android:layout_marginEnd="17dp"
+                            android:visibility="gone"
                             android:background="@drawable/ic_baseline_settings_24"
                             android:backgroundTint="@android:color/white"
                             android:elevation="4dp"
@@ -1192,7 +1195,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="16dp"
-                        android:layout_marginBottom="16dp"
                         android:layout_marginEnd="16dp"
                         android:layout_weight="1">
 
@@ -1241,11 +1243,712 @@
 
                 </LinearLayout>
             </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relativeLayout8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/relativeLayout7"
+                tools:ignore="MissingConstraints">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    tools:ignore="DisableBaselineAlignment,UselessParent">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_15_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:includeFontPadding="true"
+                            android:paddingStart="16dp"
+                            android:text="gesture №15"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_15_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_15_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,MissingConstraints,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_15_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_15_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_16_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:paddingStart="16dp"
+                            android:text="gesture №16"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_16_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_16_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_16_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_16_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relativeLayout9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/relativeLayout8"
+                tools:ignore="MissingConstraints">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    tools:ignore="DisableBaselineAlignment,UselessParent">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_17_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:includeFontPadding="true"
+                            android:paddingStart="16dp"
+                            android:text="gesture №17"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_17_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_17_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,MissingConstraints,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_17_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_17_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_18_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:paddingStart="16dp"
+                            android:text="gesture №18"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_18_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_18_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:visibility="gone"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_18_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_18_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relativeLayout10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/relativeLayout9"
+                tools:ignore="MissingConstraints">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    tools:ignore="DisableBaselineAlignment,UselessParent">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_19_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:includeFontPadding="true"
+                            android:paddingStart="16dp"
+                            android:text="gesture №19"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_19_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_19_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:visibility="gone"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,MissingConstraints,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_19_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_19_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_20_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:paddingStart="16dp"
+                            android:text="gesture №20"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_20_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_20_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:visibility="gone"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_20_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_20_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relativeLayout11"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/relativeLayout10"
+                tools:ignore="MissingConstraints">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    tools:ignore="DisableBaselineAlignment,UselessParent">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_21_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:includeFontPadding="true"
+                            android:paddingStart="16dp"
+                            android:text="gesture №21"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_21_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_21_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:visibility="gone"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,MissingConstraints,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_21_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_21_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_22_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:paddingStart="16dp"
+                            android:text="gesture №22"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_22_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_22_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:visibility="gone"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_22_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_22_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relativeLayout12"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/relativeLayout11"
+                tools:ignore="MissingConstraints">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    tools:ignore="DisableBaselineAlignment,UselessParent">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_23_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:includeFontPadding="true"
+                            android:paddingStart="16dp"
+                            android:text="gesture №23"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_23_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_23_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:visibility="gone"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,MissingConstraints,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_23_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_23_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_24_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:paddingStart="16dp"
+                            android:text="gesture №24"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_24_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_24_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:visibility="gone"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_24_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_24_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relativeLayout13"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/relativeLayout12"
+                tools:ignore="MissingConstraints">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    tools:ignore="DisableBaselineAlignment,UselessParent">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="32dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_25_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:includeFontPadding="true"
+                            android:paddingStart="16dp"
+                            android:text="gesture №25"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_25_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_25_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:visibility="gone"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,MissingConstraints,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_25_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_25_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:visibility="gone"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/gesture_26_btn"
+                            style="@style/Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:background="@drawable/custom_button_le"
+                            android:gravity="center_vertical|left"
+                            android:paddingStart="16dp"
+                            android:text="gesture №26"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry,SmallSp,TextContrastCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
+
+                        <ImageView
+                            android:id="@+id/gesture_settings_26_btn"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignEnd="@+id/gesture_26_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="17dp"
+                            android:background="@drawable/ic_baseline_settings_24"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                        <ImageView
+                            android:id="@+id/gesture_loop_26_iv"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignEnd="@+id/gesture_26_btn"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/gesture_loop"
+                            android:backgroundTint="@android:color/white"
+                            android:elevation="4dp"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription,ImageContrastCheck" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </RelativeLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
     <RelativeLayout
-        android:id="@+id/relativeLayout8"
+        android:id="@+id/relativeLayout88"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

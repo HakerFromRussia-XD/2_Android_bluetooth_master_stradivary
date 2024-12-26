@@ -9,20 +9,22 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import android.util.Pair
+import com.bailout.stickk.ubi4.models.Quadruple
 
 
 @Serializable(with = BaseParameterWidgetSerializer::class)
 data class BaseParameterWidgetStruct(
     val widgetType: Int = 0,      // 7 bit   младшие биты
     val widgetLabelType: Int = 0, // 1 bit, если 1, то парсим хвост как структуку с enum иначе как структуру с именем в виде char[32]
-    val widgetCode: Int = 0,
+    var widgetCode: Int = 0,
     val display: Int = 0, // номер экрана, на котором виджет располагается
     val widgetPosition: Int = 0, // позиция этого виджета
     var deviceId: Int = 0,
     val widgetId: Int = 0,
     val dataOffset: Int = 0,
     var dataSize: Int = 0,
-    var parametersIDAndDataCodes: MutableSet<Pair<Int, Int>> = mutableSetOf(Pair(0, 0)), // ID родительских параметров и их датакоды
+    var channelOffset: Int = 0,
+    var parametersIDAndDataCodes: MutableSet<Quadruple<Int, Int, Int, Int>> = mutableSetOf(Quadruple(0, 0, 0, 0)), // ID родительских параметров и их датакоды
 )
 
 object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
@@ -40,7 +42,7 @@ object BaseParameterWidgetSerializer: KSerializer<BaseParameterWidgetStruct> {
         var widgetId = 0
         var dataOffset = 0
         var dataSize = 0
-        val parentIDParameter = mutableSetOf<Pair<Int, Int>>()
+        val parentIDParameter = mutableSetOf<Quadruple<Int, Int, Int, Int>>()
 
         if (string.length >= 16) {
             widgetType = castUnsignedCharToInt(string.substring(0, 2).toInt(16).toByte()) shr 0 and 0b01111111

@@ -7,20 +7,27 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color.WHITE
 import android.os.Bundle
+import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.R.drawable.custom_button_le
 import com.bailout.stickk.R.drawable.custom_button_le_selected
+import com.bailout.stickk.R.drawable.hand_palm_15
 import com.bailout.stickk.R.drawable.hand_palm_1
 import com.bailout.stickk.R.drawable.hand_palm_10
 import com.bailout.stickk.R.drawable.hand_palm_11
 import com.bailout.stickk.R.drawable.hand_palm_12
 import com.bailout.stickk.R.drawable.hand_palm_13
 import com.bailout.stickk.R.drawable.hand_palm_14
+import com.bailout.stickk.R.drawable.*
 import com.bailout.stickk.R.drawable.hand_palm_2
 import com.bailout.stickk.R.drawable.hand_palm_3
 import com.bailout.stickk.R.drawable.hand_palm_4
@@ -40,6 +47,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
+import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.NUM_GESTURES
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.with_encoders.GripperScreenWithEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.gripper.without_encoders.GripperScreenWithoutEncodersActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.main.MainActivity
@@ -56,6 +64,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 
 @Suppress("DEPRECATION")
 class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickListener{
+    private var sendFlag: Boolean = false
 
     private var main: MainActivity? = null
     private var mSettings: SharedPreferences? = null
@@ -74,7 +83,18 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         hand_palm_11,
         hand_palm_12,
         hand_palm_13,
-        hand_palm_14
+        hand_palm_14,
+        hand_palm_15,
+        hand_palm_16,
+        hand_palm_17,
+        hand_palm_18,
+        hand_palm_19,
+        hand_palm_20,
+        hand_palm_21,
+        hand_palm_22,
+        hand_palm_23,
+        hand_palm_24,
+        hand_palm_25,
     )
     private var testThreadFlag = true
     private var activeGestures = 8  //  NUM_ACTIVE_GESTURES
@@ -86,15 +106,21 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     private var lockProstheses = 0
     private var holdToLockTimeSb = 0
     private var firstStart = true
-    private val countRestart = 5//TODO поставить по больше после отладки (50)
+    private val countRestart = 3
 
     private lateinit var binding: LayoutGesturesBinding
 
+    private val gesturesButtonsSVLocation = IntArray(2)
+    private val relativeLayout88Location = IntArray(2)
+    private var density = 0f
+    private var distance = 0
+    private val heightActiveRotationGroupWithSwichDp = 222
+    private val heightActiveRotationGroupDp = 166
+    private var heightActiveRotationGroupPx = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = LayoutGesturesBinding.inflate(layoutInflater)
         if (activity != null) { main = activity as MainActivity? }
-
 
         main?.startScrollForGesturesFragment = {
             System.err.println("GestureFragment startScroll")
@@ -109,10 +135,28 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         mSettings = context?.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+        density = requireContext().resources.displayMetrics.density
+        heightActiveRotationGroupPx = (heightActiveRotationGroupDp * density + 0.5f).toInt()
+//        // Получаем координаты
+//        binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
+//        binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
+//        // Вычисляем расстояние между верхними границами
+//        distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
+//        Log.d("Distance", "distance = $distance")
 
+//        binding.gesturesButtonsSv.layoutParams.height = distance
 
         onOffUIAll(false)
+
+        // 166dp это высота группы ротации + слайдера управления временем + девайдер
+
         binding.onOffSensorGestureSwitchingSw.setOnClickListener {
+            // Получаем координаты
+            binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
+            binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
+            // Вычисляем расстояние между верхними границами
+            distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
+
             if (binding.onOffSensorGestureSwitchingSw.isChecked) {
                 sensorGestureSwitching = 0x01
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.on_sw)
@@ -121,9 +165,8 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.dividerV.animate().translationY(0F).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
                 selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
-                binding.gesturesButtonsSv.layoutParams.height = 1000
+                binding.gesturesButtonsSv.layoutParams.height = distance - heightActiveRotationGroupPx
             } else {
-                binding.gesturesButtonsSv.layoutParams.height = 0
                 sensorGestureSwitching = 0x00
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
                 binding.toggleGestureClasterRl.animate().alpha(0.0f).duration = 300
@@ -131,6 +174,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.dividerV.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration = 300
                 offAllRotationImage()
+                binding.gesturesButtonsSv.layoutParams.height = distance
             }
             if (useNewSystemSendCommand()) {
                 main?.runSendCommand(
@@ -202,9 +246,6 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         })
 
 
-        binding.gestureSettings2Btn.setOnClickListener(this)
-        binding.gestureSettings3Btn.setOnClickListener(this)
-        binding.gestureSettings4Btn.setOnClickListener(this)
         binding.gestureSettings5Btn.setOnClickListener(this)
         binding.gestureSettings6Btn.setOnClickListener(this)
         binding.gestureSettings7Btn.setOnClickListener(this)
@@ -215,6 +256,9 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings12Btn.setOnClickListener(this)
         binding.gestureSettings13Btn.setOnClickListener(this)
         binding.gestureSettings14Btn.setOnClickListener(this)
+        binding.gestureSettings15Btn.setOnClickListener(this)
+        binding.gestureSettings16Btn.setOnClickListener(this)
+        binding.gestureSettings17Btn.setOnClickListener(this)
         binding.gesture1Btn.setOnClickListener {
             if (!main?.lockWriteBeforeFirstRead!!) {
                 selectActiveGesture(1)
@@ -299,6 +343,73 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 compileBLEMassage (13)
             }
         }
+        binding.gesture15Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(15)
+                compileBLEMassage (14)
+            }
+        }
+        binding.gesture16Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(16)
+                compileBLEMassage (15)
+            }
+        }
+        binding.gesture17Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(17)
+                compileBLEMassage (16)
+            }
+        }
+        binding.gesture18Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(18)
+                compileBLEMassage (17)
+            }
+        }
+        binding.gesture19Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(19)
+                compileBLEMassage (18)
+            }
+        }
+        binding.gesture20Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(20)
+                compileBLEMassage (19)
+            }
+        }
+        binding.gesture21Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(21)
+                compileBLEMassage (20)
+            }
+        }
+        binding.gesture22Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(22)
+                compileBLEMassage (21)
+            }
+        }
+        binding.gesture23Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(23)
+                compileBLEMassage (22)
+            }
+        }
+        binding.gesture24Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(24)
+                compileBLEMassage (23)
+            }
+        }
+        binding.gesture25Btn.setOnClickListener {
+            if (!main?.lockWriteBeforeFirstRead!!) {
+                selectActiveGesture(25)
+                compileBLEMassage (24)
+            }
+        }
+
         binding.gesturesResetBtn.setOnClickListener { main?.showGestureResetDialog() }
 
         //скрываем интерфейс управления группами ротации
@@ -311,6 +422,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         super.onResume()
         gestureNameList.clear()
         loadAllVariables()
+        Log.d("Distance", "loadAllVariables 0")
         setNameGesturesAndRotationGroup(activeGestures)
         testThreadFlag = true
         RxUpdateMainEvent.getInstance().uiGestures
@@ -323,6 +435,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     if (it < 100) {
                         //передаёт номер активного жеста
                         loadAllVariables()
+                        Log.d("Distance", "loadAllVariables 1")
                         selectActiveGesture(it)
                         selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
                         //тут нет onOffUIAll потому что
@@ -331,6 +444,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     if (it == 100) {
                         //активирует интерфейс
                         loadAllVariables()
+                        Log.d("Distance", "loadAllVariables 2")
                         System.err.println("RxUpdateMainEvent selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
                         selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
                         setPeakTimeVmNum(peakTimeVmNum)
@@ -352,7 +466,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "gesture activity 1"
             if (useNewSystemSendCommand()) {
-                main?.runSendCommand(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW_VM, 50)
+                main?.runSendCommand(byteArrayOf(0x01.toByte()), SENS_ENABLED_NEW_VM, countRestart)
             }
         }
     }
@@ -381,6 +495,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gesture12Btn.isEnabled = enabled
         binding.gesture13Btn.isEnabled = enabled
         binding.gesture14Btn.isEnabled = enabled
+        binding.gesture15Btn.isEnabled = enabled
+        binding.gesture16Btn.isEnabled = enabled
+        binding.gesture17Btn.isEnabled = enabled
+        binding.gesture18Btn.isEnabled = enabled
+        binding.gesture19Btn.isEnabled = enabled
+        binding.gesture20Btn.isEnabled = enabled
+        binding.gesture21Btn.isEnabled = enabled
+        binding.gesture22Btn.isEnabled = enabled
+        binding.gesture23Btn.isEnabled = enabled
+        binding.gesture24Btn.isEnabled = enabled
+        binding.gesture25Btn.isEnabled = enabled
         binding.gestureSettings2Btn.isEnabled = enabled
         binding.gestureSettings3Btn.isEnabled = enabled
         binding.gestureSettings4Btn.isEnabled = enabled
@@ -394,6 +519,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings12Btn.isEnabled = enabled
         binding.gestureSettings13Btn.isEnabled = enabled
         binding.gestureSettings14Btn.isEnabled = enabled
+        binding.gestureSettings15Btn.isEnabled = enabled
+        binding.gestureSettings16Btn.isEnabled = enabled
+        binding.gestureSettings17Btn.isEnabled = enabled
+        binding.gestureSettings18Btn.isEnabled = enabled
+        binding.gestureSettings19Btn.isEnabled = enabled
+        binding.gestureSettings20Btn.isEnabled = enabled
+        binding.gestureSettings21Btn.isEnabled = enabled
+        binding.gestureSettings22Btn.isEnabled = enabled
+        binding.gestureSettings23Btn.isEnabled = enabled
+        binding.gestureSettings24Btn.isEnabled = enabled
+        binding.gestureSettings25Btn.isEnabled = enabled
         binding.gesturesResetBtn.isEnabled = enabled
     }
     private fun hideUIRotationGroup (enabled: Boolean) {
@@ -438,39 +574,26 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     }
     private fun setNumActiveGestures(activeGestures: Int) {
         System.err.println("my setNumActiveGestures activeGestures = $activeGestures")
-        if (activeGestures == 8) {
-            binding.gesture9Btn.visibility = View.GONE
-            binding.gesture10Btn.visibility = View.GONE
-            binding.gesture11Btn.visibility = View.GONE
-            binding.gesture12Btn.visibility = View.GONE
-            binding.gesture13Btn.visibility = View.GONE
-            binding.gesture14Btn.visibility = View.GONE
-            binding.gestureSettings9Btn.visibility = View.GONE
-            binding.gestureSettings10Btn.visibility = View.GONE
-            binding.gestureSettings11Btn.visibility = View.GONE
-            binding.gestureSettings12Btn.visibility = View.GONE
-            binding.gestureSettings13Btn.visibility = View.GONE
-            binding.gestureSettings14Btn.visibility = View.GONE
-        } else {
-            binding.gesture9Btn.visibility = View.VISIBLE
-            binding.gesture10Btn.visibility = View.VISIBLE
-            binding.gesture11Btn.visibility = View.VISIBLE
-            binding.gesture12Btn.visibility = View.VISIBLE
-            binding.gesture13Btn.visibility = View.VISIBLE
-            binding.gesture14Btn.visibility = View.VISIBLE
-            binding.gestureSettings9Btn.visibility = View.VISIBLE
-            binding.gestureSettings10Btn.visibility = View.VISIBLE
-            binding.gestureSettings11Btn.visibility = View.VISIBLE
-            binding.gestureSettings12Btn.visibility = View.VISIBLE
-            binding.gestureSettings13Btn.visibility = View.VISIBLE
-            binding.gestureSettings14Btn.visibility = View.VISIBLE
+        for (i in 1..activeGestures) {
+            val gestureBtn = binding::class.java.getDeclaredField("gesture${i}Btn").get(binding) as Button
+            val gestureSettingsBtn = binding::class.java.getDeclaredField("gestureSettings${i}Btn").get(binding) as ImageView
+            gestureBtn.visibility = View.VISIBLE
+            if (i in 5..17) {
+                gestureSettingsBtn.visibility = View.VISIBLE
+            }
+        }
+        for (i in activeGestures+1..NUM_GESTURES) {
+            val gestureBtn = binding::class.java.getDeclaredField("gesture${i}Btn").get(binding) as Button
+            val gestureSettingsBtn = binding::class.java.getDeclaredField("gestureSettings${i}Btn").get(binding) as ImageView
+            gestureBtn.visibility = View.GONE
+            gestureSettingsBtn.visibility = View.GONE
         }
         setNameGesturesAndRotationGroup(activeGestures)
     }
     private fun compileBLEMassage (useGesture: Int) {
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "gesture activity 2"
-            main?.runSendCommand(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW_VM, 50)
+            main?.runSendCommand(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW_VM, countRestart)
         } else {
             if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(useGesture.toByte()), SET_GESTURE_NEW, WRITE)
@@ -495,6 +618,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gesture12Btn.background = resources.getDrawable(custom_button_le)
         binding.gesture13Btn.background = resources.getDrawable(custom_button_le)
         binding.gesture14Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture15Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture16Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture17Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture18Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture19Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture20Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture21Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture22Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture23Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture24Btn.background = resources.getDrawable(custom_button_le)
+        binding.gesture25Btn.background = resources.getDrawable(custom_button_le)
         binding.gesture1Btn.setTextColor(WHITE)
         binding.gesture2Btn.setTextColor(WHITE)
         binding.gesture3Btn.setTextColor(WHITE)
@@ -509,6 +643,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gesture12Btn.setTextColor(WHITE)
         binding.gesture13Btn.setTextColor(WHITE)
         binding.gesture14Btn.setTextColor(WHITE)
+        binding.gesture15Btn.setTextColor(WHITE)
+        binding.gesture16Btn.setTextColor(WHITE)
+        binding.gesture17Btn.setTextColor(WHITE)
+        binding.gesture18Btn.setTextColor(WHITE)
+        binding.gesture19Btn.setTextColor(WHITE)
+        binding.gesture20Btn.setTextColor(WHITE)
+        binding.gesture21Btn.setTextColor(WHITE)
+        binding.gesture22Btn.setTextColor(WHITE)
+        binding.gesture23Btn.setTextColor(WHITE)
+        binding.gesture24Btn.setTextColor(WHITE)
+        binding.gesture25Btn.setTextColor(WHITE)
         binding.gestureSettings1Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureSettings2Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureSettings3Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
@@ -523,6 +668,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureSettings12Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureSettings13Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureSettings14Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings15Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings16Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings17Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings18Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings19Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings20Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings21Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings22Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings23Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings24Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureSettings25Btn.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop1Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop2Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop3Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
@@ -537,107 +693,99 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         binding.gestureLoop12Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop13Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
         binding.gestureLoop14Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop15Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop16Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop17Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop18Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop19Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop20Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop21Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop22Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop23Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop24Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
+        binding.gestureLoop25Iv.backgroundTintList = context?.resources?.getColorStateList(R.color.white)
     }
     private fun setNameGesturesAndRotationGroup(activeGestures: Int) {
-        binding.gesture1Btn.text = gestureNameList[0]
-        binding.gesture2Btn.text = gestureNameList[1]
-        binding.gesture3Btn.text = gestureNameList[2]
-        binding.gesture4Btn.text = gestureNameList[3]
-        binding.gesture5Btn.text = gestureNameList[4]
-        binding.gesture6Btn.text = gestureNameList[5]
-        binding.gesture7Btn.text = gestureNameList[6]
-        binding.gesture8Btn.text = gestureNameList[7]
-        binding.gesture9Btn.text = gestureNameList[8]
-        binding.gesture10Btn.text = gestureNameList[9]
-        binding.gesture11Btn.text = gestureNameList[10]
-        binding.gesture12Btn.text = gestureNameList[11]
-        binding.gesture13Btn.text = gestureNameList[12]
-        binding.gesture14Btn.text = gestureNameList[13]
-        binding.gestureLoop1Psv.let {
-            it.apply {
-                setSpinnerAdapter(IconSpinnerAdapter(this))
-                val list: MutableList<IconSpinnerItem> = ArrayList()
-                for (i in 0 until activeGestures) {
-                    list.add(IconSpinnerItem(text = gestureNameList[i], iconRes = handPalms[i], gravity = 100))
-                }
-                setItems(list)
-                showDivider = true
-                dividerSize = 2
-                lifecycleOwner = this@GestureFragment
-            }
-            it.setOnSpinnerItemSelectedListener<IconSpinnerItem> { oldIndex, _, newIndex, _ ->
-                startGestureInLoopNum = newIndex
-//                System.err.println("test gestures in loop    GF gestureLoop1Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
-                selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
-
-                if (oldIndex != newIndex) {
-                    binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
-                }
-
-                if (useNewSystemSendCommand()) {
-                    main?.runSendCommand(
-                        byteArrayOf(
-                            sensorGestureSwitching.toByte(),
-                            0.toByte(),
-                            binding.peakTimeVmSb.progress.toByte(),
-                            0.toByte(),
-                            lockProstheses.toByte(),
-                            holdToLockTimeSb.toByte(),
-                            startGestureInLoopNum.toByte(),
-                            endGestureInLoopNum.toByte()
-                        ), ROTATION_GESTURE_NEW_VM, countRestart
-                    )
-                }
-                main?.saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
-                RxUpdateMainEvent.getInstance().updateUIChart(true)
-            }
+        for (i in 1..NUM_GESTURES) {
+            val gestureBtn = binding::class.java.getDeclaredField("gesture${i}Btn").get(binding) as Button
+            gestureBtn.text = gestureNameList[i-1]
         }
-        binding.gestureLoop2Psv.let {
-            it.apply {
-                setSpinnerAdapter(IconSpinnerAdapter(this))
-                val list: MutableList<IconSpinnerItem> = ArrayList()
-                for (i in 0 until activeGestures) {
-                    list.add(
-                        IconSpinnerItem(
-                            text = gestureNameList[i],
-                            iconRes = handPalms[i],
-                            gravity = 100
-                        )
-                    )
-                }
-                setItems(list)
-                showDivider = true
-                dividerSize = 2
-                lifecycleOwner = this@GestureFragment
-            }
-            it.setOnSpinnerItemSelectedListener<IconSpinnerItem> {
-                    oldIndex, _, newIndex, _ ->
-                endGestureInLoopNum = newIndex
-//                System.err.println("test gestures in loop  GF gestureLoop2Psv selectRotationGroup startGestureInLoop=$startGestureInLoopNum  endGestureInLoop=$endGestureInLoopNum")
-                selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, false)
-                if (oldIndex != newIndex) {
-                    binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
-                }
-
-                if (useNewSystemSendCommand()) {
-                    main?.runSendCommand(byteArrayOf(
-                            sensorGestureSwitching.toByte(),
-                            0.toByte(),
-                            binding.peakTimeVmSb.progress.toByte(),
-                            0.toByte(),
-                            lockProstheses.toByte(),
-                            holdToLockTimeSb.toByte(),
-                            startGestureInLoopNum.toByte(),
-                            endGestureInLoopNum.toByte()
-                        ), ROTATION_GESTURE_NEW_VM, countRestart)
-                }
-                main?.saveInt(
-                    main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP,
-                    endGestureInLoopNum
+        //it.apply {
+        //                setSpinnerAdapter(IconSpinnerAdapter(this))
+        //                val list: MutableList<IconSpinnerItem> = ArrayList()
+        //                for (i in 0 until activeGestures) {
+        //                    list.add(IconSpinnerItem(text = gestureNameList[i], iconRes = handPalms[i], gravity = 100))
+        //                }
+        //                setItems(list)
+        //                showDivider = true
+        //                dividerSize = 2
+        //                lifecycleOwner = this@GestureFragment
+        //            }
+        val list: MutableList<String> = ArrayList()
+        for (i in 0 until activeGestures) {
+            list.add(gestureNameList[i])
+        }
+        binding.gestureLoop1Psv.setItems(list)
+        binding.gestureLoop2Psv.setItems(list)
+        binding.gestureLoop1Psv.setOnSpinnerItemSelectedListener<String> { oldIndex, _, newIndex, _ ->
+            startGestureInLoopNum = newIndex
+            selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, true)
+            System.err.println("test gestures in loop  GF gestureLoop1Psv selectRotationGroup startGestureInLoop=${startGestureInLoopNum+1}  endGestureInLoop=${endGestureInLoopNum+1} sendFlag = $sendFlag")
+            System.err.println("DeviceControlActivity-------> gestureLoop1Psv sendFlag = $sendFlag")
+            if (useNewSystemSendCommand() && sendFlag) {
+                main?.runSendCommand(
+                    byteArrayOf(
+                        sensorGestureSwitching.toByte(),
+                        0.toByte(),
+                        binding.peakTimeVmSb.progress.toByte(),
+                        0.toByte(),
+                        lockProstheses.toByte(),
+                        holdToLockTimeSb.toByte(),
+                        startGestureInLoopNum.toByte(),
+                        endGestureInLoopNum.toByte()
+                    ), ROTATION_GESTURE_NEW_VM, countRestart
                 )
-//                System.err.println("gonka gesture 3 onViewCreated true")
-                RxUpdateMainEvent.getInstance().updateUIChart(true)
+            } else {
+                sendFlag = true
             }
+
+            if (oldIndex != newIndex) {
+                sendFlag = false
+                binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)// - startGestureInLoop - 1
+            }
+
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, startGestureInLoopNum)
+            RxUpdateMainEvent.getInstance().updateUIChart(true)
+        }
+        binding.gestureLoop2Psv.setOnSpinnerItemSelectedListener<String> { oldIndex, _, newIndex, _ ->
+            endGestureInLoopNum = newIndex
+            System.err.println("test gestures in loop  GF gestureLoop2Psv selectRotationGroup startGestureInLoop=${startGestureInLoopNum+1}  endGestureInLoop=${endGestureInLoopNum+1} sendFlag = $sendFlag")
+            selectRotationGroup(startGestureInLoopNum, endGestureInLoopNum, false)
+
+            System.err.println("DeviceControlActivity-------> gestureLoop2Psv sendFlag = $sendFlag")
+            if (useNewSystemSendCommand() && sendFlag) {
+                main?.runSendCommand(byteArrayOf(
+                        sensorGestureSwitching.toByte(),
+                        0.toByte(),
+                        binding.peakTimeVmSb.progress.toByte(),
+                        0.toByte(),
+                        lockProstheses.toByte(),
+                        holdToLockTimeSb.toByte(),
+                        startGestureInLoopNum.toByte(),
+                        endGestureInLoopNum.toByte()
+                    ), ROTATION_GESTURE_NEW_VM, countRestart
+                )
+            } else {
+                sendFlag = true
+            }
+
+            if (oldIndex != newIndex) {
+                sendFlag = false
+                binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
+            }
+
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, endGestureInLoopNum)
+            RxUpdateMainEvent.getInstance().updateUIChart(true)
         }
     }
     @SuppressLint("UseCompatLoadingForDrawables", "UseCompatLoadingForColorStateLists")
@@ -743,7 +891,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
 //        System.err.println("my блок отрисовки картинок цикла на нужных кнопках 1")
         if (binding.onOffSensorGestureSwitchingSw.isChecked) {
 //            System.err.println("my блок отрисовки картинок цикла на нужных кнопках 2 true")
-            binding.gesturesButtonsSv.layoutParams.height = 1000
+//            binding.gesturesButtonsSv.layoutParams.height = 1000
             val indicatorGestureLoop = arrayOf(
                 binding.gestureLoop1Iv,
                 binding.gestureLoop2Iv,
@@ -758,9 +906,20 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.gestureLoop11Iv,
                 binding.gestureLoop12Iv,
                 binding.gestureLoop13Iv,
-                binding.gestureLoop14Iv
+                binding.gestureLoop14Iv,
+                binding.gestureLoop15Iv,
+                binding.gestureLoop16Iv,
+                binding.gestureLoop17Iv,
+                binding.gestureLoop18Iv,
+                binding.gestureLoop19Iv,
+                binding.gestureLoop20Iv,
+                binding.gestureLoop21Iv,
+                binding.gestureLoop22Iv,
+                binding.gestureLoop23Iv,
+                binding.gestureLoop24Iv,
+                binding.gestureLoop25Iv,
             )
-            for (i in 0 until 14) {
+            for (i in 0 until NUM_GESTURES) {
                 indicatorGestureLoop[i].visibility = View.GONE
             }
             for (i in startGestureInLoopNum until endGestureInLoopNum + 1) {
@@ -768,7 +927,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 indicatorGestureLoop[i].visibility = View.VISIBLE
             }
         } else {
-            binding.gesturesButtonsSv.layoutParams.height = 0
+//            binding.gesturesButtonsSv.layoutParams.height = 0
 //            System.err.println("my блок отрисовки картинок цикла на нужных кнопках 3 false")
         }
     }
@@ -805,57 +964,113 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
             startActivity(intent)
         }
         if (checkDriverVersionGreaterThan237()) {
-            when (v?.id) {
-                R.id.gesture_settings_2_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 1)
-                }
+            if (checkDriverVersionGreaterThan240()) {
+                when (v?.id) {
+                    R.id.gesture_settings_5_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
+                    }
 
-                R.id.gesture_settings_3_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
-                }
+                    R.id.gesture_settings_6_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
+                    }
 
-                R.id.gesture_settings_4_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 3)
-                }
+                    R.id.gesture_settings_7_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
+                    }
 
-                R.id.gesture_settings_5_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
-                }
+                    R.id.gesture_settings_8_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
+                    }
 
-                R.id.gesture_settings_6_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
-                }
+                    R.id.gesture_settings_9_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
+                    }
 
-                R.id.gesture_settings_7_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
-                }
+                    R.id.gesture_settings_10_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 9)
+                    }
 
-                R.id.gesture_settings_8_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
-                }
+                    R.id.gesture_settings_11_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 10)
+                    }
 
-                R.id.gesture_settings_9_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
-                }
+                    R.id.gesture_settings_12_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 11)
+                    }
 
-                R.id.gesture_settings_10_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 9)
-                }
+                    R.id.gesture_settings_13_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 12)
+                    }
 
-                R.id.gesture_settings_11_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 10)
-                }
+                    R.id.gesture_settings_14_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 13)
+                    }
 
-                R.id.gesture_settings_12_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 11)
-                }
+                    R.id.gesture_settings_15_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 14)
+                    }
 
-                R.id.gesture_settings_13_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 12)
-                }
+                    R.id.gesture_settings_16_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 15)
+                    }
 
-                R.id.gesture_settings_14_btn -> {
-                    main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 13)
+                    R.id.gesture_settings_17_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 16)
+                    }
+                }
+            } else {
+                when (v?.id) {
+                    R.id.gesture_settings_2_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 1)
+                    }
+
+                    R.id.gesture_settings_3_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 2)
+                    }
+
+                    R.id.gesture_settings_4_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 3)
+                    }
+
+                    R.id.gesture_settings_5_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 4)
+                    }
+
+                    R.id.gesture_settings_6_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 5)
+                    }
+
+                    R.id.gesture_settings_7_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 6)
+                    }
+
+                    R.id.gesture_settings_8_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 7)
+                    }
+
+                    R.id.gesture_settings_9_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 8)
+                    }
+
+                    R.id.gesture_settings_10_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 9)
+                    }
+
+                    R.id.gesture_settings_11_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 10)
+                    }
+
+                    R.id.gesture_settings_12_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 11)
+                    }
+
+                    R.id.gesture_settings_13_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 12)
+                    }
+
+                    R.id.gesture_settings_14_btn -> {
+                        main?.saveInt(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM, 13)
+                    }
                 }
             }
         } else {
@@ -898,7 +1113,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         if (main?.mDeviceType!!.contains(ConstantManager.DEVICE_TYPE_FEST_X)) {
             main?.stage = "gesture activity 3"
             if (useNewSystemSendCommand()) {
-                main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 50)
+                main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, countRestart)
             }
         }
     }
@@ -909,7 +1124,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         val text = "load not work"
         val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, text)
 
-        for (i in 0 until PreferenceKeys.NUM_GESTURES) {
+        for (i in 0 until NUM_GESTURES) {
             System.err.println("9 LAST_CONNECTION_MAC: "+PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
             gestureNameList.add(mSettings!!.getString(PreferenceKeys.SELECT_GESTURE_SETTINGS_NUM + macKey + i, text).toString())
         }
@@ -926,7 +1141,17 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                 binding.peakTimeVmRl.animate().alpha(1.0f).duration = 300
                 binding.dividerV.animate().translationY(0F).duration = 300
                 binding.gesturesButtonsSv.animate().translationY(0F).duration = 300
-                binding.gesturesButtonsSv.layoutParams.height = 1000
+
+//                Handler().postDelayed({
+                    // Получаем координаты
+                    binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
+                    binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
+//
+//                    // Вычисляем расстояние между верхними границами
+                    distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
+                    Log.d("Distance", "distance = $distance  loadAllVariables isChecked")
+                    binding.gesturesButtonsSv.layoutParams.height = distance// + heightActiveRotationGroupPx
+//                }, 1000)
             } else {
                 binding.onOffSensorGestureSwitchingSw.isChecked = false
                 binding.onOffSensorGestureSwitchingTv.text = resources.getString(R.string.off_sw)
@@ -939,7 +1164,18 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
                     .translationY(-(binding.toggleGestureClasterRl.height + binding.peakTimeVmRl.height + 16).toFloat()).duration =
                     300
                 offAllRotationImage()
-                binding.gesturesButtonsSv.layoutParams.height = 0
+
+//                Handler().postDelayed({
+                    heightActiveRotationGroupPx = (heightActiveRotationGroupDp * density + 0.5f).toInt()
+                    // Получаем координаты
+                    binding.gesturesButtonsSv.getLocationOnScreen(gesturesButtonsSVLocation)
+                    binding.relativeLayout88.getLocationOnScreen(relativeLayout88Location)
+                    // Вычисляем расстояние между верхними границами
+                    distance = relativeLayout88Location[1] - gesturesButtonsSVLocation[1]
+                    Log.d("Distance", "distance = $distance  loadAllVariables notChecked")
+
+                    binding.gesturesButtonsSv.layoutParams.height = distance// + heightActiveRotationGroupPx
+//                }, 1000)
             }
         }
 
@@ -950,10 +1186,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         startGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.START_GESTURE_IN_LOOP, 0)
         endGestureInLoopNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.END_GESTURE_IN_LOOP, 0)
         try {
+            sendFlag = false
             binding.gestureLoop1Psv.selectItemByIndex(startGestureInLoopNum)
+            sendFlag = false
             binding.gestureLoop2Psv.selectItemByIndex(endGestureInLoopNum)
         } catch (e : Exception) {
+            sendFlag = false
             binding.gestureLoop1Psv.selectItemByIndex(activeGestures - 1 )
+            sendFlag = false
             binding.gestureLoop2Psv.selectItemByIndex(activeGestures - 1 )
         }
 
@@ -975,6 +1215,14 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
         return if (main?.driverVersionS != null) {
             val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
             driverNum.toInt() >= 237
+        } else {
+            false
+        }
+    }
+    private fun checkDriverVersionGreaterThan240():Boolean {
+        return if (main?.driverVersionS != null) {
+            val driverNum = main?.driverVersionS?.substring(0, 1) + main?.driverVersionS?.substring(2, 4)
+            driverNum.toInt() >= 240
         } else {
             false
         }

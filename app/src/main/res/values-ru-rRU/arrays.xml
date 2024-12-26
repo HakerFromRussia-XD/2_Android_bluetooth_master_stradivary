@@ -29,7 +29,13 @@
     <string-array name="emg_modes">
         <item>классический</item>
         <item>чувствительный</item>
-<!--        <item>искуственный интеллект</item>-->
+        <item>искуственный интеллект</item>
+    </string-array>
+    <string-array name="gesture_ranges">
+        <item>7</item>
+        <item>13</item>
+        <item>23</item>
+        <item>25</item>
     </string-array>
     <string-array name="prosthesis_modes">
         <item>стандартный</item>

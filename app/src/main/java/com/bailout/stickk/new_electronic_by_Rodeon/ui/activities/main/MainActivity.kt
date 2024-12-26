@@ -9,16 +9,32 @@ import android.bluetooth.BluetoothAdapter.LeScanCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.ServiceConnection
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.nfc.NfcAdapter
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.CountDownTimer
+import android.os.Handler
+import android.os.IBinder
+import android.os.Parcel
+import android.os.Parcelable
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.ExpandableListView
+import android.widget.SimpleExpandableListAdapter
+import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -27,9 +43,67 @@ import androidx.viewpager.widget.ViewPager
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.ActivityMainBinding
-import com.bailout.stickk.ubi4.ble.BluetoothLeService
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.*
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.*
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.COUNT_ATTEMPTS_TO_UPDATE
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_NAME
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_BT05
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_A
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_H
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_TEST
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_FEST_X
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_INDY
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.DEVICE_TYPE_MY_IPHONE
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.EXTRAS_DEVICE_ADDRESS
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.EXTRAS_DEVICE_NAME
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.EXTRAS_DEVICE_TYPE
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.GRAPH_UPDATE_DELAY
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.READ_REGISTER
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.REQUEST_ENABLE_BT
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.SECRET_PIN
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.ADD_GESTURE_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.CALIBRATION_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.CHANGE_GESTURE_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.CHANGE_GESTURE_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.CLOSE_THRESHOLD_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.DRIVER_VERSION_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.DRIVER_VERSION_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.FESTO_A_CHARACTERISTIC
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.MIO_MEASUREMENT_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.MOVE_ALL_FINGERS_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.MOVE_ALL_FINGERS_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.NOTIFY
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.OPEN_THRESHOLD_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.READ
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.RESET_TO_FACTORY_SETTINGS
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.RESET_TO_FACTORY_SETTINGS_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.RESET_TO_FACTORY_SETTINGS_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.ROTATION_GESTURE_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_OPTIONS_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SENS_VERSION_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SERIAL_NUMBER_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SERIAL_NUMBER_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_GESTURE_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_ONE_CHANNEL_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_ONE_CHANNEL_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_REVERSE_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_REVERSE_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_SELECT_SCALE
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SET_SERIAL_NUMBER
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SHUTDOWN_CURRENT_NEW
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.SHUTDOWN_CURRENT_NEW_VM
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.WRITE_WR
+import com.bailout.stickk.new_electronic_by_Rodeon.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.events.rx.RxUpdateMainEvent
@@ -38,32 +112,53 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_CLOSE_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys.GESTURE_OPEN_DELAY_FINGER
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
-import com.bailout.stickk.new_electronic_by_Rodeon.services.DataTransferToService
 import com.bailout.stickk.new_electronic_by_Rodeon.services.MyService
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Decorator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.Navigator
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.activities.helps.TypeGuides
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.*
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.*
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapter
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograb
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterMonograbWithAdvancedSettings
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.SectionsPagerAdapterWithAdvancedSettings
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.adapters.SelectionsPagerAdapterKibi
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.ChartFragmentCallback
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.CustomDialogChangeValue
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.CustomDialogResultTestCommunication
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.CustomDialogTestCommunication
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.CustomInfoCalibrationDialogFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.CustomInfoNotCalibratedDialogFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.CustomInfoUpdateDialogFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.dialogs.CustomUpdateDialogFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.customerServiceFragment.AccountFragmentCustomerService
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.mainFragment.AccountFragmentMain
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.account.prosthesisInformationFragment.AccountFragmentProsthesisInformation
-import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.*
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.AdvancedSettingsFragmentMono
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.AdvancedSettingsFragmentMulty
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.ChargingTheProsthesesFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.CompleteSetFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.GestureCustomizationFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.HelpFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.HowProsthesesWorksFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.HowProsthesesWorksMonoFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.HowToPutOnProsthesesSocketFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.ProsthesesCareFragment
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.SensorsFragmentHelp
+import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.help.ServiceAndWarrantyFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ArcanoidFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.ChartFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.NeuralFragment
 import com.bailout.stickk.new_electronic_by_Rodeon.ui.fragments.main.SecretSettingsFragment
-import com.bailout.stickk.new_electronic_by_Rodeon.utils.BlockingQueue
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NameUtil
 import com.bailout.stickk.new_electronic_by_Rodeon.utils.NavigationUtils
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.scan.view.ScanActivity
-import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.ble.BluetoothLeService
+import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import io.reactivex.android.schedulers.AndroidSchedulers
 import lib.kingja.switchbutton.SwitchMultiButton
 import online.devliving.passcodeview.PasscodeView
 import timber.log.Timber
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.experimental.xor
 
@@ -114,10 +209,11 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   var firstRead = true
   private var speedFinger = 0
   // Очередь для задачь работы с BLE
-  private val queue = BlockingQueue()
+  private val queue = BlockingQueueUbi4()
   private var readDataFlag = true
   private var globalSemaphore = false // флаг, который преостанавливает отправку новой команды, пока ответ на предыдущую не пришёл
-  private var endFlag = false
+  @Volatile
+  var endFlag = true
   //  private var showAdvancedSettings = false
   private var swapOpenCloseButton = false
   var setOneChannelNum = 0
@@ -148,6 +244,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   private var countdownToUpdate = COUNT_ATTEMPTS_TO_UPDATE
   private var debugScreenIsOpen = false
   private var decorator: Decorator? = null
+  private val countRestart = 5
 
   private lateinit var binding: ActivityMainBinding
 
@@ -904,8 +1001,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     saveText(EXTRAS_DEVICE_TYPE, mDeviceType)
     System.err.println("mDeviceAddress: $mDeviceAddress")
     saveText(PreferenceKeys.LAST_CONNECTION_MAC, mDeviceAddress)
-    saveText(PreferenceKeysUBI4.LAST_CONNECTION_MAC, mDeviceAddress)
-
 
 
 
@@ -932,7 +1027,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             stage = "main activity"
             runSendCommand(
               byteArrayOf((parameters.gestureNumber).toByte()),
-              CHANGE_GESTURE_NEW_VM, 50)
+              CHANGE_GESTURE_NEW_VM, countRestart)
           } else {
             runWriteData(
               byteArrayOf((parameters.gestureNumber).toByte()),
@@ -949,7 +1044,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
                 parameters.openStage4.toByte(),
                 parameters.openStage5.toByte(),
                 parameters.openStage6.toByte()
-              ), MOVE_ALL_FINGERS_NEW_VM, 50)
+              ), MOVE_ALL_FINGERS_NEW_VM, countRestart)
             } else {
               runWriteData(
                 byteArrayOf(
@@ -972,7 +1067,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
                 parameters.closeStage4.toByte(),
                 parameters.closeStage5.toByte(),
                 parameters.closeStage6.toByte()
-              ), MOVE_ALL_FINGERS_NEW_VM, 50)
+              ), MOVE_ALL_FINGERS_NEW_VM, countRestart)
             } else {
               runWriteData(
                 byteArrayOf(
@@ -1024,7 +1119,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
                 parameters.closeStageDelay4.toByte(),
                 parameters.closeStageDelay5.toByte(),
                 parameters.closeStageDelay6.toByte()
-              ), CHANGE_GESTURE_NEW_VM, 50)
+              ), CHANGE_GESTURE_NEW_VM, countRestart)
             } else {
               runWriteData(
                 byteArrayOf(
@@ -1075,15 +1170,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         showSecretSettingsScreen()
       }
 
-    val worker = Thread {
-      while (true) {
-        val task: Runnable = queue.get()
-        task.run()
-      }
-    }
-    worker.start()
-
-
+    startQueue()
     initUI()
   }
   @SuppressLint("SetTextI18n")
@@ -1279,17 +1366,17 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   override fun getBackStackEntryCount():Int { return supportFragmentManager.backStackEntryCount }
   override fun goingBack() { onBackPressed() }
   @SuppressLint("MissingSuperCall")
-//  override fun onBackPressed() {
-//    System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
-//    //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи
-//    if (supportFragmentManager.backStackEntryCount != 0) {
-//      super.onBackPressed()
-//    }
-//    if (supportFragmentManager.backStackEntryCount == 0) {
-//      showWhiteStatusBar(false)
-//      showGrayStatusBar(false)
-//    }
-//  }
+  override fun onBackPressed() {
+    System.err.println("backStackEntryCount: ${supportFragmentManager.backStackEntryCount}")
+    //эта хитрая конструкция отключает системную кнопку "назад", когда мы НЕ в меню помощи
+    if (supportFragmentManager.backStackEntryCount != 0) {
+      super.onBackPressed()
+    }
+    if (supportFragmentManager.backStackEntryCount == 0) {
+      showWhiteStatusBar(false)
+      showGrayStatusBar(false)
+    }
+  }
 
 
   private fun launchFragment(fragment: Fragment) {
@@ -1485,14 +1572,19 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       || mDeviceType!!.contains(DEVICE_TYPE_BT05)
       || mDeviceType!!.contains(DEVICE_TYPE_MY_IPHONE)
     ) {
+      System.err.println("DeviceControlActivity-------> $mDeviceAddress  DEVICE_TYPE_BT05")
       runReadData()
     } else {
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
+        System.err.println("DeviceControlActivity-------> $mDeviceAddress  DEVICE_TYPE_FEST_H")
         runStart()
       } else {
-        if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-          runStartVM()
+        if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X) && endFlag) {
+          System.err.println("DeviceControlActivity-------> $mDeviceAddress  DEVICE_TYPE_FEST_X endFlag = $endFlag")
+          runStartVM(0)
+//          readStartVM(0)
         } else {
+          System.err.println("DeviceControlActivity-------> $mDeviceAddress  else  endFlag = $endFlag")
           startSubscribeSensorsDataThread()
         }
       }
@@ -1614,40 +1706,43 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
   }
   private fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
-    if (mBluetoothLeService != null) {
-      for (i in mGattCharacteristics.indices) {
-        for (j in mGattCharacteristics[i].indices) {
-          System.err.println("mGattCharacteristics i = $i  j = $j   ${mGattCharacteristics[i][j].uuid}")
-          if (mGattCharacteristics[i][j].uuid.toString() == Command) {
-            mCharacteristic = mGattCharacteristics[i][j]
-            if (typeCommand == WRITE){
-              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-                mCharacteristic?.value = byteArray
-                mBluetoothLeService?.writeCharacteristic(mCharacteristic)
-                System.err.println("bleCommand Write Characteristic")
+    try {
+      if (mBluetoothLeService != null) {
+        for (i in mGattCharacteristics.indices) {
+          for (j in mGattCharacteristics[i].indices) {
+            System.err.println("mGattCharacteristics i = $i  j = $j   ${mGattCharacteristics[i][j].uuid}")
+            if (mGattCharacteristics[i][j].uuid.toString() == Command) {
+              mCharacteristic = mGattCharacteristics[i][j]
+              if (typeCommand == WRITE){
+                if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+                  mCharacteristic?.value = byteArray
+                  mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+                  System.err.println("bleCommand Write Characteristic")
+                }
               }
-            }
 
-            if (typeCommand == READ){
-              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
-                mBluetoothLeService?.readCharacteristic(mCharacteristic)
-                System.err.println("------->   bleCommand Read Characteristic:  $Command")
+              if (typeCommand == READ){
+                if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
+                  mBluetoothLeService?.readCharacteristic(mCharacteristic)
+                  System.err.println("------->   bleCommand Read Characteristic:  $Command")
+                }
               }
-            }
 
-            if (typeCommand == NOTIFY){
-              if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
-                mNotifyCharacteristic = mCharacteristic
-                mBluetoothLeService!!.setCharacteristicNotification(
-                        mCharacteristic, true)
-                System.err.println("bleCommand Notify Characteristic")
+              if (typeCommand == NOTIFY){
+                if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
+                  mNotifyCharacteristic = mCharacteristic
+                  mBluetoothLeService!!.setCharacteristicNotification(
+                    mCharacteristic, true)
+                  System.err.println("bleCommand Notify Characteristic")
+                }
               }
             }
           }
         }
       }
+    } catch (e: Exception){
+      showToast("ошибка при отправке команды $typeCommand")
     }
-
   }
   private fun reconnectThread() {
     System.err.println("DeviceControlActivity-------> $mDeviceAddress reconnectThread started")
@@ -1713,10 +1808,20 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     subscribeThread?.start()
   }
 
+  private fun startQueue() {
+    val worker = Thread {
+      while (true) {
+        val task: Runnable = queue.get()
+        task.run()
+      }
+    }
+    worker.start()
+  }
   /**
    * Запуск задачи чтения параметров экрана графиков
    */
-  private fun runStart() { getStart().let { queue.put(it) } }
+  private fun runStart() { getStart().let { queue.put(it)
+    System.err.println("DeviceControlActivity-------> queue add tasks runStart")} }
   private fun getStart(): Runnable { return Runnable { readStart() } }
   private fun readStart() {
     val info = "------->   Чтение порогов и версий"
@@ -1898,19 +2003,20 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   /**
    * Запуск задачи чтения параметров экрана графиков
    */
-  private fun runStartVM() { getStartVM().let { queue.put(it) } }
-  private fun getStartVM(): Runnable { return Runnable { readStartVM() } }
-  private fun readStartVM() {
-    val info = "DeviceControlActivity-------> $mDeviceAddress  Чтение порогов и версий"
+  private fun runStartVM(state: Int) { getStartVM(state).let { queue.put(it)
+    System.err.println("DeviceControlActivity-------> queue add tasks runStartVM")} }
+  private fun getStartVM(state: Int): Runnable { return Runnable { readStartVM(state) }}
+  private fun readStartVM(state: Int) {
+    val info = "DeviceControlActivity-------> $mDeviceAddress  Чтение порогов и версий state"
     var count = 0
-    var state = 0 // переключается здесь в потоке
+    var localState = state // переключается здесь в потоке
     endFlag = false // меняется на последней стадии машины состояний, служит для немедленного прекращния операции
     globalSemaphore = true // меняется по приходу ответа от подключаемого уст-ва
     System.err.println()
-
+    System.err.println("$info pre while !endFlag = ${!endFlag}  globalSemaphore = $globalSemaphore")
     while (!endFlag) {
       if (globalSemaphore) {
-        when (state) {
+        when (localState) {
           // ПРАВИЛЬНАЯ ЦЕПЬ ЗАПРОСОВ
           0 -> {
 //            showToast("Старт потока запросов начальных параметров для FEST-X")
@@ -1920,7 +2026,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             percentSynchronize = 5
             updateUIChart(25)
             updateUIAccountMain()
-            state = 1
+            localState = 1
           }
           1 -> {
             System.err.println("$info = 1")
@@ -1928,7 +2034,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 15
             updateUIChart(26)
-            state = 2
+            localState = 2
           }
           2 -> {
             System.err.println("$info = 2")
@@ -1936,7 +2042,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 25
             updateUIChart(27)
-            state = 3
+            localState = 3
           }
           3 -> {
             System.err.println("$info = 3")
@@ -1944,7 +2050,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 35
             updateUIChart(28)
-            state = 4
+            localState = 4
           }
           4 -> {
             System.err.println("$info = 4")
@@ -1952,7 +2058,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 45
             updateUIChart(29)
-            state = 5
+            localState = 5
           }
           5 -> {
             System.err.println("$info = 5")
@@ -1960,7 +2066,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 55
             updateUIChart(30)
-            state = 6
+            localState = 6
           }
           6 -> {
             System.err.println("$info = 6")
@@ -1968,7 +2074,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 65
             updateUIChart(31)
-            state = 7  //11 пропустить калибровку //7 - выполнить
+            localState = 7  //11 пропустить калибровку //7 - выполнить
           }
 
           7 -> {
@@ -1977,27 +2083,27 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 75
             updateUIChart(32)
-            state = 8
+            localState = 8
           }
           8 -> {
             System.err.println("$info = 8")
             if (calibrationStage == 0) {
-              state = 9 //9
+              localState = 9 //9
             } else {
               if (calibrationStage == 6 || calibrationStage == 1) {
-                state = 14
+                localState = 14
               } else {
                 if (calibrationStage == 2) {
-                  state = 10
+                  localState = 10
                 } else {
                   if (calibrationStage == 3) {
-                    state = 11
+                    localState = 11
                   } else {
                     if (calibrationStage == 4) {
-                      state = 12
+                      localState = 12
                     } else {
                       if (calibrationStage == 5) {
-                        state = 13
+                        localState = 13
                       }
                     }
                   }
@@ -2009,27 +2115,27 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
           9 -> {
             System.err.println("$info = 9")
             openFragmentInfoNotCalibration()
-            state = 14
+            localState = 14
           }
           10 -> {
             System.err.println("$info = 10")
             showToast("В протезе отключён двигатель одной или нескольких степеней свободы!")
-            state = 14
+            localState = 14
           }
           11 -> {
             System.err.println("$info = 11")
             showToast("В протезе отключён энкодер одной или нескольких степеней свободы!")
-            state = 14
+            localState = 14
           }
           12 -> {
             System.err.println("$info = 12")
             showToast("В протезе нет энкодеров одного или нескольких степеней свободы!")
-            state = 14
+            localState = 14
           }
           13 -> {
             System.err.println("$info = 13")
             showToast("В протезе сильно затянута одна или несколько степеней свободы!")
-            state = 14
+            localState = 14
           }
           14 -> {
             System.err.println("$info = 14")
@@ -2037,7 +2143,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 85
             updateUIChart(33)
-            state = 15
+            localState = 15
           }
           15 -> {
             System.err.println("$info = 15")
@@ -2045,7 +2151,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 90
             updateUIChart(34)
-            state = 16
+            localState = 16
           }
           16 -> {
             System.err.println("$info = 16")
@@ -2054,7 +2160,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             percentSynchronize = 95
             updateUIChart(35)
             updateUIAccountMain()
-            state = 17
+            localState = 17
           }
           17 -> {
             System.err.println("$info = 17")
@@ -2062,7 +2168,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
             globalSemaphore = false
             percentSynchronize = 100
             updateUIChart(36)
-            state = 0
+            localState = 0
             endFlag = true
             startSubscribeSensorsNewDataThread()
             runOnUiThread { enableInterface(true) }
@@ -2071,12 +2177,13 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
         count = 0
       } else {
         count++
-        if (count == 100) {
-
-          if (state != 0) { runStartVM() } //перезапускаем функцию если споткнулись, но
+        System.err.println("$info else count = $count  mConnected = $mConnected  globalSemaphore = $globalSemaphore")
+        if (count == 25) {
+          System.err.println("$info ПЕРЕЗАПУСК!!! ${queue.size()}")
           endFlag = mConnected
-          state = 0
           count = 0
+          if (localState != 0) { runStartVM(localState) } //перезапускаем функцию если споткнулись
+//          state = 0
         }
       }
       try {
@@ -2086,7 +2193,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
   }
 
-  fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it) } }
+  fun runWriteData(byteArray: ByteArray?, Command: String, typeCommand: String) { getWriteData(byteArray, Command, typeCommand).let { queue.put(it)
+    System.err.println("DeviceControlActivity-------> queue add tasks runWriteData")} }
   private fun getWriteData(byteArray: ByteArray?, Command: String, typeCommand: String): Runnable { return Runnable { writeData(byteArray, Command, typeCommand) } }
   private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
     try {
@@ -2102,7 +2210,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   fun runReadDataAllCharacteristics(Command: String) {
-    getReadDataAllCharacteristics(Command).let { queue.put(it) }
+    getReadDataAllCharacteristics(Command).let { queue.put(it)
+      System.err.println("DeviceControlActivity-------> queue add tasks runReadDataAllCharacteristics")}
   }
   private fun getReadDataAllCharacteristics(Command: String): Runnable { return Runnable { readDataAllCharacteristics(Command) } }
   private fun readDataAllCharacteristics(Command: String) {
@@ -2113,7 +2222,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       } catch (ignored: Exception) {}
   }
 
-  private fun runReadData() { getReadData().let { queue.put(it) } }
+  private fun runReadData() { getReadData().let { queue.put(it)
+    System.err.println("DeviceControlActivity-------> queue add tasks runReadData")} }
   private fun getReadData(): Runnable { return Runnable { readData() } }
   private fun readData() {
     while (readDataFlag) {
@@ -2127,7 +2237,8 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     }
   }
 
-  fun runSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) { getSendCommand(data, uuidCommand, countRestart).let { queue.put(it) } }
+  fun runSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) { getSendCommand(data, uuidCommand, countRestart).let { queue.put(it)
+    System.err.println("DeviceControlActivity-------> queue add tasks runSendCommand $uuidCommand  countRestart = $countRestart")} }
   private fun getSendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int): Runnable { return Runnable { sendCommand(data, uuidCommand, countRestart) } }
   private fun sendCommand(data: ByteArray?, uuidCommand: String, countRestart: Int) {
     val idCommand = uuidCommand.substring(4).substringBefore('-')
@@ -2479,7 +2590,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     yesBtn.setOnClickListener {
       if (!lockWriteBeforeFirstRead) {
         if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-          runSendCommand(byteArrayOf(0x02), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
+          runSendCommand(byteArrayOf(0x02), RESET_TO_FACTORY_SETTINGS_NEW_VM, countRestart)
         } else {
           if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
@@ -2518,7 +2629,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_hard_confirm)
     yesBtn.setOnClickListener {
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-        runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
+        runSendCommand(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW_VM, countRestart)
       } else {
         if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
           runWriteData(byteArrayOf(0x01), RESET_TO_FACTORY_SETTINGS_NEW, WRITE)
@@ -2554,7 +2665,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
     val yesBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_gestures_confirm)
     yesBtn.setOnClickListener {
-      runSendCommand(byteArrayOf(0x03), RESET_TO_FACTORY_SETTINGS_NEW_VM, 50)
+      runSendCommand(byteArrayOf(0x03), RESET_TO_FACTORY_SETTINGS_NEW_VM, countRestart)
 
       RxUpdateMainEvent.getInstance().updateResetAdvancedSettings(true)
 
@@ -2586,7 +2697,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       if (mSettings!!.getInt(mDeviceAddress + PreferenceKeys.SWAP_LEFT_RIGHT_SIDE, 1) == 1) {
         if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
           stage = "main activity"
-          runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, 50)
+          runSendCommand(byteArrayOf(0x09), CALIBRATION_NEW_VM, countRestart)
         } else {
           if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             runWriteData(byteArrayOf(0x09), CALIBRATION_NEW, WRITE)
@@ -2595,7 +2706,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       } else {
         if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
           stage = "main activity"
-          runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, 50)
+          runSendCommand(byteArrayOf(0x0a), CALIBRATION_NEW_VM, countRestart)
         } else {
           if (mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
             runWriteData(byteArrayOf(0x0a), CALIBRATION_NEW, WRITE)
@@ -2639,7 +2750,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       }
       if (mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
         runSendCommand(serialNumber.toByteArray(Charsets.UTF_8),
-          SERIAL_NUMBER_NEW_VM, 50)
+          SERIAL_NUMBER_NEW_VM, countRestart)
         this.mDeviceName = NameUtil.getCleanName(serialNumber)
         System.err.println("DEVICE_TYPE_FEST_X serialNumber=$serialNumber")
       } else {
@@ -2750,56 +2861,112 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
   }
 
   private fun saveBigGestureState() {
-    for (i in 0 until 13) {
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2), // проверить тут + 1
-        gestureTableBig[i][0][0]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 2),
-        gestureTableBig[i][0][1]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 2),
-        gestureTableBig[i][0][2]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 2),
-        gestureTableBig[i][0][3]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 2),
-        gestureTableBig[i][0][4]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 2),
-        gestureTableBig[i][0][5]
-      )
+    if (checkDriverVersionGreaterThan240()) {
+      Log.d("saveBigGestureState", "checkDriverVersionGreaterThan240")
+      for (i in 0 until 13) {
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 5), // проверить тут + 1
+          gestureTableBig[i][0][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 5),
+          gestureTableBig[i][0][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 5),
+          gestureTableBig[i][0][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 5),
+          gestureTableBig[i][0][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 5),
+          gestureTableBig[i][0][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 5),
+          gestureTableBig[i][0][5]
+        )
 
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 2),
-        gestureTableBig[i][1][0]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 2),
-        gestureTableBig[i][1][1]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 2),
-        gestureTableBig[i][1][2]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 2),
-        gestureTableBig[i][1][3]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 2),
-        gestureTableBig[i][1][4]
-      )
-      saveInt(
-        mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 2),
-        gestureTableBig[i][1][5]
-      )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 5),
+          gestureTableBig[i][1][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 5),
+          gestureTableBig[i][1][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 5),
+          gestureTableBig[i][1][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 5),
+          gestureTableBig[i][1][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 5),
+          gestureTableBig[i][1][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 5),
+          gestureTableBig[i][1][5]
+        )
+      }
+    } else {
+      Log.d("saveBigGestureState", "NOT checkDriverVersionGreaterThan240")
+      for (i in 0 until 13) {
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_4_NUM + (i + 2), // проверить тут + 1
+          gestureTableBig[i][0][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_3_NUM + (i + 2),
+          gestureTableBig[i][0][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_2_NUM + (i + 2),
+          gestureTableBig[i][0][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_1_NUM + (i + 2),
+          gestureTableBig[i][0][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_5_NUM + (i + 2),
+          gestureTableBig[i][0][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_OPEN_STATE_FINGER_6_NUM + (i + 2),
+          gestureTableBig[i][0][5]
+        )
+
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_4_NUM + (i + 2),
+          gestureTableBig[i][1][0]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_3_NUM + (i + 2),
+          gestureTableBig[i][1][1]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_2_NUM + (i + 2),
+          gestureTableBig[i][1][2]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_1_NUM + (i + 2),
+          gestureTableBig[i][1][3]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_5_NUM + (i + 2),
+          gestureTableBig[i][1][4]
+        )
+        saveInt(
+          mDeviceAddress + PreferenceKeys.GESTURE_CLOSE_STATE_FINGER_6_NUM + (i + 2),
+          gestureTableBig[i][1][5]
+        )
+      }
     }
   }
   private fun saveGestureState() {
@@ -3007,6 +3174,14 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       mScanning = false
       mBluetoothAdapter!!.stopLeScan(mLeScanCallback)
       System.err.println("DeviceControlActivity-------> $mDeviceAddress  stopLeScan")
+    }
+  }
+  private fun checkDriverVersionGreaterThan240():Boolean {
+    return if (driverVersionS != null) {
+      val driverNum = driverVersionS?.substring(0, 1) + driverVersionS?.substring(2, 4)
+      driverNum.toInt() >= 240
+    } else {
+      false
     }
   }
 

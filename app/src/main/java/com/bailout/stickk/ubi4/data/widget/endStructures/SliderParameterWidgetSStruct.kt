@@ -16,8 +16,9 @@ import android.util.Pair
 
 @Serializable(with = SliderParameterWidgetSSerializer::class)
 data class SliderParameterWidgetSStruct(
-    val baseParameterWidgetSStruct: BaseParameterWidgetSStruct,
-    val progress: Int = 0,
+    val baseParameterWidgetSStruct: BaseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(),"NOT VALID"),
+    val minProgress: Int = 0,
+    val maxProgress: Int = 0,
 )
 
 object SliderParameterWidgetSSerializer: KSerializer<SliderParameterWidgetSStruct> {
@@ -26,20 +27,21 @@ object SliderParameterWidgetSSerializer: KSerializer<SliderParameterWidgetSStruc
 
     override fun deserialize(decoder: Decoder): SliderParameterWidgetSStruct {
         val string = decoder.decodeString()
-        val baseParameterWidgetSStruct: BaseParameterWidgetSStruct
-        var progress = 0
+        var baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(),"NOT VALID")
+        var minProgress = 0
+        var maxProgress = 0
 
 
-        if (string.length >= 82) {
+        if (string.length >= 84) {
             baseParameterWidgetSStruct = Json.decodeFromString<BaseParameterWidgetSStruct>("\"${string.substring(0, 80)}\"")
-            progress = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte())
-        } else {
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct (BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(Pair(0,0))),"")
+            minProgress = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte())
+            maxProgress = castUnsignedCharToInt(string.substring(82, 84).toInt(16).toByte())
         }
 
         return SliderParameterWidgetSStruct (
             baseParameterWidgetSStruct = baseParameterWidgetSStruct,
-            progress = progress,
+            minProgress = minProgress,
+            maxProgress = maxProgress,
         )
     }
 

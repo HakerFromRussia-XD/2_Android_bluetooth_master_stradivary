@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -81,6 +82,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
   private var displayedNextTypeGuides: TypeGuides? = TypeGuides.SHOW_HELP_GUIDE
   private var modeEMGSend = 0
   private var dontMove = false
+  private val countRestart = 3
 
   private lateinit var binding: LayoutChartBinding
 
@@ -253,7 +255,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     binding.thresholdsBlockingSw.isChecked = mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)
     if (mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) binding.thresholdsBlockingTv.text = resources.getString(R.string.on_sw)
     enabledSensorsUIBeforeConnection(false)
-//    binding.compressionForceBtn.selectedTab = 1
+    binding.compressionForceBtn.selectedTab = 1
     //скрываем текстовое отображение версий для протезов с прошитым серийным номером и включаем отображение кнопки личного кабинета
     if (main?.mDeviceName?.length ?: 0 < 12) {
       binding.bmsTv.visibility = View.VISIBLE
@@ -400,7 +402,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           if (!mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
-              main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, 50)
+              main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_NEW, WRITE
@@ -438,7 +440,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           if (!mSettings!!.getBoolean(main?.mDeviceAddress + PreferenceKeys.THRESHOLDS_BLOCKING, false)) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
-              main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW_VM, 50)
+              main?.runSendCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_NEW, WRITE)
@@ -547,7 +549,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             binding.swapSensorsTv.text = resources.getString(R.string.on_sw)
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
-              main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, 50)
+//              main?.runSendCommand(byteArrayOf(0x01), SET_REVERSE_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x01), SET_REVERSE_NEW, WRITE)
@@ -561,7 +563,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             binding.swapSensorsTv.text = resources.getString(R.string.off_sw)
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
-              main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, 50)
+//              main?.runSendCommand(byteArrayOf(0x00), SET_REVERSE_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x00), SET_REVERSE_NEW, WRITE)
@@ -607,17 +609,18 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         main?.runWriteData(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW, WRITE)
       }
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
-          main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, 5)
+          main?.runSendCommand(byteArrayOf(0x00.toByte()), SENS_ENABLED_NEW_VM, countRestart)
       }
     }
 
     binding.closeBtn.setOnTouchListener { _, event ->
+      Log.d("closeBtn","event = ${event.action}   !lockWriteBeforeFirstRead = ${!main?.lockWriteBeforeFirstRead!!}")
       if (!main?.lockWriteBeforeFirstRead!!) {
         if (!main?.getSwapOpenCloseButton()!!) {
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
-              main?.runSendCommand(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, 3)
+              main?.runSendCommand(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW, WRITE)
@@ -629,7 +632,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
-              main?.runSendCommand(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, 3)
+              main?.runSendCommand(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW, WRITE)
@@ -642,7 +645,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           if (event.action == MotionEvent.ACTION_DOWN) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
-              main?.runSendCommand(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, 3)
+              main?.runSendCommand(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW, WRITE)
@@ -654,7 +657,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
           if (event.action == MotionEvent.ACTION_UP) {
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
-              main?.runSendCommand(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, 3)
+              main?.runSendCommand(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW, WRITE)
@@ -676,7 +679,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
               System.err.println("openBtn 2 1")
-              main?.runSendCommand(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, 3)
+              main?.runSendCommand(byteArrayOf(0x01), OPEN_MOTOR_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x01), OPEN_MOTOR_NEW, WRITE)
@@ -689,7 +692,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
               System.err.println("openBtn 2 2")
-              main?.runSendCommand(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, 3)
+              main?.runSendCommand(byteArrayOf(0x00), OPEN_MOTOR_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x00), OPEN_MOTOR_NEW, WRITE)
@@ -703,7 +706,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
               System.err.println("openBtn 2 3")
-              main?.runSendCommand(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, 3)
+              main?.runSendCommand(byteArrayOf(0x01), CLOSE_MOTOR_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x01), CLOSE_MOTOR_NEW, WRITE)
@@ -716,7 +719,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
             if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_X)) {
               main?.stage = "chart activity"
               System.err.println("openBtn 2 4")
-              main?.runSendCommand(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, 3)
+              main?.runSendCommand(byteArrayOf(0x00), CLOSE_MOTOR_NEW_VM, countRestart)
             } else {
               if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
                 main?.runWriteData(byteArrayOf(0x00), CLOSE_MOTOR_NEW, WRITE)
@@ -730,28 +733,28 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
       false
     }
 
-//    binding.compressionForceBtn.setOnSwitchListener { position, _ ->
-//      System.err.println("chartCompressionForceRl id $position")
-//      if (!dontMove) {
-//        System.err.println("chartCompressionForceRl with ble command id $position")
-//        val minShutdownCurrentNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, 0)
-//        when (position) {
-//          0 -> {
-//            main?.bleCommandConnector(byteArrayOf(minShutdownCurrentNum.toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-//            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, minShutdownCurrentNum)
-//          }
-//          1 -> {
-//            main?.bleCommandConnector(byteArrayOf((51).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-//            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 51)
-//          }
-//          2 -> {
-//            main?.bleCommandConnector(byteArrayOf((100).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
-//            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 100)
-//          }
-//        }
-//        RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
-//      }
-//    }
+    binding.compressionForceBtn.setOnSwitchListener { position, _ ->
+      System.err.println("chartCompressionForceRl id $position")
+      if (!dontMove) {
+        System.err.println("chartCompressionForceRl with ble command id $position")
+        val minShutdownCurrentNum = mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.MIN_SHUTDOWN_CURRENT_NUM, 0)
+        when (position) {
+          0 -> {
+            main?.bleCommandConnector(byteArrayOf(minShutdownCurrentNum.toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, minShutdownCurrentNum)
+          }
+          1 -> {
+            main?.bleCommandConnector(byteArrayOf((51).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 51)
+          }
+          2 -> {
+            main?.bleCommandConnector(byteArrayOf((100).toByte(), minShutdownCurrentNum.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE, 0)
+            main?.saveInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 100)
+          }
+        }
+        RxUpdateMainEvent.getInstance().updateUIAdvancedSettings(true)
+      }
+    }
 
     binding.helpBtn.setOnClickListener {
       graphThreadFlag = false
@@ -1036,17 +1039,17 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
     when (mSettings!!.getInt(main?.mDeviceAddress + PreferenceKeys.SHUTDOWN_CURRENT_NUM, 80)) {
       in 1..50   -> {
         dontMove = true
-//        binding.compressionForceBtn.selectedTab = 0
+        binding.compressionForceBtn.selectedTab = 0
         dontMove = false
       }
       in 51..69  -> {
         dontMove = true
-//        binding.compressionForceBtn.selectedTab = 1
+        binding.compressionForceBtn.selectedTab = 1
         dontMove = false
       }
       in 70..100 -> {
         dontMove = true
-//        binding.compressionForceBtn.selectedTab = 2
+        binding.compressionForceBtn.selectedTab = 2
         dontMove = false
       }
     }
@@ -1077,7 +1080,7 @@ class ChartFragment : Fragment(), DecoratorChange, ReactivatedChart, OnChartValu
         (255 - binding.correlatorNoiseThreshold1Sb.progress).toByte(), 6, 1, 0x10, 36, 18, 44, 52, 64, 72, 0x40, 5,
         64, (255 - binding.correlatorNoiseThreshold2Sb.progress).toByte(), 6, 1, 0x10, 36, 18,
         44, 52, 64, 72, 0x40, 5, 64, modeEMGSend.toByte()
-      ), SENS_OPTIONS_NEW_VM, 50)
+      ), SENS_OPTIONS_NEW_VM, countRestart)
     } else {
       if (main?.mDeviceType!!.contains(DEVICE_TYPE_FEST_H)) {
         main?.runWriteData(

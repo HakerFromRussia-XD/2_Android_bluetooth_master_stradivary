@@ -28,7 +28,7 @@ object CommandParameterWidgetSSerializer: KSerializer<CommandParameterWidgetSStr
 
     override fun deserialize(decoder: Decoder): CommandParameterWidgetSStruct {
         val string = decoder.decodeString()
-        val baseParameterWidgetSStruct: BaseParameterWidgetSStruct
+        var baseParameterWidgetSStruct = BaseParameterWidgetSStruct(BaseParameterWidgetStruct(),"NOT VALID")
         var clickCommand = 0
         var pressedCommand = 0
         var releasedCommand = 0
@@ -39,8 +39,6 @@ object CommandParameterWidgetSSerializer: KSerializer<CommandParameterWidgetSStr
             clickCommand = castUnsignedCharToInt(string.substring(80, 82).toInt(16).toByte())
             pressedCommand = castUnsignedCharToInt(string.substring(82, 84).toInt(16).toByte())
             releasedCommand = castUnsignedCharToInt(string.substring(84, 86).toInt(16).toByte())
-        } else {
-            baseParameterWidgetSStruct = BaseParameterWidgetSStruct (BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(Pair(0,0))),"")
         }
 
         return CommandParameterWidgetSStruct (

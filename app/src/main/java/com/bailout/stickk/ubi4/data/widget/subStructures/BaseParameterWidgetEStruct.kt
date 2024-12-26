@@ -13,7 +13,7 @@ import kotlinx.serialization.json.Json
 
 @Serializable(with = BaseParameterWidgetESerializer::class)
 data class BaseParameterWidgetEStruct(
-    val baseParameterWidgetStruct: BaseParameterWidgetStruct,
+    val baseParameterWidgetStruct: BaseParameterWidgetStruct = BaseParameterWidgetStruct(),
     val labelCode: Int = 0
 )
 
@@ -23,11 +23,12 @@ object BaseParameterWidgetESerializer: KSerializer<BaseParameterWidgetEStruct> {
 
     override fun deserialize(decoder: Decoder): BaseParameterWidgetEStruct {
         val string = decoder.decodeString()
-        val baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${string.substring(0, 16)}\"")
+        var baseParameterWidgetStruct = BaseParameterWidgetStruct()
         var labelCode = 0
 
 
         if (string.length >= 18) {
+            baseParameterWidgetStruct = Json.decodeFromString<BaseParameterWidgetStruct>("\"${string.substring(0, 16)}\"")
             labelCode = castUnsignedCharToInt(string.substring(16, 18).toInt(16).toByte())
         }
 

@@ -21,10 +21,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
-import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.contract.navigator
@@ -40,7 +37,6 @@ import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
-import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
@@ -264,7 +260,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
 
-        var canSendNextChunkFlagFlow by Delegates.notNull<MutableSharedFlow<Boolean>>()
+        var canSendNextChunkFlagFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var updateFlow by Delegates.notNull<MutableStateFlow<Int>>()
         var listWidgets by Delegates.notNull<MutableSet<Any>>()
 

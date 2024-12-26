@@ -125,6 +125,7 @@ class BLEParser(main: AppCompatActivity) {
                             val deviceAddress = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength))*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2).toInt(16).toByte())
                             val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2).toInt(16).toByte())
                             val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
+                            //TODO тут выпадала ошибка StringIndexOutOfBoundsException замотать в tru cach
                             parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2)
                             updateAllUI(deviceAddress, parameterID, parameter.dataCode)
                             dataLength -= (parameter.parameterDataSize + 2)
@@ -228,7 +229,6 @@ class BLEParser(main: AppCompatActivity) {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
-            //TODO поставить актуальный dataCode
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
                 Log.d("TestOptic", "dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
@@ -237,10 +237,12 @@ class BLEParser(main: AppCompatActivity) {
                 Log.d("StatusWriteFlash", "deviceAddress: $deviceAddress    parameterID: $parameterID    dataCode: $dataCode")
                 val newStatusExist = castUnsignedCharToInt(ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(0, 2).toInt(16).toByte())
                 val errorStatus = castUnsignedCharToInt(ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(8, 10).toInt(16).toByte())
+                val packIndex = castUnsignedCharToInt(ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(6, 8).toInt(16).toByte())*256 +
+                                     castUnsignedCharToInt(ParameterProvider.getParameter(deviceAddress, parameterID).data.substring(4, 6).toInt(16).toByte())
                 if (errorStatus != 0 && errorStatus != 255) {
                     countErrors ++
                 }
-                if (newStatusExist == 1 && errorStatus == 0)  CoroutineScope(Dispatchers.Default).launch { canSendNextChunkFlagFlow.emit(true) }
+                if (newStatusExist == 1 && errorStatus == 0)  CoroutineScope(Dispatchers.Default).launch { canSendNextChunkFlagFlow.emit(packIndex) }
                 Log.d("StatusWriteFlash", "data = ${ParameterProvider.getParameter(deviceAddress, parameterID).data} countErrors = $countErrors")
             }
             ParameterDataCodeEnum.PDCE_ENERGY_SAVE_MODE.number -> {

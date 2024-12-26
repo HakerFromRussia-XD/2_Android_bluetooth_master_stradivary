@@ -461,7 +461,7 @@ class SprTrainingFragment : Fragment() {
         )
     }
 
-    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
+    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
         Log.d(
             "sendSliderProgress",
             "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress"

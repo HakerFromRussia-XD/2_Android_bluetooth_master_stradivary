@@ -102,7 +102,7 @@ class BLEParser(main: AppCompatActivity) {
                     (0x00).toByte() -> { System.err.println("TEST parser DEFOULT") }
                     BaseCommands.DEVICE_INFORMATION.number -> {
                         System.err.println("TEST parser DEVICE_INFORMATION (${packageCodeRequest})")
-                        parseDeviceInformation(packageCodeRequest, ID, receiveDataString)
+                        parseDeviceInformation(packageCodeRequest, ID,deviceAddress, receiveDataString)
                     }
                     BaseCommands.DATA_MANAGER.number -> {
                         System.err.println("TEST parser DATA_MANAGER")
@@ -211,15 +211,14 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
                 Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
             }
             ParameterDataCodeEnum.PDCE_EMG_CH_1_3_GAIN.number -> {
                 Log.d("parameter sliderCollect PDCE_EMG_CH_1_3_GAIN","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
             ParameterDataCodeEnum.PDCE_EMG_CH_4_6_GAIN.number -> {
                 Log.d("parameter sliderCollect PDCE_EMG_CH_4_6_GAIN","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID)) }
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
             ParameterDataCodeEnum.PDCE_INTERFECE_ERROR_COUNTER.number -> {
                 Log.d("parameter sliderCollect","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
@@ -246,7 +245,7 @@ class BLEParser(main: AppCompatActivity) {
             }
             ParameterDataCodeEnum.PDCE_ENERGY_SAVE_MODE.number -> {
                 Log.d("parameter swichCollect PDCE_ENERGY_SAVE_MODE","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
-                CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID)) }
+                CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
 
         }
@@ -310,7 +309,7 @@ class BLEParser(main: AppCompatActivity) {
     private fun parseInitializeInformation(receiveDataString: String) {
         fullInicializeConnectionStruct = Json.decodeFromString<FullInicializeConnectionStruct>("\"${receiveDataString.substring(18,receiveDataString.length)}\"")
         System.err.println("TEST parser 2 INICIALIZE_INFORMATION $fullInicializeConnectionStruct" )
-        mMain.bleCommandWithQueue(BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()), MAIN_CHANNEL, WRITE)
+        mMain.bleCommandWithQueue(BLECommands.requestBaseParametrInfo(0x00, fullInicializeConnectionStruct.parametrsNum.toByte()), MAIN_CHANNEL, WRITE){}
     }
     private fun parseReadDeviceParameters(receiveDataString: String) {
         val listA: ArrayList<BaseParameterInfoStruct> = ArrayList()
@@ -334,7 +333,7 @@ class BLEParser(main: AppCompatActivity) {
                     BLECommands.requestAdditionalParametrInfo(
                         baseParametrInfoStructArray[0].ID.toByte()
                     ), MAIN_CHANNEL, WRITE
-                )
+                ){}
             } else {
                 //проход по остальным параметрам
                 val ID =
@@ -345,10 +344,10 @@ class BLEParser(main: AppCompatActivity) {
                         BLECommands.requestAdditionalParametrInfo(
                             baseParametrInfoStructArray[ID].ID.toByte()
                         ), MAIN_CHANNEL, WRITE
-                    )
+                    ){}
                 } else {
                     Log.d("getNextIDParameter", "конец запроса параметров")
-                    mMain.bleCommandWithQueue(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
+                    mMain.bleCommandWithQueue(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE){}
                 }
             }
         }
@@ -381,7 +380,7 @@ class BLEParser(main: AppCompatActivity) {
 
                 when (additionalInfoSizeStruct.infoType) {
                     AdditionalParameterInfoType.WIDGET.number.toInt() -> {
-                        parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode)
+                        parseWidgets(receiveDataStringForParse, parameterID = ID, dataCode = baseParametrInfoStructArray[ID].dataCode, deviceAddress)
                         GlobalScope.launch {
                             mMain.sendWidgetsArray()
                         }
@@ -398,10 +397,10 @@ class BLEParser(main: AppCompatActivity) {
                 BLECommands.requestAdditionalParametrInfo(
                     baseParametrInfoStructArray[ID].ID.toByte()
                 ), MAIN_CHANNEL, WRITE
-            )
+            ){}
         } else {
             Log.d("getNextIDParameter", "конец запроса адшнл параметров")
-            mMain.bleCommandWithQueue(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
+            mMain.bleCommandWithQueue(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE){}
         }
     }
     private fun parseReadSubDeviceInfo(receiveDataString: String) {
@@ -420,7 +419,7 @@ class BLEParser(main: AppCompatActivity) {
                     0,
                     baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
                 ), MAIN_CHANNEL, WRITE
-            )
+            ){}
         } else {
             mMain.showToast("Сабдевайсов нет")
         }
@@ -465,7 +464,7 @@ class BLEParser(main: AppCompatActivity) {
                     0,
                     baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametrsNum
                 ), MAIN_CHANNEL, WRITE
-            )
+            ){}
         } else {
             Log.d(
                 "SubDeviceAdditionalParameterss",
@@ -486,7 +485,7 @@ class BLEParser(main: AppCompatActivity) {
                         getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).first,
                         getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).second
                     ), MAIN_CHANNEL, WRITE
-                )
+                ){}
                 subDeviceAdditionalCounter ++
             }
         }
@@ -547,7 +546,7 @@ class BLEParser(main: AppCompatActivity) {
                     getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).first,
                     getSubDeviceParameterWithAdditionalParameters(subDeviceAdditionalCounter).second
                 ), MAIN_CHANNEL, WRITE
-            )
+            ){}
             subDeviceAdditionalCounter ++
         } else {
             subDeviceAdditionalCounter = 1
@@ -675,8 +674,8 @@ class BLEParser(main: AppCompatActivity) {
                     ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> {
                         System.err.println("parseWidgets PWCE_OPTIC_LERNING_WIDGET $receiveDataStringForParse")
                         val opticParameterWidgetEStruct = Json.decodeFromString<OpticStartLearningWidgetEStruct>("\"${receiveDataStringForParse}\"")
-                        opticParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
-                        addToListWidgets(opticParameterWidgetEStruct,opticParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID, dataCode)
+                        opticParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Quadruple(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        addToListWidgets(opticParameterWidgetEStruct,opticParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                 }
             }
@@ -735,8 +734,8 @@ class BLEParser(main: AppCompatActivity) {
                     }
                     ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { System.err.println("parseWidgets PWCE_OPTIC_LEARNING_WIDGET")
                         val opticParameterWidgetSStruct = Json.decodeFromString<OpticStartLearningWidgetSStruct>("\"${receiveDataStringForParse}\"")
-                        opticParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Pair(parameterID, dataCode))
-                        addToListWidgets(opticParameterWidgetSStruct,opticParameterWidgetSStruct.baseParameterWidgetSStruct,parameterID, dataCode)
+                        opticParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.add(Quadruple(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
+                        addToListWidgets(opticParameterWidgetSStruct,opticParameterWidgetSStruct.baseParameterWidgetSStruct,parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
                 }
             }

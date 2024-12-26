@@ -184,7 +184,7 @@ class SensorsFragment : Fragment() {
     private fun onSendBLEActiveGesture (deviceAddress: Int, parameterID: Int, activeGesture: Int) {
         transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
     }
-    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: Int) {
+    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
         Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
         transmitter().bleCommand(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
     }

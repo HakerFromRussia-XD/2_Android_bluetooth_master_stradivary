@@ -116,8 +116,8 @@ class PlotDelegateAdapter (
         }
 
 //        Handler().postDelayed({
-            main.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
-            main.bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
+            main.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE){}
+            main.bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE){}
 //        }, 50)
         plotIsReadyToData(numberOfCharts)
 
@@ -130,7 +130,7 @@ class PlotDelegateAdapter (
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
                     Log.d("setOnTouchListener", "openThreshold send $openThreshold")
-                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(0).third, filteredSet.elementAt(0).first, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE)
+                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(0).third, filteredSet.elementAt(0).first, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE){}
                 }
             }
             true
@@ -141,7 +141,7 @@ class PlotDelegateAdapter (
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
                     Log.d("setOnTouchListener", "closeThreshold send $closeThreshold  deviceAddress = $deviceAddress  parameterID = $parameterID")
-                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(1).third, filteredSet.elementAt(1).first, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE)
+                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(1).third, filteredSet.elementAt(1).first, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE){}
                 }
             }
             true

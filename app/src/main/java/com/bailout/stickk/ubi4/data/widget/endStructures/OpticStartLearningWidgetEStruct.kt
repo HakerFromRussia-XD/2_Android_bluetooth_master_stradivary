@@ -3,6 +3,7 @@ package com.bailout.stickk.ubi4.data.widget.endStructures
 import android.util.Pair
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
+import com.bailout.stickk.ubi4.models.Quadruple
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -38,8 +39,8 @@ object OpticStartLearningWidgetESerializer: KSerializer<OpticStartLearningWidget
 //            clickCommand = castUnsignedCharToInt(string.substring(20, 22).toInt(16).toByte())
         } else {
             baseParameterWidgetEStruct = BaseParameterWidgetEStruct (
-                BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(
-                    Pair(0,0)
+                BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(
+                    Quadruple(0,0,0,0)
                 )),0)
         }
 

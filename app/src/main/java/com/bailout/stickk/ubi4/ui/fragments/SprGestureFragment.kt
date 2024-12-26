@@ -68,7 +68,7 @@ class SprGestureFragment() : Fragment() {
     private var gestureNameList = ArrayList<String>()
     private var onDestroyParent: (() -> Unit)? = null
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
-    private val listBindingGesture = mutableListOf<BindingGestureItem>()
+
 
 
     @SuppressLint("CutPasteId")
@@ -278,8 +278,17 @@ class SprGestureFragment() : Fragment() {
 
             if (selectedGesture != null) {
                 onSaveClick.invoke(selectedGesture.gestureId, bindingPosition)
+                val selectedGestureId = selectedGesture.gestureId
+                Log.d(
+                    "GesturesDialogDebug",
+                    "BindingControlGestures Id: $selectedGestureId, SprGesturesPosition: ${bindingPosition +1}"
+                )
             } else {
                 onSaveClick.invoke(0, bindingPosition)
+                Log.d(
+                    "GesturesDialogDebug",
+                    "BindingControlGestures Id: None, SprGesturesPosition: ${bindingPosition +1}"
+                )
             }
 
             myDialog.dismiss()
@@ -370,7 +379,6 @@ class SprGestureFragment() : Fragment() {
                         )
                     }
 
-                    Log.d("onGestureClicked", "$sprGestureItemList")
                     gesturesRv.adapter?.notifyItemChanged(position)
                 }
 
@@ -419,7 +427,8 @@ class SprGestureFragment() : Fragment() {
                     // SprGestureItem(dialogGesture.gesture.gestureName, dialogGesture.gesture.gestureImage, true, "")
                 }
 
-
+            val selectedGestureIds = selectedGestures.map { it.gestureId }
+            Log.d("GesturesDialogDebug", "Selected Control Gesture IDs: $selectedGestureIds")
 
             myDialog.dismiss()
             onSaveClick.invoke(selectedGestures)

@@ -42,6 +42,7 @@ class SliderDelegateAdapter(
         onDestroyParent{ onDestroy() }
         val addressDevice: ArrayList<Int> = ArrayList()
         val parameterID: ArrayList<Int> = ArrayList()
+        val dataCode: ArrayList<Int> = ArrayList()
         val dataOffset: ArrayList<Int> = ArrayList()
         var minProgress = 0
         var maxProgress = 0
@@ -53,6 +54,7 @@ class SliderDelegateAdapter(
                     addressDevice.add(it.third)
                     parameterID.add(it.first)
                     dataOffset.add(it.fourth)
+                    dataCode.add(it.second)
                 }
                 minProgress = item.widget.minProgress
                 maxProgress = item.widget.maxProgress
@@ -63,6 +65,8 @@ class SliderDelegateAdapter(
                     addressDevice.add(it.third)
                     parameterID.add(it.first)
                     dataOffset.add(it.fourth)
+                    dataCode.add(it.second)
+
                 }
                 minProgress = item.widget.minProgress
                 maxProgress = item.widget.maxProgress
@@ -71,7 +75,7 @@ class SliderDelegateAdapter(
         }
         widgetSlidersInfo.add(WidgetSliderInfo(addressDevice, parameterID, dataOffset, minProgress, maxProgress, arrayListOf(0, 0), arrayListOf(widgetSliderSb, widgetSlider2Sb), arrayListOf(widgetSliderNumTv,widgetSliderNum2Tv)))
         sliderCollect()
-        setUI(ParameterRef(addressDevice[0], parameterID[0]))
+        setUI(ParameterRef(addressDevice[0], parameterID[0], dataCode[0]))
         val indexWidgetSlider = getIndexWidgetSlider(addressDevice[0], parameterID[0])
 //        val progress: ArrayList<Int> = ArrayList(List(addressDevice.size) { 0 })
         if (addressDevice.size > 1) {
@@ -105,7 +109,7 @@ class SliderDelegateAdapter(
 
         Handler().postDelayed({
             Log.d("SliderRequest", "addressDevice = $addressDevice parameterID = $parameterID")
-            main.bleCommandWithQueue(BLECommands.requestSlider(addressDevice[0], parameterID[0]), MAIN_CHANNEL, SampleGattAttributes.WRITE)
+            main.bleCommandWithQueue(BLECommands.requestSlider(addressDevice[0], parameterID[0]), MAIN_CHANNEL, SampleGattAttributes.WRITE){}
         }, 500)
     }
     private fun sliderCollect() {

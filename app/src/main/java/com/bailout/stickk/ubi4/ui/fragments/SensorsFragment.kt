@@ -137,7 +137,7 @@ class SensorsFragment : Fragment() {
         GesturesOpticDelegateAdapter(
             gestureNameList = arrayListOf("453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk"),
             onSelectorClick = {},
-            onAddGesturesToSprScreen = {onSaveClickDialog, listSprItem, bindingGestureList ->
+            onAddGesturesToSprScreen = {onSaveClickDialog, bindingGestureList ->
             },
             onShowGestureSettings = { deviceAddress, parameterID, gestureID ->},
             onRequestGestureSettings = { deviceAddress, parameterID, gestureID ->
@@ -148,6 +148,7 @@ class SensorsFragment : Fragment() {
             },
             onSendBLEActiveGesture = {deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture)},
             onSendBLEBindingGroup = { deviceAddress, parameterID, bindingGestureGroup -> },
+            onRequestBindingGroup = {deviceAddress, parameterID -> },
             onDestroyParent = { onDestroyParent -> },
     ),
     )

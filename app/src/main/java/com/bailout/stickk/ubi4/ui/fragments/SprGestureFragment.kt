@@ -156,7 +156,7 @@ class SprGestureFragment() : Fragment() {
         GesturesOpticDelegateAdapter(
             gestureNameList = gestureNameList,
             onSelectorClick = {},
-            onAddGesturesToSprScreen = { onSaveClickDialog, listSprItem, bindingGestureList ->
+            onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList ->
                 showControlGesturesDialog(onSaveClickDialog, bindingGestureList)
             },
             onShowGestureSettings = { deviceAddress, parameterID, gestureID ->
@@ -178,6 +178,7 @@ class SprGestureFragment() : Fragment() {
             },
             onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
             onSendBLEBindingGroup = {deviceAddress, parameterID, bindingGestureGroup -> onSendBleBindingGroup(deviceAddress,parameterID,bindingGestureGroup)},
+            onRequestBindingGroup = {deviceAddress, parameterID -> requestBindingGroup(deviceAddress, parameterID)},
             onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
         ),
     )
@@ -297,9 +298,10 @@ class SprGestureFragment() : Fragment() {
     }
 
 
-
-
-
+    private fun requestBindingGroup(deviceAddress: Int, parameterID: Int) {
+        Log.d("uiBindingGroupObservable", "считывание данных в фрагменте")
+        transmitter().bleCommand(BLECommands.requestBindingGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE)
+    }
 
     @SuppressLint("MissingInflatedId", "LogNotTimber", "CutPasteId")
     private fun showControlGesturesDialog(

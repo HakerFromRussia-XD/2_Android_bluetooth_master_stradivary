@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.data.local
 
+import android.util.Pair
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -25,23 +26,23 @@ data class BindingGestureGroup(
     var gestureSpr11Id: Int = 0, var gesture11Id: Int = 0,
     var gestureSpr12Id: Int = 0, var gesture12Id: Int = 0,
 ) {
-    fun toGestureList(): List<Pair<Int, Int>> {
+    fun toGestureList(): MutableList<Pair<Int, Int>> {
         return listOf(
-            gestureSpr1Id to gesture1Id,
-            gestureSpr2Id to gesture2Id,
-            gestureSpr3Id to gesture3Id,
-            gestureSpr4Id to gesture4Id,
-            gestureSpr5Id to gesture5Id,
-            gestureSpr6Id to gesture6Id,
-            gestureSpr7Id to gesture7Id,
-            gestureSpr8Id to gesture8Id,
-            gestureSpr9Id to gesture9Id,
-            gestureSpr10Id to gesture10Id,
-            gestureSpr11Id to gesture11Id,
-            gestureSpr12Id to gesture12Id,
-        )
+            Pair(gestureSpr1Id, gesture1Id),
+            Pair(gestureSpr2Id, gesture2Id),
+            Pair(gestureSpr3Id, gesture3Id),
+            Pair(gestureSpr4Id, gesture4Id),
+            Pair(gestureSpr5Id, gesture5Id),
+            Pair(gestureSpr6Id, gesture6Id),
+            Pair(gestureSpr7Id, gesture7Id),
+            Pair(gestureSpr8Id, gesture8Id),
+            Pair(gestureSpr9Id, gesture9Id),
+            Pair(gestureSpr10Id, gesture10Id),
+            Pair(gestureSpr11Id, gesture11Id),
+            Pair(gestureSpr12Id, gesture12Id),
+        ).toMutableList()
     }
-    fun setGestureAt(index: Int, pair: android.util.Pair<Int, Int>) {
+    fun setGestureAt(index: Int, pair: Pair<Int, Int>) {
         when(index) {
             0 -> { gestureSpr1Id = pair.first; gesture1Id = pair.second }
             1 -> { gestureSpr2Id = pair.first; gesture2Id = pair.second }

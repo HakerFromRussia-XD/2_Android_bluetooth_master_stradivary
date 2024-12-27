@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.util.Pair
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -21,10 +22,14 @@ import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePre
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
+import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
 import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
@@ -93,7 +98,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             showOpticGesturesScreen()
         }
         binding.runCommandBtn.setOnClickListener {
-            manageTrainingLifecycle()
+            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
+
         }
 
     }
@@ -171,7 +177,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         rotationGroupFlow = MutableSharedFlow()
         slidersFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
-        bindingGroupFlow = MutableStateFlow(0)
+        bindingGroupFlow = MutableSharedFlow()
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         thresholdFlow = MutableSharedFlow()
         baseSubDevicesInfoStructSet = mutableSetOf()
@@ -266,8 +272,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<PlotParameterRef>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
-        var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()
-        var bindingGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()
+        var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+        var bindingGroupFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var stateOpticTrainingFlow by Delegates.notNull<MutableStateFlow<PreferenceKeysUBI4.TrainingModelState>>()
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
@@ -282,7 +288,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
         var rotationGroupGestures by Delegates.notNull<ArrayList<Gesture>>()
 
-        var bindingGroupGestures by Delegates.notNull<ArrayList<BindingGestureGroup>>()
+        var bindingGroupGestures by Delegates.notNull<ArrayList<Pair<Int, Int>>>()
 
 
 

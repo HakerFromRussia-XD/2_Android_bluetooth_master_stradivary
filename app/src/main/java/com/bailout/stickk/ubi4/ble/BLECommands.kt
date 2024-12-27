@@ -175,6 +175,18 @@ class BLECommands {
             )
             return header
         }
+        fun requestBindingGroup(addressDevice: Int, parameterID: Int): ByteArray {
+            val header = byteArrayOf(
+                0xE0.toByte(),
+                parameterID.toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            return header
+        }
         fun requestGestureInfo(addressDevice: Int, parameterID: Int, gestureId: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),

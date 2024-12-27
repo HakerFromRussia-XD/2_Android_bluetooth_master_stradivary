@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ble
 
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.RotationGroup
 import com.bailout.stickk.ubi4.models.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
@@ -289,6 +290,48 @@ class BLECommands {
             val result = header + data
             return result
         }
+        fun sendBindingGroupInfo(addressDevice: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup): ByteArray {
+            val code:Byte = (128 + parameterID).toByte()
+            val header = byteArrayOf(
+                0x40,
+                code,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            val data = byteArrayOf(
+                bindingGestureGroup.gestureSpr1Id.toByte(),
+                bindingGestureGroup.gesture1Id.toByte(),
+                bindingGestureGroup.gestureSpr2Id.toByte(),
+                bindingGestureGroup.gesture2Id.toByte(),
+                bindingGestureGroup.gestureSpr3Id.toByte(),
+                bindingGestureGroup.gesture3Id.toByte(),
+                bindingGestureGroup.gestureSpr4Id.toByte(),
+                bindingGestureGroup.gesture4Id.toByte(),
+                bindingGestureGroup.gestureSpr5Id.toByte(),
+                bindingGestureGroup.gesture5Id.toByte(),
+                bindingGestureGroup.gestureSpr6Id.toByte(),
+                bindingGestureGroup.gesture6Id.toByte(),
+                bindingGestureGroup.gestureSpr7Id.toByte(),
+                bindingGestureGroup.gesture7Id.toByte(),
+                bindingGestureGroup.gestureSpr8Id.toByte(),
+                bindingGestureGroup.gesture8Id.toByte(),
+                bindingGestureGroup.gestureSpr9Id.toByte(),
+                bindingGestureGroup.gesture9Id.toByte(),
+                bindingGestureGroup.gestureSpr10Id.toByte(),
+                bindingGestureGroup.gesture10Id.toByte(),
+                bindingGestureGroup.gestureSpr11Id.toByte(),
+                bindingGestureGroup.gesture11Id.toByte(),
+                bindingGestureGroup.gestureSpr12Id.toByte(),
+                bindingGestureGroup.gesture12Id.toByte(),
+            )
+            header[3] = data.size.toByte()
+            header[4] = (data.size/256).toByte()
+            val result = header + data
+            return result
+        }
         fun sendActiveGesture(addressDevice: Int, parameterID: Int, activeGesture: Int): ByteArray {
             val code:Byte = (128 + parameterID).toByte()
             val header = byteArrayOf(
@@ -453,7 +496,6 @@ class BLECommands {
             val result = header + data
             return result
         }
-
         fun checkpointDataTransfer(data: ByteArray): ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
@@ -469,7 +511,6 @@ class BLECommands {
             val result = header + data
             return result
         }
-
         fun checkpointDataTransfer2(data: ByteArray, addressDevice: Int): ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
@@ -485,7 +526,6 @@ class BLECommands {
             val result = header + data
             return result
         }
-
         fun openCheckpointFileInSDCard(name: String, addressDevice: Int, parameterID: Int, indexPackage: Int): ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
@@ -509,14 +549,7 @@ class BLECommands {
             val result = header + data
             return result
         }
-
-
-        fun writeDataInCheckpointFileInSDCard(
-            modifiedChunkArray: ByteArray,
-            addressDevice: Int,
-            parameterID: Int,
-            indexPackage: Int
-        ) : ByteArray {
+        fun writeDataInCheckpointFileInSDCard(modifiedChunkArray: ByteArray, addressDevice: Int, parameterID: Int, indexPackage: Int) : ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
                 (128 + parameterID).toByte(),
@@ -539,8 +572,6 @@ class BLECommands {
             val result = header + data
             return result
         }
-
-
         fun closeCheckpointFileInSDCard(addressDevice: Int, parameterID: Int, indexPackage: Int): ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),

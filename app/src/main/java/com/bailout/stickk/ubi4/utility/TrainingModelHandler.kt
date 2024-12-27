@@ -85,6 +85,7 @@ class TrainingModelHandler(private val context: Context) {
     private lateinit var hyperparameters: Parameters
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private lateinit var learningTimer: Chronometer
+    private var percentProgressLearningModel:Int = 0
 
     fun initialize() {
         path = context.getExternalFilesDir(null)
@@ -98,6 +99,10 @@ class TrainingModelHandler(private val context: Context) {
         getHyperParameters()
         scope.launch { stateOpticTrainingFlow.emit(PreferenceKeysUBI4.TrainingModelState.BASE) }
         Log.d("StateCallBack", "Initialized with state: 0")
+    }
+
+    fun getPercentProgressLearningModel(): Int{
+        return percentProgressLearningModel
     }
 
     private fun getHyperParameters() {
@@ -503,6 +508,7 @@ class TrainingModelHandler(private val context: Context) {
             epochsTimerSum += (SystemClock.elapsedRealtime() - epochsTimer.base).toInt()
             Log.i("timer_epochs", (SystemClock.elapsedRealtime() - epochsTimer.base).toString())
 
+            percentProgressLearningModel = epoch +1
             Log.i("epochs_counter", "Finished ${epoch + 1} epochs, current loss: ${lossCalc.get(0)}")
         }
 

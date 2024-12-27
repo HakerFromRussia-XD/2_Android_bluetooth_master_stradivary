@@ -84,9 +84,9 @@ class SprGestureFragment() : Fragment() {
         }
         loadGestureNameList()
         //настоящие виджеты
-//        widgetListUpdater()
+        widgetListUpdater()
         //фейковые виджеты
-        adapterWidgets.swapData(mDataFactory.fakeData())
+//        adapterWidgets.swapData(mDataFactory.fakeData())
 
 
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -172,13 +172,21 @@ class SprGestureFragment() : Fragment() {
                     parameterID,
                     gestureID
                 )
-            }, onSetCustomGesture = { onSaveDotsClick,  bindingItem ->
+            },
+            onSetCustomGesture = { onSaveDotsClick,  bindingItem ->
                 showCustomGesturesDialog(onSaveDotsClick, bindingItem)
             },
             onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
+            onSendBLEBindingGroup = {deviceAddress, parameterID, bindingGestureGroup -> onSendBleBindingGroup(deviceAddress,parameterID,bindingGestureGroup)},
             onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
         ),
     )
+
+    private fun onSendBleBindingGroup(deviceAddress: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup) {
+        transmitter().bleCommand(BLECommands.sendBindingGroupInfo (deviceAddress, parameterID, bindingGestureGroup), MAIN_CHANNEL, WRITE)
+        Log.d("TestSendBindingGroup", "ok")
+
+    }
 
     private fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
         Log.d("requestGestureSettings", "считывание данных в фрагменте")
@@ -201,7 +209,7 @@ class SprGestureFragment() : Fragment() {
 
     @SuppressLint("MissingInflatedId", "LogNotTimber")
     private fun showCustomGesturesDialog(
-        onSaveClick: (gestureId: Int, bindingPosition: Int) -> Unit,
+        onSaveClick: (Pair<Int, Int>) -> Unit,
         bindingItem: Pair<Int, Int>
     ) {
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_gestures_add_to_spr_screen, null)
@@ -227,6 +235,7 @@ class SprGestureFragment() : Fragment() {
         )
 
         var selectedGesturePosition = collectionGestureDialogList.indexOfFirst { it.check }
+        var selectedGestureId = bindingItem.second
         Log.d("DialogGestureTest", "selectedGesturePosition $selectedGesturePosition")
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         gesturesRv.layoutManager = linearLayoutManager
@@ -245,24 +254,27 @@ class SprGestureFragment() : Fragment() {
                             check = false
                         )
                         selectedGesturePosition = -1
+                        selectedGestureId = -1
                         gesturesRv.adapter?.notifyItemChanged(clickedPosition)
                         Log.d("DialogGestureTest", "selectedGesturePosition $selectedGesturePosition")
 
                         return
                     }
                     if (selectedGesturePosition != -1) {
-                        collectionGestureDialogList.forEach { it.check = false }
-//                        collectionGestureDialogList[clickedPosition] =
-//                            collectionGestureDialogList[clickedPosition].copy(check = false)
-//                        gesturesRv.adapter?.notifyItemChanged(clickedPosition)
+                        collectionGestureDialogList[selectedGesturePosition] =
+                            collectionGestureDialogList[selectedGesturePosition].copy(check = false)
+                        gesturesRv.adapter?.notifyItemChanged(selectedGesturePosition)
+
                     }
 
                     // Устанавливаем текущий жест как выбранный
-                    selectedGesturePosition = dialogGesture.gesture.gestureId
+                    selectedGesturePosition = clickedPosition
+                    selectedGestureId = dialogGesture.gesture.gestureId
                     collectionGestureDialogList[clickedPosition] =
                         collectionGestureDialogList[clickedPosition].copy(check = true)
                     gesturesRv.adapter?.notifyItemChanged(clickedPosition)
-                    Log.d("DialogGestureTest", "selectedGesturePosition $selectedGesturePosition")
+                    Log.d("DialogGestureTest", "selectedGestureId $selectedGestureId")
+
                 }
 
             }
@@ -276,26 +288,10 @@ class SprGestureFragment() : Fragment() {
 
         val saveBtn = dialogBinding.findViewById<View>(R.id.dialogAddGesturesToSaveBtn)
         saveBtn.setOnClickListener {
-//            val selectedGesture = if (selectedGesturePosition != -1) {
-//                collectionGestureDialogList[selectedGesturePosition].gesture
-//            } else null
-//
-//
-//            if (selectedGesture != null) {
-//                onSaveClick.invoke(selectedGesture.gestureId, bindingPosition)
-//                val selectedGestureId = selectedGesture.gestureId
-//                Log.d(
-//                    "GesturesDialogDebug",
-//                    "BindingControlGestures Id: $selectedGestureId, SprGesturesPosition: ${bindingPosition +1}"
-//                )
-//            } else {
-//                onSaveClick.invoke(0, bindingPosition)
-//                Log.d(
-//                    "GesturesDialogDebug",
-//                    "BindingControlGestures Id: None, SprGesturesPosition: ${bindingPosition +1}"
-//                )
-//            }
+            val sendBindingItem = if (selectedGestureId != -1) { Pair(bindingItem.first, selectedGestureId)
+            } else { Pair(bindingItem.first, 0) }
 
+            onSaveClick.invoke(sendBindingItem)
             myDialog.dismiss()
         }
     }

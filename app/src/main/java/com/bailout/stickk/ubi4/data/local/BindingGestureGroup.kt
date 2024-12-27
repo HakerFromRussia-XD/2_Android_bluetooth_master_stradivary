@@ -1,6 +1,5 @@
 package com.bailout.stickk.ubi4.data.local
 
-import com.bailout.stickk.ubi4.models.BindingGestureItem
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -42,7 +41,26 @@ data class BindingGestureGroup(
             gestureSpr12Id to gesture12Id,
         )
     }
+    fun setGestureAt(index: Int, pair: android.util.Pair<Int, Int>) {
+        when(index) {
+            0 -> { gestureSpr1Id = pair.first; gesture1Id = pair.second }
+            1 -> { gestureSpr2Id = pair.first; gesture2Id = pair.second }
+            2 -> { gestureSpr3Id = pair.first; gesture3Id = pair.second }
+            3 -> { gestureSpr4Id = pair.first; gesture4Id = pair.second }
+            4 -> { gestureSpr5Id = pair.first; gesture5Id = pair.second }
+            5 -> { gestureSpr6Id = pair.first; gesture6Id = pair.second }
+            6 -> { gestureSpr7Id = pair.first; gesture7Id = pair.second }
+            7 -> { gestureSpr8Id = pair.first; gesture8Id = pair.second }
+            8 -> { gestureSpr9Id = pair.first; gesture9Id = pair.second }
+            9 -> { gestureSpr10Id = pair.first; gesture10Id = pair.second }
+            10 -> { gestureSpr11Id = pair.first; gesture11Id = pair.second }
+            11 -> { gestureSpr12Id = pair.first; gesture12Id = pair.second }
+            else -> throw IndexOutOfBoundsException("Индекс должен быть от 0 до 11")
+        }
+    }
 }
+
+
 
 
 object BindingGroupSerializer : KSerializer<BindingGestureGroup> {

@@ -97,9 +97,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (savedInstanceState == null) {
 //            showOpticGesturesScreen()
         }
+
         binding.runCommandBtn.setOnClickListener {
-//            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
-            manageTrainingLifecycle()
+            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
+//            manageTrainingLifecycle()
         }
 
     }
@@ -219,7 +220,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    fun bleCommandWithQueue(
+   override fun bleCommandWithQueue(
         byteArray: ByteArray?,
         Command: String,
         typeCommand: String,
@@ -227,6 +228,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     ) {
         queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand, onChunkSent))
     }
+
 
     private fun getBleCommandWithQueue(
         byteArray: ByteArray?,

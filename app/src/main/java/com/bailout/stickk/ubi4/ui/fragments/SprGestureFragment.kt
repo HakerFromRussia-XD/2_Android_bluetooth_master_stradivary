@@ -184,19 +184,18 @@ class SprGestureFragment() : Fragment() {
     )
 
     private fun onSendBleBindingGroup(deviceAddress: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup) {
-        transmitter().bleCommand(BLECommands.sendBindingGroupInfo (deviceAddress, parameterID, bindingGestureGroup), MAIN_CHANNEL, WRITE)
-        Log.d("TestSendBindingGroup", "ok")
+        if (!isAdded) { return }
+        transmitter().bleCommandWithQueue(BLECommands.sendBindingGroupInfo (deviceAddress, parameterID, bindingGestureGroup), MAIN_CHANNEL, WRITE){}
+    }
+
+    private fun requestBindingGroup(deviceAddress: Int, parameterID: Int) {
+        if (!isAdded) { return }
+        transmitter().bleCommandWithQueue(BLECommands.requestBindingGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE){}
     }
 
     private fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
-        Log.d("requestGestureSettings", "считывание данных в фрагменте")
-        transmitter().bleCommand(
-            BLECommands.requestGestureInfo(
-                deviceAddress,
-                parameterID,
-                gestureID
-            ), MAIN_CHANNEL, WRITE
-        )
+        if (!isAdded) { return }
+        transmitter().bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE) {}
     }
 
     private fun showGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
@@ -297,10 +296,7 @@ class SprGestureFragment() : Fragment() {
     }
 
 
-    private fun requestBindingGroup(deviceAddress: Int, parameterID: Int) {
-        Log.d("uiBindingGroupObservable", "считывание данных в фрагменте")
-        transmitter().bleCommand(BLECommands.requestBindingGroup(deviceAddress, parameterID), MAIN_CHANNEL, WRITE)
-    }
+
 
     @SuppressLint("MissingInflatedId", "LogNotTimber", "CutPasteId")
     private fun showControlGesturesDialog(

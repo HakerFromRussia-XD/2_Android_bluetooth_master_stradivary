@@ -87,6 +87,7 @@ class GesturesOpticDelegateAdapter(
                 val position = listBindingGesture.indexOfFirst { it.first == bindingItem.first }
                 listBindingGesture[position] = bindingItem
                 fillCollectionGesturesInBindingGroup()
+                onSendBLEBindingGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number), currentBindingGroup)
             }, listBindingGesture[selectedPosition])
         }
     )
@@ -232,6 +233,8 @@ class GesturesOpticDelegateAdapter(
             val selectedGestures: (MutableList<Pair<Int, Int>>) -> Unit = { listBindingGestures ->
                 listBindingGesture = listBindingGestures
                 fillCollectionGesturesInBindingGroup()
+                onSendBLEBindingGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number), currentBindingGroup)
+
             }
             onAddGesturesToSprScreen(selectedGestures, listBindingGesture)
         }
@@ -254,7 +257,6 @@ class GesturesOpticDelegateAdapter(
         }
         Log.d("fillSprGesturesInBG", "$listBindingGesture")
         adapter.updateGestures(listBindingGesture)
-        onSendBLEBindingGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number), currentBindingGroup)
 
         if (adapter.itemCount > 0) {
             _annotationTv.visibility = View.GONE
@@ -336,7 +338,7 @@ class GesturesOpticDelegateAdapter(
                 colorAnim3.setEvaluator(ArgbEvaluator())
                 colorAnim3.start()
                 showCollectionGestures(true, collectionGesturesCl)
-                showRotationGroup(false, sprGestureGroupCl)
+                showBindingGroup(false, sprGestureGroupCl)
             }
 
             2 -> {
@@ -358,7 +360,7 @@ class GesturesOpticDelegateAdapter(
                 colorAnim4.setEvaluator(ArgbEvaluator())
                 colorAnim4.start()
                 showCollectionGestures(false, collectionGesturesCl)
-                showRotationGroup(true, sprGestureGroupCl)
+                showBindingGroup(true, sprGestureGroupCl)
             }
 
             else -> throw IllegalStateException("Unexpected value: $position")
@@ -366,7 +368,7 @@ class GesturesOpticDelegateAdapter(
     }
 
 
-    private fun showRotationGroup(show: Boolean, collectionGesturesCl: ConstraintLayout) {
+    private fun showBindingGroup(show: Boolean, collectionGesturesCl: ConstraintLayout) {
         if (show) {
             collectionGesturesCl.visibility = View.VISIBLE
         } else {

@@ -37,6 +37,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFla
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.bailout.stickk.ubi4.utility.ConstantManager
+import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.CoroutineScope
@@ -70,6 +71,7 @@ class SprTrainingFragment : Fragment() {
 
     private val progressFlow = MutableSharedFlow<Int>(1, 0, BufferOverflow.DROP_OLDEST)
     private var canSendNextChunkFlag = true
+    private lateinit var trainingModelHandler: TrainingModelHandler
 
     //private val loadedFiles = mutableSetOf<String>()
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
@@ -89,10 +91,10 @@ class SprTrainingFragment : Fragment() {
 
 
         //настоящие виджеты
-        widgetListUpdater()
+//        widgetListUpdater()
         //фейковые виджеты
 //        adapterWidgets = initAdapter()
-//        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.fakeData())
 
         canSendNextChunkFlagUpdater()
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -105,6 +107,9 @@ class SprTrainingFragment : Fragment() {
         binding.sprTrainingRv.adapter = adapterWidgets
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
         return binding.root
+
+        trainingModelHandler = TrainingModelHandler(requireContext())
+        trainingModelHandler.initialize()
     }
 
 

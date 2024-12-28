@@ -538,7 +538,7 @@
     <string name="collection_of_gestures">Коллекция жестов</string>
     <string name="rotation_group">Группа ротации</string>
     <string name="fist">Кулак</string>
-    <string name="spr_gestures">СПР Жесты</string>
+    <string name="spr_gestures">СПППР Жесты</string>
     <string name="grip_the_ball">Хват мяча</string>
     <string name="that_rocks">Коза</string>
     <string name="title_gestures_learned">Изученные жесты</string>
@@ -576,14 +576,16 @@
     <string name="the_that_rocks_gesture_will_remain_available_in_the_gesture_collection_but_will_be_removed_from_the_rotation_group">Жест %s останется доступным в коллекции жестов, но будет исключён из группы ротации.</string>
     <string name="add_gestures_to_the_group">Добавление жестов в группу ротации</string>
     <string name="follow_the_gestures_on_the_screen_and_keep_track_of_the_time">Следуйте жестам на экране и следите за временем</string>
-    <string name="let_s_start_training_spr">Начнем обучение СПР</string>
+    <string name="let_s_start_training_spr">Начнем обучение СПППР</string>
+    <string name="spppr_is_learning">СПППР обучается</string>
+    <string name="spppr_is_saving">СПППР сохраняется</string>
     <string name="base_line">Базовая линия</string>
     <string name="no_saved_files">Нет сохранённых файлов</string>
     <string name="select_training_file">Выберите файл обучения</string>
     <string name="show_files">Показать файлы</string>
     <string name="model_training_in_progress_please_wait">Обучение модели выполняется, пожалуйста, подождите...</string>
     <string name="wait_until_the_model_file_is_created">Дождитесь завершения создания файла модели</string>
-    <string name="the_gesture_model_file_is_ready_load">Файл модели жестов готов. Загрузите его в протез для завершения настройки.</string>
+    <string name="the_model_file_is_saved_to_the_device_memory_please_wait">Файл модели сохраняется в память устройства, пожалуйста, подождите...</string>
     <string name="file_is_being_downloaded">Идет загрузка файла</string>
     <string name="are_you_sure_you_want_to_start_downloading_the_file">Вы уверены что хотите начать загрузку файла?</string>
     <string name="bluetooth_connection_is_disabled">Bluetooth соеденение отключенно</string>

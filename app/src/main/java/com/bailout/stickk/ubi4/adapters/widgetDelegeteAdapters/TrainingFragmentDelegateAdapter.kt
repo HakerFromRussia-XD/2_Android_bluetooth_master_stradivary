@@ -13,13 +13,16 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidge
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.stateOpticTrainingFlow
+import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class TrainingFragmentDelegateAdapter(
@@ -31,20 +34,26 @@ class TrainingFragmentDelegateAdapter(
         Ubi4WidgetTrainingOpticBinding::inflate
     ) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private lateinit var _trainingTitleTv: TextView
     private lateinit var _trainingSubTitleTv: TextView
     private lateinit var _trainingAnnotationIv: ImageView
     private lateinit var _trainingBtn: View
     private lateinit var _lottieAnimationLoading: com.airbnb.lottie.LottieAnimationView
+    private lateinit var _percentLearning: TextView
 
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetTrainingOpticBinding.onBind(item: TrainingGestureItem) {
         Log.d("TestWidgetView", "Start onBind, item: ${item}")
         onDestroyParent { onDestroy() }
+        _trainingTitleTv = trainingTitleTv
         _trainingSubTitleTv = trainingSubTitleTv
         _trainingAnnotationIv = trainingAnnotationIv
         _trainingBtn = trainingBtn
         _lottieAnimationLoading = lottieAnimationLoading
+        _percentLearning = percentLearningTv
+        main.getPercentProgressLearningModel()
+        Log.d("TestWidgetViewdfsghg", "test int ${main.getPercentProgressLearningModel()}")
         var addressDevice = 0
         var parameterId = 0
 
@@ -73,9 +82,18 @@ class TrainingFragmentDelegateAdapter(
             stateOpticTrainingFlow.collect { state ->
                 Log.d("StateFlowCollector", "Collected state: $state")
                 updateUI(state)
+                scope.launch(Dispatchers.Main) {
+                    while (stateOpticTrainingFlow.value == PreferenceKeysUBI4.TrainingModelState.RUN) {
+                        _percentLearning.text = main?.getPercentProgressLearningModel().toString() + " %"
+                        Log.d("StateFlowCollector", "scope 2 run")
+                        delay(100)
+                    }
+                }
             }
         }
     }
+
+
 
     /**
      * Обновляет UI в зависимости от текущего состояния.
@@ -83,8 +101,11 @@ class TrainingFragmentDelegateAdapter(
     private fun updateUI(state: PreferenceKeysUBI4.TrainingModelState) {
         when (state) {
             PreferenceKeysUBI4.TrainingModelState.BASE -> {
+                _trainingSubTitleTv.text = main.getString(R.string.follow_the_gestures_on_the_screen_and_keep_track_of_the_time)
+                _trainingTitleTv.text = main.getString(R.string.let_s_start_training_spr)
                 _trainingAnnotationIv.visibility = View.VISIBLE
                 _lottieAnimationLoading.visibility = View.GONE
+                _percentLearning.visibility = View.GONE
                 _lottieAnimationLoading.cancelAnimation()
                 _trainingBtn.isEnabled = true
                 _trainingBtn.setOnClickListener {
@@ -93,12 +114,14 @@ class TrainingFragmentDelegateAdapter(
             }
 
             PreferenceKeysUBI4.TrainingModelState.RUN -> {
-                _trainingSubTitleTv.text =
-                    main.getString(R.string.model_training_in_progress_please_wait)
+                _trainingSubTitleTv.text = main.getString(R.string.model_training_in_progress_please_wait)
+                _trainingTitleTv.text = main.getString(R.string.spppr_is_learning)
                 _trainingAnnotationIv.visibility = View.GONE
                 _lottieAnimationLoading.visibility = View.VISIBLE
+                _percentLearning.visibility = View.VISIBLE
                 _lottieAnimationLoading.playAnimation()
                 _trainingBtn.isEnabled = true
+                _percentLearning.text = ""
                 _trainingBtn.setOnClickListener {
                     Toast.makeText(
                         main,
@@ -109,11 +132,12 @@ class TrainingFragmentDelegateAdapter(
             }
 
             PreferenceKeysUBI4.TrainingModelState.EXPORT -> {
-                _trainingSubTitleTv.text =
-                    main.getString(R.string.the_gesture_model_file_is_ready_load)
-                _trainingAnnotationIv.visibility = View.VISIBLE
-                _lottieAnimationLoading.visibility = View.GONE
-                _lottieAnimationLoading.cancelAnimation()
+                _trainingSubTitleTv.text = main.getString(R.string.the_model_file_is_saved_to_the_device_memory_please_wait)
+                _trainingTitleTv.text = main.getString(R.string.spppr_is_saving)
+//                _trainingAnnotationIv.visibility = View.VISIBLE
+//                _lottieAnimationLoading.visibility = View.GONE
+                _percentLearning.visibility = View.GONE
+//                _lottieAnimationLoading.cancelAnimation()
                 _trainingBtn.isEnabled = true
                 _trainingBtn.setOnClickListener {
                     onConfirmClick()

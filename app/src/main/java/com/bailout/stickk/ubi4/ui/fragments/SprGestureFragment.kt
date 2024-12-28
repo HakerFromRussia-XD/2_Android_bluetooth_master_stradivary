@@ -186,7 +186,6 @@ class SprGestureFragment() : Fragment() {
     private fun onSendBleBindingGroup(deviceAddress: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup) {
         transmitter().bleCommand(BLECommands.sendBindingGroupInfo (deviceAddress, parameterID, bindingGestureGroup), MAIN_CHANNEL, WRITE)
         Log.d("TestSendBindingGroup", "ok")
-
     }
 
     private fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {

@@ -15,6 +15,7 @@ interface NavigatorUBI4 {
     fun showMotionTrainingScreen(onFinish:()->Unit)
 
     fun manageTrainingLifecycle()
+    fun getPercentProgressLearningModel() : Int
 
     fun showToast(massage: String)
     fun saveString(key: String, text: String)

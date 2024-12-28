@@ -157,36 +157,6 @@ class MotionTrainingFragment(
                     Log.e("TestOptic", "Error decoding data: ${e.message}")
                 }
             }
-
-
-
-//            .subscribe { dataCode ->
-//                if (isRecordingPaused) return@subscribe // Пропустить запись, если приостановлено
-//
-//                Log.d("FileInfoWriteFile", "Received dataCode: $dataCode")
-//                try {
-//                    val dataStringRaw = parameter.data
-//                    if (dataStringRaw.isBlank() || dataStringRaw == "None") {
-//                        Log.e("TestFileContain", "Data is empty or invalid")
-//                        return@subscribe
-//                    }
-//
-//
-//                    val opticTrainingStruct =
-//                        Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
-//                    val dataString = opticTrainingStruct.data.joinToString(separator = " ") {
-//                        String.format("%.1f", it)
-//                    }
-////                    Log.d("WriteFileDebugCheck", "OpticTrainingStruct = $dataString")
-////                    Log.d(
-////                        "WriteFileDebugCheck",
-////                        "Number Frame = ${opticTrainingStruct.numberOfFrame}"
-////                    )
-//                    writeToFile(dataString)
-//                } catch (e: Exception) {
-//                    Log.e("TestOptic", "Error decoding data: ${e.message}")
-//                }
-
         disposables.add(opticStreamDisposable)
     }
 

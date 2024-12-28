@@ -93,13 +93,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.scanLeDevice(true)
         startQueue()
 
-//        showSensorsScreen()
+        showSensorsScreen()
         if (savedInstanceState == null) {
-            showOpticGesturesScreen()
+//            showOpticGesturesScreen()
         }
         binding.runCommandBtn.setOnClickListener {
-            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
-
+//            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
+            manageTrainingLifecycle()
         }
 
     }
@@ -137,6 +137,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun manageTrainingLifecycle() {
         Log.d("StateCallBack", "manageTrainingLifecycle called")
         trainingModelHandler.runModel()
+    }
+
+    override fun getPercentProgressLearningModel(): Int {
+        return trainingModelHandler.getPercentProgressLearningModel()
     }
 
     override fun showToast(massage: String) {

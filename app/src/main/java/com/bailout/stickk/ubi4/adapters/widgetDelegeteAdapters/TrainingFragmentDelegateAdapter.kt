@@ -10,13 +10,10 @@ import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetTrainingOpticBinding
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.stateOpticTrainingFlow
-import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -60,12 +57,12 @@ class TrainingFragmentDelegateAdapter(
         when (item.widget) {
             is OpticStartLearningWidgetEStruct -> {
                 addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
-                parameterId = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                parameterId = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).parameterID
             }
 
             is OpticStartLearningWidgetSStruct -> {
                 addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
-                parameterId = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                parameterId = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).parameterID
             }
         }
 

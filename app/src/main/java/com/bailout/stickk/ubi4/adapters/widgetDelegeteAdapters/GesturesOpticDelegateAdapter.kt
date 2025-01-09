@@ -47,6 +47,7 @@ class GesturesOpticDelegateAdapter(
         bindingItem: Pair<Int, Int>
     ) -> Unit,
     val onSendBLEActiveGesture: (deviceAddress: Int, parameterID: Int, activeGesture: Int) -> Unit,
+    val onRequestActiveGesture: (deviceAddress: Int, parameterID: Int) -> Unit,
     val onSendBLEBindingGroup: (deviceAddress: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup) -> Unit,
     val onRequestBindingGroup: (deviceAddress: Int, parameterID: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
@@ -104,10 +105,13 @@ class GesturesOpticDelegateAdapter(
             is BaseParameterWidgetEStruct -> {
                 deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
                 parameterIDSet = item.widget.baseParameterWidgetStruct.parametersIDAndDataCodes
+                Log.d("ParamInfo"," ParamInfoEStruct parameterIDSet: $parameterIDSet" )
+
             }
             is BaseParameterWidgetSStruct -> {
                 deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
                 parameterIDSet = item.widget.baseParameterWidgetStruct.parametersIDAndDataCodes
+                Log.d("ParamInfo"," ParamInfoSStruct parameterIDSet: $parameterIDSet" )
             }
         }
 
@@ -186,6 +190,7 @@ class GesturesOpticDelegateAdapter(
                     Log.d("GesturesDelegateAdapter", "GestureCollectionBtn $i clicked")
                     setActiveButton(btn)
                     onSendBLEActiveGesture(i)
+                    onRequestActiveGesture(deviceAddress,getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number))
                 }
             }
             gestureCollectionTitle?.text =
@@ -300,8 +305,8 @@ class GesturesOpticDelegateAdapter(
 
     private fun getParameterIDByCode(dataCode: Int): Int {
         parameterIDSet.forEach {
-            if (it.second == dataCode) {
-                return it.first
+            if (it.dataCode == dataCode) {
+                return it.parameterID
             }
         }
         return 0

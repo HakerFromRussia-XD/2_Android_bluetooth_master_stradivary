@@ -1,14 +1,9 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.graphics.Color
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.core.view.marginTop
-import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
 import com.bailout.stickk.databinding.Ubi4WidgetPlotMyBinding
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -60,11 +55,11 @@ class PlotDelegateAdapterMy (
         var deviceAddress = 0
         when (plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
-                parameterID = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                parameterID = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).parameterID
                 deviceAddress = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
             }
             is PlotParameterWidgetSStruct -> {
-                parameterID = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                parameterID = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).parameterID
                 deviceAddress = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
             }
         }

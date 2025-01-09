@@ -177,6 +177,7 @@ class SprGestureFragment() : Fragment() {
                 showCustomGesturesDialog(onSaveDotsClick, bindingItem)
             },
             onSendBLEActiveGesture = { deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture) },
+            onRequestActiveGesture = {deviceAddress, parameterID -> requestActiveGesture(deviceAddress, parameterID)  },
             onSendBLEBindingGroup = {deviceAddress, parameterID, bindingGestureGroup -> onSendBleBindingGroup(deviceAddress,parameterID,bindingGestureGroup)},
             onRequestBindingGroup = {deviceAddress, parameterID -> requestBindingGroup(deviceAddress, parameterID)},
             onDestroyParent = { onDestroyParent -> this.onDestroyParent = onDestroyParent },
@@ -196,6 +197,11 @@ class SprGestureFragment() : Fragment() {
     private fun requestGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.requestGestureInfo(deviceAddress, parameterID, gestureID), MAIN_CHANNEL, WRITE) {}
+    }
+
+    private fun requestActiveGesture(deviceAddress: Int, parameterID: Int){
+        if (!isAdded) {return}
+        transmitter().bleCommandWithQueue(BLECommands.requestActiveGesture(deviceAddress,parameterID), MAIN_CHANNEL, WRITE){}
     }
 
     private fun showGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {

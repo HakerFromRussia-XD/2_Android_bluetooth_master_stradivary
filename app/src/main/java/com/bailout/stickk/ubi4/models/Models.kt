@@ -187,8 +187,8 @@ data class GesturesId(
 
 
 data class Quadruple<A, B, C, D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
+    val parameterID: A,
+    val dataCode: B,
+    val deviceAddress: C,
+    val dataOffset: D
 )

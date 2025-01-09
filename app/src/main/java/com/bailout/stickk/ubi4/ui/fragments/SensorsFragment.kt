@@ -148,6 +148,7 @@ class SensorsFragment : Fragment() {
             },
             onSendBLEActiveGesture = {deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture)},
             onSendBLEBindingGroup = { deviceAddress, parameterID, bindingGestureGroup -> },
+            onRequestActiveGesture = {deviceAddress, parameterID ->  },
             onRequestBindingGroup = {deviceAddress, parameterID -> },
             onDestroyParent = { onDestroyParent -> },
     ),

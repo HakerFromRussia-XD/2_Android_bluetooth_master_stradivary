@@ -4,7 +4,6 @@ import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.Log
@@ -25,9 +24,7 @@ import com.woxthebox.draglistview.DragItem
 import com.woxthebox.draglistview.DragListView
 import com.woxthebox.draglistview.DragListView.DragListListenerAdapter
 import android.util.Pair
-import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.data.local.Gesture
@@ -267,8 +264,8 @@ class GesturesDelegateAdapter(
     }
     private fun getParameterIDByCode(dataCode: Int): Int {
         parameterIDSet.forEach {
-            if (it.second == dataCode) {
-                return it.first
+            if (it.dataCode == dataCode) {
+                return it.parameterID
             }
         }
         return 0

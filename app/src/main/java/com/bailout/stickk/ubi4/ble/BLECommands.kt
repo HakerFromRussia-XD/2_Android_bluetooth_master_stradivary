@@ -187,6 +187,7 @@ class BLECommands {
             )
             return header
         }
+
         fun requestGestureInfo(addressDevice: Int, parameterID: Int, gestureId: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),
@@ -205,6 +206,20 @@ class BLECommands {
             val result = header + data
             return result
         }
+
+        fun requestActiveGesture(addressDevice: Int, parameterID: Int): ByteArray{
+            val header = byteArrayOf(
+                0xE0.toByte(),
+                parameterID.toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            return header
+        }
+
         fun requestSlider(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
                 0xE0.toByte(),

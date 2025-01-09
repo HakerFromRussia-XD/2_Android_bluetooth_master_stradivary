@@ -2,7 +2,6 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.os.Handler
 import android.util.Log
 import android.view.MotionEvent
 import android.widget.LinearLayout
@@ -121,7 +120,7 @@ class PlotDelegateAdapter (
 //        }, 50)
         plotIsReadyToData(numberOfCharts)
 
-        val filteredSet = parametersIDAndDataCodes.filter { it.second == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }.toSet()
+        val filteredSet = parametersIDAndDataCodes.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }.toSet()
 
 //        val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
         openCHV.setOnTouchListener { p0, event ->
@@ -130,7 +129,7 @@ class PlotDelegateAdapter (
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
                     Log.d("setOnTouchListener", "openThreshold send $openThreshold")
-                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(0).third, filteredSet.elementAt(0).first, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE){}
+                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(0).deviceAddress, filteredSet.elementAt(0).parameterID, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE){}
                 }
             }
             true
@@ -141,7 +140,7 @@ class PlotDelegateAdapter (
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
                     Log.d("setOnTouchListener", "closeThreshold send $closeThreshold  deviceAddress = $deviceAddress  parameterID = $parameterID")
-                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(1).third, filteredSet.elementAt(1).first, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE){}
+                    main.bleCommandWithQueue(BLECommands.sendThresholdsCommand(filteredSet.elementAt(1).deviceAddress, filteredSet.elementAt(1).parameterID, arrayListOf(openThreshold,0,closeThreshold,0)), MAIN_CHANNEL, WRITE){}
                 }
             }
             true

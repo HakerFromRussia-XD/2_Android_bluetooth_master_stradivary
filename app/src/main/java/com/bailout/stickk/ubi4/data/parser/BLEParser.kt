@@ -254,6 +254,10 @@ class BLEParser(main: AppCompatActivity) {
                 Log.d("parameter PDCE_OPTIC_BINDING_DATA","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { bindingGroupFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
+            ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
+                Log.d("parameter PDCE_SELECT_GESTURE","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
+
+            }
 
         }
     }

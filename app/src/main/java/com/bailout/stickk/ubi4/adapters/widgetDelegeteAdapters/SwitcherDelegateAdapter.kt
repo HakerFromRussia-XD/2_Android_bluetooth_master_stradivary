@@ -6,18 +6,10 @@ import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.Switch
-import android.widget.TextView
-import androidx.appcompat.widget.SwitchCompat
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSwitcherBinding
-import com.bailout.stickk.ubi4.ble.BLECommands
-import com.bailout.stickk.ubi4.ble.BluetoothLeService.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.ParameterProvider
-import com.bailout.stickk.ubi4.ble.SampleGattAttributes
-import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
-import com.bailout.stickk.ubi4.data.widget.endStructures.CommandParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.SwitchItem
@@ -28,14 +20,12 @@ import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedC
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 
 class SwitcherDelegateAdapter(
     val onSwitchClick: (addressDevice: Int, parameterID: Int, switchState: Boolean) -> Unit,
@@ -65,13 +55,13 @@ class SwitcherDelegateAdapter(
         when (item.widget) {
             is SwitchParameterWidgetEStruct -> {
                 addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
-                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).parameterID
                 switchChecked = item.widget.switchChecked
             }
 
             is SwitchParameterWidgetSStruct -> {
                 addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
-                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).first
+                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).parameterID
                 switchChecked = item.widget.switchChecked
             }
         }

@@ -51,10 +51,10 @@ class SliderDelegateAdapter(
         when (item.widget) {
             is SliderParameterWidgetEStruct -> {
                 item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.forEach {
-                    addressDevice.add(it.third)
-                    parameterID.add(it.first)
-                    dataOffset.add(it.fourth)
-                    dataCode.add(it.second)
+                    addressDevice.add(it.deviceAddress)
+                    parameterID.add(it.parameterID)
+                    dataOffset.add(it.dataOffset)
+                    dataCode.add(it.dataCode)
                 }
                 minProgress = item.widget.minProgress
                 maxProgress = item.widget.maxProgress
@@ -62,10 +62,10 @@ class SliderDelegateAdapter(
             }
             is SliderParameterWidgetSStruct -> {
                 item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.forEach {
-                    addressDevice.add(it.third)
-                    parameterID.add(it.first)
-                    dataOffset.add(it.fourth)
-                    dataCode.add(it.second)
+                    addressDevice.add(it.deviceAddress)
+                    parameterID.add(it.parameterID)
+                    dataOffset.add(it.dataOffset)
+                    dataCode.add(it.dataCode)
 
                 }
                 minProgress = item.widget.minProgress

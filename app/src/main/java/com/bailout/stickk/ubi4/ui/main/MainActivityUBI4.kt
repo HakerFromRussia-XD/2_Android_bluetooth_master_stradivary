@@ -48,6 +48,7 @@ import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
 import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
+import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -99,7 +100,12 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
         binding.runCommandBtn.setOnClickListener {
-            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
+            val command = BLECommands.requestActiveGesture(6, 1)
+            // Логируем команду в шестнадцатеричном формате
+            val commandHex = EncodeByteToHex.bytesToHexString(command)
+            Log.d("BLECommand", "Отправка команды requestActiveGesture: $commandHex")
+            bleCommandWithQueue(BLECommands.requestActiveGesture(6,1), MAIN_CHANNEL, WRITE){}
+//            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
 //            manageTrainingLifecycle()
         }
 

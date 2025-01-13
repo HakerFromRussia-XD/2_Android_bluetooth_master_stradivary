@@ -385,6 +385,7 @@ class TrainingModelHandler(private val context: Context) {
             } catch (e: Exception) {
                 Log.d("StateCallBack", " Runmodel ERROR ${e.message}")
             }
+
         }
     }
 

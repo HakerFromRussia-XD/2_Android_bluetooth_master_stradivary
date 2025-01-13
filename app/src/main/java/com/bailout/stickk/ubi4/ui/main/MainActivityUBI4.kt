@@ -94,17 +94,18 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         mBLEController.scanLeDevice(true)
         startQueue()
 
-        showSensorsScreen()
+//        showSensorsScreen()
+        showOpticGesturesScreen()
         if (savedInstanceState == null) {
 //            showOpticGesturesScreen()
         }
 
         binding.runCommandBtn.setOnClickListener {
-            val command = BLECommands.requestActiveGesture(6, 1)
+            val command = BLECommands.requestActiveGesture(6, 10)
             // Логируем команду в шестнадцатеричном формате
             val commandHex = EncodeByteToHex.bytesToHexString(command)
             Log.d("BLECommand", "Отправка команды requestActiveGesture: $commandHex")
-            bleCommandWithQueue(BLECommands.requestActiveGesture(6,1), MAIN_CHANNEL, WRITE){}
+            bleCommandWithQueue(BLECommands.requestActiveGesture(6,10), MAIN_CHANNEL, WRITE){}
 //            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
 //            manageTrainingLifecycle()
         }
@@ -138,9 +139,14 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
 
     override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
-        launchFragmentWithoutStack(MotionTrainingFragment(onFinishTraining))
-        Log.d("StateCallBack", "showMotionTrainingScreen called")
+        val fragment = MotionTrainingFragment(onFinishTraining)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .commit()
+        activeFragment = fragment
+        Log.d("StateCallBack", "showMotionTrainingScreen called, new MotionTrainingFragment created")
     }
+
     override fun manageTrainingLifecycle() {
         Log.d("StateCallBack", "manageTrainingLifecycle called")
         trainingModelHandler.runModel()
@@ -189,6 +195,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         slidersFlow = MutableSharedFlow()
         switcherFlow = MutableSharedFlow()
         bindingGroupFlow = MutableSharedFlow()
+        activeGestureFlow = MutableSharedFlow()
         stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         thresholdFlow = MutableSharedFlow()
         baseSubDevicesInfoStructSet = mutableSetOf()
@@ -290,6 +297,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+        var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+
 
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()

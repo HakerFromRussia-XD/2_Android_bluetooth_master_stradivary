@@ -455,21 +455,129 @@ class SprTrainingFragment : Fragment() {
     }
 
     private val mutex = Mutex()
-    private suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int, progressBar: ProgressBar) {
+//    private suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int, progressBar: ProgressBar) {
+//        mutex.withLock {
+//            val maxChunkSize = 200 // max 249
+//            val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
+//            chunksSend = AtomicInteger(0)
+//            bleController.setUploadingState(true)
+//            var indexPackage = 0
+//            // Создание файла (или открытие с очещением)
+//            if (!waitForFlagWithRetry(
+//                    maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
+//                    retryCount = 3,         // Максимум 30 попытки
+//                    chunksSend = chunksSend.incrementAndGet(),
+//                    totalChunks + 2,
+//                    1,
+//                    progressBar
+//                ) {
+//                    main?.bleCommandWithQueue(
+//                        BLECommands.openCheckpointFileInSDCard(
+//                            name,
+//                            addressDevice,
+//                            parameterID,
+//                            1
+//                        ), MAIN_CHANNEL, WRITE
+//                    ) {}
+//                }
+//            ) {
+//                //ошибка передачи предыдущего чанка
+//                closeCurrentDialog()
+//                Log.d("ChunkProcessing", "Ошибка передачи чанка №$chunksSend ")
+//                return
+////                        return@launch // Завершаем корутину, если записать файл не удалось
+//            }
+//
+//            byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk ->
+//                indexPackage = index
+//                if (!bleController.isCurrentlyUploading()) {
+//                    Log.d(
+//                        "SprTrainingFragment",
+//                        "Upload canceled due to BLE disconnection."
+//                    )
+//                    return
+//                }
+//
+//                // Отправка данных самого файла
+//                if (!waitForFlagWithRetry(
+//                        maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
+//                        retryCount = 3,         // Максимум 30 попытки
+//                        chunksSend = chunksSend.incrementAndGet(),
+//                        totalChunks + 2,
+//                        2,
+//                        progressBar
+//                    ) {
+//                        main?.bleCommandWithQueue(
+//                            BLECommands.writeDataInCheckpointFileInSDCard(
+//                                chunk.toByteArray(), addressDevice, parameterID, index + 2
+//                            ),
+//                            MAIN_CHANNEL,
+//                            WRITE
+//                        ) {}
+//                    }
+//                ) {
+//                    //ошибка передачи предыдущего чанка
+//                    closeCurrentDialog()
+//                    Log.d("ChunkProcessing", "Ошибка передачи чанка №$chunksSend ")
+//                    return
+//                }
+//            }
+//
+//            // Закрытие файла
+//            waitForFlagWithRetry(
+//                maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
+//                retryCount = 3,         // Максимум 30 попытки
+//                chunksSend = chunksSend.incrementAndGet(),
+//                totalChunks + 2,
+//                command = 3,
+//                progressBar
+//            ) {
+//                main?.bleCommandWithQueue(
+//                    BLECommands.closeCheckpointFileInSDCard(
+//                        addressDevice,
+//                        parameterID,
+//                        indexPackage + 3
+//                    ),
+//                    MAIN_CHANNEL, WRITE
+//                ) {}
+//            }
+//
+//            //закрытие диалога с прогрессом после передачи
+//            closeCurrentDialog()
+//            Toast.makeText(
+//                requireContext(),
+//                "Файл отправлен!",
+//                Toast.LENGTH_SHORT
+//            ).show()
+//            bleController.setUploadingState(false)
+//            Log.d("ChunkProcessing", "Total chunks to send: $totalChunks")
+//        }
+//    }
+
+    private suspend fun sendFileInChunks(
+        byteArray: ByteArray,
+        name: String,
+        addressDevice: Int,
+        parameterID: Int,
+        progressBar: ProgressBar
+    ) {
         mutex.withLock {
-            val maxChunkSize = 200 // max 249
-            val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
-            chunksSend = AtomicInteger(0)
-            bleController.setUploadingState(true)
-            var indexPackage = 0
-            // Создание файла (или открытие с очещением)
-            if (!waitForFlagWithRetry(
+            try {
+                val maxChunkSize = 200 // max 249
+                val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
+                chunksSend = AtomicInteger(0)
+                bleController.setUploadingState(true) // Устанавливаем флаг загрузки
+
+                var indexPackage = 0
+
+                // Создание файла (или открытие с очисткой)
+                val openFileSuccess = waitForFlagWithRetry(
                     maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
-                    retryCount = 3,         // Максимум 30 попытки
+                    retryCount = 3,         // Максимум 3 попытки
                     chunksSend = chunksSend.incrementAndGet(),
-                    totalChunks + 2,
-                    1,
-                    progressBar
+                    totalChunks = totalChunks + 2,
+                    command = 1,
+                    progressBar = progressBar
                 ) {
                     main?.bleCommandWithQueue(
                         BLECommands.openCheckpointFileInSDCard(
@@ -480,32 +588,29 @@ class SprTrainingFragment : Fragment() {
                         ), MAIN_CHANNEL, WRITE
                     ) {}
                 }
-            ) {
-                //ошибка передачи предыдущего чанка
-                closeCurrentDialog()
-                Log.d("ChunkProcessing", "Ошибка передачи чанка №$chunksSend ")
-                return
-//                        return@launch // Завершаем корутину, если записать файл не удалось
-            }
 
-            byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk ->
-                indexPackage = index
-                if (!bleController.isCurrentlyUploading()) {
-                    Log.d(
-                        "SprTrainingFragment",
-                        "Upload canceled due to BLE disconnection."
-                    )
+                if (!openFileSuccess) {
+                    // Ошибка при открытии файла
+                    Log.d("ChunkProcessing", "Ошибка передачи чанка №${chunksSend.get()} при открытии файла")
+                    closeCurrentDialog()
                     return
                 }
 
                 // Отправка данных самого файла
-                if (!waitForFlagWithRetry(
+                byteArray.asList().chunked(maxChunkSize).forEachIndexed { index, chunk ->
+                    indexPackage = index
+                    if (!bleController.isCurrentlyUploading()) {
+                        Log.d("SprTrainingFragment", "Upload canceled due to BLE disconnection.")
+                        return
+                    }
+
+                    val sendChunkSuccess = waitForFlagWithRetry(
                         maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
-                        retryCount = 3,         // Максимум 30 попытки
+                        retryCount = 3,         // Максимум 3 попытки
                         chunksSend = chunksSend.incrementAndGet(),
-                        totalChunks + 2,
-                        2,
-                        progressBar
+                        totalChunks = totalChunks + 2,
+                        command = 2,
+                        progressBar = progressBar
                     ) {
                         main?.bleCommandWithQueue(
                             BLECommands.writeDataInCheckpointFileInSDCard(
@@ -515,44 +620,56 @@ class SprTrainingFragment : Fragment() {
                             WRITE
                         ) {}
                     }
+
+                    if (!sendChunkSuccess) {
+                        // Ошибка при отправке чанка
+                        Log.d("ChunkProcessing", "Ошибка передачи чанка №${chunksSend.get()}")
+                        closeCurrentDialog()
+                        return
+                    }
+                }
+
+                // Закрытие файла
+                val closeFileSuccess = waitForFlagWithRetry(
+                    maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
+                    retryCount = 3,         // Максимум 3 попытки
+                    chunksSend = chunksSend.incrementAndGet(),
+                    totalChunks = totalChunks + 2,
+                    command = 3,
+                    progressBar = progressBar
                 ) {
-                    //ошибка передачи предыдущего чанка
+                    main?.bleCommandWithQueue(
+                        BLECommands.closeCheckpointFileInSDCard(
+                            addressDevice,
+                            parameterID,
+                            indexPackage + 3
+                        ),
+                        MAIN_CHANNEL, WRITE
+                    ) {}
+                }
+
+                if (!closeFileSuccess) {
+                    // Ошибка при закрытии файла
+                    Log.d("ChunkProcessing", "Ошибка закрытия файла после чанка №${chunksSend.get()}")
                     closeCurrentDialog()
-                    Log.d("ChunkProcessing", "Ошибка передачи чанка №$chunksSend ")
                     return
                 }
-            }
 
-            // Закрытие файла
-            waitForFlagWithRetry(
-                maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
-                retryCount = 3,         // Максимум 30 попытки
-                chunksSend = chunksSend.incrementAndGet(),
-                totalChunks + 2,
-                command = 3,
-                progressBar
-            ) {
-                main?.bleCommandWithQueue(
-                    BLECommands.closeCheckpointFileInSDCard(
-                        addressDevice,
-                        parameterID,
-                        indexPackage + 3
-                    ),
-                    MAIN_CHANNEL, WRITE
-                ) {}
+                // Закрытие диалога с прогрессом после успешной передачи
+                closeCurrentDialog()
+                Toast.makeText(requireContext(), "Файл отправлен!", Toast.LENGTH_SHORT).show()
+                Log.d("ChunkProcessing", "Всего чанков отправлено: $totalChunks")
+            } catch (e: Exception) {
+                // Обработка непредвиденных исключений
+                Log.e("ChunkProcessing", "Неожиданная ошибка: ${e.message}")
+                closeCurrentDialog()
+            } finally {
+                // Сброс флага загрузки независимо от результата
+                bleController.setUploadingState(false)
             }
-
-            //закрытие диалога с прогрессом после передачи
-            closeCurrentDialog()
-            Toast.makeText(
-                requireContext(),
-                "Файл отправлен!",
-                Toast.LENGTH_SHORT
-            ).show()
-            bleController.setUploadingState(false)
-            Log.d("ChunkProcessing", "Total chunks to send: $totalChunks")
         }
     }
+
     private suspend fun waitForFlagWithRetry(
         maxWaitTimeMs: Long,
         retryCount: Int,

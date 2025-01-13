@@ -31,7 +31,7 @@ internal class DataFactory {
 
     fun fakeData(): List<Any> {
         val objects = ArrayList<Any>()
-//        val objectGesture: Any = BaseParameterWidgetEStruct(BaseParameterWidgetStruct())
+        val objectGesture: Any = BaseParameterWidgetEStruct(BaseParameterWidgetStruct())
         val objectPlotE: Any = PlotParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
         val objectPlotS: Any = PlotParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
         val objectCommandE: Any = CommandParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
@@ -43,7 +43,7 @@ internal class DataFactory {
         val objectTrainingE: Any = OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
 
 
-//        addElement(14, 1, objects, objectGesture)
+        addElement(14, 1, objects, objectGesture)
 //        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)
@@ -55,7 +55,7 @@ internal class DataFactory {
 //        addElementS(5, "3", objects, objectPlotS)
 //        addElement(4, 2, objects, objectSliderE)
 //        addElementS(4, "Описание слайдера", objects, objectSliderS)
-        addElement(15, 1, objects, objectTrainingE)
+//        addElement(15, 1, objects, objectTrainingE)
 
         return objects
     }
@@ -157,7 +157,9 @@ internal class DataFactory {
                             it
                         )
                     }
+
                 }
+
                 is SwitchParameterWidgetSStruct -> {
                     if (it.baseParameterWidgetSStruct.baseParameterWidgetStruct.display == display) {
                         addElementS(

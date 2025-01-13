@@ -33,6 +33,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
@@ -99,7 +102,7 @@ class GesturesOpticDelegateAdapter(
         onDestroyParent { onDestroy() }
         _annotationTv = annotationTv
         _annotationIv = annotationIv
-        bindingGroupFlowCollect()
+        collectActiveFlows()
 
         when (item.widget) {
             is BaseParameterWidgetEStruct -> {
@@ -174,7 +177,7 @@ class GesturesOpticDelegateAdapter(
 
         gestureCollectionBtns.clear()
         gestureCustomBtns.clear()
-        for (i in 1..14) {
+        for (i in 0..14) {
             val gestureCollectionBtn = this::class.java.getDeclaredField("gestureCollection${i}Btn")
                 .get(this) as? View
             val gestureCollectionTitle =
@@ -184,18 +187,20 @@ class GesturesOpticDelegateAdapter(
                 this::class.java.getDeclaredField("gestureCollection${i}Iv")
                     .get(this) as? ImageView
 
-            gestureCollectionBtn?.let { btn ->
-                gestureCollectionBtns.add(btn)
-                btn.setOnClickListener {
-                    Log.d("GesturesDelegateAdapter", "GestureCollectionBtn $i clicked")
-                    setActiveButton(btn)
-                    onSendBLEActiveGesture(i)
-                    onRequestActiveGesture(deviceAddress,getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number))
+                gestureCollectionBtn?.let { btn ->
+                    gestureCollectionBtns.add(btn)
+                    btn.setOnClickListener {
+                        Log.d("GesturesDelegateAdapter", "GestureCollectionBtn $i clicked")
+                        setActiveButton(btn)
+                        onSendBLEActiveGesture(i)
+                        onRequestActiveGesture(deviceAddress,getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number))
+                    }
                 }
-            }
-            gestureCollectionTitle?.text =
-                CollectionGesturesProvider.getCollectionGestures()[i].gestureName
-            gestureCollectionImage?.setImageResource(CollectionGesturesProvider.getCollectionGestures()[i].gestureImage)
+                gestureCollectionTitle?.text =
+                    CollectionGesturesProvider.getCollectionGestures()[i].gestureName
+                gestureCollectionImage?.setImageResource(CollectionGesturesProvider.getCollectionGestures()[i].gestureImage)
+
+
 
         }
 
@@ -285,20 +290,41 @@ class GesturesOpticDelegateAdapter(
         activeBtn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_active)
     }
 
+    private fun collectActiveFlows () {
+        scope.launch(Dispatchers.IO) {
+            merge(
+                MainActivityUBI4.activeGestureFlow.map { activeGestureParameterRef ->
+                    val parameter =  ParameterProvider.getParameter(deviceAddress, activeGestureParameterRef.parameterID)
+                },
 
-    private fun bindingGroupFlowCollect() {
-        scope.launch(Dispatchers.Main) {
-            MainActivityUBI4.bindingGroupFlow.collect { parameterRef ->
-                val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-                val bindingGroup = Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
-                listBindingGesture.clear()
-                bindingGroup.toGestureList().forEach{
-                    if (it.first != 0) { listBindingGesture.add(it) }
+                MainActivityUBI4.bindingGroupFlow.map { bindingGroupParameterRef ->
+                    val parameter = ParameterProvider.getParameter(bindingGroupParameterRef.addressDevice, bindingGroupParameterRef.parameterID)
+                    val bindingGroup = Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
+                    listBindingGesture.clear()
+                    bindingGroup.toGestureList().forEach{
+                        if (it.first != 0) { listBindingGesture.add(it) }
+                    }
+                    fillCollectionGesturesInBindingGroup()
                 }
-                fillCollectionGesturesInBindingGroup()
-            }
+            ).collect()
+
         }
     }
+
+
+//    private fun bindingGroupFlowCollect() {
+//        scope.launch(Dispatchers.Main) {
+//            MainActivityUBI4.bindingGroupFlow.collect { parameterRef ->
+//                val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+//                val bindingGroup = Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
+//                listBindingGesture.clear()
+//                bindingGroup.toGestureList().forEach{
+//                    if (it.first != 0) { listBindingGesture.add(it) }
+//                }
+//                fillCollectionGesturesInBindingGroup()
+//            }
+//        }
+//    }
 
 
 

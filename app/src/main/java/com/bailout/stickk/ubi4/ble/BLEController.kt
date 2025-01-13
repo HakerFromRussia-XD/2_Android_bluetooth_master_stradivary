@@ -2,7 +2,6 @@ package com.bailout.stickk.ubi4.ble
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
@@ -42,7 +41,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class BLEController (main: AppCompatActivity) {
+class BLEController(
+    main: AppCompatActivity,
+) {
     private val mContext: Context = main.applicationContext
     private val mMain: MainActivityUBI4 = main as MainActivityUBI4
     private var mBLEParser: BLEParser? = null
@@ -122,16 +123,14 @@ class BLEController (main: AppCompatActivity) {
             val action = intent.action
             when {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
-                    Log.d("BLEController", "ACTION_GATT_CONNECTED received")
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
                     reconnectThreadFlag = false
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
-                    Log.d("BLEController", "ACTION_GATT_DISCONNECTED received")
                     mConnected = false
                     isUploading = false
                     endFlag = true
-                    graphThreadFlag = false
+//                    graphThreadFlag = false
                     mMain.invalidateOptionsMenu()
 //                    percentSynchronize = 0
 
@@ -150,7 +149,6 @@ class BLEController (main: AppCompatActivity) {
                     }
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
-                    Log.d("BLEController", "ACTION_GATT_SERVICES_DISCOVERED received")
                     mConnected = true
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
@@ -161,7 +159,6 @@ class BLEController (main: AppCompatActivity) {
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-                    Log.d("BLEController", "ACTION_DATA_AVAILABLE received")
                     if(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         val fakeData = byteArrayOf(0x00,0x01,0x00,0x02,0x01,0x00,0x00,0x01,0x02)
                         val fakeData2 = byteArrayOf(0x00, 0x01, 0x00, 0x4c, 0x00, 0x74, 0x00, 0x01, 0x02, 0x43, 0x50, 0x55, 0x20, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

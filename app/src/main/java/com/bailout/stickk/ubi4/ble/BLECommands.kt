@@ -16,6 +16,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceI
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_INFO
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.DeviceInformationCommand.READ_SUB_DEVICE_PARAMETERS
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.HEADER_BLE_OFFSET
+import com.bailout.stickk.ubi4.utility.CrcCalc
 
 class BLECommands {
     companion object {
@@ -76,6 +77,7 @@ class BLECommands {
             )
             header[3] = data.size.toByte()
             header[4] = (data.size/256).toByte()
+            header[5] = CrcCalc.crcCalc(data)
             val result = header + data
             return result
         }

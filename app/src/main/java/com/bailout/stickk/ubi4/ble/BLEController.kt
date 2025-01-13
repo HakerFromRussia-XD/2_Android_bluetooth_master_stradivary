@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.ble
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.util.Log
 import android.view.MotionEvent
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -101,8 +102,8 @@ class PlotDelegateAdapter (
 
         countBinding += 1
 
-        main.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
-        main.bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
+        main.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE){}
+        main.bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE){}
 
         val filteredSet = parametersIDAndDataCodes.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }.toSet()
 

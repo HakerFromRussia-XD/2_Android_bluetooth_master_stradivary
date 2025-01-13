@@ -19,6 +19,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
+import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
@@ -177,33 +178,35 @@ class GesturesOpticDelegateAdapter(
 
         gestureCollectionBtns.clear()
         gestureCustomBtns.clear()
-        for (i in 0..14) {
-            val gestureCollectionBtn = this::class.java.getDeclaredField("gestureCollection${i}Btn")
-                .get(this) as? View
+        for (i in 0..13) {
+            val gestureCollectionBtn =
+                this::class.java.getDeclaredField("gestureCollection${i}Btn")
+                    .get(this) as? View
             val gestureCollectionTitle =
                 this::class.java.getDeclaredField("gestureCollection${i}Tv")
                     .get(this) as? TextView
             val gestureCollectionImage =
                 this::class.java.getDeclaredField("gestureCollection${i}Iv")
                     .get(this) as? ImageView
-
-                gestureCollectionBtn?.let { btn ->
-                    gestureCollectionBtns.add(btn)
-                    btn.setOnClickListener {
-                        Log.d("GesturesDelegateAdapter", "GestureCollectionBtn $i clicked")
-                        setActiveButton(btn)
-                        onSendBLEActiveGesture(i)
-                        onRequestActiveGesture(deviceAddress,getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number))
-                    }
+            gestureCollectionBtn?.let { gestureCollectionBtns.add(it) }
+            if (i <= 10) {
+                gestureCollectionTitle?.text = getCollectionGestures()[i].gestureName
+                gestureCollectionImage?.setImageResource(getCollectionGestures()[i].gestureImage)
+                gestureCollectionBtn?.setOnClickListener {
+                    Log.d("GesturesDelegateAdapter", "GestureCollectionBtn ${i+1} clicked")
+                    setActiveButton(gestureCollectionBtn)
+                    onSendBLEActiveGesture(i+1)
                 }
-                gestureCollectionTitle?.text =
-                    CollectionGesturesProvider.getCollectionGestures()[i].gestureName
-                gestureCollectionImage?.setImageResource(CollectionGesturesProvider.getCollectionGestures()[i].gestureImage)
-
-
-
+            } else {
+                gestureCollectionTitle?.text = getCollectionGestures()[i+1].gestureName
+                gestureCollectionImage?.setImageResource(getCollectionGestures()[i+1].gestureImage)
+                gestureCollectionBtn?.setOnClickListener {
+                    Log.d("GesturesDelegateAdapter", "GestureCollectionBtn ${i+2} clicked")
+                    setActiveButton(gestureCollectionBtn)
+                    onSendBLEActiveGesture(i+2)
+                }
+            }
         }
-
         for (i in 1..8) {
             val gestureCustomTv = this::class.java.getDeclaredField("gesture${i}NameTv")
                 .get(this) as? TextView
@@ -211,29 +214,16 @@ class GesturesOpticDelegateAdapter(
                 .get(this) as? View
             val gestureSettingsBtn = this::class.java.getDeclaredField("gesture${i}SettingsBtn")
                 .get(this) as? View
-            gestureCustomTv?.text = gestureNameList[i - 1]
-            gestureCustomBtn?.let { btn ->
-                gestureCustomBtns.add(btn)
-                btn.setOnClickListener {
-                    Log.d("gestureCustomBtn", "gestureCustomBtn $i")
-                    setActiveButton(btn)
-                    onSendBLEActiveGesture(i)
-                    onRequestGestureSettings(
-                        deviceAddress,
-                        getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number),
-                        (0x40).toInt() + i
-                    )
-
-                }
-
+            gestureCustomBtn?.let { gestureCustomBtns.add(it) }
+            gestureCustomTv?.text = gestureNameList[i-1]
+            gestureCustomBtn?.setOnClickListener {
+                Log.d("GesturesDelegateAdapter", "GestureCollectionBtn ${63+i} clicked")
+                onSendBLEActiveGesture(63+i)
+                setActiveButton(gestureCustomBtn)
             }
             gestureSettingsBtn?.setOnClickListener {
                 Log.d("gestureCustomBtn", "gestureSettingsBtn $i")
-                onShowGestureSettings(
-                    deviceAddress,
-                    getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number),
-                    (0x40).toInt() + i
-                )
+                onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt()+i)
                 main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
             }
         }
@@ -278,6 +268,7 @@ class GesturesOpticDelegateAdapter(
 
         return currentBindingGroup
     }
+
 
 
     private fun setActiveButton(activeBtn: View) {

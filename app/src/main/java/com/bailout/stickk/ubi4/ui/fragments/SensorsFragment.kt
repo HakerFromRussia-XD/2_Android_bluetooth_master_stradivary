@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentHomeBinding
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
@@ -47,7 +48,7 @@ class SensorsFragment : Fragment() {
     private val disposables = CompositeDisposable()
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
-
+    private var gestureNameList =  MutableList(30){"not set"} as ArrayList<String>
     private var count = 0
     private val display = 1
 
@@ -122,16 +123,19 @@ class SensorsFragment : Fragment() {
         SliderDelegateAdapter(
             onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
             onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
+        ),
+        GesturesDelegateAdapter (
+            gestureNameList = gestureNameList,
+            onSelectorClick = {},
+            onDeleteClick = { resultCb, gestureName -> },
+            onAddGesturesToRotationGroup = { onSaveDialogClick -> },
+            onSendBLERotationGroup = {deviceAddress, parameterID -> },
+            onSendBLEActiveGesture = {deviceAddress, parameterID, activeGesture -> },
+            onShowGestureSettings = { deviceAddress, parameterID, gestureID -> },
+            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> },
+            onRequestRotationGroup = {deviceAddress, parameterID -> },
+            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
         )
-//        GesturesDelegateAdapter (
-//            onSelectorClick = {},
-//            onDeleteClick = { resultCb, gestureName -> },
-//            onAddGesturesToRotationGroup = { onSaveDialogClick -> },
-//            onSendBLERotationGroup = {deviceAddress, parameterID -> },
-//            onShowGestureSettings = { deviceAddress, parameterID, gestureID -> },
-//            onRequestGestureSettings = {deviceAddress, parameterID, gestureID -> },
-//            onRequestRotationGroup = {deviceAddress, parameterID -> }
-//        )
     )
 
     private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {

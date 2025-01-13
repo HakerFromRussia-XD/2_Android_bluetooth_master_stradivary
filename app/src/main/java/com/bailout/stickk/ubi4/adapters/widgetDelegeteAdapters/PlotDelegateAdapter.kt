@@ -2,9 +2,9 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.os.Handler
 import android.util.Log
 import android.view.MotionEvent
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -46,13 +46,14 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PlotDelegateAdapter (
     val plotIsReadyToData:(numberOfCharts: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
     ViewBindingDelegateAdapter<PlotItem, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var scope: CoroutineScope? = null
     private var count: Int = 0
     private var dataSens1 = 0
     private var dataSens2 = 0
@@ -62,15 +63,8 @@ class PlotDelegateAdapter (
     private var dataSens6 = 0
     private var numberOfCharts = 2
 
-    private var raw_data_set1: List<Entry> = ArrayList()
-    private var g_data_sets: MutableList<LineDataSet> = ArrayList()
-    private var g_data_set: LineDataSet = LineDataSet(null,null)
-    private var invisible_top_data_set: LineDataSet = LineDataSet(null, null)
-    private var invisible_bottom_data_set: LineDataSet = LineDataSet(null, null)
-
-    private var color: Int = 0
-
     private var widgetPlotsInfo: ArrayList<WidgetPlotInfo> = ArrayList()
+    private val defaultEntry = Entry(count.toFloat(), 250.toFloat())
 
     private var firstInit = true
 
@@ -80,7 +74,7 @@ class PlotDelegateAdapter (
         System.err.println("PlotDelegateAdapter  isEmpty = ${EMGChartLc.isEmpty}")
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
         var deviceAddress = 0
-        var parameterID = 0
+        val parameterID = 0
         var openThreshold = 0
         var closeThreshold = 0
         var parametersIDAndDataCodes: MutableSet<Quadruple<Int, Int, Int, Int>> = mutableSetOf()
@@ -106,27 +100,16 @@ class PlotDelegateAdapter (
             numberOfCharts = 0
         }
 
-        plotArrayFlowCollect()
-
-        initializedSensorGraph(EMGChartLc)
-        graphThreadFlag = true
         countBinding += 1
-        GlobalScope.launch(CoroutineName("startGraphEnteringDataCoroutine $countBinding")) {
-            startGraphEnteringDataCoroutine(EMGChartLc)
-        }
 
-//        Handler().postDelayed({
-            main.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
-            main.bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
-//        }, 50)
-        plotIsReadyToData(numberOfCharts)
+        main.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
+        main.bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
 
         val filteredSet = parametersIDAndDataCodes.filter { it.second == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }.toSet()
 
-//        val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
         openCHV.setOnTouchListener { p0, event ->
             p0.parent.requestDisallowInterceptTouchEvent(true)
-            openThreshold = setLimitePosition(limitCH1, openThresholdTv, allCHRl, event)
+            openThreshold = setLimitPosition(limitCH1, openThresholdTv, allCHRl, event)
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
                     Log.d("setOnTouchListener", "openThreshold send $openThreshold")
@@ -137,7 +120,7 @@ class PlotDelegateAdapter (
         }
         closeCHV.setOnTouchListener { p0, event ->
             p0.parent.requestDisallowInterceptTouchEvent(true)
-            closeThreshold = setLimitePosition(limitCH2, closeThresholdTv, allCHRl, event)
+            closeThreshold = setLimitPosition(limitCH2, closeThresholdTv, allCHRl, event)
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
                     Log.d("setOnTouchListener", "closeThreshold send $closeThreshold  deviceAddress = $deviceAddress  parameterID = $parameterID")
@@ -147,51 +130,75 @@ class PlotDelegateAdapter (
             true
         }
     }
+    override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
+        Log.d("Plot view","View attached")
+        if (scope != null) {
+            Log.d("Plot view", "Scope already exists, skipping.")
+            return
+        }
+        // Создаем новый scope
+        scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        initializedSensorGraph(EMGChartLc)
+        plotIsReadyToData(numberOfCharts)
+        plotArrayFlowCollect()
+        graphThreadFlag = true
+        scope?.launch {
+            startGraphEnteringDataCoroutine(EMGChartLc)
+        }
+
+    }
+    override fun Ubi4WidgetPlotBinding.onDetachedFromWindow() {
+        Log.d("Plot view","View detached")
+//        onDestroy()
+    }
     override fun isForViewType(item: Any): Boolean = item is PlotItem
     override fun PlotItem.getItemId(): Any = title
     private fun plotArrayFlowCollect() {
-        scope.launch(Dispatchers.IO) {
-            merge(
-                MainActivityUBI4.plotArrayFlow.map { plotParameterRef ->
-                    val indexWidgetPlot = getIndexWidgetPlot(plotParameterRef.addressDevice, plotParameterRef.parameterID)
+        scope?.launch(Dispatchers.IO) {
+            try {
+                merge(
+                    MainActivityUBI4.plotArrayFlow.map { plotParameterRef ->
+                        val indexWidgetPlot = getIndexWidgetPlot(plotParameterRef.addressDevice, plotParameterRef.parameterID)
 
-                    if (plotParameterRef.dataPlots.isNotEmpty()) {
-                        System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size} indexWidgetPlot: $indexWidgetPlot")
-                        if (plotParameterRef.dataPlots.size >= 1) { dataSens1 = plotParameterRef.dataPlots[0] } // нулевой всегда датчик открытия
-                        if (plotParameterRef.dataPlots.size >= 2) { dataSens2 = plotParameterRef.dataPlots[1] } // первый всегда датчик закрытия
-                        if (plotParameterRef.dataPlots.size >= 3) { dataSens3 = plotParameterRef.dataPlots[2] }
-                        if (plotParameterRef.dataPlots.size >= 4) { dataSens4 = plotParameterRef.dataPlots[3] }
-                        if (plotParameterRef.dataPlots.size >= 5) { dataSens5 = plotParameterRef.dataPlots[4] }
-                        if (plotParameterRef.dataPlots.size >= 6) { dataSens6 = plotParameterRef.dataPlots[5] }
-                    }
-                },
-                MainActivityUBI4.thresholdFlow.map { parameterRef ->
-                    val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-                    //TODO тонкое место, переписать (по факту мы должны парсить все данные в структуры и делать это защищённо (как в BaseParameterInfoStruct) даже если там всего два инта)
-                    // что не так? Мы упадём при несоответствии длины данных в параметре при эммите
-                    //запись пороговых значений при изменении данных в параметре
-                    Log.d("thresholdFlow", "thresholdFlow = $parameterRef   data = ${parameter.data}")
+                        if (plotParameterRef.dataPlots.isNotEmpty()) {
+                            System.err.println("FLOW TEST plotArrayFlow ${plotParameterRef.dataPlots.size} indexWidgetPlot: $indexWidgetPlot")
+                            if (plotParameterRef.dataPlots.size >= 1) { dataSens1 = plotParameterRef.dataPlots[0] } // нулевой всегда датчик открытия
+                            if (plotParameterRef.dataPlots.size >= 2) { dataSens2 = plotParameterRef.dataPlots[1] } // первый всегда датчик закрытия
+                            if (plotParameterRef.dataPlots.size >= 3) { dataSens3 = plotParameterRef.dataPlots[2] }
+                            if (plotParameterRef.dataPlots.size >= 4) { dataSens4 = plotParameterRef.dataPlots[3] }
+                            if (plotParameterRef.dataPlots.size >= 5) { dataSens5 = plotParameterRef.dataPlots[4] }
+                            if (plotParameterRef.dataPlots.size >= 6) { dataSens6 = plotParameterRef.dataPlots[5] }
+                        }
+                    },
+                    MainActivityUBI4.thresholdFlow.map { parameterRef ->
+                        val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
+                        //TODO тонкое место, переписать (по факту мы должны парсить все данные в структуры и делать это защищённо (как в BaseParameterInfoStruct) даже если там всего два инта)
+                        // что не так? Мы упадём при несоответствии длины данных в параметре при эммите
+                        //запись пороговых значений при изменении данных в параметре
+                        Log.d("thresholdFlow", "thresholdFlow = $parameterRef   data = ${parameter.data}")
 //                    val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
 //                    if (parameter.data=="") "" else widgetPlotsInfo[indexWidgetPlot].openThreshold = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
 //                    if (parameter.data=="") "" else widgetPlotsInfo[indexWidgetPlot].closeThreshold = castUnsignedCharToInt(parameter.data.substring(2, 4).toInt(16).toByte())
-//
+
 //                    //изменение UI в соответствии с новыми порогами
 //                    widgetPlotsInfo[indexWidgetPlot].openThresholdTv.text = widgetPlotsInfo[indexWidgetPlot].openThreshold.toString()
 //                    widgetPlotsInfo[indexWidgetPlot].closeThresholdTv.text = widgetPlotsInfo[indexWidgetPlot].closeThreshold.toString()
-//                    setLimitePosition2(widgetPlotsInfo[indexWidgetPlot].limitCH1, widgetPlotsInfo[indexWidgetPlot].allCHRl, widgetPlotsInfo[indexWidgetPlot].openThreshold)
-//                    setLimitePosition2(widgetPlotsInfo[indexWidgetPlot].limitCH2, widgetPlotsInfo[indexWidgetPlot].allCHRl, widgetPlotsInfo[indexWidgetPlot].closeThreshold)
 
 //                    val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
-                    if (parameter.data=="") "" else widgetPlotsInfo[0].openThreshold = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
-                    if (parameter.data=="") "" else widgetPlotsInfo[0].closeThreshold = castUnsignedCharToInt(parameter.data.substring(4, 6).toInt(16).toByte())
-//
+
+                        if (parameter.data=="") "" else widgetPlotsInfo[0].openThreshold = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
+                        if (parameter.data=="") "" else widgetPlotsInfo[0].closeThreshold = castUnsignedCharToInt(parameter.data.substring(4, 6).toInt(16).toByte())
+
 //                    //изменение UI в соответствии с новыми порогами
-                    widgetPlotsInfo[0].openThresholdTv.text = widgetPlotsInfo[0].openThreshold.toString()
-                    widgetPlotsInfo[0].closeThresholdTv.text = widgetPlotsInfo[0].closeThreshold.toString()
-                    setLimitePosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, widgetPlotsInfo[0].openThreshold)
-                    setLimitePosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, widgetPlotsInfo[0].closeThreshold)
-                }
-            ).collect()
+                        widgetPlotsInfo[0].openThresholdTv.text = widgetPlotsInfo[0].openThreshold.toString()
+                        widgetPlotsInfo[0].closeThresholdTv.text = widgetPlotsInfo[0].closeThreshold.toString()
+                        setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, widgetPlotsInfo[0].openThreshold)
+                        setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, widgetPlotsInfo[0].closeThreshold)
+                    }
+                ).collect()
+            } catch (e: Exception) {
+                println("Error: $e")
+            }
         }
     }
 
@@ -200,6 +207,8 @@ class PlotDelegateAdapter (
     //////////////////////////////////////////////////////////////////////////////
     private fun createSet(): LineDataSet {
         val set = LineDataSet(null, null)
+        set.setDrawCircles(false)
+        set.setDrawValues(false)
         set.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
         set.lineWidth = 0.1f
         set.color = Color.WHITE
@@ -213,6 +222,8 @@ class PlotDelegateAdapter (
     }
     private fun createSet1(): LineDataSet {
         val set1 = LineDataSet(null, null)
+        set1.setDrawCircles(false)
+        set1.setDrawValues(false)
         set1.axisDependency = YAxis.AxisDependency.LEFT
         set1.lineWidth = 2f
         set1.color = main.applicationContext.getColor(R.color.ubi4_white)
@@ -226,6 +237,8 @@ class PlotDelegateAdapter (
     }
     private fun createSet2(): LineDataSet {
         val set2 = LineDataSet(null, null)
+        set2.setDrawCircles(false)
+        set2.setDrawValues(false)
         set2.axisDependency = YAxis.AxisDependency.LEFT
         set2.lineWidth = 2f
         set2.color = main.applicationContext.getColor(R.color.ubi4_deactivate_text)
@@ -239,6 +252,8 @@ class PlotDelegateAdapter (
     }
     private fun createSet3(): LineDataSet {
         val set3 = LineDataSet(null, null)
+        set3.setDrawCircles(false)
+        set3.setDrawValues(false)
         set3.axisDependency = YAxis.AxisDependency.LEFT
         set3.lineWidth = 2f
         set3.color = Color.rgb(255, 171, 0)
@@ -253,6 +268,8 @@ class PlotDelegateAdapter (
     }
     private fun createSet4(): LineDataSet {
         val set4 = LineDataSet(null, null)
+        set4.setDrawCircles(false)
+        set4.setDrawValues(false)
         set4.axisDependency = YAxis.AxisDependency.LEFT
         set4.lineWidth = 2f
         set4.color = Color.GREEN
@@ -266,6 +283,8 @@ class PlotDelegateAdapter (
     }
     private fun createSet5(): LineDataSet {
         val set5 = LineDataSet(null, null)
+        set5.setDrawCircles(false)
+        set5.setDrawValues(false)
         set5.axisDependency = YAxis.AxisDependency.LEFT
         set5.lineWidth = 2f
         set5.color = Color.BLUE
@@ -279,6 +298,8 @@ class PlotDelegateAdapter (
     }
     private fun createSet6(): LineDataSet {
         val set6 = LineDataSet(null, null)
+        set6.setDrawCircles(false)
+        set6.setDrawValues(false)
         set6.axisDependency = YAxis.AxisDependency.LEFT
         set6.lineWidth = 2f
         set6.color = Color.YELLOW
@@ -291,7 +312,26 @@ class PlotDelegateAdapter (
         return set6
     }
 
-    private fun addEntry(sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int, emgChart: LineChart) {
+    private suspend fun prepareAndAddEntry(sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int, emgChart: LineChart) {
+        if (graphThreadFlag) {
+            Log.d("Plot view", "graphThreadFlag")
+        } else {
+            Log.d("Plot view", "false graphThreadFlag")
+        }
+        val preparedEntries = withContext(Dispatchers.IO) {
+            listOf(
+                Entry(count.toFloat(), sens1.toFloat()),
+                Entry(count.toFloat(), sens2.toFloat()),
+                Entry(count.toFloat(), sens3.toFloat()),
+                Entry(count.toFloat(), sens4.toFloat()),
+                Entry(count.toFloat(), sens5.toFloat()),
+                Entry(count.toFloat(), sens6.toFloat())
+            )
+        }
+        // Передаём обработанные данные в addEntry
+        addEntry(preparedEntries, emgChart)
+    }
+    private fun addEntry(preparedEntries: List<Entry>, emgChart: LineChart) {
         val data: LineData =  emgChart.data
         var set = data.getDataSetByIndex(0)
         var set1 = data.getDataSetByIndex(1)
@@ -302,6 +342,7 @@ class PlotDelegateAdapter (
         var set6 = data.getDataSetByIndex(6)
 
         if (set1 == null) {
+            Log.d("Plot view","создание новых DataSet  numberOfCharts = $numberOfCharts  countBinding = $countBinding ")
             set = createSet()
             set1 = createSet1()
             set2 = createSet2()
@@ -319,10 +360,8 @@ class PlotDelegateAdapter (
             data.addDataSet(set6)
         }
 
-
-
-        if (set1.entryCount > 200) {
-            main.runOnUiThread {
+        main.runOnUiThread {
+            if (set1.entryCount > 200) {
                 set.removeFirst()
                 set1.removeFirst()
                 if (numberOfCharts >= 2) { set2.removeFirst() }
@@ -331,16 +370,14 @@ class PlotDelegateAdapter (
                 if (numberOfCharts >= 5) { set5.removeFirst() }
                 if (numberOfCharts >= 6) { set6.removeFirst() }
             }
-        }
 
-        main.runOnUiThread {
-            data.addEntry(Entry(count.toFloat(), 250.toFloat()), 0)
-            data.addEntry(Entry(count.toFloat(), sens1.toFloat()), 1)
-            if (numberOfCharts >= 2) {data.addEntry(Entry(count.toFloat(), sens2.toFloat()), 2)}
-            if (numberOfCharts >= 3) {data.addEntry(Entry(count.toFloat(), sens3.toFloat()), 3)}
-            if (numberOfCharts >= 4) {data.addEntry(Entry(count.toFloat(), sens4.toFloat()), 4)}
-            if (numberOfCharts >= 5) {data.addEntry(Entry(count.toFloat(), sens5.toFloat()), 5)}
-            if (numberOfCharts >= 5) {data.addEntry(Entry(count.toFloat(), sens6.toFloat()), 6)}
+            data.addEntry(defaultEntry, 0)
+            data.addEntry(preparedEntries[0], 1)
+            if (numberOfCharts >= 2) {data.addEntry(preparedEntries[1], 2)}
+            if (numberOfCharts >= 3) {data.addEntry(preparedEntries[2], 3)}
+            if (numberOfCharts >= 4) {data.addEntry(preparedEntries[3], 4)}
+            if (numberOfCharts >= 5) {data.addEntry(preparedEntries[4], 5)}
+            if (numberOfCharts >= 6) {data.addEntry(preparedEntries[5], 6)}
 
             data.notifyDataChanged()
             emgChart.notifyDataSetChanged()
@@ -348,11 +385,14 @@ class PlotDelegateAdapter (
                 emgChart.setVisibleXRangeMaximum(200f)
                 firstInit = false
             }
+            emgChart.moveViewToX(preparedEntries[0].x - 200.toFloat()) // Прокрутка графика
         }
-        emgChart.moveViewToX(set1.entryCount - 200.toFloat())
         count += 1
     }
     private fun initializedSensorGraph(emgChart: LineChart) {
+        emgChart.setHardwareAccelerationEnabled(true) // Включение аппаратного ускорения
+        emgChart.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+        emgChart.setDragEnabled(false) // Отключение перемещения графика, если оно не нужно
         emgChart.contentDescription
         emgChart.setTouchEnabled(false)
         emgChart.isDragEnabled = false
@@ -368,11 +408,16 @@ class PlotDelegateAdapter (
         emgChart.data = data2
         emgChart.legend.isEnabled = false
         emgChart.description.textColor = Color.TRANSPARENT
-        emgChart.animateY(2000)
+        emgChart.animateX(0)
+        emgChart.animateY(0)
+//        emgChart.animateY(2000)
 
         val x: XAxis = emgChart.xAxis
         x.textColor = Color.TRANSPARENT
         x.setDrawGridLines(false)
+        x.setDrawLabels(false)
+        emgChart.axisLeft.setDrawGridLines(false)
+        emgChart.axisLeft.setDrawLabels(false)
         x.axisMaximum = 4000000f
         x.setAvoidFirstLastClipping(true)
         x.position = XAxis.XAxisPosition.BOTTOM
@@ -399,7 +444,7 @@ class PlotDelegateAdapter (
         }
         return -1
     }
-    private fun setLimitePosition(limit_CH: RelativeLayout, thresholdTv: TextView, allCHRl: LinearLayout, event: MotionEvent): Int {
+    private fun setLimitPosition(limit_CH: RelativeLayout, thresholdTv: TextView, allCHRl: LinearLayout, event: MotionEvent): Int {
         var y = event.y
         if (y < 0)
             y = 0f
@@ -409,11 +454,12 @@ class PlotDelegateAdapter (
         thresholdTv.text = ((allCHRl.height - y)/allCHRl.height * 255).toInt().toString()
         return ((allCHRl.height - y)/allCHRl.height * 255).toInt()
     }
-    private fun setLimitePosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int) {
+    private fun setLimitPosition2(limit_CH: RelativeLayout, allCHRl: LinearLayout, threshold: Int) {
         var y = allCHRl.height - allCHRl.height*threshold/255
         limit_CH.y = (y - limit_CH.height/2 + allCHRl.marginTop).toFloat()
     }
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
+//        Log.d("Plot view","startGraphEnteringDataCoroutine")
 //        dataSens1 += 1
 //        dataSens2 += 1
 //        dataSens3 += 1
@@ -427,14 +473,16 @@ class PlotDelegateAdapter (
         if (dataSens5 > 255) { dataSens5 = 0 }
         if (dataSens6 > 255) { dataSens6 = 0 }
 
-        addEntry(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6, emgChart)
+        prepareAndAddEntry(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6, emgChart)
         delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         if (graphThreadFlag) {
             startGraphEnteringDataCoroutine(emgChart)
         }
     }
     fun onDestroy() {
-        scope.cancel()
+        graphThreadFlag = false
+        scope?.cancel()
+        scope = null
         Log.d("onDestroy" , "onDestroy plot")
     }
 }

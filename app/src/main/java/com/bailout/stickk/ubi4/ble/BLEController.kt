@@ -73,12 +73,13 @@ class BLEController(
             if (!scanWithoutConnectFlag) {
                 //TODO раскомментировать когда не нужно быстрое подключение
                 System.err.println("connectedDeviceAddress $connectedDeviceAddress")
-//                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
+                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:1C:6A")       // Моя плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
 //                mBluetoothLeService?.connect("34:85:18:98:0F:D2")       // Mike плата
 //                mBluetoothLeService?.connect("34:85:18:98:10:7E")
-                mBluetoothLeService?.connect(connectedDeviceAddress)
+//                mBluetoothLeService?.connect("F0:9E:9E:22:97:36")
+//                mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
 
@@ -113,13 +114,15 @@ class BLEController(
             val action = intent.action
             when {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
+                    Log.d("Connection", "ACTION_GATT_CONNECTED")
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
                     reconnectThreadFlag = false
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+                    Log.d("Connection", "ACTION_GATT_DISCONNECTED")
                     mConnected = false
                     endFlag = true
-                    graphThreadFlag = false
+//                    graphThreadFlag = false
                     mMain.invalidateOptionsMenu()
 //                    percentSynchronize = 0
 
@@ -129,6 +132,7 @@ class BLEController(
                     }
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
+                    Log.d("Connection", "ACTION_GATT_SERVICES_DISCOVERED")
                     mConnected = true
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
@@ -139,6 +143,7 @@ class BLEController(
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
+                    Log.d("Connection", "ACTION_DATA_AVAILABLE")
                     if(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         val fakeData = byteArrayOf(0x00,0x01,0x00,0x02,0x01,0x00,0x00,0x01,0x02)
                         val fakeData2 = byteArrayOf(0x00, 0x01, 0x00, 0x4c, 0x00, 0x74, 0x00, 0x01, 0x02, 0x43, 0x50, 0x55, 0x20, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -321,7 +326,6 @@ class BLEController(
             }
         }
     }
-
 
     internal fun getBluetoothLeService() : BluetoothLeService? { return mBluetoothLeService }
     internal fun getBluetoothAdapter() : BluetoothAdapter? { return mBluetoothAdapter }

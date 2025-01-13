@@ -22,7 +22,7 @@ class SelectedGesturesAdapter(
     private lateinit var myContext: Context
     inner class SprGesturesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val gestureName: TextView = view.findViewById(R.id.gestureNumber)
-        var gestureAnimation: LottieAnimationView = view.findViewById(R.id.lottieAnimationGesture)
+        var gestureAnimation: LottieAnimationView = view.findViewById(R.id.imageGesture)
         val dotsThreeBtnSpr: ImageView = itemView.findViewById(R.id.dotsThreeBtnSpr)
     }
 

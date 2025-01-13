@@ -62,7 +62,6 @@ class GesturesFragment : BaseWidgetsFragment() {
         binding = Ubi4FragmentHomeBinding.inflate(inflater, container, false)
         mSettings = context?.getSharedPreferences(PreferenceKeysUBI4.APP_PREFERENCES, Context.MODE_PRIVATE)
         if (activity != null) { main = activity as MainActivityUBI4? }
-        loadGestureNameList()
         Log.d("LifeCycle", "onCreateView")
 
         //настоящие виджеты

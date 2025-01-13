@@ -29,7 +29,6 @@ object SpinnerParameterWidgetESerializer : KSerializer<SpinnerParameterWidgetESt
 
         val baseParameterWidgetEStruct: BaseParameterWidgetEStruct =
             Json.decodeFromString("\"$basePart\"")
-
         val dataSpinnerParameterWidgetStruct: DataSpinnerParameterWidgetStruct =
             Json.decodeFromString("\"$dataPart\"")
 

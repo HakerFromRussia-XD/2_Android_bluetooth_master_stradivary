@@ -19,7 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import org.tensorflow.lite.Interpreter
+//import org.tensorflow.lite.Interpreter
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -78,7 +78,7 @@ class TrainingModelHandler(private val context: Context) {
     private lateinit var modelInfo: String
     private lateinit var preprocessedX: Array<FloatArray>
     private lateinit var targetArray: Array<FloatArray>
-    private lateinit var tflite: Interpreter
+//    private lateinit var tflite: Interpreter
     private lateinit var assetManager: AssetManager
     private lateinit var epochsTimer: Chronometer
     private lateinit var batchesTimer: Chronometer
@@ -93,7 +93,7 @@ class TrainingModelHandler(private val context: Context) {
             ?: throw IllegalStateException("External files directory not available")
         modelFile.writeBytes(context.assets.open("model.ckpt").readBytes())
         assetManager = context.assets
-        tflite = loadModelFile("model.tflite")
+//        tflite = loadModelFile("model.tflite")
         epochsTimer = Chronometer(context)
         batchesTimer = Chronometer(context)
         getHyperParameters()
@@ -146,15 +146,15 @@ class TrainingModelHandler(private val context: Context) {
         }
     }
 
-    private fun loadModelFile(modelPath: String): Interpreter {
-        val assetFileDescriptor = context.assets.openFd(modelPath)
-        val fileInputStream = FileInputStream(assetFileDescriptor.fileDescriptor)
-        val fileChannel = fileInputStream.channel
-        val startOffset = assetFileDescriptor.startOffset
-        val declaredLength = assetFileDescriptor.declaredLength
-        val model = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
-        return Interpreter(model)
-    }
+//    private fun loadModelFile(modelPath: String): Interpreter {
+//        val assetFileDescriptor = context.assets.openFd(modelPath)
+//        val fileInputStream = FileInputStream(assetFileDescriptor.fileDescriptor)
+//        val fileChannel = fileInputStream.channel
+//        val startOffset = assetFileDescriptor.startOffset
+//        val declaredLength = assetFileDescriptor.declaredLength
+//        val model = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+//        return Interpreter(model)
+//    }
 
     private fun standardDeviation(numbers: FloatArray): Float {
         val mean = numbers.average()
@@ -360,15 +360,15 @@ class TrainingModelHandler(private val context: Context) {
                 //////////////////////////// [LOAD MODEL] ////////////////////////////
                 // Import prior weights from a checkpoint file.
                 // populate with preset ckpt in assets directory
-                Log.d("TFLite", "Interpreter initialized: $tflite")
-                modelInfo = getModelInfo(tflite)
+//                Log.d("TFLite", "Interpreter initialized: $tflite")
+//                modelInfo = getModelInfo(tflite)
 
                 // Restore the model from the checkpoint file
                 val ckpt = modelFile.absolutePath
                 val inputs_ckpt = HashMap<String, Any>()
                 inputs_ckpt.put("checkpoint_path", ckpt)
                 val outputs_ckpt = HashMap<String, Any>()
-                tflite.runSignature(inputs_ckpt, outputs_ckpt, "restore")
+//                tflite.runSignature(inputs_ckpt, outputs_ckpt, "restore")
                 train(preprocessedX, targetArray)
                 export(path, currentDateTime)
                 run(preprocessedX)
@@ -471,7 +471,7 @@ class TrainingModelHandler(private val context: Context) {
                 inputsCalc["x"] = batchX
                 inputsCalc["y"] = batchLabels
 
-                tflite.runSignature(inputsCalc, outputsCalc, "train")
+//                tflite.runSignature(inputsCalc, outputsCalc, "train")
 
                 outputsCalc["loss"] = lossCalc
                 lossesEpoch[batchIdx] = lossCalc.get(0)
@@ -526,11 +526,11 @@ class TrainingModelHandler(private val context: Context) {
                 val inputs = HashMap<String, Any>()
                 inputs.put("checkpoint_path", outputFile.absolutePath)
                 val outputs = HashMap<String, Any>()
-                tflite.runSignature(
-                    inputs,
-                    outputs,
-                    "save"
-                )
+//                tflite.runSignature(
+//                    inputs,
+//                    outputs,
+//                    "save"
+//                )
             } finally {
                 Log.d("StateCallBack", "finaly: EXPORT")
 
@@ -578,7 +578,7 @@ class TrainingModelHandler(private val context: Context) {
         outputsRun["output"] = outputData
 
         inputsRun["x"] = inputData
-        tflite.runSignature(inputsRun, outputsRun, "infer") // MAX: why we need `outputsRun`?
+//        tflite.runSignature(inputsRun, outputsRun, "infer") // MAX: why we need `outputsRun`?
         // Write results
         outputData.rewind()
 
@@ -586,60 +586,60 @@ class TrainingModelHandler(private val context: Context) {
         //////////////////////////// [\RUN MODEL] ////////////////////////////
     }
 
-    private fun getModelInfo(interpreter: Interpreter): String {
-        val inputTensorCount = interpreter.inputTensorCount
-        val outputTensorCount = interpreter.outputTensorCount
+//    private fun getModelInfo(interpreter: Interpreter): String {
+//        val inputTensorCount = interpreter.inputTensorCount
+//        val outputTensorCount = interpreter.outputTensorCount
+//
+//        val inputDetails = (0 until inputTensorCount).joinToString("\n") { i ->
+//            val tensor = interpreter.getInputTensor(i)
+//            val shape = tensor.shape().joinToString(", ")
+//            val type = tensor.dataType()
+//            "Input Tensor $i: shape=[$shape], type=$type"
+//        }
+//
+//        val outputDetails = (0 until outputTensorCount).joinToString("\n") { i ->
+//            val tensor = interpreter.getOutputTensor(i)
+//            val shape = tensor.shape().joinToString(", ")
+//            val type = tensor.dataType()
+//            "Output Tensor $i: shape=[$shape], type=$type"
+//        }
+//        val weightDetails = (0 until interpreter.inputTensorCount).joinToString("\n") { i ->
+//            val tensor = interpreter.getInputTensor(i)
+//            val buffer = tensor.asReadOnlyBuffer()
+//            val shape = tensor.shape().joinToString(", ")
+//            val type = tensor.dataType()
+//            "Weight Tensor $i: shape=[$shape], type=$type, values=${bufferToString(buffer, type)}"
+//
+//
+//        }
+//        return "Model Info:\n$inputDetails\n$outputDetails\n\nWeight Details:\n$weightDetails"
+//    }
 
-        val inputDetails = (0 until inputTensorCount).joinToString("\n") { i ->
-            val tensor = interpreter.getInputTensor(i)
-            val shape = tensor.shape().joinToString(", ")
-            val type = tensor.dataType()
-            "Input Tensor $i: shape=[$shape], type=$type"
-        }
-
-        val outputDetails = (0 until outputTensorCount).joinToString("\n") { i ->
-            val tensor = interpreter.getOutputTensor(i)
-            val shape = tensor.shape().joinToString(", ")
-            val type = tensor.dataType()
-            "Output Tensor $i: shape=[$shape], type=$type"
-        }
-        val weightDetails = (0 until interpreter.inputTensorCount).joinToString("\n") { i ->
-            val tensor = interpreter.getInputTensor(i)
-            val buffer = tensor.asReadOnlyBuffer()
-            val shape = tensor.shape().joinToString(", ")
-            val type = tensor.dataType()
-            "Weight Tensor $i: shape=[$shape], type=$type, values=${bufferToString(buffer, type)}"
-
-
-        }
-        return "Model Info:\n$inputDetails\n$outputDetails\n\nWeight Details:\n$weightDetails"
-    }
-
-    private fun bufferToString(buffer: ByteBuffer, type: org.tensorflow.lite.DataType): String {
-        return when (type) {
-            org.tensorflow.lite.DataType.FLOAT32 -> {
-                val floatBuffer = buffer.asFloatBuffer()
-                val array = FloatArray(floatBuffer.remaining())
-                floatBuffer.get(array)
-                array.joinToString(", ")
-            }
-
-            org.tensorflow.lite.DataType.INT32 -> {
-                val intBuffer = buffer.asIntBuffer()
-                val array = IntArray(intBuffer.remaining())
-                intBuffer.get(array)
-                array.joinToString(", ")
-            }
-
-            org.tensorflow.lite.DataType.UINT8 -> {
-                val byteArray = ByteArray(buffer.remaining())
-                buffer.get(byteArray)
-                byteArray.joinToString(", ")
-            }
-
-            else -> "Unsupported data type"
-        }
-    }
+//    private fun bufferToString(buffer: ByteBuffer, type: org.tensorflow.lite.DataType): String {
+//        return when (type) {
+//            org.tensorflow.lite.DataType.FLOAT32 -> {
+//                val floatBuffer = buffer.asFloatBuffer()
+//                val array = FloatArray(floatBuffer.remaining())
+//                floatBuffer.get(array)
+//                array.joinToString(", ")
+//            }
+//
+//            org.tensorflow.lite.DataType.INT32 -> {
+//                val intBuffer = buffer.asIntBuffer()
+//                val array = IntArray(intBuffer.remaining())
+//                intBuffer.get(array)
+//                array.joinToString(", ")
+//            }
+//
+//            org.tensorflow.lite.DataType.UINT8 -> {
+//                val byteArray = ByteArray(buffer.remaining())
+//                buffer.get(byteArray)
+//                byteArray.joinToString(", ")
+//            }
+//
+//            else -> "Unsupported data type"
+//        }
+//    }
 
     private fun regionProps1D(renumeratedImportData: List<List<String>>): List<Triple<Int, Int, Int>> {
         val targetSubseq = mutableListOf<Triple<Int, Int, Int>>()

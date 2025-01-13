@@ -23,6 +23,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDele
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SpinnerDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -44,7 +45,6 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMET
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
-import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 
 abstract class BaseWidgetsFragment : Fragment() {
@@ -54,11 +54,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     private var loadingCurrentDialog: Dialog? = null
     private lateinit var bleController: BLEController
 
-
-
     protected val adapterWidgets by lazy {
-
-
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
                 onDestroyParent = { onDestroyParent ->
@@ -363,7 +359,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
     open fun sendBLEActiveGesture(deviceAddress: Int, parameterID: Int, activeGesture: Int) {
         if (!isAdded) { return }
-        transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
+        transmitter().bleCommandWithQueue(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE){}
     }
     open fun requestActiveGesture(deviceAddress: Int, parameterID: Int) {
         if (!isAdded) {return}

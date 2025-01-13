@@ -536,6 +536,8 @@
     <string name="collection_of_gestures">Collection of gestures</string>
     <string name="rotation_group">Rotation group</string>
     <string name="fist">Fist</string>
+    <string name="spr_gestures">SPPPR gestures</string>
+    <string name="title_gestures_learned">Gestures learned\n</string>
     <string name="grip_the_ball">Grip the ball</string>
     <string name="that_rocks">That rocks</string>
     <string name="neutral_position">Neutral position</string>

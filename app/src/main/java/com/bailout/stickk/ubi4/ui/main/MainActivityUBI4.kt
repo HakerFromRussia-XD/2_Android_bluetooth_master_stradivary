@@ -43,6 +43,7 @@ import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
+import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
@@ -100,7 +101,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            showOpticGesturesScreen()
         }
 
-        binding.runCommandBtn.setOnClickListener {
+//        binding.runCommandBtn.setOnClickListener {
 //            val command = BLECommands.requestActiveGesture(6, 8)
 //            // Логируем команду в шестнадцатеричном формате
 //            val commandHex = EncodeByteToHex.bytesToHexString(command)
@@ -116,13 +117,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //                    10
 //                ), MAIN_CHANNEL, WRITE
 //            ) {}
-            main.bleCommandWithQueue(
-                BLECommands.requestSlider(6, 2),
-                MAIN_CHANNEL,
-                WRITE
-            ){}
-
-        }
+//            main.bleCommandWithQueue(
+//                BLECommands.requestSlider(6, 2),
+//                MAIN_CHANNEL,
+//                WRITE
+//            ){}
+//
+//        }
 
     }
     @SuppressLint("MissingPermission")
@@ -141,6 +142,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             mBLEController.setReconnectThreadFlag(true)
             mBLEController.reconnectThread()
         }
+        val savedFilter = getInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
+        activeFilterFlow.value = savedFilter
     }
 
 
@@ -192,7 +195,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, connectedDeviceName)
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceName)
 
         //settings
     }
@@ -220,6 +223,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         graphThreadFlag = true
         canSendFlag = false
         bindingGroupGestures = arrayListOf()
+        activeFilterFlow = MutableStateFlow(1)
+        spinnerFlow = MutableSharedFlow()
     }
 
     // сохранение и загрузка данных
@@ -236,6 +241,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val editor: SharedPreferences.Editor = mSettings!!.edit()
         editor.putInt(key, variable)
         editor.apply()
+    }
+
+    internal fun getInt(key: String, default: Int): Int {
+        return mSettings?.getInt(key, default) ?: default
     }
 
     private fun startQueue() {
@@ -312,8 +321,9 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+        var spinnerFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
-
+        var activeFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()

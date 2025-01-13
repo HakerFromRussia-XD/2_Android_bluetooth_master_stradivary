@@ -1,11 +1,8 @@
-package com.bailout.stickk.ubi4.utility
+package com.bailout.stickk.ubi4.data.local
 
 import android.content.Context
 import android.util.Log
 import com.bailout.stickk.R
-import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getCollectionGestures
-import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.models.SprGestureItem
 
 class SprGestureItemsProvider(private val context: Context) {
@@ -40,7 +37,7 @@ class SprGestureItemsProvider(private val context: Context) {
 
     fun getAnimationIdByKeyNameGesture(keyNameGesture: String): Int {
         val sprGestureItem = getSprGestureItemList().find { it.keyNameGesture == keyNameGesture }
-        return sprGestureItem?.animationId ?: R.drawable.sleeping
+        return sprGestureItem?.animationId ?: R.raw.open
     }
 
     fun getNameGestureByKeyName(keyNameGesture: String): String {

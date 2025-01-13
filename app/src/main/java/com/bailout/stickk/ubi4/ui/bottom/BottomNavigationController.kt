@@ -7,6 +7,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class BottomNavigationController(bottomNavigation: BottomNavigationView) {
+    private var isNavigationEnabled  = true
     init {
         setupOnClickPages(bottomNavigation)
     }
@@ -36,5 +37,8 @@ class BottomNavigationController(bottomNavigation: BottomNavigationView) {
             }
             false
         }
+    }
+    fun setNavigationEnabled(enabled: Boolean) {
+        isNavigationEnabled = enabled
     }
 }

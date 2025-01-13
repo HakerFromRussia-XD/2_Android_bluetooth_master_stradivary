@@ -6,7 +6,6 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import dagger.hilt.migration.DisableInstallInCheck;
 
 import com.bailout.bluetooth.Bluetooth;
 
@@ -15,7 +14,6 @@ import com.bailout.bluetooth.Bluetooth;
  */
 
 @Module
-@DisableInstallInCheck
 public class BluetoothModule {
     private Context context;
 

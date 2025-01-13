@@ -12,32 +12,32 @@ import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = BaseParametrInfoSerializer::class)
 data class BaseParameterInfoStruct(
-    val ID: Int,
-    val broadcastID: Int,
-    val dataCode: Int,
-    val dataInstance: Int,
-    val parameterDataSize: Int,//2 байта
-    val flagShift: Int,
-    val optimisation: Int,
-    val valueLimit: Int,
+    val ID: Int = 0,
+    val broadcastID: Int = 0,
+    var dataCode: Int = 0,
+    val dataInstance: Int = 0,
+    val parameterDataSize: Int = 0,//2 байта
+    val flagShift: Int = 0,
+    val optimisation: Int = 0,
+    val valueLimit: Int = 0,
 
-    val initRead: Int,      //1 bit
-    val initWrite: Int,     //1 bit
-    val synchType: Int,     //3 bit
-    val synchDirection: Int,//3 bit
-    val synchPeriod: Int,
+    val initRead: Int = 0,      //1 bit
+    val initWrite: Int = 0,     //1 bit
+    val synchType: Int = 0,     //3 bit
+    val synchDirection: Int = 0,//3 bit
+    val synchPeriod: Int = 0,
 
-    val type: Int,
-    val saveInMaster: Int,//1 bit
-    val saveInSlave: Int, //1 bit
-    val saveReserv: Int,  //6 bit
+    val type: Int = 0,
+    val saveInMaster: Int = 0,//1 bit
+    val saveInSlave: Int = 0, //1 bit
+    val saveReserv: Int = 0,  //6 bit
 
-    val additionalInfoSize: Int,
+    val additionalInfoSize: Int = 0,
 
-    val relatedParametrID: Int,
-    val relatedDataCode: Int,
+    val relatedParametrID: Int = 0,
+    val relatedDataCode: Int = 0,
 
-    var data: String)
+    var data: String = "")
 
 object BaseParametrInfoSerializer: KSerializer<BaseParameterInfoStruct> {
     override val descriptor: SerialDescriptor =

@@ -18,10 +18,8 @@ import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.Prefer
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.sqlite.SqliteManager
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.migration.DisableInstallInCheck
 import javax.inject.Singleton
 
-@DisableInstallInCheck
 @Module
 class ApplicationModule(private val application: Application) {
 

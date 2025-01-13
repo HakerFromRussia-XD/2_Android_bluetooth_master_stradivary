@@ -489,56 +489,75 @@ class BLECommands {
             return result
         }
 
-        fun testDataTransfer(): ByteArray {
+        fun openCheckpointFileInSDCard(name: String, addressDevice: Int, parameterID: Int, indexPackage: Int): ByteArray {
             val header = byteArrayOf(
-                0xE0.toByte(),
-                PreferenceKeysUBI4.BaseCommands.COMPLEX_PARAMETER_TRANSFER.number,
+                0x40.toByte(),
+                (128 + parameterID).toByte(),
                 0x00,
                 0x00,
                 0x00,
                 0x00,
-                0x00
+                addressDevice.toByte()
             )
             val data = byteArrayOf(
                 0x01,
+                name.length.toByte(),
+                0x00,
                 0x01,
-                0x02,
-                0x02,
-                0x04,
-                0x04,
-                0x03,
-                0x03,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-            )
+            ) + name.toByteArray(charset = Charsets.UTF_8)
+            data[2] = (indexPackage).toByte()
+            data[3] = (indexPackage / 256).toByte()
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
-
-        fun checkpointDataTransfer(data: ByteArray): ByteArray {
+        fun writeDataInCheckpointFileInSDCard(modifiedChunkArray: ByteArray, addressDevice: Int, parameterID: Int, indexPackage: Int) : ByteArray {
             val header = byteArrayOf(
                 0x40.toByte(),
-                (128 + PreferenceKeysUBI4.BaseCommands.DEVICE_ACCESS_COMMAND.number).toByte(),
+                (128 + parameterID).toByte(),
                 0x00,
                 0x00,
                 0x00,
                 0x00,
-                0x00
+                addressDevice.toByte()
             )
+            val data = byteArrayOf(
+                0x02,
+                modifiedChunkArray.size.toByte(),
+                0x00,
+                0x02,
+            ) + modifiedChunkArray
+            data[2] = (indexPackage).toByte()
+            data[3] = (indexPackage / 256).toByte()
             header[3] = data.size.toByte()
-            header[4] = (data.size/256).toByte()
+            header[4] = (data.size / 256).toByte()
             val result = header + data
             return result
         }
-
+        fun closeCheckpointFileInSDCard(addressDevice: Int, parameterID: Int, indexPackage: Int): ByteArray {
+            val header = byteArrayOf(
+                0x40.toByte(),
+                (128 + parameterID).toByte(),
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                addressDevice.toByte()
+            )
+            val data = byteArrayOf(
+                0x03,
+                0x00,
+                0x00,
+                0x03,
+            )
+            data[2] = (indexPackage).toByte()
+            data[3] = (indexPackage / 256).toByte()
+            header[3] = data.size.toByte()
+            header[4] = (data.size / 256).toByte()
+            val result = header + data
+            return result
+        }
 
         private fun calculateDataSize(massage: ByteArray): Int {
             return massage.size - HEADER_BLE_OFFSET

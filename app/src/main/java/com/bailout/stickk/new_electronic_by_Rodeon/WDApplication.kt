@@ -14,6 +14,7 @@
 package com.bailout.stickk.new_electronic_by_Rodeon
 
 import androidx.multidex.MultiDexApplication
+import com.bailout.stickk.new_electronic_by_Rodeon.utils.EncryptionManagerUtils.Companion.instance
 import com.bailout.stickk.old_electronic_by_Misha.data.BluetoothModule
 import dagger.Component
 import javax.inject.Singleton
@@ -27,6 +28,7 @@ class WDApplication : MultiDexApplication() {
   override fun onCreate() {
     super.onCreate()
     app = this
+    instance = this
     component = DaggerWDApplication_ApplicationComponent.builder()
         .applicationModule(ApplicationModule1(this))
         .build()
@@ -37,6 +39,10 @@ class WDApplication : MultiDexApplication() {
     var app: WDApplication? = null
 
     lateinit var component: ApplicationComponent
+
+    @JvmStatic
+    lateinit var instance: WDApplication
+    fun applicationContext() = instance!!.applicationContext
 
     @JvmStatic
     fun app(): WDApplication? {

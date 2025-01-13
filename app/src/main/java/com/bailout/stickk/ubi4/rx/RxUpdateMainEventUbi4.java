@@ -18,7 +18,7 @@ public class RxUpdateMainEventUbi4 {
   // ui
   private final PublishSubject<Integer> uiGestureSettings;
   private final PublishSubject<ParameterRef> uiRotationGroup;
-  private final PublishSubject<Integer> uiOpticTraining;
+  private final PublishSubject<ParameterRef> uiOpticTraining;
 
 
   private RxUpdateMainEventUbi4() {
@@ -41,7 +41,7 @@ public class RxUpdateMainEventUbi4 {
   public void updateReadCharacteristicBLE(GestureInfo parameters) { readCharacteristicBLE.onNext(parameters); }
   public void updateUiGestureSettings(Integer parameters) { uiGestureSettings.onNext(parameters); }
   public void updateUiRotationGroup(ParameterRef parameters) { uiRotationGroup.onNext(parameters); }
-  public void updateUiOpticTraining(Integer parameters) { uiOpticTraining.onNext(parameters); }
+  public void updateUiOpticTraining(ParameterRef parameters) { uiOpticTraining.onNext(parameters); }
 
 
 
@@ -51,5 +51,5 @@ public class RxUpdateMainEventUbi4 {
   public Observable<GestureInfo> getReadCharacteristicBLE() { return readCharacteristicBLE; }
   public Observable<Integer> getUiGestureSettingsObservable() { return uiGestureSettings; }
   public Observable<ParameterRef> getUiRotationGroupObservable() { return uiRotationGroup; }
-  public Observable<Integer> getUiOpticTrainingObservable() { return uiOpticTraining; }
+  public Observable<ParameterRef> getUiOpticTrainingObservable() { return uiOpticTraining; }
 }

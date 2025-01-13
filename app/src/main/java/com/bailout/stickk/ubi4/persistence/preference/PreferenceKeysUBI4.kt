@@ -284,6 +284,10 @@ object PreferenceKeysUBI4 {
 
         PDCE_OPTIC_BINDING_DATA (43),
 
+        PDCE_OPTIC_ENABLE (44),
+
+        PDCE_OPTIC_SELECT_GESTURE_TIMEOUT (45),
+
         PDCE_GENERIC_0 (255)
     }
 

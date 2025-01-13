@@ -197,7 +197,7 @@ class MotionTrainingFragment(
             lineData[0] = combinedPhase
             lineData.removeAt(1)
 
-            switchAnimationSmoothly(lineData[0].animation)
+            switchAnimationSmoothly(lineData[0].animation, 50)
         }
 
         // Запуск первой фазы тренировки
@@ -396,7 +396,7 @@ class MotionTrainingFragment(
         )
 
         if (currentPhase.gestureName == "Neutral") {
-            switchAnimationSmoothly(currentPhase.animation)
+            switchAnimationSmoothly(currentPhase.animation, 50)
         }
 
         when {
@@ -471,7 +471,7 @@ class MotionTrainingFragment(
             binding.prepareForPerformTv.visibility = View.VISIBLE
 
             // Установка дефолтной анимации или скрытие ImageView
-            switchAnimationSmoothly(R.raw.clock)
+            switchAnimationSmoothly(R.raw.open, 1)
             binding.motionProgressBar.visibility = View.INVISIBLE
             binding.countdownTextView.visibility = View.VISIBLE
             binding.countdownTextView.text = (preparationDuration / 1000).toString()
@@ -500,7 +500,7 @@ class MotionTrainingFragment(
 
         } else {
             if (phase.gestureName == "Neutral") {
-                switchAnimationSmoothly(phase.animation)
+                switchAnimationSmoothly(phase.animation, 50)
             }
             binding.motionNameOfGesturesTv.text = "Следующий жест $nextGestureName"
             binding.prepareForPerformTv.text = "Подготовьтесь к выполнению жеста"
@@ -528,7 +528,7 @@ class MotionTrainingFragment(
         }
     }
 
-    private fun switchAnimationSmoothly(newAnimation: Int) {
+    private fun switchAnimationSmoothly(newAnimation: Int, endPercent: Int) {
         binding.motionHandIv.animate()
             .setDuration(150)
             .scaleX(0f)
@@ -538,7 +538,7 @@ class MotionTrainingFragment(
                 binding.motionHandIv.setAnimation(newAnimation)
                 binding.motionHandIv.playAnimation()
                 binding.motionHandIv.addAnimatorUpdateListener { animation ->
-                    if (animation.animatedFraction >= 0.5f) {
+                    if (animation.animatedFraction >= endPercent / 100) {
                         binding.motionHandIv.pauseAnimation()
                     }
                 }
@@ -729,6 +729,19 @@ class MotionTrainingFragment(
                 lineData.add(currentGesture)
             }
         }
+        lineData.add(
+
+            GesturePhase(
+                prePhase = 0.0,
+                timeGesture = 90.0,
+                postPhase = 0.0,
+                animation = 0,
+                headerText = "Отдохните перед следующим жестом",
+                description = "Отдохните перед следующим жестом",
+                gestureName = "Neutral",
+                gestureId = 0
+            )
+        )
 
         // Добавление конечной фазы Finish
         lineData.add(

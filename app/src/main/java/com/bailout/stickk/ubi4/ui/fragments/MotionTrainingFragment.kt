@@ -538,7 +538,7 @@ class MotionTrainingFragment(
                 binding.motionHandIv.setAnimation(newAnimation)
                 binding.motionHandIv.playAnimation()
                 binding.motionHandIv.addAnimatorUpdateListener { animation ->
-                    if (animation.animatedFraction >= endPercent / 100) {
+                    if (animation.animatedFraction >= (endPercent / 100f)) {
                         binding.motionHandIv.pauseAnimation()
                     }
                 }

@@ -563,7 +563,7 @@ class SprTrainingFragment : Fragment() {
     ) {
         mutex.withLock {
             try {
-                val maxChunkSize = 200 // max 249
+                val maxChunkSize = 100 // max 249
                 val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
                 chunksSend = AtomicInteger(0)
                 bleController.setUploadingState(true) // Устанавливаем флаг загрузки

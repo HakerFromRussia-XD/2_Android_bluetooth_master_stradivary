@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.marginTop
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
@@ -328,8 +329,13 @@ class PlotDelegateAdapter (
                 Entry(count.toFloat(), sens6.toFloat())
             )
         }
-        // Передаём обработанные данные в addEntry
-        addEntry(preparedEntries, emgChart)
+        try {
+            // Передаём обработанные данные в addEntry
+            addEntry(preparedEntries, emgChart)
+        } catch (e:ConcurrentModificationException){
+            main.showToast("Ошибка: изменение данных во время отрисовки!")
+        }
+
     }
     private fun addEntry(preparedEntries: List<Entry>, emgChart: LineChart) {
         val data: LineData =  emgChart.data

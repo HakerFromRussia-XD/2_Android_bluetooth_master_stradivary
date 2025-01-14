@@ -23,9 +23,9 @@
         "wrist_pronation"
     ],
     "BASELINE_DURATION": 5,
-    "PRE_GEST_DURATION": 1,
-    "AT_GEST_DURATION": 1,
-    "POST_GEST_DURATION": 0,
+    "PRE_GEST_DURATION": 2,
+    "AT_GEST_DURATION": 2,
+    "POST_GEST_DURATION": 2,
     "N_CYCLES": 1,
     "N_OMG_CH": 16,
     "N_EMG_CH": 8,

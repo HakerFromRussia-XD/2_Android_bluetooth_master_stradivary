@@ -1,5 +1,6 @@
 package com.bailout.stickk.ubi4.ui.main
 
+import SprGestureFragment
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
@@ -7,6 +8,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.util.Pair
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -26,34 +28,47 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
+import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
+import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
 import com.bailout.stickk.ubi4.models.ParameterRef
-import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
+import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
 import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
+import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
+import com.bailout.stickk.ubi4.ui.fragments.SprTrainingFragment
 import com.bailout.stickk.ubi4.utility.BlockingQueueUbi4
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.REQUEST_ENABLE_BT
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
 
 
 @RequirePresenter(MainPresenter::class)
-class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4, TransmitterUBI4 {
+class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), NavigatorUBI4,
+    TransmitterUBI4 {
     private lateinit var binding: Ubi4ActivityMainBinding
     private var mSettings: SharedPreferences? = null
     private lateinit var mBLEController: BLEController
+    private lateinit var trainingModelHandler: TrainingModelHandler
+    private var activeFragment: Fragment? = null
+
+
     // Очередь для задачь работы с BLE
-    private val queue = BlockingQueueUbi4()
+    val queue = BlockingQueueUbi4()
+    private lateinit var bottomNavigationController: BottomNavigationController
 
 
     @SuppressLint("CommitTransaction")
@@ -68,7 +83,11 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         window.navigationBarColor = ContextCompat.getColor(this, R.color.ubi4_dark_back)
         setContentView(view)
         initAllVariables()
-        BottomNavigationController(bottomNavigation = binding.bottomNavigation)
+        bottomNavigationController =
+            BottomNavigationController(bottomNavigation = binding.bottomNavigation)
+
+        trainingModelHandler = TrainingModelHandler(this)
+        trainingModelHandler.initialize()
 
         // инициализация блютуз
         mBLEController = BLEController(this)
@@ -77,21 +96,19 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         startQueue()
 
         showSensorsScreen()
-        binding.addCommandBtn.setOnClickListener {
-            val byteArray = ByteArray(249){0x55.toByte()}
-            for (i in 1..100){
-                byteArray[0] = i.toByte()
-                bleCommandWithQueue(BLECommands.checkpointDataTransfer(byteArray), MAIN_CHANNEL, WRITE){}
-            }
-            Log.d("SendDataTest", "${EncodeByteToHex.bytesToHexString(BLECommands.checkpointDataTransfer(byteArray))}")
+        if (savedInstanceState == null) {
+//            showOpticGesturesScreen()
         }
-        binding.runCommandBtn.setOnClickListener {
-//            CoroutineScope(Dispatchers.Default).launch { thresholdFlow.emit(ParameterRef(6, 12)) }
-//            bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
-//            bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE)
-            System.err.println("BLE debug bleCommand byteArray = runCommandBtn")
-            bleCommandWithQueue(BLECommands.requestThresholds(9, 13) , MAIN_CHANNEL, WRITE){}
-        }
+
+//        binding.runCommandBtn.setOnClickListener {
+//            val command = BLECommands.requestActiveGesture(6, 10)
+//            // Логируем команду в шестнадцатеричном формате
+//            val commandHex = EncodeByteToHex.bytesToHexString(command)
+//            Log.d("BLECommand", "Отправка команды requestActiveGesture: $commandHex")
+//            bleCommandWithQueue(BLECommands.requestActiveGesture(6,10), MAIN_CHANNEL, WRITE){}
+////            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
+////            manageTrainingLifecycle()
+//        }
 
     }
     @SuppressLint("MissingPermission")
@@ -103,7 +120,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         if (mBLEController.getBluetoothLeService() != null) {
             connectedDeviceName = getString(CONNECTED_DEVICE)
-            connectedDeviceAddress =  getString(CONNECTED_DEVICE_ADDRESS)
+            connectedDeviceAddress = getString(CONNECTED_DEVICE_ADDRESS)
             System.err.println("onResume ${getString(CONNECTED_DEVICE_ADDRESS)}")
         }
         if (!mBLEController.getStatusConnected()) {
@@ -114,8 +131,31 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
 
     override fun showGesturesScreen() { launchFragmentWithoutStack(GesturesFragment()) }
+
+    override fun showOpticGesturesScreen() { launchFragmentWithoutStack(SprGestureFragment()) }
+
     override fun showSensorsScreen() { launchFragmentWithoutStack(SensorsFragment()) }
     override fun showAdvancedScreen() { launchFragmentWithoutStack(AdvancedFragment()) }
+    override fun showOpticTrainingGesturesScreen() { launchFragmentWithoutStack(SprTrainingFragment()) }
+
+    override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
+        val fragment = MotionTrainingFragment(onFinishTraining)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .commit()
+        activeFragment = fragment
+        Log.d("StateCallBack", "showMotionTrainingScreen called, new MotionTrainingFragment created")
+    }
+
+    override fun manageTrainingLifecycle() {
+        Log.d("StateCallBack", "manageTrainingLifecycle called")
+        trainingModelHandler.runModel()
+    }
+
+    override fun getPercentProgressLearningModel(): Int {
+        return trainingModelHandler.getPercentProgressLearningModel()
+    }
+
     override fun showToast(massage: String) {
         Toast.makeText(this,massage,Toast.LENGTH_SHORT).show()
     }
@@ -125,16 +165,21 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
     private fun launchFragmentWithoutStack(fragment: Fragment) {
-        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragmentContainer, fragment)
-        if (!supportFragmentManager.isDestroyed) transaction.commit()
+        // Проверяем, отличается ли класс нового фрагмента от текущего активного
+        if (activeFragment?.javaClass != fragment.javaClass) {
+            activeFragment = fragment
+            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragmentContainer, fragment)
+            if (!supportFragmentManager.isDestroyed) transaction.commit()
+        }
     }
 
     private fun initAllVariables() {
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, connectedDeviceAddress)
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, connectedDeviceName)
+
         //settings
     }
     internal fun sendWidgetsArray() {
@@ -143,6 +188,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
     private fun setStaticVariables() {
         listWidgets = mutableSetOf()
+        canSendNextChunkFlagFlow = MutableSharedFlow()
         updateFlow = MutableStateFlow(0)
         plotArrayFlow = MutableStateFlow(PlotParameterRef(0,0, arrayListOf()))
         rotationGroupFlow = MutableSharedFlow()
@@ -150,6 +196,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         switcherFlow = MutableSharedFlow()
         bindingGroupFlow = MutableSharedFlow()
         activeGestureFlow = MutableSharedFlow()
+        stateOpticTrainingFlow = MutableStateFlow(PreferenceKeysUBI4.TrainingModelState.BASE)
         thresholdFlow = MutableSharedFlow()
         baseSubDevicesInfoStructSet = mutableSetOf()
         baseParametrInfoStructArray = arrayListOf()
@@ -158,6 +205,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         countBinding = 0
         graphThreadFlag = true
         canSendFlag = false
+        bindingGroupGestures = arrayListOf()
     }
 
     // сохранение и загрузка данных
@@ -185,18 +233,33 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-    override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onCommandSent: () -> Unit) { queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onCommandSent)) }
-    private fun getBleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onCommandSent: () -> Unit): Runnable {
+   override fun bleCommandWithQueue(
+        byteArray: ByteArray?,
+        Command: String,
+        typeCommand: String,
+        onChunkSent: () -> Unit
+    ) {
+        queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand, onChunkSent))
+    }
+
+
+    private fun getBleCommandWithQueue(
+        byteArray: ByteArray?,
+        Command: String,
+        typeCommand: String,
+        onChunkSent: () -> Unit
+    ): Runnable {
         return Runnable {
-            writeData(byteArray, command, typeCommand)
+            writeData(byteArray, Command, typeCommand)
             // Invoke the callback after data is sent
-            onCommandSent()
+            onChunkSent()
         }
     }
-    private fun writeData(byteArray: ByteArray?, command: String, typeCommand: String) {
+
+    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
-            bleCommand(byteArray, command, typeCommand)
+            bleCommand(byteArray, Command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
                 Thread.sleep(1)
@@ -204,37 +267,50 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             Log.d("TestSendByteArray","CallBack is BLEService was complete")
         }
     }
+
+    //не нарушая инкапсуляцию
     fun getBLEController(): BLEController {
         return mBLEController
     }
+
+    fun getBottomNavigationController(): BottomNavigationController {
+        return bottomNavigationController
+    }
+
     override fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
-        System.err.println("BLE debug bleCommand byteArray = ${byteArray?.let {
-            EncodeByteToHex.bytesToHexString(it)
-        }}")
+        System.err.println("BLE debug bleCommand")
         mBLEController.bleCommand( byteArray, uuid, typeCommand )
     }
 
     companion object {
         var main by Delegates.notNull<MainActivityUBI4>()
 
+        var canSendNextChunkFlagFlow by Delegates.notNull<MutableSharedFlow<Int>>()
         var updateFlow by Delegates.notNull<MutableStateFlow<Int>>()
         var listWidgets by Delegates.notNull<MutableSet<Any>>()
 
         var plotArrayFlow by Delegates.notNull<MutableStateFlow<PlotParameterRef>>()
         var plotArray by Delegates.notNull<ArrayList<Int>>()
-        var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<Int>>()//MutableStateFlow
+        var rotationGroupFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var bindingGroupFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+        var stateOpticTrainingFlow by Delegates.notNull<MutableStateFlow<PreferenceKeysUBI4.TrainingModelState>>()
         var slidersFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()//MutableStateFlow
         var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
 
+
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()
         var baseParametrInfoStructArray by Delegates.notNull<ArrayList<BaseParameterInfoStruct>>()
+        var opticTrainingStructArray by Delegates.notNull<ArrayList<OpticTrainingStruct>>()
+
         var baseSubDevicesInfoStructSet by Delegates.notNull<MutableSet<BaseSubDeviceInfoStruct>>()
 
         var rotationGroupGestures by Delegates.notNull<ArrayList<Gesture>>()
+
+        var bindingGroupGestures by Delegates.notNull<ArrayList<Pair<Int, Int>>>()
+
 
 
         var connectedDeviceName by Delegates.notNull<String>()

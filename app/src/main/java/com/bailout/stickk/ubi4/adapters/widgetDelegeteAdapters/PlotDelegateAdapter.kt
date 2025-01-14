@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.marginTop
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
@@ -306,23 +307,31 @@ class PlotDelegateAdapter (
         return set6
     }
 
-    // идеально оптимизированный вариант отрисовки графиков, но не решена проблема dedloca в момент refreshWidgetsList()
-    // всё зависает в момент вызова emgChart.setVisibleXRangeMaximum(200f)
-//    private fun prepareAndAddEntry(sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int, emgChart: LineChart) {
-//        scope?.launch {
-//            val preparedEntries = listOf(
-//                Entry(count.toFloat(), sens1.toFloat()),
-//                Entry(count.toFloat(), sens2.toFloat()),
-//                Entry(count.toFloat(), sens3.toFloat()),
-//                Entry(count.toFloat(), sens4.toFloat()),
-//                Entry(count.toFloat(), sens5.toFloat()),
-//                Entry(count.toFloat(), sens6.toFloat())
-//            )
-//            addEntry(preparedEntries, emgChart)
-//        }
-//    }
-//    private fun addEntry(preparedEntries: List<Entry>, emgChart: LineChart) {//preparedEntries: List<Entry> //sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int
-    private fun addEntry(sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int, emgChart: LineChart) {//preparedEntries: List<Entry> //sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int
+    private suspend fun prepareAndAddEntry(sens1: Int, sens2: Int, sens3: Int, sens4: Int, sens5: Int, sens6: Int, emgChart: LineChart) {
+        if (graphThreadFlag) {
+            Log.d("Plot view", "graphThreadFlag")
+        } else {
+            Log.d("Plot view", "false graphThreadFlag")
+        }
+        val preparedEntries = withContext(Dispatchers.IO) {
+            listOf(
+                Entry(count.toFloat(), sens1.toFloat()),
+                Entry(count.toFloat(), sens2.toFloat()),
+                Entry(count.toFloat(), sens3.toFloat()),
+                Entry(count.toFloat(), sens4.toFloat()),
+                Entry(count.toFloat(), sens5.toFloat()),
+                Entry(count.toFloat(), sens6.toFloat())
+            )
+        }
+        try {
+            // Передаём обработанные данные в addEntry
+            addEntry(preparedEntries, emgChart)
+        } catch (e:ConcurrentModificationException){
+            main.showToast("Ошибка: изменение данных во время отрисовки!")
+        }
+
+    }
+    private fun addEntry(preparedEntries: List<Entry>, emgChart: LineChart) {
         val data: LineData =  emgChart.data
         var set = data.getDataSetByIndex(0)
         var set1 = data.getDataSetByIndex(1)
@@ -362,36 +371,25 @@ class PlotDelegateAdapter (
                 if (numberOfCharts >= 6) { set6.removeFirst() }
             }
 
-//            data.addEntry(Entry(count.toFloat(), 250.toFloat()), 0)
-//            data.addEntry(preparedEntries[0], 1)
-//            if (numberOfCharts >= 2) {data.addEntry(preparedEntries[1], 2)}
-//            if (numberOfCharts >= 3) {data.addEntry(preparedEntries[2], 3)}
-//            if (numberOfCharts >= 4) {data.addEntry(preparedEntries[3], 4)}
-//            if (numberOfCharts >= 5) {data.addEntry(preparedEntries[4], 5)}
-//            if (numberOfCharts >= 6) {data.addEntry(preparedEntries[5], 6)}
-
-            data.addEntry(Entry(count.toFloat(), 250.toFloat()), 0)
-            data.addEntry(Entry(count.toFloat(), sens1.toFloat()), 1)
-            if (numberOfCharts >= 2) {data.addEntry(Entry(count.toFloat(), sens2.toFloat()), 2)}
-            if (numberOfCharts >= 3) {data.addEntry(Entry(count.toFloat(), sens3.toFloat()), 3)}
-            if (numberOfCharts >= 4) {data.addEntry(Entry(count.toFloat(), sens4.toFloat()), 4)}
-            if (numberOfCharts >= 5) {data.addEntry(Entry(count.toFloat(), sens5.toFloat()), 5)}
-            if (numberOfCharts >= 6) {data.addEntry(Entry(count.toFloat(), sens6.toFloat()), 6)}
-
+            data.addEntry(defaultEntry, 0)
+            data.addEntry(preparedEntries[0], 1)
+            if (numberOfCharts >= 2) {data.addEntry(preparedEntries[1], 2)}
+            if (numberOfCharts >= 3) {data.addEntry(preparedEntries[2], 3)}
+            if (numberOfCharts >= 4) {data.addEntry(preparedEntries[3], 4)}
+            if (numberOfCharts >= 5) {data.addEntry(preparedEntries[4], 5)}
+            if (numberOfCharts >= 6) {data.addEntry(preparedEntries[5], 6)}
 
             data.notifyDataChanged()
             emgChart.notifyDataSetChanged()
-            emgChart.moveViewToX(set1.entryCount - 200.toFloat()) // Прокрутка графика
-
             if (firstInit) {
                 emgChart.setVisibleXRangeMaximum(200f)
                 firstInit = false
             }
+            emgChart.moveViewToX(preparedEntries[0].x - 200.toFloat()) // Прокрутка графика
         }
         count += 1
     }
     private fun initializedSensorGraph(emgChart: LineChart) {
-//        firstInit = true
         emgChart.setHardwareAccelerationEnabled(true) // Включение аппаратного ускорения
         emgChart.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         emgChart.setDragEnabled(false) // Отключение перемещения графика, если оно не нужно
@@ -412,6 +410,7 @@ class PlotDelegateAdapter (
         emgChart.description.textColor = Color.TRANSPARENT
         emgChart.animateX(0)
         emgChart.animateY(0)
+//        emgChart.animateY(2000)
 
         val x: XAxis = emgChart.xAxis
         x.textColor = Color.TRANSPARENT
@@ -436,7 +435,6 @@ class PlotDelegateAdapter (
         emgChart.axisRight.gridColor = Color.TRANSPARENT
         emgChart.axisRight.axisLineColor = Color.TRANSPARENT
         emgChart.axisRight.textColor = Color.TRANSPARENT
-//        main.runOnUiThread { emgChart.setVisibleXRangeMaximum(200f) }
     }
     private fun getIndexWidgetPlot (addressDevice: Int, parameterID: Int): Int {
         widgetPlotsInfo.forEachIndexed { index, widgetPlotInfo ->
@@ -461,6 +459,7 @@ class PlotDelegateAdapter (
         limit_CH.y = (y - limit_CH.height/2 + allCHRl.marginTop).toFloat()
     }
     private suspend fun startGraphEnteringDataCoroutine(emgChart: LineChart)  {
+//        Log.d("Plot view","startGraphEnteringDataCoroutine")
 //        dataSens1 += 1
 //        dataSens2 += 1
 //        dataSens3 += 1
@@ -474,20 +473,16 @@ class PlotDelegateAdapter (
         if (dataSens5 > 255) { dataSens5 = 0 }
         if (dataSens6 > 255) { dataSens6 = 0 }
 
-//        prepareAndAddEntry(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6, emgChart)//prepareAndAddEntry
-        addEntry(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6, emgChart)//prepareAndAddEntry
+        prepareAndAddEntry(dataSens1, dataSens2, dataSens3, dataSens4, dataSens5, dataSens6, emgChart)
         delay(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         if (graphThreadFlag) {
             startGraphEnteringDataCoroutine(emgChart)
-        } else {
-            Log.d("Plot view" , "закончили рекурсию")
         }
     }
-    fun onDestroy(emgChart: LineChart) {
+    fun onDestroy() {
         graphThreadFlag = false
         scope?.cancel()
         scope = null
-        emgChart.clear()
         Log.d("onDestroy" , "onDestroy plot")
     }
 }

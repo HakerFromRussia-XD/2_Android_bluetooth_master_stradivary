@@ -14,13 +14,17 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatActivity.BIND_AUTO_CREATE
 import androidx.appcompat.app.AppCompatActivity.BLUETOOTH_SERVICE
 import androidx.core.app.ActivityCompat
+import com.bailout.stickk.R
 import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager.RECONNECT_BLE_PERIOD
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.NOTIFY
@@ -28,15 +32,12 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.READ
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.lookup
 import com.bailout.stickk.ubi4.data.parser.BLEParser
-import com.bailout.stickk.ubi4.models.MyViewModel
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.BaseCommands
-import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -54,6 +55,9 @@ class BLEController(
     private var mGattCharacteristics = ArrayList<ArrayList<BluetoothGattCharacteristic>>()
     private var mCharacteristic: BluetoothGattCharacteristic? = null
     private var mNotifyCharacteristic: BluetoothGattCharacteristic? = null
+    private var progressDialog: Dialog? = null
+    private var isUploading = false
+    private var onDisconnectedListener: (() -> Unit)? = null
 
     private var reconnectThreadFlag = false
     private var scanWithoutConnectFlag = false
@@ -75,13 +79,17 @@ class BLEController(
                 //TODO раскомментировать когда не нужно быстрое подключение
                 System.err.println("connectedDeviceAddress $connectedDeviceAddress")
 //                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
-//                mBluetoothLeService?.connect("DC:DA:0C:18:1C:6A")       // Моя плата
+//                mBluetoothLeService?.connect("DC:DA:0C:18:0E:8E")       // Моя плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:12:0A")       // Андрея плата
 //                mBluetoothLeService?.connect("34:85:18:98:0F:D2")       // Mike плата
-//                mBluetoothLeService?.connect("34:85:18:98:10:7E")
-//                mBluetoothLeService?.connect("F0:9E:9E:22:97:36")
+//                mBluetoothLeService?.connect("DC:DA:0C:18:1C:6A") // плата с оптикой Денис
 //                mBluetoothLeService?.connect("F0:9E:9E:22:97:52")
-                mBluetoothLeService?.connect(connectedDeviceAddress)
+//                mBluetoothLeService?.connect("F0:9E:9E:22:96:3E") // плата с оптикой с экраном
+//                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E")  // протез Макса
+//                mBluetoothLeService?.connect("34:85:18:98:10:7E")
+                mBluetoothLeService?.connect("F0:9E:9E:22:97:36")
+
+//                mBluetoothLeService?.connect(connectedDeviceAddress)
             }
         }
 
@@ -116,18 +124,25 @@ class BLEController(
             val action = intent.action
             when {
                 BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
-                    Log.d("Connection", "ACTION_GATT_CONNECTED")
                     Toast.makeText(context, "подключение установлено к $connectedDeviceAddress", Toast.LENGTH_SHORT).show()
                     reconnectThreadFlag = false
                 }
                 BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
-                    Toast.makeText(context, "разрыв соединения", Toast.LENGTH_SHORT).show()
-                    Log.d("Connection", "ACTION_GATT_DISCONNECTED")
                     mConnected = false
+                    isUploading = false
                     endFlag = true
 //                    graphThreadFlag = false
                     mMain.invalidateOptionsMenu()
 //                    percentSynchronize = 0
+
+                    progressDialog?.dismiss()
+                    progressDialog = null
+
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(mContext,
+                            context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
+                    }
+
 
                     if(!reconnectThreadFlag && !mScanning){
                         reconnectThreadFlag = true
@@ -135,7 +150,6 @@ class BLEController(
                     }
                 }
                 BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
-                    Log.d("Connection", "ACTION_GATT_SERVICES_DISCOVERED")
                     mConnected = true
                     if (mBluetoothLeService != null) {
                         displayGattServices(mBluetoothLeService!!.supportedGattServices)
@@ -146,7 +160,6 @@ class BLEController(
                     }
                 }
                 BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
-                    Log.d("Connection", "ACTION_DATA_AVAILABLE")
                     if(intent.getByteArrayExtra(BluetoothLeService.MAIN_CHANNEL) != null) {
                         val fakeData = byteArrayOf(0x00,0x01,0x00,0x02,0x01,0x00,0x00,0x01,0x02)
                         val fakeData2 = byteArrayOf(0x00, 0x01, 0x00, 0x4c, 0x00, 0x74, 0x00, 0x01, 0x02, 0x43, 0x50, 0x55, 0x20, 0x4d, 0x6f, 0x64, 0x75, 0x6c, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -299,41 +312,46 @@ class BLEController(
     }
     internal fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String) {
         System.err.println("BLE debug")
-        try {
-            for (i in mGattCharacteristics.indices) {
-                for (j in mGattCharacteristics[i].indices) {
-                    if (mGattCharacteristics[i][j].uuid.toString() == uuid) {
-                        mCharacteristic = mGattCharacteristics[i][j]
-                        if (typeCommand == WRITE){
-                            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-                                System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
-                                mCharacteristic?.value = byteArray
-                                mBluetoothLeService?.writeCharacteristic(mCharacteristic)
-                            }
+        for (i in mGattCharacteristics.indices) {
+            for (j in mGattCharacteristics[i].indices) {
+                if (mGattCharacteristics[i][j].uuid.toString() == uuid) {
+                    mCharacteristic = mGattCharacteristics[i][j]
+                    if (typeCommand == WRITE){
+                        if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+                            System.err.println("BLE debug запись ${EncodeByteToHex.bytesToHexString(byteArray!!)}")
+                            mCharacteristic?.value = byteArray
+                            mBluetoothLeService?.writeCharacteristic(mCharacteristic)
                         }
-
-                        if (typeCommand == READ){
-                            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
-                                mBluetoothLeService?.readCharacteristic(mCharacteristic)
-                            }
-                        }
-
-                        if (typeCommand == NOTIFY){
-                            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
-                                System.err.println("BLE debug попытка подписки на нотификацию")
-                                mNotifyCharacteristic = mCharacteristic
-                                mBluetoothLeService?.setCharacteristicNotification(mCharacteristic, true)
-                            }
-                        }
-
                     }
+
+                    if (typeCommand == READ){
+                        if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
+                            mBluetoothLeService?.readCharacteristic(mCharacteristic)
+                        }
+                    }
+
+                    if (typeCommand == NOTIFY){
+                        if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
+                            System.err.println("BLE debug попытка подписки на нотификацию")
+                            mNotifyCharacteristic = mCharacteristic
+                            mBluetoothLeService?.setCharacteristicNotification(mCharacteristic, true)
+                        }
+                    }
+
                 }
             }
-        } catch (e: Exception) {
-            mMain.showToast("ошибка ble")
         }
     }
+    fun setOnDisconnectedListener(listener: () -> Unit) {
+        // Сохраняйте listener и вызывайте его в `ACTION_GATT_DISCONNECTED`
+        onDisconnectedListener = listener
+    }
 
+
+
+    internal fun setUploadingState(state: Boolean) { isUploading = state }
+    internal fun isCurrentlyUploading(): Boolean { return isUploading }
+    internal fun setProgressDialog(dialog: Dialog?) { progressDialog = dialog }
     internal fun getBluetoothLeService() : BluetoothLeService? { return mBluetoothLeService }
     internal fun getBluetoothAdapter() : BluetoothAdapter? { return mBluetoothAdapter }
     internal fun getStatusConnected() : Boolean { return mConnected }

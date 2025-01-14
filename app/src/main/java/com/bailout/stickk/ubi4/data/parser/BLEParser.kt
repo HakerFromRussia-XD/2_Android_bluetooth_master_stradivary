@@ -258,6 +258,9 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
                 Log.d("parameter PDCE_SELECT_GESTURE","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+                val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
+                Log.d("parameter PDCE_SELECT_GESTURE","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode111: ${parameter.data}")
+
 
             }
 
@@ -573,7 +576,6 @@ class BLEParser(main: AppCompatActivity) {
         val test = Json.decodeFromString<BaseSubDeviceArrayInfoDataStruct>("\"${receiveDataString.substring(16,receiveDataString.length)}\"") // 8 байт заголовок и отправленные данные
         System.err.println("TEST parser 2 READ_DATA $test")
     }
-
     private fun getNextIDParameter(ID: Int): Int{
         for (item in baseParametrInfoStructArray.indices) {
             if (ID < baseParametrInfoStructArray[item].ID ) {

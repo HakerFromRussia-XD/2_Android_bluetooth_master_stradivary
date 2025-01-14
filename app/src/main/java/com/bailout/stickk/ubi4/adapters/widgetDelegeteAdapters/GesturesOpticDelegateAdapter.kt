@@ -256,7 +256,9 @@ class GesturesOpticDelegateAdapter(
             currentBindingGroup.setGestureAt(index, pair)
         }
         Log.d("fillSprGesturesInBG", "$listBindingGesture")
-        adapter.updateGestures(listBindingGesture)
+        main.runOnUiThread {
+            adapter.updateGestures(listBindingGesture)
+        }
 
         if (adapter.itemCount > 0) {
             _annotationTv.visibility = View.GONE
@@ -286,6 +288,7 @@ class GesturesOpticDelegateAdapter(
             merge(
                 MainActivityUBI4.activeGestureFlow.map { activeGestureParameterRef ->
                     val parameter =  ParameterProvider.getParameter(deviceAddress, activeGestureParameterRef.parameterID)
+                    Log.d("ActiveParamCollect", " paramActiveGesture: $parameter")
                 },
 
                 MainActivityUBI4.bindingGroupFlow.map { bindingGroupParameterRef ->
@@ -407,6 +410,7 @@ class GesturesOpticDelegateAdapter(
     }
 
     private fun onSendBLEActiveGesture(activeGesture: Int) {
+        Log.d("onSendBLEActiveGesture", "activeGesture: $activeGesture")
         onSendBLEActiveGesture(
             deviceAddress,
             getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number),

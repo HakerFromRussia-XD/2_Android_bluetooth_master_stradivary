@@ -237,7 +237,7 @@ class GesturesDelegateAdapter(
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 MainActivityUBI4.rotationGroupFlow.collect { _ ->
-                    val parameter = ParameterProvider.getParameter(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number)
+                    val parameter = ParameterProvider.getParameterDeprecated(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number)
                     val rotationGroup = Json.decodeFromString<RotationGroup>("\"${parameter.data}\"")
                     val rotationGroupList = rotationGroup.toGestureList()
                     Log.d("uiRotationGroupObservable", "InAdapter testList = $rotationGroupList  size = ${rotationGroupList.size}")

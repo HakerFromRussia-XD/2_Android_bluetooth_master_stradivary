@@ -322,7 +322,7 @@ class BLECommands {
         fun sendBindingGroupInfo(addressDevice: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup): ByteArray {
             val code:Byte = (128 + parameterID).toByte()
             val header = byteArrayOf(
-                0x40,
+                0xC0.toByte(),
                 code,
                 0x00,
                 0x00,

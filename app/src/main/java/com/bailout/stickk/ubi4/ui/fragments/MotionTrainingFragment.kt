@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Chronometer
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
@@ -29,7 +28,6 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -37,7 +35,6 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import java.util.Locale
 import kotlin.math.roundToInt
 
 class MotionTrainingFragment(

@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.marginTop
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetPlotBinding
@@ -36,10 +35,8 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay

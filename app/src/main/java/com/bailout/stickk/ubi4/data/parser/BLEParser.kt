@@ -39,7 +39,6 @@ import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_DEVICE_ADD
 import com.bailout.stickk.ubi4.utility.ConstantManager.Companion.READ_SUB_DEVICE_ADDITIONAL_PARAMETR_DATA
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
 import kotlinx.serialization.json.Json
-import android.util.Pair
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
@@ -123,10 +122,13 @@ class BLEParser(main: AppCompatActivity) {
                         var counter = 1
 
                         while (dataLength > 0) {
-                            Log.d("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength")
+                            val dataHex = EncodeByteToHex.bytesToHexString(data)
                             val deviceAddress = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength))*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2).toInt(16).toByte())
                             val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2).toInt(16).toByte())
                             val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
+                            Log.d("uiGestureSettingsObservableCP", "dataCode = ${parameter.dataCode}")
+                            Log.d("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength {data = $dataHex }")
+
                             //TODO тут выпадала ошибка StringIndexOutOfBoundsException замотать в tru cach
                             parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2)
                             updateAllUI(deviceAddress, parameterID, parameter.dataCode)
@@ -258,9 +260,6 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number -> {
                 Log.d("parameter PDCE_SELECT_GESTURE","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
-                val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
-                Log.d("parameter PDCE_SELECT_GESTURE","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode111: ${parameter.data}")
-
 
             }
 

@@ -18,7 +18,6 @@ import com.bailout.stickk.databinding.Ubi4WidgetGesturesOptic1Binding
 import com.bailout.stickk.ubi4.adapters.dialog.SelectedGesturesAdapter
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
-import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getCollectionGestures
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
@@ -140,7 +139,7 @@ class GesturesOpticDelegateAdapter(
                 collectionGesturesCl,
                 sprGestureGroupCl
             )
-            onRequestBindingGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number) )
+
         }
 
 
@@ -247,6 +246,10 @@ class GesturesOpticDelegateAdapter(
 
         sprGestureItemsProvider = SprGestureItemsProvider(root.context)
 
+        onRequestBindingGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number) )
+        onRequestActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number))
+        Log.d("onRequestActiveGesture", "deviceAddress ${deviceAddress}, getParameterIDByCode ${getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number)} ")
+
     }
 
     private fun fillCollectionGesturesInBindingGroup(
@@ -288,7 +291,9 @@ class GesturesOpticDelegateAdapter(
             merge(
                 MainActivityUBI4.activeGestureFlow.map { activeGestureParameterRef ->
                     val parameter =  ParameterProvider.getParameter(deviceAddress, activeGestureParameterRef.parameterID)
-                    Log.d("ActiveParamCollect", " paramActiveGesture: $parameter")
+                    val activeGestureIdHex = parameter.data.takeLast(2)
+                    val activeGestureId = activeGestureIdHex.toIntOrNull(16)
+                    Log.d("ActiveParamCollect", " paramActiveGesture: $activeGestureId")
                 },
 
                 MainActivityUBI4.bindingGroupFlow.map { bindingGroupParameterRef ->

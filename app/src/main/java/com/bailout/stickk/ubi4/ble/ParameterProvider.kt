@@ -1,10 +1,8 @@
 package com.bailout.stickk.ubi4.ble
 
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
-import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseParametrInfoStructArray
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.baseSubDevicesInfoStructSet
-import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.opticTrainingStructArray
 
 class ParameterProvider {
     companion object {
@@ -32,7 +30,7 @@ class ParameterProvider {
             return BaseParameterInfoStruct(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, "")
         }
 
-        fun getParameter(dataCode: Int): BaseParameterInfoStruct {
+        fun getParameterDeprecated(dataCode: Int): BaseParameterInfoStruct {
             baseParametrInfoStructArray.forEach { parameter ->
                 if (parameter.dataCode == dataCode) return parameter
             }

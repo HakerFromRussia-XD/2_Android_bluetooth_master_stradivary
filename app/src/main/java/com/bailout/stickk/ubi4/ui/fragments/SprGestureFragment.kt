@@ -187,6 +187,7 @@ class SprGestureFragment() : Fragment() {
     private fun onSendBleBindingGroup(deviceAddress: Int, parameterID: Int, bindingGestureGroup: BindingGestureGroup) {
         if (!isAdded) { return }
         transmitter().bleCommandWithQueue(BLECommands.sendBindingGroupInfo (deviceAddress, parameterID, bindingGestureGroup), MAIN_CHANNEL, WRITE){}
+        Log.d("BindingDebug", "bindingGestureGroup :${bindingGestureGroup}")
     }
 
     private fun requestBindingGroup(deviceAddress: Int, parameterID: Int) {
@@ -201,7 +202,7 @@ class SprGestureFragment() : Fragment() {
 
     private fun requestActiveGesture(deviceAddress: Int, parameterID: Int){
         if (!isAdded) {return}
-        transmitter().bleCommandWithQueue(BLECommands.requestActiveGesture(deviceAddress,parameterID), MAIN_CHANNEL, WRITE){}
+        transmitter().bleCommandWithQueue(BLECommands.requestActiveGesture(deviceAddress, parameterID), MAIN_CHANNEL, WRITE){}
     }
 
     private fun showGestureSettings(deviceAddress: Int, parameterID: Int, gestureID: Int) {

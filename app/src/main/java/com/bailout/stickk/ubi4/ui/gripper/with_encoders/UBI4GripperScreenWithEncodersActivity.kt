@@ -20,11 +20,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
-import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4LayoutGripperSettingsLeWithEncodersBinding
-import com.bailout.stickk.new_electronic_by_Rodeon.ble.ConstantManager
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.BaseActivity
 import com.bailout.stickk.new_electronic_by_Rodeon.compose.qualifiers.RequirePresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.persistence.preference.PreferenceKeys
@@ -34,7 +31,6 @@ import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
-import com.bailout.stickk.ubi4.contract.navigator
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.models.GestureWithAddress
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
@@ -182,7 +178,7 @@ class UBI4GripperScreenWithEncodersActivity
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { dataCode ->
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
-                val parameter = ParameterProvider.getParameter(dataCode)
+                val parameter = ParameterProvider.getParameterDeprecated(dataCode)
                 Log.d("uiGestureSettingsObservable", "data = ${parameter.data}")
                 val gestureSettings = Json.decodeFromString<Gesture>("\"${parameter.data}\"")
                 loadGestureState(gestureSettings)

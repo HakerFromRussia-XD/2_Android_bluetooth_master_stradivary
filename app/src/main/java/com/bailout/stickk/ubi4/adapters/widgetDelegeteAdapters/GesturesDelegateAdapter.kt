@@ -44,7 +44,6 @@ import java.util.stream.Collectors
 
 class GesturesDelegateAdapter(
     val gestureNameList:  ArrayList<String>,
-    val onSelectorClick: (selectedPage: Int) -> Unit,
     val onDeleteClick: (resultCb: ((result: Int) -> Unit), gestureName: String) -> Unit,
     val onAddGesturesToRotationGroup: (onSaveDialogClick: ((selectedGestures: ArrayList<Gesture>) -> Unit)) -> Unit,
     val onSendBLERotationGroup: (deviceAddress: Int, parameterID: Int) -> Unit,

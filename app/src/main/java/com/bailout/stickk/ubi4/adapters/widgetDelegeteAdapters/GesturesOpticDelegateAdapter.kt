@@ -41,7 +41,6 @@ import kotlinx.serialization.json.Json
 
 class GesturesOpticDelegateAdapter(
     val gestureNameList: ArrayList<String>,
-    val onSelectorClick: (selectedPage: Int) -> Unit,
     val onAddGesturesToSprScreen: (onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, List<Pair<Int,Int>>) -> Unit,
     val onShowGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,
     val onRequestGestureSettings: (deviceAddress: Int, parameterID: Int, gestureID: Int) -> Unit,

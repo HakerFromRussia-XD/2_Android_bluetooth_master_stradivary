@@ -47,7 +47,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PlotDelegateAdapter (
-    val plotIsReadyToData:(numberOfCharts: Int) -> Unit,
     val onDestroyParent: (onDestroyParent: (() -> Unit)) -> Unit,
 ) :
     ViewBindingDelegateAdapter<PlotItem, Ubi4WidgetPlotBinding>(Ubi4WidgetPlotBinding::inflate) {
@@ -137,7 +136,6 @@ class PlotDelegateAdapter (
         // Создаем новый scope
         scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         initializedSensorGraph(EMGChartLc)
-        plotIsReadyToData(numberOfCharts)
         plotArrayFlowCollect()
         graphThreadFlag = true
         scope?.launch {

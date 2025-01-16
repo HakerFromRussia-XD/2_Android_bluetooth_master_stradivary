@@ -43,8 +43,9 @@ internal class DataFactory {
         val objectTrainingE: Any = OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
 
 
+
+        addElement(1, 1, objects, objectCommandE)
         addElement(14, 1, objects, objectGesture)
-//        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)

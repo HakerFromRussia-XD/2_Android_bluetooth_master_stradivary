@@ -17,6 +17,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapt
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
@@ -40,7 +41,7 @@ import kotlinx.coroutines.withContext
 
 
 @Suppress("DEPRECATION")
-class SensorsFragment : Fragment() {
+class SensorsFragment : BaseWidgetsFragment() {
     private lateinit var binding: Ubi4FragmentHomeBinding
     private var main: MainActivityUBI4? = null
     private var mDataFactory: DataFactory = DataFactory()
@@ -99,101 +100,5 @@ class SensorsFragment : Fragment() {
         }
     }
 
-    private val adapterWidgets = CompositeDelegateAdapter(
-        PlotDelegateAdapter(
-            plotIsReadyToData = { numberOfCharts -> System.err.println("plotIsReadyToData $numberOfCharts") },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
-        ),
-        OneButtonDelegateAdapter (
-            onButtonPressed = { addressDevice, parameterID, command -> oneButtonPressed(addressDevice, parameterID, command) },
-            onButtonReleased = { addressDevice, parameterID, command -> oneButtonReleased(addressDevice, parameterID, command) },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
-        ),
 
-        SwitcherDelegateAdapter(
-            onSwitchClick = { addressDevice, parameterID, switchState -> sendSwitcherState(addressDevice, parameterID, switchState) },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
-        ),
-        SliderDelegateAdapter(
-            onSetProgress = { addressDevice, parameterID, progress -> sendSliderProgress(addressDevice, parameterID, progress)},
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
-        ),
-        TrainingFragmentDelegateAdapter(
-            onConfirmClick = {
-                if (isAdded) {
-                    Log.d("StateCallBack", "onConfirmClick: Button clicked")
-
-                } else {
-                    Log.e("StateCallBack", "Fragment is not attached to activity")
-                }
-            },
-
-            onShowFileClick = {
-                Log.d("TestWidgetView", "onShowFileClick FRAGMENT OK")
-
-            },
-            onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
-        ),
-        GesturesOpticDelegateAdapter(
-            gestureNameList = arrayListOf("453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk","453", "kdkdk"),
-            onSelectorClick = {},
-            onAddGesturesToSprScreen = {onSaveClickDialog, bindingGestureList ->
-            },
-            onShowGestureSettings = { deviceAddress, parameterID, gestureID ->},
-            onRequestGestureSettings = { deviceAddress, parameterID, gestureID ->
-
-            },
-            onSetCustomGesture = { onSaveDotsClick,bindingItem ->
-
-            },
-            onSendBLEActiveGesture = {deviceAddress, parameterID, activeGesture -> onSendBLEActiveGesture(deviceAddress, parameterID, activeGesture)},
-            onSendBLEBindingGroup = { deviceAddress, parameterID, bindingGestureGroup -> },
-            onRequestActiveGesture = {deviceAddress, parameterID ->  },
-            onRequestBindingGroup = {deviceAddress, parameterID -> },
-            onDestroyParent = { onDestroyParent -> },
-    ),
-    )
-
-    private fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
-//        transmitter().bleCommand(BLECommands.requestSlider(8, 1), MAIN_CHANNEL, WRITE)
-        Log.d("ButtonClick", "oneButtonPressed  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
-        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
-    }
-    private fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
-        Log.d("ButtonClick", "oneButtonReleased  addressDevice=$addressDevice  parameterID: $parameterID   command: $command")
-        transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
-
-
-//        val stamp = Timestamp(System.currentTimeMillis())
-//        val calendar: Calendar = Calendar.getInstance()
-//        calendar.setTimeInMillis(System.currentTimeMillis())
-//        val year = calendar.get(Calendar.YEAR)
-//        val month = calendar.get(Calendar.MONTH) + 1
-//        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
-//        transmitter().bleCommand(BLECommands.sendTimestampInfo(7,1, year, month, dayOfMonth, Date(stamp.time).day, Date(stamp.time).hours, Date(stamp.time).minutes, Date(stamp.time).seconds), MAIN_CHANNEL, WRITE)
-
-
-//        transmitter().bleCommand(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE)
-
-//        BLECommands.requestSubDeviceParametrs(6, 0, 2).forEach { i ->
-//            // проверка правильности сформированной команды
-//            System.err.println("oneButtonReleased ${castUnsignedCharToInt(i)}")
-//        }
-//        transmitter().bleCommand(BLECommands.requestSubDevices(), MAIN_CHANNEL, WRITE)
-//        transmitter().bleCommand(BLECommands.requestSubDeviceParametrs(6, 0, 1), MAIN_CHANNEL, WRITE)
-//        transmitter().bleCommand(BLECommands.requestSubDeviceAdditionalParametrs(6, 0), MAIN_CHANNEL, WRITE)
-    }
-
-    private fun onSendBLEActiveGesture (deviceAddress: Int, parameterID: Int, activeGesture: Int) {
-        transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
-    }
-    private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
-        Log.d("sendSliderProgress", "addressDevice=$addressDevice  parameterID: $parameterID  progress = $progress")
-        transmitter().bleCommand(BLECommands.sendSliderCommand(addressDevice, parameterID, progress), MAIN_CHANNEL, WRITE)
-    }
-    private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
-        Log.d("sendSwitcherCommand", "addressDevice=$addressDevice  parameterID: $parameterID  command = $switchState")
-        transmitter().bleCommand(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE)
-
-    }
 }

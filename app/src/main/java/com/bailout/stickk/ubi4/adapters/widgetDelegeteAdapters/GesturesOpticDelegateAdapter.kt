@@ -139,6 +139,9 @@ class GesturesOpticDelegateAdapter(
                 collectionGesturesCl,
                 sprGestureGroupCl
             )
+            onRequestBindingGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number) )
+            onRequestActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number))
+            Log.d("onRequestActiveGesture", "deviceAddress ${deviceAddress}, getParameterIDByCode ${getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number)} ")
 
         }
 
@@ -246,9 +249,7 @@ class GesturesOpticDelegateAdapter(
 
         sprGestureItemsProvider = SprGestureItemsProvider(root.context)
 
-        onRequestBindingGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number) )
-        onRequestActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number))
-        Log.d("onRequestActiveGesture", "deviceAddress ${deviceAddress}, getParameterIDByCode ${getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number)} ")
+
 
     }
 
@@ -261,15 +262,17 @@ class GesturesOpticDelegateAdapter(
         Log.d("fillSprGesturesInBG", "$listBindingGesture")
         main.runOnUiThread {
             adapter.updateGestures(listBindingGesture)
+
+            if (adapter.itemCount > 0) {
+                _annotationTv.visibility = View.GONE
+                _annotationIv.visibility = View.GONE
+            } else {
+                _annotationTv.visibility = View.VISIBLE
+                _annotationIv.visibility = View.VISIBLE
+            }
         }
 
-        if (adapter.itemCount > 0) {
-            _annotationTv.visibility = View.GONE
-            _annotationIv.visibility = View.GONE
-        } else {
-            _annotationTv.visibility = View.VISIBLE
-            _annotationIv.visibility = View.VISIBLE
-        }
+
 
         return currentBindingGroup
     }

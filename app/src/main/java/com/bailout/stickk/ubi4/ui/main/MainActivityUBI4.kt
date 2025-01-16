@@ -99,15 +99,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            showOpticGesturesScreen()
         }
 
-        binding.runCommandBtn.setOnClickListener {
-            val command = BLECommands.requestActiveGesture(6, 8)
-            // Логируем команду в шестнадцатеричном формате
-            val commandHex = EncodeByteToHex.bytesToHexString(command)
-            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
-            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
-//            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
-//            manageTrainingLifecycle()
-        }
+//        binding.runCommandBtn.setOnClickListener {
+//            val command = BLECommands.requestActiveGesture(6, 8)
+//            // Логируем команду в шестнадцатеричном формате
+//            val commandHex = EncodeByteToHex.bytesToHexString(command)
+//            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
+//            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
+////            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
+////            manageTrainingLifecycle()
+//        }
 
     }
     @SuppressLint("MissingPermission")

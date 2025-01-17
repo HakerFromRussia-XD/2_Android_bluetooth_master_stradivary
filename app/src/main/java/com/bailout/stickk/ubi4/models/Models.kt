@@ -186,7 +186,7 @@ data class GesturesId(
 //) : GesturePhase()
 
 
-data class Quadruple<A, B, C, D>(
+data class ParameterInfo<A, B, C, D>(
     val parameterID: A,
     val dataCode: B,
     val deviceAddress: C,

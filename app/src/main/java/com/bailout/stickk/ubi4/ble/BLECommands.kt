@@ -248,7 +248,7 @@ class BLECommands {
         }
         fun requestThresholds(addressDevice: Int, parameterID: Int): ByteArray {
             val header = byteArrayOf(
-                0xE0.toByte(),
+                0x40.toByte(),
                 parameterID.toByte(),
                 0x00,
                 0x00,

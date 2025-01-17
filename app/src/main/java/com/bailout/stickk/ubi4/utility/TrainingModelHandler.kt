@@ -206,23 +206,33 @@ class TrainingModelHandler(private val context: Context) {
 
                 val importData = mutableListOf<List<String>>()
                 val path = context.getExternalFilesDir(null)
-                val serialFile = File(path, "serial_data")
-                if (!serialFile.exists()) {
-                    Log.e("StateCallBack", "File serial_data does not exist at: ${serialFile.absolutePath}")
-                    return@launch
+                val regex = Regex("""^serial_data(\d{10})$""")
+                val serialFile = path?.listFiles()
+                    ?.filter { regex.matches(it.name)
+                    } // оставляем только те, что полностью соответствуют шаблону
+                    ?.maxByOrNull { file ->
+                        val numberString = regex.find(file.name)?.groupValues?.get(1) ?: "0"
+                        numberString.toLong()
+                    }
+                Log.d("serialFile", " serialFile: ${serialFile?.name}")
+
+                if (serialFile != null) {
+                    if (!serialFile.exists()) {
+                        Log.e("StateCallBack", "File serial_data does not exist at: ${serialFile.absolutePath}")
+                        return@launch
+                    }
                 }
 
-                serialFile.bufferedReader()
-                    .useLines { lines ->
-                        // drop header
-                        lines.drop(1).forEach { line ->
-                            val lineData = line.split(" ")
-                            // drop baseline rows
-                            if (lineData[INDEX_TARGET_ID].toDouble().toInt() != -1) {
-                                importData.add(lineData)
-                            }
+                serialFile?.bufferedReader()?.useLines { lines ->
+                    // drop header
+                    lines.drop(1).forEach { line ->
+                        val lineData = line.split(" ")
+                        // drop baseline rows
+                        if (lineData[INDEX_TARGET_ID].toDouble().toInt() != -1) {
+                            importData.add(lineData)
                         }
                     }
+                }
                 Log.d("StateCallBack", "Start RunModel2 ${endTime - startTime} ms")
 
                 // Create mapping from INDEX_TARGET_STATE to renumeration by order of appearance

@@ -19,7 +19,7 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.PlotItem
-import com.bailout.stickk.ubi4.models.Quadruple
+import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -27,6 +27,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.countBinding
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -59,6 +60,7 @@ class PlotDelegateAdapter (
     private var dataSens5 = 0
     private var dataSens6 = 0
     private var numberOfCharts = 2
+    private var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf()
 
     private var widgetPlotsInfo: ArrayList<WidgetPlotInfo> = ArrayList()
     private val defaultEntry = Entry(count.toFloat(), 250.toFloat())
@@ -74,16 +76,16 @@ class PlotDelegateAdapter (
         val parameterID = 0
         var openThreshold = 0
         var closeThreshold = 0
-        var parametersIDAndDataCodes: MutableSet<Quadruple<Int, Int, Int, Int>> = mutableSetOf()
+
 
 
         when (plotItem.widget) {
             is PlotParameterWidgetEStruct -> {
-                parametersIDAndDataCodes = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes
+                parameterInfoSet = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
                 deviceAddress = plotItem.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
             }
             is PlotParameterWidgetSStruct -> {
-                parametersIDAndDataCodes = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes
+                parameterInfoSet = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
                 deviceAddress = plotItem.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
             }
         }
@@ -99,10 +101,11 @@ class PlotDelegateAdapter (
 
         countBinding += 1
 
-        main.bleCommandWithQueue(BLECommands.requestTransferFlow(1), MAIN_CHANNEL, WRITE){}
-        main.bleCommandWithQueue(BLECommands.requestThresholds(6, 2) , MAIN_CHANNEL, WRITE){}
+        main.bleCommandWithQueue(BLECommands.requestThresholds(ParameterInfoProvider.getDeviceAddressByDataCode(ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, parameterInfoSet), ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number, parameterInfoSet)) , MAIN_CHANNEL, WRITE){}
+        Log.d("PlotDelegateAdapter", "parametersIDAndDataCodes = $parameterInfoSet")
 
-        val filteredSet = parametersIDAndDataCodes.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }.toSet()
+
+        val filteredSet = parameterInfoSet.filter { it.dataCode == ParameterDataCodeEnum.PDCE_OPEN_CLOSE_THRESHOLD.number }.toSet()
 
         openCHV.setOnTouchListener { p0, event ->
             p0.parent.requestDisallowInterceptTouchEvent(true)
@@ -126,6 +129,7 @@ class PlotDelegateAdapter (
             }
             true
         }
+
     }
     override fun Ubi4WidgetPlotBinding.onAttachedToWindow() {
         Log.d("Plot view","View attached")

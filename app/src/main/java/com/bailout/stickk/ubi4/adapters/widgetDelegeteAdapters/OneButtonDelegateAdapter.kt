@@ -30,14 +30,14 @@ class OneButtonDelegateAdapter(
         when (item.widget) {
             is CommandParameterWidgetEStruct -> {
                 addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
-                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).parameterID
+                parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand
             }
             is CommandParameterWidgetSStruct -> {
                 addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
-                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).parameterID
+                parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
                 clickCommand = item.widget.clickCommand
                 pressedCommand = item.widget.pressedCommand
                 releasedCommand = item.widget.releasedCommand

@@ -22,11 +22,12 @@ import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.g
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
-import com.bailout.stickk.ubi4.models.Quadruple
+import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.ParameterDataCodeEnum
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
+import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -60,14 +61,15 @@ class GesturesOpticDelegateAdapter(
 
     private val ANIMATION_DURATION = 200
     private var listBindingGesture: MutableList<Pair<Int,Int>> = mutableListOf()
-    private var parameterIDSet = mutableSetOf<Quadruple<Int, Int, Int, Int>>()
     private var deviceAddress = 0
+    private var parameterInfoSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf()
     private var hideFactoryCollectionGestures = true
-    private var gestureCollectionBtns: ArrayList<View> = ArrayList()
-    private var gestureCustomBtns: ArrayList<View> = ArrayList()
+    private var gestureCollectionBtns: ArrayList<Pair<View, Int>> = ArrayList()
+    private var gestureCustomBtns: ArrayList<Pair<View, Int>> = ArrayList()
     private lateinit var sprGestureItemsProvider: SprGestureItemsProvider
     private lateinit var _annotationTv: TextView
     private lateinit var _annotationIv: ImageView
+
 
     private var currentBindingGroup: BindingGestureGroup = BindingGestureGroup()
 
@@ -90,7 +92,7 @@ class GesturesOpticDelegateAdapter(
                 val position = listBindingGesture.indexOfFirst { it.first == bindingItem.first }
                 listBindingGesture[position] = bindingItem
                 fillCollectionGesturesInBindingGroup()
-                onSendBLEBindingGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number), currentBindingGroup)
+                onSendBLEBindingGroup(deviceAddress, ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number, parameterInfoSet), currentBindingGroup)
             }, listBindingGesture[selectedPosition])
         }
     )
@@ -106,14 +108,14 @@ class GesturesOpticDelegateAdapter(
         when (item.widget) {
             is BaseParameterWidgetEStruct -> {
                 deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
-                parameterIDSet = item.widget.baseParameterWidgetStruct.parametersIDAndDataCodes
-                Log.d("ParamInfo"," ParamInfoEStruct parameterIDSet: $parameterIDSet" )
+                parameterInfoSet = item.widget.baseParameterWidgetStruct.parameterInfoSet
+                Log.d("ParamInfo"," ParamInfoEStruct parameterInfoSet: $parameterInfoSet" )
 
             }
             is BaseParameterWidgetSStruct -> {
                 deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
-                parameterIDSet = item.widget.baseParameterWidgetStruct.parametersIDAndDataCodes
-                Log.d("ParamInfo"," ParamInfoSStruct parameterIDSet: $parameterIDSet" )
+                parameterInfoSet = item.widget.baseParameterWidgetStruct.parameterInfoSet
+                Log.d("ParamInfo"," ParamInfoSStruct parameterInfoSet: $parameterInfoSet" )
             }
         }
 
@@ -138,9 +140,8 @@ class GesturesOpticDelegateAdapter(
                 collectionGesturesCl,
                 sprGestureGroupCl
             )
-            onRequestBindingGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number) )
-            onRequestActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number))
-            Log.d("onRequestActiveGesture", "deviceAddress ${deviceAddress}, getParameterIDByCode ${getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number)} ")
+            onRequestBindingGroup(deviceAddress, ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number, parameterInfoSet) )
+            Log.d("onRequestActiveGesture", "deviceAddress ${deviceAddress}, getParameterIDByCode ${ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterInfoSet)} ")
 
         }
 
@@ -189,21 +190,22 @@ class GesturesOpticDelegateAdapter(
             val gestureCollectionImage =
                 this::class.java.getDeclaredField("gestureCollection${i}Iv")
                     .get(this) as? ImageView
-            gestureCollectionBtn?.let { gestureCollectionBtns.add(it) }
             if (i <= 10) {
+                gestureCollectionBtn?.let { gestureCollectionBtns.add(Pair(it, i+1)) }
                 gestureCollectionTitle?.text = getCollectionGestures()[i].gestureName
                 gestureCollectionImage?.setImageResource(getCollectionGestures()[i].gestureImage)
                 gestureCollectionBtn?.setOnClickListener {
                     Log.d("GesturesDelegateAdapter", "GestureCollectionBtn ${i+1} clicked")
-                    setActiveButton(gestureCollectionBtn)
+                    setActiveGesture(gestureCollectionBtn)
                     onSendBLEActiveGesture(i+1)
                 }
             } else {
+                gestureCollectionBtn?.let { gestureCollectionBtns.add(Pair(it, i+2)) }
                 gestureCollectionTitle?.text = getCollectionGestures()[i+1].gestureName
                 gestureCollectionImage?.setImageResource(getCollectionGestures()[i+1].gestureImage)
                 gestureCollectionBtn?.setOnClickListener {
                     Log.d("GesturesDelegateAdapter", "GestureCollectionBtn ${i+2} clicked")
-                    setActiveButton(gestureCollectionBtn)
+                    setActiveGesture(gestureCollectionBtn)
                     onSendBLEActiveGesture(i+2)
                 }
             }
@@ -215,16 +217,16 @@ class GesturesOpticDelegateAdapter(
                 .get(this) as? View
             val gestureSettingsBtn = this::class.java.getDeclaredField("gesture${i}SettingsBtn")
                 .get(this) as? View
-            gestureCustomBtn?.let { gestureCustomBtns.add(it) }
+            gestureCustomBtn?.let { gestureCustomBtns.add(Pair(it, 63+i)) }
             gestureCustomTv?.text = gestureNameList[i-1]
             gestureCustomBtn?.setOnClickListener {
                 Log.d("GesturesDelegateAdapter", "GestureCollectionBtn ${63+i} clicked")
                 onSendBLEActiveGesture(63+i)
-                setActiveButton(gestureCustomBtn)
+                setActiveGesture(gestureCustomBtn)
             }
             gestureSettingsBtn?.setOnClickListener {
                 Log.d("gestureCustomBtn", "gestureSettingsBtn $i")
-                onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt()+i)
+                onShowGestureSettings(deviceAddress, ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number, parameterInfoSet), (0x40).toInt()+i)
                 main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
             }
         }
@@ -234,7 +236,7 @@ class GesturesOpticDelegateAdapter(
             val selectedGestures: (MutableList<Pair<Int, Int>>) -> Unit = { listBindingGestures ->
                 listBindingGesture = listBindingGestures
                 fillCollectionGesturesInBindingGroup()
-                onSendBLEBindingGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number), currentBindingGroup)
+                onSendBLEBindingGroup(deviceAddress, ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number, parameterInfoSet), currentBindingGroup)
 
             }
             onAddGesturesToSprScreen(selectedGestures, listBindingGesture)
@@ -248,12 +250,12 @@ class GesturesOpticDelegateAdapter(
 
         sprGestureItemsProvider = SprGestureItemsProvider(root.context)
 
+        onRequestActiveGesture(deviceAddress, ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterInfoSet))
 
 
     }
 
-    private fun fillCollectionGesturesInBindingGroup(
-    ) : BindingGestureGroup {
+    private fun fillCollectionGesturesInBindingGroup() : BindingGestureGroup {
         currentBindingGroup = BindingGestureGroup()
         listBindingGesture.forEachIndexed { index, pair: Pair<Int, Int> ->
             currentBindingGroup.setGestureAt(index, pair)
@@ -276,68 +278,60 @@ class GesturesOpticDelegateAdapter(
         return currentBindingGroup
     }
 
-
-
-    private fun setActiveButton(activeBtn: View) {
+    private fun setActiveGesture(activeGesture: View?) {
         gestureCollectionBtns.forEach { btn ->
-            btn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray)
+            btn.first.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray)
         }
         gestureCustomBtns.forEach { btn ->
-            btn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray)
+            btn.first.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray)
         }
-        activeBtn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_active)
+        activeGesture?.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_active)
     }
+
+    private fun getGestureViewById(gestureId: Int?) : View? {
+        gestureCollectionBtns.forEach { gestureCollection ->
+            if (gestureCollection.second  == gestureId) return gestureCollection.first
+        }
+        gestureCustomBtns.forEach { gestureCustom ->
+            if (gestureCustom.second == gestureId) return gestureCustom.first
+        }
+        return null
+    }
+
 
     private fun collectActiveFlows () {
         scope.launch(Dispatchers.IO) {
-            merge(
-                MainActivityUBI4.activeGestureFlow.map { activeGestureParameterRef ->
-                    val parameter =  ParameterProvider.getParameter(deviceAddress, activeGestureParameterRef.parameterID)
-                    val activeGestureIdHex = parameter.data.takeLast(2)
-                    val activeGestureId = activeGestureIdHex.toIntOrNull(16)
-                    Log.d("ActiveParamCollect", " paramActiveGesture: $activeGestureId")
-                },
+            try {
+                merge(
+                    MainActivityUBI4.activeGestureFlow.map { activeGestureParameterRef ->
+                        val parameter =  ParameterProvider.getParameter(deviceAddress, activeGestureParameterRef.parameterID)
+                        val activeGestureIdHex = parameter.data.takeLast(2)
+                        val activeGestureId = activeGestureIdHex.toIntOrNull(16)
+                        setActiveGesture(getGestureViewById(activeGestureId))
+                        Log.d("ActiveParamCollect", " paramActiveGesture: $activeGestureId")
+                    },
 
-                MainActivityUBI4.bindingGroupFlow.map { bindingGroupParameterRef ->
-                    val parameter = ParameterProvider.getParameter(bindingGroupParameterRef.addressDevice, bindingGroupParameterRef.parameterID)
-                    val bindingGroup = Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
-                    listBindingGesture.clear()
-                    bindingGroup.toGestureList().forEach{
-                        if (it.first != 0) { listBindingGesture.add(it) }
+                    MainActivityUBI4.bindingGroupFlow.map { bindingGroupParameterRef ->
+                        val parameter = ParameterProvider.getParameter(bindingGroupParameterRef.addressDevice, bindingGroupParameterRef.parameterID)
+                        val bindingGroup = Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
+                        listBindingGesture.clear()
+                        bindingGroup.toGestureList().forEach{
+                            if (it.first != 0) { listBindingGesture.add(it) }
+                        }
+                        fillCollectionGesturesInBindingGroup()
                     }
-                    fillCollectionGesturesInBindingGroup()
+                ).collect()
+            }
+            catch (e:Exception) {
+                main.runOnUiThread {
+                    main.showToast("ERROR collectActiveFlows")
+                    println("ERROR collectActiveFlows $e")
                 }
-            ).collect()
 
-        }
-    }
-
-
-//    private fun bindingGroupFlowCollect() {
-//        scope.launch(Dispatchers.Main) {
-//            MainActivityUBI4.bindingGroupFlow.collect { parameterRef ->
-//                val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
-//                val bindingGroup = Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
-//                listBindingGesture.clear()
-//                bindingGroup.toGestureList().forEach{
-//                    if (it.first != 0) { listBindingGesture.add(it) }
-//                }
-//                fillCollectionGesturesInBindingGroup()
-//            }
-//        }
-//    }
-
-
-
-
-    private fun getParameterIDByCode(dataCode: Int): Int {
-        parameterIDSet.forEach {
-            if (it.dataCode == dataCode) {
-                return it.parameterID
             }
         }
-        return 0
     }
+
 
 
 
@@ -420,7 +414,7 @@ class GesturesOpticDelegateAdapter(
         Log.d("onSendBLEActiveGesture", "activeGesture: $activeGesture")
         onSendBLEActiveGesture(
             deviceAddress,
-            getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number),
+            ParameterInfoProvider.getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterInfoSet),
             activeGesture
         )
     }

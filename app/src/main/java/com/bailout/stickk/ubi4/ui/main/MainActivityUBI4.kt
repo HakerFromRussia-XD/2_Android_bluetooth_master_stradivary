@@ -28,11 +28,8 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
-import com.bailout.stickk.ubi4.contract.navigator
-import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
-import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
@@ -100,13 +97,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
 
 //        binding.runCommandBtn.setOnClickListener {
-//            val command = BLECommands.requestActiveGesture(6, 8)
-//            // Логируем команду в шестнадцатеричном формате
-//            val commandHex = EncodeByteToHex.bytesToHexString(command)
-//            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
-//            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
+////            val command = BLECommands.requestThresholds(6, 3)
+////            // Логируем команду в шестнадцатеричном формате
+////            val commandHex = EncodeByteToHex.bytesToHexString(command)
+////            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
+////            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
 ////            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
-////            manageTrainingLifecycle()
+//            manageTrainingLifecycle()
 //        }
 
     }
@@ -225,6 +222,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun startQueue() {
         val worker = Thread {
+
             while (true) {
                 val task: Runnable = queue.get()
                 task.run()
@@ -232,33 +230,27 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-   override fun bleCommandWithQueue(
-        byteArray: ByteArray?,
-        Command: String,
-        typeCommand: String,
-        onChunkSent: () -> Unit
-    ) {
-        queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand, onChunkSent))
+   override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onCommandSend: () -> Unit) {
+        queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onCommandSend))
     }
-
 
     private fun getBleCommandWithQueue(
         byteArray: ByteArray?,
-        Command: String,
+        command: String,
         typeCommand: String,
-        onChunkSent: () -> Unit
+        onCommandSend: () -> Unit
     ): Runnable {
         return Runnable {
-            writeData(byteArray, Command, typeCommand)
+            writeData(byteArray, command, typeCommand)
             // Invoke the callback after data is sent
-            onChunkSent()
+            onCommandSend()
         }
     }
 
-    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
+    private fun writeData(byteArray: ByteArray?, сommand: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
-            bleCommand(byteArray, Command, typeCommand)
+            bleCommand(byteArray, сommand, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
                 Thread.sleep(1)

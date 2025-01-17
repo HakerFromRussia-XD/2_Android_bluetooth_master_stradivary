@@ -1,10 +1,8 @@
 package com.bailout.stickk.ubi4.data.widget.endStructures
 
-import android.util.Pair
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
-import com.bailout.stickk.ubi4.models.Quadruple
-import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.models.ParameterInfo
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -40,7 +38,7 @@ object OpticStartLearningWidgetESerializer: KSerializer<OpticStartLearningWidget
         } else {
             baseParameterWidgetEStruct = BaseParameterWidgetEStruct (
                 BaseParameterWidgetStruct(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, mutableSetOf(
-                    Quadruple(0,0,0,0)
+                    ParameterInfo(0,0,0,0)
                 )),0)
         }
 

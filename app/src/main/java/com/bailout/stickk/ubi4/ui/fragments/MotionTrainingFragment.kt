@@ -35,6 +35,7 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+import java.sql.Timestamp
 import kotlin.math.roundToInt
 
 class MotionTrainingFragment(
@@ -72,6 +73,7 @@ class MotionTrainingFragment(
     private var elapsedLearningStepTime: Long = 0L
 
     // File Logging
+    private var stamp = 0
     private var loggingFilename = "serial_data"
     private val fileLock = Any()
 
@@ -109,7 +111,8 @@ class MotionTrainingFragment(
         super.onCreate(savedInstanceState)
         Log.d("LagSpr", "Motion onCreate")
         deleteSerialDataFile()
-
+        stamp = Timestamp(System.currentTimeMillis()).time.toInt()
+        loggingFilename += stamp
         path = requireContext().getExternalFilesDir(null)!!
         file = File(path, loggingFilename)
 
@@ -127,6 +130,7 @@ class MotionTrainingFragment(
 
 
         // Подписка на события оптического обучения
+        //TODO убрать захардкоженные ID
         val parameter = ParameterProvider.getParameter(6, 15)
         Log.d("TestOptic", "OpticTrainingStruct = ${parameter.parameterDataSize}")
         val opticStreamDisposable = rxUpdateMainEvent.uiOpticTrainingObservable

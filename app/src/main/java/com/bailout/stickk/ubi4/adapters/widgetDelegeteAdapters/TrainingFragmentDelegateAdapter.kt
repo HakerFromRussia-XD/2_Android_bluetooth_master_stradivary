@@ -57,12 +57,12 @@ class TrainingFragmentDelegateAdapter(
         when (item.widget) {
             is OpticStartLearningWidgetEStruct -> {
                 addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
-                parameterId = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).parameterID
+                parameterId = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
             }
 
             is OpticStartLearningWidgetSStruct -> {
                 addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
-                parameterId = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.elementAt(0).parameterID
+                parameterId = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
             }
         }
 
@@ -76,17 +76,24 @@ class TrainingFragmentDelegateAdapter(
 
     private fun startStateFlowCollector() {
         scope.launch(Dispatchers.Main) {
-            stateOpticTrainingFlow.collect { state ->
-                Log.d("StateFlowCollector", "Collected state: $state")
-                updateUI(state)
-                scope.launch(Dispatchers.Main) {
-                    while (stateOpticTrainingFlow.value == PreferenceKeysUBI4.TrainingModelState.RUN) {
-                        _percentLearning.text = main?.getPercentProgressLearningModel().toString() + " %"
-                        Log.d("StateFlowCollector", "scope 2 run")
-                        delay(100)
+            try {
+                stateOpticTrainingFlow.collect { state ->
+                    Log.d("StateFlowCollector", "Collected state: $state")
+                    updateUI(state)
+                    scope.launch(Dispatchers.Main) {
+                        while (stateOpticTrainingFlow.value == PreferenceKeysUBI4.TrainingModelState.RUN) {
+                            _percentLearning.text = main?.getPercentProgressLearningModel().toString() + " %"
+                            Log.d("StateFlowCollector", "scope 2 run")
+                            delay(100)
+                        }
                     }
                 }
             }
+            catch (e:Exception){
+                main.showToast("ERROR startStateFlowCollector")
+                println("ERROR startStateFlowCollector $e")
+            }
+
         }
     }
 

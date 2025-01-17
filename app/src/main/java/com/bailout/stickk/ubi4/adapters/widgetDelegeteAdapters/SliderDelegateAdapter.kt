@@ -50,7 +50,7 @@ class SliderDelegateAdapter(
 
         when (item.widget) {
             is SliderParameterWidgetEStruct -> {
-                item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.forEach {
+                item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
                     addressDevice.add(it.deviceAddress)
                     parameterID.add(it.parameterID)
                     dataOffset.add(it.dataOffset)
@@ -61,7 +61,7 @@ class SliderDelegateAdapter(
                 Log.d("addressDevice" , "E struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}")
             }
             is SliderParameterWidgetSStruct -> {
-                item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parametersIDAndDataCodes.forEach {
+                item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
                     addressDevice.add(it.deviceAddress)
                     parameterID.add(it.parameterID)
                     dataOffset.add(it.dataOffset)

@@ -29,7 +29,7 @@ import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.g
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider.Companion.getGesture
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.RotationGroup
-import com.bailout.stickk.ubi4.models.Quadruple
+import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
@@ -71,7 +71,7 @@ class GesturesDelegateAdapter(
     private lateinit var mPlusIv: ImageView
     //TODO тут правильное взаимодействие с parameterIDSet, но при этом может возникнуть проблима
     // если в виджет упадут два с одинаковыми датакодами
-    private var parameterIDSet = mutableSetOf<Quadruple<Int, Int, Int, Int>>()
+    private var parameterIDSet = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>()
     private var deviceAddress = 0
     private var gestureCollectionBtns: ArrayList<View> = ArrayList()
     private var gestureCastomBtns: ArrayList<View> = ArrayList()
@@ -88,12 +88,12 @@ class GesturesDelegateAdapter(
             is BaseParameterWidgetEStruct -> {
                 deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
                 //TODO добавить здесь сортировку parameterID по датакоду
-                parameterIDSet = item.widget.baseParameterWidgetStruct.parametersIDAndDataCodes
+                parameterIDSet = item.widget.baseParameterWidgetStruct.parameterInfoSet
                 Log.d("ParamInfo"," ParamInfoEStruct parameterIDSet: $parameterIDSet" )
             }
             is BaseParameterWidgetSStruct -> {
                 deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
-                parameterIDSet = item.widget.baseParameterWidgetStruct.parametersIDAndDataCodes
+                parameterIDSet = item.widget.baseParameterWidgetStruct.parameterInfoSet
                 Log.d("ParamInfo"," ParamInfoSStruct parameterIDSet: $parameterIDSet" )
             }
         }

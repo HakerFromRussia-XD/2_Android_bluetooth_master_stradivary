@@ -66,6 +66,8 @@ class PlotDelegateAdapter (
     private val defaultEntry = Entry(count.toFloat(), 250.toFloat())
 
     private var firstInit = true
+    private var openThreshold = 0
+    private var closeThreshold = 0
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetPlotBinding.onBind(plotItem: PlotItem) {
@@ -74,8 +76,7 @@ class PlotDelegateAdapter (
         System.err.println("PlotDelegateAdapter ${plotItem.title}    data = ${EMGChartLc.data}")
         var deviceAddress = 0
         val parameterID = 0
-        var openThreshold = 0
-        var closeThreshold = 0
+
 
 
 
@@ -176,24 +177,16 @@ class PlotDelegateAdapter (
                         // что не так? Мы упадём при несоответствии длины данных в параметре при эммите
                         //запись пороговых значений при изменении данных в параметре
                         Log.d("thresholdFlow", "thresholdFlow = $parameterRef   data = ${parameter.data}")
-//                    val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
-//                    if (parameter.data=="") "" else widgetPlotsInfo[indexWidgetPlot].openThreshold = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
-//                    if (parameter.data=="") "" else widgetPlotsInfo[indexWidgetPlot].closeThreshold = castUnsignedCharToInt(parameter.data.substring(2, 4).toInt(16).toByte())
-
-//                    //изменение UI в соответствии с новыми порогами
-//                    widgetPlotsInfo[indexWidgetPlot].openThresholdTv.text = widgetPlotsInfo[indexWidgetPlot].openThreshold.toString()
-//                    widgetPlotsInfo[indexWidgetPlot].closeThresholdTv.text = widgetPlotsInfo[indexWidgetPlot].closeThreshold.toString()
-
-//                    val indexWidgetPlot = getIndexWidgetPlot(parameterRef.addressDevice, parameterRef.parameterID)
-
                         if (parameter.data=="") "" else widgetPlotsInfo[0].openThreshold = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte())
                         if (parameter.data=="") "" else widgetPlotsInfo[0].closeThreshold = castUnsignedCharToInt(parameter.data.substring(4, 6).toInt(16).toByte())
 
-//                    //изменение UI в соответствии с новыми порогами
+                        //изменение UI в соответствии с новыми порогами
                         widgetPlotsInfo[0].openThresholdTv.text = widgetPlotsInfo[0].openThreshold.toString()
                         widgetPlotsInfo[0].closeThresholdTv.text = widgetPlotsInfo[0].closeThreshold.toString()
                         setLimitPosition2(widgetPlotsInfo[0].limitCH1, widgetPlotsInfo[0].allCHRl, widgetPlotsInfo[0].openThreshold)
                         setLimitPosition2(widgetPlotsInfo[0].limitCH2, widgetPlotsInfo[0].allCHRl, widgetPlotsInfo[0].closeThreshold)
+                        openThreshold = widgetPlotsInfo[0].openThreshold
+                        closeThreshold = widgetPlotsInfo[0].closeThreshold
                     }
                 ).collect()
             } catch (e: Exception) {

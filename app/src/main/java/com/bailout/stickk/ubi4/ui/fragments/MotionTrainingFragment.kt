@@ -111,7 +111,7 @@ class MotionTrainingFragment(
         super.onCreate(savedInstanceState)
         Log.d("LagSpr", "Motion onCreate")
         deleteSerialDataFile()
-        stamp = Timestamp(System.currentTimeMillis()).time.toInt()
+        stamp = ((System.currentTimeMillis() / 1000) % Int.MAX_VALUE).toInt()
         loggingFilename += stamp
         path = requireContext().getExternalFilesDir(null)!!
         file = File(path, loggingFilename)

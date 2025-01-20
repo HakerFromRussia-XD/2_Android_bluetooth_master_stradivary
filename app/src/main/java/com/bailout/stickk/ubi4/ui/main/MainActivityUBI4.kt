@@ -96,15 +96,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            showOpticGesturesScreen()
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-////            val command = BLECommands.requestThresholds(6, 3)
-////            // Логируем команду в шестнадцатеричном формате
-////            val commandHex = EncodeByteToHex.bytesToHexString(command)
-////            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
-////            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
-////            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
-//            manageTrainingLifecycle()
-//        }
+        binding.runCommandBtn.setOnClickListener {
+//            val command = BLECommands.requestThresholds(6, 3)
+//            // Логируем команду в шестнадцатеричном формате
+//            val commandHex = EncodeByteToHex.bytesToHexString(command)
+//            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
+//            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
+//            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
+            manageTrainingLifecycle()
+        }
 
     }
     @SuppressLint("MissingPermission")
@@ -113,6 +113,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (!mBLEController.getBluetoothAdapter()?.isEnabled!!) {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+            Log.d("--> reconnectThread started", "onResume Статус подключения: ${mBLEController.getStatusConnected()}")
         }
         if (mBLEController.getBluetoothLeService() != null) {
             connectedDeviceName = getString(CONNECTED_DEVICE)
@@ -121,6 +122,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         if (!mBLEController.getStatusConnected()) {
             mBLEController.setReconnectThreadFlag(true)
+            Log.d("--> reconnectThread started", "Reconnect thread flag установлен в true")
             mBLEController.reconnectThread()
         }
     }
@@ -174,7 +176,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, connectedDeviceName)
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, connectedDeviceAddress)
 
         //settings
     }

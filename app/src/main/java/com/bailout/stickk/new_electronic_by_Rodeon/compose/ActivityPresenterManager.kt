@@ -104,6 +104,6 @@ class ActivityPresenterManager {
     private const val PRESENTER_ID_KEY = "presenter_id"
     private const val PRESENTER_STATE_KEY = "presenter_state"
 
-    val instance = ActivityPresenterManager()
+    var instance = ActivityPresenterManager()
   }
 }

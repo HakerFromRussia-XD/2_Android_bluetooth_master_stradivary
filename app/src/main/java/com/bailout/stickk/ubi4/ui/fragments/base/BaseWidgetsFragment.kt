@@ -427,6 +427,7 @@ abstract class BaseWidgetsFragment : Fragment() {
             )
         }
     }
+
     open fun closeCurrentDialog() {
         loadingCurrentDialog?.dismiss()
         loadingCurrentDialog = null

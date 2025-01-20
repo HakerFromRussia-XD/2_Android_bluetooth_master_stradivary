@@ -588,6 +588,19 @@
     <string name="are_you_sure_you_want_to_start_downloading_the_file">Are you sure you want to start downloading the file?</string>
     <string name="bluetooth_connection_is_disabled">Bluetooth connection is disabled</string>
     <string name="there_is_no_bluetooth_connection_check_the_connection">There is no Bluetooth connection. Check the connection.</string>
+    <string name="gesture_point">Pointing</string>
+    <string name="gesture_pinch">Pinch</string>
+    <string name="gesture_fist_thumb_over">Fist 2</string>
+    <string name="gesture_rock">Goat</string>
+    <string name="gesture_twizzers">Tweezers</string>
+    <string name="gesture_cupholder">Cup Grip</string>
+    <string name="gesture_half_grab">Half Grab</string>
+    <string name="gesture_ok">OK</string>
+    <string name="gesture_thumb_up">Thumbs Up</string>
+    <string name="gesture_middle_finger">Middle Finger</string>
+    <string name="gesture_double_point">Pistol</string>
+    <string name="gesture_call_me">Call Me</string>
+    <string name="gesture_natural_position">Natural Position</string>
 
 
     <string-array name="numbers">

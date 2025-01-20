@@ -310,6 +310,7 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
 
           if(!reconnectThreadFlag && !mScanning && !mDisconnected){
             reconnectThreadFlag = true
+            Log.d("--> reconnectThread started", "MainActivity Ubi3 string 312: reconnectThreadFlag true")
             reconnectThread()
             System.err.println("DeviceControlActivity------->  запуск сканирования из ACTION_GATT_DISCONNECTED")
           }

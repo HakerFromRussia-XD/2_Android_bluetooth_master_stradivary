@@ -56,7 +56,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private var chunksSend = AtomicInteger(0)
 
     private var canSendNextChunkFlag = true
-    private lateinit var trainingModelHandler: TrainingModelHandler
 
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
@@ -92,8 +91,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
         return binding.root
 
-        trainingModelHandler = TrainingModelHandler(requireContext())
-        trainingModelHandler.initialize()
     }
 
 
@@ -199,7 +196,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     null
                 }
             }
-        }.toMutableList()
+        }.sortedBy { it.number }.toMutableList()
 
         filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         val adapter = FileCheckpointAdapter(fileItems, object :

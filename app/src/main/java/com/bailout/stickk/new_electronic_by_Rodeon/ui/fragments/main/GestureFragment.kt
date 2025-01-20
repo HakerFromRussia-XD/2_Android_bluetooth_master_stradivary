@@ -1120,6 +1120,7 @@ class GestureFragment: Fragment(), OnChartValueSelectedListener, View.OnClickLis
     override fun onValueSelected(e: Entry?, h: Highlight?) {}
     override fun onNothingSelected() {}
 
+    @SuppressLint("SuspiciousIndentation")
     private fun loadAllVariables() {
         val text = "load not work"
         val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, text)

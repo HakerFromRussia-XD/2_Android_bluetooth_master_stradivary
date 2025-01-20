@@ -41,7 +41,7 @@ class TrainingFragmentDelegateAdapter(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetTrainingOpticBinding.onBind(item: TrainingGestureItem) {
-        Log.d("TestWidgetView", "Start onBind, item: ${item}")
+        Log.d("TestWidgetView", "Start onBind, item: ${item} item.getItemId() = ${item.getItemId()}")
         onDestroyParent { onDestroy() }
         _trainingTitleTv = trainingTitleTv
         _trainingSubTitleTv = trainingSubTitleTv
@@ -96,6 +96,7 @@ class TrainingFragmentDelegateAdapter(
 
         }
     }
+
 
 
 

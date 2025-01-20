@@ -16,6 +16,7 @@ package com.bailout.stickk.new_electronic_by_Rodeon
 import androidx.multidex.MultiDexApplication
 import com.bailout.stickk.old_electronic_by_Misha.data.BluetoothModule
 import dagger.Component
+import android.content.Context
 import javax.inject.Singleton
 import com.bailout.stickk.new_electronic_by_Rodeon.ApplicationModule as ApplicationModule1
 
@@ -23,10 +24,10 @@ import com.bailout.stickk.new_electronic_by_Rodeon.ApplicationModule as Applicat
 class WDApplication : MultiDexApplication() {
   private var bluetoothModule: BluetoothModule? = null
 
-
   override fun onCreate() {
     super.onCreate()
     app = this
+    instance = this
     component = DaggerWDApplication_ApplicationComponent.builder()
         .applicationModule(ApplicationModule1(this))
         .build()
@@ -35,8 +36,12 @@ class WDApplication : MultiDexApplication() {
 
   companion object {
     var app: WDApplication? = null
-
     lateinit var component: ApplicationComponent
+
+    @JvmStatic
+    lateinit var instance: WDApplication
+
+    fun applicationContext() = instance!!.applicationContext
 
     @JvmStatic
     fun app(): WDApplication? {

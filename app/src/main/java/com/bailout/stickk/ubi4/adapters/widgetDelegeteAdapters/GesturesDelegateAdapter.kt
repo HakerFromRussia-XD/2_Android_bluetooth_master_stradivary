@@ -255,7 +255,6 @@ class GesturesDelegateAdapter(
         }
     }
 
-
     private fun calculatingShowAddButton() {
         if (rotationGroupGestures.size >= 8) {
             mAddGestureToRotationGroupBtn.visibility = View.GONE

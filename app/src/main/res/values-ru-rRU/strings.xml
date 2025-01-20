@@ -548,7 +548,6 @@
     <string name="palm_opening">Раскрытие ладони</string>
     <string name="palm_closing">Закрытие ладони</string>
     <string name="ok_pinch">Жест Оk/Щипок</string>
-    <string name="gesture_key">Жест Ключ</string>
     <string name="pistol_pointer_gesture">Жест Пистолет/Указатель</string>
     <string name="flexion">Флексия</string>
     <string name="extension">Экстензия</string>
@@ -590,6 +589,21 @@
     <string name="are_you_sure_you_want_to_start_downloading_the_file">Вы уверены что хотите начать загрузку файла?</string>
     <string name="bluetooth_connection_is_disabled">Bluetooth соеденение отключенно</string>
     <string name="there_is_no_bluetooth_connection_check_the_connection">Bluetooth соединение отсутствует. Проверьте подключение.</string>
+    <string name="gesture_point">Указательный</string>
+    <string name="gesture_pinch">Щёпоть</string>
+    <string name="gesture_fist_thumb_over">Кулак 2</string>
+    <string name="gesture_key">Ключ</string>
+    <string name="gesture_rock">Коза</string>
+    <string name="gesture_twizzers">Пинцет</string>
+    <string name="gesture_cupholder">Хват стакана</string>
+    <string name="gesture_half_grab">Хват доски</string>
+    <string name="gesture_ok">Ок</string>
+    <string name="gesture_thumb_up">Класс</string>
+    <string name="gesture_middle_finger">Средний палец</string>
+    <string name="gesture_double_point">Пистолет</string>
+    <string name="gesture_call_me">Позвони мне</string>
+    <string name="gesture_natural_position">Натуральное положение</string>
+
 
 
     <string-array name="numbers">

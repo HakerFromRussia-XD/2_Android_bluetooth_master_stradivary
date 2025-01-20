@@ -38,9 +38,12 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.canSendFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.connectedDeviceAddress
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class BLEController(
     main: AppCompatActivity,
@@ -143,11 +146,13 @@ class BLEController(
                     Handler(Looper.getMainLooper()).post {
                         Toast.makeText(mContext,
                             context.getString(R.string.bluetooth_connection_is_disabled), Toast.LENGTH_SHORT).show()
+                        Log.d("--> reconnectThread started", " reconnectThreadFlag = $reconnectThreadFlag  mScanning = $mScanning")
                     }
 
 
                     if(!reconnectThreadFlag && !mScanning){
                         reconnectThreadFlag = true
+                        Log.d("--> reconnectThread started", "BLEControllelr string 151: reconnectThreadFlag true")
                         reconnectThread()
                     }
                 }
@@ -233,45 +238,73 @@ class BLEController(
         }
         if (mScanning) { scanLeDevice(false) }
     }
-    internal fun reconnectThread() {
-//        System.err.println("--> reconnectThread started")
-        var j = 1
-        val reconnectThread = Thread {
-            while (reconnectThreadFlag) {
-                mMain.runOnUiThread {
-                    if(j % 5 == 0) {
-                        reconnectThreadFlag = false
-                        scanLeDevice(true)
-                        System.err.println("DeviceControlActivity------->   Переподключение со сканированием №$j")
-                    } else {
-                        reconnect()
-                        System.err.println("DeviceControlActivity------->   Переподключение без сканирования №$j")
-                    }
-                    j++
-                }
-                try {
-                    Thread.sleep(RECONNECT_BLE_PERIOD.toLong())
-                } catch (ignored: Exception) { }
+//    internal fun reconnectThread() {
+//        Log.d("--> reconnectThread started", "reconnectThread run")
+//        var j = 1
+//        val reconnectThread = Thread {
+//            while (reconnectThreadFlag) {
+//                mMain.runOnUiThread {
+//                    if(j % 5 == 0) {
+//                        reconnectThreadFlag = false
+//                        scanLeDevice(true)
+//                        System.err.println("DeviceControlActivity------->   Переподключение со сканированием №$j")
+//                    } else {
+//                        reconnect()
+//                        System.err.println("DeviceControlActivity------->   Переподключение без сканирования №$j")
+//                    }
+//                    j++
+//                }
+//                try {
+//                    Thread.sleep(RECONNECT_BLE_PERIOD.toLong())
+//                } catch (ignored: Exception) { }
+//            }
+//        }
+//        reconnectThread.start()
+//    }
+fun reconnectThread() {
+    var j = 1
+    CoroutineScope(Dispatchers.Main).launch {
+        while (reconnectThreadFlag) {
+            if (j % 5 == 0) {
+                reconnectThreadFlag = false
+                scanLeDevice(true)
+                System.err.println("DeviceControlActivity-------> Переподключение со сканированием №$j")
+            } else {
+                reconnect()
+                System.err.println("DeviceControlActivity-------> Переподключение без сканирования №$j")
             }
+            j++
+            delay(RECONNECT_BLE_PERIOD.toLong())
         }
-        reconnectThread.start()
     }
-    private fun reconnect () {
-        //полное завершение сеанса связи и создание нового в onResume
-        if (mBluetoothLeService != null) {
-            mContext.unbindService(mServiceConnection)
+}
+
+
+    private suspend fun reconnect() {
+        // Выполняем unbindService и bindService на IO-потоке, если они действительно могут быть «тяжёлыми»
+        withContext(Dispatchers.IO) {
+            try {
+                mContext.unbindService(mServiceConnection)
+            } catch (ex: Exception) {
+                // Если не был привязан, можно игнорировать ошибку
+                Log.w("BLEController", "Не удалось отцепить сервис: ${ex.message}")
+            }
             mBluetoothLeService = null
+
+            val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
+            mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
         }
 
-        val gattServiceIntent = Intent(mContext, BluetoothLeService::class.java)
-        mContext.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
-
-//        BLE
-        mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-        if (mBluetoothLeService != null) {
-            mBluetoothLeService!!.connect(connectedDeviceAddress)
-        } else {
-//            println("--> вызываем функцию коннекта к устройству $connectedDeviceName = null")
+        // На главном потоке регистрируем ресивер (если требуется)
+        withContext(Dispatchers.Main) {
+            try {
+                // Проверяем, что ресивер ещё не зарегистрирован (будет показан пример ниже)
+                mContext.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+            } catch (e: IllegalArgumentException) {
+                // Если уже зарегистрирован, игнорируем
+                Log.w("BLEController", "Ресивер уже зарегистрирован")
+            }
+            mBluetoothLeService?.connect(connectedDeviceAddress)
         }
     }
     private fun makeGattUpdateIntentFilter(): IntentFilter {
@@ -306,6 +339,7 @@ class BLEController(
                     if (!scanWithoutConnectFlag) {
                         scanLeDevice(false)
                         reconnectThreadFlag = true
+                        Log.d("--> reconnectThread started", "BLEControllelr string 360: reconnectThreadFlag true")
                         reconnectThread()
                     }
                 }

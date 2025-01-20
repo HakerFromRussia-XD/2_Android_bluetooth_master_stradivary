@@ -107,6 +107,7 @@
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
 
+
         <service android:name="com.bailout.stickk.ubi4.ble.BluetoothLeService"
             android:enabled="true"/>
 <!--        <service-->

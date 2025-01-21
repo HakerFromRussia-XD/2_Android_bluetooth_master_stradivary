@@ -15,11 +15,13 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.stateOpticTrainingFlow
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class TrainingFragmentDelegateAdapter(
@@ -81,7 +83,7 @@ class TrainingFragmentDelegateAdapter(
                     Log.d("StateFlowCollector", "Collected state: $state")
                     updateUI(state)
                     scope.launch(Dispatchers.Main) {
-                        while (stateOpticTrainingFlow.value == PreferenceKeysUBI4.TrainingModelState.RUN) {
+                        while (isActive && stateOpticTrainingFlow.value == PreferenceKeysUBI4.TrainingModelState.RUN) {
                             _percentLearning.text = main?.getPercentProgressLearningModel().toString() + " %"
                             Log.d("StateFlowCollector", "scope 2 run")
                             delay(100)
@@ -89,15 +91,16 @@ class TrainingFragmentDelegateAdapter(
                     }
                 }
             }
+            catch (e:CancellationException){
+                Log.d("StateFlowCollector", "Job was cancelled: ${e.message}")
+            }
             catch (e:Exception){
                 main.showToast("ERROR startStateFlowCollector")
-                println("ERROR startStateFlowCollector $e")
+                Log.e("StateFlowCollector", "Exception: ${e.message}")
             }
 
         }
     }
-
-
 
 
     /**

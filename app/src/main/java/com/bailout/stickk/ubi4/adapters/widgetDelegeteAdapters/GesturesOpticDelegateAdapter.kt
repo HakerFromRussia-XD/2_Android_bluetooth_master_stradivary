@@ -30,6 +30,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.ParameterInfoProvider
 import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,6 +39,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 class GesturesOpticDelegateAdapter(
@@ -307,10 +309,12 @@ class GesturesOpticDelegateAdapter(
                         val parameter =  ParameterProvider.getParameter(deviceAddress, activeGestureParameterRef.parameterID)
                         val activeGestureIdHex = parameter.data.takeLast(2)
                         val activeGestureId = activeGestureIdHex.toIntOrNull(16)
-                        setActiveGesture(getGestureViewById(activeGestureId))
-                        Log.d("ActiveParamCollect", " paramActiveGesture: $activeGestureId")
-                    },
+                        withContext(Dispatchers.Main){
+                            setActiveGesture(getGestureViewById(activeGestureId))
+                            Log.d("ActiveParamCollect", " paramActiveGesture: $activeGestureId")
+                        }
 
+                    },
                     MainActivityUBI4.bindingGroupFlow.map { bindingGroupParameterRef ->
                         val parameter = ParameterProvider.getParameter(bindingGroupParameterRef.addressDevice, bindingGroupParameterRef.parameterID)
                         val bindingGroup = Json.decodeFromString<BindingGestureGroup>("\"${parameter.data}\"")
@@ -318,16 +322,18 @@ class GesturesOpticDelegateAdapter(
                         bindingGroup.toGestureList().forEach{
                             if (it.first != 0) { listBindingGesture.add(it) }
                         }
-                        fillCollectionGesturesInBindingGroup()
+                        withContext(Dispatchers.Main){
+                            fillCollectionGesturesInBindingGroup()
+                        }
                     }
                 ).collect()
-            }
-            catch (e:Exception) {
+            } catch (e:CancellationException){
+                Log.d("collectActiveFlows", "Job was cancelled: ${e.message}")
+            } catch (e:Exception) {
                 main.runOnUiThread {
                     main.showToast("ERROR collectActiveFlows")
-                    println("ERROR collectActiveFlows $e")
+                    Log.e("collectActiveFlows", "ERROR collectActiveFlows: $e")
                 }
-
             }
         }
     }

@@ -42,6 +42,7 @@ class SliderDelegateAdapter(
         onDestroyParent{ onDestroy() }
         val addressDevice: ArrayList<Int> = ArrayList()
         val parameterID: ArrayList<Int> = ArrayList()
+        val dataCode: ArrayList<Int> = ArrayList()
         val dataOffset: ArrayList<Int> = ArrayList()
         var minProgress = 0
         var maxProgress = 0
@@ -53,16 +54,19 @@ class SliderDelegateAdapter(
                     addressDevice.add(it.deviceAddress)
                     parameterID.add(it.parameterID)
                     dataOffset.add(it.dataOffset)
+                    dataCode.add(it.dataCode)
                 }
                 minProgress = item.widget.minProgress
                 maxProgress = item.widget.maxProgress
                 Log.d("addressDevice" , "E struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}")
             }
-            is SliderParameterWidgetSStruct ->  {
+            is SliderParameterWidgetSStruct -> {
                 item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.forEach {
                     addressDevice.add(it.deviceAddress)
                     parameterID.add(it.parameterID)
                     dataOffset.add(it.dataOffset)
+                    dataCode.add(it.dataCode)
+
                 }
                 minProgress = item.widget.minProgress
                 maxProgress = item.widget.maxProgress
@@ -71,7 +75,7 @@ class SliderDelegateAdapter(
         }
         widgetSlidersInfo.add(WidgetSliderInfo(addressDevice, parameterID, dataOffset, minProgress, maxProgress, arrayListOf(0, 0), arrayListOf(widgetSliderSb, widgetSlider2Sb), arrayListOf(widgetSliderNumTv,widgetSliderNum2Tv)))
         sliderCollect()
-        setUI(ParameterRef(addressDevice[0], parameterID[0]))
+        setUI(ParameterRef(addressDevice[0], parameterID[0], dataCode[0]))
         val indexWidgetSlider = getIndexWidgetSlider(addressDevice[0], parameterID[0])
 //        val progress: ArrayList<Int> = ArrayList(List(addressDevice.size) { 0 })
         if (addressDevice.size > 1) {

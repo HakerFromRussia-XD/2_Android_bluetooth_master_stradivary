@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
-    android:background="@color/ubi4_back">
+    android:background="@color/ubi4_back"
+    android:clipToOutline="true"
+    android:orientation="horizontal">
 
 
     <View
@@ -13,8 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="4dp"
         android:background="@drawable/ubi4_view_with_corners_gray"
         android:elevation="3dp"
@@ -22,6 +22,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/widget1ButtonTv"
         android:layout_width="wrap_content"
@@ -35,18 +36,26 @@
         app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
         app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
         app:layout_constraintTop_toTopOf="@+id/backgroundBtn" />
+
     <View
         android:id="@+id/widget1Button"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="?android:attr/selectableItemBackground"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+
+        android:background="@drawable/ubi4_ripple_corners"
         android:clickable="true"
-        android:focusable="true"
+        android:clipToOutline="true"
         android:elevation="4dp"
-        app:layout_constraintBottom_toBottomOf="@+id/backgroundBtn"
-        app:layout_constraintEnd_toEndOf="@+id/backgroundBtn"
-        app:layout_constraintStart_toStartOf="@+id/backgroundBtn"
-        app:layout_constraintTop_toTopOf="@+id/backgroundBtn" />
+
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

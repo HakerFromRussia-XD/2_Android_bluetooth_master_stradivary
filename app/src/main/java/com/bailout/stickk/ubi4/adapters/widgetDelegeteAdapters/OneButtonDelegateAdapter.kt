@@ -2,6 +2,7 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import com.bailout.stickk.databinding.Ubi4Widget1ButtonBinding
@@ -57,6 +58,25 @@ class OneButtonDelegateAdapter(
 
             return@OnTouchListener true
         })
+
+        //ripple btn
+        widget1Button.setOnTouchListener { v, event ->
+            v.onTouchEvent(event)
+            if (clickCommand == 0) {
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> onButtonPressed(addressDevice, parameterID, pressedCommand)
+                    MotionEvent.ACTION_UP,
+                    MotionEvent.ACTION_CANCEL -> onButtonReleased(addressDevice, parameterID, releasedCommand)
+                }
+            } else {
+                if (event.action == MotionEvent.ACTION_UP) {
+                    onButtonReleased(addressDevice, parameterID, clickCommand)
+                }
+            }
+
+            true
+        }
+
     }
 
     override fun isForViewType(item: Any): Boolean = item is OneButtonItem

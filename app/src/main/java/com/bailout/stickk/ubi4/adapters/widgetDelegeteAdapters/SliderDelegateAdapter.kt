@@ -66,7 +66,6 @@ class SliderDelegateAdapter(
                     parameterID.add(it.parameterID)
                     dataOffset.add(it.dataOffset)
                     dataCode.add(it.dataCode)
-
                 }
                 minProgress = item.widget.minProgress
                 maxProgress = item.widget.maxProgress

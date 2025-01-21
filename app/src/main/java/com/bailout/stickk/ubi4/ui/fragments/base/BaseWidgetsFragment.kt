@@ -173,9 +173,12 @@ abstract class BaseWidgetsFragment : Fragment() {
 //    open fun onPlotReady(num: Int) {}
     open fun oneButtonPressed(addressDevice: Int, parameterID: Int, command: Int) {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+        Log.d("TestButton", "oneButtonPressed run")
     }
     open fun oneButtonReleased(addressDevice: Int, parameterID: Int, command: Int) {
         transmitter().bleCommand(BLECommands.sendOneButtonCommand(addressDevice, parameterID, command), MAIN_CHANNEL, WRITE)
+        Log.d("TestButton", "oneButtonReleased run")
+
     }
     open fun showControlGesturesDialog(onSaveClickDialog: (MutableList<Pair<Int, Int>>) -> Unit, bindingGestureList:  List<Pair<Int, Int>>) {
     System.err.println("showAddGestureToSprScreen")

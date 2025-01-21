@@ -44,8 +44,8 @@ internal class DataFactory {
 
 
 
-        addElement(1, 1, objects, objectCommandE)
-        addElement(14, 1, objects, objectGesture)
+//        addElement(1, 1, objects, objectCommandE)
+//        addElement(14, 1, objects, objectGesture)
 //        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)

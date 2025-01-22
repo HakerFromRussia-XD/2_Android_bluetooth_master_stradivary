@@ -74,10 +74,9 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
 
         //настоящие виджеты
-        widgetListUpdater()
+//        widgetListUpdater()
         //фейковые виджеты
-//        adapterWidgets = initAdapter()
-//        adapterWidgets.swapData(mDataFactory.fakeData())
+        adapterWidgets.swapData(mDataFactory.fakeData())
 
         canSendNextChunkFlagUpdater()
         binding.refreshLayout.setLottieAnimation("loader_3.json")
@@ -131,7 +130,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
     @SuppressLint("MissingInflatedId")
     override fun showConfirmTrainingDialog(confirmClick: () -> Unit) {
-        Log.d("showConfirmTrainingDialog", "start ok")
+        Log.d("StateCallBack11", "start ok")
 
         if (currentDialog != null && currentDialog?.isShowing == true) {
             return

@@ -2677,8 +2677,6 @@ class MainActivity() : BaseActivity<MainPresenter, MainActivityView>(), MainActi
       myDialog.dismiss()
     }
 
-
-
     val noBtn = dialogBinding.findViewById<View>(R.id.dialog_reset_gestures_cancel)
     noBtn.setOnClickListener {
       myDialog.dismiss()

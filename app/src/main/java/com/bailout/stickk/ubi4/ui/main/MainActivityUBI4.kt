@@ -145,8 +145,13 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         Log.d("StateCallBack", "showMotionTrainingScreen called, new MotionTrainingFragment created")
     }
 
+//    override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
+//        launchFragmentWithoutStack(MotionTrainingFragment(onFinishTraining))
+//        Log.d("StateCallBack", "showMotionTrainingScreen called")
+//    }
+
     override fun manageTrainingLifecycle() {
-        Log.d("StateCallBack", "manageTrainingLifecycle called")
+        Log.d("StateCallBack11", "manageTrainingLifecycle called")
         trainingModelHandler.runModel()
     }
 

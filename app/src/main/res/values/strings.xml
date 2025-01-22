@@ -601,6 +601,22 @@
     <string name="gesture_double_point">Pistol</string>
     <string name="gesture_call_me">Call Me</string>
     <string name="gesture_natural_position">Natural Position</string>
+    <string name="pwle_unknow">unknow</string>
+    <string name="pwle_calibrate">calibrate</string>
+    <string name="pwle_reset">reset</string>
+    <string name="pwle_control_settings">control settings</string>
+    <string name="pwle_open_close_threshold">open close threshold</string>
+    <string name="pwle_select_gesture">select gesture</string>
+    <string name="pwle_select_profile">select profile</string>
+    <string name="pwle_global_force">global force</string>
+    <string name="pwle_plot">plot</string>
+    <string name="pwle_omg_learning">omg learning</string>
+    <string name="prepare_to_perform_the_gesture">Prepare to perform the gesture</string>
+    <string name="rest_before_the_next_gesture">Rest before the next gesture</string>
+    <string name="perform_gesture">Perform a gesture: %1$s</string>
+    <string name="next_gesture">Next gesture: %1$s</string>
+    <string name="wait_until_the_end">Wait until the end</string>
+    <string name="you_can_relax_your_hand">You can relax your hand</string>
 
 
     <string-array name="numbers">

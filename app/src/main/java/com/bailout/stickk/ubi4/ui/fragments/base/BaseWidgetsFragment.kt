@@ -8,9 +8,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.util.Pair
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -21,6 +19,7 @@ import com.bailout.stickk.ubi4.adapters.dialog.GesturesCheckAdapter
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckGestureListener
 import com.bailout.stickk.ubi4.adapters.dialog.OnCheckSprGestureListener2
 import com.bailout.stickk.ubi4.adapters.dialog.SprGesturesCheckAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
@@ -44,7 +43,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.GESTURE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.PARAMETER_ID_IN_SYSTEM_UBI4
 import com.bailout.stickk.ubi4.ui.gripper.with_encoders.UBI4GripperScreenWithEncodersActivity
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
-import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 
 abstract class BaseWidgetsFragment : Fragment() {
@@ -124,6 +123,8 @@ abstract class BaseWidgetsFragment : Fragment() {
                         showConfirmTrainingDialog {
                             navigator().showMotionTrainingScreen {
                                 main?.manageTrainingLifecycle()
+                                Log.d("StateCallBack", "manageTrainingLifecycle() run")
+
                             }
                         }
                     } else {
@@ -155,12 +156,14 @@ abstract class BaseWidgetsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         loadGestureNameList()
-    }
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)
         if (activity != null) {
             main = activity as MainActivityUBI4?
         }
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         bleController = (requireActivity() as MainActivityUBI4).getBLEController()
 
     }

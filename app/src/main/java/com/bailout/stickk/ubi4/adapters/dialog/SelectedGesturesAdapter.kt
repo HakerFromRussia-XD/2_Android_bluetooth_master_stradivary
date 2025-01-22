@@ -2,7 +2,6 @@ package com.bailout.stickk.ubi4.adapters.dialog
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
@@ -13,8 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.bailout.stickk.R
 import com.bailout.stickk.ubi4.data.local.CollectionGesturesProvider
-import com.bailout.stickk.ubi4.models.BindingGestureItem
-import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 
 class SelectedGesturesAdapter(
     private var selectedGesturesList: MutableList<Pair<Int, Int>>,

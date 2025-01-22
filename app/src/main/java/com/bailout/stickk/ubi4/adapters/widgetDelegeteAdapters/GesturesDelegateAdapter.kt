@@ -33,6 +33,7 @@ import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.rotationGroupGestures
+import com.bailout.stickk.ubi4.utility.ParameterInfoProvider.Companion.getParameterIDByCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -69,8 +70,6 @@ class GesturesDelegateAdapter(
 
     private lateinit var mAddGestureToRotationGroupBtn: View
     private lateinit var mPlusIv: ImageView
-    //TODO тут правильное взаимодействие с parameterIDSet, но при этом может возникнуть проблима
-    // если в виджет упадут два с одинаковыми датакодами
     private var parameterIDSet = mutableSetOf<ParameterInfo<Int, Int, Int, Int>>()
     private var deviceAddress = 0
     private var gestureCollectionBtns: ArrayList<View> = ArrayList()
@@ -87,7 +86,6 @@ class GesturesDelegateAdapter(
         when (item.widget) {
             is BaseParameterWidgetEStruct -> {
                 deviceAddress = item.widget.baseParameterWidgetStruct.deviceId
-                //TODO добавить здесь сортировку parameterID по датакоду
                 parameterIDSet = item.widget.baseParameterWidgetStruct.parameterInfoSet
                 Log.d("ParamInfo"," ParamInfoEStruct parameterIDSet: $parameterIDSet" )
             }
@@ -100,7 +98,7 @@ class GesturesDelegateAdapter(
         collectionOfGesturesSelectBtn.setOnClickListener { moveFilterSelection(1, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl) }
         rotationGroupSelectBtn.setOnClickListener {
             moveFilterSelection(2, gesturesSelectV, collectionOfGesturesTv, rotationGroupTv, ubi4GesturesSelectorV, collectionGesturesCl, rotationGroupCl)
-            onRequestRotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number))
+            onRequestRotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterIDSet))
         }
         hideCollectionBtn.setOnClickListener {
             System.err.println("collectionFactoryGesturesCl.layoutParams.height = ${collectionFactoryGesturesCl.layoutParams.height}")
@@ -178,7 +176,7 @@ class GesturesDelegateAdapter(
             }
             gestureSettingsBtn?.setOnClickListener {
                 Log.d("gestureCustomBtn", "gestureSettingsBtn $i")
-                onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number), (0x40).toInt()+i)
+                onShowGestureSettings(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_SETTINGS.number, parameterIDSet), (0x40).toInt()+i)
                 main.saveInt(PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM, i)
             }
         }
@@ -271,19 +269,12 @@ class GesturesDelegateAdapter(
         }
     }
     private fun sendBLERotationGroup() {
-        onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number))
+        onSendBLERotationGroup(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_GESTURE_GROUP.number, parameterIDSet))
     }
     private fun onSendBLEActiveGesture(activeGesture: Int) {
-        onSendBLEActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number), activeGesture)
+        onSendBLEActiveGesture(deviceAddress, getParameterIDByCode(ParameterDataCodeEnum.PDCE_SELECT_GESTURE.number, parameterIDSet), activeGesture)
     }
-    private fun getParameterIDByCode(dataCode: Int): Int {
-        parameterIDSet.forEach {
-            if (it.dataCode == dataCode) {
-                return it.parameterID
-            }
-        }
-        return 0
-    }
+
     private fun setupListRecyclerView() {
         mRotationGroupDragLv?.setLayoutManager(LinearLayoutManager(main.applicationContext))
         itemsGesturesRotationArray = ArrayList(rotationGroupGestures.mapIndexed { index, gesture -> Pair(index.toLong(), gesture.gestureName+"™"+gesture.gestureId.toString()) })

@@ -85,6 +85,5 @@ class SprGestureFragment: BaseWidgetsFragment() {
     }
 
 
-
 }
 

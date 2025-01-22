@@ -12,6 +12,9 @@
  */
 package com.bailout.stickk.ubi4.persistence.preference
 
+import com.bailout.stickk.R
+import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication.Companion.applicationContext
+
 
 object PreferenceKeysUBI4 {
     const val END_PARAMETERS_ARRAY_KEY = 23654328
@@ -114,18 +117,18 @@ object PreferenceKeysUBI4 {
     }
 
     enum class ParameterWidgetLabel(val number: Int, val label: String) {
-        PWLE_UNKNOW (0x00, "UNKNOW"),
-        PWLE_OPEN (0x01, "OPEN"),
-        PWLE_CLOSE (0x02, "CLOSE"),
-        PWLE_CALIBRATE (0x03, "CALIBRATE"),
-        PWLE_RESET (0x04, "RESET"),
-        PWLE_CONTROL_SETTINGS (0x05, "CONTROL SETTINGS"),
-        PWLE_OPEN_CLOSE_THRESHOLD (0x06, "OPEN CLOSE THRESHOLD"),
-        PWLE_SELECT_GESTURE (0x07, "SELECT GESTURE"),
-        PWLE_SELECT_PROFILE (0x08, "SELECT PROFILE"),
-        PWLE_GLOBAL_FORCE (0x09, "GLOBAL FORCE"),
-        PWLE_PLOT (0x0a, "PLOT"),
-        PWLE_OMG_LEARNING (0x0b, "OMG LEARNING"),
+        PWLE_UNKNOW (0x00, applicationContext().getString(R.string.pwle_unknow)),
+        PWLE_OPEN (0x01, applicationContext().getString(R.string.open_state)),
+        PWLE_CLOSE (0x02, applicationContext().getString(R.string.close_state)),
+        PWLE_CALIBRATE (0x03, applicationContext().getString(R.string.pwle_calibrate)),
+        PWLE_RESET (0x04, applicationContext().getString(R.string.pwle_reset)),
+        PWLE_CONTROL_SETTINGS (0x05, applicationContext().getString(R.string.pwle_control_settings)),
+        PWLE_OPEN_CLOSE_THRESHOLD (0x06, applicationContext().getString(R.string.pwle_open_close_threshold)),
+        PWLE_SELECT_GESTURE (0x07, applicationContext().getString(R.string.pwle_select_gesture)),
+        PWLE_SELECT_PROFILE (0x08, applicationContext().getString(R.string.pwle_select_profile)),
+        PWLE_GLOBAL_FORCE (0x09, applicationContext().getString(R.string.pwle_global_force)),
+        PWLE_PLOT (0x0a, applicationContext().getString(R.string.pwle_plot)),
+        PWLE_OMG_LEARNING (0x0b, applicationContext().getString(R.string.pwle_omg_learning)),
 
     }
 

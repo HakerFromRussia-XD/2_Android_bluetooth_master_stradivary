@@ -603,7 +603,21 @@
     <string name="gesture_double_point">Пистолет</string>
     <string name="gesture_call_me">Позвони мне</string>
     <string name="gesture_natural_position">Натуральное положение</string>
-
+    <string name="pwle_calibrate">калибровка</string>
+    <string name="pwle_reset">сброс</string>
+    <string name="pwle_control_settings">настройки управления</string>
+    <string name="pwle_open_close_threshold">порог открытия/закрытия</string>
+    <string name="pwle_select_gesture">выбор жеста</string>
+    <string name="pwle_select_profile">выбор профиля</string>
+    <string name="pwle_global_force">общая сила схвата</string>
+    <string name="pwle_plot">график</string>
+    <string name="pwle_omg_learning">обучение омг</string>
+    <string name="prepare_to_perform_the_gesture">Подготовьтесь к выполнению жеста</string>
+    <string name="rest_before_the_next_gesture">"Отдохните перед следующим жестом"</string>
+    <string name="perform_gesture">Выполните жест: %1$s</string>
+    <string name="next_gesture">Следующий жест: %1$s</string>
+    <string name="wait_until_the_end">Дождитесь окончания</string>
+    <string name="you_can_relax_your_hand">Можете расслабить руку</string>
 
 
     <string-array name="numbers">

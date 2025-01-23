@@ -121,19 +121,25 @@ class BLEParser(main: AppCompatActivity) {
                         var dataLength = dataLength
                         var counter = 1
 
-                        while (dataLength > 0) {
-                            val dataHex = EncodeByteToHex.bytesToHexString(data)
-                            val deviceAddress = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength))*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2).toInt(16).toByte())
-                            val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2).toInt(16).toByte())
-                            val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
-                            Log.d("uiGestureSettingsObservableCP", "dataCode = ${parameter.dataCode}")
-                            Log.d("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength {data = $dataHex }")
+                        try {
+                            while (dataLength > 0) {
+                                val dataHex = EncodeByteToHex.bytesToHexString(data)
+                                val deviceAddress = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength))*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2).toInt(16).toByte())
+                                val parameterID = castUnsignedCharToInt(receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+1)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2).toInt(16).toByte())
+                                val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
+                                Log.d("uiGestureSettingsObservableCP", "dataCode = ${parameter.dataCode}")
+                                Log.d("uiGestureSettingsObservableCP", "counter = $counter dataLength = $dataLength {data = $dataHex }")
 
-                            //TODO тут выпадала ошибка StringIndexOutOfBoundsException замотать в tru cach
-                            parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2)
-                            updateAllUI(deviceAddress, parameterID, parameter.dataCode)
-                            dataLength -= (parameter.parameterDataSize + 2)
-                            counter += 1
+                                parameter.data = receiveDataString.substring((HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2)*2, (HEADER_BLE_OFFSET+(dataLengthMax-dataLength)+2+parameter.parameterDataSize)*2)
+                                updateAllUI(deviceAddress, parameterID, parameter.dataCode)
+                                dataLength -= (parameter.parameterDataSize + 2)
+                                counter += 1
+                            }
+
+                        } catch (e:StringIndexOutOfBoundsException) {
+                            main.showToast("Неудалось расспарсить $receiveDataString")
+                        } catch (e:Exception){
+                            main.showToast("Exception ${e.message}")
                         }
                     }
                 }
@@ -588,7 +594,6 @@ class BLEParser(main: AppCompatActivity) {
         return 0
     }
     private fun getNextSubDevice(subDeviceCounter: Int):Int {
-        // TODO функция не проверена в бою на множестве сабдевайсов, есть подозрение что возникнет рассинхрон subDeviceCounter
         for ((index, item) in baseSubDevicesInfoStructSet.withIndex()) {
             Log.d("SubDeviceSubDevice", "index=$index item=$item")
             if (index > subDeviceCounter) {
@@ -600,19 +605,7 @@ class BLEParser(main: AppCompatActivity) {
         }
         return 0
     }
-    private fun getNextSubDeviceParameter(subDeviceParameterCounter: Int):Int {
-        // TODO функция не проверена в бою на множестве сабдевайсов, есть подозрение что возникнет рассинхрон subDeviceCounter
-        Log.d("SubDeviceSubDevice", "baseSubDevicesInfoStructArray=${baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList.size}")
-//        baseSubDevicesInfoStructArray[subDeviceCounter].parametrsList
-        for (index in baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList.indices) {
-            if (subDeviceParameterCounter < baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList[index].ID ) {
-                if (baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList[index].additionalInfoSize != 0) {
-                    return baseSubDevicesInfoStructSet.elementAt(subDeviceCounter).parametersList[index].ID
-                }
-            }
-        }
-        return 0
-    }
+
     private fun areEqualExcludingSetIdS(obj1: BaseParameterWidgetSStruct, obj2: BaseParameterWidgetSStruct): Boolean {
         // Сравниваем объекты, исключив поле parametersIDAndDataCodes
         val baseParameterWidgetStruct1 = obj1.baseParameterWidgetStruct.copy(parameterInfoSet = obj2.baseParameterWidgetStruct.parameterInfoSet)

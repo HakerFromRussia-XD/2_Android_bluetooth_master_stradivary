@@ -129,9 +129,6 @@ class MotionTrainingFragment(
 
 
         // Подписка на события оптического обучения
-        //TODO убрать захардкоженные ID
-        val parameter = ParameterProvider.getParameter(6, 15)
-        Log.d("TestOptic", "OpticTrainingStruct = ${parameter.parameterDataSize}")
         val opticStreamDisposable = rxUpdateMainEvent.uiOpticTrainingObservable
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
@@ -144,7 +141,6 @@ class MotionTrainingFragment(
                         Log.e("TestFileContain", "Data is empty or invalid")
                         return@subscribe
                     }
-
                     val opticTrainingStruct =
                         Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
                     val dataString = opticTrainingStruct.data.joinToString(separator = " ") {

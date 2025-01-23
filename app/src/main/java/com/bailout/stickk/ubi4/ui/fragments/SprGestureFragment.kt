@@ -63,10 +63,6 @@ class SprGestureFragment: BaseWidgetsFragment() {
         onDestroyParentCallbacks.forEach { it.invoke() }
         onDestroyParentCallbacks.clear()
         transmitter().bleCommand(BLECommands.requestInicializeInformation(), MAIN_CHANNEL, WRITE)
-        //TODO только для демонстрации
-        Handler().postDelayed({
-            binding.refreshLayout.setRefreshing(false)
-        }, 1000)
     }
 
     private fun widgetListUpdater() {

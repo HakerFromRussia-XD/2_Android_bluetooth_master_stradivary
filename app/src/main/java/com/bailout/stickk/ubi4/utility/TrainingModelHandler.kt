@@ -54,7 +54,7 @@ data class Parameters(
     @SerializedName("N_CLASSES") val N_CLASSES: Int,
     @SerializedName("LP_ALPHAS") val LP_ALPHAS: List<Double>,
     @SerializedName("N_LP_ALPHAS") val N_LP_ALPHAS: Int,
-    // @SerializedName("X_SCALE") val X_SCALE: List<Double>,  // TODO: it recomputed
+    @SerializedName("X_SCALE") val X_SCALE: List<Double>,
     @SerializedName("N_FEATURES") val N_FEATURES: Int,
     @SerializedName("NUM_TIMESTEPS") val NUM_TIMESTEPS: Int,
     @SerializedName("WIN_SHIFT") val WIN_SHIFT: Int,
@@ -120,9 +120,8 @@ class TrainingModelHandler(private val context: Context) {
         }
     }
 
-    //TODO прописать сохранение в шаред преференс
     private fun handleState(state: PreferenceKeysUBI4.TrainingModelState) {
-//        saveStateToPreference(state)
+
         when (state) {
             PreferenceKeysUBI4.TrainingModelState.EXPORT -> {
                 scope.launch {
@@ -147,24 +146,6 @@ class TrainingModelHandler(private val context: Context) {
         }
     }
 
-//    private fun saveStateToPreference(state: PreferenceKeysUBI4.TrainingModelState) {
-//        val sharedPreferences = context.getSharedPreferences("training_state", Context.MODE_PRIVATE)
-//        val editor = sharedPreferences.edit()
-//        editor.putString("current_state", state.name)
-//        editor.apply()
-//    }
-
-//    private fun loadStateToSharedPreference(): PreferenceKeysUBI4.TrainingModelState {
-//        val sharedPreferences = context.getSharedPreferences("training_state", Context.MODE_PRIVATE)
-//        val stateName = sharedPreferences.getString("current_state", PreferenceKeysUBI4.TrainingModelState.BASE.name)
-//        return PreferenceKeysUBI4.TrainingModelState.valueOf(stateName!!) // Преобразуем строку обратно в enum
-//    }
-
-//    fun initializeState() {
-//        val initializeState = loadStateToSharedPreference()
-//            // handleState(initializeState)
-//    }
-
     private fun loadModelFile(modelPath: String): Interpreter {
         val assetFileDescriptor = context.assets.openFd(modelPath)
         val fileInputStream = FileInputStream(assetFileDescriptor.fileDescriptor)
@@ -175,7 +156,7 @@ class TrainingModelHandler(private val context: Context) {
         return Interpreter(model)
     }
 
-    fun standardDeviation(numbers: FloatArray): Float {
+    private fun standardDeviation(numbers: FloatArray): Float {
         val mean = numbers.average()
         val variance = numbers.map { (it - mean).pow(2) }.average()
         return sqrt(variance).toFloat()

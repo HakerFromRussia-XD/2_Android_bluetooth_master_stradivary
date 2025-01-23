@@ -46,6 +46,7 @@ class SliderDelegateAdapter(
         val dataOffset: ArrayList<Int> = ArrayList()
         var minProgress = 0
         var maxProgress = 0
+        var widgetPosition = 0
         widgetSliderTitleTv.text = item.title
 
         when (item.widget) {
@@ -58,6 +59,7 @@ class SliderDelegateAdapter(
                 }
                 minProgress = item.widget.minProgress
                 maxProgress = item.widget.maxProgress
+                widgetPosition = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.widgetPosition
                 Log.d("addressDevice" , "E struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId}")
             }
             is SliderParameterWidgetSStruct -> {
@@ -67,12 +69,14 @@ class SliderDelegateAdapter(
                     dataOffset.add(it.dataOffset)
                     dataCode.add(it.dataCode)
                 }
+                widgetPosition = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.widgetPosition
                 minProgress = item.widget.minProgress
                 maxProgress = item.widget.maxProgress
                 Log.d("addressDevice" , "S struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId}")
             }
         }
-        widgetSlidersInfo.add(WidgetSliderInfo(addressDevice, parameterID, dataOffset, minProgress, maxProgress, arrayListOf(0, 0), arrayListOf(widgetSliderSb, widgetSlider2Sb), arrayListOf(widgetSliderNumTv,widgetSliderNum2Tv)))
+        widgetSlidersInfo.add(WidgetSliderInfo(addressDevice, parameterID, dataOffset, minProgress, maxProgress, arrayListOf(0, 0), arrayListOf(widgetSliderSb, widgetSlider2Sb), arrayListOf(widgetSliderNumTv,widgetSliderNum2Tv), widgetPosition))
+        widgetSlidersInfo.sortBy { it.widgetPosition } // сортировка важна для соответствия порядка виджетов на экране и в этом списке
         sliderCollect()
         setUI(ParameterRef(addressDevice[0], parameterID[0], dataCode[0]))
         val indexWidgetSlider = getIndexWidgetSlider(addressDevice[0], parameterID[0])
@@ -173,4 +177,5 @@ data class WidgetSliderInfo (
     var progress: ArrayList<Int> = ArrayList(),
     var widgetSlidersSb: ArrayList<ProgressBar>,
     var widgetSliderNumTv: ArrayList<TextView>,
+    var widgetPosition: Int = 0,
 )

@@ -8,6 +8,5 @@ fun Fragment.transmitter(): TransmitterUBI4 {
 
 interface TransmitterUBI4 {
     fun bleCommand(byteArray: ByteArray?, uuid: String, typeCommand: String)
-    fun bleCommandWithQueue(byteArray: ByteArray?, Command: String, typeCommand: String, onChunkSent: () -> Unit
-    )
+    fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onChunkSent: () -> Unit)
 }

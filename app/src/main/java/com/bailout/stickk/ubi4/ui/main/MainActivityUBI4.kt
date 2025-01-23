@@ -28,8 +28,11 @@ import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
 import com.bailout.stickk.ubi4.contract.TransmitterUBI4
+import com.bailout.stickk.ubi4.contract.navigator
+import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.BaseParameterInfoStruct
 import com.bailout.stickk.ubi4.data.FullInicializeConnectionStruct
+import com.bailout.stickk.ubi4.data.local.BindingGestureGroup
 import com.bailout.stickk.ubi4.data.local.Gesture
 import com.bailout.stickk.ubi4.data.local.OpticTrainingStruct
 import com.bailout.stickk.ubi4.data.subdevices.BaseSubDeviceInfoStruct
@@ -96,15 +99,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            showOpticGesturesScreen()
         }
 
-        binding.runCommandBtn.setOnClickListener {
-//            val command = BLECommands.requestThresholds(6, 3)
+//        binding.runCommandBtn.setOnClickListener {
+//            val command = BLECommands.requestActiveGesture(6, 8)
 //            // Логируем команду в шестнадцатеричном формате
 //            val commandHex = EncodeByteToHex.bytesToHexString(command)
 //            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
 //            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
-//            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
-            manageTrainingLifecycle()
-        }
+////            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
+////            manageTrainingLifecycle()
+//        }
 
     }
     @SuppressLint("MissingPermission")
@@ -113,7 +116,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         if (!mBLEController.getBluetoothAdapter()?.isEnabled!!) {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
-            Log.d("--> reconnectThread started", "onResume Статус подключения: ${mBLEController.getStatusConnected()}")
         }
         if (mBLEController.getBluetoothLeService() != null) {
             connectedDeviceName = getString(CONNECTED_DEVICE)
@@ -122,7 +124,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         if (!mBLEController.getStatusConnected()) {
             mBLEController.setReconnectThreadFlag(true)
-            Log.d("--> reconnectThread started", "Reconnect thread flag установлен в true")
             mBLEController.reconnectThread()
         }
     }
@@ -145,13 +146,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         Log.d("StateCallBack", "showMotionTrainingScreen called, new MotionTrainingFragment created")
     }
 
-//    override fun showMotionTrainingScreen(onFinishTraining: () -> Unit) {
-//        launchFragmentWithoutStack(MotionTrainingFragment(onFinishTraining))
-//        Log.d("StateCallBack", "showMotionTrainingScreen called")
-//    }
-
     override fun manageTrainingLifecycle() {
-        Log.d("StateCallBack11", "manageTrainingLifecycle called")
+        Log.d("StateCallBack", "manageTrainingLifecycle called")
         trainingModelHandler.runModel()
     }
 
@@ -181,7 +177,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         connectedDeviceName = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_NAME).orEmpty()
         connectedDeviceAddress = intent.getStringExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS).orEmpty()
         setStaticVariables()
-        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, connectedDeviceAddress)
+        saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, connectedDeviceName)
 
         //settings
     }
@@ -229,7 +225,6 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 
     private fun startQueue() {
         val worker = Thread {
-
             while (true) {
                 val task: Runnable = queue.get()
                 task.run()
@@ -237,27 +232,33 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         }
         worker.start()
     }
-   override fun bleCommandWithQueue(byteArray: ByteArray?, command: String, typeCommand: String, onCommandSend: () -> Unit) {
-        queue.put(getBleCommandWithQueue(byteArray, command, typeCommand, onCommandSend))
+   override fun bleCommandWithQueue(
+        byteArray: ByteArray?,
+        Command: String,
+        typeCommand: String,
+        onChunkSent: () -> Unit
+    ) {
+        queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand, onChunkSent))
     }
+
 
     private fun getBleCommandWithQueue(
         byteArray: ByteArray?,
-        command: String,
+        Command: String,
         typeCommand: String,
-        onCommandSend: () -> Unit
+        onChunkSent: () -> Unit
     ): Runnable {
         return Runnable {
-            writeData(byteArray, command, typeCommand)
+            writeData(byteArray, Command, typeCommand)
             // Invoke the callback after data is sent
-            onCommandSend()
+            onChunkSent()
         }
     }
 
-    private fun writeData(byteArray: ByteArray?, сommand: String, typeCommand: String) {
+    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
-            bleCommand(byteArray, сommand, typeCommand)
+            bleCommand(byteArray, Command, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
                 Thread.sleep(1)

@@ -235,7 +235,9 @@ class PlotDelegateAdapter (
             } catch (e: CancellationException) {
                 Log.d("plotArrayFlowCollect", "Job was cancelled: ${e.message}")
             } catch (e: Exception) {
-                main.showToast("ERROR plotArrayFlowCollect")
+                main.runOnUiThread {
+                    main.showToast("ERROR plotArrayFlowCollect")
+                }
                 Log.e("plotArrayFlowCollect", "Exception: ${e.message}")
 
             }

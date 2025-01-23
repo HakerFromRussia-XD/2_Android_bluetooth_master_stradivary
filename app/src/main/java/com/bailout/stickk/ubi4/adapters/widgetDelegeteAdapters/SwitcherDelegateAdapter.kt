@@ -126,6 +126,8 @@ class SwitcherDelegateAdapter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { parameterRef ->
                 onDataPacketReceived()
+                Log.d("OPTIC DATA", "data = ${ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID).data}")
+
             }
         disposables.add(opticStreamDisposable)
     }

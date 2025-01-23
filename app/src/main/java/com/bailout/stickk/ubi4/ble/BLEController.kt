@@ -76,7 +76,6 @@ class BLEController(
                 mMain.finish()
             }
             if (!scanWithoutConnectFlag) {
-                //TODO раскомментировать когда не нужно быстрое подключение
                 System.err.println("connectedDeviceAddress $connectedDeviceAddress")
 //                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E") // Лёшина плата
 //                mBluetoothLeService?.connect("DC:DA:0C:18:0E:8E")       // Моя плата

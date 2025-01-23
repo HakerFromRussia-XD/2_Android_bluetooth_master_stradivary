@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Chronometer
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
@@ -27,9 +26,8 @@ import com.bailout.stickk.ubi4.models.GesturesId
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
-import com.bailout.stickk.ubi4.utility.SprGestureItemsProvider
+import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -37,7 +35,6 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import java.util.Locale
 import kotlin.math.roundToInt
 
 class MotionTrainingFragment(
@@ -75,6 +72,7 @@ class MotionTrainingFragment(
     private var elapsedLearningStepTime: Long = 0L
 
     // File Logging
+    private var stamp = 0
     private var loggingFilename = "serial_data"
     private val fileLock = Any()
 
@@ -112,7 +110,8 @@ class MotionTrainingFragment(
         super.onCreate(savedInstanceState)
         Log.d("LagSpr", "Motion onCreate")
         deleteSerialDataFile()
-
+        stamp = ((System.currentTimeMillis() / 1000) % Int.MAX_VALUE).toInt()
+        loggingFilename += stamp
         path = requireContext().getExternalFilesDir(null)!!
         file = File(path, loggingFilename)
 
@@ -130,8 +129,6 @@ class MotionTrainingFragment(
 
 
         // Подписка на события оптического обучения
-        val parameter = ParameterProvider.getParameter(6, 15)
-        Log.d("TestOptic", "OpticTrainingStruct = ${parameter.parameterDataSize}")
         val opticStreamDisposable = rxUpdateMainEvent.uiOpticTrainingObservable
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
@@ -144,7 +141,6 @@ class MotionTrainingFragment(
                         Log.e("TestFileContain", "Data is empty or invalid")
                         return@subscribe
                     }
-
                     val opticTrainingStruct =
                         Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
                     val dataString = opticTrainingStruct.data.joinToString(separator = " ") {
@@ -279,6 +275,7 @@ class MotionTrainingFragment(
         confirmBtn.setOnClickListener {
             myDialog.dismiss()
             confirmClick()
+            Log.d("StateCallBack", "confirmClick() run")
             onFinishTraining()
         }
     }
@@ -466,8 +463,8 @@ class MotionTrainingFragment(
 
         if (nextGestureName.isEmpty()) {
             // Следующего жеста нет, это последний этап
-            binding.motionNameOfGesturesTv.text = "Можете расслабить руку"
-            binding.prepareForPerformTv.text = "Дождитесь окончания"
+            binding.motionNameOfGesturesTv.text = requireContext().getString(R.string.you_can_relax_your_hand)
+            binding.prepareForPerformTv.text = requireContext().getString(R.string.wait_until_the_end)
             binding.prepareForPerformTv.visibility = View.VISIBLE
 
             // Установка дефолтной анимации или скрытие ImageView
@@ -502,8 +499,8 @@ class MotionTrainingFragment(
             if (phase.gestureName == "Neutral") {
                 switchAnimationSmoothly(phase.animation, 50)
             }
-            binding.motionNameOfGesturesTv.text = "Следующий жест $nextGestureName"
-            binding.prepareForPerformTv.text = "Подготовьтесь к выполнению жеста"
+            binding.motionNameOfGesturesTv.text = requireContext().getString(R.string.next_gesture, nextGestureName)
+            binding.prepareForPerformTv.text = requireContext().getString(R.string.prepare_to_perform_the_gesture)
             binding.prepareForPerformTv.visibility = View.VISIBLE
             binding.motionProgressBar.visibility = View.INVISIBLE
             binding.countdownTextView.visibility = View.VISIBLE
@@ -676,8 +673,8 @@ class MotionTrainingFragment(
                 timeGesture = baselineDuration,
                 postPhase = 0.0,
                 animation = firstGestureAnimation,
-                headerText = "Подготовьтесь к выполнению первого жеста",
-                description = "Подготовьтесь к выполнению первого жеста",
+                headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+                description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
                 gestureName = "BaseLine",
                 gestureId = -1
             )
@@ -706,8 +703,8 @@ class MotionTrainingFragment(
                         timeGesture = postGestDuration + preGestDuration,
                         postPhase = 0.0,
                         animation = animationId,
-                        headerText = "Подготовьтесь к выполнению жеста",
-                        description = "Отдохните перед следующим жестом",
+                        headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+                        description = requireContext().getString(R.string.rest_before_the_next_gesture),
                         gestureName = "Neutral",
                         gestureId = neutralId
                     )
@@ -720,9 +717,10 @@ class MotionTrainingFragment(
                     postPhase = postGestDuration,
                     animation = animationId,
                     headerText = sprGestureItemsProvider.getNameGestureByKeyName(keyName),
-                    description = "Выполните жест: ${
+                    description = requireContext().getString(
+                        R.string.perform_gesture,
                         sprGestureItemsProvider.getNameGestureByKeyName(keyName)
-                    }",
+                    ),
                     gestureName = keyName,
                     gestureId = gestureId
                 )
@@ -730,14 +728,14 @@ class MotionTrainingFragment(
             }
         }
         lineData.add(
-
             GesturePhase(
                 prePhase = 0.0,
+                //90
                 timeGesture = 90.0,
                 postPhase = 0.0,
                 animation = 0,
-                headerText = "Отдохните перед следующим жестом",
-                description = "Отдохните перед следующим жестом",
+                headerText = requireContext().getString(R.string.rest_before_the_next_gesture),
+                description = requireContext().getString(R.string.rest_before_the_next_gesture),
                 gestureName = "Neutral",
                 gestureId = 0
             )
@@ -750,8 +748,8 @@ class MotionTrainingFragment(
                 timeGesture = baselineDuration,
                 postPhase = 0.0,
                 animation = 0,
-                headerText = "Отдохните перед следующим жестом",
-                description = "Отдохните перед следующим жестом",
+                headerText = requireContext().getString(R.string.rest_before_the_next_gesture),
+                description = requireContext().getString(R.string.rest_before_the_next_gesture),
                 gestureName = "Finish",
                 gestureId = -1
             )

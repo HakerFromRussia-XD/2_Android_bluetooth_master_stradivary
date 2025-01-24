@@ -75,7 +75,6 @@ class BLEParser(main: AppCompatActivity) {
     private var subDeviceAdditionalCounter = 1
     private var countErrors = 0
 
-
     internal fun parseReceivedData (data: ByteArray?) {
         if (data != null) {
             val receiveDataString: String = EncodeByteToHex.bytesToHexString(data)
@@ -269,7 +268,6 @@ class BLEParser(main: AppCompatActivity) {
                 Log.d("parameter PDCE_SELECT_GESTURE","deviceAddress: $deviceAddress  parameterID: $parameterID   dataCode: $dataCode data: $paramData")
                 CoroutineScope(Dispatchers.Default).launch { activeGestureFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             }
-
         }
     }
 
@@ -594,7 +592,6 @@ class BLEParser(main: AppCompatActivity) {
         return 0
     }
     private fun getNextSubDevice(subDeviceCounter: Int):Int {
-        // TODO функция не проверена в бою на множестве сабдевайсов, есть подозрение что возникнет рассинхрон subDeviceCounter
         for ((index, item) in baseSubDevicesInfoStructSet.withIndex()) {
             Log.d("SubDeviceSubDevice", "index=$index item=$item")
             if (index > subDeviceCounter) {

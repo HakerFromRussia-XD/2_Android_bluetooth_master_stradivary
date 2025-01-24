@@ -9,7 +9,7 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('/Users/motoricallc/Keystore.jks')
+            storeFile file('/Users/denisoshkin/StudioProjects/GitHub/2_Android_bluetooth_master_stradivary/keystore.jks')
             storePassword '89157719183'
             keyAlias 'key0'
             keyPassword '89157719183'
@@ -34,7 +34,6 @@ android {
         multiDexEnabled true
         signingConfig signingConfigs.release
     }
-
     buildTypes {
         release {
             minifyEnabled false

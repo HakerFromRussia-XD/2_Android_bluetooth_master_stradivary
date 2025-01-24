@@ -675,8 +675,8 @@ class MotionTrainingFragment(
                 animation = firstGestureAnimation,
                 headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
                 description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
-                gestureName = "BaseLine",
-                gestureId = -1
+                gestureName = "Neutral",
+                gestureId = 0
             )
         )
 

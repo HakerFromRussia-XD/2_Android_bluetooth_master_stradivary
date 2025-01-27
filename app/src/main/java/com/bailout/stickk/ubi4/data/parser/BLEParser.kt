@@ -148,57 +148,34 @@ class BLEParser(main: AppCompatActivity) {
 
     @SuppressLint("LogNotTimber")
     private fun updateAllUI(deviceAddress: Int, parameterID: Int, dataCode: Int) {
+
         Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
         when (dataCode) {
             ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
                 val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
-                val data = ParameterProvider.getParameter(deviceAddress, parameterID).data
+//                val data = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                val data = parameter.data
+                val skipHexChars = 2
+                val realPayload = if (data.length >= skipHexChars) {
+                    data.substring(skipHexChars) // Срезаем первые 2 hex-символа
+                } else {
+                    data // или оставляем как есть, если вдруг слишком короткая
+                }
+                val paddedData: String = realPayload.padEnd(12, '0')
+
+//                val neededLength = parameter.parameterDataSize * 2
+
                 try {
-                    if (parameter.parameterDataSize == 1) {
-                        plotArray =
-                            arrayListOf(castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()))
-                    }
-                    if (parameter.parameterDataSize == 2) {
                         plotArray = arrayListOf(
-                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte())
+                            castUnsignedCharToInt(paddedData.substring(0, 2).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substring(2, 4).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substring(4, 6).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substring(6, 8).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substring(8, 10).toInt(16).toByte()),
+                            castUnsignedCharToInt(paddedData.substring(10, 12).toInt(16).toByte())
                         )
-                    }
-                    if (parameter.parameterDataSize == 3) {
-                        plotArray = arrayListOf(
-                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte())
-                        )
-                    }
-                    if (parameter.parameterDataSize == 4) {
-                        plotArray = arrayListOf(
-                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(6, 8).toInt(16).toByte())
-                        )
-                    }
-                    if (parameter.parameterDataSize == 5) {
-                        plotArray = arrayListOf(
-                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(6, 8).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(8, 10).toInt(16).toByte())
-                        )
-                    }
-                    if (parameter.parameterDataSize == 6) {
-                        plotArray = arrayListOf(
-                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(6, 8).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(8, 10).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(10, 12).toInt(16).toByte())
-                        )
-                    }
+//                    }
                 } catch (e: Error) {
                     main.showToast("Ошибка 113")
                 }

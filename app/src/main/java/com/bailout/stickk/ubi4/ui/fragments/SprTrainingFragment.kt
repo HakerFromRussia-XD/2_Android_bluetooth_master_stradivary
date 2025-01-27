@@ -74,9 +74,9 @@ class SprTrainingFragment: BaseWidgetsFragment() {
 
 
         //настоящие виджеты
-//        widgetListUpdater()
+        widgetListUpdater()
         //фейковые виджеты
-        adapterWidgets.swapData(mDataFactory.fakeData())
+//        adapterWidgets.swapData(mDataFactory.fakeData())
 
         canSendNextChunkFlagUpdater()
         binding.refreshLayout.setLottieAnimation("loader_3.json")

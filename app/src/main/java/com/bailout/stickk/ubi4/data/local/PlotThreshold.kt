@@ -2,12 +2,14 @@ package com.bailout.stickk.ubi4.data.local
 
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
+@Serializable(with = PlotThresholdsSerializer::class)
 data class PlotThresholds(
     var threshold1: Int = 0,
     var threshold2: Int = 0,

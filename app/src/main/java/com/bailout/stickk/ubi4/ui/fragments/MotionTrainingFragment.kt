@@ -666,7 +666,9 @@ class MotionTrainingFragment(
         val firstGestureAnimation =
             sprGestureItemsProvider.getAnimationIdByKeyNameGesture(firstGestureName)
 
-        // Добавление начальной фазы BaseLine
+
+
+        // Добавление начальной фазы Neutral
         lineData.add(
             GesturePhase(
                 prePhase = 0.0,

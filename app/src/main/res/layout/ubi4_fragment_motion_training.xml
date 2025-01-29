@@ -18,6 +18,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/indicatorOpticStreamIv"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginStart="8dp"
+        android:visibility="visible"
+        android:src="@drawable/circle_16_red"
+        app:layout_constraintStart_toEndOf="@id/motionNameOfGesturesTv"
+        app:layout_constraintTop_toTopOf="@id/motionNameOfGesturesTv"
+        app:layout_constraintBottom_toBottomOf="@id/motionNameOfGesturesTv" />
+
+
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/motionHandIv"
         android:layout_width="216dp"
@@ -28,7 +40,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/motionNameOfGesturesTv" />
-
 
     <TextView
         android:id="@+id/prepareForPerformTv"
@@ -42,9 +53,7 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/motionHandIv"
-         />
-
+        app:layout_constraintTop_toBottomOf="@id/motionHandIv" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/motionCl"
@@ -117,6 +126,5 @@
         app:layout_constraintEnd_toEndOf="@id/stopTrainingBtn"
         app:layout_constraintStart_toStartOf="@id/stopTrainingBtn"
         app:layout_constraintTop_toTopOf="@id/stopTrainingBtn" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

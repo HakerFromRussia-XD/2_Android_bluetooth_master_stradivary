@@ -769,7 +769,7 @@ class UBI4GripperScreenWithEncodersActivity
     }
     private fun loadGestureNameList() {
         val text = "load not work"
-        val macKey = mSettings!!.getString(PreferenceKeys.LAST_CONNECTION_MAC, text)
+        val macKey = mSettings!!.getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC, text)
         gestureNameList.clear()
         for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
             gestureNameList.add(

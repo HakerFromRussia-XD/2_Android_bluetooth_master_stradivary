@@ -45,7 +45,7 @@ internal class DataFactory {
 
 
 //        addElement(1, 1, objects, objectCommandE)
-         addElement(14, 1, objects, objectGesture)
+//         addElement(14, 1, objects, objectGesture)
 //        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)
 //        addElement(1, 1, objects, objectCommandE)
@@ -54,9 +54,9 @@ internal class DataFactory {
 //        addElementS(2, "Описание свича", objects, objectSwitchS)
         addElement(5, 10, objects, objectPlotE)
 //        addElementS(5, "3", objects, objectPlotS)
-//        addElement(4, 2, objects, objectSliderE)
+        addElement(4, 2, objects, objectSliderE)
 //        addElementS(4, "Описание слайдера", objects, objectSliderS)
-        addElement(15, 1, objects, objectTrainingE)
+//        addElement(15, 1, objects, objectTrainingE)
 //        addElement(15, 1, objects, objectTrainingE)
 //        addElement(15, 1, objects, objectTrainingE)
 

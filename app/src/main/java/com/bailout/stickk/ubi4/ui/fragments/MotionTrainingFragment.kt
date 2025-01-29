@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Chronometer
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
@@ -28,6 +29,7 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.data.local.SprGestureItemsProvider
 import com.google.gson.Gson
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -51,6 +53,7 @@ class MotionTrainingFragment(
 
     // Timers
     private var timer: CountDownTimer? = null
+    private var timerIndication: CountDownTimer? = null
     private var preparationTimer: CountDownTimer? = null
     private var timerDuration: Long = 0L
     private var preparationDuration: Long = 0L
@@ -102,6 +105,7 @@ class MotionTrainingFragment(
     private var currentDialog: Dialog? = null
     private var counterTimer: Double = 0.0
 
+//    private var indicatorOpticStreamIv: ImageView? = null
 
     private var lineData: MutableList<GesturePhase> = mutableListOf()
     private var currentPhaseIndex: Int = 0
@@ -131,15 +135,14 @@ class MotionTrainingFragment(
         // Подписка на события оптического обучения
         val opticStreamDisposable = rxUpdateMainEvent.uiOpticTrainingObservable
             .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .subscribe { parameterRef ->
+            .doOnNext { parameterRef ->
                 try {
                     val parameter = ParameterProvider.getParameter(parameterRef.addressDevice, parameterRef.parameterID)
                     Log.d("TestOptic", "OpticTrainingStruct = ${parameter.data.length}")
                     val dataStringRaw = parameter.data
                     if (dataStringRaw.isBlank() || dataStringRaw == "None") {
                         Log.e("TestFileContain", "Data is empty or invalid")
-                        return@subscribe
+                        return@doOnNext
                     }
                     val opticTrainingStruct =
                         Json.decodeFromString<OpticTrainingStruct>("\"${parameter.data}\"")
@@ -154,7 +157,12 @@ class MotionTrainingFragment(
                     Log.e("TestOptic", "Error decoding data: ${e.message}")
                 }
             }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                onDataPacketReceived()
+            }
         disposables.add(opticStreamDisposable)
+
     }
 
     override fun onCreateView(
@@ -172,6 +180,7 @@ class MotionTrainingFragment(
         Log.d("LagSpr", "Motion onViewCreated")
         super.onViewCreated(view, savedInstanceState)
 
+//        indicatorOpticStreamIv = _binding?.indicatorOpticStreamIv
         // Инициализация Chronometer
         learningTimer = Chronometer(requireContext())
         learningStepTimer = Chronometer(requireContext())
@@ -183,18 +192,18 @@ class MotionTrainingFragment(
         lineData = trainingDataProcessing()
 
         // Проверяем и объединяем BaseLine и Neutral
-        if (lineData.size > 1 &&
-            lineData[0].gestureName == "BaseLine" &&
-            lineData[1].gestureName == "Neutral"
-        ) {
-            val combinedPhase = lineData[0].copy(
-                timeGesture = lineData[0].timeGesture + lineData[1].timeGesture
-            )
-            lineData[0] = combinedPhase
-            lineData.removeAt(1)
-
-            switchAnimationSmoothly(lineData[0].animation, 50)
-        }
+//        if (lineData.size > 1 &&
+//            lineData[0].gestureName == "BaseLine" &&
+//            lineData[1].gestureName == "Neutral"
+//        ) {
+//            val combinedPhase = lineData[0].copy(
+//                timeGesture = lineData[0].timeGesture + lineData[1].timeGesture
+//            )
+//            lineData[0] = combinedPhase
+//            lineData.removeAt(1)
+//
+//            switchAnimationSmoothly(lineData[0].animation, 50)
+//        }
 
         // Запуск первой фазы тренировки
         startPhase(currentPhaseIndex)
@@ -623,7 +632,6 @@ class MotionTrainingFragment(
         super.onPause()
         pauseTimers()
     }
-
     override fun onResume() {
         super.onResume()
         resumeTimers()
@@ -667,8 +675,6 @@ class MotionTrainingFragment(
             sprGestureItemsProvider.getAnimationIdByKeyNameGesture(firstGestureName)
 
 
-
-        // Добавление начальной фазы Neutral
         lineData.add(
             GesturePhase(
                 prePhase = 0.0,
@@ -694,7 +700,8 @@ class MotionTrainingFragment(
                     0
                 }
 
-                if (index < gestureSequence.size) {
+
+                if (index < gestureSequence.size && index > 0) {
                     // Получение ID для Neutral фазы
                     val neutralId = gesturesId?.getGestureValueByName("Neutral") ?: run {
                         Log.e("MotionTrainingFragment", "Neutral gesture ID not found")
@@ -733,7 +740,7 @@ class MotionTrainingFragment(
             GesturePhase(
                 prePhase = 0.0,
                 //90
-                timeGesture = 90.0,
+                timeGesture = 60.0,
                 postPhase = 0.0,
                 animation = 0,
                 headerText = requireContext().getString(R.string.rest_before_the_next_gesture),
@@ -763,5 +770,20 @@ class MotionTrainingFragment(
         }
 
         return lineData
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private fun onDataPacketReceived() {
+        // Сбрасываем предыдущий таймер
+        _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_green))
+        timerIndication?.cancel()
+        // Запускаем новый таймер на 100 мс
+        timerIndication = object : CountDownTimer(100, 100) {
+            override fun onTick(millisUntilFinished: Long) = Unit
+
+            override fun onFinish() {
+                _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
+            }
+        }.start()
     }
 }

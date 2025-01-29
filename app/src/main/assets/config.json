@@ -26,7 +26,7 @@
     "PRE_GEST_DURATION": 2,
     "AT_GEST_DURATION": 2,
     "POST_GEST_DURATION": 2,
-    "N_CYCLES": 1,
+    "N_CYCLES": 3,
     "N_OMG_CH": 16,
     "N_EMG_CH": 8,
     "N_BNO_CH": 3,

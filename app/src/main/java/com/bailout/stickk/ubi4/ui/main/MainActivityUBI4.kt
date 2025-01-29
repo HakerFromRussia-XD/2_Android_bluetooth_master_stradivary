@@ -42,7 +42,6 @@ import com.bailout.stickk.ubi4.models.PlotParameterRef
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4.CONNECTED_DEVICE_ADDRESS
 import com.bailout.stickk.ubi4.ui.bottom.BottomNavigationController
-import com.bailout.stickk.ubi4.ui.fragments.AdvancedFragment
 import com.bailout.stickk.ubi4.ui.fragments.GesturesFragment
 import com.bailout.stickk.ubi4.ui.fragments.MotionTrainingFragment
 import com.bailout.stickk.ubi4.ui.fragments.SensorsFragment
@@ -100,15 +99,15 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            showOpticGesturesScreen()
         }
 
-//        binding.runCommandBtn.setOnClickListener {
-//            val command = BLECommands.requestActiveGesture(6, 10)
+        binding.runCommandBtn.setOnClickListener {
+//            val command = BLECommands.requestActiveGesture(6, 8)
 //            // Логируем команду в шестнадцатеричном формате
 //            val commandHex = EncodeByteToHex.bytesToHexString(command)
-//            Log.d("BLECommand", "Отправка команды requestActiveGesture: $commandHex")
-//            bleCommandWithQueue(BLECommands.requestActiveGesture(6,10), MAIN_CHANNEL, WRITE){}
-////            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
-////            manageTrainingLifecycle()
-//        }
+//            bleCommandWithQueue(command, MAIN_CHANNEL, WRITE){}
+//            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
+//            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
+            manageTrainingLifecycle()
+        }
 
     }
     @SuppressLint("MissingPermission")

@@ -106,11 +106,57 @@ class SliderDelegateAdapter(
             }
         })
 
+        minusBtnRipple.setOnClickListener {
+            updateSliderProgress(sliderIndex = 0, step = -1, indexWidgetSlider = indexWidgetSlider)
+        }
+        plusBtnRipple.setOnClickListener {
+            updateSliderProgress(sliderIndex = 0, step = +1, indexWidgetSlider = indexWidgetSlider)
+        }
+
+        // Логика для второго слайдера
+        minusBtnRipple2.setOnClickListener {
+            updateSliderProgress(sliderIndex = 1, step = -1, indexWidgetSlider = indexWidgetSlider)
+        }
+        plusBtnRipple2.setOnClickListener {
+            updateSliderProgress(sliderIndex = 1, step = +1, indexWidgetSlider = indexWidgetSlider)
+        }
+
 
         Handler().postDelayed({
             Log.d("SliderRequest", "addressDevice = $addressDevice parameterID = $parameterID")
             main.bleCommandWithQueue(BLECommands.requestSlider(addressDevice[0], parameterID[0]), MAIN_CHANNEL, SampleGattAttributes.WRITE){}
         }, 500)
+    }
+    private fun updateSliderProgress(sliderIndex: Int, step: Int, indexWidgetSlider: Int) {
+        val sliderInfo = widgetSlidersInfo[indexWidgetSlider]
+        val currentValue = sliderInfo.progress[sliderIndex]
+        var newValue = (currentValue + step)//.coerceIn(sliderInfo.minProgress, sliderInfo.maxProgress)
+
+        val minProgress = sliderInfo.minProgress
+        var maxProgress = sliderInfo.maxProgress
+        if (minProgress == maxProgress) {
+            // Если minProgress и maxProgress равны, устанавливаем maxProgress в 100
+            maxProgress = 100
+            Log.d("updateSliderProgress", "minProgress и maxProgress равны. Устанавливаем maxProgress = 100")
+        }
+
+        newValue = newValue.coerceIn(minProgress, maxProgress)
+
+        Log.d("updateSliderProgress", "sliderIndex: $sliderIndex, currentValue: $currentValue, step: $step, minProgress: $minProgress, maxProgress: $maxProgress")
+
+
+        //обновляем слайдер
+        sliderInfo.progress[sliderIndex] = newValue
+        sliderInfo.widgetSlidersSb[sliderIndex].progress = newValue - sliderInfo.minProgress
+        sliderInfo.widgetSliderNumTv[sliderIndex].text = newValue.toString()
+
+
+        // Сообщаем о новом значении BLE-устройству
+        onSetProgress(
+            sliderInfo.addressDevice[sliderIndex],
+            sliderInfo.parameterID[sliderIndex],
+            sliderInfo.progress
+        )
     }
     private fun sliderCollect() {
         scope.launch(Dispatchers.IO) {
@@ -157,6 +203,8 @@ class SliderDelegateAdapter(
         }
         return -1
     }
+
+
     override fun isForViewType(item: Any): Boolean = item is SliderItem
     override fun SliderItem.getItemId(): Any = title
     fun onDestroy() {

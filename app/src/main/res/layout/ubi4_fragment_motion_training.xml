@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ubi4_back">
+
+    <TextView
+        android:id="@+id/motionNameOfGesturesTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="68dp"
+        android:fontFamily="@font/sf_pro_text_bold"
+        android:text="Flexion"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/indicatorOpticStreamIv"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginStart="8dp"
+        android:visibility="visible"
+        android:src="@drawable/circle_16_red"
+        app:layout_constraintStart_toEndOf="@id/motionNameOfGesturesTv"
+        app:layout_constraintTop_toTopOf="@id/motionNameOfGesturesTv"
+        app:layout_constraintBottom_toBottomOf="@id/motionNameOfGesturesTv" />
+
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/motionHandIv"
+        android:layout_width="216dp"
+        android:layout_height="330dp"
+        android:layout_marginTop="22dp"
+        app:lottie_autoPlay="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/motionNameOfGesturesTv" />
+
+    <TextView
+        android:id="@+id/prepareForPerformTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:visibility="visible"
+        android:fontFamily="@font/sf_pro_display_light"
+        android:text="@string/prepare_to_perform_the_gesture_in"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/motionHandIv" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/motionCl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/ubi4_back"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/stopTrainingBtn">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/motionProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="false"
+            android:progress="0"
+            app:indicatorColor="@color/ubi4_active"
+            app:indicatorSize="60dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:trackColor="@color/ubi4_gray"
+            app:trackCornerRadius="3dp"
+            app:trackThickness="6dp" />
+
+        <TextView
+            android:id="@+id/countdownTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:fontFamily="@font/sf_pro_text_bold"
+            android:text="7"
+            android:textColor="#ffffff"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/stopTrainingBtn"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/ubi4_viwe_with_corners_white"
+        android:elevation="3dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/trainingBtnTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:fontFamily="@font/sf_pro_text_bold"
+        android:text="@string/cancel_training"
+        android:textColor="@color/ubi4_dark_back"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@id/stopTrainingBtn"
+        app:layout_constraintEnd_toEndOf="@id/stopTrainingBtn"
+        app:layout_constraintStart_toStartOf="@id/stopTrainingBtn"
+        app:layout_constraintTop_toTopOf="@id/stopTrainingBtn" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -753,7 +753,7 @@ class MotionTrainingFragment(
             GesturePhase(
                 prePhase = 0.0,
                 //90
-                timeGesture = 2.0,
+                timeGesture = 60.0,
                 postPhase = 0.0,
                 animation = 0,
                 headerText = requireContext().getString(R.string.rest_before_the_next_gesture),

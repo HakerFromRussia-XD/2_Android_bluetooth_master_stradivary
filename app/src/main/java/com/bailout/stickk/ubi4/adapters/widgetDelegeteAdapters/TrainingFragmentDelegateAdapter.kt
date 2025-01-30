@@ -114,7 +114,6 @@ class TrainingFragmentDelegateAdapter(
                 _trainingAnnotationIv.visibility = View.VISIBLE
                 _lottieAnimationLoading.visibility = View.GONE
                 _percentLearning.visibility = View.GONE
-                _lottieAnimationLoading.cancelAnimation()
                 _trainingBtn.isEnabled = true
                 _trainingBtn.setOnClickListener {
                     onConfirmClick()
@@ -127,7 +126,6 @@ class TrainingFragmentDelegateAdapter(
                 _trainingAnnotationIv.visibility = View.GONE
                 _lottieAnimationLoading.visibility = View.VISIBLE
                 _percentLearning.visibility = View.VISIBLE
-                _lottieAnimationLoading.playAnimation()
                 _trainingBtn.isEnabled = true
                 _percentLearning.text = ""
                 _trainingBtn.setOnClickListener {
@@ -142,10 +140,7 @@ class TrainingFragmentDelegateAdapter(
             PreferenceKeysUBI4.TrainingModelState.EXPORT -> {
                 _trainingSubTitleTv.text = main.getString(R.string.the_model_file_is_saved_to_the_device_memory_please_wait)
                 _trainingTitleTv.text = main.getString(R.string.spppr_is_saving)
-//                _trainingAnnotationIv.visibility = View.VISIBLE
-//                _lottieAnimationLoading.visibility = View.GONE
                 _percentLearning.visibility = View.GONE
-//                _lottieAnimationLoading.cancelAnimation()
                 _trainingBtn.isEnabled = true
                 _trainingBtn.setOnClickListener {
                     onConfirmClick()

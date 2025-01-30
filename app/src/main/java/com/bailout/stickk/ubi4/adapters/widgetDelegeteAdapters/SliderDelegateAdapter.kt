@@ -128,6 +128,7 @@ class SliderDelegateAdapter(
         Handler().postDelayed({
             Log.d("SliderRequest", "addressDevice = $addressDevice parameterID = $parameterID")
             main.bleCommandWithQueue(BLECommands.requestSlider(addressDevice[0], parameterID[0]), MAIN_CHANNEL, SampleGattAttributes.WRITE){}
+
         }, 500)
     }
     private fun updateSliderProgress(sliderIndex: Int, step: Int, indexWidgetSlider: Int) {

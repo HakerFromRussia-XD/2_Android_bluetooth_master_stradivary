@@ -24,6 +24,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.presenters.MainPresenter
 import com.bailout.stickk.new_electronic_by_Rodeon.viewTypes.MainActivityView
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.BLEController
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.NavigatorUBI4
@@ -107,6 +108,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
 //            Log.d("BLECommandActive", "Отправка команды requestActiveGesture: $commandHex")
 //            bleCommand(BLECommands.requestBindingGroup(6, 14), MAIN_CHANNEL, WRITE)
             manageTrainingLifecycle()
+//            bleCommandWithQueue(BLECommands.requestSlider(6, 2), MAIN_CHANNEL, SampleGattAttributes.WRITE){}
         }
 
     }
@@ -235,31 +237,31 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
     }
    override fun bleCommandWithQueue(
         byteArray: ByteArray?,
-        Command: String,
+        сommand: String,
         typeCommand: String,
         onChunkSent: () -> Unit
     ) {
-        queue.put(getBleCommandWithQueue(byteArray, Command, typeCommand, onChunkSent))
+        queue.put(getBleCommandWithQueue(byteArray, сommand, typeCommand, onChunkSent))
     }
 
 
     private fun getBleCommandWithQueue(
         byteArray: ByteArray?,
-        Command: String,
+        сommand: String,
         typeCommand: String,
         onChunkSent: () -> Unit
     ): Runnable {
         return Runnable {
-            writeData(byteArray, Command, typeCommand)
+            writeData(byteArray, сommand, typeCommand)
             // Invoke the callback after data is sent
             onChunkSent()
         }
     }
 
-    private fun writeData(byteArray: ByteArray?, Command: String, typeCommand: String) {
+    private fun writeData(byteArray: ByteArray?, сommand: String, typeCommand: String) {
         synchronized(this) {
             canSendFlag = false
-            bleCommand(byteArray, Command, typeCommand)
+            bleCommand(byteArray, сommand, typeCommand)
             Log.d("TestSendByteArray","send!!!!")
             while (!canSendFlag) {
                 Thread.sleep(1)

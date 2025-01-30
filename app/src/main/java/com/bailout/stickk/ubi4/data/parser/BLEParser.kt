@@ -154,53 +154,20 @@ class BLEParser(main: AppCompatActivity) {
             ParameterDataCodeEnum.PDCE_EMG_CH_1_3_VAL.number -> {
                 Log.d("uiGestureSettingsObservable", "dataCode = $dataCode")
                 val parameter = ParameterProvider.getParameter(deviceAddress, parameterID)
-//                val data = ParameterProvider.getParameter(deviceAddress, parameterID).data
-                val data = ParameterProvider.getParameter(deviceAddress, parameterID).data
+                val data = parameter.data
+                val paddedData: String = data.padEnd(12, '0')
+                Log.d("updateAllUITest", "data = $data")
+
                 try {
-                    if (parameter.parameterDataSize == 1) {
-                        plotArray =
-                            arrayListOf(castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()))
-                    }
-                    if (parameter.parameterDataSize == 2) {
-                        plotArray = arrayListOf(
-                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte())
-                        )
-                    }
-                    if (parameter.parameterDataSize == 3) {
-                        plotArray = arrayListOf(
-                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte())
-                        )
-                    }
-                    if (parameter.parameterDataSize == 4) {
-                        plotArray = arrayListOf(
-                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(6, 8).toInt(16).toByte())
-                        )
-                    }
-                    if (parameter.parameterDataSize == 5) {
-                        plotArray = arrayListOf(
-                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(6, 8).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(8, 10).toInt(16).toByte())
-                        )
-                    }
-                    if (parameter.parameterDataSize == 6) {
-                        plotArray = arrayListOf(
-                            castUnsignedCharToInt(data.substring(0, 2).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(2, 4).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(4, 6).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(6, 8).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(8, 10).toInt(16).toByte()),
-                            castUnsignedCharToInt(data.substring(10, 12).toInt(16).toByte())
-                        )
-                    }
+                    plotArray = arrayListOf(
+                        castUnsignedCharToInt(paddedData.substring(0, 2).toInt(16).toByte()),
+                        castUnsignedCharToInt(paddedData.substring(2, 4).toInt(16).toByte()),
+                        castUnsignedCharToInt(paddedData.substring(4, 6).toInt(16).toByte()),
+                        castUnsignedCharToInt(paddedData.substring(6, 8).toInt(16).toByte()),
+                        castUnsignedCharToInt(paddedData.substring(8, 10).toInt(16).toByte()),
+                        castUnsignedCharToInt(paddedData.substring(10, 12).toInt(16).toByte())
+                    )
+//                    }
                 } catch (e: Error) {
                     main.showToast("Ошибка 113")
                 }
@@ -241,8 +208,12 @@ class BLEParser(main: AppCompatActivity) {
                 Log.d("TestOptic"," dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
+            ParameterDataCodeEnum.PDCE_GLOBAL_FORCE.number -> {
+                Log.d("parameter sliderCollect PDCE_GLOBAL_FORCE"," dataCode: $dataCode")
+                CoroutineScope(Dispatchers.Default).launch { slidersFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
+            }
             ParameterDataCodeEnum.PDCE_GLOBAL_SENSITIVITY.number -> {
-                Log.d("TestOptic", "dataCode: $dataCode")
+                Log.d("parameter sliderCollect PDCE_GLOBAL_SENSITIVITY", "dataCode: $dataCode")
                 CoroutineScope(Dispatchers.Default).launch { switcherFlow.emit(ParameterRef(deviceAddress, parameterID, dataCode)) }
             } //+
             ParameterDataCodeEnum.PDCE_GENERIC_0.number -> {

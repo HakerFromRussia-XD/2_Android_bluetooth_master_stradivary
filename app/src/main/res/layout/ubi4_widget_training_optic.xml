@@ -37,7 +37,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/animationContainer"
         android:layout_width="195dp"
         android:layout_height="342dp"
@@ -46,26 +46,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/trainingSubTitleTv">
 
+        <!-- Добавленный TextView для отображения текста в центре -->
+
         <ImageView
             android:id="@+id/trainingAnnotationIv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/testimageannotation"
-            android:visibility="visible" />
-
-        <!-- Добавленный TextView для отображения текста в центре -->
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/lottieAnimationLoading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible"
-            app:lottie_autoPlay="false"
+            android:layout_marginStart="-20dp"
+            android:layout_marginBottom="-20dp"
+            android:layout_marginTop="-20dp"
+            android:layout_marginEnd="-20dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:lottie_autoPlay="true"
             app:lottie_loop="true"
             app:lottie_rawRes="@raw/learning_model_animation" />
 
 
-    </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <TextView
@@ -78,10 +90,12 @@
         android:text="100 %"
         android:textColor="@color/white"
         android:textSize="15sp"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/trainingBtn"
+        app:layout_constraintTop_toBottomOf="@+id/animationContainer"
         app:layout_constraintStart_toStartOf="@+id/trainingBtn"
         tools:layout_editor_absoluteY="542dp" />
+
 
     <View
         android:id="@+id/trainingBtn"

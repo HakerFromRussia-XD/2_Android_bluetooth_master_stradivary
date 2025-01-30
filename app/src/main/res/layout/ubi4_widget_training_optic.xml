@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/ubi4_back"
@@ -52,29 +53,35 @@
             android:src="@drawable/testimageannotation"
             android:visibility="visible" />
 
+        <!-- Добавленный TextView для отображения текста в центре -->
+
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/lottieAnimationLoading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:lottie_rawRes="@raw/loading_training_animation"
-            app:lottie_loop="true"
+            android:visibility="visible"
             app:lottie_autoPlay="false"
-            android:visibility="gone"/>
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/learning_model_animation" />
 
-        <!-- Добавленный TextView для отображения текста в центре -->
-        <TextView
-            android:id="@+id/percentLearningTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="100 %"
-            android:fontFamily="@font/sf_pro_display_light"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            android:visibility="gone"
-            android:layout_gravity="center"
-            android:gravity="center" />
 
     </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/percentLearningTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fontFamily="@font/sf_pro_text_bold"
+        android:gravity="center"
+        android:text="100 %"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="@+id/trainingBtn"
+        app:layout_constraintStart_toStartOf="@+id/trainingBtn"
+        tools:layout_editor_absoluteY="542dp" />
 
     <View
         android:id="@+id/trainingBtn"

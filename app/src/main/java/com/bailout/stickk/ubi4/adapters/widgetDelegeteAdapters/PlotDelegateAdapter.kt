@@ -194,6 +194,7 @@ class PlotDelegateAdapter (
                             parameterRef.parameterID
                         )
                         val plotThresholds = Json.decodeFromString<PlotThresholds>("\"${parameter.data}\"")
+                        Log.d("plotThresholds", "plotThresholds $plotThresholds")
                         //TODO тонкое место, переписать (по факту мы должны парсить все данные в структуры и делать это защищённо (как в BaseParameterInfoStruct) даже если там всего два инта)
                         // что не так? Мы упадём при несоответствии длины данных в параметре при эммите
                         //запись пороговых значений при изменении данных в параметре

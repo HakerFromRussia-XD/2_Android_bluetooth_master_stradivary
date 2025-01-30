@@ -191,19 +191,19 @@ class MotionTrainingFragment(
         // Обработка данных тренировки
         lineData = trainingDataProcessing()
 
-        // Проверяем и объединяем BaseLine и Neutral
-//        if (lineData.size > 1 &&
-//            lineData[0].gestureName == "BaseLine" &&
-//            lineData[1].gestureName == "Neutral"
-//        ) {
-//            val combinedPhase = lineData[0].copy(
-//                timeGesture = lineData[0].timeGesture + lineData[1].timeGesture
-//            )
-//            lineData[0] = combinedPhase
-//            lineData.removeAt(1)
-//
-//            switchAnimationSmoothly(lineData[0].animation, 50)
-//        }
+//         Проверяем и объединяем BaseLine и Neutral
+        if (lineData.size > 1 &&
+            lineData[0].gestureName == "BaseLine" &&
+            lineData[1].gestureName == "Neutral"
+        ) {
+            val combinedPhase = lineData[0].copy(
+                timeGesture = lineData[0].timeGesture + lineData[1].timeGesture
+            )
+            lineData[0] = combinedPhase
+            lineData.removeAt(1)
+
+            switchAnimationSmoothly(lineData[0].animation, 50)
+        }
 
         // Запуск первой фазы тренировки
         startPhase(currentPhaseIndex)
@@ -683,6 +683,19 @@ class MotionTrainingFragment(
                 animation = firstGestureAnimation,
                 headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
                 description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+                gestureName = "BaseLine",
+                gestureId = -1
+            )
+        )
+
+        lineData.add(
+            GesturePhase(
+                prePhase = 0.0,
+                timeGesture = 2.0,
+                postPhase = 0.0,
+                animation = firstGestureAnimation,
+                headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+                description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
                 gestureName = "Neutral",
                 gestureId = 0
             )
@@ -740,7 +753,7 @@ class MotionTrainingFragment(
             GesturePhase(
                 prePhase = 0.0,
                 //90
-                timeGesture = 60.0,
+                timeGesture = 2.0,
                 postPhase = 0.0,
                 animation = 0,
                 headerText = requireContext().getString(R.string.rest_before_the_next_gesture),

@@ -12,6 +12,7 @@ import com.bailout.stickk.databinding.Ubi4WidgetSwitcherBinding
 import com.bailout.stickk.ubi4.ble.ParameterProvider
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
+import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.models.SwitchItem
 import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
@@ -49,6 +50,7 @@ class SwitcherDelegateAdapter(
         _indicatorOpticStreamIv = indicatorOpticStreamIv
         var addressDevice = 0
         var parameterID = 0
+        var parameterIDSet: MutableSet<ParameterInfo<Int, Int, Int, Int>> = mutableSetOf(ParameterInfo(0, 0, 0, 0))
         var switchChecked = false
 
 
@@ -56,12 +58,14 @@ class SwitcherDelegateAdapter(
             is SwitchParameterWidgetEStruct -> {
                 addressDevice = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.deviceId
                 parameterID = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                parameterIDSet = item.widget.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet
                 switchChecked = item.widget.switchChecked
             }
 
             is SwitchParameterWidgetSStruct -> {
                 addressDevice = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId
                 parameterID = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.elementAt(0).parameterID
+                parameterIDSet = item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet
                 switchChecked = item.widget.switchChecked
             }
         }
@@ -77,6 +81,7 @@ class SwitcherDelegateAdapter(
 
 
         widgetSwitchSc.setOnCheckedChangeListener { _, isChecked ->
+            Log.d("sendSwitcherState", "setOnCheckedChangeListener addressDevice: $addressDevice, parameterID: $parameterID  parameterIDSet: $parameterIDSet}")
             onSwitchClick(addressDevice, parameterID, isChecked)
         }
 

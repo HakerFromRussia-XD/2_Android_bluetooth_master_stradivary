@@ -415,6 +415,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
 
     private fun sendSwitcherState(addressDevice: Int, parameterID: Int, switchState: Boolean) {
+        Log.d("sendSwitcherState", "addressDevice: $addressDevice, parameterID: $parameterID, switchState: $switchState")
         transmitter().bleCommandWithQueue(BLECommands.sendSwitcherCommand(addressDevice, parameterID, switchState), MAIN_CHANNEL, WRITE){}
     }
     private fun sendSliderProgress(addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) {
@@ -424,7 +425,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 
     //Others fun
     private fun loadGestureNameList() {
-        val macKey = navigator().getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC)
+        val macKey = navigator().getString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4)
         gestureNameList.clear()
         for (i in 0 until PreferenceKeysUBI4.NUM_GESTURES) {
             System.err.println("loadGestureNameList: " + PreferenceKeysUBI4.SELECT_GESTURE_SETTINGS_NUM + macKey + i)
@@ -433,7 +434,6 @@ abstract class BaseWidgetsFragment : Fragment() {
             )
         }
     }
-
     open fun closeCurrentDialog() {
         loadingCurrentDialog?.dismiss()
         loadingCurrentDialog = null

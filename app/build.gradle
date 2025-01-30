@@ -29,7 +29,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 7
-        versionName "2.4.817"
+        versionName "3.1.929"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         signingConfig signingConfigs.release
@@ -72,8 +72,8 @@ android {
         unitTests.all {
             useJUnitPlatform()
             reports {
-                junitXml.required = true
-                html.required = false
+                junitXml.enabled = true
+                html.enabled = false
             }
         }
     }

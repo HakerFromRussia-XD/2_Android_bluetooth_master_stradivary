@@ -17,6 +17,7 @@ import com.bailout.stickk.new_electronic_by_Rodeon.WDApplication.Companion.appli
 
 
 object PreferenceKeysUBI4 {
+    const val SET_MODE_SMART_CONNECTION_UBI4 = "SET_MODE_SMART_CONNECTION_UBI4"
     const val END_PARAMETERS_ARRAY_KEY = 23654328
     const val APP_PREFERENCES = "APP_PREFERENCES"
     const val NUM_GESTURES = 14

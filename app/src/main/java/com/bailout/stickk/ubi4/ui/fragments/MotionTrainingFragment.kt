@@ -13,7 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Chronometer
-import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4FragmentMotionTrainingBinding
@@ -32,6 +32,7 @@ import com.google.gson.Gson
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import java.io.BufferedWriter
 import java.io.File
@@ -53,8 +54,9 @@ class MotionTrainingFragment(
 
     // Timers
     private var timer: CountDownTimer? = null
-    private var timerIndication: CountDownTimer? = null
+    private var indicationTimer: CountDownTimer? = null
     private var preparationTimer: CountDownTimer? = null
+    private var dialogWarningTimer: CountDownTimer? = null
     private var timerDuration: Long = 0L
     private var preparationDuration: Long = 0L
     private var remainingTimerTime: Long = 0L
@@ -104,6 +106,8 @@ class MotionTrainingFragment(
     private var generalTime: Long = 0L
     private var currentDialog: Dialog? = null
     private var counterTimer: Double = 0.0
+
+
 
 //    private var indicatorOpticStreamIv: ImageView? = null
 
@@ -177,6 +181,7 @@ class MotionTrainingFragment(
         savedInstanceState: Bundle?
     ): View? {
         Log.d("LagSpr", "Motion onCreateView")
+        onDataPacketReceived()
         _binding = Ubi4FragmentMotionTrainingBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -805,17 +810,54 @@ class MotionTrainingFragment(
         return lineData
     }
 
+    private fun showWarningDialog() {
+        val dialogFileBinding =
+            layoutInflater.inflate(R.layout.ubi4_dialog_warning_load_checkpoint, null)
+        val myDialog = Dialog(requireContext())
+        myDialog.setContentView(dialogFileBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        myDialog.show()
+        val titleTextView = dialogFileBinding.findViewById<TextView>(R.id.ubi4DialogWarningTitleTv)
+        titleTextView.text = "Обучение прерванно"
+        val subTitleTextView = dialogFileBinding.findViewById<TextView>(R.id.ubi4DialogWarningMessageTv)
+        subTitleTextView.text = " Потеря соединения с оптическими датчиками. Повторите обучение"
+
+        val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4WarningLoadingTrainingBtn)
+        confirmBtn.setOnClickListener {
+            stopTimers()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, SprTrainingFragment())
+                .commit()
+            myDialog.dismiss()
+
+        }
+
+    }
+
+
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun onDataPacketReceived() {
         // Сбрасываем предыдущий таймер
+        Log.d("onDataPacketReceived", "onDataPacketReceived run")
+
         _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_green))
-        timerIndication?.cancel()
+        indicationTimer?.cancel()
+        dialogWarningTimer?.cancel()
         // Запускаем новый таймер на 100 мс
-        timerIndication = object : CountDownTimer(100, 100) {
+        indicationTimer = object : CountDownTimer(100, 100) {
             override fun onTick(millisUntilFinished: Long) = Unit
 
             override fun onFinish() {
                 _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
+            }
+        }.start()
+        dialogWarningTimer = object : CountDownTimer(2000, 2000) {
+            override fun onTick(millisUntilFinished: Long) = Unit
+
+            override fun onFinish() {
+                _binding?.indicatorOpticStreamIv?.setImageDrawable(main.resources.getDrawable(R.drawable.circle_16_red))
+                showWarningDialog()
             }
         }.start()
     }

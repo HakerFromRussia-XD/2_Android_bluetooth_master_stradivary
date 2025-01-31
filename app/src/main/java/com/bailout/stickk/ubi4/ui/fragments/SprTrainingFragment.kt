@@ -32,7 +32,6 @@ import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFla
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
 import com.bailout.stickk.ubi4.utility.ConstantManager
-import com.bailout.stickk.ubi4.utility.TrainingModelHandler
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
@@ -56,9 +55,9 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private var chunksSend = AtomicInteger(0)
     private var warningDialog: Dialog? = null
     private var progressDialog: Dialog? = null
-    private var confirmDialog: Dialog? = null
 
     private var canSendNextChunkFlag = true
+    private var sendFileSuccessFlag = true
 
     private var onDestroyParentCallbacks = mutableListOf<() -> Unit>()
 
@@ -258,7 +257,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 }
 
                 showConfirmLoadingDialog {
-                    if (bleController.isCurrentlyUploading()) {1
+                    if (bleController.isCurrentlyUploading()) {
                         Toast.makeText(
                             requireContext(),
                             "Загрузка уже выполняется",
@@ -267,13 +266,11 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                         return@showConfirmLoadingDialog
                     }
                     Log.d("DialogManagement", "Loading confirmed. Opening progress bar dialog.")
-                    val progressBarDialog = showProgressBarDialog()
-                    val progressBar =
-                        progressBarDialog.findViewById<ProgressBar>(R.id.loadingProgressBar)
 
                     lifecycleScope.launch {
-                        sendFileInChunks(fileItem.file.readBytes(), ConstantManager.CHECKPOINT_NAME, addressDevice, parameterID, progressBar)
-                        sendFileInChunks(paramFile.readBytes(), ConstantManager.PARAMS_BIN_NAME, addressDevice, parameterID, progressBar)
+                        sendFileInChunks(fileItem.file.readBytes(), ConstantManager.CHECKPOINT_NAME, addressDevice, parameterID)
+                        sendFileInChunks(paramFile.readBytes(), ConstantManager.PARAMS_BIN_NAME, addressDevice, parameterID)
+                        showWarningLoadingDialog { closeWarningDialog() }
                     }
                 }
             }
@@ -289,6 +286,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private fun showProgressBarDialog(): Dialog {
         closeProgressDialog()
 
+
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_progressbar, null)
         val myDialog = Dialog(requireContext())
         myDialog.setContentView(dialogBinding)
@@ -299,34 +297,6 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         bleController.setProgressDialog(myDialog)
         return myDialog
     }
-
-    private fun showWarningLoadingDialog(onConfirm: () -> Unit){
-        if (warningDialog != null && warningDialog?.isShowing == true) {
-            return
-        }
-
-        closeWarningDialog()
-        val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_warning_load_checkpoint, null)
-        val myDialog = Dialog(requireContext())
-        myDialog.setContentView(dialogFileBinding)
-        myDialog.setCancelable(false)
-        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        loadingCurrentDialog = myDialog
-        myDialog.show()
-
-        warningDialog = myDialog
-
-        val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4WarningLoadingTrainingBtn)
-        confirmBtn.setOnClickListener {
-            closeWarningDialog()
-            onConfirm()
-        }
-
-    }
-
-
-
-
     override fun showConfirmLoadingDialog(onConfirm: () -> Unit) {
         if (loadingCurrentDialog != null && loadingCurrentDialog?.isShowing == true) {
             return
@@ -350,25 +320,47 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             myDialog.dismiss()
         }
     }
+    suspend fun showWarningLoadingDialog(onConfirm: () -> Unit) {
+        mutex.withLock {
+            if (!sendFileSuccessFlag) {
+                if (warningDialog != null && warningDialog?.isShowing == true) {
+                    return
+                }
 
-    override fun closeCurrentDialog() {
-        currentDialog?.dismiss()
-        currentDialog = null
-        loadingCurrentDialog?.dismiss()
-        loadingCurrentDialog = null
-        closeWarningDialog()
+                closeWarningDialog()
+                val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_warning_load_checkpoint, null)
+                val myDialog = Dialog(requireContext())
+                myDialog.setContentView(dialogFileBinding)
+                myDialog.setCancelable(false)
+                myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                myDialog.show()
 
+                warningDialog = myDialog
+
+                val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4WarningLoadingTrainingBtn)
+                confirmBtn.setOnClickListener {
+                    closeWarningDialog()
+//                    closeCurrentDialog()
+                    onConfirm()
+                }
+                sendFileSuccessFlag = true
+            }
+        }
     }
 
+
+
     private val mutex = Mutex()
-    override suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int, progressBar: ProgressBar) {
+    override suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int) {
         mutex.withLock {
             try {
+                if (!sendFileSuccessFlag) return
+                val progressBarDialog = showProgressBarDialog()
+                val progressBar = progressBarDialog.findViewById<ProgressBar>(R.id.loadingProgressBar)
                 val maxChunkSize = 100 // max 249
                 val totalChunks = (byteArray.size + maxChunkSize - 1) / maxChunkSize
                 chunksSend = AtomicInteger(0)
                 bleController.setUploadingState(true) // Устанавливаем флаг загрузки
-
                 var indexPackage = 0
 
                 // Создание файла (или открытие с очисткой)
@@ -393,6 +385,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 if (!openFileSuccess) {
                     // Ошибка при открытии файла
                     Log.d("ChunkProcessing", "Ошибка передачи чанка №${chunksSend.get()} при открытии файла")
+                    bleController.setUploadingState(false)
+                    sendFileSuccessFlag = false
                     closeCurrentDialog()
                     return
                 }
@@ -405,7 +399,7 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                         return
                     }
 
-                    val sendChunkSuccess = waitForFlagWithRetry(
+                    val sendFileSuccess = waitForFlagWithRetry(
                         maxWaitTimeMs = 2000L, // Ожидание флага 2 секунды
                         retryCount = 3,         // Максимум 3 попытки
                         chunksSend = chunksSend.incrementAndGet(),
@@ -422,11 +416,12 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                         ) {}
                     }
 
-                    if (!sendChunkSuccess) {
-                        // Ошибка при отправке чанка
+                    if (!sendFileSuccess) {
+                        // Ошибка при отправке файла
                         Log.d("ChunkProcessing", "Ошибка передачи чанка №${chunksSend.get()}")
+                        bleController.setUploadingState(false)
+                        sendFileSuccessFlag = false
                         closeProgressDialog()
-                        showWarningLoadingDialog { closeCurrentDialog() }
                         return
                     }
                 }
@@ -453,6 +448,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 if (!closeFileSuccess) {
                     // Ошибка при закрытии файла
                     Log.d("ChunkProcessing", "Ошибка закрытия файла после чанка №${chunksSend.get()}")
+                    bleController.setUploadingState(false)
+                    sendFileSuccessFlag = false
                     closeCurrentDialog()
                     return
                 }
@@ -471,11 +468,19 @@ class SprTrainingFragment: BaseWidgetsFragment() {
             }
         }
     }
+
+    override fun closeCurrentDialog() {
+        currentDialog?.dismiss()
+        currentDialog = null
+        loadingCurrentDialog?.dismiss()
+        loadingCurrentDialog = null
+        progressDialog?.dismiss()
+        progressDialog = null
+    }
     private fun closeWarningDialog() {
         warningDialog?.dismiss()
         warningDialog = null
     }
-
     private fun closeProgressDialog() {
         progressDialog?.dismiss()
         progressDialog = null

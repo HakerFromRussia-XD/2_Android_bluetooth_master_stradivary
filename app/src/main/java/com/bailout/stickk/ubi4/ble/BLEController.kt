@@ -90,7 +90,8 @@ class BLEController(
 //                mBluetoothLeService?.connect("DC:DA:0C:18:58:9E")  // протез Макса
 //                mBluetoothLeService?.connect("34:85:18:98:10:7E")
 //                mBluetoothLeService?.connect("F0:9E:9E:22:97:36")
-//                  mBluetoothLeService?.connect("F0:9E:9E:22:97:52")
+//                mBluetoothLeService?.connect("F0:9E:9E:22:97:52")
+//                mBluetoothLeService?.connect("F0:9E:9E:22:96:3E") //fest FO3
 
 
                 mBluetoothLeService?.connect(connectedDeviceAddress)

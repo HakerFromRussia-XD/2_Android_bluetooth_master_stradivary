@@ -33,14 +33,14 @@
 
     <ImageView
         android:id="@+id/indicatorOpticStreamIv"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
+        android:layout_width="11dp"
+        android:layout_height="6dp"
         android:layout_marginStart="8dp"
-        android:visibility="visible"
         android:src="@drawable/circle_16_red"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/motionNameOfGesturesTv"
         app:layout_constraintStart_toEndOf="@id/motionNameOfGesturesTv"
-        app:layout_constraintTop_toTopOf="@id/motionNameOfGesturesTv"
-        app:layout_constraintBottom_toBottomOf="@id/motionNameOfGesturesTv" />
+        app:layout_constraintTop_toTopOf="@id/motionNameOfGesturesTv" />
 
 
     <com.airbnb.lottie.LottieAnimationView

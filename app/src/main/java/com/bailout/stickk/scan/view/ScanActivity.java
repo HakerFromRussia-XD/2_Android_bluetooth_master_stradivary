@@ -441,8 +441,11 @@ public class ScanActivity extends AppCompatActivity implements ScanView, ScanLis
         pairedDeviceList.setAdapter(mScanListAdapter);
     }
     private void smartConnection(BluetoothDevice device) {
-        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION)) {
+        if (loadBool(PreferenceKeys.SET_MODE_SMART_CONNECTION) || loadBool(PreferenceKeysUBI4.SET_MODE_SMART_CONNECTION_UBI4)) {
             if (device.getAddress().toString().equals(loadString(PreferenceKeys.LAST_CONNECTION_MAC))) {
+                navigateToLEChart("device", device);
+            }
+            if (device.getAddress().toString().equals(loadString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4))) {
                 navigateToLEChart("device", device);
             }
         }

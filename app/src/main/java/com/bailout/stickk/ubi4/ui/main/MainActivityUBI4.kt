@@ -181,6 +181,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         setStaticVariables()
 
         saveString(PreferenceKeysUBI4.LAST_CONNECTION_MAC_UBI4, connectedDeviceAddress)
+        Log.d("initAllVariables","connectedDeviceAddress $connectedDeviceAddress" )
 
         //settings
     }

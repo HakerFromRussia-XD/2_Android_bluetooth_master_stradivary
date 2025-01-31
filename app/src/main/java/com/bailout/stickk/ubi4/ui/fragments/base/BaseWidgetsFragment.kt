@@ -438,5 +438,5 @@ abstract class BaseWidgetsFragment : Fragment() {
         loadingCurrentDialog?.dismiss()
         loadingCurrentDialog = null
     }
-    open suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int, progressBar: ProgressBar) {}
+    open suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int) {}
 }

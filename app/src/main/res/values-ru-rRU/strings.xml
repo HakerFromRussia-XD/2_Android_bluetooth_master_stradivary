@@ -618,6 +618,10 @@
     <string name="next_gesture">Следующий жест: %1$s</string>
     <string name="wait_until_the_end">Дождитесь окончания</string>
     <string name="you_can_relax_your_hand">Можете расслабить руку</string>
+    <string name="remaining_gestures_count">Осталось жестов: %1$d</string>
+    <string name="remaining_gestures_count_placeholder">Осталось жестов: 0</string>
+    <string name="loading_error">Ошибка загрузки</string>
+    <string name="the_file_was_not_successfully_downloaded">Файл не был успешно загружен на протез. Повторите попытку.</string>
 
 
     <string-array name="numbers">

@@ -110,6 +110,12 @@ class MotionTrainingFragment(
     private var lineData: MutableList<GesturePhase> = mutableListOf()
     private var currentPhaseIndex: Int = 0
 
+    private var totalRealGesturesCount: Int = 0
+    private var currentRealGestureIndex: Int = 0
+
+    // Сет реальных жестов (если нужно, можете дополнять или изменять):
+    private val pseudoGestures = setOf("Neutral", "BaseLine", "Finish")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("LagSpr", "Motion onCreate")
@@ -190,6 +196,9 @@ class MotionTrainingFragment(
 
         // Обработка данных тренировки
         lineData = trainingDataProcessing()
+
+        binding.motionRemainingGesturesTv.text =
+            getString(R.string.remaining_gestures_count, totalRealGesturesCount)
 
 //         Проверяем и объединяем BaseLine и Neutral
         if (lineData.size > 1 &&
@@ -405,6 +414,14 @@ class MotionTrainingFragment(
             switchAnimationSmoothly(currentPhase.animation, 50)
         }
 
+        if (!pseudoGestures.contains(currentPhase.gestureName)) {
+            currentRealGestureIndex++
+            val remainingCount = totalRealGesturesCount - currentRealGestureIndex
+            // Отобразим в TextView (добавьте в верстку TextView с id=motionRemainingGesturesTv)
+            binding.motionRemainingGesturesTv.text =
+                getString(R.string.remaining_gestures_count, remainingCount)
+        }
+
         when {
             currentPhase.gestureName == "Neutral" || currentPhase.gestureName == "BaseLine" || currentPhase.gestureName == "Finish" -> {
                 binding.motionHandIv.playAnimation()
@@ -419,6 +436,7 @@ class MotionTrainingFragment(
             }
         }
     }
+
 
     private fun startCountdown(phase: GesturePhase, phaseIndex: Int) {
         stopTimers()
@@ -688,18 +706,18 @@ class MotionTrainingFragment(
             )
         )
 
-        lineData.add(
-            GesturePhase(
-                prePhase = 0.0,
-                timeGesture = 2.0,
-                postPhase = 0.0,
-                animation = firstGestureAnimation,
-                headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
-                description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
-                gestureName = "Neutral",
-                gestureId = 0
-            )
-        )
+//        lineData.add(
+//            GesturePhase(
+//                prePhase = 0.0,
+//                timeGesture = 2.0,
+//                postPhase = 0.0,
+//                animation = firstGestureAnimation,
+//                headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+//                description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+//                gestureName = "Neutral",
+//                gestureId = 0
+//            )
+//        )
 
         // Добавление фаз тренировки по циклам и последовательности жестов
         repeat(nCycles) {
@@ -714,7 +732,7 @@ class MotionTrainingFragment(
                 }
 
 
-                if (index < gestureSequence.size && index > 0) {
+                if (index < gestureSequence.size) {//&& index > 0
                     // Получение ID для Neutral фазы
                     val neutralId = gesturesId?.getGestureValueByName("Neutral") ?: run {
                         Log.e("MotionTrainingFragment", "Neutral gesture ID not found")
@@ -776,6 +794,8 @@ class MotionTrainingFragment(
                 gestureId = -1
             )
         )
+
+        totalRealGesturesCount = lineData.count { !pseudoGestures.contains(it.gestureName) }
 
         Log.d("DebugCheck", "Training phases generated: ${lineData.size}")
         lineData.forEachIndexed { idx, phase ->

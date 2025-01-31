@@ -118,8 +118,8 @@ object PreferenceKeysUBI4 {
 
     enum class ParameterWidgetLabel(val number: Int, val label: String) {
         PWLE_UNKNOW (0x00, applicationContext().getString(R.string.pwle_unknow)),
-        PWLE_OPEN (0x01, applicationContext().getString(R.string.open_state)),
-        PWLE_CLOSE (0x02, applicationContext().getString(R.string.close_state)),
+        PWLE_OPEN (0x01, applicationContext().getString(R.string.open)),
+        PWLE_CLOSE (0x02, applicationContext().getString(R.string.close)),
         PWLE_CALIBRATE (0x03, applicationContext().getString(R.string.pwle_calibrate)),
         PWLE_RESET (0x04, applicationContext().getString(R.string.pwle_reset)),
         PWLE_CONTROL_SETTINGS (0x05, applicationContext().getString(R.string.pwle_control_settings)),

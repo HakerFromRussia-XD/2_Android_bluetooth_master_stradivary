@@ -617,6 +617,10 @@
     <string name="next_gesture">Next gesture: %1$s</string>
     <string name="wait_until_the_end">Wait until the end</string>
     <string name="you_can_relax_your_hand">You can relax your hand</string>
+    <string name="remaining_gestures_count">Gestures left: %1$d</string>
+    <string name="remaining_gestures_count_placeholder">Gestures left: 0</string>
+    <string name="loading_error">Loading error</string>
+    <string name="the_file_was_not_successfully_downloaded">The file was not successfully downloaded to the prosthesis. Please try again.</string>
 
 
     <string-array name="numbers">

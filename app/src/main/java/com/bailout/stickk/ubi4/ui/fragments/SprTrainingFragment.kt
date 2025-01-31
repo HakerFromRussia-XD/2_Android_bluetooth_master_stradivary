@@ -54,6 +54,9 @@ class SprTrainingFragment: BaseWidgetsFragment() {
     private var currentDialog: Dialog? = null
     private var loadingCurrentDialog: Dialog? = null
     private var chunksSend = AtomicInteger(0)
+    private var warningDialog: Dialog? = null
+    private var progressDialog: Dialog? = null
+    private var confirmDialog: Dialog? = null
 
     private var canSendNextChunkFlag = true
 
@@ -284,17 +287,46 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         }
     }
     private fun showProgressBarDialog(): Dialog {
-        closeCurrentDialog()
+        closeProgressDialog()
+
         val dialogBinding = layoutInflater.inflate(R.layout.ubi4_dialog_progressbar, null)
         val myDialog = Dialog(requireContext())
         myDialog.setContentView(dialogBinding)
         myDialog.setCancelable(false)
         myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        currentDialog = myDialog
+        progressDialog = myDialog
         myDialog.show()
         bleController.setProgressDialog(myDialog)
         return myDialog
     }
+
+    private fun showWarningLoadingDialog(onConfirm: () -> Unit){
+        if (warningDialog != null && warningDialog?.isShowing == true) {
+            return
+        }
+
+        closeWarningDialog()
+        val dialogFileBinding = layoutInflater.inflate(R.layout.ubi4_dialog_warning_load_checkpoint, null)
+        val myDialog = Dialog(requireContext())
+        myDialog.setContentView(dialogFileBinding)
+        myDialog.setCancelable(false)
+        myDialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        loadingCurrentDialog = myDialog
+        myDialog.show()
+
+        warningDialog = myDialog
+
+        val confirmBtn = dialogFileBinding.findViewById<View>(R.id.ubi4WarningLoadingTrainingBtn)
+        confirmBtn.setOnClickListener {
+            closeWarningDialog()
+            onConfirm()
+        }
+
+    }
+
+
+
+
     override fun showConfirmLoadingDialog(onConfirm: () -> Unit) {
         if (loadingCurrentDialog != null && loadingCurrentDialog?.isShowing == true) {
             return
@@ -324,6 +356,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
         currentDialog = null
         loadingCurrentDialog?.dismiss()
         loadingCurrentDialog = null
+        closeWarningDialog()
+
     }
 
     private val mutex = Mutex()
@@ -391,7 +425,8 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                     if (!sendChunkSuccess) {
                         // Ошибка при отправке чанка
                         Log.d("ChunkProcessing", "Ошибка передачи чанка №${chunksSend.get()}")
-                        closeCurrentDialog()
+                        closeProgressDialog()
+                        showWarningLoadingDialog { closeCurrentDialog() }
                         return
                     }
                 }
@@ -435,6 +470,15 @@ class SprTrainingFragment: BaseWidgetsFragment() {
                 bleController.setUploadingState(false)
             }
         }
+    }
+    private fun closeWarningDialog() {
+        warningDialog?.dismiss()
+        warningDialog = null
+    }
+
+    private fun closeProgressDialog() {
+        progressDialog?.dismiss()
+        progressDialog = null
     }
     private suspend fun waitForFlagWithRetry(maxWaitTimeMs: Long, retryCount: Int, chunksSend: Int, totalChunks: Int, command: Int, progressBar: ProgressBar, sendAction: () -> Unit): Boolean {
         repeat(retryCount) { attempt ->

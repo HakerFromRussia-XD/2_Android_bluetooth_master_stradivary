@@ -7,16 +7,19 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bailout.stickk.databinding.Ubi4FragmentSprGesturesBinding
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDelegateAdapter
 import com.bailout.stickk.ubi4.ui.fragments.base.BaseWidgetsFragment
 import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
 import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.contract.transmitter
 import com.bailout.stickk.ubi4.data.DataFactory
+import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.graphThreadFlag
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.listWidgets
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.updateFlow
+import com.livermor.delegateadapter.delegate.CompositeDelegateAdapter
 import com.simform.refresh.SSPullToRefreshLayout
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
@@ -55,7 +58,9 @@ class SprGestureFragment: BaseWidgetsFragment() {
         binding.sprGesturesRv.layoutManager = LinearLayoutManager(context)
         binding.sprGesturesRv.adapter = adapterWidgets
         return binding.root
+
     }
+
 
     private fun refreshWidgetsList() {
         graphThreadFlag = false

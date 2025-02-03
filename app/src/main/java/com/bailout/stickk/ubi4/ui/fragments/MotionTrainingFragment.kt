@@ -206,18 +206,18 @@ class MotionTrainingFragment(
             getString(R.string.remaining_gestures_count, totalRealGesturesCount)
 
 //         Проверяем и объединяем BaseLine и Neutral
-        if (lineData.size > 1 &&
-            lineData[0].gestureName == "BaseLine" &&
-            lineData[1].gestureName == "Neutral"
-        ) {
-            val combinedPhase = lineData[0].copy(
-                timeGesture = lineData[0].timeGesture + lineData[1].timeGesture
-            )
-            lineData[0] = combinedPhase
-            lineData.removeAt(1)
-
-            switchAnimationSmoothly(lineData[0].animation, 50)
-        }
+//        if (lineData.size > 1 &&
+//            lineData[0].gestureName == "BaseLine" &&
+//            lineData[1].gestureName == "Neutral"
+//        ) {
+//            val combinedPhase = lineData[0].copy(
+//                timeGesture = lineData[0].timeGesture + lineData[1].timeGesture
+//            )
+//            lineData[0] = combinedPhase
+//            lineData.removeAt(1)
+//
+//            switchAnimationSmoothly(lineData[0].animation, 50)
+//        }
 
         // Запуск первой фазы тренировки
         startPhase(currentPhaseIndex)
@@ -711,18 +711,18 @@ class MotionTrainingFragment(
             )
         )
 
-//        lineData.add(
-//            GesturePhase(
-//                prePhase = 0.0,
-//                timeGesture = 2.0,
-//                postPhase = 0.0,
-//                animation = firstGestureAnimation,
-//                headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
-//                description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
-//                gestureName = "Neutral",
-//                gestureId = 0
-//            )
-//        )
+        lineData.add(
+            GesturePhase(
+                prePhase = 0.0,
+                timeGesture = 2.0,
+                postPhase = 0.0,
+                animation = firstGestureAnimation,
+                headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+                description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+                gestureName = "Neutral",
+                gestureId = 0
+            )
+        )
 
         // Добавление фаз тренировки по циклам и последовательности жестов
         repeat(nCycles) {
@@ -737,7 +737,7 @@ class MotionTrainingFragment(
                 }
 
 
-                if (index < gestureSequence.size) {//&& index > 0
+                if (index < gestureSequence.size && index > 0) {//&& index > 0
                     // Получение ID для Neutral фазы
                     val neutralId = gesturesId?.getGestureValueByName("Neutral") ?: run {
                         Log.e("MotionTrainingFragment", "Neutral gesture ID not found")
@@ -811,6 +811,7 @@ class MotionTrainingFragment(
     }
 
     private fun showWarningDialog() {
+        if (!isAdded) return
         val dialogFileBinding =
             layoutInflater.inflate(R.layout.ubi4_dialog_warning_load_checkpoint, null)
         val myDialog = Dialog(requireContext())

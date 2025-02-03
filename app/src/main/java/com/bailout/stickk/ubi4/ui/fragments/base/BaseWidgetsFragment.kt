@@ -55,8 +55,9 @@ abstract class BaseWidgetsFragment : Fragment() {
 
 
 
-
     protected val adapterWidgets by lazy {
+
+
         CompositeDelegateAdapter(
             PlotDelegateAdapter(
                 onDestroyParent = { onDestroyParent ->
@@ -86,7 +87,7 @@ abstract class BaseWidgetsFragment : Fragment() {
 //                onRequestRotationGroup = {deviceAddress, parameterID -> requestRotationGroup(deviceAddress, parameterID)},
 //                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent)}
 //            ),
-            GesturesOpticDelegateAdapter(
+              GesturesOpticDelegateAdapter(
                 gestureNameList = gestureNameList,
                 onAddGesturesToSprScreen = { onSaveClickDialog, bindingGestureList ->
                     showControlGesturesDialog(onSaveClickDialog, bindingGestureList)
@@ -439,4 +440,11 @@ abstract class BaseWidgetsFragment : Fragment() {
         loadingCurrentDialog = null
     }
     open suspend fun sendFileInChunks(byteArray: ByteArray, name: String, addressDevice: Int, parameterID: Int) {}
+
+    open fun refreshActiveFilter() {
+        adapterWidgets.notifyDataSetChanged()
+
+    }
+
+
 }

@@ -128,6 +128,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
             mBLEController.setReconnectThreadFlag(true)
             mBLEController.reconnectThread()
         }
+        val savedFilter = getInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
+        activeFilterFlow.value = savedFilter
     }
 
 
@@ -209,6 +211,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         graphThreadFlag = true
         canSendFlag = false
         bindingGroupGestures = arrayListOf()
+        activeFilterFlow = MutableStateFlow(1)
     }
 
     // сохранение и загрузка данных
@@ -225,6 +228,10 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         val editor: SharedPreferences.Editor = mSettings!!.edit()
         editor.putInt(key, variable)
         editor.apply()
+    }
+
+    internal fun getInt(key: String, default: Int): Int {
+        return mSettings?.getInt(key, default) ?: default
     }
 
     private fun startQueue() {
@@ -302,6 +309,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
 
+        var activeFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
 
 
         var fullInicializeConnectionStruct by Delegates.notNull<FullInicializeConnectionStruct>()

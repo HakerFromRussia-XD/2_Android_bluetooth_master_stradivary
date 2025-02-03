@@ -355,6 +355,7 @@ abstract class BaseWidgetsFragment : Fragment() {
     }
 }
     open fun sendBLEActiveGesture(deviceAddress: Int, parameterID: Int, activeGesture: Int) {
+        if (!isAdded) { return }
         transmitter().bleCommand(BLECommands.sendActiveGesture(deviceAddress, parameterID, activeGesture), MAIN_CHANNEL, WRITE)
     }
     open fun requestActiveGesture(deviceAddress: Int, parameterID: Int) {

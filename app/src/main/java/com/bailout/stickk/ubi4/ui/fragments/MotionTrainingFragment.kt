@@ -216,7 +216,7 @@ class MotionTrainingFragment(
 //            lineData[0] = combinedPhase
 //            lineData.removeAt(1)
 //
-//            switchAnimationSmoothly(lineData[0].animation, 50)
+            switchAnimationSmoothly(lineData[0].animation, 50)
 //        }
 
         // Запуск первой фазы тренировки
@@ -396,6 +396,7 @@ class MotionTrainingFragment(
         currentTimerType = TimerType.NONE
     }
 
+
     private fun startPhase(phaseIndex: Int) {
         currentPhaseIndex = phaseIndex
         if (phaseIndex >= lineData.size) {
@@ -493,13 +494,14 @@ class MotionTrainingFragment(
         val nextGestureName = getNextGestureName(phaseIndex)
         Log.d("GestureName", "gestureName: $nextGestureName")
 
+        // Если нет следующего "настоящего" жеста, значит либо впереди "Finish", либо вообще конец списка
         if (nextGestureName.isEmpty()) {
-            // Следующего жеста нет, это последний этап
-            binding.motionNameOfGesturesTv.text = requireContext().getString(R.string.you_can_relax_your_hand)
-            binding.prepareForPerformTv.text = requireContext().getString(R.string.wait_until_the_end)
+            // Показываем подсказку для пользователя: "Можно расслабить руку", и ждём
+            binding.motionNameOfGesturesTv.text = getString(R.string.you_can_relax_your_hand)
+            binding.prepareForPerformTv.text = getString(R.string.wait_until_the_end)
             binding.prepareForPerformTv.visibility = View.VISIBLE
 
-            // Установка дефолтной анимации или скрытие ImageView
+            // Допустим, какая-то базовая анимация
             switchAnimationSmoothly(R.raw.open, 1)
             binding.motionProgressBar.visibility = View.INVISIBLE
             binding.countdownTextView.visibility = View.VISIBLE
@@ -518,21 +520,20 @@ class MotionTrainingFragment(
                     binding.countdownTextView.visibility = View.GONE
                     binding.motionProgressBar.visibility = View.INVISIBLE
                     Log.d("DebugCheck", "Preparation countdown finished. Ending training.")
-                    // Завершение тренировки
-                    showConfirmCompletedTrainingDialog {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragmentContainer, SprTrainingFragment())
-                            .commitNow()
-                    }
+
+                    // Вместо того чтобы звать диалог напрямую,
+                    // даём «Finish»-фазе закончиться штатно и идём дальше:
+                    startPhase(phaseIndex + 1)
                 }
             }.start()
 
         } else {
+            // Если есть "настоящий" жест — обычная логика подготовки к следующему жесту
             if (phase.gestureName == "Neutral") {
                 switchAnimationSmoothly(phase.animation, 50)
             }
-            binding.motionNameOfGesturesTv.text = requireContext().getString(R.string.next_gesture, nextGestureName)
-            binding.prepareForPerformTv.text = requireContext().getString(R.string.prepare_to_perform_the_gesture)
+            binding.motionNameOfGesturesTv.text = getString(R.string.next_gesture, nextGestureName)
+            binding.prepareForPerformTv.text = getString(R.string.prepare_to_perform_the_gesture)
             binding.prepareForPerformTv.visibility = View.VISIBLE
             binding.motionProgressBar.visibility = View.INVISIBLE
             binding.countdownTextView.visibility = View.VISIBLE
@@ -556,6 +557,81 @@ class MotionTrainingFragment(
             }.start()
         }
     }
+//    private fun startPreparationCountDown(phase: GesturePhase, phaseIndex: Int) {
+//        stopTimers()
+//        currentTimerType = TimerType.PREPARATION
+//
+//        preparationDuration = (phase.timeGesture * 1000).toLong()
+//        remainingPreparationTime = preparationDuration
+//
+//        // Определение следующего жеста
+//        val nextGestureName = getNextGestureName(phaseIndex)
+//        Log.d("GestureName", "gestureName: $nextGestureName")
+//
+//        if (nextGestureName.isEmpty()) {
+//            // Следующего жеста нет, это последний этап
+//            binding.motionNameOfGesturesTv.text = requireContext().getString(R.string.you_can_relax_your_hand)
+//            binding.prepareForPerformTv.text = requireContext().getString(R.string.wait_until_the_end)
+//            binding.prepareForPerformTv.visibility = View.VISIBLE
+//
+//            // Установка дефолтной анимации или скрытие ImageView
+//            switchAnimationSmoothly(R.raw.open, 1)
+//            binding.motionProgressBar.visibility = View.INVISIBLE
+//            binding.countdownTextView.visibility = View.VISIBLE
+//            binding.countdownTextView.text = (preparationDuration / 1000).toString()
+//
+//            preparationTimer = object : CountDownTimer(preparationDuration, 1000L) {
+//                override fun onTick(millisUntilFinished: Long) {
+//                    remainingPreparationTime = millisUntilFinished
+//                    val secondsRemaining = (millisUntilFinished / 1000).toInt()
+//                    binding.countdownTextView.text = secondsRemaining.toString()
+//                }
+//
+//                override fun onFinish() {
+//                    remainingPreparationTime = 0L
+//                    binding.prepareForPerformTv.visibility = View.GONE
+//                    binding.countdownTextView.visibility = View.GONE
+//                    binding.motionProgressBar.visibility = View.INVISIBLE
+//                    Log.d("DebugCheck", "Preparation countdown finished. Ending training.")
+//                    // Завершение тренировки
+////                    showConfirmCompletedTrainingDialog {
+////                        parentFragmentManager.beginTransaction()
+////                            .replace(R.id.fragmentContainer, SprTrainingFragment())
+////                            .commitNow()
+////                    }
+//                    startPhase(phaseIndex + 1)
+//                }
+//            }.start()
+//
+//        } else {
+//            if (phase.gestureName == "Neutral") {
+//                switchAnimationSmoothly(phase.animation, 50)
+//            }
+//            binding.motionNameOfGesturesTv.text = requireContext().getString(R.string.next_gesture, nextGestureName)
+//            binding.prepareForPerformTv.text = requireContext().getString(R.string.prepare_to_perform_the_gesture)
+//            binding.prepareForPerformTv.visibility = View.VISIBLE
+//            binding.motionProgressBar.visibility = View.INVISIBLE
+//            binding.countdownTextView.visibility = View.VISIBLE
+//            binding.countdownTextView.text = (preparationDuration / 1000).toString()
+//
+//            preparationTimer = object : CountDownTimer(preparationDuration, 1000L) {
+//                override fun onTick(millisUntilFinished: Long) {
+//                    remainingPreparationTime = millisUntilFinished
+//                    val secondsRemaining = (millisUntilFinished / 1000).toInt()
+//                    binding.countdownTextView.text = secondsRemaining.toString()
+//                }
+//
+//                override fun onFinish() {
+//                    remainingPreparationTime = 0L
+//                    binding.prepareForPerformTv.visibility = View.GONE
+//                    binding.countdownTextView.visibility = View.GONE
+//                    binding.motionProgressBar.visibility = View.VISIBLE
+//                    Log.d("DebugCheck", "Preparation countdown finished for phase index: $currentPhaseIndex")
+//                    startPhase(phaseIndex + 1)
+//                }
+//            }.start()
+//        }
+//    }
 
     private fun switchAnimationSmoothly(newAnimation: Int, endPercent: Int) {
         binding.motionHandIv.animate()
@@ -711,18 +787,18 @@ class MotionTrainingFragment(
             )
         )
 
-        lineData.add(
-            GesturePhase(
-                prePhase = 0.0,
-                timeGesture = 2.0,
-                postPhase = 0.0,
-                animation = firstGestureAnimation,
-                headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
-                description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
-                gestureName = "Neutral",
-                gestureId = 0
-            )
-        )
+//        lineData.add(
+//            GesturePhase(
+//                prePhase = 0.0,
+//                timeGesture = 4.0,
+//                postPhase = 0.0,
+//                animation = firstGestureAnimation,
+//                headerText = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+//                description = requireContext().getString(R.string.prepare_to_perform_the_gesture),
+//                gestureName = "Neutral",
+//                gestureId = 0
+//            )
+//        )
 
         // Добавление фаз тренировки по циклам и последовательности жестов
         repeat(nCycles) {
@@ -737,7 +813,7 @@ class MotionTrainingFragment(
                 }
 
 
-                if (index < gestureSequence.size && index > 0) {//&& index > 0
+                if (index < gestureSequence.size) {//&& index > 0
                     // Получение ID для Neutral фазы
                     val neutralId = gesturesId?.getGestureValueByName("Neutral") ?: run {
                         Log.e("MotionTrainingFragment", "Neutral gesture ID not found")
@@ -776,7 +852,7 @@ class MotionTrainingFragment(
             GesturePhase(
                 prePhase = 0.0,
                 //90
-                timeGesture = 60.0,
+                timeGesture = 10.0,
                 postPhase = 0.0,
                 animation = 0,
                 headerText = requireContext().getString(R.string.rest_before_the_next_gesture),

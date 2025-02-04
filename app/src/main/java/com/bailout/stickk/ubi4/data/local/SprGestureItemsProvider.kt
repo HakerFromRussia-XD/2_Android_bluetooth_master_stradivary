@@ -37,7 +37,7 @@ class SprGestureItemsProvider(private val context: Context) {
 
     fun getAnimationIdByKeyNameGesture(keyNameGesture: String): Int {
         val sprGestureItem = getSprGestureItemList().find { it.keyNameGesture == keyNameGesture }
-        return sprGestureItem?.animationId ?: R.drawable.sleeping
+        return sprGestureItem?.animationId ?: R.raw.open
     }
 
     fun getNameGestureByKeyName(keyNameGesture: String): String {

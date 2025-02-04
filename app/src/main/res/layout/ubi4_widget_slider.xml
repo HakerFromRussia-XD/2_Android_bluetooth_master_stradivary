@@ -181,7 +181,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="8dp"
                     android:fontFamily="@font/sf_pro_display_light"
-                    android:text="widget slider description"
+                    android:text="close sensitivity"
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"

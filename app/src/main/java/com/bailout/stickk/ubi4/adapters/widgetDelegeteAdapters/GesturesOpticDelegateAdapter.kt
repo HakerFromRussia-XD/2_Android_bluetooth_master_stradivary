@@ -124,6 +124,19 @@ class GesturesOpticDelegateAdapter(
         _collectionGesturesCl = collectionGesturesCl
         _sprGestureGroupCl = sprGestureGroupCl
 
+
+        val savedHideState = main.getInt(PreferenceKeysUBI4.LAST_HIDE_COLLECTION_BTN_STATE, 1)
+        hideFactoryCollectionGestures = savedHideState == 1
+        if (hideFactoryCollectionGestures) {
+            hideCollectionBtn.rotation = 0F
+            collectionFactoryGesturesCl.visibility = View.VISIBLE
+            collectionFactoryGesturesCl.alpha = 1.0f
+        } else {
+            hideCollectionBtn.rotation = 180F
+            collectionFactoryGesturesCl.visibility = View.GONE
+            collectionFactoryGesturesCl.alpha = 0.0f
+        }
+
         // Подписка на BLE-события
         collectActiveFlows()
 
@@ -139,6 +152,20 @@ class GesturesOpticDelegateAdapter(
             }
         }
 
+
+        val savedFilter = main.getInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
+        if (savedFilter == 2) {
+            // Устанавливаем активный фильтр (если это необходимо для UI)
+            MainActivityUBI4.activeFilterFlow.value = 2
+            // Сразу вызываем команду запроса binding group
+            onRequestBindingGroup(
+                deviceAddress,
+                ParameterInfoProvider.getParameterIDByCode(
+                    ParameterDataCodeEnum.PDCE_OPTIC_BINDING_DATA.number,
+                    parameterInfoSet
+                )
+            )
+        }
 
         collectionOfGesturesSelectBtn.setOnClickListener {
             main.saveInt(PreferenceKeysUBI4.LAST_ACTIVE_GESTURE_FILTER, 1)
@@ -156,7 +183,6 @@ class GesturesOpticDelegateAdapter(
             )
         }
 
-        // Скрывание/отображение factory-коллекции
         hideCollectionBtn.setOnClickListener {
             if (hideFactoryCollectionGestures) {
                 hideFactoryCollectionGestures = false
@@ -186,6 +212,8 @@ class GesturesOpticDelegateAdapter(
                         .setDuration(ANIMATION_DURATION.toLong())
                 }, ANIMATION_DURATION.toLong())
             }
+            main.saveInt(PreferenceKeysUBI4.LAST_HIDE_COLLECTION_BTN_STATE, if (hideFactoryCollectionGestures) 1 else 0)
+
         }
 
         gestureCollectionBtns.clear()

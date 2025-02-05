@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:fontFamily="@font/sf_pro_display_light"
-        android:text="@string/collection_of_gestures"
+        android:text="Your text information"
         android:textColor="@color/white"
         android:textSize="12sp"
         app:layout_constraintTop_toTopOf="@id/clGesturesRoot"

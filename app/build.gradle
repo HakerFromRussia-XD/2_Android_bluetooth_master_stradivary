@@ -72,8 +72,8 @@ android {
         unitTests.all {
             useJUnitPlatform()
             reports {
-                junitXml.enabled = true
-                html.enabled = false
+//                junitXml.enabled = true
+//                html.enabled = false
             }
         }
     }

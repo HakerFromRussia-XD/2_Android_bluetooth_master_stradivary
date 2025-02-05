@@ -44,6 +44,8 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidge
 import com.bailout.stickk.ubi4.data.widget.endStructures.OpticStartLearningWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.ThresholdParameterWidgetEStruct
@@ -657,6 +659,11 @@ class BLEParser(main: AppCompatActivity) {
                         opticParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
                         addToListWidgets(opticParameterWidgetEStruct,opticParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
+                    ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {
+                        val spinnerParameterWidgetEStruct = Json.decodeFromString<SpinnerParameterWidgetEStruct>("\"${receiveDataStringForParse}\"")
+                        spinnerParameterWidgetEStruct.baseParameterWidgetEStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset))
+                        addToListWidgets(spinnerParameterWidgetEStruct,spinnerParameterWidgetEStruct.baseParameterWidgetEStruct,parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset)
+                    }
                 }
             }
             ParameterWidgetLabelType.PWLTE_STRING_LABEL.number.toInt() -> {
@@ -687,7 +694,13 @@ class BLEParser(main: AppCompatActivity) {
                         plotParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset))
                         addToListWidgets(plotParameterWidgetSStruct, plotParameterWidgetSStruct.baseParameterWidgetSStruct, parameterID, dataCode, deviceAddress, baseParameterWidgetStruct.dataOffset)
                     }
-                    ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { System.err.println("parseWidgets SPINBOX") }
+                    ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> {
+                        System.err.println("parseWidgets SPINBOX")
+                        val spinnerParameterWidgetSStruct = Json.decodeFromString<SpinnerParameterWidgetSStruct>("\"${receiveDataStringForParse}\"")
+                        spinnerParameterWidgetSStruct.baseParameterWidgetSStruct.baseParameterWidgetStruct.parameterInfoSet.add(ParameterInfo(parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset))
+                        addToListWidgets(spinnerParameterWidgetSStruct,spinnerParameterWidgetSStruct.baseParameterWidgetSStruct,parameterID,dataCode,deviceAddress,baseParameterWidgetStruct.dataOffset)
+
+                    }
                     ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets EMG_GESTURE_CHANGE_SETTINGS") }
                     ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> { System.err.println("parseWidgets GESTURE_SETTINGS") }
                     ParameterWidgetCode.PWCE_CALIB_STATUS.number.toInt() -> { System.err.println("parseWidgets CALIB_STATUS") }

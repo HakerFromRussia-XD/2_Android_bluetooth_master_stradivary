@@ -4,7 +4,6 @@ import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.os.Handler
-import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Pair
 import android.view.View
@@ -395,10 +394,10 @@ class GesturesOpticDelegateAdapter(
 
     private fun setActiveGesture(activeGesture: View?) {
         gestureCollectionBtns.forEach { btn ->
-            btn.first.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray)
+            btn.first.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_outside)
         }
         gestureCustomBtns.forEach { btn ->
-            btn.first.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray)
+            btn.first.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_outside)
         }
         activeGesture?.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_active)
     }

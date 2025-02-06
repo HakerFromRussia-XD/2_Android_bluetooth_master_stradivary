@@ -116,7 +116,6 @@ class SliderDelegateAdapter(
             updateSliderProgress(sliderIndex = 0, step = +1, indexWidgetSlider = indexWidgetSlider)
         }
 
-        // Логика для второго слайдера
         minusBtnRipple2.setOnClickListener {
             updateSliderProgress(sliderIndex = 1, step = -1, indexWidgetSlider = indexWidgetSlider)
         }

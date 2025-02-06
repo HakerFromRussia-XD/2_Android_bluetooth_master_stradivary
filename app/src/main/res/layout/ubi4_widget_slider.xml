@@ -16,7 +16,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
-        android:background="@drawable/ubi4_view_with_corners_back"
+        android:background="@drawable/ubi4_view_with_corners_back_inside"
         android:elevation="0dp"
         app:cardUseCompatPadding="true"
         app:layout_constraintTop_toTopOf="parent"
@@ -72,7 +72,7 @@
                     android:id="@+id/minusBtnBackground"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/ubi4_view_with_corners_gray"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside"
                     android:elevation="3dp" />
 
                 <TextView
@@ -132,7 +132,7 @@
                     android:id="@+id/plusBtnBackground"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/ubi4_view_with_corners_gray"
+                    android:background="@drawable/ubi4_view_with_corners_gray_outside"
                     android:elevation="3dp" />
 
                 <TextView
@@ -212,7 +212,7 @@
                         android:id="@+id/minusBtnBackground2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/ubi4_view_with_corners_gray"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
                         android:elevation="3dp" />
 
                     <TextView
@@ -269,7 +269,7 @@
                         android:id="@+id/plusBtnBackground2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/ubi4_view_with_corners_gray"
+                        android:background="@drawable/ubi4_view_with_corners_gray_outside"
                         android:elevation="3dp" />
 
                     <TextView

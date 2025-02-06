@@ -11,18 +11,16 @@ class SpinnerParameterWidgetEStructTest {
     fun `test spinner parameter widget E deserialization`() {
 
 
-        val input = "\"48656C6C6F0A576F726C640A35\""
+        val baseDummy = "0".repeat(18)
+        val dataPart = "350A48656C6C6F0A576F726C64"
+        val input = "\"${baseDummy + dataPart}\""
         val json = Json { ignoreUnknownKeys = true }
         val result = json.decodeFromString<SpinnerParameterWidgetEStruct>(input)
-        println("result: $result")
-        Log.d("TestSpinnerParameter", "result: $result")
-
         // Проверяем, что список элементов соответствует ожиданиям
-        assertEquals(listOf("Hello", "World"), result.spinnerItems)
+        assertEquals(listOf("Hello", "World"), result.dataSpinnerParameterWidgetEStruct.spinnerItems)
         // Проверяем, что выбранный индекс равен 5
-        assertEquals(5, result.selectedIndex)
+        assertEquals(5, result.dataSpinnerParameterWidgetEStruct.selectedIndex)
     }
-
 
 
 }

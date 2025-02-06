@@ -12,7 +12,7 @@
         android:id="@+id/gestureSprCollection1Btn"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/ubi4_view_with_corners_gray"
+        android:background="@drawable/ubi4_view_with_corners_gray_outside"
         android:elevation="3dp"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintEnd_toEndOf="parent"

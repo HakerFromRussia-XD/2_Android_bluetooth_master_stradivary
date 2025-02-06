@@ -15,7 +15,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:orientation="horizontal"
-        android:background="@drawable/ubi4_view_with_corners_gray"
+        android:background="@drawable/ubi4_view_with_corners_gray_outside"
         android:elevation="3dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -12,6 +12,7 @@ data class SliderItem(val title: String, val widget: Any)
 data class SwitchItem(val title: String, val widget: Any)
 data class TrainingGestureItem(val title: String, val widget: Any)
 data class FileItem(val name: String, val file: File, val number: Int, val timestamp: String = "")
+data class SpinnerItem(val title: String, val widget: Any)
 
 // dialogs
 data class DialogCollectionGestureItem(val gesture: Gesture, var check: Boolean = false)

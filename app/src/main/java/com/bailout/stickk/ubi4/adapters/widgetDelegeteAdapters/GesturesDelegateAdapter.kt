@@ -226,8 +226,8 @@ class GesturesDelegateAdapter(
         gestureFlowCollect()
     }
     private fun setActiveGesture(gestureBtn: View) {
-        gestureCollectionBtns.forEach { it.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray) }
-        gestureCastomBtns.forEach { it.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray) }
+        gestureCollectionBtns.forEach { it.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_outside) }
+        gestureCastomBtns.forEach { it.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_outside) }
         gestureBtn.setBackgroundResource(R.drawable.ubi4_view_with_corners_gray_active)
     }
     private fun gestureFlowCollect() {

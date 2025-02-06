@@ -24,6 +24,7 @@ import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.GesturesOpticDele
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.OneButtonDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.PlotDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SliderDelegateAdapter
+import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SpinnerDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.SwitcherDelegateAdapter
 import com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters.TrainingFragmentDelegateAdapter
 import com.bailout.stickk.ubi4.ble.BLECommands
@@ -138,6 +139,12 @@ abstract class BaseWidgetsFragment : Fragment() {
             SwitcherDelegateAdapter(
                 onSwitchClick = { addressDevice, parameterID, switchState ->
                     sendSwitcherState(addressDevice, parameterID, switchState)
+                },
+                onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
+            ),
+            SpinnerDelegateAdapter(
+                onSpinnerItemSelected = { addressDevice, parameterID, newIndex ->
+                    Log.d("SpinnerDelegate", "Selected index $newIndex for device $addressDevice, param $parameterID")
                 },
                 onDestroyParent = { onDestroyParent -> onDestroyParentCallbacks.add(onDestroyParent) }
             ),

@@ -15,11 +15,13 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/ubi4_view_with_corners_gray"
+        android:background="@drawable/ubi4_view_with_corners_back_outside"
         android:elevation="3dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,7 +33,7 @@
         app:layout_constraintGuide_percent="0.5"/>
 
     <TextView
-        android:id="@+id/tvCollectionGestures"
+        android:id="@+id/spinnerTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:elevation="4dp"
@@ -39,17 +41,18 @@
         android:text="Your text information"
         android:textColor="@color/white"
         android:textSize="12sp"
+        android:layout_marginStart="8dp"
         app:layout_constraintTop_toTopOf="@id/clGesturesRoot"
         app:layout_constraintBottom_toBottomOf="@id/clGesturesRoot"
         app:layout_constraintStart_toStartOf="@id/clGesturesRoot"
-        app:layout_constraintEnd_toStartOf="@id/guidelineCenter" />
+       />
 
     <com.skydoves.powerspinner.PowerSpinnerView
-        android:id="@+id/psvGestures"
+        android:id="@+id/psvGesturesSpinner"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_margin="2dp"
-        android:background="@drawable/ubi4_view_with_corners_back"
+        android:layout_height="40dp"
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/ubi4_view_with_corners_gray_inside"
         android:elevation="5dp"
 
         app:layout_constraintTop_toTopOf="@id/clGesturesRoot"
@@ -60,10 +63,14 @@
         app:spinner_arrow_show="true"
         app:spinner_divider_show="true"
         app:spinner_divider_size="1dp"
-        app:spinner_item_array="@array/gesture_ranges"
+        app:spinner_popup_bottom_padding="2dp"
+        app:spinner_popup_start_padding="10dp"
+        app:spinner_popup_end_padding="10dp"
+        app:spinner_item_array="@array/gesture_loop"
         app:spinner_item_height="42dp"
+        app:spinner_divider_color="@color/ubi4_gray_border"
         app:spinner_popup_animation="dropdown"
-        app:spinner_popup_background="@drawable/ubi4_view_with_corners_gray"
+        app:spinner_popup_background="@drawable/ubi4_view_with_corners_gray_outside"
         app:spinner_popup_height="176dp"
         app:spinner_popup_width="220dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

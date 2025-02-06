@@ -212,6 +212,7 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         canSendFlag = false
         bindingGroupGestures = arrayListOf()
         activeFilterFlow = MutableStateFlow(1)
+        spinnerFlow = MutableSharedFlow()
     }
 
     // сохранение и загрузка данных
@@ -308,6 +309,8 @@ class MainActivityUBI4 : BaseActivity<MainPresenter, MainActivityView>(), Naviga
         var switcherFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var thresholdFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
         var activeGestureFlow  by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+        var spinnerFlow by Delegates.notNull<MutableSharedFlow<ParameterRef>>()
+
 
         var activeFilterFlow by Delegates.notNull<MutableStateFlow<Int>>()
 

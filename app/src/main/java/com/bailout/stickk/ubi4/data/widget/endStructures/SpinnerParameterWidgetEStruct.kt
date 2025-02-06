@@ -1,9 +1,6 @@
 package com.bailout.stickk.ubi4.data.widget.endStructures
 
-import android.util.Log
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStruct
-import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.utility.EncodeByteToHex.Companion.decodeHex
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -17,7 +14,7 @@ import kotlinx.serialization.json.Json
 @Serializable(with = SpinnerParameterWidgetESerializer::class)
 data class SpinnerParameterWidgetEStruct(
     val baseParameterWidgetEStruct: BaseParameterWidgetEStruct = BaseParameterWidgetEStruct(),
-    val dataSpinnerParameterWidgetEStruct : DataSpinnerParameterWidgetEStruct = DataSpinnerParameterWidgetEStruct()
+    val dataSpinnerParameterWidgetStruct : DataSpinnerParameterWidgetStruct = DataSpinnerParameterWidgetStruct()
 )
 object SpinnerParameterWidgetESerializer : KSerializer<SpinnerParameterWidgetEStruct> {
     override val descriptor: SerialDescriptor =
@@ -33,13 +30,13 @@ object SpinnerParameterWidgetESerializer : KSerializer<SpinnerParameterWidgetESt
         val baseParameterWidgetEStruct: BaseParameterWidgetEStruct =
             Json.decodeFromString("\"$basePart\"")
 
-        val dataSpinnerParameterWidgetEStruct: DataSpinnerParameterWidgetEStruct =
+        val dataSpinnerParameterWidgetStruct: DataSpinnerParameterWidgetStruct =
             Json.decodeFromString("\"$dataPart\"")
 
 
         return SpinnerParameterWidgetEStruct(
             baseParameterWidgetEStruct = baseParameterWidgetEStruct,
-            dataSpinnerParameterWidgetEStruct = dataSpinnerParameterWidgetEStruct
+            dataSpinnerParameterWidgetStruct = dataSpinnerParameterWidgetStruct
         )
 
     }
@@ -49,16 +46,16 @@ object SpinnerParameterWidgetESerializer : KSerializer<SpinnerParameterWidgetESt
     }
 }
 
-@Serializable(with = DataSpinnerParameterWidgetESerializer::class)
-data class DataSpinnerParameterWidgetEStruct(
+@Serializable(with = DataSpinnerParameterWidgetSerializer::class)
+data class DataSpinnerParameterWidgetStruct(
     val spinnerItems: List<String> = listOf(),
     val selectedIndex: Int = 0,
 )
-object DataSpinnerParameterWidgetESerializer : KSerializer<DataSpinnerParameterWidgetEStruct> {
+object DataSpinnerParameterWidgetSerializer : KSerializer<DataSpinnerParameterWidgetStruct> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("SpinnerParameterWidgetSSerializer", PrimitiveKind.STRING)
 
-    override fun deserialize(decoder: Decoder): DataSpinnerParameterWidgetEStruct {
+    override fun deserialize(decoder: Decoder): DataSpinnerParameterWidgetStruct {
         val inputString = decoder.decodeString()
         val rawItems = inputString.split("0A")
         val cleanedItems = rawItems.map { it.trimEnd('0') }
@@ -68,13 +65,13 @@ object DataSpinnerParameterWidgetESerializer : KSerializer<DataSpinnerParameterW
 
         val spinnerItems = cleanedItems.drop(1).map { it.decodeHex() }
 
-        return DataSpinnerParameterWidgetEStruct(
+        return DataSpinnerParameterWidgetStruct(
             spinnerItems = spinnerItems,
             selectedIndex = selectedIndex
         )
     }
 
-    override fun serialize(encoder: Encoder, value: DataSpinnerParameterWidgetEStruct) {
+    override fun serialize(encoder: Encoder, value: DataSpinnerParameterWidgetStruct) {
         encoder.encodeString("")
     }
 

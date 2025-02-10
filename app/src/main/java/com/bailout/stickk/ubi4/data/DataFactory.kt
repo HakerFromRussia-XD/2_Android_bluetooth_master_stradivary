@@ -10,6 +10,7 @@ import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetEStr
 import com.bailout.stickk.ubi4.data.widget.endStructures.PlotParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SliderParameterWidgetSStruct
+import com.bailout.stickk.ubi4.data.widget.endStructures.SpinnerParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetEStruct
@@ -17,8 +18,10 @@ import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetSStr
 import com.bailout.stickk.ubi4.data.widget.subStructures.BaseParameterWidgetStruct
 import com.bailout.stickk.ubi4.models.GesturesItem
 import com.bailout.stickk.ubi4.models.OneButtonItem
+import com.bailout.stickk.ubi4.models.ParameterInfo
 import com.bailout.stickk.ubi4.models.PlotItem
 import com.bailout.stickk.ubi4.models.SliderItem
+import com.bailout.stickk.ubi4.models.SpinnerItem
 import com.bailout.stickk.ubi4.models.SwitchItem
 import com.bailout.stickk.ubi4.models.TrainingGestureItem
 import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
@@ -39,8 +42,10 @@ internal class DataFactory {
         val objectSwitchE: Any = SwitchParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
         val objectSwitchS: Any = SwitchParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
         val objectSliderE: Any = SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectSliderEMulti: Any = SliderParameterWidgetEStruct(BaseParameterWidgetEStruct(baseWidget))
         val objectSliderS: Any = SliderParameterWidgetSStruct(BaseParameterWidgetSStruct(BaseParameterWidgetStruct()))
         val objectTrainingE: Any = OpticStartLearningWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
+        val objectsSpinnerE: Any = SpinnerParameterWidgetEStruct(BaseParameterWidgetEStruct(BaseParameterWidgetStruct()))
 
 
 
@@ -54,17 +59,30 @@ internal class DataFactory {
 //        addElementS(2, "START LERNING", objects, objectSwitchS)
 //        addElement(5, 10, objects, objectPlotE)
 //        addElementS(5, "3", objects, objectPlotS)
-//        addElement(4, 2, objects, objectSliderE)
+        addElement(4, 2, objects, objectSliderE)
+        addElement(4, 2, objects, objectSliderE)
+        addElement(4, 2, objects, objectSliderE)
+        addElement(4, 2, objects, objectSliderE)
+        addElement(4, 2, objects, objectSliderE)
+        addElement(4, 2, objects, objectSliderEMulti)
 //        addElementS(4, "Описание слайдера", objects, objectSliderS)
-        addElement(15, 1, objects, objectTrainingE)
 //        addElement(15, 1, objects, objectTrainingE)
 //        addElement(15, 1, objects, objectTrainingE)
+//        addElement(15, 1, objects, objectTrainingE)
+//        addElement(6, 1, objects, objectsSpinnerE)
 
         return objects
     }
     fun fakeDataClear(): List<Any> {
         val objects = ArrayList<Any>()
         return objects
+    }
+
+    private val baseWidget = BaseParameterWidgetStruct().apply {
+        parameterInfoSet = mutableSetOf(
+            ParameterInfo(8, 2, 0, 2),
+            ParameterInfo(6, 16, 1, 16)
+        )
     }
 
     fun prepareData(display: Int): List<Any> {
@@ -90,6 +108,7 @@ internal class DataFactory {
         listWidgets.forEach {
             System.err.println("DataFactory sorted listWidgets: $it")
         }
+
 
         // компановка элементов для отрисовки на выбраном экране
         val setWidgets: Set<Any> = listWidgets.toSet()
@@ -234,7 +253,7 @@ internal class DataFactory {
                 SliderItem("SLIDER", widget)
             }
             ParameterWidgetCode.PWCE_PLOT.number.toInt() -> { PlotItem("PLOT", widget)  }
-            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
+//            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { OneButtonItem("SPINBOX", "description", widget)  }
             ParameterWidgetCode.PWCE_EMG_GESTURE_CHANGE_SETTINGS.number.toInt() -> { OneButtonItem("EMG_GESTURE_CHANGE_SETTINGS", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURE_SETTINGS.number.toInt() -> {
 //                OneButtonItem("GESTURE_SETTINGS", "description", widget)
@@ -247,6 +266,7 @@ internal class DataFactory {
             ParameterWidgetCode.PWCE_PLOT_AND_2_THRESHOLD.number.toInt() -> { OneButtonItem("PLOT_AND_2_THRESHOLD", "description", widget)  }
             ParameterWidgetCode.PWCE_GESTURES_WINDOW.number.toInt() -> { GesturesItem("GESTURE_SETTINGS", widget) }
             ParameterWidgetCode.PWCE_OPTIC_LEARNING_WIDGET.number.toInt() -> { TrainingGestureItem("labelCode = $labelCode", widget)  }
+            ParameterWidgetCode.PWCE_SPINBOX.number.toInt() -> { SpinnerItem("Test spinner text", widget) }
             else -> { OneButtonItem("Open", "description", widget) }
         }
         widgets.add(item)
@@ -282,6 +302,8 @@ internal class DataFactory {
         }
         widgets.add(item)
     }
+
+
     private fun <T> List<T>.listToArrayList(): ArrayList<T> {
         val array: ArrayList<T> = ArrayList()
         for (index in this) array.add(index)

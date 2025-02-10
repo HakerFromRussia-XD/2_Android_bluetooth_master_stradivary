@@ -24,7 +24,7 @@
     <TextView
         android:id="@+id/trainingSubTitleTv"
         android:layout_width="311dp"
-        android:layout_height="44dp"
+        android:layout_height="wrap_content"
         android:text="@string/follow_the_gestures_on_the_screen_and_keep_track_of_the_time"
         android:layout_marginTop="12dp"
         android:textSize="15sp"
@@ -80,22 +80,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <TextView
-        android:id="@+id/percentLearningTv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:fontFamily="@font/sf_pro_text_bold"
-        android:gravity="center"
-        android:text="100 %"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/trainingBtn"
-        app:layout_constraintTop_toBottomOf="@+id/animationContainer"
-        app:layout_constraintStart_toStartOf="@+id/trainingBtn"
-        tools:layout_editor_absoluteY="542dp" />
-
     <View
         android:id="@+id/trainingBtn"
         android:layout_width="0dp"
@@ -115,7 +99,7 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:fontFamily="@font/sf_pro_text_bold"
-        android:text="@string/training"
+        android:text="@string/data_collection"
         android:textColor="@color/ubi4_dark_back"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="@id/trainingBtn"
@@ -150,5 +134,21 @@
         app:layout_constraintEnd_toEndOf="@id/showFileBtn"
         app:layout_constraintStart_toStartOf="@id/showFileBtn"
         app:layout_constraintTop_toTopOf="@id/showFileBtn"/>
+
+    <TextView
+        android:id="@+id/percentLearningTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fontFamily="@font/sf_pro_text_bold"
+        android:gravity="center"
+        android:text="100 %"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/animationContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/trainingSubTitleTv" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

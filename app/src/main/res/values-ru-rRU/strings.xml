@@ -622,6 +622,7 @@
     <string name="remaining_gestures_count_placeholder">Осталось жестов: 0</string>
     <string name="loading_error">Ошибка загрузки</string>
     <string name="the_file_was_not_successfully_downloaded">Файл не был успешно загружен на протез. Повторите попытку.</string>
+    <string name="data_collection">Сбор данных</string>
 
 
     <string-array name="numbers">

@@ -2,14 +2,16 @@ package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
 import android.os.CountDownTimer
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.Switch
 import com.bailout.stickk.R
 import com.bailout.stickk.databinding.Ubi4WidgetSwitcherBinding
+import com.bailout.stickk.ubi4.ble.BLECommands
 import com.bailout.stickk.ubi4.ble.ParameterProvider
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.MAIN_CHANNEL
+import com.bailout.stickk.ubi4.ble.SampleGattAttributes.WRITE
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetEStruct
 import com.bailout.stickk.ubi4.data.widget.endStructures.SwitchParameterWidgetSStruct
 import com.bailout.stickk.ubi4.models.ParameterInfo
@@ -18,6 +20,7 @@ import com.bailout.stickk.ubi4.rx.RxUpdateMainEventUbi4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -27,6 +30,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 
 class SwitcherDelegateAdapter(
     val onSwitchClick: (addressDevice: Int, parameterID: Int, switchState: Boolean) -> Unit,
@@ -41,6 +45,7 @@ class SwitcherDelegateAdapter(
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var widgetSwitchInfo: ArrayList<WidgetSwitchInfo> = ArrayList()
+    private val responseReceived = AtomicBoolean(false)
 
     private lateinit var _indicatorOpticStreamIv: ImageView
     private var timer: CountDownTimer? = null
@@ -87,12 +92,28 @@ class SwitcherDelegateAdapter(
 
         widgetSwitchInfo.add(WidgetSwitchInfo(addressDevice, parameterID, switchChecked, widgetSwitchSc))
 
-        Handler().postDelayed({
+        responseReceived.set(false)
+        RetryUtils.sendRequestWithRetry(
+            request = {
+                Log.d("SwitcherRequest", "addressDevice = $addressDevice parameterID = $parameterID")
+                main.bleCommandWithQueue(
+                    BLECommands.requestSwitcher(addressDevice, parameterID),
+                    MAIN_CHANNEL,
+                    WRITE
+                ){}
+            },
+            isResponseReceived = {
+                responseReceived.get()
+            },
+            maxRetries = 5,
+            delayMillis = 1000L
+        )
+//        Handler().postDelayed({
 //            main.bleCommandWithQueue(
 //                BLECommands.requestSwitcher(addressDevice, parameterID),
 //                MAIN_CHANNEL,
 //                SampleGattAttributes.WRITE)
-        }, 500)
+//        }, 500)
 
         switchCollect()
     }
@@ -121,6 +142,7 @@ class SwitcherDelegateAdapter(
                         )].isChecked = castUnsignedCharToInt(parameter.data.substring(0, 2).toInt(16).toByte()) != 0
                         widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].widgetSwitch.isChecked = widgetSwitchInfo[getIndexWidgetSwitch(parameterRef.addressDevice, parameterRef.parameterID)].isChecked
                     }
+                    responseReceived.set(true)
                 }
             }
         }

@@ -1,7 +1,6 @@
 package com.bailout.stickk.ubi4.adapters.widgetDelegeteAdapters
 
 import android.annotation.SuppressLint
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
@@ -20,6 +19,7 @@ import com.bailout.stickk.ubi4.persistence.preference.PreferenceKeysUBI4
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.main
 import com.bailout.stickk.ubi4.ui.main.MainActivityUBI4.Companion.slidersFlow
 import com.bailout.stickk.ubi4.utility.CastToUnsignedInt.Companion.castUnsignedCharToInt
+import com.bailout.stickk.ubi4.utility.RetryUtils
 import com.livermor.delegateadapter.delegate.ViewBindingDelegateAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +27,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 
 class SliderDelegateAdapter(
     val onSetProgress: (addressDevice: Int, parameterID: Int, progress: ArrayList<Int>) -> Unit,
@@ -36,6 +37,8 @@ class SliderDelegateAdapter(
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var widgetSlidersInfo: ArrayList<WidgetSliderInfo> = ArrayList()
+
+    private val responseReceived = AtomicBoolean(false)
 
     @SuppressLint("ClickableViewAccessibility")
     override fun Ubi4WidgetSliderBinding.onBind(item: SliderItem) {
@@ -47,7 +50,8 @@ class SliderDelegateAdapter(
         var minProgress = 0
         var maxProgress = 0
         var widgetPosition = 0
-        widgetSliderTitleTv.text = item.title
+
+
 
         when (item.widget) {
             is SliderParameterWidgetEStruct -> {
@@ -75,10 +79,30 @@ class SliderDelegateAdapter(
                 Log.d("addressDevice" , "S struct addressDevice = $addressDevice   ${item.widget.baseParameterWidgetSStruct.baseParameterWidgetStruct.deviceId}")
             }
         }
-        widgetSlidersInfo.add(WidgetSliderInfo(addressDevice, parameterID, dataOffset, minProgress, maxProgress, arrayListOf(0, 0), arrayListOf(widgetSliderSb, widgetSlider2Sb), arrayListOf(widgetSliderNumTv,widgetSliderNum2Tv), widgetPosition))
+        val currentSliderInfo = WidgetSliderInfo(
+            addressDevice = addressDevice,
+            parameterID = parameterID,
+            dataOffset = dataOffset,
+            minProgress = minProgress,
+            maxProgress = maxProgress,
+            progress = arrayListOf(0, 0),
+            widgetSlidersSb = arrayListOf(widgetSliderSb, widgetSlider2Sb),
+            widgetSliderNumTv = arrayListOf(widgetSliderNumTv, widgetSliderNum2Tv),
+            widgetPosition = widgetPosition
+        )
+//        val currentIndex = widgetSlidersInfo.size
+        widgetSlidersInfo.add(currentSliderInfo)
         widgetSlidersInfo.sortBy { it.widgetPosition } // сортировка важна для соответствия порядка виджетов на экране и в этом списке
+        val finalIndex = widgetSlidersInfo.indexOf(currentSliderInfo)
+
+//        widgetSlidersInfo.add(WidgetSliderInfo(addressDevice, parameterID, dataOffset, minProgress, maxProgress, arrayListOf(0, 0), arrayListOf(widgetSliderSb, widgetSlider2Sb), arrayListOf(widgetSliderNumTv,widgetSliderNum2Tv), widgetPosition))
+        widgetSliderSb.progress = currentSliderInfo.progress[0]
+        widgetSliderNumTv.text = currentSliderInfo.progress[0].toString()
+        widgetSliderTitleTv.text = item.title
+
         sliderCollect()
-        setUI(ParameterRef(addressDevice[0], parameterID[0], dataCode[0]))
+//        setUI(ParameterRef(addressDevice[0], parameterID[0], dataCode[0]))
+//
         val indexWidgetSlider = getIndexWidgetSlider(addressDevice[0], parameterID[0])
 //        val progress: ArrayList<Int> = ArrayList(List(addressDevice.size) { 0 })
         if (addressDevice.size > 1) {
@@ -94,8 +118,8 @@ class SliderDelegateAdapter(
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                widgetSlidersInfo[indexWidgetSlider].progress[0] = seekBar.progress
-                onSetProgress(addressDevice[0], parameterID[0],  widgetSlidersInfo[indexWidgetSlider].progress)
+                widgetSlidersInfo[finalIndex].progress[0] = seekBar.progress
+                onSetProgress(addressDevice[0], parameterID[0],  widgetSlidersInfo[finalIndex].progress)
             }
         })
         widgetSlider2Sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -104,31 +128,49 @@ class SliderDelegateAdapter(
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                widgetSlidersInfo[indexWidgetSlider].progress[1] = seekBar.progress
-                onSetProgress(addressDevice[1], parameterID[1],  widgetSlidersInfo[indexWidgetSlider].progress)
+                widgetSlidersInfo[finalIndex].progress[1] = seekBar.progress
+                onSetProgress(addressDevice[1], parameterID[1],  widgetSlidersInfo[finalIndex].progress)
             }
         })
 
         minusBtnRipple.setOnClickListener {
-            updateSliderProgress(sliderIndex = 0, step = -1, indexWidgetSlider = indexWidgetSlider)
+            updateSliderProgress(sliderIndex = 0, step = -1, indexWidgetSlider = finalIndex)
         }
         plusBtnRipple.setOnClickListener {
-            updateSliderProgress(sliderIndex = 0, step = +1, indexWidgetSlider = indexWidgetSlider)
+            updateSliderProgress(sliderIndex = 0, step = +1, indexWidgetSlider = finalIndex)
         }
 
         minusBtnRipple2.setOnClickListener {
-            updateSliderProgress(sliderIndex = 1, step = -1, indexWidgetSlider = indexWidgetSlider)
+            updateSliderProgress(sliderIndex = 1, step = -1, indexWidgetSlider = finalIndex)
         }
         plusBtnRipple2.setOnClickListener {
-            updateSliderProgress(sliderIndex = 1, step = +1, indexWidgetSlider = indexWidgetSlider)
+            updateSliderProgress(sliderIndex = 1, step = +1, indexWidgetSlider = finalIndex)
         }
 
+        responseReceived.set(false)
 
-        Handler().postDelayed({
-            Log.d("SliderRequest", "addressDevice = $addressDevice parameterID = $parameterID")
-            main.bleCommandWithQueue(BLECommands.requestSlider(addressDevice[0], parameterID[0]), MAIN_CHANNEL, SampleGattAttributes.WRITE){}
+        RetryUtils.sendRequestWithRetry(
+            request = {
+                Log.d("SliderRequest", "addressDevice = $addressDevice parameterID = $parameterID")
+                main.bleCommandWithQueue(
+                    BLECommands.requestSlider(addressDevice[0], parameterID[0]),
+                    MAIN_CHANNEL,
+                    SampleGattAttributes.WRITE
+                ){}
+            },
+            isResponseReceived = {
+                // Просто возвращаем значение нашего флага
+                responseReceived.get()
+            },
+            maxRetries = 5,
+            delayMillis = 1000L
+        )
 
-        }, 500)
+//        Handler().postDelayed({
+//            Log.d("SliderRequest", "addressDevice = $addressDevice parameterID = $parameterID")
+//            main.bleCommandWithQueue(BLECommands.requestSlider(addressDevice[0], parameterID[0]), MAIN_CHANNEL, SampleGattAttributes.WRITE){}
+//
+//        }, 500)
     }
     private fun updateSliderProgress(sliderIndex: Int, step: Int, indexWidgetSlider: Int) {
         val sliderInfo = widgetSlidersInfo[indexWidgetSlider]
@@ -165,7 +207,9 @@ class SliderDelegateAdapter(
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 slidersFlow.collect { parameterRef ->
+                    responseReceived.set(true)
                     setUI(parameterRef)
+
                 }
             }
         }
@@ -197,11 +241,22 @@ class SliderDelegateAdapter(
             }
         }
     }
+//    private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
+//        //TODO не корректно работает фугкция поиска виджета по адресам и айдишникам
+//        widgetSlidersInfo.forEachIndexed { index, widgetSliderInfo ->
+//            if (widgetSliderInfo.addressDevice[0] == addressDevice && widgetSliderInfo.parameterID[0] == parameterID) {
+//                return index
+//            }
+//        }
+//        return -1
+//    }
+
     private fun getIndexWidgetSlider(addressDevice: Int, parameterID: Int): Int {
-        //TODO не корректно работает фугкция поиска виджета по адресам и айдишникам
-        widgetSlidersInfo.forEachIndexed { index, widgetSliderInfo ->
-            if (widgetSliderInfo.addressDevice[0] == addressDevice && widgetSliderInfo.parameterID[0] == parameterID) {
-                return index
+        widgetSlidersInfo.forEachIndexed { index, sliderInfo ->
+            sliderInfo.addressDevice.forEachIndexed { i, dev ->
+                if (dev == addressDevice && sliderInfo.parameterID[i] == parameterID) {
+                    return index
+                }
             }
         }
         return -1

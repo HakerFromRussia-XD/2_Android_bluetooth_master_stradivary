@@ -621,6 +621,7 @@
     <string name="remaining_gestures_count_placeholder">Gestures left: 0</string>
     <string name="loading_error">Loading error</string>
     <string name="the_file_was_not_successfully_downloaded">The file was not successfully downloaded to the prosthesis. Please try again.</string>
+    <string name="data_collection">Data collection</string>
 
 
     <string-array name="numbers">
